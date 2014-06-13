@@ -1,0 +1,205 @@
+#!/usr/local/bin/python
+
+import cgi, copy, datetime, getopt, os, stat, sys, time
+os.environ['PYTHON_EGG_CACHE'] = '/var/tmp'
+if os.getenv('REQUEST_METHOD'): # pragma: no cover
+    import cgitb; cgitb.enable()
+
+import Cookie
+import dbhandler
+import render
+import secure
+import useful
+
+
+class PageInfoFile():
+    def __init__(self, page_id, form_key='', defval='', fields={}, args=''):
+	self.render = self.dbh = None
+	self.page_id = page_id
+	self.args = args # this is for unittest only!
+	self.unittest = bool(args)
+	self.form = self.GetForm()
+	if not self.form:
+	    self.form = {}
+	self.ReadForm(fields)
+	if form_key:
+	    if self.form.get(form_key):
+		if self.form[form_key].startswith(self.page_id + '.'):
+		    self.page_id = self.form[form_key]
+		else:
+		    self.page_id += '.' + self.form[form_key]
+	    elif defval:
+		self.page_id += '.' + defval
+	elif not form_key and 'page' in self.form:
+	    self.page_id = self.form['page']
+	self.page_name = self.page_id[self.page_id.rfind('.') + 1:]
+
+	self.time_start = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
+	self.request_uri = os.environ.get('REQUEST_URI', 'unknown')
+	self.remote_host = os.environ.get('REMOTE_HOST', 'host_unset')
+	self.remote_addr = os.environ.get('REMOTE_ADDR', '127.0.0.1')
+	self.secure = secure.Security()
+
+	self.htdocs = self.secure.docroot
+	self.format_type = 'python'
+
+	self.render = render.Presentation(self.page_id, self.form.get('verbose', 0))
+	self.render.secure = self.secure
+	self.render.Comment('form', self.form)
+	self.rawcookies = self.render.GetCookies()
+	self.id = int(self.rawcookies.get('id', '0'))
+	self.privs = self.rawcookies.get('pr', '')
+	self.render.cookies = self.rawcookies.get('co')
+
+	os.chdir(self.secure.docroot)
+	self.cwd = os.getcwd()
+	self.render.isbeta = self.secure.isbeta
+	self.cgibin = '../cgi-bin'
+	self.render.simple = int(self.form.get("simple", 0))
+
+	self.dbh = dbhandler.dbhandler(self.secure.config, self.id, self.render.verbose)
+	self.dbh.dbi.nowrites = self.unittest
+	res = self.dbh.FetchPage(self.page_id)
+	self.render.SetPageInfo(res)
+	self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_NOT_RELEASED) != 0
+	self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
+
+	if not self.IsAllowed('m', verbose=False) and not self.args:
+	    self.dbh.IncrementCounter(self.page_id)
+	    log_name = datetime.datetime.now().strftime('tb/url%Y%m.log')
+	    try:
+		open(log_name, 'a').write('%s %s %s\n' % (self.time_start, self.remote_addr, self.request_uri))
+	    except:
+		pass
+
+    def FormInt(self, val, defval=0):
+	return useful.FormInt(self.form.get(val), defval)
+
+#    def Update(self, argfile):
+#	self.render.update(argfile)
+
+    def IsAllowed(self, priv, verbose=None):
+	for p in priv:
+	    if p in self.privs:
+		if verbose:
+		    self.render.Comment('IsAllowed', priv, self.privs, 'YES')
+		return True
+	return False
+
+    def Restrict(self, priv): # pragma: no cover
+	if not self.IsAllowed(priv):
+	    print '<meta http-equiv="refresh" content="0;url=..">'
+	    sys.exit(0)
+
+    def Dump(self, verbose=False):
+	if self.render.verbose or verbose:
+	    useful.DumpDictComment('pifile', self.__dict__)
+	    useful.DumpDictComment('pifile.render', self.render.__dict__)
+	    useful.DumpDictComment('pifile.dbh', self.dbh.__dict__)
+
+    def ErrorReport(self):
+	ostr = 'pifile = ' + str(self.__dict__) + '\n'
+	ostr += 'render = ' + self.render.ErrorReport() + '\n'
+	ostr += 'dbh = ' + self.dbh.ErrorReport() + '\n'
+	return ostr
+
+    def FormFind(self, field):
+	keys = list()
+	for key in self.form.keys():
+	    if key == field:
+		keys.append(key)
+	    elif key.startswith(field + '.') and not key.endswith('.x') and not key.endswith('.y'):
+		keys.append(key)
+	return keys
+
+    def ReadForm(self, fields={}):
+	for field in fields:
+	    if not field in self.form:
+		self.form[field] = fields[field]
+	    elif type(fields[field]) == list and type(self.form[field]) != list:
+		self.form[field] = [self.form[field]]
+	return self.form
+
+    def GetForm(self):
+	form = {}
+	if os.environ.has_key('REQUEST_METHOD'):
+	    self.cgiform = cgi.FieldStorage()
+	    for field in self.cgiform.keys():
+		if type(self.cgiform[field]) == list:
+		    form.setdefault(field, [])
+		    for elem in self.cgiform[field]:
+			form[field].append(elem.value)
+		elif field.endswith('.x'):
+		    if field[:-1] + 'y' in self.cgiform:
+			form[field[:-2]] = (self.cgiform[field].value, self.cgiform[field[:-1] + 'y'].value)
+		    form[field] = self.cgiform[field].value
+		elif self.cgiform[field].__dict__.has_key('filename'):
+		    fn = self.cgiform[field].filename
+		    form[field + '.name'] = fn
+		    form[field] = self.cgiform[field].value
+		else:
+		    form[field] = self.cgiform[field].value
+
+	elif self.args: # faking for unit tests
+	    for fl in self.args.split():
+		if '=' in fl:
+		    spl = fl.split('=')
+		    form[spl[0]] = spl[1]
+
+	else: # faking from command line
+	    switches = options = ""
+	    switch = {}
+	    opts = args = []
+	    coptions = switches
+	    if options:
+		coptions += ':'.join(list(options)) + ':'
+
+	    try: # get command line
+		opts, args = getopt.getopt(sys.argv[1:], coptions)
+	    except getopt.GetoptError:
+		return
+
+	    for opt in switches:
+		switch[opt] = False
+	    for opt in options:
+		switch[opt] = []
+
+	    for opt in opts:
+		if opt[0][1] in options:
+		    switch[opt[0][1]] = switch.get(opt[0][1], []) + [opt[1]]
+		else:
+		    switch[opt[0][1]] = not switch.get(opt[0][1], False)
+
+	    for fl in args:
+		if '=' in fl:
+		    spl = fl.split('=')
+		    form[spl[0]] = spl[1]
+
+	return form
+
+    def GetSearch(self, key):
+	obj = self.form.get(key, "").split()
+	nob = []
+	col = ''
+	for w in obj:
+	    if col:
+		col = col + ' ' + w
+		if col[-1] == '"':
+		    nob.append(col[1:-1])
+		    col = ''
+	    elif w[0] == '"' and w[-1] != '"':
+		col = w
+	    else:
+		nob.append(w)
+	if col:
+	    nob.append(col[1:])
+	return nob
+
+    def ShowError(self):
+	import traceback
+	print traceback.format_exc()
+
+#---- -------------------------------------------------------------------
+
+if __name__ == '__main__': # pragma: no cover
+    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

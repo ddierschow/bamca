@@ -1,0 +1,4 @@
+#!/bin/sh
+echo 'Content-Type: image/vnd.microsoft.icon'
+echo ''
+cat ../htdocs/favicon.ico

@@ -1,0 +1,24 @@
+#!/usr/local/bin/python
+
+top = '''import unittest
+
+# this file is auto generated.  do not modify.
+class TestImports(unittest.TestCase):
+    def setUp(self):
+	pass
+
+'''
+fts = '    def testImport%s(self):\n\timport %s\n\n'
+bottom = '''if __name__ == '__main__': # pragma: no cover
+    unittest.main()
+'''
+
+if __name__ == '__main__':
+    import glob
+
+    f = glob.glob('*.py')
+    open('bamcatests/test0.py', 'w').write(top + ''.join(map(lambda x: fts % (x[:-3].capitalize(), x[:-3]), glob.glob('*.py'))) + bottom)
+
+    import unittest
+    print "Running unittests."
+    ret = unittest.TextTestRunner(verbosity=0, buffer=1).run(unittest.TestLoader().discover('.'))
