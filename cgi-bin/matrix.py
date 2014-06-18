@@ -207,7 +207,7 @@ class MatrixFile:
 	if ent['mod_id']:
 	    ent['href'] = "single.cgi?dir=%(pdir)s&pic=%(link)s&ref=%(vs.ref_id)s&sub=%(vs.sub_id)s&id=%(mod_id)s" % ent
 	else:
-	    img = pif.render.FormatImageOptional(ent['link'])
+	    img = pif.render.FindImageFile(ent['link'])
 	    if img:
 		ent['href'] = '/' + img
 	    #FormatImageOptional([ent['link']])
