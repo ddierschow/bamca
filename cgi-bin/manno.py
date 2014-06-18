@@ -667,6 +667,19 @@ def Main(pif):
 		(pif.form.get('selection', ''), pif.form.get('range', ''), pif.form.get('start', ''), pif.form.get('end', '')))
     print pif.render.FormatTail()
 
+#---- play ----------------------------------
+
+def PlayMain(pif):
+    pif.render.PrintHtml()
+    print pif.render.FormatHead()
+    import manno
+    manf = manno.MannoFile(pif)
+    manf.SetArguments(pif)
+    llineup = manf.Run(pif)
+    llineup['section'][0]['range'][0]['entry'][0].update({'rowspan':2, 'colspan':2})
+    print pif.render.FormatLineup(llineup)
+    print pif.render.FormatTail()
+
 #---- compare -------------------------------
 
 
