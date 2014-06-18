@@ -1377,7 +1377,7 @@ def PicShow(pif, tdir, fn, desc=''):
 
 
 cols = 6
-def ShowList(title, tdir, fl):
+def ShowList(pif, title, tdir, fl):
     if not fl:
 	return
     clen = (len(fl) - 1) / cols + 1
@@ -1406,13 +1406,13 @@ def ShowDir(pif, tdir):
 
     dl, gl, ol, sl, xl = GetDir(tdir)
 
-    #ShowList("Directories", tdir, dl)
+    #ShowList(pif, "Directories", tdir, dl)
 
     if gl:
-	ShowList("Graphics", tdir, gl)
+	ShowList(pif, "Graphics", tdir, gl)
 
-    #ShowList("Data Files", tdir, sl)
-    #ShowList("Other Files", tdir, ol)
+    #ShowList(pif, "Data Files", tdir, sl)
+    #ShowList(pif, "Other Files", tdir, ol)
 
 
 def RestrictedUpload(pif):
@@ -1980,6 +1980,334 @@ def ImageStar(pif, image_path, pic_id='', halfstar=False):
     if halfstar:
 	return pif.render.FormatImageArt('starhalf.gif')
     return pif.render.FormatImageArt('star.gif')
+
+# -- bits
+
+def BitsMain(pif):
+    years = {
+	'1998' : { 'd' : config.imgdirMtLaurel, 'p' : '1998', 'r' : 'ur' },
+	'1999' : { 'd' : config.imgdirMtLaurel, 'p' : '1999', 'r' : 'urd' },
+	'2000' : { 'd' : config.imgdirMtLaurel, 'p' : '2000', 'r' : 'urdab' },
+	'2002' : { 'd' : config.imgdirMtLaurel, 'p' : '2002', 'r' : 'ur' },
+	'2003' : { 'd' : config.imgdirMtLaurel, 'p' : '2003', 'r' : 'ur' },
+	'2004' : { 'd' : config.imgdirMtLaurel, 'p' : '2004', 'r' : 'ur' },
+	'2008' : { 'd' : config.imgdirMattel, 'p' : '2008', 'r' : 'u' },
+	'2009' : { 'd' : config.imgdirMattel, 'p' : '2009', 'r' : 'u' },
+    }
+
+    colors = { True : "#CCCCCC", False : "#FFFFFF" }
+
+    pif.render.PrintHtml()
+
+    print "<table>"
+
+    yearlist = years.keys()
+    yearlist.sort()
+
+    c = False
+    print "<tr>"
+    print "<th></th>"
+    for y in yearlist:
+	print '<th bgcolor="%s" colspan=%d>%s</th>' % ( colors[c], len(years[y]['r']), y )
+	c = not c
+    print "</tr>"
+
+    c = False
+    print "<tr>"
+    print "<th></th>"
+    for y in yearlist:
+	for r in years[y]['r']:
+	    print '<th bgcolor="%s">%s</th>' % ( colors[c], r.upper() )
+	c = not c
+    print "</tr>"
+
+    for a in range(1,21):
+
+	c = False
+	print "<tr>"
+	print '<th bgcolor="%s">%d</th>' % ( colors[True], a )
+
+	for y in yearlist:
+	    for r in years[y]['r']:
+
+		fmt = "%s/%s%ss%02d.gif"
+		f = fmt % ( years[y]['d'], years[y]['p'], r, a )
+
+		cstr = '<th bgcolor="%s">' % ( colors[c] )
+		if os.path.exists("../htdocs/"+f):
+		    cstr += '<img src="%s">' % ( "../" + f )
+		else:
+		    cstr += "&nbsp;"
+		print cstr + '</th>'
+	    c = not c
+	print "</tr>"
+    print "</table>"
+
+
+# -- library
+
+def ShowLibraryList(pif, title, tdir, fl):
+    cols = pif.FormInt("c", 5)
+    if not fl:
+	return
+    clen = (len(fl) - 1) / cols + 1
+    ffl = map(lambda x: fl[(x*clen):((x+1)*clen)], range(0, cols))
+    print '<h4>%s (%d)</h4>' % (title, len(fl))
+    print "<table width=100%><tr valign=top>"
+    for cl in ffl:
+	print "<td width=%d%%>" % (100/cols)
+	for f in cl:
+	    root,ext = useful.RootExt(f.strip())
+	    fst = os.stat(tdir + '/' + f)
+	    perms = fst[stat.ST_MODE]
+	    if f[0] == '.':
+		print '<i>%s</i><br>' % f
+	    elif stat.S_ISDIR(perms):
+		print '<a href="/cgi-bin/traverse.cgi?d=%s">%s</a><br>' % (tdir + '/' + f, f)
+	    elif f[-4:] == '.dat':
+		#print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
+		print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
+	    elif (perms & 5) == 0:
+		print '%s<br>' % f
+	    elif ext in itypes:
+		#print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
+		print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
+	    else:
+		print '<a href="../%s">%s</a><br>' % (tdir + '/' + f, f)
+	print "</td>"
+    print "</tr></table>"
+    print '<br><hr>'
+
+
+def ShowLibraryGraf(title, tdir, fl):
+    if not fl:
+	return
+
+    print '<h4>%s (%d)</h4>' % (title, len(fl))
+    fd = {}
+    for f in fl:
+	root, ext = useful.RootExt(f)
+	if root[-2] == '_' and root[-1] in mbdata.image_size_names:
+	    root = root[:-2]
+	fd.setdefault(root, [])
+	fd[root].append(f)
+
+    keys = fd.keys()
+    keys.sort()
+    print '<table>'
+    for root in keys:
+	fd[root].sort()
+	print '<tr><td>%s</td><td><img src="thumber.cgi?d=%s&f=%s"></td><td>' % (root, tdir, fd[root][0])
+	for f in fd[root]:
+	    perms = os.stat(tdir + '/' + f)[stat.ST_MODE]
+	    if (perms & 4) == 0:
+		print '%s<br>' % f
+	    else:
+		#print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s"><img src="../%s" border=0>%s</a><br>' % (tdir, f, tdir + '/' + f, f)
+		print '<a href="imawidget.cgi?d=%s&f=%s&cy=0">%s' % (tdir, f, f)
+	print '</td></tr>'
+	sys.stdout.flush()
+    print '</table>'
+    print '<br><hr>'
+
+
+def ShowLibraryDir(pif, tdir, grafs=0):
+    print '<hr>'
+
+    dl, gl, ol, sl, xl = GetDir(tdir)
+
+    ShowLibraryList(pif, "Directories", tdir, dl)
+    if grafs:
+	ShowLibraryGraf("Graphics", tdir, gl)
+    else:
+	ShowLibraryList(pif, "Graphics", tdir, gl)
+    ShowLibraryList(pif, "Data Files", tdir, sl)
+    ShowLibraryList(pif, "Executable Files", tdir, xl)
+    ShowLibraryList(pif, "Other Files", tdir, ol)
+
+    if gl:
+	print '<form action="traverse.cgi">'
+	print '<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tdir, pif.render.FormatButton('show all pictures'))
+	print 'Pattern <input type="text" name="p">'
+	print '<input type="hidden" name="d" value="%s">' % tdir
+	print pif.render.FormatButtonInput()
+	print '</form>'
+
+    print '<a href="upload.cgi?d=%s&m=%s">%s</a>' % (tdir, tdir[7:], pif.render.FormatButton('upload'))
+
+
+
+imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="checkbox" name="mv" value="%(f)s %(b)s"> mv'''
+imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
+<input type="text" name="ren.%(f)s"> rename
+'''
+def LibraryImg(args, base=''):
+    print '<tr>'
+    args.sort()
+    for arg in args:
+	root,ext = useful.RootExt(arg.strip())
+	inp = ''
+	if arg == base:
+	    inp = imginputs % {'f':arg,'b':root + 'z.' + ext}
+	elif base:
+	    inp = imginputs % {'f':arg,'b':base}
+	else:
+	    inp = imginput % {'f':arg}
+	#inp += ' <a href="imawidget.cgi?d=%s&f=%s&cy=0">' % (pif.render.pic_dir, arg) + pif.render.FormatButton('edit') + '</a>'
+	inp += ' ' + pif.render.FormatButton('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
+	inp += ' ' + pif.render.FormatButton('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (pif.render.pic_dir + '/' + arg))
+	print pif.render.FormatCell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.FormatImageRequired([root], suffix=ext, also={"border":0}), arg, inp))
+    print '</tr>'
+
+
+def ShowLibraryImgs(pif, patt):
+    print '<hr>'
+    print '<form action="traverse.cgi" method="post">'
+    plist = patt.split(',')
+    for pent in plist:
+	flist = useful.ReadDir(pent, pif.render.pic_dir)
+	flist.sort()
+	print '<table>'
+	for f in flist:
+	    LibraryImg([f])
+	print '</table>'
+	print '<hr>'
+    print '<input type="hidden" name="d" value="%s">' % pif.render.pic_dir
+    print '<input type="hidden" name="sc" value="1">'
+    print pif.render.FormatButtonInput()
+    print '<a href="upload.cgi?d=%s">%s</a>' % (pif.form.get('d', '.'), pif.render.FormatButton('upload'))
+    print '</form>'
+
+
+def ShowLibraryFile(pif, fn):
+    if fn.endswith('.dat'):
+	ShowLibraryTable(pif, fn)
+    else:
+	ShowPicture(pif, fn)
+
+
+
+colors = ["#FFFFFF", "#CCCCCC"]
+
+
+import files
+class LibraryTableFile(files.ArgFile):
+    def __init__(self, fname):
+	self.dblist = []
+	files.ArgFile.__init__(self, fname)
+
+    def ParseElse(self, llist):
+	self.dblist.append(llist)
+
+
+
+#print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
+def ShowLibraryTable(pif, pagename):
+    tablefile = LibraryTableFile(pif.render.pic_dir + '/' + pagename)
+    cols = '' # pif.form.get('cols', '')
+    h = 0 # pif.FormInt('h')
+    sorty = pif.form.get('sort')
+
+    print pif.render.FormatTableStart()
+    hdr = ''
+    if h:
+	hdr = tablefile.dblist[0]
+	table = tablefile.dblist[1:]
+    else:
+	table = tablefile.dblist
+
+    if sorty:
+	global sortfield
+	sortfield = int(sorty)
+	table.sort(lambda x, y: cmp(x[sortfield].lower(), y[sortfield].lower()))
+
+    row = 0
+    icol = irow = 0
+    if 'y' in cols:
+	icol = cols.find('y')
+    id = ''
+    for line in table:
+	if line[icol] != id:
+	    id = line[icol]
+	    irow = (irow + 1) % 2
+	if not row:
+	    row = h
+	    iarg = 0
+	    print '<tr>'
+	    for ent in range(0,len(hdr)):
+		if ent >= len(cols) or cols[ent].lower() != 'n':
+		    #print "<th>"+hdr[ent]+"</th>"
+		    print '<th bgcolor="#FFFFCC"><a href="table.cgi?page=%s&sort=%d&h=%d&cols=%s">%s</th>' % (pagename, iarg, h, cols, hdr[ent])
+		iarg = iarg + 1
+	    print "</tr>\n<tr>"
+	print '<tr bgcolor="%s">' % colors[irow]
+	row = row - 1
+	for ent in range(0,len(line)):
+	    if ent >= len(cols) or cols[ent].lower() != 'n':
+		print "<td>"+line[ent]+"</td>"
+	print "</tr>"
+    print pif.render.FormatTableEnd()
+
+
+def DoLibraryAction(pif, tdir, fn, act):
+    print '<div class="warning">'
+    nfn = Action(pif, tdir, fn, act)
+    print '</div><br>'
+    if nfn:
+	ShowLibraryPicture(pif, nfn)
+    else:
+	ShowLibraryLibraryDir(pif, tdir, 0)
+
+
+def LibraryMain(pif):
+    os.environ['PATH'] += ':/usr/local/bin'
+    pif.render.PrintHtml()
+    pif.Restrict('a')
+    #pif.render.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.form.get("d", '.'), pif.form.get("d", '.'))
+    pif.render.title = pif.render.pic_dir = pif.form.get("d", '.')
+    pif.render.title += '/' + pif.form.get("f", "")
+    graf = pif.FormInt("g")
+    fnam = pif.form.get("f", '')
+    patt = pif.form.get("p", '')
+    cols = pif.FormInt("c", 5)
+    act = pif.FormInt('act')
+    cycle = pif.FormInt("cy")
+
+    print pif.render.FormatHead(extra=pif.render.increment_js)
+    print pif.form
+    if patt:
+	ShowLibraryImgs(pif, patt)
+    elif act:
+	DoLibraryAction(pif, pif.render.pic_dir, fnam, act)
+    elif fnam:
+	ShowLibraryFile(pif, fnam)
+    else:
+	ShowLibraryDir(pif, pif.render.pic_dir, graf)
+    print pif.render.FormatTail()
+
+
+# -- thumber
+
+def Thumber(pif):
+    os.environ['PATH'] += ':/usr/local/bin'
+
+    #pif.Restrict('a')
+
+    print 'Content-Type: image/gif'
+    print
+
+    dir = pif.form.get('d', '.')
+    fil = pif.form.get('f', '')
+    pth = os.path.join(dir, fil)
+
+    x = 100
+    outf = PipeChain(open(pth),
+	    ImportFile(pth) + \
+	    [["/usr/local/bin/pamscale", "-xsize", str(x)]] + \
+	    ExportFile('tmp.gif'), stderr=open('/dev/null', 'w'), verbose=False)
+
+    print outf
+
 
 if __name__ == '__main__': # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
