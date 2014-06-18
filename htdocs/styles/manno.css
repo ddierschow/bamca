@@ -1,0 +1,8 @@
+body {background-color: #FFFFCC;}
+.tb {border-width: 0; background-color: #FFFFCC;}
+.sh {font-size: large;}
+.eb {border-width: 0; background-color: #FFFFCC;}
+
+.ok {}
+.no {color: #FF0000;}
+.er {page-break-inside:avoid;}

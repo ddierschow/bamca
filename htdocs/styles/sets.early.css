@@ -1,0 +1,16 @@
+body {background-color: #FF8800;}
+
+.tb {background-color: #CCCCCC;}
+.sh {color: #FFFFFF; background-color: #000000;}
+.rh {background-color: #FFFFFF; color: #000000;}
+.eb {background-color: #DDDDAA;}
+
+body {color: #000000; background-color: #FFFFCC;}
+a:link {color: #6666FF;}
+a:visited {color: #FF6666;}
+.hcell {color: #000000; text-align: center; font-weight: bold;}
+.cell {color: #000000; border-width: 1px;}
+.cell_4 {vertical-align: top; color: #000000; border-width: thin; background-color: #FFFF99; border-color: #000000; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
+.cell_3 {vertical-align: top; color: #CC0000; border-width: thin; background-color: #FFFF99; width: 300px; border-color: #000000; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
+.table {padding: 1px; color: #990000; background-color: #CCCCCC; border-spacing: 1px; border-width: 2px;}
+

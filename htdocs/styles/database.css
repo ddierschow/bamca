@@ -1,0 +1,28 @@
+.tdboth {border-style: solid; border-width: thin; padding-left: 4px; padding-right: 4px;}
+.tdleft {border-style: solid; border-width: thin 0 thin thin; padding-left: 4px; padding-right: 4px;}
+.tdmiddle {border-style: solid; border-width: thin 0 thin 0; padding-left: 4px; padding-right: 4px;}
+.tdright {border-style: solid; border-width: thin thin thin 0; padding-left: 4px; padding-right: 4px;}
+
+.spacer {height: 5px; border-width: 0 1px 0 1px; border-style: solid;}
+.sel_head {border-width: 1px; border-style: solid;}
+.sel_body {border-width: 1px; border-style: solid; padding: 8px;}
+.input_label {text-align: right;}
+
+.id_body       {background-color: #EEEEEE;}
+.id_head       {background-color: #BBBBBB;}
+.year_body     {background-color: #FFFFCC;}
+.year_head     {background-color: #FFFF66;}
+.rank_body     {background-color: #DDDDFF;}
+.rank_head     {background-color: #BBBBFF;}
+.manno_body    {background-color: #DDFFDD;}
+.manno_head    {background-color: #AAFFAA;}
+.mack_body     {background-color: #DDFFFF;}
+.mack_head     {background-color: #AAFFFF;}
+.makes_body    {background-color: #FFCCFF;}
+.makes_head    {background-color: #FF99FF;}
+.search_body   {background-color: #FFDDDD;}
+.search_head   {background-color: #FF9999;}
+.vsearch_body  {background-color: #FFEEDD;}
+.vsearch_head  {background-color: #FFBB77;}
+.sets_body     {background-color: #EECCFF;}
+.sets_head     {background-color: #CC88FF;}

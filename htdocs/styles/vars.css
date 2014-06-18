@@ -1,0 +1,25 @@
+body {background-color: #CCFFCC; text-align: left;}
+#code_1 {}
+#code_2 {display: none;}
+#varsearch {display: none;}
+
+.eb {text-align: center;}
+.eb_det {text-align: left;}
+.eb_0 {text-align: left; padding-left: 4px; padding-right: 4px;}
+.eb_1 {text-align: left;}
+.eb_2 {width: 200px;}
+.eb_3 {text-align: left;}
+
+
+.good_attr {background-color: #FFFFFF;}
+.bad_attr {background-color: #FFCCCC;}
+.changed {color: #FF0000;}
+.changed_schema {color: #FF0000; font-weight: bold;}
+.no_model {color: #000000; font-weight: bold;}
+.different {background-color: #FFFF99;}
+.grayed {background-color: #CCCCCC; color: #000000;}
+.grayed_same {background-color: #CCCCCC; color: #990000;}
+.good {}
+.unrec {color: #000000; font-weight: bold;}
+.good_id: {font-weight: bold; color: #0000FF;}
+.bad_id: {font-weight: bold; color: #FF0000;}

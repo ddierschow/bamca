@@ -1,0 +1,34 @@
+body {background-color: #FF8800;}
+
+.tb {background-color: #CCCCCC;}
+.sh {color: #FFFFFF; background-color: #000000;}
+.rh {background-color: #FFFFFF; color: #000000; height: 36px; font-size: x-large;}
+.eb {background-color: #DDDDAA;}
+
+.rh_U_1 {background-color: #835999; color: #FFFFFF;}
+.rh_U_2 {background-color: #6592BC; color: #FFFFFF;}
+.rh_U_3 {background-color: #1977D9; color: #FFFFFF;}
+.rh_U_4 {background-color: #DFD13A; color: #000000;}
+.rh_U_5 {background-color: #BEC63D; color: #000000;}
+.rh_U_6 {background-color: #AE255B; color: #FFFFFF;}
+.rh_U_7 {background-color: #E69D36; color: #FFFFFF;}
+.rh_U_8 {background-color: #FFFFFF; color: #000000;}
+.rh_U_9 {background-color: #E0292D; color: #FFFFFF;}
+.rh_U_10 {background-color: #F1245D; color: #FFFFFF;}
+.rh_U_11 {background-color: #A4C164; color: #000000;}
+.rh_U_12 {background-color: #027868; color: #FFFFFF;}
+
+.rh_R_1 {background-color: #835999; color: #FFFFFF;}
+.rh_R_2 {background-color: #6592BC; color: #FFFFFF;}
+.rh_R_3 {background-color: #1977D9; color: #FFFFFF;}
+.rh_R_4 {background-color: #DFD13A; color: #000000;}
+.rh_R_5 {background-color: #BEC63D; color: #000000;}
+.rh_R_6 {background-color: #AE255B; color: #FFFFFF;}
+.rh_R_7 {background-color: #E69D36; color: #FFFFFF;}
+.rh_R_8 {background-color: #FFFFFF; color: #000000;}
+.rh_R_9 {background-color: #E0292D; color: #FFFFFF;}
+.rh_R_10 {background-color: #F1245D; color: #FFFFFF;}
+.rh_R_11 {background-color: #A4C164; color: #000000;}
+.rh_R_12 {background-color: #027868; color: #FFFFFF;}
+
+.varentry {background-color: #FFFFFF;}

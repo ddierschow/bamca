@@ -1,0 +1,12 @@
+body {background-color: #D84905; color: #FFFFFF;}
+ul {font-size: x-large;}
+ul ul {font-size: large;}
+
+a:link       {color: #FFFF00;}
+a:visited    {color: #FFFF66;}
+a:active     {color: #FFFF66;}
+a:hover      {color: #FFFF00;}
+
+.special {font-size: x-large;}
+.special a {color: #FFFF00;}
+.special td {border-width: 1px; border-style: solid; background-color: #000000;}

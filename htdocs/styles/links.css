@@ -1,0 +1,13 @@
+body {background-color: #FFEEDD;}
+.link {text-indent: 20px;}
+.link-indent {text-indent: 40px;}
+
+.star {list-style-image: url('pic/gfx/star.gif');}
+.folder {list-style-image: url('pic/gfx/folder.gif');}
+.ball {list-style-image: url('pic/gfx/ball.gif');}
+.bad {}
+.dlm {padding-left: 4px; padding-right: 4px;}
+
+.link-desc {padding-left: 80px;}
+
+.bullet {padding-left: 4px; padding-right: 4px;}

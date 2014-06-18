@@ -1,0 +1,17 @@
+
+.tb {background-color: #CCCCCC;}
+.sh {color: #FFFFFF; background-color: #000000;}
+.rh {background-color: #FFFFFF; color: #000000;}
+.eb {background-color: #DDDDAA;}
+
+body {color: #000000; background-color: #FF0000;}
+a:link {color: #0000CC;}
+a:visited {color: #000066;}
+.cell_0 {vertical-align: top; border-width: thin; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: center;}
+.cell_1 {vertical-align: top; border-width: thin; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: center;}
+.cell_3 {vertical-align: top; color: #0000FF; border-width: thin; background-color: #FFFF00; width: 300px; border-color: #000000; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
+.cell_4 {vertical-align: top; background-color: #CCCCCC; border-width: thin; border-color: #000000; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
+.section {font-size: medium;}
+.hcell {font-weight: bold; text-align: center;}
+.table {padding: 1px; color: #000000; background-color: #FFFFFF; border-spacing: 1px; border-width: 2px;}
+.cell_2 {vertical-align: top; border-width: thin; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: center;}

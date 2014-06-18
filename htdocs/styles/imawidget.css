@@ -1,0 +1,29 @@
+
+.wrapper {
+    position:relative;
+    display: inline-block;
+}
+
+.box {
+    position:absolute;
+    top: 10px;
+    left: 10px;
+    width: 50px;
+    height: 50px;
+    border: 2px solid #fff;
+    cursor: pointer;
+    background-color: transparent;
+    resize:both;
+    overflow:auto;
+}
+
+.foo_box:hover {
+    background-color: rgb(200, 54, 54);
+    background-color: rgba(200, 54, 54, 0.3);
+}
+
+.foo_shadow {
+    -webkit-box-shadow: 5px 5px 5px rgba(68,68,68,0.6);
+       -moz-box-shadow: 5px 5px 5px rgba(68,68,68,0.6);
+            box-shadow: 5px 5px 5px rgba(68,68,68,0.6);
+}

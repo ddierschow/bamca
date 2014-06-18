@@ -1,0 +1,7 @@
+body {color: #000000; background-color: #FFFFFF;}
+a:link {color: #0000FF;}
+a:visited {color: #000000;}
+.hcell {padding: 0; border-width: 1px; border-color: #000000; font-weight: bold; text-align: center;}
+.cell {padding: 0; border-width: 1px; border-color: #000000;}
+.table {padding: 0; background-color: #FFFFFF; border-spacing: 0; border-width: 1px; border-color: #000000;}
+
