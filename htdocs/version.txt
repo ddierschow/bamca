@@ -1,0 +1,4 @@
+<?php
+$version = "V. 5.5";
+$root = "www";
+?>

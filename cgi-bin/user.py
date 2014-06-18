@@ -71,6 +71,9 @@ def UpdateUser(pif):
 
 
 def UserMain(pif):
+    pif.render.PrintHtml()
+    pif.Restrict('a')
+    print pif.render.FormatHead(extra=pif.render.reset_button_js)
     if 'name' in pif.form:
 	UpdateUser(pif)
 	PrintUsers(pif)
@@ -81,6 +84,7 @@ def UserMain(pif):
 	PrintUserForm(pif, pif.form['id'])
     else:
 	PrintUsers(pif)
+    print pif.render.FormatTail()
 
 # ------ login
 
@@ -235,6 +239,19 @@ def Verify(pif, name, vkey):
     else:
 	print "You have not verified your account.  Please contact staff@bamca.org for help."
     print pif.render.FormatTail()
+
+# ------ signup
+
+def RegisterMain(pif):
+    if pif.form.get('n'):
+	user.Create(pif)
+    elif pif.form.get('k'):
+	u = pif.form['u']
+	k = pif.form['k']
+	user.Verify(pif, u, k)
+    else:
+	pif.render.PrintHtml()
+	user.PrintSignupForm(pif)
 
 # ------ chpass
 
