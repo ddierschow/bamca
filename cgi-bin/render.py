@@ -259,7 +259,7 @@ class Presentation():
 	if self.isbeta:
 	    pagetitle = 'BETA: ' + pagetitle
 
-	ostr  = '<html>\n<head><title>%s</title>\n' % pagetitle
+	ostr  = '<html>\n<head><meta charset="UTF-8"><title>%s</title>\n' % pagetitle
 	ostr += '<link rel="icon" href="http://www.bamca.org/' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
 	ostr += '<link rel="shortcut icon" href="http://www.bamca.org/' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
 	ostr += '<link rel="stylesheet" href="/styles/main.css" type="text/css">\n'
