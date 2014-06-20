@@ -8,21 +8,23 @@
 .sel_body {border-width: 1px; border-style: solid; padding: 8px;}
 .input_label {text-align: right;}
 
-.id_body       {background-color: #EEEEEE;}
 .id_head       {background-color: #BBBBBB;}
-.year_body     {background-color: #FFFFCC;}
+.id_body       {background-color: #EEEEEE;}
 .year_head     {background-color: #FFFF66;}
-.rank_body     {background-color: #DDDDFF;}
+.year_body     {background-color: #FFFFCC;}
 .rank_head     {background-color: #BBBBFF;}
-.manno_body    {background-color: #DDFFDD;}
+.rank_body     {background-color: #DDDDFF;}
 .manno_head    {background-color: #AAFFAA;}
-.mack_body     {background-color: #DDFFFF;}
+.manno_body    {background-color: #DDFFDD;}
 .mack_head     {background-color: #AAFFFF;}
-.makes_body    {background-color: #FFCCFF;}
+.mack_body     {background-color: #DDFFFF;}
 .makes_head    {background-color: #FF99FF;}
-.search_body   {background-color: #FFDDDD;}
+.makes_body    {background-color: #FFCCFF;}
 .search_head   {background-color: #FF9999;}
-.vsearch_body  {background-color: #FFEEDD;}
+.search_body   {background-color: #FFDDDD;}
 .vsearch_head  {background-color: #FFBB77;}
-.sets_body     {background-color: #EECCFF;}
+.vsearch_body  {background-color: #FFEEDD;}
+.packs_head    {background-color: #BBCC99;}
+.packs_body    {background-color: #EEFFCC;}
 .sets_head     {background-color: #CC88FF;}
+.sets_body     {background-color: #EECCFF;}
