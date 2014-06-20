@@ -335,23 +335,25 @@ def Publication(pif):
 
 def ActivityMain(pif):
     pif.render.PrintHtml()
+    pif.render.title = "Site Activity"
 
     print pif.render.FormatHead()
     print '<hr>'
     acts = pif.dbh.FetchActivities()
     acts.reverse()
     for act in acts:
-	if act['site_activity.user_id'] and os.path.exists(act['site_activity.image']):
-	    if act['site_activity.url']:
-		print '<a href="../%s">' % act['site_activity.url']
-	    print '<b>%s</b><br>' % act['site_activity.name']
-	    if act['site_activity.image']:
-		print '<img src="../%s"><br>' % act['site_activity.image']
-	    print '%s<br>' % act['site_activity.description']
-	    print 'Change made by %s at %s<br>' % (act['user.name'], act['site_activity.timestamp'])
-	    if act['site_activity.url']:
-		print '</a>'
-	    print '<hr>'
+	if not act['site_activity.user_id']:
+	    continue
+	if act['site_activity.url']:
+	    print '<a href="../%s">' % act['site_activity.url']
+	print '<b>%s</b><br>' % act['site_activity.name']
+	if act['site_activity.image']:
+	    print '<img src="../%s"><br>' % act['site_activity.image']
+	print '%s<br>' % act['site_activity.description']
+	print 'Change made by %s at %s<br>' % (act['user.name'], act['site_activity.timestamp'])
+	if act['site_activity.url']:
+	    print '</a>'
+	print '<hr>'
     print pif.render.FormatTail()
 
 

@@ -930,7 +930,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	return self.Fetch('site_activity,user', where='site_activity.user_id=user.id')
     #def Fetch(self, table_name, left_joins=None, columns=None, where=None, group=None, order=None, tag='', verbose=False):
 
-    def InsertActivity(self, name, user_id, description='', url='', image=''):
+    def InsertActivity(self, name, user_id, description='', url='', image='', timestamp=None):
 	oldrow = self.Fetch('site_activity', columns=['id'], order='id desc limit 98,1', tag='InsertActivity')
 	if oldrow:
 	    oldrow = oldrow[0]['id']
@@ -938,6 +938,8 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	    oldrow = 1
 	self.RawExecute('''delete from site_activity where id < %d''' % oldrow, 'InsertActivity')
 	rec = {'name' : name, 'description' : description, 'url' : url, 'image' : image, 'user_id' : user_id}
+	if timestamp:
+	    rec['timestamp'] = timestamp
 	return self.Write('site_activity', rec, newonly=True, tag='InsertActivity', verbose=True)
 
 if __name__ == '__main__': # pragma: no cover
