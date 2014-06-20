@@ -118,15 +118,19 @@ class MannoFile:
 	self.lastyear = 9999
 	self.mdict = dict()
 	self.tdict = dict(map(lambda x: (x['vehicle_type.ch'], x['vehicle_type.name']), pif.dbh.FetchVehicleTypes()))
+	self.plist = map(lambda x: x['page_info.id'], pif.dbh.FetchPages({'format_type' : 'manno'}))
 	if pif.form.get('section', 'all') != 'all':
-	    self.slist = pif.dbh.FetchSections({'id' : pif.form['section']})#, 'page_id' : self.page_name})
+	    slist = pif.dbh.FetchSections({'id' : pif.form['section']})#, 'page_id' : self.page_name})
 	else:
-	    self.slist = pif.dbh.FetchSections({'page_id' : self.page_name})
+	    slist = pif.dbh.FetchSections({'page_id' : self.page_name})
 	self.sdict = dict()
-	for section in self.slist:
-	    section = pif.dbh.DePref('section', section)
-	    section.setdefault('models', list())
-	    self.sdict[section['id']] = section
+	self.slist = list()
+	for section in slist:
+	    if section['section.page_id'] in self.plist:
+		section = pif.dbh.DePref('section', section)
+		section.setdefault('models', list())
+		self.sdict[section['id']] = section
+		self.slist.append(section)
 	self.totalvars = self.totalpics = 0
 	self.corevars = self.corepics = 0
 	self.c2vars = self.c2pics = 0
@@ -756,5 +760,23 @@ def CompareMain(pif):
 
 #---- ---------------------------------------
 
+def Commands(pif):
+    import cmdline
+
+    switch, files = cmdline.CommandLine()
+
+    if files and files[0] == 'd':
+	print "delete not yet implemented"
+	pass#DeleteVariation(pif, files[1], files[2])
+    elif files and files[0] == 'r':
+	RenameBaseId(pif, files[1], files[2], True)
+    else:
+	print "./manno.py [d|r] ..."
+	print "  d for delete: mod_id"
+	print "  r for rename: old_mod_id new_mod_id"
+
+
 if __name__ == '__main__': # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    import basics
+    pif = basics.GetPageInfo('vars')
+    Commands(pif)

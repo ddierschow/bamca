@@ -318,16 +318,16 @@ class TestRender(unittest.TestCase):
 	pass#self.assertTrue(self.pif.render.FormatLinks(llineup) != '')
 
     def testClearCookie(self):
-	self.assertTrue(self.pif.render.ClearCookie(keys=[]) != '')
+	self.assertTrue(self.pif.render.secure.ClearCookie(keys=[]) != '')
 
     def testCookieDomain(self):
-	pass#self.assertTrue(self.pif.render.CookieDomain() != '')
+	pass#self.assertTrue(self.pif.render.secure.CookieDomain() != '')
 
     def testMakeCookie(self):
-	pass#self.assertTrue(self.pif.render.MakeCookie(id, privs, expires=6000) != '')
+	pass#self.assertTrue(self.pif.render.secure.MakeCookie(id, privs, expires=6000) != '')
 
     def testGetCookies(self):
-	self.assertTrue(self.pif.render.GetCookies() != '')
+	self.assertTrue(self.pif.render.secure.GetCookies() != '')
 
 
 if __name__ == '__main__': # pragma: no cover

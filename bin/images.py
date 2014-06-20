@@ -1,12 +1,15 @@
 #!/usr/local/bin/python
 
 import datetime, filecmp, glob, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
+import cmdline
 import config
+import icon
+import javascript
 import mbdata
 import useful
 import Image
 
-os.environ['PATH'] += ':/usr/local/bin'
+#os.environ['PATH'] += ':/usr/local/bin'
 
 
 '''  API
@@ -27,41 +30,8 @@ images.image_inputters
 
 # -- form markups
 
-def_edit_js = '''
-<script>
-function getValueFromApplet()
-{
-  document.myForm.q.value = document.myApplet.getCoords();
-  return true;
-}
-</script>
-'''
-
-def_edit_app = '''
-<object name="myApplet" codetype="application/java" codebase="/bin" classid="java:ImaWidget" width=%(width)s height=%(height)s>
-<param name="file" value="%(file)s" valuetype="data"></object>
-'''
-
-def_edit_app = '''
-<applet code="ImaWidget"
-codebase="/bin"
-archive="ImaWidget.jar"
-width=%(width)s height=%(height)s>
-<param name="permissions" value="sandbox">
-<param name="file" value="%(file)s" valuetype="data"></applet>
-'''
-
-def_edit_app = '''
-<embed id="ImaWidget"
-       name="myApplet"
-       type="application/x-java-applet;version=1.6"
-width="%(width)s" height="%(height)s"
-       archive="/bin/ImaWidget.jar"
-       code="ImaWidget"
-       pluginspage="http://java.com/download/"
-permissions="sandbox"
-file="%(file)s" />
-'''
+def_edit_js = javascript.def_edit_js
+def_edit_app = javascript.def_edit_app
 
 editformstart = '''
 <form action="imawidget.cgi" name="myForm" onSubmit="return getValueFromApplet()">
@@ -1416,7 +1386,7 @@ def ShowDir(pif, tdir):
 
 
 def RestrictedUpload(pif):
-    direc = './submitted'
+    direc = '../inc'
     descrips = open(direc + '/descr.txt').readlines()
     fn = 1
     if descrips:
@@ -1846,8 +1816,6 @@ def PicturesMain(pif):
 # & ' + - .  /
 
 def CreateIcon(fn, name, logo, isizex=100, isizey=100):
-    import Image
-    import icon
     print ' ', fn, '|'.join(name)
 
     fil = 'pic/man/s_' + fn + '.jpg'
@@ -1912,8 +1880,7 @@ def GetManList(pif):
     return mans
 
 
-def IconMain():
-    import cmdline
+def IconMain(pif):
 
     SWITCHES = "av"
     OPTIONS = "bn"
@@ -1948,13 +1915,6 @@ def IconMain():
 	print 'huh?' # print mandict
 
 
-def Tumblr(pif):
-    pif.render.PrintHtml()
-    print pif.render.FormatHead()
-    #print pif.form
-    print pif.render.FormatTail()
-
-
 def ImageStar(pif, image_path, pic_id='', halfstar=False):
     if pic_id == None:
 	return pif.render.FormatImageArt('stargray.gif')
@@ -1964,7 +1924,6 @@ def ImageStar(pif, image_path, pic_id='', halfstar=False):
 	return pif.render.FormatImageArt('starwhite.gif')
 	return '&nbsp;' # pif.render.FormatImageArt('stargray.gif')
     try:
-	import Image
 	img = Image.open(image_path)
     except:
 	return pif.render.FormatImageArt('staryellow.gif')

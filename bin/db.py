@@ -8,9 +8,9 @@ dbcs = {}
 desc_cols = ['field', 'type', 'null', 'key', 'default', 'extra']
 
 class db:
-    def __init__(self, cfg=None, id=0, verbose=False):
+    def __init__(self, cfg=None, user_id=0, verbose=False):
 	self.verbose = verbose
-	self.id = id
+	self.user_id = user_id
 	self.nowrites = False
 	global dbcs
 	if cfg['dbuser'] in dbcs:
@@ -40,9 +40,9 @@ class db:
 	    log_name = datetime.datetime.now().strftime('tb/dbq%Y%m.log')
 	    try:
 		if self.nowrites:
-		    open(log_name, 'a').write('%s %s %s %s\n' % (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), self.id, os.environ.get('REMOTE_ADDR', ''), query))
+		    open(log_name, 'a').write('%s %s %s %s\n' % (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
 		else:
-		    open(log_name, 'a').write('%s /*mock/* %s %s %s\n' % (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), self.id, os.environ.get('REMOTE_ADDR', ''), query))
+		    open(log_name, 'a').write('%s /*mock/* %s %s %s\n' % (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
 	    except:
 		pass
 	cu = self.db.cursor()

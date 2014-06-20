@@ -46,9 +46,6 @@ class TestPIF(unittest.TestCase):
     def testFormFind(self):
 	self.assertTrue(self.pif.FormFind('b') == [])
 
-    def testReadForm(self):
-	self.assertTrue(self.pif.ReadForm(fields={}) == {})
-
     def testGetForm(self):
 	self.assertTrue(self.pif.GetForm() == {})
 

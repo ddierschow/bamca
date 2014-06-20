@@ -4,7 +4,6 @@ import copy, os, urllib2
 import mbdata
 import useful
 
-os.environ['PATH'] += ':/usr/local/bin'
 
 # ------- editor ---------------------------------------------------
 

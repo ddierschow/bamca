@@ -8,7 +8,7 @@ function CheckPerm($lev)
     $retval = 0;
     if (array_key_exists('id', $_COOKIE))
     {
-	passthru('bin/cookiecheck.py ' . $lev . ' id=' . escapeshellarg($_COOKIE['id']), $retval);
+	passthru('../bin/secure.py ' . $lev, $retval);
     }
     return $retval;
 }
@@ -18,7 +18,7 @@ function CheckID()
     $retval = 0;
     if (array_key_exists('id', $_COOKIE))
     {
-	passthru('bin/cookiecheck.py id id=' . escapeshellarg($_COOKIE['id']), $retval);
+	passthru('../bin/secure.py id', $retval);
     }
     return $retval;
 }
@@ -69,6 +69,7 @@ function DBClose($dbi)
 
 function GetPageInfo($page_id)
 {
+    putenv('HTTP_COOKIE=' . apache_getenv('HTTP_COOKIE'));
     //return FakeGetPageInfo($page_id);
     $pif = array();
     $pif['page_id'] = $page_id;
@@ -89,10 +90,8 @@ function GetPageInfo($page_id)
     $dbi = DBConnect($pif);
     if (!$dbi)
 	return $pif;
-//    $q = "select page_info.format_type,page_info.title,page_info.pic_dir,page_info.tail,page_info.flags,style.style_type,style.style_setting from page_info,style where page_info.id='" . $page_id . "' and page_info.id=style.page_id;";
     $q = "select page_info.format_type,page_info.title,page_info.pic_dir,page_info.tail,page_info.flags from page_info where page_info.id='" . $page_id . "'";
     $res = mysql_query($q, $dbi);
-    $pif['style'] = array();
     if ($res)
     {
 	while (1)
@@ -105,9 +104,6 @@ function GetPageInfo($page_id)
 		$pif['pic_dir'] = $row[2];
 		$pif['tail'] = $row[3];
 		$pif['flags'] = $row[4];
-//		$pif['style'][$row[5]] = $row[6];
-//		if ($row[5] == 'body')
-//		    $pif['style']['.body'] = $row[6];
 	    }
 	    else
 		break;

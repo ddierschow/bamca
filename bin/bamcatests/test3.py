@@ -122,10 +122,10 @@ class TestRender(unittest.TestCase):
 	self.assertTrue(basics.StartPage(search.RunSearch, 'search', args="submit=1") != '')
 
     def testSets(self):
-	import sets
-	self.assertTrue(basics.StartPage(sets.SetsMain, 'sets', 'page', args="verbose=1") != '')
-	self.assertTrue(basics.StartPage(sets.SetsMain, 'sets', 'page', args="page=kings") != '')
-	self.assertTrue(basics.StartPage(sets.SetsMain, 'sets', 'page', args="page=kings set=ks") != '')
+	import msets
+	self.assertTrue(basics.StartPage(msets.SetsMain, 'sets', 'page', args="verbose=1") != '')
+	self.assertTrue(basics.StartPage(msets.SetsMain, 'sets', 'page', args="page=kings") != '')
+	self.assertTrue(basics.StartPage(msets.SetsMain, 'sets', 'page', args="page=kings set=ks") != '')
 
     def testSingle(self):
 	import single

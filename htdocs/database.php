@@ -40,7 +40,7 @@ DoIncDecJavascript();
 DoPageHeader($pif);
 echo "<!-- done page header -->";
 
-function SectionHeader($sect, $cgi, $title, $hcolor, $bcolor)
+function SectionHeader($sect, $cgi, $title)
 {
     echo "
 <tr><td><br></td></tr>
@@ -84,7 +84,7 @@ function SectionTail($sect)
 <table width="100%">
 
 <?php
-SectionHeader("id", "msearch.cgi", "Specific Manufacturing ID", "#BBBBBB", "#EEEEEE");
+SectionHeader("id", "msearch.cgi", "Specific Manufacturing ID");
 ?>
 <table>
 <tr>
@@ -94,7 +94,7 @@ SectionHeader("id", "msearch.cgi", "Specific Manufacturing ID", "#BBBBBB", "#EEE
 <?php
 SectionTail('id');
 
-SectionHeader("year", "lineup.cgi", "Models by Year", "#FFFF66", "#FFFFCC");
+SectionHeader("year", "lineup.cgi", "Models by Year");
 ?>
 <table><tr>
 <td valign=top>Year: </td>
@@ -121,10 +121,8 @@ if ($isadmin)
     echo '<td width=20></td><td>';
     echo '<i>Number of years: <input type="text" name="nyears" value="" size="2">' . "\n";
     echo '<p><input type="checkbox" name="unroll" value="1"> Unroll' . "\n";
-    echo '<br><input type="checkbox" name="large" value="1"> Large' . "\n";
-    echo '<br><input type="checkbox" name="verbose" value="1"> Verbose' . "\n";
-    echo '<br><input type="checkbox" name="hidden" value="1"> Hidden' . "\n";
-    echo '<br><input type="checkbox" name="prodpic" value="1"> Product Pictures</i>' . "\n";
+    echo '<p><input type="checkbox" name="large" value="1"> Large' . "\n";
+    echo '<p><input type="checkbox" name="verbose" value="1"> Verbose</i>' . "\n";
 }
 ?>
 </tr>
@@ -133,19 +131,19 @@ if ($isadmin)
 <?php
 SectionTail('year');
 
-SectionHeader("rank", "lineup.cgi", "Models by Lineup Number", "#BBBBFF", "#DDDDFF");
+SectionHeader("rank", "lineup.cgi", "Models by Lineup Number");
 ?>
 <input type="hidden" name="n" value="1">
 <table><tr>
 <td valign=top>
 Lineup number:<br>
-(1-120)
+(1-100)
 </td>
 <td valign=top class="updown">
 <input type="text" name="num" size="3" id="rankNum"><br>
-<?php incrnum('rankNum', 1, 120, ''); ?>
+<?php incrnum('rankNum', 1, 100, ''); ?>
 </td>
-<td width=16 class="input_label"></td>
+<td width=16 style="text-align: right;"></td>
 <td valign=top>
 Start year:
 </td>
@@ -170,32 +168,11 @@ if ($isadmin)
 {
     echo '<td width=16 rowspan=2></td></td>';
     echo '<td valign="top" rowspan=2><i><input type="checkbox" name="large" value="1"> Large<br>' . "\n";
-    echo '<br><input type="checkbox" name="verbose" value="1"> Verbose<br>' . "\n";
-    echo '<br><input type="checkbox" name="prodpic" value="1"> Product Pictures</i></td>' . "\n";
+    echo '<p><input type="checkbox" name="verbose" value="1"> Verbose<br></i></td>' . "\n";
 }
 ?>
-
 </tr>
-<tr>
-<?php
-if ($isadmin)
-{
-?>
-<td valign=top class="input_label">
-<i>End number:<br>
-(1-120)</i>
-</td>
-<td valign=top class="updown">
-<input type="text" name="enum" size="3" id="rankENum"><br>
-<?php incrnum('rankENum', 1, 120, ''); ?>
-</td>
-<td width=16 class="input_label"></td>
-<?php
-}
-else
-    echo '<td colspan=3></td>';
-?>
-<td class="input_label" valign=top>
+<tr><td colspan=3></td><td style="text-align: right; width: 80px;" valign=top>
 End year:
 </td><td class="updown">
 <?php yearselect('eyear', 'rankEyear', $yearend, $yearstart, $yearend); ?>
@@ -206,7 +183,7 @@ End year:
 <?php
 SectionTail('rank');
 
-SectionHeader("manno", "manno.cgi", "Manufacturing Numbers", "#AAFFAA", "#DDFFDD");
+SectionHeader("manno", "manno.cgi", "Manufacturing Numbers");
 ?>
 <table>
 <tr><td colspan=4>
@@ -273,7 +250,7 @@ if ($isadmin)
 if ($isadmin)
 {
 ?>
-<td width=16 class="input_label"></td>
+<td width=16 style="text-align: right;"></td>
 <td valign=top>
 Start year:
 </td>
@@ -292,7 +269,7 @@ Start year:
 if ($isadmin)
 {
 ?>
-<td width=16 class="input_label"></td>
+<td width=16 style="text-align: right;"></td>
 <td valign=top>
 End year:
 </td>
@@ -375,7 +352,7 @@ foreach(array_keys($a) as $k)
 <?php
 SectionTail('manno');
 
-SectionHeader("mack", "mack.cgi", '"Mack" Numbers', "#AAFFFF", "#DDFFFF");
+SectionHeader("mack", "mack.cgi", '"Mack" Numbers');
 ?>
 <table><tr>
 <td><input type="radio" name="sect" value="all" checked> Both sections</td>
@@ -396,14 +373,14 @@ if ($isadmin)
 <tr>
 <td><input type="radio" name="sect" value="sf"> SuperFast</td>
 <td></td><td>ending at:</td><td><input type="text" name="end" id="mackEnd" value="120" size="3" onFocus="document.mack.range[1].checked=true;">
-<?php incrnum('mackEnd', "document.getElementById('mackStart').value", 120, 'document.mack.range[1].checked=true;'); ?>
+<?php incrnum('mackEnd', "document.getElementById('mackStart').value", 100, 'document.mack.range[1].checked=true;'); ?>
 </td></tr>
 </table>
 
 <?php
 SectionTail('mack');
 
-SectionHeader("makes", "makes.cgi", "Vehicle Makes", "#FF99FF", "#FFCCFF");
+SectionHeader("makes", "makes.cgi", "Vehicle Makes");
 ?>
 Choose a make:<br>
 <table><tr><td valign="top">
@@ -418,14 +395,14 @@ Choose a make:<br>
 <?php
 SectionTail('makes');
 
-SectionHeader("search", "msearch.cgi", "Text Search", "#FF9999", "#FFDDDD");
+SectionHeader("search", "msearch.cgi", "Text Search");
 ?>
 Search the casting information for: <input type="text" name="query"><br>
 
 <?php
 SectionTail('search');
 
-SectionHeader("vsearch", "vsearch.cgi", "Variation Text Search", "#FFBB77", "#FFEEDD");
+SectionHeader("vsearch", "vsearch.cgi", "Variation Text Search");
 ?>
 Search the variation information for models containing the following.<p>
 <table><tr><td width=50 rowspan=6></td>
@@ -443,7 +420,29 @@ Search the variation information for models containing the following.<p>
 <?php
 SectionTail('vsearch');
 
-SectionHeader("sets", "matrix.cgi", "Special Sets", "#CC88FF", "#EEBBFF");
+SectionHeader("packs", "packs.cgi", "Multi-Model Packs");
+?>
+<select name="page" id="packsPage">
+<option value="" selected>
+<?php
+$sl = Fetch("select id, flags, title from page_info where format_type='packs' order by title", $pif);
+foreach ($sl as $ent)
+    if (!($ent[1] & 1))
+	echo '<option value="' . trim($ent[0]) . '">' . $ent[2] . "\n";
+?>
+</select>
+<?php incrsel('packsPage', -1);
+if ($isadmin)
+{
+    echo '<i><input type="checkbox" name="verbose" value="1"> Verbose' . "</i>\n";
+}
+?>
+<br>
+
+<?php
+SectionTail('packs');
+
+SectionHeader("sets", "matrix.cgi", "Special Sets");
 ?>
 <select name="page" id="setsPage">
 <option value="" selected>
@@ -495,8 +494,7 @@ else
 <?php incrsel('setsPage', -1);
 if ($isadmin)
 {
-    echo '<i><input type="checkbox" name="verbose" value="1"> Verbose' . "\n";
-    echo '<input type="checkbox" name="large" value="1"> Large' . "</i>\n";
+    echo '<i><input type="checkbox" name="verbose" value="1"> Verbose' . "</i>\n";
 }
 ?>
 <br>

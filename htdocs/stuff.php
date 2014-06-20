@@ -5,6 +5,7 @@
 /* Release 5.2 published Monday, 16 May 2011 at 12:01 AM PDT */
 /* Release 5.3 published Monday, 01 August 2011 at 12:01 AM PDT */
 /* Release 5.4 published Monday, 07 September 2011 at 12:01 AM PDT */
+/* Release 5.5 published -- date not recorded */
 include "bin/basics.php";
 include "config.php";
 include "version.txt";
@@ -221,12 +222,12 @@ echo "</span></td><td>";
 DoButtonLink('see', $imgdirArt, "cgi-bin/edlinks.cgi?sec=new");
 echo "</td></tr><tr><td>\n";
 
-$pf = glob("submitted/*");
+$pf = glob("../inc/*");
 echo 'New images:</td><td><span class="warning">';
 if (count($pf) - 1)
     echo (count($pf) - 1);
 echo "</span></td><td>";
-DoButtonLink('see', $imgdirArt, "cgi-bin/traverse.cgi?d=./submitted");
+DoButtonLink('see', $imgdirArt, "cgi-bin/traverse.cgi?d=../inc");
 echo "</td></tr><tr><td>\n";
 
 $pf = glob("tb/comment.*");

@@ -199,7 +199,7 @@ def AddModelPicLinkShort(pif, id):
 def AddIcons(pif, type_id, base_id, vehicle_type):
     icon_list = []
     if type_id:
-	icon = pif.render.FormatImageArt(pif.page_name, also={'class':'centered'})
+	icon = pif.render.FormatImageArt(type_id, also={'class':'centered'})
 	if icon != '&nbsp;':
 	    icon_list.append(icon)
     if base_id:

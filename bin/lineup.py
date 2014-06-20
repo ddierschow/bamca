@@ -1333,7 +1333,7 @@ def ShowMakes(pif, makedict, makes):
 # Kill it with a stick!
 def FullLineup(pif):
     pif.render.PrintHtml()
-    pif.ReadForm({ 'year' : '1966' })
+    #pif.ReadForm({ 'year' : '1966' })
     import useful
     year = pif.FormInt('year')
 

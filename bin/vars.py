@@ -1172,5 +1172,30 @@ def VarSearch(pif):
     print pif.render.FormatTail()
 
 
+def Commands(pif):
+    import cmdline
+
+    switch, files = cmdline.CommandLine()
+
+    if files and files[0] == 'd':
+	DeleteVariation(pif, files[1], files[2])
+    elif files and files[0] == 'r':
+	RenameVariation(pif, files[1], files[2], files[3])
+    elif files and files[0] == 's':
+	RenameVariation(pif, files[1], files[2], files[2] + 'x')
+	RenameVariation(pif, files[1], files[3], files[2])
+	RenameVariation(pif, files[1], files[2] + 'x', files[3])
+    elif files and files[0] == 'm':
+	print "move not yet implemented"
+    else:
+	print "./vars.py [d|r|s|m] ..."
+	print "  d for delete: mod_id var_id"
+	print "  r for rename: mod_id old_var_id new_var_id"
+	print "  s for swap: mod_id var_id_1 var_id_2"
+	print "  m for move: old_mod_id old_var_id new_mod_id [new_var_id]"
+
+
 if __name__ == '__main__': # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    import basics
+    pif = basics.GetPageInfo('vars')
+    Commands(pif)

@@ -1,7 +1,9 @@
 #!/usr/local/bin/python
 
+import sys
+sys.path.append("../bin")
 
 if __name__ == '__main__':
     import basics
-    import sets
-    basics.StartPage(sets.SetsMain, 'sets', 'page')
+    import msets
+    basics.StartPage(msets.SetsMain, 'sets', 'page')

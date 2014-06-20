@@ -6,7 +6,6 @@ import glob, os, re, sys, time
 
 import config
 import vdata
-import html
 import tables
 import vars
 
@@ -326,9 +325,9 @@ def ReadHtmlFile(pif, fdir, fn):
     if not modids:
 	pass
     elif os.path.exists(fdir + '/' + fn + '.html'):
-	fitabs = html.GetHtmlTables(fdir + '/' + fn + '.html')
+	fitabs = vdata.GetHtmlTables(fdir + '/' + fn + '.html')
     elif os.path.exists(fdir + '/' + fn + '.htm'):
-	fitabs = html.GetHtmlTables(fdir + '/' + fn + '.htm')
+	fitabs = vdata.GetHtmlTables(fdir + '/' + fn + '.htm')
     return modids, fitabs
 
 

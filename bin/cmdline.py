@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: latin-1
 
-import getopt, os, sys
+import getopt, glob, os, sys
 
 '''
 CommandLine front-ends getopt, to make it do stuff I want it to do.
@@ -21,6 +21,7 @@ envar - an environment variable (if any) that can specify arguments
 noerror - don't fail on getopt errors, just ignore them
 defaults - dictionary of default values
    for switches use False/True, for options use the argument (NOT in a list)
+doglob - run glob.glob over 'files'
 
 Please use named arguments for everything after the first three.
 All arguments are optional.
@@ -48,11 +49,11 @@ def Req(sw, reqs=[]):
     return sw, reqs
 
 
-def CommandLine(switches="", options="", long_options={}, version="", short_help="", long_help="", envar=None, noerror=False, defaults={}):
+def CommandLine(switches="", options="", long_options={}, version="", short_help="", long_help="", envar=None, noerror=False, defaults={}, doglob=False):
     switches, reqs = Req(switches)
     options, reqs = Req(options, reqs)
     loptions, reqs = Req(long_options, reqs)
-    switch = {}
+    switch = FlagClass()
     opts = files = []
     coptions = switches
     if options:
@@ -125,9 +126,83 @@ def CommandLine(switches="", options="", long_options={}, version="", short_help
 	elif switch[key] == [] and key in defaults:
 	    switch[key] = [defaults[key]]
 
+    if doglob:
+	files = reduce(lambda x,y: x+y, map(glob.glob, files), [])
+
     return (switch, files)
 
 
-if __name__ == '__main__': 
+class FlagClass:
+    def __init__(self, switch={}, flagmap={}, OPTIONS=''):
+	for flag in OPTIONS:
+	    self[flag] = []
+	if flagmap:
+	    for flag in flagmap:
+		if flag in switch:
+		    self[flagmap[flag]] = switch.get(flag)
+		elif OPTIONS.find(flag) >= 0:
+		    self[flagmap[flag]] = []
+		else:
+		    self[flagmap[flag]] = False
+	else:
+	    for flag in switch:
+		self[flag] = switch[flag]
+
+    def __str__(self):
+	return 'FlagClass(%s)' % str(self.__dict__)
+
+    def __getattr__(self, attr):
+	return self.__dict__.get(attr)
+
+    def __getitem__(self, attr):
+	return self.__dict__.get(attr)
+
+    def __setitem__(self, attr, value):
+	self.__dict__[attr] = value
+
+    def __nonzero__(self):
+	return bool(self.__dict__)
+
+    def __iter__(self):
+	return self.__dict__.__iter__()
+
+    def __contains__(self, a):
+	return a in self.__dict__
+
+    def get(self, attr, value=None):
+	return self.__dict__.get(attr, value)
+
+    def teg(self, arg, key, value=None):
+	if arg == None:
+	    arg = self.__dict__.get(key, value)
+	return arg
+
+    def getnum(self, attr, value=None):
+	if not attr in self.__dict__:
+	    return value
+	dval = self.__dict__[attr]
+	if type(dval) == int:
+	    return dval
+	elif type(dval) == str:
+	    return int(dval)
+	elif not dval:
+	    return value
+	return int(dval[-1])
+
+    def getstr(self, attr, value=None):
+	if not attr in self.__dict__:
+	    return value
+	dval = self.__dict__[attr]
+	if type(dval) == str:
+	    return dval
+	elif not dval:
+	    return value
+	return dval[-1]
+
+def MakeFlags(switch, flagmap, OPTIONS):
+    return FlagClass(switch, flagmap, OPTIONS)
+
+
+if __name__ == '__main__': # pragma: no voer
     print CommandLine('fv', '+od', {"force":'f', "output=":'o', "test":None, "arg=":None}, '0', 'Short', 'Long', 'TEST')
     pass

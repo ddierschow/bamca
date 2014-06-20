@@ -2,9 +2,9 @@
 
 import cgi, copy, datetime, os, re, stat, sys, time
 import config
-import Cookie
 import javascript
 import mbdata
+import secure
 import useful
 
 
@@ -73,10 +73,10 @@ class Presentation():
 	self.hide_title = False
 	self.flags = 0L
 	self.table_count = 0
-	self.cookies = None
 	self.hierarchy = list()
 	self.flag_info = None
 	self.shown_flags = set()
+	self.secure = None
 #	if self.verbose:
 #	    self.dump_file = open("../htdocs/tb/" + datetime.datetime.now().strftime('%Y%m%d.%H%M%S') + '.log', 'w')
 
@@ -113,6 +113,7 @@ class Presentation():
 	ostr = ''
 	for lvl in self.hierarchy:
 	    ostr += '<a href="%s">%s</a> &gt; ' % lvl
+	ostr += '<br>'
 	return ostr
 
     def GetFlags(self):
@@ -235,10 +236,10 @@ class Presentation():
 	    print cookie.output()
 	    os.environ['HTTP_COOKIE'] = cookie.output()
 	else:
-	    if self.cookies:
-		incookie = self.cookies
+	    if self.secure.cookies:
+		incookie = self.secure.cookies
 	    else:
-		incookie = self.GetCookies()
+		incookie = self.secure.GetCookies()
 	    if not incookie:
 		pass
 	    elif not 'id' in incookie:
@@ -896,56 +897,7 @@ of Matchbox International Ltd. and are used with permission.
 		    ostr += '<br>'.join(ent['desc'])
 		    ostr += '</div>\n'
 	return ostr
-    #---- cookieish code
 
-    def ClearCookie(self, keys=[]):
-	cookie = Cookie.SimpleCookie()
-	for key in keys:
-	    cookie[key] = ''
-	    cookie[key]['expires'] = -1
-	    cookie[key]['domain'] = self.CookieDomain()
-	    cookie[key]['path'] = '/'
-	return cookie
-
-    def CookieDomain(self):
-	return '.'.join(os.environ['SERVER_NAME'].split('.')[-2:])
-
-    def MakeCookie(self, id, privs, expires=6000):
-	cookie = Cookie.SimpleCookie()
-	cryp_str = self.secure.cookie_encode(str(id) + '/' + os.environ['REMOTE_ADDR'] + '/' + privs)
-	cookie['id'] = cryp_str
-	cookie['id']['expires'] = expires
-	cookie['id']['domain'] = self.CookieDomain()
-	cookie['id']['path'] = '/'
-	return cookie
-
-    def GetCookies(self):
-	cookie = None
-	if os.environ.get('HTTP_COOKIE'):
-	    cookie = Cookie.SimpleCookie()
-	    try:
-		cookie.load(os.environ['HTTP_COOKIE'])
-	    except:
-		pass#sys.stderr.write("cookie decode error\n")
-	else:
-	    pass#sys.stderr.write("cookie missing error\n")
-	if not cookie:
-	    return {}
-	if not cookie.get('id'):
-	    #sys.stderr.write("cookie empty error\n")
-	    return {}
-	cookieval = self.secure.cookie_decode(cookie['id'].value)
-	if not '/' in cookieval:
-	    #sys.stderr.write("cookie format error\n")
-	    return {}
-	try:
-	    ret = dict(zip(['id','ip','pr'], self.secure.cookie_decode(cookie['id'].value).split('/')))
-	except:
-	    #sys.stderr.write("cookie split error\n")
-	    #sys.stderr.write("  '%s' -> '%s'\n" % (cookie['id'].value, self.secure.cookie_decode(cookie['id'].value)))
-	    return {}
-	ret['co'] = cookie
-	return ret
 
 #---- -------------------------------------------------------------------
 

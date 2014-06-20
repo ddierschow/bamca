@@ -178,3 +178,51 @@ _gaq.push(['_trackPageview']);
 })();
 </script>
 '''
+
+def_edit_js = '''
+<script>
+function getValueFromApplet()
+{
+  document.myForm.q.value = document.myApplet.getCoords();
+  return true;
+}
+</script>
+'''
+
+def_edit_app = '''
+<object name="myApplet" codetype="application/java" codebase="/java" classid="java:ImaWidget" width=%(width)s height=%(height)s>
+<param name="file" value="%(file)s" valuetype="data"></object>
+'''
+
+def_edit_app = '''
+<applet code="ImaWidget"
+codebase="/java"
+archive="ImaWidget.jar"
+width=%(width)s height=%(height)s>
+<param name="permissions" value="sandbox">
+<param name="file" value="%(file)s" valuetype="data"></applet>
+'''
+
+def_edit_app = '''
+<embed id="ImaWidget"
+       name="myApplet"
+       type="application/x-java-applet;version=1.6"
+width="%(width)s" height="%(height)s"
+       archive="/java/ImaWidget.jar"
+       code="ImaWidget"
+       pluginspage="http://java.com/download/"
+permissions="sandbox"
+file="%(file)s" />
+'''
+
+editformstart = '''
+<form action="imawidget.cgi" name="myForm" onSubmit="return getValueFromApplet()">
+'''
+
+editformend = '''
+  <input type="hidden" value="%(f)s" name="f">
+  <input type="hidden" value="%(d)s" name="d">
+  <input type="hidden" value="" name="q">
+</form>
+'''
+

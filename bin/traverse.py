@@ -24,6 +24,8 @@ def ShowList(title, tdir, fl):
 	    perms = fst[stat.ST_MODE]
 	    if f[0] == '.':
 		print '<i>%s</i><br>' % f
+	    elif tdir.startswith('../'):
+		print '%s<br>' % f
 	    elif stat.S_ISDIR(perms):
 		print '<a href="/cgi-bin/traverse.cgi?d=%s">%s</a><br>' % (tdir + '/' + f, f)
 	    elif f[-4:] == '.dat':

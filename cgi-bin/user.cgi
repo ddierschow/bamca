@@ -1,7 +1,9 @@
 #!/usr/local/bin/python
 
+import sys
+sys.path.append("../bin")
 
 if __name__ == '__main__':
     import basics
-    import user
-    basics.StartPage(user.UserMain, 'user')
+    import users
+    basics.StartPage(users.UserMain, 'user')

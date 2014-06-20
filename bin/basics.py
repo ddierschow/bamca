@@ -1,11 +1,9 @@
 #!/usr/local/bin/python
 
-import useful
 
-
-def GetPageInfo(page_id, form_key='', defval='', args=''):
+def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=False):
     import pifile
-    pif = pifile.PageInfoFile(page_id, form_key, defval)
+    pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
     return pif
 
 
@@ -26,6 +24,7 @@ def HandleException(pif):
 	print '<!--\n' + str_tb + '-->'
 	FinalExit()
     pif.dbh.SetHealth(pif.page_id)
+    import useful
     if not useful.header_done:
 	print 'Content-Type: text/html\n\n'
 	print '<!--\n' + str_tb + '-->'
@@ -46,12 +45,10 @@ def FinalExit():
 
 #---- -------------------------------------------------------------------
 
-def StartPage(main_fn, page_id, form_key='', defval='', args=''):
-    import sys
+def StartPage(main_fn, page_id, form_key='', defval='', args='', dbedit=False):
     pif = None
     try:
-	import pifile
-	pif = pifile.PageInfoFile(page_id, form_key, defval, args=args)
+	pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
 	ret = main_fn(pif)
 	if ret:
 	    print ret

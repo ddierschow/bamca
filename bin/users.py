@@ -113,16 +113,13 @@ def Login(pif):
     id = None
     id, privs = pif.dbh.Login(pif.form['n'], pif.form['p'])
     if id:
-	cookie = pif.render.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
+	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
 	pif.render.PrintHtml(cookie)
 	print '<meta http-equiv="refresh" content="1;url=%s">' % pif.form.get('dest', '/index.php')
-	#print cookie , '<br>'
-	#print {'id' : str(id) + ';' + os.environ['REMOTE_ADDR'] + ';' + privs}, '<br>'
-	#print "'''"+os.environ.get('HTTP_COOKIE')+"'''", '<br>'
     else:
-	#cookie = pif.render.ClearCookie(['id'])
 	pif.render.PrintHtml()
 	print pif.render.FormatHead()
+	print 'Login Failed!<br>'
 	PrintLoginForm(pif)
 
 
@@ -139,7 +136,7 @@ def LoginMain(pif):
 # ------ logout
 
 def LogoutMain(pif):
-    cookie = pif.render.ClearCookie(['id'])
+    cookie = pif.render.secure.ClearCookie(['id'])
     pif.render.PrintHtml(cookie)
     print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get('dest', '../')
     #print '<meta http-equiv="refresh" content="0;url=%s>' % '/index.php'
@@ -191,12 +188,12 @@ def Create(pif):
     id = pif.dbh.CreateUser(n, p, e, vkey)
     if id:
 	GenEmail(n, e, vkey)
-	cookie = pif.render.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
+	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
 	pif.render.PrintHtml(cookie)
 	print pif.render.FormatHead()
 	print "Your account has been created.  Please check your email for the verification."
     else:
-	#cookie = pif.render.ClearCookie(['id'])
+	#cookie = pif.render.secure.ClearCookie(['id'])
 	pif.render.PrintHtml()
 	PrintSignupForm(pif)
 	#pif.render.PrintHtml(cookie)
@@ -292,11 +289,11 @@ def ChangePass(pif):
     id, privs = pif.dbh.Login(pif.form['n'], pif.form['op'])
     if id and pif.form.get('p1') == pif.form.get('p2', -1):
 	pif.dbh.UpdateUser(id, email=pif.form.get('em'), passwd=pif.form.get('p1'))
-	cookie = pif.render.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
+	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
 	pif.render.PrintHtml(cookie)
 	print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get('dest', '/index.php')
     else:
-	cookie = pif.render.ClearCookie(['id'])
+	cookie = pif.render.secure.ClearCookie(['id'])
 	pif.render.PrintHtml()
 	PrintChangePasswordForm(pif)
 

@@ -8,11 +8,11 @@ import tables
 linkurl = [
         None,
         "single.cgi?id",
-        "vars.cgi?category=MB&submit.x=1&submit.y=1&mod",
-        "http://mb-db.co.uk/showcar.php?num",
-        "http://www.mbxforum.com/11-Catalogs/00-Software/jnmb75da.php?uSleutel=&uNumber",
-        "http://images.google.com/images?hl=en&um=1&ie=UTF-8&sa=N&tab=wi&q",
-        "traverse.cgi?d=./vars/"
+#        "vars.cgi?category=MB&submit.x=1&submit.y=1&mod",
+#        "http://mb-db.co.uk/showcar.php?num",
+#        "http://www.mbxforum.com/11-Catalogs/00-Software/jnmb75da.php?uSleutel=&uNumber",
+#        "http://images.google.com/images?hl=en&um=1&ie=UTF-8&sa=N&tab=wi&q",
+#        "traverse.cgi?d=./vars/"
 ]
 
 id_re = re.compile('''(?P<a>[a-zA-Z]*)(?P<d>\d*)''')
@@ -20,8 +20,8 @@ id_re = re.compile('''(?P<a>[a-zA-Z]*)(?P<d>\d*)''')
 
 class dbhandler:
     table_info = tables.table_info
-    def __init__(self, config, id, verbose):
-	self.dbi = db.db(config, id, verbose)
+    def __init__(self, config, user_id, verbose):
+	self.dbi = db.db(config, user_id, verbose)
 	if not self.dbi:
 	    raise 'DB connect failed'
 	#self.table_info = tables.table_info

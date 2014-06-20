@@ -4,8 +4,7 @@
 # than standard libraries.
 
 import copy, filecmp, glob, os, stat
-os.environ['PYTHON_EGG_CACHE'] = '/var/tmp'
-if os.getenv('REQUEST_METHOD'): # pragma: no cover
+if os.getenv('REQUEST_METHOD'): # is this apache? # pragma: no cover
     import cgitb; cgitb.enable()
 
 def FormInt(val, defval=0):
