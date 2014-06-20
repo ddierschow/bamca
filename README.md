@@ -25,7 +25,7 @@ and a more cohesive design.
 
 2010 - V5 - The site was rewritten to run off of a MySql database.
 There are still some old pages that run off of text files, but
-almost everything that has to do with 3-inch models are in the DB.o
+almost everything that has to do with 3-inch models is in the DB.
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
