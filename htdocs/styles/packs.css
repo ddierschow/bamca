@@ -2,6 +2,8 @@ body {background-color: #EEEEEE;}
 
 img    {margin-left: auto; margin-right: auto; display: block;}
 
+.tb_main {width: auto;}
+
 .titlebar {text-align: center;}
 .leftbar {background-color: #006600; vertical-align: top; width: 132px; color: #FFFFFF;}
 
