@@ -1,0 +1,56 @@
+\bEngland\b
+\bMacau\b
+\bChina\b
+\bThailand\b
+\s[A-Z]\s*\(imprinted\)$
+\s[A-Z]\s*\(inverted\)$
+\s[A-Z]\s#\s\(front of base\)$
+\s[A-Z]\s#\s\(rear of base\)$
+\s[A-Z]\s#\s\(black\)$
+\s[A-Z]\s#\s\(white\)$
+\s[A-Z]\s#[A-F]\s\(black\s#\)\s
+\s[A-Z]\s#[A-F]\s\(white\s#\)\s
+\s[A-Z]\s#[A-F]\s\(black\s#\)$
+\s[A-Z]\s#[A-F]\s\(white\s#\)$
+\s[A-Z]\s#[A-F]\b
+\s[A-Z]\s#[A-F]$
+\s[A-Z]\s#\s
+\s[A-Z]\s#$
+\s[A-Z]#
+\s[A-Z]\b
+\s[A-Z]$
+^[A-Z]\b
+^[A-Z]$
+^Br$
+\sBr$
+\sBr \(black INB label\)$
+^Br \(black INB label\)$
+\sBr \(black label\)$
+\sBr \(black ROL label\)$
+^Br \(black ROL label\)$
+\sBr \(black tab\)$
+\sBr \(etched\)$
+^Br \(etched\)$
+\sBr \(etched letter\)$
+\sBr \(gold INB label\)$
+\sBr \(light blue tab\)$
+\sBr \(no label\)$
+^Br \(no label\)$
+\sBr \(tab\)$
+^Br \(tab\)$
+\sBr \(white INB label\)$
+\sBr \(white label\)$
+\sBr \(white tab\)$
+\sBr\s
+\sHo$
+\sHo\s
+\sHu$
+\sHu\s
+\sBu$
+\sBu\s
+\sno origin$
+\sno origin\s#[A-Z]$
+\sno origin\s
+\sno origin
+^no origin$
+^no origin\s

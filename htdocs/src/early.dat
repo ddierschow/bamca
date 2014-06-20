@@ -1,0 +1,97 @@
+formatter|lesney|sets|Early Matchbox Toys|E
+page|b:bgc,#FFFFCC|b:c,#000000|l:c,#6666FF|v:c,#FF6666
+style|.table|bgc,#CCCCCC|c,#990000|bw,2px|p,1px|bsp,1px
+style|.cell|c,#000000|bw,1px
+style|.cell,3|bgc,#FFFF99|w,300px|c,#CC0000
+style|.cell,4|bgc,#FFFF99|va,top|c,#000000
+style|.hcell|c,#000000|ta,center|fw,bold
+cells|num|name|year|fullpic|fulldesc
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|year2|to Year
+field|rank|&nbsp;
+field|pic|Picture
+field|desc|Description
+data|m|year,num,rank,name
+data|d|desc
+
+table|E|year,year2,num,rank,name|Early Matchbox Toys|2|early
+
+m|1948|1953|48|A|Aveling Barford Road Roller
+d|dark-green body, red painted wheels, yellow flywheel cast
+d|dark-green body, unpainted wheels, no driver or flywheel cast
+d|dark-green body, unpainted wheels, with driver, no flywheel cast
+d|light-green body, red wheels, no driver or flywheel cast
+d|gray-brown body, red wheels, no driver or flywheel cast
+d|red body, green wheels, no driver or flywheel cast
+
+m|1948|1953|48|B|Cement Mixer
+d|pale-green body, red barrel and handle, red wheels
+d|dark-green body, red barrel and handle, red wheels
+d|dark-green body, red barrel and handle, yellow wheels
+d|dark-green body, green barrel and handle, green wheels
+d|dark-green body, green barrel and handle, red wheels
+d|red body, dark-green barrel and handle, green wheels
+d|red body, dark-green barrel and handle, yellow wheels
+
+m|1948|1953|48|C|Caterpiller Tractor
+d|green body and rollers
+d|dark-yellow body and rollers
+d|orange body and rollers
+
+m|1948|1953|48|D|Caterpiller Bulldozer
+d|pale-green body, rollers and blade
+d|orange body, rollers and blade
+d|dark-yellow body, red rollers and blade
+
+m|1949|1949|49|D|Muir Hill Dumper
+d|model never made
+
+m|1949|1954|49|A|Horse Drawn Milk Float
+d|orange body, black horse, white driver
+d|blue body, black horse, white driver
+
+m|1949|1951|49|B|Rag and Bone Cart
+d|yellow body with red wheels, black horse, white driver
+d|green body with red wheels, black horse, white driver
+
+m|1949|1949|49|C|Soap Box Racer
+d|gold body, brown driver
+
+m|1950|1951|50|A|Jumbo the Elephant
+d|light-gray body
+
+m|1950|1953|50|B|Prime Mover with Trailer and Bulldozer
+d|orange mover, orange trailer, all-green bulldozer
+d|orange mover, blue trailer, all-orange bulldozer
+d|orange mover, blue trailer, yellow and red bulldozer
+
+#m|1950|1953|50|C|Ruston Bucyrus Shovel
+#d|yellow and maroon body, green shovel
+
+m|1951|1955|51|A|Muffin the Mule
+d|cream body
+
+m|1952|1953|52|A|Large Coronation Coach
+d|gold-painted body, King and Queen cast
+d|gold-painted body, Queen only cast
+d|gold-plated body, Queen only cast
+d|silver-plated body, Queen only cast
+
+m|1953|1953|53|A|Small Coronation Coach
+d|gold-plated body
+d|silver-plated body
+
+m|1954|1955|54|A|Massey Harris Tractor
+d|red body, beige wheels, black rubber tires
+
+m|1954|1954|54|B|Bread Bait Press
+d|red body, green wingnut and inner fixture, "Lesney Milbro"
+d|red body, unpainted wingnut, green inner fixture, "Lesney"
+d|red body, unpainted wingnut and inner fixture, "Lesney"
+
+m|1955|1955|55|A|Covered Wagon
+d|dark-green body, white cover, brown horses, no barrels cast
+d|dark-green body, white cover, brown horses, red barrels

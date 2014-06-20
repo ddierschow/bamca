@@ -1,0 +1,242 @@
+formatter|cars|pics|"Cars" Cars
+title|"Cars" Cars
+page|b:bgc,#FFFFCC
+style|.table|bgc,#FFFFFF|bw,0|p,0|bsp,0
+style|.cell,0,2,4,6,8|ta,center|w,3%|fz,xx-small|bw,0|p,0|bsp,0
+style|.cell,1,3,5,7,9|w,22%|fz,xx-small|bw,0|p,0|bsp,0
+style|.hcell,0,2,4,6,8|bw,0|p,0|bsp,0
+
+c|Main Characters
+m| x  |Lightning McQueen
+m| x  |Dinoco McQueen
+m| x  |Dirt Track McQueen
+m|    |Cruisin' McQueen
+m| x  |Radiator Springs McQueen
+m| x  |Bling Bling McQueen
+m|    |Bug Mouth McQueen
+m|    |Tongue McQueen
+m| x  |Cactus McQueen
+m|10/08|Tar McQueen
+m|    |Bushhead McQueen
+m|    |Night Vision McQueen
+if|0
+m| -- |Lightning Storm McQueen
+m| -- |Tires Lightning McQueen
+m| -- |Tumbleweed McQueen
+endif
+m|rare|Blu Ray McQueen
+m|rare|Red Rangsburg McQueen
+m| x  |Mater
+m| x  |Brand New Mater
+m|    |Rollin' Bowlin' Mater
+m| x  |Sally
+m|    |Conehead Sally
+m| x  |Doc Hudson
+m| x  |Fabulous Hudson Hornet
+m| x  |Pit Crew Hudson Hornet
+m| x  |Dirt Track Doc
+m| x  |Green Ramone
+m| x  |Yellow Ramone
+m| x  |Purple Ramone
+m| x  |Hydraulic Ramone
+m| x  |Cruisin' Ramone
+m| x  |Ghostlight Ramone
+m| x  |Lightning Ramone
+m| x  |Flo
+m| x  |Luigi
+m| x  |Luigi Ferrari Fan
+m| x  |Guido
+m| x  |Guido Ferrari Fan
+m| x  |Pit Crew Guido
+m| x  |Sheriff
+m| x  |King
+m| x  |Chick Hicks
+m| x  |Dinoco Chick Hicks
+m|11/08|Chick Hicks Crew Chief
+m| x  |Sarge
+m| x  |Fillmore
+m| x  |Pit Crew Fillmore
+m| x  |Lizzie
+m| x  |Red
+
+c|Supporting Characters
+m| x  |Stanley
+m| x  |Darrell Cartrip
+m| x  |Bob Cutlass
+m|    |Dale Jr.
+m| x  |Mario Andretti
+m| x  |Tex Dinoco
+m| x  |Boost
+m| x  |DJ
+m| x  |Wingo
+m| x  |Snot Rod
+m| x  |Tractor
+m| x  |Fred
+m| x  |Dusty Rust-eze
+m| x  |Rusty Rust-eze
+m|    |Mia
+m|    |Tia
+m|    |Dinoco Mia
+m|    |Dinoco Tia
+m| x  |Gold Mia
+m| x  |Gold Tia
+m| x  |Ferrari F430
+m| x  |Mrs. King
+m|    |Kori Turbowitz
+m|    |Bruiser Bukowski
+m|    |Not Chuck
+m|    |Bessie
+m| x  |Race Official Tom
+m| x  |Al Oft
+m|    |Barney Stormin
+m| x  |Charlie Checker
+m| x  |TJ
+m| x  |Dino Helicopter
+m| x  |Tow
+m|?/08|Mini
+m|5/08|Van
+m|?/08|Sven
+m|?/08|Jay Limo
+m|?/08|Dexter Hoover
+m|?/08|Richard Clayton Kensington
+if|0
+m| -- |Frank
+m| -- |Artie
+m| -- |Albert Hinkey
+m| -- |Varoomaroundus Bugus
+m| -- |RM
+m| -- |Larry
+endif
+
+c|Piston Cup Racers
+m| x  |Nitroade
+m| x  |Leak Less
+m| x  |RPM #64
+m|    |No Stall
+m|    |Octane Gain
+m|    |Vinyl Toupee
+m|    |Gasprin
+m|    |Tow Cap
+m|5/08|Apple iCar
+m|5/08|Sputter Stop
+m|5/08|Bumper Save
+m|5/08|Tach-O-Mint
+m|5/08|Trunk Fresh
+m|5/08|Mood Springs
+m|?/08|N2O Cola
+m|5/08|Transberry Juice
+m|?/08|Rev N Go
+m|?/08|Revolting
+m|5/08|Tank Coat
+m|5/08|Gask Its
+m|5/08|Easy Idle
+m|5/08|View Zeen
+m|5/08|Faux Wheel Drive
+m|5/08|Sidewall Shine
+m|?/08|Retread
+m|5/08|Spare Mint
+m|?/08|Lil Torquey Pistons
+m|5/08|Fiber Fuel
+m|?/08|Shiny Wax
+m|5/08|Clutch Aid
+m|5/08|Vitoline
+m|5/08|Shifty Drug
+
+c|Third Party Characters
+m|    |Dudley Spare
+m| x  |Hamm
+m| x  |Yeti
+m| x  |Buzz Light Car
+m| x  |Woody
+m|    |PT Flea
+m|    |Flik
+m| x  |Mike
+m| x  |Sulley
+m| x  |Chuki
+m|?/08|Elvis
+m| x  |Kathy Copter
+m|8/08|Stacy
+m|?/08|Patty
+m|?/08|Luke
+m|?/08|Chief No Stall
+m| x  |Petrol Pulaski
+m|?/08|Ron Hover
+m|?/08|Dustin Mellows
+m|?/08|Brian
+m|?/08|Greta
+m|?/08|Timothy Twostroke
+m|?/08|Murphy
+m|?/08|Frank Pinkerton
+m|8/08|Axle Accelerator
+m|?/08|Jerry Drivetrain
+m|?/08|Cora Copper
+m|10/08|Marco
+m|10/08|Timothy Truecoat
+if|0
+m| -- |Antonio Veloce Eccellente
+m| -- |Costanzo Della Corsa
+m| -- |Leroy Traffik
+m| -- |Marco Axelbender
+m| -- |Marion McKay
+m| -- |Barry Diesel
+m| -- |Bud
+m| -- |Dinoco Girls
+m| -- |Gray
+m| -- |Trev Diesel
+m| -- |Skip Ricter
+m| -- |Chuck Choke Cables
+m| -- |Todd
+m| -- |Duff Wrecks
+m| -- |Bernie Banks
+m| -- |Percy Hanbrakes
+m| -- |Matti
+m| -- |Andrea
+
+c|3rd Party cont
+m| -- |Swift Alternetter
+m| -- |Houser Boon
+m| -- |Dash Boardman
+m| -- |Paul Valdez
+m| -- |Chet Boxkaar
+m| -- |Oliver Lightload
+m| -- |Ben Crankleshaft
+m| -- |Jerry Recycled Batteries
+m| -- |Hooman
+m| -- |Coriander Widetrack
+m| -- |Dan Sclarkenberg
+m| -- |The Autobahn Society
+m| -- |Bertha Butterswagon
+m| -- |Polly Puddlejumper
+m| -- |Edwin Kranks
+m| -- |Jonathan Wrenchworths
+m| -- |Alarm Clock
+m| -- |Donna Pits
+m| -- |Tim Rimmer
+m| -- |Chuck Manifold
+m| -- |PTFlea Circus
+m| -- |Bennie Caliper
+m| -- |Hank Murphy
+m| -- |Miles Malone
+m| -- |Nelson Blindspot
+m| -- |Marty Brakeburst
+m| -- |Wilmar Flattz
+m| -- |Mathew McCrew
+m| -- |Milo
+m| -- |Valerie Veate
+m| -- |Marilyn
+m| -- |Nick Stickers
+m| -- |Derek Dobbs
+m| -- |Milton Calypeer
+m| -- |Mildred Bylane
+m| -- |Bert
+m| -- |Johnnyand Jamie
+m| -- |Studs McGirdle
+m| -- |The Convoy Brothers
+m| -- |Alphanumeros
+m| -- |Gil
+m| -- |Vern
+m| -- |Syd Van Derkamper
+m| -- |Clayton Gentlebreeze
+m| -- |Benny Brakedrum
+m| -- |Kit Revster
+endif

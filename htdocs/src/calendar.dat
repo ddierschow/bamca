@@ -1,0 +1,40 @@
+formatter||calendar|BAMCA Club Calendar
+page|b:bgc,#FF6666|b:c,#000000|l:c,#0000FF|v:c,#000000
+style|.table|bgc,#CCFFFF|bw,1px|p,4px|bc,#000000
+style|.section|bgc,#99CCCC|bw,1px|p,4px|bc,#000000
+style|.cell,0|bgc,#CCFFFF|bw,1px|p,4px|bc,#000000|ta,center|va,middle
+style|.cell,1|bgc,#CCFFFF|bw,1px|p,4px|bc,#000000
+style|.hcell,1|bgc,#CCFFFF|bw,1px|p,4px|bc,#000000|ta,center|fw,bold
+title|Bay Area <img src="../gfx/matchboxb.gif" alt="Matchbox"> Collectors' Association<p>Club Calendar
+tail|effort|contact
+h||Date|Event|Cost
+
+n|2013
+
+#s|September 14;9-4|Toy Havoc and Comic Chaos Show;Alameda County Fairgrounds;Pleasanton|$5 adult
+
+#m|October 5;11-2|BAMCA Meet;Email for details
+
+s|December 1;10-3;early bird 9am|CONCORD*CON Toy and Collectibles Show;Centre Concord;5298 Clayton Rd;Concord|$8 adult;$3 children;$10 early bird
+
+s|December 7;11-4;early bird 9am|<a href="http://www.timetunneltoys.com/">San Jose Super Toy, Comic and Record Show</a>;Santa Clara County Fairgrounds;344 Tully Road;San Jose|$6 adult;$3 children;$15 early bird
+
+s|December 8;10-3;early bird 8am|<a href="http://www.toyshowhaywardca.com/">Vintage Toys and Antique Show</a>;Newark Pavilion;6430 Thornton Ave.;Newark|$5 adult;$1 children;$15 early bird
+
+s|December 18-23;mall hours|<a href="http://bayareacollectorscon.com">Bay Area Collectors Con</a>;Newpark Mall;Newark|free
+
+n|2014
+
+s|February 16;11-3:30;early bird 9am|Vintage Toy and Collectible Show;Merced Elks Lodge;1910 M St.;Merced|$5 adult;$10 early bird
+n|Monthly Events
+
+s|First Sunday;9-3;7:30am Early Bird;6 Really Early Bird|<a href="http://www.antiquesbythebay.net/">Antiques and Collectibles Faire</a>;Former Naval Air Station;Alameda|$5;$10 Early Bird;$15 Really Early Bird
+
+#m|Second Wednesday;5-8:30|Nor Cal San Jose HW Collectors Club Meet;Round Table Pizza;Saratoga and Moorpark;San Jose
+
+#s|Second Saturday|Antique and Collectible Faire;Princeton Plaza Mall;San Jose|Free
+
+s|Second Sunday|Antiques and Collectibles Faire;Downtown Santa Cruz|Free
+
+#s|Last Saturday|Toy Car Show;Harvest House Church;Fremont|$5
+

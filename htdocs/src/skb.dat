@@ -1,0 +1,313 @@
+formatter|sky|sets|Matchbox Skybusters|SB
+page|b:bgc,#FF9933|b:c,#000000|l:c,#0000CC|v:c,#CC0000
+style|.table|bgc,#FFFF00|bw,2px|p,1px|bsp,1px
+style|.cell,0,1,2|va,top|h,8px|ta,center
+style|.cell,3|bgc,#FFFF00|w,300px|p,0|va,middle
+style|.cell,4|va,top|bgc,#FFFFFF
+style|.hcell|fw,bold|ta,center|bw,1px
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|rank|&nbsp;
+field|pic|Picture
+data|m|num,rank,name,year
+
+cells|num|name|year|pic|insetdesc
+table|SB|num,rank,name,year|<img src="../gfx/skybusters.gif" alt="Skybusters">|2|sb
+
+m|1|A|Lear Jet|1973
+d|yellow and white "D-ILDE"
+d|red, "Datapost"
+d|purple and white, "Federal Express"
+d|white, "G-JCB"
+d|white, "U.S. Air Force"
+d|purple, "U.S. Air Force"
+d|white and orange, "QX Press"
+d|white, "DHL"
+
+m|2|A|Corsair A7D|1973
+d|green and white
+d|blue and white
+d|camouflage and white, "USAF"
+
+m|3|A|A300B Airbus|1973
+d|white and silver, "Air France"
+d|white and silver
+d|white and silver, "Lufthansa"
+
+m|3|B|Space Shuttle|1980
+d|white and gray, "NASA"
+d|white and silver, "NASA"
+d|white and black, "NASA"
+d|white
+
+m|4|A|Mirage F1|1973
+d|red with red stripes
+d|red, roundels on wings
+d|orange and brown, "122-18"
+d|white, "ZE-164", "Marines"
+d|yellow, red and blue stripes on wings
+d|pink, red and blue stripes on wings
+d|blue with red and white stripes
+d|gray and brown, camouflage
+d|brown and tan camouflage design
+d|medium-green and light-tan
+d|olive and gray camouflage, French markings.
+
+m|5|A|Starfighter F104|1973
+d|red and silver, "Canadian"
+d|white and silver, "Canadian"
+
+m|6|A|MIG-21|1973
+d|blue and white
+d|silver-gray, red stars on wings
+d|black, yellow flashes on wings
+d|purple with yellow stripes
+d|green and beige camouflage, "28"
+d|dark-green, medium green and light-tan camouflage
+d|green and brown camouflage with an animal logo on tail
+d|silver, U.S. Airforce logo on left wing and body
+d|silver, star wing and tail
+
+m|7|A|Junkers 87D|1973
+d|black fueslage, beige wings,  German crosses
+d|green,  German crosses
+
+m|8|A|Spitfire|1973
+d|brown and beige camouflage
+d|green and gold
+
+m|9|A|Cessna 402|1973
+d|green and white, orange and brown stripes
+d|brown and beige, blue and brown stripes on wings
+d|metallic green and white
+d|blue and yellow, "S7-402" on wings
+d|white and red, "DHL"
+
+m|10|A|Boeing 747|1973
+d|white, "Virgin"
+d|white and met. blue, "British Airways"
+d|white and gray, "Lufthansa"
+d|white and gray, "Pan Am"
+d|white and met. gray, "British Caledonian"
+d|blue and silver, "KLM"
+d|green and silver, "Aer Lingus"
+d|white and silver, "Lufthansa"
+d|"Olympic"
+d|"Singapore"
+d|"Saudia"
+d|light-gray and dark-blue, "British Airways"
+d|white and silver, "CATHEY PACIFIC"
+d|white and silver, "LUFTHANSA"
+
+m|11|A|Alpha Jet|1973
+d|red and white, German crosses on wings
+d|blue, "162" on wings
+
+m|12|A|Skyhawk A-4F|1973
+d|blue and white, "Marines"
+
+m|12|B|Pitts Special|1980
+d|white and blue, "Matchbox"
+d|red, "Virgin"
+d|white with pink pilot and prop
+
+m|13|A|DC-10|1973
+d|white and silver, "United"
+d|silver, "American"
+d|silver and red, "Aeromexico"
+d|white and red, "SwissAir"
+d|blue and silver, "KLM"
+d|white and gray, "Continental"
+d|"Sabena"
+d|white and silver, "SwissAir"
+d|white, "Thai"
+
+m|14|A|Cessna 210|1973
+d|orange and white
+d|white, "DHL"
+
+m|15|A|Phantom F4E|1975
+d|met. red and white
+d|gray, orange and yellow stripe, "Marines"
+d|light-blue, "Royal Navy"
+d|2-tone gray body, "USN", bird on tail
+d|gray and green camouflage
+d|tan and gray camouflage design
+d|white, "USN"
+d|gray, "MARINES" with orange and yellow stickers
+d|light-gray
+
+m|16|A|Corsair F4U|1975
+d|
+
+m|17|A|Ram Rod|1977
+d|
+
+m|18|A|Wild Wind|1976
+d|green and white
+
+m|19|A|Piper Comanche|1977
+d|red and yellow, "N 246 P" on wings
+d|blue and beige, "Comanche" on wings
+d|white, "XP" on wings
+d|beige and blue
+
+m|20|A|Helicopter|1977
+d|olive green, "Army", with wheels and 4 blade prop
+d|white and red, 4 blade prop, "Police"
+d|blue, "Rescue"
+d|blue and white, "Air Aid"
+d|white, "Shell"
+d|with skids, light-blue, "RAF rescue"
+
+m|21|A|Lightning|1977
+d|silver, roundels on wings
+
+m|22|A|Tornado|1978
+d|gray camouflage, German markings
+d|red and white
+d|red, white and black, "Flight-System"
+d|gray, "F-132"
+d|purple, "RAF"
+d|dark-gray, green and light-blue camouflage, "Luftwaffa"
+d|light-blue and green camouflage, "RAF"
+d|black with red missles
+d|black with blue and red markings
+d|red, white and blue, "Flight System"
+d|white and black, "Rescue Helicopter"
+
+m|23|A|Supersonic Transport (Concorde)|1979
+d|white, "Air France"
+d|white, "British Airways"
+d|white, "Supersonic Airlines"
+d|white, "Heinz 57" rare promotional
+
+m|24|A|F-16 Fighter Jet|1979
+d|red and white, "USAF"
+d|white and black, "USAF"
+d|blue and gray camouflage, "USAF"
+d|blue and purple camouflage
+d|dark-gray and light-gray, "J-199"
+d|light-gray with blue and dark-gray camouflage, "USAF"
+d|light-gray with dark-gray and black camouflage, "USAF"
+d|sand and pea-green camouflage, "Israeli Defense Force"
+d|red, white, and blue prototype colors.
+d|three-tone gray, "F-16C Block 40 Number 1"
+d|white with red and blue, "USAF"
+
+m|25|A|Rescue Helicopter|1998
+d|yellow, "Rescue" and roundel on sides, with skids and 2 blade prop
+d|bluish-gray, "RAF"
+d|dark-blue, "Royal Airforce Rescue"
+d|lemon yellow, "Rescue"
+d|yellow
+
+m|26|A|Cessna Float Plane|1981
+d|white, "James Bond-007"
+d|red, "Fire" on wings
+d|black and white, "C210F" on wings
+d|red and white, "N264H" on wings
+d|white and green, "National Park Service"
+
+m|27|A|Harrier Jet|1981
+d|met blue, "Royal Navy"
+d|light-gray, "RAF"
+d|gray and white, dark-gray camouflage
+d|light-gray and white, bullseye
+
+m|28|A|A300 Airbus|1983
+d|white and silver, "FedEx"
+d|white and blue, "FedEx"
+d|white, orange and yellow, "Iberia"
+d|blue and silver, "Korean"
+d|white and gray, "Iberia"
+d|white and silver, "Iberia"
+d|blue and gray, "Korean Air"
+d|white, "Air Malta"
+d|blue and silver, "Korean Air"
+d|white and silver, "Korean Air"
+d|white, "Alitalia"
+d|white and silver, "Iberia"
+d|white and silver, "Lufthansa"
+d|white, "Lufthansa"
+d|white and silver, "SwissAir"
+
+m|29|A|SR-71 Blackbird|1990
+d|silver and black,  "U.S. Air Force"
+d|black, "NASA"
+d|black and silver
+d|black, "U.S. Air Force"
+d|black, white "USAF" and yellow "NASA"
+d|black with red lines
+
+m|30|A|Grumman F-14 Tomcat|1990
+d|gray, "US Navy"
+d|pale pink with green and brown camouflage
+d|gray and black, "USAF"
+d|gray, green and brown camouflage
+d|silver-gray
+d|gray and white, "NAVY"
+
+m|31|A|Boeing 747-400|1990
+d|gray and blue, "British Airways"
+d|white and silver, "Cathey Pacific"
+
+m|32|A|Fairchild A-10 Thunderbolt|1990
+d|light-green and mid-green camouflage
+d|green and gray camouflage
+d|gray, "USAF"
+d|desert camouflage, "USAF"
+d|light-gray, "USAF"
+d|silver and olive camouflage
+d|silver-gray with orange
+d|tan with brown camuflague, "USAF"
+
+m|33|A|Bell Jet Ranger Helicopter|1990
+d|white and blue
+
+m|34|A|Lockheed C-130 Hercules|1990
+d|white, "U.S. Coastguard"
+
+m|35|A|MIL M-24 Hind-D Helicopter|1990
+d|brown and tan camouflage
+d|tan and green camouflage
+d|olive and gray camouflage, Russian markings
+d|brown and gray, dark-brown camuflague, red star and "03"
+d|tan and white, brown camuflague, red star and "07"
+
+m|36|A|Lockheed F-117A Stealth|1990
+d|black, white, "USAF", star
+d|gray, "USAF"
+d|black
+d|dark-gray, "USAF"
+
+m|37|A|Hawk T MK1|1992
+d|red, "Royal Airforce"
+
+m|38|A|BAe-146|1992
+d|white, "Dan-Air"
+d|white, "Continental Airlines"
+d|white, "Thai"
+
+m|39|A|Boeing Stearman|1992
+d|silver, "Australian National Airlines"
+d|yellow, "Crunchie"
+d|yellow, "Ditec"
+d|blue, "Ditec"
+
+m|40|A|Boeing 737-300|1992
+d|blue and silver, "KLM"
+d|white and silver, "Britannia"
+
+m|41|A|Boeing 777-200<br>(aka Boeing 767)|1997
+d|unpainted
+d|white and blue, "777" on tail
+d|silver, "American"
+
+m|42|A|Cessna Citation Jet|2000
+
+m|43|A|MD-90|2000
+d|red, silver, yellow "Matchbox Worldwide" with color logos
+

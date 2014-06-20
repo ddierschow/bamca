@@ -1,0 +1,60 @@
+MI005|shovel_cast|\(A\)|on raised plate
+MI005|shovel_cast|\(B\)|flush
+MI005|shovel_cast|gold plated|
+LS15b|interior|A|plastic steering wheel
+LS15b|interior|B|steering wheel cast with foot step
+LS15b|interior|C|steering wheel cast without foot step
+LS15b|interior|D|all plastic insert with black roof
+LS15b|interior|E|no insert or roof
+LS15b|hoist|\(A\)|, narrow flat upper ends
+LS15b|hoist|\(B\)|, narrow rounded upper ends
+LS15b|hoist|\(C\)|, wide upper ends
+LS15b|hoist|\(D\)|, wide upper ends, top side reinforcements
+LS15b|labels|\(A\)|, pegasus at rear facing forward
+LS15b|labels|\(B\)|, pegasus at front facing backward
+LS15b|labels|\(A and B mixed\)|, pegasus at front facing backward or at rear facing forward
+LS15b|labels|\(C\)|, pegasus at front facing forward 
+MI019|base|\(A\)|with no circle around rivet
+MI019|base|\(B\)|with circle around rivet
+MI019|grille|\(A\)|
+MI019|grille|\(B\)|
+LS20b|labels_tampo|LS 46-B|SF46b
+LS20b|labels_tampo|LS 59-B|SF59b
+LS20b|labels_tampo|LS 55-B|SF55b
+LS20b|labels_tampo|LS 33-C|SF33c
+LS20b|labels_tampo|CTY\.|COUNTY
+LS38c|front_seat_casting|A|no tabs behind
+LS38c|front_seat_casting|B|large tabs behind
+LS38c|front_seat_casting|C|no tabs behind
+LS38c|front_seat_casting|D|large tabs behind
+LS38c|front_seat_casting|E|small tabs behind
+LS38c|rear_seat_casting|A|plastic without holes
+LS38c|rear_seat_casting|B|plastic without holes
+LS38c|rear_seat_casting|C|plastic with holes
+LS38c|rear_seat_casting|D|plastic with holes
+LS38c|rear_seat_casting|E|metal with holes
+LS42c|container_type|A|base without lettering is part of body, ribs top and bottom, smooth center, opening doors
+LS42c|container_type|B|base without lettering is part of body, ribs on bottom only, upper smooth section, opening doors
+LS42c|container_type|C|black separate base with "P.S.1 CONTAINER" lettering, doors do not open
+LS42c|container_type|D|gray one-piece skip with open top, "P.S.4 SKIP" lettering, labels included on a separate label sheet
+LS44c|roof_fitting|A|small side windows or raised part of roof at front
+LS44c|roof_fitting|B|small side windows or raised part of roof at rear 
+MI044|roof_fitting|A|small side windows or raised part of roof at front
+MI044|roof_fitting|B|small side windows or raised part of roof at rear 
+EA46f|wheels|.* skis|
+EA46f|skis|.* wheels|
+LS50b|trailer_base_insert|\bA\s|arrow, two rivets,
+LS50b|trailer_base_insert|\bB\s|arrow, no rivets,
+LS50b|trailer_base_insert|\bC\s|two parallel lines, no rivets,
+LS50b|rear_cast|A|with license, no hole
+LS50b|rear_cast|B|no license, with hole, narrow braces
+LS50b|rear_cast|C|no license, with hole, wide braces
+LS50b|rear_cast|D|no license, with tow hook, wide braces 
+LS51a|tipper_base|A|block over tipper guide wider on left
+LS51a|tipper_base|B|block over tipper guide wider on right
+LS51a|chassis_sides|A|symmetric inside gaps
+LS51a|chassis_sides|B|asymmetric inside gaps
+LS51b|base|\(A\)|, high text
+LS51b|base|\(B\)|, low text 
+EA51b|base|\(A\)|, high text
+EA51b|base|\(B\)|, low text 

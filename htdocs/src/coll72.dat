@@ -1,0 +1,111 @@
+formatter|sky|sets|Matchbox Collectibles Airplanes|MC
+page|b:bgc,#663333|b:c,#FFFFFF|l:c,#6666FF|v:c,#FF6666
+style|.table|bgc,#CC9966|c,#990000|bw,2px|p,1px|bsp,1px
+style|.section|bgc,#663333|fz,medium|c,#FFFFFF
+style|.cell,0,1|fz,medium|h,8px|c,#FFFFFF
+style|.cell,2|bgc,#FFFF00|w,300px|c,#000000|p,0
+style|.cell,3|va,top|c,#000000|bgc,#FFFFFF
+style|.hcell|c,#FFFFFF|fw,bold|fz,medium
+cells|num|name|pic|insetdesc
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|pic|Picture
+data|m|year,num,name
+
+table||year,num,name|1:72 Military Planes|0|planes
+#table|prefix|cols|title|digits|label|header
+
+s|2000
+s|Platinum Legendary Planes Collection
+m|2000|92098|North American P-51D Mustang
+d|"Bunnie", flown by Tuskegee Airman Captain Roscoe C. Brown, CO 100th FS, 322nd FG
+m|2000|92099|F4U-1A Corsair
+d|86 "Lucybelle" flown by VMF-214 Major Gregory "Pappy" Boyington, USMC
+m|2000|92106|Supermarine Mk1A Spitfire
+d|Flown by Captain Brian Lane of the British Air Force
+
+
+s|2002
+m|2002|91057|North American P-510 Mustang
+m|2002|91058|Lockheed P-38 Lightning
+m|2002|91059|P40E Curtiss Warhawk
+m|2002|91093|Chance Vought F4U-1A Corsair
+m|2002|91099|Grumman F6F-5 Hellcat
+m|2002|91366|MK1A Supermarine Spitfire
+
+m|2002|97473|Mustang P-51D
+m|2002|97476|Lightning P-38
+m|2002|97477|Corsair F4U-1A
+m|2002|97478|Warhawk P-40E
+m|2002|97479|Hellcat F6F-5
+m|2002|97481|Spitfire MK1A
+
+s|National Aviation Hall of Fame
+m|2002|97472|Supermarine Spitfire Mk1A
+d|Lt. Col. William Dunn
+
+s|2003
+m|2003|91731|Messerchmitt BF 109G
+d|German Luftwaffe
+m|2003|91732|Mitsubishi A6M5 Zero
+m|2003|91733|Focke-Wulf FW 190
+m|2003|91734|Republic P-47D Thunderbolt
+m|2003|91735|North American P-510 Mustang
+d|8th USAAF 357th FG, 362nd FS, Flown by Cpt. Clarence E (Bud) Anderson Jr., "Old Crow"
+m|2003|91736|MK1A Supermarine Spitfire
+d|RAF No.312 Sqn, Flown by Adolf Vybiral
+
+#m|2004|B4322|Military Land and Air Assortment
+
+s|Military Land and Air Assortment
+m|2004|B6939|Spad XIII
+d|2nd Lieutenant Frank Luke, Jr
+m|2004|B6940|MiG-15
+m|2004|B6941|North American F-86F Sabre
+m|2004|B6942|Republic P-47D Thunderbolt
+m|2004|B6947|Spad XIII
+d|Captain Edward Vernon
+m|2004|B6948|Lockheed F-104C Starfighter
+m|2004|B6949|North American F-100D Super Sabre
+m|2004|B6950|MiG-15
+m|2004|B6951|North American F-86F Sabre
+m|2004|C4499|Republic P-47D Thunderbolt
+m|2004|C4500|F4U-1 Corsair
+d|Chance Vought
+
+s|National Aviation Hall of Fame Collection
+m|2004|B8284|Lockheed F-104 Starfighter
+m|2004|B8285|North American F-100D Super Sabre
+d|Flown by Captain Richard "Dick" Rutan during the Vietnam War
+m|2004|C4498|Mitsubishi A6M Zero
+
+
+s|Unknown Release Date
+
+m|    |B6938|Fokker DR.1
+d|German (Red Baron)
+m|    |B6952|Fokker DR.1
+d|German (Green)
+m|    |H3737|Curtiss P-40E Warhawk
+m|    |H3738|Grumman F6F-3 Hellcat
+m|    |H3739|P-51D Mustang
+d|Capt Don Gentile's "Shangrila"
+
+
+s|Military Planes
+m|    |B1097|Messerschmitt BF109G 
+d|Brown 
+m|    |B1098|Mitsubishi A6M5 Zero Fighter 
+d|Green Camouflage 
+m|    |B1099|Focke Wulf FW109A 
+d|Gray/Khaki 
+d|Heinz Bar
+m|    |B1100|Republic P-47D Thunderbolt 
+d|Yellow/Silver 
+m|    |B1101|Curtiss P-40E Warhawk 
+d|Khaki 
+m|    |B1102|F4U-1A Corsair
+d|Dark Blue 
+d|Chance Vought, No. 183

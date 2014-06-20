@@ -1,0 +1,239 @@
+formatter|mcoll|sets|Matchbox Dinkys|DY
+page|b:bgc,#FF0000|b:c,#000000|l:c,#0000CC|v:c,#000066
+style|.table|bgc,#FFFFFF|c,#000000|bw,2px|p,1px|bsp,1px
+style|.section|fz,medium
+style|.cell,0,1,2|fz,medium|h,8px|ta,center
+style|.cell,3|bgc,#FFFF00|c,#0000FF|w,300px
+style|.cell,4|bgc,#CCCCCC|va,top
+style|.hcell|fw,bold|ta,center
+cells|num|name|year|pic|insetdesc
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|pic|Picture
+data|m|num,year,name
+
+table|D|num,year,name|Transitional Dinky|1|d
+
+m|1|1987|Citroen 15 CV
+d|dark green with red interior
+d|MB124 casting
+
+m|2|1987|Toyota Supra
+d|white with red, blue and yellow deco
+d|MB078 casting
+
+m|3|1987|Fiat Abarth
+d|white with red interior and red, orange and yellow deco
+d|MB074 casting
+
+m|4|1987|Volkswagen Golf
+d|black with red interior and red stripe
+d|MB007 casting
+
+m|5|1987|Chevrolet Corvette
+d|red and silver with black interior, blue and silver deco
+d|MB123 casting
+
+m|6|1987|Pontiac Firebird
+d|powder blue with red interior and green, white and yellow deco, "18"
+d|MB051 casting
+
+table|DY|num,year,name|Matchbox Dinky|3|dy
+
+m|01|1988|1967 E-Type Jaguar Soft Top
+d|British racing green, black soft top roof and tan interior, 1988
+d|pale yellow, black soft top roof and black interior, 1991
+d|pale yellow with black soft top roof and black interior, reissued in Classic Sports Car Collection, series of six, 1995
+d|black with black soft top roof and red interior, issued in Golden Age of Sports Cars, series of six, 1995
+
+m|02|1989|1957 Chevrolet Bel Air
+d|red with white roof, 1989
+d|dark red with white roof, 1989
+d|black with flames, exclusive limited edition, "Chevy Hot Rod Special Edition", limited production of 7,500, 1997
+
+m|03|1989|1965 MGB-GT
+d|dark blue with black vinyl roof, 1989
+d|burnt orange, 1992
+
+m|04|1989|1950 Ford E83W 10-CWT Van
+d|yellow with black roof, "HEINZ" on sides and rivet base, 1989
+d|light yellow with black roof, "HEINZ" on sides and rivet base, 1989
+d|dark green with black roof, "RADIO TIMES" on sides, 1990
+d|white and black with red cross and "AMBULANCE", issued as YYM38060 in Red Cross Collection, series of six, 2000
+
+m|05|1989|1950 Ford V-8 Pilot
+d|black, 1990
+d|silver, 1991
+d|beige saddlewood, 1992
+
+m|06|1989|1951 Volkswagen Beetle Deluxe Sedan
+d|pale blue with dark grey sunroof, 1989
+d|pale blue with grey sunroof, 1989
+d|black with dark grey sunroof, 1991
+d|red with dark grey sunroof, 1992
+d|red with dark grey sunroof, reissued in The Million Sellers Collection, a series of three, 1995
+
+m|07|1989|1959 Cadillac Coupe de Ville
+d|metallic red with white roof, 1989
+d|pink with white roof, 1991
+d|pink with white roof and extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+
+m|08|1989|1948 Commer 8CWT
+d|red with "SHARP'S SUPER KREEM TOFFEE", 1989
+d|dark blue with "H.M.V.", 1991
+d|sea blue-green with Australian flag, Olympic rings, "1896-1996" on Side Doors, tan "HELSINKI 1952" on rear doors, tan roof, grey interior, limited issue, special box "Olympic Heritage Collectible Series 1", "Finland 1952 Olympic Team", 1996
+
+m|09|1989|1949 Landrover Series 1 '80
+d|green with tan roof and canopy, 1989
+d|yellow with tan roof and canopy, "AUTOMOBILE ASSOCIATION" with small black front wings, 1991
+d|green with tan roof and canopy, issued as YYM35054 in Four By Four Collection, a series of six, 2000
+
+m|S10|1991|1950 Mercedes Benz Omnibus
+d|cream and blue, special issue original white box, limited production, 1989
+
+m|11|1990|1948 Tucker Torpedo
+d|bright dark metallic red fine flakes, 1990
+d|dark metallic red coarse flakes, 1990
+d|dark metallic red high gloss finish, 1990
+d|bright metallic azure blue, 1992
+d|metallic azure blue and extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+d|primrose yellow, exclusive limited edition "Tucker's 50th Anniversary Special Edition Model", limited production of 9,500, 1998
+
+m|12|1990|1955 Mercedes Benz 300SL Gull-Wing
+d|cream, 1990
+d|silver, as part of #902, 1991
+d|black, 1992
+d|black, reissued in Classic Sports Car Collection, a series of six, 1995
+
+m|13|1990|1955 Bentley "R" Continental
+d|steel blue, 1990
+d|dark metallic blue, 1992
+d|royal blue, 1992
+
+m|14|1990|1946 Delahaye 145 Chapron
+d|dark renault blue, 1990
+d|dark metallic red, 1992
+d|lime green with dark green trim, exclusive limited edition "Delahaye Special Edition Model", limited production of 7,500, 1998
+
+m|15|1990|1953 Austin A40 Van
+d|red with "BROOKE BOND" on sides, 1990
+d|red with "BROOKE BOND", Brooke Bond Tea Company offer model, came in plain white mailing box, 1990
+d|yellow with "DINKY TOYS", 1991
+d|sea blue-green with Australian flag, Olympic rings and "1896-1996" on Doors, large Australian flag on sides, yellow "MELBOURNE 1956" on rear doors, yellow roof, Windscreen surround and grille, brown interior, special box "Olympic Heritage Collectable Series 1", "Australian 1956 Olympic Team", limited issue, 1996
+
+m|16|1990|1967 Ford Mustang 2+2
+d|dark green high gloss, 1990
+d|green high gloss, 1990
+d|white, 1992
+d|metallic green fine metalflakes and extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+d|red with white stripes special Christmas issue, "The Power of Matchbox Muscle", limited production of 5,000, 1997
+
+m|S17|1990|1939 Triumph Dolomite
+d|red with black soft top roof, special issue original white box, limited production, 1990
+
+m|18|1990|1967 Jaguar E-type Convertible open top
+d|red, 1990
+d|ivory, as part of #903, 1992
+d|blue, red and white with "Union Jack" Design, release as DYM37905 on the Matchbox web site, "Austin Powers", limited production of 5,000, 1999
+
+m|19|1990|1973 MGB GT V8
+d|damask red, 1990
+d|tartan red, issued in Golden Age of Sports Cars, a series of six, 1995
+
+m|20|1991|1955 Triumph TR4A-IRS
+d|white, 1991
+d|red, as part of #903, 1992
+d|white, reissued in Classic Sports Car Collection, a series of six, 1995
+
+m|21|1991|1964 Austin Mini Cooper S
+d|cream with black roof, 1991
+d|cream with black roof, reissued in The Million Sellers Collection, a series of three, 1995
+
+m|22|1991|1952 Citroen 15CV
+d|black, 1991
+d|cream, 1992
+
+m|23|1991|1956 Chevrolet Corvette
+d|red and white, 1991
+d|copper and white, 1992
+d|red and white and extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+
+m|24|1991|1973 Ferrari Dino 246 GTS
+d|red and black roof, 1991
+d|metallic blue and black roof, as part of #902, 1991
+d|red and black roof, reissued in Classic Sports Car Collection, a series of six, 1995
+
+m|25|1991|1958 Porsche 356A Coupé
+d|silver, 1991
+d|red, as part of #902, 1991
+d|silver, reissued in Classic Sports Car Collection, a series of six, 1995
+d|white with "COCA-COLA" Decals, issued as DYM96557 in Matchbox Premier Series, a series of twelve, 2000
+
+m|26|1991|1958 Studebaker Golden Hawk
+d|gold and cream, 1991
+d|dark metallic gold and cream and extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+
+m|27|1989|1957 Chevrolet Bel Air Convertible
+d|light blue, 1989
+d|light blue and extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+d|red and white, "1957 Chevy Collection", limited production of 5,000, 1998
+d|yellow with white interior, "COCA-COLA" logo on doors, issued as 92833 in Brand Themes McDonalds Collection, a series of seven Models, 2001
+
+m|28|1992|1969 Triumph Stag
+d|white with red interior, 1991
+d|white with bright red interior, 1993
+d|dark metallic green, issued in Golden Age of Sports Cars, a series of six, 1995
+
+m|29|1992|1953 Buick Skylark
+d|light blue, 1992
+d|light blue and extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+d|balsam blue, issued as DYM37798, exclusive limited edition, "50th Anniversary Special Edition Model", limited production of 7,500, 1999
+
+m|30|1992|1956 Austin Healey 100 BN2
+d|british racing green, 1992
+d|steel blue, as part of #903, 1992
+d|British racing green, reissued in Classic Sports Car Collection, a series of six, 1995
+
+m|31|1992|1955 Ford Thunderbird Convertible
+d|red, 1992
+d|red with extra detailing, issued in Stars of the Silver Screen, a series of eight, 1995
+
+m|32|1992|1957 Citroen 2CV
+d|grey, 1992
+d|grey, reissued in The Million Sellers Collection, a series of three, 1995
+d|yellow and black, issued as DYM36840, exclusive limited edition "Citroen 2CV's 50th Anniversary Special Edition Model", limited production of 5,000, 1999
+
+m|33|1995|1957 Mercedes-Benz 300SL Roadster
+d|dark blue, issued in Golden Age of Sports Cars, a series of six, 1995
+
+m|35|1995|1968 Volkswagen Karmann Ghia
+d|red, with black and beige interior and ivory hood cover,  issued in Golden Age of Sports Cars, a series of six, 1995
+
+m|36|1995|1960 Jaguar XK150
+d|ivory, issued in Golden Age of Sports Cars, a series of six, 1992
+d|cream, issued in Golden Age of Sports Cars, a series of six, 1995
+d|black with "AUSTRALIAN FOOTBALL LEAGUE CENTENARY", special black box, "100 Years of The Australian Football League", limited production of 5,000, 1996
+d|silver with red interior, issued as DYM38304, black hood cover, limited issue released only to European collectors as a replacement for DYB07 model which was never released in Europe, normal production box, limited production of 1,500, 1996
+
+table|DY|num,year,name|Dinky Collection Gift Sets|3|dygift
+
+m|902|1991|European Sports Car Set
+d|Consists of three models:
+d|DY012 Mercedes-Benz 300 SL gull-wing, silver
+d|DY024 Ferrari 246 Dino GTS, metallic blue with black roof
+d|DY025 Porsche 356A Coupe, red
+
+m|903|1992|British Sports Car Set
+d|Consists of three models:
+d|DY018 Jaguar E-type Convertible, ivory
+d|DY020 Triumph TR4-IRS, red
+d|DY030 Austin Healey 100 BN 2, steel blue
+
+m|921|1991|1967 Jaguar E-Type Soft Top
+d|pewter model on wood plinth
+d|issued in Pewter Car Collection, a series of four
+d|(only model released as the other three were withdrawn)
+
+t|Later releases will be included in a Matchbox Collectibles page.

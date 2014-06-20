@@ -1,0 +1,160 @@
+formatter|acc|sets|Carrying Cases|CC
+page|b:bgc,#0000FF|b:c,#FFFFFF|l:c,#FFFF00|v:c,#CCCC00
+style|.table|bgc,#000000|c,#FFFFFF||bw,4px|p,1px|bsp,1px
+style|.cell|bw,1px|bc,#FFFFFF|h,8px
+style|.cell,3|bgc,#000000|c,#FFFFFF|w,400|bw,1px|bc,#FFFFFF
+style|.cell,4|bgc,#000000|va,top|bw,1px|bc,#FFFFFF
+style|.hcell|fw,bold|ta,center|bw,1px|bc,#FFFFFF
+cells|num|name|year|pic|insetdesc
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|rank|&nbsp;
+field|pic|Picture
+data|m|year,num,name
+
+table|CC12|year,num,name|12-Compartment Carry Cases|2|cc12
+m|1976| 1|blue vinyl
+d|shows Hi-Tailer, Team Matchbox, Planet Scout
+m|1979| 2|blue vinyl, clear front
+m|1979| 3|blue vinyl, clear front, "Matchbox"
+m|1979| 4|blue vinyl, clear front, "Matchbox"
+d|shows armored car, "Keep On Truckin'"
+m|1979| 5|blue vinyl, clear front, "Matchbox"
+d|shows Porsche and Corvette, "Street Classic"
+
+table|CC14|year,num,name|14-Compartment Carry Cases|2|cc14
+m|1989| 1|yellow plastic
+d|"Securicar" car-like side view shape
+
+table|CC18|year,num,name|18-Compartment Carry Cases|2|cc18
+m|1967| 1|blue vinyl
+d|shows Ford Mustang
+m|1976| 2|blue plastic
+d|shows Badger, Wildlife Truck, Piston Popper
+m|1985| 3|red plastic
+m|1986| 4|blue plastic
+d|toolbox sticker with top views
+
+table|CC20|year,num,name|20-Compartment Carry Cases|2|cc20
+m|1983| 1|black plastic
+d|steering-wheel shape
+
+table|CC24|year,num,name|24-Compartment Carry Cases|2|cc24
+m|1969| 1|blue vinyl
+d|shows Iso Grifo, Ford Pickup, Cougar
+m|1969| 2|blue vinyl
+d|shows Iso Grifo, 8-wheel Tipper, Ford Zodiac
+m|1970| 3|blue vinyl
+d|shows Porsche 910 and Ford Group 6
+m|1971| 4|blue vinyl
+d|shows Lotus Europa and Lamborghini Muira
+m|1971| 5|blue vinyl
+d|shows Blue Shark and Mercury Cougar
+m|1976| 6|blue vinyl
+d|shows Hi-Tailer, Team Matchbox, Planet Scout
+m|1979| 7|blue vinyl
+d|shows models in bridge scene
+m|1979| 8|blue vinyl
+d|shows dump truck and rally car
+m|1980| 9|blue vinyl
+d|shows Corvette plus 22 other models
+m|1981|10|blue plastic
+d|tool box design, "Trage Koffer/Mullette" labels
+m|1982|11|blue vinyl
+d|shows rows of miniatures from 1982
+m|1983|12|blue or black vinyl
+d|shows Porsche and Datsun 280Z
+m|1989|13|black vinyl
+d|shows Peterbilt and racer
+m|1993|14|yellow vinyl
+d|shows van, Jeep, race cars
+m|1994|15|yellow vinyl
+d|shows Harley Davidson motorcycle
+
+table|CC30|year,num,name|30-Compartment Carry Cases|2|cc30
+m|1990| 1|plastic bucket
+
+table|CC36|year,num,name|36-Compartment Carry Cases|2|cc36
+m|1983| 1|white vinyl
+d|cabover design
+
+table|CC40|year,num,name|40-Compartment Carry Cases|2|cc40
+m|1965| 1|blue vinyl
+d|shows Quarry Truck on one side, Mercedes 220 on other
+
+table|CC48|year,num,name|48-Compartment Carry Cases|2|cc48
+m|1966| 1|blue vinyl
+d|shows Jaguar E-Type and Lotus race car
+m|1966| 2|blue vinyl
+d|shows Ford GT
+m|1970| 3|blue vinyl
+d|shows Lamborghini and BMC Pininfarina
+m|1971| 4|blue vinyl
+d|shows Road Dragster, Mod Rod, Dodge Dragster
+m|1972| 5|red vinyl
+d|shows Lamborghini and BMC Pininfarina
+m|1976| 6|blue vinyl
+d|shows Hi-Tailer, Team Matchbox, Planet Scout
+m|1976| 7|blue vinyl
+d|clear front, easel back
+m|1979| 8|blue vinyl
+d|shows models in bridge scene
+m|1979| 9|blue vinyl
+d|shows dump truck and rally car
+m|1982|10|blue vinyl
+d|shows road scene bridge overpass
+m|1980|11|blue vinyl
+d|shows Corvette plus 22 other models
+m|1982|12|blue vinyl
+d|shows rows of models from 1982 lineup
+m|1983|13|blue vinyl
+d|shows Sunburner, Corvette, Mazda
+m|1983|14|black vinyl
+d|shows Sunburner, Corvette, Mazda
+m|1985|15|blue vinyl
+d|shape of Formula 1 race car
+m|1985|16|red vinyl
+d|shape of Formula 1 race car
+m|1985|17|yellow vinyl
+d|shape of Formula 1 race car
+m|1988|18|black vinyl
+d|shows Lamborghini Countach, Ford Pick-up, Ambulance, race car
+m|1989|19|black vinyl
+d|shows four hand-drawn vehicles
+m|1993|20|yellow vinyl
+d|shows scene with assorted models
+m|1994|21|yellow vinyl
+d|"Get In The Fast Lane"
+m|1997|22|yellow vinyl
+d|shows 1997 model line-up
+m|1998|23|yellow vinyl
+d|shows Viper, "75 Collection"
+
+table|CC72|year,num,name|72-Compartment Carry Cases|2|cc72
+m|1968| 1|blue vinyl
+d|shows Ferrari Berlinetta
+m|1972| 2|blue vinyl
+d|shows Lamborghini and Ford GT
+
+table|CCYY|year,num,name|Yesteryear Carry Cases|2|ccyy
+m|1969| 1|blue vinyl
+d|shows Cadillac
+d|holds 16
+
+table|CCCY|year,num,name|Convoy Carry Cases|2|cccy
+m|1982| 1|black vinyl
+d|"Highway Express"
+d|holds 24
+m|1984| 2|blue vinyl
+d|"Convoy" long-style truck
+d|holds 8
+m|1984| 3|black vinyl
+d|shows three trucks
+d|holds 24
+m|1989| 4|black vinyl
+d|shows Peterbilt truck
+d|holds 10
+
+#table|CCPC|year,num,name|Play Cases|2|ccpc

@@ -1,0 +1,1866 @@
+formatter|mcoll|sets|Matchbox Collectibles|MC
+page|b:bgc,#663333|b:c,#FFFFFF|l:c,#6666FF|v:c,#FF6666|b:bgi,../gfx/bgmc.gif
+style|.table|bgc,#CC9933|c,#990000|bw,2px|p,1px|bsp,1px
+style|.section|bgc,#663333|fz,x-large|c,#FFFFFF
+style|.cell,0|fz,medium|h,8px|c,#FFFFFF|bw,2px
+style|.cell,1|fz,large|h,8px|c,#FFFFFF|va,middle|bw,2px
+style|.cell,2|bgc,#FFFF00|w,300px|c,#000000|p,0|bw,2px
+style|.cell,3|bgc,#FFFFFF|va,top|c,#000000|bw,2px
+style|.hcell|fw,bold|ta,center
+cells|num|name|pic|insetdesc
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|pic|Picture
+data|m|year,num,name
+
+table||year,num,name|1993|0|1993
+#table|prefix|cols|title|digits|label|header
+
+s|Taste of France Series
+m|1993|YTF01;31650|1947 Citroen Type H Van
+d|Evian Mineral Water
+m|1993|YTF02;31649|1947 Citroen Type H Van
+d|Martell Cognac
+m|1993|YTF03;31648|1947 Citroen Type H Van
+d|Yoplait Yogurt
+m|1993|YTF04;31647|1947 Citroen Type H Van
+d|Marcillat Brie
+m|1993|YTF05;31660|1947 Citroen Type H Van
+d|Tattinger Champagne
+m|1993|YTF06;39602|1947 Citroen Type H Van
+d|Pommery Mustard
+
+s|Great Beers of the World Series I
+m|1993|YGB01|1930 Ford A Van
+d|Castlemaine XXXX
+m|1993|YGB02|1926 TT Ford
+d|Beck & Co
+m|1993|YGB03|1918 Atkinson
+d|Swan
+m|1993|YGB04|1929 Morris Van
+d|Fuller's
+m|1993|YGB05|1932 Ford AA Van
+d|Carlsberg
+m|1993|YGB06|1932 Mercedes
+d|Holsten
+
+s|Heritage Horse Drawn Carriages
+m|1993|YSH01|1900 Gypsy Caravan
+m|1993|YSH02|1886 London Omnibus
+m|1993|YSH03|1875 Wells Fargo Stagecoach
+
+s|Masterclass
+m|1993|LS001|Lamborghini Diablo
+d|red, tan interior
+m|1993|LS002|Porsche 911 Cabriolet
+d|metallic blue, gray interior
+m|1993|LS003|Jaguar XJ220
+d|silver-gray, gray interior
+
+table||year,num,name|1994|0|1994
+
+m|1994|YSL01|Crescent Unlimited
+
+s|Cars of the Rich and Famous
+m|1994|Y1-3|1936 SS100 Jaguar
+d|light-red and cream, black hood and seats, chrome accents
+m|1994|Y2-4|1930 4 1/2 Litre Bentley
+d|dark-blue, black dash and seats, "7"
+m|1994|Y4-4|1930 Duesenberg Model J Town Car
+d|powder-blue body, dark-blue hcassis, tan seats
+m|1994|Y34-1|1933 Cadillac 452 V16
+d|navy-blue body, cream hood, tan seat
+m|1994|Y36-1|1926 Rolls-Royce Phantom 1
+d|red body, black chassis, hood and roof, brown interior
+m|1994|Y40-1|1931 Mercedes-Benz 770
+d|gray body, dark-blue roof, maroon interior
+m|1994|Y45-1|1930 Bugatti Royale Napoleon
+d|black body with blue flash deco, black chassis, lilac-blue interior
+m|1994|YDY-01|Display
+
+s|Great Beers of the World Series II
+m|1994|YGB07|1910 Renault Type AG Van
+d|Kronenbourg
+m|1994|YGB08|1937 GMC Van
+d|Steinlager
+m|1994|YGB09|1920 Mack AC
+d|Moosehead
+m|1994|YGB10|1927 Talbot Van
+d|South Pacific
+m|1994|YGB11|1922 Foden C Type Steam Wagon
+d|Whitbread's
+m|1994|YGB12|1917 Yorkshire Steam Wagon
+d|Lowenbrau
+
+s|International Fire Engine Series I
+m|1994|YFE01;39518|1920 Mack Fire Engine
+m|1994|YFE02|1952 Land Rover Auxiliary
+m|1994|YFE03|1933 Cadillac V16 Fire Wagon
+m|1994|YFE04;39521|1939 Bedford Tanker Truck
+m|1994|YFE05;39522|1932 Mercedes-Benz Ladder Truck
+m|1994|YFE06;39523|1932 Ford AA Fire Engine
+
+s|Christmas Treasures
+m|1994|YCC01|4X 1928 Austin Seven Van
+d|limited to 5,000
+
+s|Spirit of the Season Collectible-Sets
+m|1994|YTFS01|Two models from the Taste of France series on a wooden shelf
+d|YTF-02 1947 Citroën type H Van Martell
+d|limited to 5,000
+d|YTF-05 1947 Citroën type H Van Tattinger
+d|limited to 9,492
+m|1994|YGBS01|Two models from Great Beers of the World Series (II) on a wooden shelf
+d|YGB-07 1910 Renault Type AG Kronenbourg
+d|YGB-09 1920 Mack AC Moosehead
+
+s|Heritage Horse Drawn Carriages
+m|1994|YS39|1820 Passenger Coach
+d|like 1990 model (Y39-1), with plinth
+m|1994|YSH-1|1900 Gypsy Caravan
+d|like YSH-1 , with plinth
+m|1994|YSH-2|1886 London Omnibus
+d|like YSH-2 , with plinth
+m|1994|YSH-3|1875 Wells Fargo Stagecoach
+d|like YSH-3 , with plinth
+
+table||year,num,name|1995|0|1995
+
+s|Great Beers of the World Series III
+m|1995|YGB13;39543|1926 Ford TT Van
+d|Anchor Steam
+m|1995|YGB14;39544|1912 Ford Model T
+d|Kirin Beer
+m|1995|YGB15;39545|1929 Garrett Steam Wagon
+d|Flowers
+m|1995|YGB16;39546|1932 Ford AA
+d|Corona
+m|1995|YGB17;39547|1932 Mercedes-Benz
+d|Henninger Brau
+m|1995|YGB18;39548|1931 Morris Van
+d|Cascade
+
+s|Grand Marques
+m|1995|YY020A/D;31347|1935 Mercedes-Benz 540K
+d|black
+m|1995|YY017A/D|1938 Hispano Suiza
+d|navy blue
+m|1995|YY064/B|1938 Lincoln Zephyr
+d|burgundy
+m|1995|YY014A/C;39605|1931 Stutz Bearcat
+d|bright red
+m|1995|YY018A/C|1937 Cord 812 Sedan
+d|rich cream
+m|1995|YY024A/D|1928 Bugatti T44
+d|black with cream interior
+
+s|Classic British Sports Cars
+m|1995|DYB01;31320|1959 Triumph TR3
+d|green with brown top and interior
+m|1995|DYB02|1967 Jaguar E-Type Convertible
+d|red with brown top, brown and black interior
+m|1995|DYB03|1955 Morgan 4 / 4
+d|black with dark-brown tonneau and interior
+m|1995|DYB04;31323|1956 Austin Healey 100 BN 2
+d|cream with black top and interior
+m|1995|DYB05;31324|1967 MGB
+d|pale-yellow with black top and interior
+m|1995|DYB06;31325|1962 Aston Martin DB4
+d|metallic-silver with dark-red top
+m|1995|DYB07|1961 Lotus Super Seven
+d|red with black door and top, dark-brown interior
+m|1995|DY036|1960 Jaguar XK150
+d|metallic-silver with black top, red interior
+
+s|International Fire Engine Series II
+m|1995|YFE07;39524|1938 Mercedes KS15 Fire Truck
+m|1995|YFE08|1936 Leyland Cub FK-7 Fire Engine
+m|1995|YFE09|1932 Ford AA Open Cab Fire Engine
+m|1995|YFE10|1937 GMC Rescue Squad Van
+m|1995|YFE11;39528|1923 Mack AC Water Tanker
+m|1995|YFE12;39529|1930 Ford Model A Battalion Chief's Vehicle
+
+s|Power of the Press Series
+m|1995|YPP01;YYM39573|1910 Renault Type AG Van
+d|Le Figaro
+m|1995|YPP02;YYM39574|1935 Morris Courier
+d|The Times
+m|1995|YPP03;YYM39575|1932 Mercedes-Benz L5 Truck
+d|Berliner Morgenpost
+m|1995|YPP04;YYM39576|1948 Dodge RT Van
+d|The New York Times
+m|1995|YPP05;YYM39577|1932 Ford AA 1 1/2 Ton Truck
+d|Los Angeles Times
+m|1995|YPP06;YYM39578|1923 AC Mack Truck
+d|Pravda
+m|1995|YPP07;YYM39579|1937 GMC Van
+d|The Australian
+m|1995|YPP08;YYM39580|1930 Ford Model A Van
+d|The Washington Post
+
+s|Stars of the Silver Screen
+m|1995|DY007/C|1959 Cadillac Coupe de Ville
+d|pink with white roof
+m|1995|DY011/C|1948 Tucker Torpedo
+d|metallic-azure-blue
+m|1995|DY016/C|1967 Ford Mustang Fastback 2 + 2
+d|metallic-green
+m|1995|DY023/A|1956 Chevrolet Corvette
+d|red and white
+m|1995|DY026/B|1958 Studebaker Golden Hawk
+d|dark-metallic-gold and cream
+m|1995|DY027/B|1957 Chevrolet Bel Air Convertible
+d|light-blue
+m|1995|DY029/B|1953 Buick Skylark
+d|light-blue
+m|1995|DY031/A|1955 Ford Thunderbird Convertible
+d|red
+
+s|Special Edition
+m|1995|YSC01|Scania Vabis Holiday Special
+d|cream with Christmas tree
+d|limited to 5,000
+
+s|Christmas Treasures
+m|1995|YCC02|4X 1928 Austin Seven Van
+d|limted to 9,492
+m|1995|GS/01|4X 1928 Austin Seven Van
+d|FAO Schwarz set
+d|limted to 7,500
+d|in black boxed set
+d|base plates mention "Model of Yesteryear"
+
+s|Fire Engine Series Special Edition
+m|1995|YSFE01|1930 Ahrens-Fox Quad
+d|with plinth
+m|1995|YFE04/B|1939 Bedford Tanker Belrose Bush Fire Brigade
+d|limited to 3,000
+d|commissioned by Automodels Pty of Australia
+
+s|Charity Model
+m|1995|YCH01|1912 Ford Model T Van
+d|limited to 5,112
+d|"Ronald McDonald House", Australia
+
+s|Regional Models
+m|1995|YPP04;31596|1948 Dodge RT Van
+d|Automodel Exchange
+d|limited to 3,000
+m|1995|YY027/SA|1922 Foden Steam Wagon
+d|Fuller's
+d|limited to 7,000
+m|1995|YY047/SA|1929 Morris Van
+d|Fuller's
+d|limited to 7,000
+#d|Automodels
+#d|limited to 3,000
+
+table||year,num,name|1996|0|1996
+
+s|40th Anniversary Collection
+m|1996|YMS01|1911 Ford Model T
+d|dark blue
+m|1996|YMS02;39565|1910 Mercedes Benz Limited
+d|black
+m|1996|YMS03;39566|1909 Opel Coupe
+d|yellow
+m|1996|YMS04;39567|1912 Packard Landaulet
+d|white
+m|1996|YMS05;39568|1911 Daimler Type A12
+d|maroon
+m|1996|YMS06;39569|1911 Maxwell Roadster
+d|red
+m|1996|YMS07;39570|1914 Prince Henry Vauxhall
+d|green and silver
+m|1996|YMS08;39571|1912 Simplex
+d|red
+
+s|Great Beers of the World Series IV
+m|1996|YGB19|1912 Ford T Van
+d|Yuenling
+m|1996|YGB20|1932 Ford AA Delivery Van
+d|Stroh's
+m|1996|YGB21|1932 Mercedes-Benz LS
+d|Dab
+m|1996|YGB22|1918 Atkinson Steam Wagon
+d|Beamish
+m|1996|YGB23|1920 Mack Drop Side Truck
+d|Tsingtao
+m|1996|YGB24|1939 Bedford Stake Bed Truck
+d|Tooheys
+
+s|American Muscle Cars Series I
+m|1996|YMC01|1970 Chevrolet Chevelle ss 454
+m|1996|YMC02|1971 Plymouth Cuda 440 6-pack
+m|1996|YMC03|1967 Pontiac GTO
+m|1996|YMC04|1970 Plymouth Roadrunner - Hemi
+m|1996|YMC05|1970 Ford Mustang Boss
+m|1996|YMC06|1968 Chevrolet Camaro SS 396
+#aka MCS06
+
+s|Olympic Heritage Collection
+m|1996|OL001|1922 Foden Steam Wagon
+d|Athens 1896
+d|limited to 5,004
+m|1996|OL002|1919 Walker Electric Van
+d|Paris 1900
+d|limited to 5,004
+m|1996|OL003|1918 Atkinson Model D Steam Wagon
+d|St. Louis 1904
+d|limited to 5,004
+m|1996|OL004|1920 Preston Tram Car
+d|London 1908
+d|limited to 5,004
+m|1996|OL005|1912 Ford Model T
+d|Stockholm 1912
+d|limited to 5,004
+m|1996|OL006|1918 Crossley Delivery Truck
+d|Antwerp 1920
+d|limited to 5,004
+m|1996|OL007|1907 Unic Taxi
+d|Paris 1924
+d|limited to 5,004
+m|1996|OL008|1927 Talbot Van
+d|Amsterdam 1928
+d|limited to 5,004
+m|1996|OL009|1930 Ford Model A Van
+d|Los Angeles 1932
+d|limited to 5,004
+m|1996|OL010|Mercedes Benz L5 Lorry
+d|Berlin 1936
+d|limited to 5,004
+m|1996|OL011|1939 Bedford Type KD Truck
+d|London 1948
+d|limited to 5,004
+m|1996|OL012|1948 Commer 8 CWT Van
+d|Helsinki 1952
+m|1996|OL013|1953 Austin A40 Van
+d|Melboume 1956
+
+s|Road Service Collection
+m|1996|YRS01;YYM39581|1955 Chevrolet 3100
+d|AAA Towing & Service
+m|1996|YRS02;YYM39582|1953 Ford F100
+d|Flying 'A' Tire Service
+m|1996|YRS03;YYM39583|1956 Chevrolet 3100
+d|Mobil Battery & Quick Start Service
+m|1996|YRS04;YYM39584|1954 Ford F100
+d|Sinclair Snow Plow
+m|1996|YRS05;YYM39585|1957 Chevrolet 3100
+d|Dixie Gas Parts & Service
+m|1996|YRS06;YYM39586|1955 Ford F100
+d|Red Crown Emergency Service
+m|1996|YRS06/B|1955 Ford F100
+d|Red Crown Emergency Service (route 84 variant)
+
+s|Golden Age of Steam Collection Series I
+m|1996|YAS01|Stephenson's Rocket
+m|1996|YAS02|Foden Coal Truck
+d|Hulton coals
+m|1996|YAS03|Aveling & Porter Steam Roller
+d|P. B. Coulson & Sons
+m|1996|YAS04;YYM39504|1917 Yorkshire Wagon
+d|De Selby Quarries
+m|1996|YAS05|Showman's Engine
+d|John Hoadley's
+m|1996|YAS06|Atkinson Logger
+d|J. B. Kind
+
+s|Trams, Buses and Trolleys Series
+m|1996|YET01|1920 Preston Tram Car
+m|1996|YET02|1930 Leyland Titan
+m|1996|YET03|1931 Diddler Trolley
+m|1996|YET04|1922 Scania Post Bus
+m|1996|YET05|1922 AEC Omnibus
+m|1996|YET06|1910 Renault Motor Bus
+
+s|Oldies but Goodies I
+m|1996|DYG01|1967 Mustang Fastback
+d|dark-blue with dark-red interior
+m|1996|DYG02|1957 Chevy Bel Air Coupe
+d|red with white roof, red and black interior
+m|1996|DYG03;30249|1957 Studebaker golden Hawk
+d|teal and white with black and white interior
+m|1996|DYG04|1953 Buick Skylark
+d|light-yellow with yellow and tan interior
+m|1996|DYG05|1959 Cadillac Coupe De Ville
+d|black with red interior
+m|1996|DYG06|1956 Chevy Corvette
+d|black and white with red and white interior
+m|1996|DYG07|1948 Tucker Torpedo
+d|dark-green with beige and red interior
+m|1996|DYG08|1955 Ford Thunderbird
+d|turquoise and ivory with turquoise and white interior
+
+s|Jack Daniel's
+m|1996|KS189/SA|Peterbilt Tractor Trailer
+d|"Jack Daniel's Tennessee"
+
+s|Fire Engine Series Special Edition
+m|1996|YSFE02|1936 LEYLAND CUB FK-7 Fire Engine
+d|with plinth
+m|1996|YSFE03|1905 Busch Self-Propelled Fire Engine
+d|with plinth
+
+s|Christmas Themes
+m|1996|YSC02|1955 Chevrolet 3100 Christmas Pick-up
+d|limited to 7,500
+m|1996|YSC03|1932 Ford AA Open Cab Matchbox Holiday Fire Engine
+m|1996|YY004/C;39604|1930 Duesenberg Model J Town Car
+d|limited to 7,500
+m|1996|YY021A/SA|1932 Ford Woody Wagon
+d|Pepsi
+
+s|Regional Models
+m|1996|YFE02/B|Land Rover Londonderry Bush Fire Brigade
+d|limited to 3,000
+m|1996|YY012/SA|1912 Ford Model T Truck
+d|Matchbox Junior Collectors Club
+d|limited to 3,500
+m|1996|YY027/SB|1922 Foden Steam Wagon
+d|MICA
+d|limited to 3,500
+m|1996|YY034/SA|1937 GMC Van
+d|Chester Toy and Doll Museum
+d|limited to 3,500
+m|1996|YPP02/SA;39491|1931 Morris Courier Van
+d|Classic Toys Magazine
+d|limited to 3,000
+m|1996|YY039/SC;32962|1926 Ford Model TT Van
+d|Matchbox U.S.A.
+d|limited to 3,500
+
+table||year,num,name|1997|0|1997
+
+s|Classic European Economy Cars
+m|1997|VEM01|1949 Volkswagen Cabriolet
+d|black and red with light-beige interior
+m|1997|VEM02;30528|1959 Austin Seven
+d|red with light-gray and black interior
+m|1997|VEM03|1949 Citroen 2 CV
+d|metallic-silver with dark-gray interior and top
+m|1997|VEM04;30530|1959 Messerschmitt KR 200
+d|yellow with yellow and black interior
+m|1997|VEM05|1962 Wolseley Hornet
+d|dark-maroon with cream roof and light-brown interior
+m|1997|VEM06|1966 Fiat 500
+d|light-green with cream and red interior
+m|1997|VEM07|1962 Renault 4L
+d|light-blue with beige interior
+
+s|International Fire Engine Series III
+m|1997|YFE13|1947 Citroen Type H Van
+m|1997|YFE14|1953 Ford Pick-up Truck
+m|1997|YFE15|1935 Mack AB Fire Engine
+m|1997|YFE16;31785|Dodge Route Van Fire Fighter Support Truck
+m|1997|YFE17|1939 Bedford Pump and Hose Truck
+m|1997|YFE18|1950 Ford E83W Van
+
+s|Fire Engine Series Special Edition
+m|1997|YSFE05|1880 merryweather Horse-Drawn Fire Engine
+d|with plinth
+m|1997|YFE05/SA|1932 Mercedes-Benz Solingenburg Fire Brigade
+d|limited to 3,500
+m|1997|YFE07/SA|1938 Mercedes-Benz KS15 Fire Truck Oberndorf
+d|limited to 3,500
+m|1997|YFE10/SA|1937 GMC Van Cessnock Rescue Squad
+d|limited to 3,500
+
+s|Industries of Fifties Collection - American Giants
+m|1997|YIS01|1955 Chevrolet 3100
+d|Harley-Davidson
+m|1997|YIS02|1955 Ford F100
+d|Caterpillar
+m|1997|YIS03|1955 Chevrolet 3100
+d|Genuine Parts and Services
+m|1997|YIS04;31567|1957 Chevrolet 3100
+d|American Airlines
+m|1997|YIS05|1954 Ford F100
+d|Pennsylvania Railroad
+m|1997|YIS06|1953 Ford F100
+d|Genuine Parts
+
+s|Whisky Series
+m|1997|YWG01|1930 Ford A
+d|Ballantine's
+m|1997|YWG02;31798|1926 Ford TT
+d|Long John
+m|1997|YWG03|1929 Morris Van
+d|Cutty Sark
+m|1997|YWG04|1937 GMC Van
+d|Laphr­Oaig
+m|1997|YWG05|1912 Ford Model T
+d|Sheep Dip
+m|1997|YWG06;31807|1932 Ford AA
+d|Teacher's
+
+s|Platinum Corvette collection
+m|1997|CCV01|1969 Chevrolet Corvette Convertible 427
+d|yellow
+m|1997|CCV02|1933 Corvette 40th Anniversary Edition
+d|maroon
+m|1997|CCV03|1957 Chevrolet Corvette Convertible
+d|light-blue and white with light-blue hard top and white soft top
+m|1997|CCV04|1997 Chevrolet Corvette Coupe
+d|red
+m|1997|CCV05|1963 Chevrolet Corvette Stingray
+d|silver
+m|1997|CCV06|1953 Chevrolet Corvette
+d|white
+
+s|North American Brewmasters Collection
+m|1997|CCY01|Peterbilt
+d|Miller Draft
+m|1997|CCY02;30217|Ford Aeromax Tractor Trailer
+d|Red Dog
+m|1997|CCY05;30219|Mack Tractor Trailer
+d|Honey Brown Lager
+m|1997|CCY03;30218|Kenworth Cabover
+d|Moosehead
+m|1997|CCY04;30299|Kenworth Tractor
+d|Corona
+m|1997|CCY06;31767|Tractor
+d|Pabst Blue Ribbon
+
+s|Holden Series
+m|1997|YHN01|1955 Holden FJ/2104 Panel Van
+d|gray
+d|limited 5,000
+m|1997|YHN02|1954 Holden FJ/2106 Utility
+d|limited 5,000
+m|1997|YHN03|1951 Holden 50/2106 Utility
+d|limited 5,000
+
+s|Regional Holdens
+m|1997|YHN01/SA|1955 FJ Holden
+d|Auto One Parts & Accessories
+d|limited 3,500
+m|1997|YHN01/SB|1955 Holden FJ/2104 Panel Van
+d|Temora ambulance
+d|limited 3,500
+
+s|Limited Editions
+s|April 1997 Collector 1
+m|1997|YY027/SC|1922 Foden
+d|F.Parkers & Co. Timber Importers
+d|limited to 5,000
+m|1997|YY035/SB|1922 Scania
+d|Snow Mountain Inn Ski Lodge Resort
+d|limited to 5,000
+s|August 1997 Collector 2
+m|1997|YY018E/SA;31806|1918 Atkinson Steam Wagon
+d|F.C.Conybeare Gardeners
+d|limited to 9,500
+m|1997|YY020A/SA|1937 Mercedes-Benz 540K
+d|Jack Daniel's
+d|limited to 7,500
+m|1997|YY039/SF|1913 Ford Model TT
+d|Jack Daniel's
+d|limited to 12,500
+m|1997|YRS06/SA|1955 Ford F-100
+d|Country Fire Marshal
+d|limited to 9,500
+s|November 1997 Collector 3
+m|1997|YY017A/SA|1938 Hispano-Suiza
+d|limited to 9,500
+m|1997|YY019B/SC;36302|1913 Fowler B6 Showman's Engine
+d|L.J.Searle & Sons
+d|limited to 9,500
+m|1997|YY032A/SA;31676|1932 Mercedes-Benz L5 Lorry
+d|O'Neill Produce
+d|limited to 12,500
+
+s|Harley-Davidson Tractor Trailer
+m|1997|KS188SA|Harley-Davidson Tractor Trailer
+
+s|Various Other Christmas Issues
+m|1997|YY012/SB|1912 Ford Model T Ambulance 5,000
+m|1997|YY034/SC|1937 GMC Ambulance Van 5,000
+m|1997|YY030A/SA;31775|1920 Mack AC Truck
+m|1997|DY016/D|1967 Ford Mustang Fastback
+d|red, white stripes
+m|1997|YSC04|1932 Ford AA Open Cab Santa's 1997 Fire Engine
+d|limited to 7,500
+m|1997|YY062A/B;31780|Ford AA Pick-up Truck The Snowy Carolers
+
+s|Charity Limited Editions
+m|1997|YCH04|1929 Morris Light Van
+d|RSPCA
+d|limited to 5,000
+
+s|Regional Code One Charity Editions
+s|Ronald McDonald House
+m|1997|YCH02/1|1926 Ford Model TT Van
+d|red and yellow, in pair with YCH02/2
+d|limited to 6,000
+m|1997|YCH02/2|1930 Ford Model A Van
+d|light blue and dark blue, in pair with YCH02/1
+d|limited to 6,000
+m|not made|YCH03|Ford Model T
+m|not made|YCH05|Renault
+
+s|Regional Code One
+m|1997|YY019B/SA|Fowler B-6 Showman's Engine
+d|Lesney Products
+d|limited to 3,500
+m|1997|YY019B/SB|Fowler B-6 Showman's Engine
+d|Billy Smart's
+d|limited to 3,500
+m|1997|YY021B/SB|Aveling Porter Steam Road Roller
+d|FRED DIBNAH
+d|limited to 3,500
+m|1997|YY048/SA|F1929 Garrett Steam Wagon
+d|PICK­FORDS
+d|limited to 3,500
+m|1997|YY048/SB|1929 Garrett Steam Wagon
+d|CHESTER MYSTERY PLAYS
+d|limited to 3,500
+m|1997|YPP02/SB;31597|1931 Morris Courier Van
+d|LESNEY PRODUCTS
+d|limited to 3,000
+
+s|1997 J.C.PENNY SERIES (U.S.A. only)
+m|1997|YJC01|1930 Ford Model A Van
+d|PENNEYS
+m|1997|YJC08|1937 GMC Van
+d|JCPENNEY
+m|1997|YJC09|1920 Mack AC Truck
+d|PENNEYS
+m|1997|YJC13|1926 Ford Model TT Van
+d|J.C.PENNEY CO.
+
+table||year,num,name|1998|0|1998
+
+s|Coke Cruisers
+m|1998|YMC05/B;35247|1970 Ford Boss Mustang
+d|yellow and red with red interior
+m|1998|YMC06/B;YYM34819;35246|1968 Chevrolet Camaro
+d|black and yellow with red interior
+m|1998|YMC03/B|1967 Pontiac GTO
+d|red with black roof, red, yellow and black interior
+m|1998|DYG08/B|1955 Ford Thunderbird
+d|black with red roof, red and black interior
+m|1998|DYG02/B;32099|1957 Chevrolet Bel Air
+d|yellow and red with red and black interior
+m|1998|CCV06/B;35242|1953 Chevrolet Corvette
+d|red and yellow with red and yellow interior
+
+s|The Classic 1957 Chevrolet 40th Anniversary Collection
+m|1998|DY027/SB|1957 Chevy Convertible
+d|red with white top, red and white interior
+m|1998|VCV01|1957 Chevy Nomad
+d|black with light-gray roof, black and light-gray interior
+m|1998|DYG02/SA|1957 Chevy Bel Air
+d|metallic-light-purple with cream roof, black and gray interior
+m|1998|YRS05/SA|1957 Chevy 3100 Pick-Up
+m|1998|CCV03/SA|1957 Chevy Corvette
+m|1998|RCC01|Separate display for the set
+
+s|American Muscle Cars Series II
+m|1998|YMC07|1970 Plymouth GTX
+m|1998|YMC08|1966 Chevrolet Chevelle SS 396
+m|1998|YMC09|1966 Ford Fairlane
+m|1998|YMC10|1969 Dodge Charger
+m|1998|YMC11|1970 Oldsmobile 442 Convertible
+m|1998|YMC12|1971 Dodge Challenger
+#aka MCS12
+
+s|International Fire Engine Series IV
+m|1998|YFE19|1904 Merryweather Fire Engine
+m|1998|YFE20;32069|1912 Mercedes-Benz Fire Engine
+m|1998|YFE21|1907 Seagrave AC53 Fire Engine
+m|1998|YFE22;32067|1916 Ford Model T Fire Engine
+m|1998|YFE23|1906 Waterous Fire Engine
+m|1998|YFE24;32065|1911 Mack Fire Engine
+
+s|Fire Engine Series Special Edition
+m|1998|YSFE04|1927 Ahrens-Fox N-S-4
+
+s|Coca-Cola Series I
+m|1998|YPC01;34814|1957 Chevy Pick-up
+m|1998|YPC02;34815|1937 GMC Van
+m|1998|YPC03;34816|1920 Mack AC Truck
+m|1998|YPC04;34817|1912 Ford Model T Van
+m|1998|YPC05;34818|1930 Ford Model A Pickup
+m|1998|YPC06;34819|1932 Ford Model AA Truck
+
+s|Steam Powered Vehicles Collection Series II
+m|1998|YAS07|1929 Fowler Crane
+m|1998|YAS08|1912 Burrell Traction Engine
+m|1998|YAS09|1929 Garrett Steam Wagon
+m|1998|YAS10|1918 Atkinson Steam Wagon
+d|City of Westminster
+m|1998|YAS11|1917 Yorkshire Steam Wagon
+d|Great Western Railway
+m|1998|YAS12;32062|1922 Foden Steam Wagon
+
+s|Cars of the Rich & Infamous
+m|1998|DYM35178|1937 Cord 812
+d|blue with cream roof and interior
+m|1998|DYM35179|1931 Stutz Bearcat
+d|yellow with dark-brown interior
+m|1998|DYM35180|1938 Lincoln Zephyr
+d|metallic-lilac with black top and dark-red interior
+m|1998|DYM35181|1933 Cadillac 452 Towncar
+d|olive-green with cream roof and dark-brown interior
+m|1998|DYM35182|1930 Duesenberg Model J
+d|red with white roof, black trunk, white and red interior
+m|1998|DYM35185|1931 Mercedes-Benz 770
+d|black with gray roof and black interior
+
+s|1930's & 1940's Pick-up Truck Collection
+m|1998|YTC01|1941 Chevrolet Model AK 1/2 Ton
+m|1998|YTC02|1946 Dodge Power Wagon WDX
+m|1998|YTC03|1940 Ford P/U Truck
+m|1998|YTC04|1939 REO Speed Delivery Vehicle
+m|1998|YTC05|1938 Studebaker Coupe Express K-Model
+m|1998|YTC06|1934 International Harvester C-Series
+
+s|International Fire Engine Series V
+m|1998|YYM35187|1954 Ford F-100 Civil Defense Truck
+m|1998|YYM35188|1952 Landrover Rescue Vehicle
+m|1998|YYM35189|1941 Chevrolet Army Fire Truck
+m|1998|YYM35190|1932 Ford AA Forest Fire Truck
+m|1998|YYM35191|1939 Bedford Airport Crashtender
+m|1998|YYM35192|1937 GMC Panel Van Ambulance
+
+s|Oldies but Goodies II
+m|1998|DYG09|1959 Chevrolet Impala Convertible
+d|white with black top and dark-red interior
+m|1998|DYG10|1947 Chrysler Town and Country
+d|beige woody with beige, brown and yellow interior
+m|1998|DYG11|1958 Buick Special Convertible
+d|dark-metallic-green with white interior
+m|1998|DYG12|1956 Ford Fairlane
+d|blue and white
+m|1998|DYG13|1953 Cadillac Eldorado Coupe
+d|black with white top, black and white interior
+m|1998|DYG14|1948 DeSoto Sedan
+d|maroon with beige interior
+m|1998|DYG15|1958 Nash Metropolitan Convertible
+d|turquoise and white
+m|1998|DYG16|1955 Chevrolet Bel Air
+d|red and ivory
+
+s|Matchbox Exclusives
+m|1998|DY014/SA;35493|1946 Delahaye Type-145
+d|light-green and dark-green with beige interior
+m|1998|DYM36097|Ford Aeromax
+d|gray and black, chrome interior, "Jack Daniels"
+
+s|Limited Editions
+m|1998|DY011/SA;34586|1948 Tucker Torpedo
+d|creamy yellow
+m|1998|YY013/SA;34588|1918 Crossley
+d|March 1998 Collector 4
+d|Floral Delivery Truck
+d|limited to 9,500
+m|1998|YY053/SA| 1938 Mercedes-Benz 770K
+d|limited to 9,500
+m|1998|YY030A/SB;35272|1920 Mack AC
+d|August 1998 Collector 5
+d|Fisherman's Wharf
+d|limited to 9,500
+m|1998|YY033/SB;35275|1957 BMW 507
+d|limited to 7,500
+m|1998|MB300/SC|1956 Ford F-100 Pick-up
+d|(not a Yesteryear Model but free 1-75 model if you bought 2 Models of Yesteryear)
+d|limited to 4,500
+m|1998|YRS07/SA;35523|Ford F-100
+d|November 1998 Collector 6
+d|50th Anniversary Ford F-Series Pick-up
+d|limited to 9,500
+m|1998|YYM36791|Anheuser-Busch Horse-Drawn Delivery Wagon
+d|December 1998 Collector 7
+d|limited to 7,500
+m|1998|YYM36793|1922 Christmas Scania Vabis Post Bus
+d|limited to 5,000
+m|1998|YY052/B;35399|1920 Mack AC
+d|Collectors Guild model
+
+s|Holden Series
+m|1998|YHN01/SC;31571|1955 Holden FJ/2104 Panel Van
+d|Automodels
+d|limited 3,500
+
+s|Regional Code One Charity Editions
+m|1998|YCH06|1920 Mack AC
+d|limited to 5,000
+m|1998|YCH07|1930 Ford Model A
+d|limited to 5,000
+m|1998|YCH08|1932 Mercedes-Benz L5
+d|limited to 6,000
+m|1998|YCH09|1931 Morris Van
+d|limited to 5,000
+m|1998|YCH10;31562|Holden Panel Van
+d|limited to 5,000
+m|1998|YCH11|Holden Utility
+d|limited to 5,000
+
+s|McDonald's
+m|1998|DYM34577|Mack B61 Tractor Trailer 1955
+d|red, yellow mudguards & roof trailer
+
+s|Christmas Themes
+m|1998|KS188/SB1|Kenworth with plinth
+m|1998|YYM35193|Ahrens-Fox Quad Coca-Cola Holiday Fire Engine
+
+s|Coke Caravan Tractor Trailer
+m|1998|KS199/A|Coke Caravan Tractor Trailer
+
+s|Shell Kentworth Tractor Trailer
+m|1998|KS200/A|Kenworth Shell Tractor Trailer
+
+s|Highway Commanders
+m|1998|KS193/A|Peterbilt
+m|1998|KS194/A|Kenworth
+m|1998|KS195/A|freightliner
+
+s|International Brewmasters Collection
+m|1998|CCY07;31327|Scania Tractor Trailer
+d|Skol Lager
+m|1998|CCY07/B;31329|Scania Tractor Trailer
+d|Castlemaine XXXX
+m|1998;34827|CCY05/C|Mack CH600
+d|Labatt Blue
+m|1998|CCY08;31328|DAF 3300
+d|Holsten Pils
+m|1998|CCY02/B;34828|Ford Aeromax
+d|Dos Equis
+m|1998|CCY06/B|Peterbilt
+d|Budweiser
+
+table||year,num,name|1999|0|1999
+
+s|International Fire Engine Series VI
+m|1999|YYM37631|1948 GMC C.O.E. Tanker/Pumper
+m|1999|YYM37632|1932 Mercedes-Benz L5 - Spotlight/Generator Truck
+m|1999|YYM37633|1920 Mack AC Water Tower Truck
+m|1999|YYM37634|1932 Ford Model AA High Pressure Truck
+m|1999|YYM37635|1936 Leyland Cub Open Top Ladder Truck
+m|1999|YYM37636|1946 Dodge Power Wagon Brush/Field Truck
+
+s|Fire Engine Series Special Edition
+m|1999|YYM35810|1956 Mack B-95 Pumper
+m|1999|YYM36400|1952 Land Rover Rescue Vehicle
+
+s|Pioneers of Progress - International Workhorses
+m|1999|YYM36831|1931 Scammell
+d|Great Western Railway
+m|1999|YYM36832|1920 Mack AC Truck
+d|Three M
+m|1999|YYM36833|1937 International DR60
+d|Harley-Davidson
+m|1999|YYM36834|1937 Dodge Airflow Tanker
+d|Texaco
+m|1999|YYM36835|1933 Diamond T Truck
+d|Caterpillar
+m|1999|YYM36836|1948 GMC C.O.E.
+d|U.S.Steel
+
+s|Small Town Pick-ups of the Past Collection
+m|1999|YYM38035|1951 FX Holden Pick-up Truck
+d|Mr. Fixit
+m|1999|YYM38038|1953 Ford F-100 Pickup
+d|Custer
+m|1999|YYM38039|1934 International Pick-up
+d|Wilson's Grain & Feed
+m|1999|YYM38040|1940 Ford Pick-up
+d|Murdock Lumber
+m|1999|YYM38041|1939 REO Pick-up
+d|Forgione Stone & Brick Mason
+m|1999|YYM38042|1941 Chevy Pick-up
+d|Kent's Dairy
+
+s|Budweiser Sports Cars
+m|1999|DYM37597|1959 Cadillac
+d|Michelob Golf
+d|black, yellow down folded hood
+m|1999|DYM37598|1969 Dodge Charger
+d|red & yellow
+d|Bud Racing
+m|1999|DYM37599|1971 Plymouth Barracuda
+d|Budweiser Fly Fishing
+d|yellow & dark-blue
+m|1999|DYM37600|1957 Chevrolet Bel Air
+d|Budweiser Boxing
+d|blue, red roof
+m|1999|DYM37619|1964 1/2 Mustang Convertible
+d|Bud Light Rodeo
+d|metallic silver & dark blue
+m|1999|DYM37622|1968 VW Beetle Cabriolet
+d|Budweiser Bowling
+d|red, blue, yellow down folded hood
+
+s|Budweiser Vintage Trucks
+m|1999|YVT01|1932 Diamond T Truck
+m|1999|YVT02;35254|1937 Dodge Airflow Refrigerated Van
+m|1999|YVT03|1926 Ford Model TT Delivery Van
+m|1999|YVT04|1955 Chevy Pick-up Truck
+m|1999|YVT05|1940 Ford Pick-up Truck
+m|1999|YVT06|1948 GMC C.O.E. Refrigerated
+
+s|The First Great 4x4 Collection
+m|1999|YYM35053|1946 Dodge Power Wagon
+m|1999|YYM35054|1948 Landrover Series I
+m|1999|YYM35055|1945 Jeep CJ2A
+m|1999|YYM35056|1961 International Scout 80
+m|1999|YYM35057|1966 Ford Bronco
+m|1999|YYM35058|1968 Chevy K/5 Blazer
+
+s|1999 Coca-Cola Series I
+m|1999|37970|1926 Ford Model TT Van
+m|1999|37971|1930 Ford Model A Van
+m|1999|37972|1937 Dodge Airflow
+m|1999|37973|1955 Ford F100 Pick-up
+m|1999|37974|1957 Chevy Bel Air
+m|1999|37975|1959 Cadillac Convertible
+
+s|1999 JC Penney Coca-Cola set
+m|1999|38090|Set of three vehicles
+d|1932 Mercedes-Benz
+d|1930 Ford Model A Van
+d|1929 Morris Van
+
+s|Great Tanks of World War II
+m|1999|DYM37579|Sherman M4 A3 Tank 76mm
+d|army-green
+m|1999|DYM37580|Panzer F1
+d|blue/grey
+m|1999|DYM37581|Panther IV Type A
+d|sand colored, brown deco
+m|1999|DYM37582|Wirbelwind Flak PZ IV
+d|sand colored, green & brown decoration
+m|1999|DYM37583|T - 34/76 Russian
+d|green & brown deco
+m|1999|DYM37584|Churchill MK IV
+d|army-green
+m|1999|DYM37585|Sherman Mk4 A3
+d|green & sand colored
+m|1999|DYM37586|Panzer IV Type H/J
+d|sand colored & green deco
+
+s|Vintage City Police
+m|1999|DYM38019|1912 Ford Model T Van
+d|black and gold, "Dallas", black interior
+m|1999|DYM38020|1966 Ford Fairlane
+d|white and green, "Miami", black interior
+m|1999|DYM38021|1933 Cadillac
+d|black and white, "Salt Lake City", black interior
+m|1999|DYM38022|1970 Plymouth GTX
+d|white with blue and silver, "Denver", black interior
+m|1999|DYM38023|1957 Chevy Bel Air
+d|black and white, "Atlanta", black and chrome interior
+m|1999|DYM38024|1926 Ford Model T
+d|green and black, "New York City", black interior
+
+s|Classic 50's Automobilia Collection
+m|1999|DYM35265|1956 Mack
+d|yellow and black, silver trailer with yellow and black, "Pennzoil", black interior
+m|1999|DYM35266|1956 Mack
+d|black and Red. black trailer with green, red and white, "Texaco", black interior
+m|1999|DYM35267|1939 Peterbilt
+d|red and light-blue, light blue, silver and red trailer, "Pep Boys", light-brown interior
+m|1999|DYM35268|1956 Mack
+d|blue and yellow, silver trailer with blue, yellow and white, "Champion", blue interior
+m|1999|DYM35269|1939 Peterbilt
+d|blue and white, white trailer with blue and yellow, "Michelin", black interior
+m|1999|DYM35270|1939 Peterbilt
+d|black and red, silver trailer with black, white and red, "Sinclair", black interior
+
+s|Coke Vintage Tractor Trailer
+m|1999|DYM38050|1939 Peterbilt Tractor Trailer
+d|yellow and red, silver and red trailer, "Coca-Cola", beige and red interior
+
+s|Vintage Big Rig Cabs
+m|1999|DYM35214|Mack B-61 1956
+d|orange cab and inner wheels, black mudguards & chassis
+m|1999|DYM35216|1948 Diamond T
+d|blue, white doors & bumper, black bonnet
+m|1999|DYM35217|1939 Peterbilt
+d|red cabin, black bonnet, mudguards & chassis
+
+s|Matchbox Exclusives 1999
+m|1999|DYM36838  |Kenworth Bulk Transporter
+d|white, striping in orange, red & blue, "Gulf"
+m|1999|DYM36840 |Citroën 2CV 1957
+d|yellow & black, black textured sunshine roof
+m|1999|DYM37798 |Buick Skylark 1953
+d|metallic-light green, white down folded hood
+m|1999|DYM37796 |Mack CH600 Tractor Trailer
+d|maroon, gold plated, "The New Millennium"
+
+s|Anheuser-Busch/Budweiser trucks
+m|1999|DYM36670|Peterbilt
+d|red & white, "Budweiser"
+m|1999|DYM36671|Kenworth
+d|black & red, "Michelob"
+m|1999|DYM36672|Mack CH600
+d|blue, "Bud Lite"
+m|1999|DYM36674|Ford Aeromax
+d|green & yellow, "O'Doul's"
+m|1999|DYM36675|Kenworth
+d|blue, red & blue, "Busch"
+m|1999|DYM36677|Peterbilt
+d|dark-blue, "Bud Ice"
+
+s|Harley Davidson
+m|1999|DYM37040|Peterbilt Tractor Trailer
+d|black with orange, yellow and white deco, "Harley Davidson"
+
+s|Jack Daniels
+m|1999|DYM37904|Kenworth W900 Tractor Trailer
+d|black with silver trailer, gray interior, "Jack Daniels"
+
+s|Anheuser Busch/Budweiser
+m|1999|DYM38233|Diamond-T Tractor Trailer
+d|red and white, silver and white trailer, "Budweiser", black interior
+
+s|Hershey Chocolate Bar 100th anniversary
+m|1999|DYM38277|Freightliner C.D.E. Tractor Trailer
+d|dark brown and silver, "Hershey's"
+
+s|Master of the Highway
+m|1999|DYM38007|Ford Aeromax
+d|orange & blue with white trailer, "Roadway Express", chrome interior
+m|1999|DYM38008|Ford Aeromax
+d|white with red and green deco, "Consolodated Freightways", chrome interior
+m|1999|DYM38009|Ford Aeromax
+d|blue & silver, "Overnite", chrome interior
+m|1999|DYM38010|Mack CH 600
+d|orange, white and silver, "Yellow", chrome interior
+
+s|Holiday Greetings from Budweiser
+m|1999|DYM38258|Peterbilt 359 Tractor Trailer
+d|red and white, "Budweiser", beige interior
+
+s|Limited Editions
+s|March 1999 Collector 8
+m|1999|YYM36839|McDonald's 1948 Dodge Route Van
+d|9,500 made
+s|Juli 1999 Collector 9
+m|1999|YYM37797|1920 Preston Tram Car
+d|Coca-Cola
+d|limited to 12,500
+s|October 1999 Collector 10
+m|1999|YYM36837|1929 Fowler CranE
+d|The London Traction Haulage Co. Ltd.
+d|limited to 5,000
+m|1999|YYM38259|1920 Mack Fire Engine  10,000
+d|Matchbox Collectors Guild 1998
+m|1999|YYM38030|1926 Ford Model TT Van
+
+table||year,num,name|2000|0|2000
+
+s|The Red Cross Series I
+m|2000|YYM38057|1912 Ford Model T American Field Service Ambulance
+m|2000|YYM38058|1937 GMC Mercy Hospital Ambulance
+m|2000|YYM38059|1947 Citroen H Van French Field Service Ambulance
+m|2000|YYM38060|1950 Ford E83 W United Kingdom Field Service Ambulance
+m|2000|YYM38061|1955 Holden FJ Van Australian Field Service Ambulance
+m|2000|YYM38062|1959 Mercedes-Benz L 408 German Field Service Ambulance
+
+s|U.S. Post Office Collection
+m|2000|YYM38237|1912 Ford Model T Postal Truck
+m|2000|YYM38238|1920 Mack AC Postal Truck
+m|2000|YYM38239|1932 Ford Model AA Postal Truck
+m|2000|YYM38240|1937 GMC Postal Van
+m|2000|YYM38241|1948 Dodge Route Postal Van
+m|2000|YYM38242|1961 International Scout Postal Truck
+
+s|Coca-Cola Series II - Vintage Fender Edition
+m|2000|YYM96504|1948 GMC COE
+d|What You Want is Coke
+m|2000|YYM96505|1937 Dodge Airflow
+d|Coca-Cola Goes Along
+m|2000|YYM96506|1932 Mercedes-Benz L5
+d|The Drink that Makes the Pause Refreshing
+m|2000|YYM96507|1932 Ford Model AA
+d|Best Friend Thirst Ever Had
+m|2000|YYM96508|1929 Morris Light Van
+d|The Pause that Refreshes
+m|2000|YYM96509|1926 Ford Model TT
+d|Around the Corner from Everywhere
+
+s|Spirits of the World Collection
+m|2000|YYM37788|1948 GMC C.O.E. Truck
+d|Jim Beam
+m|2000|YYM37789|1926 Ford Model TT
+d|Bacardi
+m|2000|YYM37790|1937 Dodge Airflow Van
+d|Jack Daniel's
+m|2000|YYM37791|1929 Morris Cowley Light Van
+d|Cutty Sark
+m|2000|YYM37792|1910 Renault AG Van
+d|Dewar's
+m|2000|YYM37793|1929 Morris Cowley Light Van
+d|Beefeater
+
+s|Limited Editions
+s|February 2000 Collector 11
+m|2000|YYM38289|1938 Studebaker Coupe Express K-Model
+d|Texaco 10,000
+
+s|Evolution of the 4x4 - Great Outdoors
+m|2000|YYM38051|1946 Dodge Power Wagon
+d|White Tail Reserve
+m|2000|YYM38052|1948 Land Rover Series I
+d|U.K. Pheasant Club
+m|2000|YYM38053|1945 Jeep CJ2A
+d|Bass Haven
+m|2000|YYM38054|1961 International Scout 80
+d|Stockwell Trout
+m|2000|YYM38055|1966 Ford Bronco
+d|Marlin Adventures
+m|2000|YYM38056|1969 Chevy K/5 Blazer
+d|Mallard Acres
+
+s|The State Police Interceptor Series
+m|2000|DYM96659|1966 Chevrolet Chevelle SS396
+d|Arizona Highway Patrol
+m|2000|DYM96663|1971 Dodge Challenger
+d|Texas Highway Patrol
+m|2000|DYM96664|1970 Plymouth Roadrunner
+d|New York - Hemi
+m|2000|DYM96665|1966 Ford Fairlane
+d|Florida Highway Patrol
+m|2000|DYM96666|1957 Chevrolet Bel Air
+d|Ohio State Highway Patrol
+m|2000|DYM96667|1970 Ford Mustang Boss 429
+d|Nevada Highway Patrol
+
+s|Platinum Jack Daniels 150th Birthday Collection
+m|2000|92155|1948 GMC C.O.E.
+d|Jack Daniel's Portriat
+m|2000|92156|1932 Ford Model AA 1.5 Ton Truck
+d|Jack Daniel's Old No. 7
+m|2000|92157|1937 G.M.C. Van
+d|Jack Daniel's White Rabbit Saloon
+m|2000|92158|1926 Ford Model TT Van
+d|Jack Daniel's Old Time Whisky
+m|2000|92159|1912 Ford Model T Van
+d|Jack Daniel's Gold Medal
+m|2000|92165|1930 Ford Model A Pick-up Truck
+d|Jack Daniel's Single Barrel Tennessee Whisky
+
+s|Autumn Catalogue
+m|2000|YYM38044|1920 Mack AC Tanker
+d|The Texas Company
+m|2000|YYM38298|1955 Chevrolet 3100
+d|Texaco
+m|2000|YYM92087|1934 International Harvester C Series Pick-up Truck
+d|Jack Daniels
+m|2000|YYM96546|1948 GMC COE Delivery Truck
+d|Coca-Cola
+m|2000|YYM96652|1941 Chevrolet Pick-up Truck
+d|Harley Davidson
+
+s|Internet Special
+m|2000|YYM26108;39508|1955 Chevrolet 3100
+d|Matchbox Collectibles
+d|limited to 5,000
+m|2000|YYM38182|1932 Ford Model AA Fire Engine
+m|2000|DYM38236|1970 Chevrolet Chevelle
+
+s|2000 Various Other Special Issues
+m|2000|YYM38336 |Sydney 2000 Olympic
+d|1566 Holden FJ/2104 Panel Van
+d|Sydney 2000 Olympic Torch Relay
+d|limited to 5,000
+d|Model came with a special pin
+m|2000|38047 |Sydney 2000 Olympic Set of 3 Models
+d|limited to 7,500
+d|YYM38048 1956 Holden FJ PICK-UP
+d|YYM96532 1956 Holden FJ/225
+d|YYM96533 1956 Holden FJ/2104 Panel Van
+d|all bear "Sydney 2000 Olympic Games"
+
+s|Regional Code One
+m|2000|YYM92093|1912 Ford Model T Van
+d|See's Candy Company Summer
+d|limited to 10,000
+m|2000|YYM92294|1926 Ford Model TT Van
+d|See's Candy Company: The People's Choice for Any Party
+d|limited to 10,000
+m|2000|YYM92296|1937 GMC Van
+d|See's Candy Company Mail a Box of Christmas Candies Now
+d|limited to 10,000
+m|2000|YYM37799|1955 Chevrolet 3100
+d|Texaco, USA Olympic
+d|limited to 2,000
+
+s|Americanos 2000
+t|A 12 line-up of 1:43 scale models American series, offered through mass retail outlets. There are three models, each in the livery of Texaco Hershey, Campbell, and McDonald's.
+m|2000|38262|1953 Texaco Ford F-100 Pick-up
+m|2000|96432|1955 Texaco Chevy 3100 Tow Truck
+m|2000|96634|1930 Texaco Ford Model A Pick-up Truck
+m|2000|38263|1956 Hershey's Chevy 3100 Pick-up
+m|2000|96436|1926 Hershey's Ford Model TT Van
+m|2000|96439|1937 Hershey's GMC Van
+m|2000|38261|1957 McDonald's Chevy Bel Air Hardtop
+m|2000|96435|1957 McDonald's Chevy 3100 Pick-up
+m|2000|96635|1970 McDonald's Plymouth Road Runner-Hemi
+m|2000|96636|1912 Campbell's Ford Model T Van
+m|2000|96437|1932 Campbell's Ford Model AA 1 1/2 Truck
+m|2000|38264|1970 Campbell's Ford Mustang Boss 429
+
+s|2000 Coca-Cola Series 2
+m|2000|96553|1970 Chevrolet Chevelle SS454
+m|2000|96554|1940 Ford Pick-up truck
+m|2000|96555|1955 Ford Thunderbird
+m|2000|96556|1957 Chevrolet 3100
+m|2000|96557|1958 Porsche 356 A Coupe
+m|2000|96558|1932 Ford Model AA 1 1/2 Ton Truck
+
+s|Austin Powers
+m|2000|DYM38094|Volkswagen Beetle Concept Convertible
+d|multi-colored flower design, black top, gray interior
+m|2000|DYM37905|Jaguar E-Type
+d|dark blue with union jack, black interior
+
+s|Platinum Texaco Collection Vintage Delivery Trucks
+m|2000|92119|1955 Chevrolet 3100 Tow Truck
+d|Fire Chief Gasoline
+m|2000|92121|1940 Chevrolet Model AK 1/2 Ton Pick-up
+d|Texaco Halvoline
+m|2000|92122|1940 Ford Pick-up Truck
+d|Sky Chief Marine
+m|2000|92123|1920 Mack AC Truck
+d|Texaco
+m|2000|92124|1934 International Harvester C Series Pick-up Truck
+d|Kenner's
+m|2000|92125|1930 Ford Model A Pick-Up Truck
+d|Carty's
+
+s|Platinum Autumn 2000 Catalogue
+m|2000|92024|1956 Mack B-95, Delivery Truck
+d|Budweiser
+m|2000|96769|1956 Mack B-95, Flatbed
+d|Jack Daniels
+m|2000|92175|1926 Ford Moel TT Van
+d|Campbell's Soup
+t|The white 'over' box mentions number DYM92175
+
+s|Platinum Matchbox Collectibles Club Models
+m|2000|92312|1948 GMC C.O.E.
+d|Matchbox Collectors Guild 2000
+
+s|McDonald's 45th Anniversary
+m|2000|DYM38314|Freigthliner C.O.E. Tractor Trailer
+d|red and yellow, "McDonald's"
+
+s|The Hershey's 18-Wheeler
+m|2000|DYM92058|1939 Peterbilt Tractor Trailer
+d|black, light-yellow and brown "Hershey's Chocolate", beige interior
+
+s|Matchbox Exclusives 2000
+m|2000|DYM92015|1948 Diamond T Tractor Trailer
+d|black and white, "Jack Daniels", black interior
+m|2000|DYM38179|1935 Auburn Speedster 851
+d|white and red with red interior
+d|Collector 11
+m|2000|DYM92013|1968 VW Beetle
+d|red, blue and yellow with red top, blue, yellow and black interior, "McDonald's"
+m|2000|DYM92139|1957 Chevrolet Corvette
+d|metallic-light-blue, white top, with red interior
+m|2000|DYM92127|Peterbilt 359 / trailer with 2 Moko Lesney No 9 & No 26
+d|blue and yellow with yellow interior
+
+s|Coca-Cola Convoys
+m|2000|DYM96653|1956 Mack B-61
+d|yellow and red, with red trailer, "Coca-Cola", black interior
+m|2000|DYM96654|1939 Peterbilt
+d|red with red and yellow trailer, black interior
+m|2000|DYM96655|1956 Mack B-61
+d|black and yellow with yellow trailer, "Haf A Coke", black interior
+m|2000|DYM96656|1939 Peterbilt
+d|red and yellow, with red trailer, yellow interior
+m|2000|DYM96657|1956 Mack B-61
+d|light-blue and white, with light-blue trailer, "Please Refresh", black interior
+m|2000|DYM96658|1939 Peterbilt
+d|white and red, with white trailer, "Come In...", black interior
+
+table||year,num,name|2001|0|2001
+
+s|Matchbox 50th Anniversary
+m|2001|92654  |M1A1 Abrams
+m|2001|92664  |M4A3 Sherman
+m|2001|92674  |M3A2 Halftrack
+m|2001|97054  |M60A3
+m|2001|97055  |Jeep Willys with trailer
+m|2001|97056  |Transporter
+
+s|Limited Editions
+s|Augustus 2001 Collector 12
+m|2001|YYM92014|1937 GMC Van Coca-ColA
+
+d|Matchbox Collectors Guild
+m|2001|95166|1939 Bedford Pump and Hose Truck 2001
+
+s|Americanos 2001
+m|2001|92458|1967 Texaco Pontiac GTO
+m|2001|95110|1946 Texaco Dodge Power Wagon
+m|2001|95301|1966 Texaco Ford Bronco
+m|2001|92622|1932 Hershey Ford Model AA Truck
+m|2001|92631|1912 Hershey Ford Model T Van
+m|2001|96436|1930 Hershey Ford Model A Van
+m|2001|92623|1955 McDonald's Ford F-100 Pick-up
+m|2001|92633|1968 McDonald's Ford Chevy Camaro
+m|2001|92300|1948 McDonald's GMC C.O.E.
+m|2001|92621|1937 Campbell's Dodge Airflow
+m|2001|92626|1937 Campbell's GMC Van
+m|2001|95117|1941 Campbell's Chevy Pick-up
+
+s|2001 Coca-Cola Series 3
+m|2001|92459|1937 Dodge AirFlow
+d|Christmas
+m|2001|92464|1930 Ford Model A Van
+d|Valentine's Day
+m|2001|92465|1926 Ford Model TT Van
+d|Easter
+m|2001|92466|1932 Ford Model AA 1 1/2 Ton Truck
+d|Memorial Day
+m|2001|92467|1912 Ford Model T Van
+d|Independancy Day
+m|2001|92468|1937 GMC Van
+d|Halloween
+
+s|2001 Coca-Cola Series IV - Billboard Drive Refreshed
+m|2001|92828|1955 Ford THUNDERBIRD CONVERTIBLE
+m|2001|92829|1948 Tucker Torpedo
+m|2001|92830|1959 CADILLAC COUPE DE VILLE
+m|2001|92831|1957 Chevrolet 3100
+m|2001|92832|1940 Ford Pick-up Truck
+m|2001|92833|1957 Chevrolet BEL AIR
+
+s|2001 Motor Trend
+m|2001|92624|1971 Dodge Challenger
+m|2001|95116|1964 Ford Mustang
+m|2001|95302|1954 Chevrolet Corvette
+m|2001|95303|1948 Tucker Torpedo
+
+s|2001 Vintage Fire Collection
+m|2001|92578|1930 Ford Model A
+m|2001|92579|1932 Mercedes-Benz Ladder Truck
+m|2001|92581|1932 Ford Model AA Fire Engine
+m|2001|92582|1932 Ford Model AA Open-Cab Fire Engine
+m|2001|92583|1937 GMC Rescue Squad
+m|2001|92584|1920 Mack AC Fire Engine
+
+Design-By-Me
+m|2001|38145-9AAA|1955 Chevrolet 3100 Tow Truck
+m|2001|38145-9DDD|1955 Chevrolet 3100 Pick-up
+m|2001|38146-9AAA|1955 Chevrolet 3100 Tow Truck
+d|Hershey Toy Show
+m|2001|38146-9DDD|1955 Chevrolet 3100 Pick-up
+m|2001|38147-9AAA|1955 Chevrolet 3100 Tow Truck
+m|2001|38147-9DDD|1955 Chevrolet 3100 Pick-up
+m|2001|38148-9AAA|1955 Chevrolet 3100 Tow Truck
+d|Orlando Toyfair
+m|2001|38148-9DDD|1955 Chevrolet 3100 Pick-up
+m|2001|38270-9996|1953 Ford Fire Truck
+m|2001|38271-9996|1932 Ford Model AA Fire Truck
+
+s|Platinum US Postal Service Collection
+m|2001|92546|1912 Ford Model T Van
+d|Jim Thorpe
+m|2001|92547|1926 Ford Model TT Van
+d|Margaret Mead
+m|2001|92548|1930 Ford Model A Van
+d|Jesse Owens
+m|2001|92549|1937 Dodge Airflow
+d|Franklin D. Roosevelt
+m|2001|92552|1948 GMC C.O.E.
+d|Harry S. Truman
+m|2001|92563|1955 Ford F-100 Pick-up
+d|Rocky Marciano
+
+s|Platinum Special US Cars
+m|2001|92686|1968 Camaro SS 396
+d|white body red interior
+m|2001|92687|1970 Ford Boss 429 Mustang
+d|blue body, gray interior
+m|2001|92688|1971 Plymouth 440 'Cuda
+d|lime body, black roof/air foil and fender swish
+m|2001|92692|1955 Ford Thunderbird
+d|yellow body, yellow/black interior
+m|2001|92542|1955 Ford Thunderbird
+d|light blue body, white interior
+m|2001|92696|1958 Studebaker Golden Hawk
+d|gold body, white roof/interior
+m|2001|92689|1959 Cadillac Convertible
+d|red body, red/white interior
+
+s|Platinum
+m|2001|DYM92544|Ford Mustang Convertible 1964
+m|2001|38049|DAF Ferrari Delivery Lorry
+
+s|Platinum Exclusive Collectors Limited Editions
+m|2001|92541|Ford Model AA 1 1/2 Ton truck
+d|Budweiser Christmas Brew delivery Truck
+
+s|Platinum Various Other Special Issues
+m|2001|92545|1900 Horse Drawn Delivery Wagon
+d|Hershey's Chocolat
+
+s|Matchbox Exclusieves 15
+m|2001|92540|1912 Ford Model T Van
+d|Jack Daniel's, Lynchburg - Hardware and General Store
+
+table||year,num,name|2002|0|2002
+
+s|50th Anniversary
+m|2002|96947|1939 Bedford
+d|metallic-red
+m|2002|96998|1953 Ford F-100
+d|metallic-red
+m|2002|96999|1923 Mack AC
+d|metallic-red
+m|2002|91945|1922 Foden Steam Wagon
+d|metallic-red, white canopy
+
+s|Coca-Cola Series V
+m|2002|91627|1912 Ford Model T
+m|2002|91628|1932 Ford AA Van
+m|2002|91630|1955 Holden FJ-2104 Panel Van
+m|2002|91632|1962 Volkswagen Beetle
+
+table||year,num,name|2003|0|2003
+
+s|Coca-Cola Series VI
+m|2003|96946|Dodge Route Van
+d|Wyeth
+m|2003|96963|GMC COE Truck
+d|Sondblom
+m|2003|96964|GMC Panel Van
+d|Sondblom
+m|2003|96966|Dodge Airflow Van
+d|Rockwell
+m|2003|96967|Ford Model A Van
+d|Wyeth
+m|2003|96968|Ford Model TT Van
+d|Rockwell
+
+s|Collectibles
+m|2003|91742|Russian T-34/76, "Village in the Middle" Eastern Front 1944
+m|2003|91741|German Panther A, "Forest Crossing" Ardennes 1944
+
+s|Ford Motor Company 100th Anniversary
+m|2003|91639|1953 Ford F-100
+d|dark-blue
+m|2003|91656|1955 Ford Thunderbird
+d|turquoise
+m|2003|91658|1967 Ford Mustang
+d|white
+m|2003|91659|1969 Ford Bronco
+d|white and red
+
+s|Barrett-Jackson Collection
+m|2003|91633|1970 Oldsmobile 442
+m|2003|91634|1970 Ford Mustang Boss 302
+
+s|Barrett-Jackson Collection Series I
+m|2003|97396|1971 Chevrolet Chevelle SS 454
+m|2003|97395|1970 Plymouth Roadrunner - HEMI
+m|2003|97397|1971 Dodge Challenger
+d|red with white stripes
+d|purple with white stripes
+m|2003|97399|1954 Chevrolet Corvette
+d|white
+d|black
+m|2003|97398|1948 Tucker Torpedo
+# ? 97414 1965 Ford Mustang Convertible
+
+table||year,num,name|2004|0|2004
+
+s|Barrett-Jackson Collection Series II
+m|2004|B4320A|1948 Tucker Torpedo
+
+s|Great Tanks of World War II
+m|2004|B6944;91737|Sherman M4A3 75mm
+d|"Liberated City" Diorama
+m|2004|B6945|Sherman M4A3 76mm
+d|"Forest Road" Diorama
+
+s|Mustang 40th Anniversary
+m|2004|B4320;97414|1965 Ford Mustang Open
+d|red
+d|yellow
+m|2004|B6920|1967 Ford Mustang GT
+d|metallic blue
+d|black
+m|2004|B6921|1970 Ford Mustang Boss 302
+d|red
+d|white
+
+table||year,num,name|2006|0|2006
+m|2006|DY033/b|Dinky 1962 Mercedes 300
+m|2006|DY025/b|Dinky 1958 Porsche 356A
+m|2006|DY036/b|Dinky 1960 Jaguar XK150
+m|2006|     |Dinky 1957 Citroen 2CV
+m|2006|     |Models of Yesteryear Stutz Bearcat
+m|2006|Y-12-C/b|Models of Yesteryear Ford Model T Van
+m|2006|Y-64/b |Models of Yesteryear 1936 Lincoln Zephyr
+m|2006|Y-4/b  |Models of Yesteryear 1930 Duesenberg Towncar
+#-----------------------------------------------------
+
+ignore|1
+table||year,num,name|Year Unknown|0|unknown
+
+t|Details on these entries are still being researched.
+
+m|    |30273|Mercedes Gullwing
+m|    |30545|Ford Fire Truck
+m|    |31652|1938 Hispano Suiza
+m|    |31846|1967 Jaguar E-Type MK 1.5
+m|    |31873|1957 Citroen 15CV
+m|    |32074|1927 Ahrens Fox
+m|    |32082|1937 GMC Military Ambulance
+m|    |34587|Mercedes Benz 770K
+m|    |38046|1968 VW Beetle Cabriolet - Coca-Cola
+m|    |39608|Showmans Engine - MICA
+m|    |YY012|1912 Ford Model T Military Ambulance
+m|    |30214|1993 Chevrolet Corvette
+m|1997|KS186SA;CCY06/SA|Peterbilt
+d|Jim Beam
+
+s|Barrett-Jackson
+m|    |B6924|1967 Pontiac GTO
+m|    |B6917|1968 Chevrolet Camaro
+d|metallic-green
+
+m|    |91738|SHERMAN M4A3/76MM  TANK     1:72
+m|    |91739|PANZER IV F-1   1:72
+m|    |91743|CHURCHILL MK-7     1:72
+m|    |91744|SHERMAN M4A3/105MM    1:72
+
+m|1997|RUC01      |Matchbox Display
+m|1997|YCC03      |Matchbox Original Ornaments
+m|1997|KS187/SA   |Freight Liner
+d|Beefeater
+m|1997|YY030A     |1920 Mack Ac Truck
+
+m|1998|KS191/SA   |Freightliner
+d|Stars & Stripes
+m|1998|KS201/A    |Freightliner
+d|Budweiser
+m|1998|CCY02/HA;35212|Ford Aeromax
+d|Sportster
+m|1999|CCY03/HA   |Kenworth COE V Twin
+m|1999|CCY04/HA   |Kenworth W145-Twin
+m|1999|CCY05/HA;35211|Mack-OHV Panhead
+m|1999|CCY06/HA;35210|Peterbilt OHV Knuckle
+m|1999|CCY06/SB   |Peterbilt 359 Limited E
+m|1999|YCL01      |Ahrens Fox Wall Clock
+m|1999|YYM38188   |Firev: 1952 Land Rover
+m|1999|YYM55187   |Firev: !954 Ford Civil D
+
+s|Pictures only, no other info
+m|    |31577|31577 Holden - McDonald's|
+m|1994|32000|Kenworth TT - Australian Road Transport Forum|
+m|    |35223|35223|
+m|    |39516|39516 1922 AEC Omnibus|
+m|    |YDL01|YDL01|
+m|    |YGL04|YGL04|
+m|    |YGL08|YGL08|
+m|    |YGL10|YGL10|
+m|    |YS39|YS39|
+m|    |YS46|YS46|
+m|    |YSG01|YSG01|
+m|    |YTV03|YTV03|
+m|    |YYM35791|YYM 35791|
+m|    |YYM85189|YYM 85189|
+
+ignore|0
+ignore|1
+
+COLLECTOR 4 (maart 1998)
+YY0131SA 1918 CROSSLEY - FLORAL DELIVERY TRUCK
+gelimiteerd tot 9.500
+YY053-SA 1938 MERCEDES-BENZ 770K
+gelimiteerd tot 9.500
+
+COLLECTOR 5 (augustus 1998)
+YY03OA/SB 1920 MACK AC - FISHERMAN'S WHARF
+gelimiteerd tot 9.500
+Y033/SB 1957 BMW 507 -gelimiteerd tot 7.500
+MB300/SC 1956 FORD F-100 PICKUP
+(geen YESTERYEAR MODEL maar gratis als 1-75 model
+bij de 2 MODELS OF YESTERYEAR) gelimiteerd tot 4.000
+
+COLLECTOR 6 (november 1998
+YRS07-SA FORD F-100-50TH ANNIVERSARY FORD F-SERIES PICKUP
+gelimiteerd tot 9.500
+
+COLLECTOR 8 (maart 1999)
+YYM36839 MC DONALD'S 1948 DODGE ROUTE VAN
+gelimiteerd tot 9.500
+
+COLLECTOR 9 juli 1999
+1) YYM37797
+1920 PRESTON TRAM CAR -COCA-COLA
+gelimiteerd tot 12.500
+
+COLLECTOR 10 (oktober 1999)
+YYM36837 1929 F0WLER CRANE - THE LONDON TRACTION HAULAGE CO.LTD
+gelimiteerd tot 5.000
+YYM38259 1920 MACK FIRE ENGINE -gelimiteerd tot 10.000
+
+COLLECTOR 11 (februari 2000)
+YYM38289 1938 STUDEBAKER COUPE EXPRESS K-MODEL
+TEXACO -gelimiteerd tot 10.000
+
+COLLECTOR 12 (augustus 2001)
+YYM92014 1937 GMC VAN-COCA-COLA
+
+MATCHBOX COLLECTIBLES CLUB MODELS
+YY052/B 1920 MACK AC
+MATCHBOX COLLECTORS GUILD (1998)
+YYM38030 1926 FORD MODEL TT VAN
+MATCHBOX COLLECTORS GUILD (1999)
+95166 1939 BEDFORD PUMP AND HOSE TRUCK
+MATCHBOX COLLECTORS GUILD (2001
+De verpakking van 95166 vermeld de Platinum naam.
+Het modelnummer mist de letters YYM.
+De bodemplaat vermeld de naam Models of Yesteryear.
+Waarschijnlijk niet meer dan 1.200 modellen.
+Het Matchbox Collectibles Collectors Guild model
+voor 2000 is een Platinum model.
+
+INTERNET SPECIALS 1999
+YYM26108 1955 CHEVROLET 3100 - MATCHBOX COLLECTIBLES
+gelimiteerd tot 5.000
+YYM38182 1932 FORD MODEL AA FIRE ENGINE
+DYM38236 1970 CHEVROLET CHEVELLE
+(DY-nr. maar Yesteryear op bodem van het model)
+
+VARIOUS OTHER SPECIAL ISSUES
+YYM38336 1956 HOLDEN FJ/2104 PANEL VAN
+SYDNEY 2000 OLYMPIC TORCH RELAY (2000)
+gelimiteerd tot 5.000
+38047 SYDNEY 2000 OLYMPIC GAMES
+(2000, driedelige set)
+YYM38048 1956 HOLDEN FJ PICK-UP
+SYDNEY 2000 OLYMPIC GAMES
+YYM96532 1956 HOLDEN FJ/225
+SYDNEY 2000 OLYMPIC GAMES
+YYM96533 1956 HOLDEN FJ/2104 PANEL VAN
+SYDNEY 2000 OLYMPIC GAMES
+gelimiteerd tot 7.500
+De bodemplaten van YYM38048 en YYM96532 vermelden de naam
+Models of Yesterdays i.p.v Models of Yesteryear.
+CHARITY LIMITED EDITIONS
+YCH04 1929 MORRIS LIGHT VAN - RSPCA - gelimiteerd tot 5.000 (1997)
+
+REGIONAL CODE ONE MICA CONVENTION MODELS
+YY065/SA (AUSTIN) deze is nooit uitgebracht.
+YY065/SB 1928 AUSTIN SEVEN VAN - 4TH EUROPEAN MICA CONVENTION
+gelimiteerd tot 1.400 (1996)
+YY065/SC 1928 AUSTIN SEVEN VAN - 12TH UK MICA CONVENTION
+gelimiteerd tot 1.400 (1997)
+YY065/SD 1928 AUSTIN SEVEN VAN - 5TH EUROPEAN MICA CONVENTION
+gelimiteerd tot 1.400 (1997)
+De andere AUSTIN MICA CONVENTION modellen zijn van code-2 status.
+VARIOUS OTHER REGIONAL CODE ONE EDITIONS
+YY012SA 1912 FORD MODEL T TRUCK - JUNIOR COLLECTORS CLUB
+gelimiteerd tot 3.500 (1996)
+YY034SA 1937 GMC VAN - CHESTER TOY AND DOLL MUSEUM
+gelimiteerd tot 3.000 (1996)
+YPP02SA 1931 MORRIS COURIER VAN - CLASSIC TOYS
+gelimiteerd tot 3.000 (1996)
+YPP04SA DODGE ROUTE VAN - AUTOMODELS
+gelimiteerd tot 3.000 (1996)
+YY019BSA FOWLER B-6 SHOWMAN'S ENGINE - LESNEY PRODUCTS
+gelimiteerd tot 3,500 (1997)
+YY019B-SB FOWLERSHOWMANSENGINE - BILLY SMART'S
+gelimiteerd tot 3.500 (1997)
+YY021B-BS BAVELING & PORTER STEAM ROAD ROLLER
+- FRED DIBNAH gelimiteerd tot 3.500 (1997)
+YY039SC 1926 FORD MODEL TT VAN - MATCHBOX U.S.A.
+gelimiteerd tot 3.500 (1997)
+YY048SA 1929 GARRETT STEAM WAGON - PICKFORDS
+gelimiteerd tot 3.500 (1997)
+YY048SB 1929 GARRETT STEAM WAGON - CHESTER MYSTERY PLAYS
+gelimiteerd tot 3.500 (1997)
+YPP02SB 1931 MORRIS COURIER - LESNEY PRODUCTS
+gelimiteerd tot 3.000 (1997)
+YYM92093 1912 FORD MODEL T VAN - SEE'S CANDY COMPANY SUMMER
+gelimiteerd tot 10.000 (2000)
+YYM92294 1926 FORD MODEL TT VAN - SEE'S CANDY COMPANY THE PEOPLE'S
+CHOICE FOR ANY PARTY gelimiteerd tot 10.000 (2000)
+YYM92296 1937 GMC VAN - SEE'S CANDY COMPANY MAIL A BOX OF
+CHRISTMAS CANDIES NOW gelimiteefd tot 10.000 (2000)
+YYM37799 1955 CHEVROLET 3100
+TEXACO - gelimiteerd (2000)
+Overzicht van Dinky modellen, gemaakt met MODELS OF YESTERYEAR mallen.
+De bodemplaat vermeldt alleen de Dinky en Matchbox namen.
+
+
+EXCLUSIVE COLLECTORS LIMITED EDITIONS COLLECTOR (Matchbox Exclusives) 14 (jan. 2001)
+
+1971 DODGE CHALLENGER - MOTOR TREND (2001) De andere 3 modellen in deze serie,
+de 1964 Ford Mustang,
+de 1954 Chevrolet Corvette en
+de 1948 Tucker Torpedo, zijn niet gemaakt met Models of Yesteryear mallen.
+Van deze modellen zijn de modelnummers nog niet bekend.
+
+F.A.O. SCHWARZ MATCHBOX COLLECTIBLES ORNAMENTS (1995)
+4 1928 AUSTIN 7 VAN's in black boxed set.
+De bodemplaten van alle 4 modellen vermelden
+de Models of Yesteryear naam.
+Door de wijze van marketing niet opgenomen in het witte boek.
+Exclusief voor de Amerikaanse warenhuisketen F.A.O, SCHWARZ.
+Gelimiteerd tot 7.500 sets.
+Australian Preminum model., gemaakt met MODELS OF YESTERYEAR mallen.
+De bodemplaat vermeld alleen de Matchbox naam.
+YY0691SA COBB & CO 1875 STAGECOACH - COBB & CO ROYAL MAIL
+In 1996 uitgegeven en verkocht via agentschappen vann de Australische post.
+
+
+WAWA DAIRY COLLECTION (2002)
+85618
+(driedelig set)
+1912 FORD T VAN
+1948 DODGE ROUTE VAN
+Het andere model is deze set, een convoy truckje
+is niet gemaakt met models of Yesteryear mallen
+
+Tot in een zeer ver gevorderd ontwikkelde reeks van modellen die
+bedoeld waren ter aanbieding aan klanten die hun eigen ontwerp op deze modellen konden laten
+bedrukken. Door opheffing van het postordersysteem door Mattel in 2001 een nooit gerealiseerde reeks.
+Verpakkingen en certificaten waren inmiddels gereed. Oplage van de eerste 10 modellen in de lijst:
+500-600 stuks per model.
+
+Op basis van de 38270-9996 1953 FORD FIRE TRUCK zijn de volgende
+Code-1 promotiemodellen verschenen.
+
+-Father's Day 2001 Ashley Avery Fire Department (oplage: 100)
+
+-Mathbox Collectibles Tuscon Toy Fair 2001 (oplage: 100)
+
+-Matchbox Collectibles New York Toy Fair 2001 (oplage: 100)
+
+Tevens zijn erdoor Color-Comp diverse Code-2 modellen gemaakt op basis van dit model.
+
+
+ignore|0
+ignore|1
+
+m|    |CCY09|Peterbilt - Texaco
+m|    |CCY10|Ford Aeromax - Sunoco
+m|    |CCY12|Kenworth - Mobil
+m|    |CCY13|DAF - BP
+m|    |CCY14/HA|1966 Electra-glide
+m|    |KS187/SA|Beefeater Tractor Trailer
+m|    |KS188/A|J&B Scotch Tractor Trailer
+m|    |KS188/SA|Kenworth
+m|    |KS188/SB|Peterbilt
+m|    |KS189/SA|Ford Aeromax-Jack Daniels
+m|    |KS192/SA|Peterbilt 359 Flat Top Tractor Trailer
+m|    |KS199/A|Coke Caravan Tractor Trailer
+m|    |KS200/A|Kenworth Shell Tractor Trailer
+
+ignore|0
+
+
+
+ignore|1
+This is a list of available Matchbox Collectible models at Manical Mechanicals
+Please email for Pricing as well as Post Charges to your location
+Also email if you have any questions - manicalmechanicals@bigpond.com
+For a picture of a particular model please click on the 'Item Description' below:
+
+Matchbox Model Listing
+as updated May 16th 2007
+
+Item #
+Item Description
+
+30475 Micro Breweries Series 3     SORRY SOLD OUT
+30481 Micro Breweries Series 6
+30671 Micro Breweries Series 2 - Blue Ridge & Shipyard
+32604 Micro Brewery 2 - Woodstock / Seadog
+33876 Micro Breweries - Great Divide / Catamount
+33879 Micro Brewery 2 - River Horse / Snake River
+33882 Micro Brewery 2 - Pennsylvania / Dixie
+33885 Micro Brewery 2 - Crown City / Black Mountain
+
+36885 MBC NBA Series 2
+36890 MBC NBA Series 3
+36895 MBC NBA Series 4
+36900 MBC NBA Series 5
+36906 MBC NBA Series 6
+
+30216 Miller Peterbilt TT                     SORRY SOLD OUT
+30248 Chevrolet Bel-Air - Red
+30672 McDonalds Camp Quality 2-pack    SORRY SOLD OUT
+31328 DAF Holsten Pils 
+31352 Austin 7's Christmas Treasures
+31568 1955 Chevy - GM Parts   SORRY SOLD OUT 
+31577 McDonalds FX Holden Ute
+31584 '70 PLYMOUTH GTX     SORRY SOLD OUT 
+31590 '66 CHEVY CHEVELLE 
+31685 AC Mack Conoco 
+32029 1929 Fowler Crane   SORRY SOLD OUT
+32034 1912 Burrel Traction   SORRY SOLD OUT
+32039 Steam Engine Garret Sewer
+32043 Steam Engine - Yorkshire Wagon
+32044 Steam Engine - Atkinson
+32066 1906 Waterous Fire   SORRY SOLD OUT
+32070 1904 Merryweather Fire Engine  SORRY SOLD OUT
+32086 MBC PETERBILT TEXACO
+32090 Tanker SMTT - Mobil     SORRY SOLD OUT
+32091 MB DAF 3300 SPACE CAB SMTT-BP
+32093 Mack Tanker - Citgo
+32094 Ford Tanker - Sunoco
+32106 Chevy 57 Pickup YRS05/SA-M
+34566 Budweiser TT - Freightliner
+34820 Chev 41 Pickup        SORRY SOLD OUT
+34821 International 34 Pickup
+34822 Ford 40 Pickup             SORRY SOLD OUT
+34823 Dodge 46 Power Wagon
+34826 Reo 39 Pickup
+34830 Peterbilt Budweiser Convoy- KOB
+35208 Kenworth - Harley V-Twin    SORRY SOLD OUT
+35209 Kenworth - Harley WL45 Twin   SORRY SOLD OUT
+35213 Peterbilt - Electriglide
+35243 Coca Cola Cruiser - 1955 T-Bird     SORRY SOLD OUT
+35244 Coca Cola Cruiser - 1957 Chevy   SORRY SOLD OUT
+35253 Bud 32 Diamond T Truck  SORRY SOLD OUT
+35255 Bud 26 Ford TT Van
+35256 Bud 55 Chevy Pickup
+35258 Bud 48 GMC      SORRY SOLD OUT
+35467 Peterbilt LE
+36064 Peterbilt Coca Cola Coke Christmas large TT
+38337 Vintage Peterbilt TT - Campbell's Soup
+39500 Stephenson Rocket
+39501 Foden Steam Wagon W/M Hulton
+39503 Aveling/Porter Rolle YAS03-M      SORRY SOLD OUT
+?39508 1929 Morris Light Van - RSPCA    SORRY SOLD OUT
+39512 1920 Preston Tram
+39513 1929 Leyland Titan Bus
+39514 1931 Diddler Trolley Bus
+39515 Scania Post Bus
+39517 Renault Motor Bus              SORRY SOLD OUT
+39526 MB FORD FIRE TRUCK - AA Open Cab SORRY SOLD OUT
+39527 37 GMC Van - Fire    SORRY SOLD OUT
+39533 1918 Atkinson Steam - Swan
+39534 1929 Morris Light Van - Fullers
+39535 Ford AA Truck - Carlsberg
+39536 1932 Mercedes Benz L5 - Holsten
+39537 1912 Renault Van - Kronenberg
+39538 1937 GMC Van Steinlager
+39540 1927 Talbot - South Pacific Lager
+39541 1922 Foden Steam Wagon - Whitbread
+39542 1917 Yorkshire Steam - Lowenbrau
+39549 1912 Model T - Yuengling's
+39550 1932 Ford AA Delivery Van - Stohs
+39551 1932 Mercedes Benz L5 - DAB
+39552 1918 Atkinson - Beamish
+39553 1920 Mack AC - Tsingtao Beer
+39554 1939 Bedford Tooheys Beer
+39561 70 Plymouth Hemi Road Runner   SORRY SOLD OUT
+
+ignore|0

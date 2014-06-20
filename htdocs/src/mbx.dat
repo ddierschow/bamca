@@ -1,0 +1,698 @@
+formatter|lesney|mline|Matchbox Lineup
+page|b:bgc,#FFFFFF|b:c,#000000|l:c,#0000CC|v:c,#CC0000
+dir|CAT|man
+dir|RW|man
+dir|SF|man
+dir|K|king
+dir|M|king
+dir|Y|mcoll
+CAT|1957|1957|57||
+CAT|1959|1959|59|1|
+CAT|1960|1960|60||
+CAT|1961|1961|61||
+CAT|1962|1962|62||
+CAT|1963|1963|63||
+CAT|1964|1964|64||
+CAT|1965|1965|65||
+CAT|1966|1966|66||
+CAT|1967|1967|67||
+CAT|1968|1968|68||
+CAT|1969|1969|69|1|
+CAT|1970|1970|70||
+CAT|1971|1971|71||
+CAT|1972|1972|72||
+CAT|1973|1973|73||
+CAT|1974|1974|74||
+CAT|1975|1975|75||
+CAT|1976|1976|76||
+CAT|1977|1977|77||
+CAT|1978|1978|78||
+CAT|1979|1979|79||
+CAT|1980|1980|80||
+CAT|1981|1981|81||
+H|1948|1955|E|1|Early Lesney Toys
+E|1948|1953|48|1|Aveling Barford Road Roller
+E|1948|1953|48|2|Cement Mixer
+E|1948|1953|48|3|Caterpiller Tractor
+E|1948|1953|48|4|Caterpiller Bulldozer
+E|1949|1953|49|1|Horse Drawn Milk Float
+E|1949|1953|49|2|Rag and Bone Cart
+E|1949|1953|49|3|Soap Box Racer
+E|1950|1953|50|1|Jumbo the Elephant
+E|1950|1953|50|2|Prime Mover with Trailer and Bulldozer
+#E|1950|1953|50|3|Ruston Bucyrus Shovel
+E|1951|1953|51|1|Muffin the Mule
+E|1952|1953|52|1|Large Coronation Coach
+E|1953|1953|53|1|Small Coronation Coach
+E|1954|1955|54|1|Massey Harris Tractor
+E|1954|1954|54|2|Bread Bait Press
+E|1955|1955|55|1|Covered Wagon
+H|1953|1969|RW|3|1-75 Series
+H|1970|1981|SF|3|Superfast Series
+RW|1953|1954|01|1|Diesel Road Roller
+RW|1955|1957|01|2|Road Roller (2 1/4")
+RW|1958|1961|01|3|Road Roller (2 3/8")
+RW|1962|1967|01|4|Aveling Barford Road Roller
+RW|1968|1969|01|5|Mercedes Benz Lorry
+SF|1970|1970|01|1|Mercedes Truck
+SF|1971|1975|01|2|Mod Rod
+SF|1976|1981|01|3|Dodge Challenger|MB001
+RW|1953|1956|02|1|Dumper (1 5/8")
+RW|1957|1960|02|2|Dumper (1 7/8")
+RW|1961|1967|02|3|Muir Hill Dumper
+RW|1968|1969|02|4|Mercedes Trailer
+SF|1970|1970|02|1|Mercedes Trailer
+SF|1971|1975|02|2|Jeep Hot Rod
+SF|1976|1980|02|3|Hovercraft
+SF|1981|1981|02|4|S.2 Jet|MB002
+RW|1953|1960|03|1|Cement Mixer
+RW|1961|1967|03|2|Bedford Tipper
+RW|1968|1969|03|3|Mercedes Benz "Binz" Ambulance
+SF|1970|1972|03|1|Mercedes Ambulance
+SF|1973|1977|03|2|Monteverdi Hai
+SF|1978|1981|03|3|Porsche Turbo|MB003
+RW|1954|1956|04|1|Massey Harris Tractor (no #)
+RW|1957|1960|04|2|Massey Harris Tractor
+RW|1961|1964|04|3|Triumph Motorcycle and Sidecar
+RW|1965|1969|04|4|Dodge Stake Truck
+SF|1970|1970|04|1|Dodge Stake Truck
+SF|1971|1974|04|2|Gruesome Twosome
+SF|1975|1978|04|3|Pontiac Firebird
+SF|1979|1981|04|4|'57 Chevy|MB004
+RW|1954|1956|05|1|London Bus (2")
+RW|1957|1963|05|2|London Bus (2 1/4")
+RW|1964|1967|05|3|London Bus (2 9/16")
+RW|1968|1969|05|4|London Bus (2 3/4")
+SF|1969|1974|05|1|Lotus Europa
+SF|1975|1977|05|2|Seafire
+SF|1978|1981|05|3|U.S. Mail Truck|MB005
+RW|1954|1956|06|1|Quarry Truck (2 1/8")
+RW|1957|1963|06|2|Quarry Truck (2 1/2")
+RW|1964|1967|06|3|Euclid Quarry Truck
+RW|1968|1969|06|4|Ford Pickup
+SF|1970|1975|06|1|Ford Pickup
+SF|1976|1981|06|2|Mercedes Tourer|MB006
+RW|1954|1960|07|1|Horse Drawn Milk Float
+RW|1961|1965|07|2|Ford Anglia
+RW|1966|1969|07|3|Ford Refuse Truck
+SF|1970|1970|07|1|Ford Refuse Truck
+SF|1971|1975|07|2|Hairy Hustler
+SF|1976|1981|07|3|VW Golf|MB007
+RW|1955|1958|08|1|Caterpillar Tractor (1 1/1")
+RW|1959|1960|08|2|Caterpillar Tractor (1 5/8")
+RW|1961|1963|08|3|Caterpillar Tractor (1 7/8")
+RW|1964|1965|08|4|Caterpillar Tractor (2")
+RW|1966|1969|08|5|Ford Mustang Fastback
+SF|1970|1970|08|1|Ford Mustang
+SF|1971|1974|08|2|Wildcat Dragster
+SF|1975|1981|08|3|DeTomaso Pantera|MB079
+RW|1955|1956|09|1|Dennis Fire Escape (2 1/4")
+RW|1957|1958|09|2|Dennis Fire Escape (2 3/8")
+RW|1959|1965|09|3|Merrywheather Marquis Fire Eng
+RW|1966|1969|09|4|Boat and Trailer
+SF|1970|1971|09|1|Boat and Trailer
+SF|1972|1977|09|2|AMX Javelin
+SF|1978|1981|09|3|Ford Escort RS2000|MB009
+RW|1955|1956|10|1|Mechanical Horse/Trailer (2 3/8")
+RW|1958|1960|10|2|Mechanical Horse/Trailer (2 7/8")
+RW|1961|1965|10|3|Sugar Container Truck
+RW|1966|1969|10|4|Pipe Truck
+SF|1970|1972|10|1|Pipe Truck
+SF|1973|1978|10|2|Piston Popper
+SF|1979|1981|10|3|Plymouth Gran Fury Police Car|MB010
+RW|1955|1957|11|1|Road Tanker (2")
+RW|1958|1964|11|2|Road Tanker (2 1/2")
+RW|1965|1968|11|3|Jumbo Crane
+RW|1969|1969|11|4|Scaffold Truck
+SF|1970|1971|11|1|Scaffold Truck
+SF|1972|1975|11|2|Flying Bug
+SF|1976|1981|11|3|Car Transporter|MB011
+RW|1956|1958|12|1|Land Rover (1 3/4")
+RW|1959|1964|12|2|Land Rover (2 1/4")
+RW|1965|1969|12|3|Safari Land Rover
+SF|1970|1970|12|1|Safari Land Rover
+SF|1971|1974|12|2|Setra Coach
+SF|1975|1978|12|3|Big Bull
+SF|1979|1981|12|4|Citroen CX|MB012
+RW|1956|1957|13|1|Bedford Wreck Truck (2")
+RW|1958|1960|13|2|Bedford Wreck Truck (2 1/8")
+RW|1961|1964|13|3|Thames Wreck Truck
+RW|1965|1969|13|4|Dodge Wreck Truck
+SF|1970|1970|13|1|Dodge Wreck Truck
+SF|1971|1976|13|2|Baja Buggy
+SF|1977|1981|13|3|Snorkel Fire Engine|MB013
+RW|1956|1957|14|1|Daimler Ambulance (1 7/8")
+RW|1958|1961|14|2|Daimler Ambulance (2 5/8")
+RW|1962|1967|14|3|Bedford Ambulance
+RW|1968|1969|14|4|Iso Grifo
+SF|1969|1974|14|1|Iso Grifo
+SF|1975|1980|14|2|Mini Ha Ha
+SF|1981|1981|14|3|Rallye Royale|MB080
+RW|1956|1958|15|1|Prime Mover
+RW|1959|1962|15|2|Atlantic Prime Mover
+RW|1963|1967|15|3|Refuse Truck
+RW|1968|1969|15|4|Volkswagen 1500 Saloon
+SF|1969|1971|15|1|Volkswagen 1500
+SF|1972|1980|15|2|Fork Lift Truck|MB015
+SF|1981|1981|15|3|Hi Ho Silver|MB081
+RW|1956|1956|16|1|Atlantic Trailer (6 wheels)
+RW|1957|1963|16|2|Atlantic Trailer (8 wheels)
+RW|1964|1968|16|3|Scammell Mountaineer Snowplow
+RW|1969|1973|16|4|Case Bulldozer
+SF|1974|1978|16|1|Badger
+SF|1979|1981|16|2|Pontiac|MB016
+RW|1956|1957|17|1|Bedford Removal Van (no #)
+RW|1958|1959|17|2|Bedford Removal Van
+RW|1960|1962|17|3|Austin Taxi Cab
+RW|1963|1968|17|4|Hoveringham Tipper
+RW|1969|1969|17|5|Horse Box
+SF|1970|1971|17|1|Horse Box
+SF|1972|1981|17|2|The Londoner|MB017
+RW|1956|1957|18|1|Caterpillar Bulldozer (1 7/8")
+RW|1958|1960|18|2|Caterpillar Bulldozer (2")
+RW|1961|1963|18|3|Caterpillar Bulldozer (2 1/4")
+RW|1964|1968|18|4|Caterpillar Bulldozer (2 3/8")
+RW|1969|1969|18|5|Field Car
+SF|1970|1974|18|1|Field Car
+SF|1975|1981|18|2|Hondarora|MB018
+RW|1956|1957|19|1|MG Sports Car
+RW|1958|1960|19|2|MGA Sports Car
+RW|1961|1965|19|3|Aston Martin Racing Car
+RW|1966|1969|19|4|Lotus Racing Car
+SF|1970|1970|19|1|Lotus Racer
+SF|1971|1975|19|2|Road Dragster
+SF|1976|1981|19|3|Peterbilt Cement Truck|MB019
+RW|1956|1958|20|1|ERF Lorry Stake Truck
+RW|1959|1964|20|2|ERF 686 Truck
+RW|1965|1969|20|3|Chevrolet Impala Taxi Cab
+SF|1969|1974|20|1|Lamborghini Marzal
+SF|1975|1981|20|2|Police Patrol|MB020
+RW|1956|1957|21|1|Bedford Long Distance Coach
+RW|1958|1960|21|2|Bedford Duple Luxury Coach
+RW|1961|1967|21|3|Commer Milk Truck
+RW|1968|1969|21|4|Foden Concrete Truck
+SF|1970|1972|21|1|Foden Concrete Truck
+SF|1973|1977|21|2|Road Roller
+SF|1978|1981|21|3|Renault 5TL|MB021
+RW|1956|1957|22|1|Vauxhall Cresta
+RW|1958|1963|22|2|1958 Vauxhall Cresta
+RW|1964|1969|22|3|Pontiac Grand Prix Sports Coupe
+SF|1970|1970|22|1|Pontiac Grand Prix Sports Coupe
+SF|1971|1974|22|2|Freeman Intercity Commuter
+SF|1975|1981|22|3|Blaze Buster|MB022
+RW|1956|1957|23|1|Berkeley Cavalier Trailer (no #)
+RW|1958|1959|23|2|Berkeley Cavalier Trailer
+RW|1960|1964|23|3|Bluebird Dauphine Trailer
+RW|1965|1969|23|4|Trailer Caravan
+SF|1970|1974|23|1|Volkswagen Camper / Dormobile
+SF|1975|1980|23|2|Atlas Dump Truck|MB023
+SF|1981|1981|23|3|Ford Mustang GT350
+RW|1956|1958|24|1|Weatherill Hydraulic Excavator
+RW|1959|1966|24|2|Hydraulic Excavator
+RW|1967|1969|24|3|Rolls Royce Silver Shadow
+SF|1970|1972|24|1|Rolls Royce Silver Shadow
+SF|1973|1977|24|2|Team Matchbox
+SF|1978|1980|24|3|Shunter|MB024
+SF|1981|1981|24|4|Datsun 280ZX
+RW|1956|1959|25|1|Bedford "Dunlop" Van
+RW|1960|1963|25|2|Volkswagen 1200 Sedan
+RW|1964|1967|25|3|Bedford Petrol Tanker
+RW|1968|1969|25|4|Ford Cortina
+SF|1970|1971|25|1|Ford Cortina
+SF|1972|1977|25|2|Mod Tractor
+SF|1978|1980|25|3|Flat Car and Container
+SF|1981|1981|25|4|Celica GT
+RW|1956|1960|26|1|ERF Concrete Truck
+RW|1961|1967|26|2|Foden Concrete Truck
+RW|1968|1969|26|3|G.M.C. Tipper Truck
+SF|1970|1971|26|1|GMC Tiper
+SF|1972|1975|26|2|Big Banger
+SF|1976|1980|26|3|Site Dumper
+SF|1981|1981|26|4|Cosmic Blues
+RW|1956|1958|27|1|Bedford Lowloader (3 1/8")
+RW|1959|1959|27|2|Bedford Lowloader (3 3/4")
+RW|1960|1965|27|3|Cadillac Sixty Special
+RW|1966|1969|27|4|Mercedes Benz 230SL
+SF|1970|1972|27|1|Mercedes 230SL
+SF|1973|1980|27|2|Lamborghini Countach
+SF|1981|1981|27|3|Swept Wing Jet|MB027
+RW|1956|1958|28|1|Bedford Compressor Truck
+RW|1959|1963|28|2|Thames Compressor Truck
+RW|1964|1967|28|3|Mark 10 Jaguar
+RW|1968|1969|28|4|Mack Dump Truck
+SF|1970|1973|28|1|Mack Dump Truck
+SF|1974|1978|28|2|Stoat
+SF|1979|1981|28|3|Lincoln Continental Mk V
+RW|1956|1960|29|1|Bedford Milk Delivery Van
+RW|1961|1965|29|2|Austin A55 Cambridge Sedan
+RW|1966|1969|29|3|Fire Pumper Truck
+SF|1970|1970|29|1|Fire Pumper
+SF|1971|1975|29|2|Racing Mini
+SF|1976|1981|29|3|Tractor Shovel|MB029
+RW|1956|1960|30|1|Ford Prefect
+RW|1961|1964|30|2|Magirus Deutz Crane (6-Wheel)
+RW|1965|1969|30|3|Favin Crane (8-Wheel)
+SF|1970|1970|30|1|Eight Wheel Crane
+SF|1971|1975|30|2|Beach Buggy
+SF|1976|1980|30|3|Swamp Rat
+SF|1981|1981|30|4|Leyland Articulated Truck|MB030
+RW|1957|1959|31|1|Ford Customline Station Wagon
+RW|1960|1963|31|2|Ford Fairlane Station Wagon
+RW|1964|1969|31|3|Lincoln Continental
+SF|1970|1970|31|1|Lincoln Continental
+SF|1971|1976|31|2|Volksdragon
+SF|1977|1980|31|3|Caravan|MB031
+SF|1981|1981|31|4|Mazda RX-7
+RW|1957|1961|32|1|Jaguar XK140 Coupe
+RW|1962|1967|32|2|"E" Type Jaguar Coupe
+RW|1968|1969|32|3|Leyland Petrol Tanker
+SF|1970|1971|32|1|Leyland Tanker
+SF|1972|1977|32|2|Maserati Bora
+SF|1978|1980|32|3|Field Gun
+SF|1981|1981|32|4|Atlas Excavator|MB032
+RW|1957|1962|33|1|Ford Zodiac MKII Sedan
+RW|1963|1968|33|2|Ford Zephyr 6 MKIII
+RW|1969|1969|33|3|Lamborghini Miura P 400
+SF|1969|1972|33|1|Lamborghini Miura
+SF|1973|1976|33|2|Datsun 126X
+SF|1977|1981|33|3|Police Motorcycle|MB033
+RW|1957|1961|34|1|Volkswagen Microvan
+RW|1962|1966|34|2|Volkswagen Camper (roof unraised)
+RW|1967|1967|34|3|Volkswagen Camper (roof raised with windows)
+RW|1968|1970|34|4|Volkswagen Camper (roof raised without windows)
+SF|1971|1974|34|1|Formula 1
+SF|1975|1980|34|2|Vantastic
+SF|1981|1981|34|3|Chevy Prostocker|MB034
+RW|1957|1963|35|1|Marshall Horse Box
+RW|1964|1969|35|2|Snow Trac Tractor
+SF|1970|1974|35|1|Merryweather Fire Engine
+SF|1975|1981|35|2|Fandango
+RW|1957|1960|36|1|Austin A50
+RW|1961|1965|36|2|Lambretta Scooter and Sidecar
+RW|1966|1969|36|3|Opel Diplomat
+SF|1970|1970|36|1|Opel Diplomat
+SF|1971|1974|36|2|Hot Rod Draguar
+SF|1975|1979|36|3|Formula 5000|MB028
+SF|1980|1981|36|4|Refuse Truck|MB036
+RW|1957|1959|37|1|Coca Cola Lorry (no baseplate)
+RW|1960|1965|37|2|Coca Cola Lorry
+RW|1966|1969|37|3|Dodge Cattle Truck
+SF|1970|1971|37|1|Cattle Truck
+SF|1972|1975|37|2|Soopa Coopa
+SF|1976|1980|37|3|Skip Truck
+SF|1981|1981|37|4|Sunburner
+RW|1957|1962|38|1|Karrier Refuse Collector
+RW|1963|1966|38|2|Vauxhall Victor Estate Car
+RW|1967|1969|38|3|Honda Motorcycle and Trailer
+SF|1970|1971|38|1|Honda Motorcycle and Trailer
+SF|1972|1975|38|2|Stingeroo
+SF|1976|1979|38|3|Jeep
+SF|1980|1981|38|4|Ford Camper
+RW|1957|1961|39|1|Ford Zodiac Convertible
+RW|1962|1966|39|2|Pontiac Convertible
+RW|1967|1972|39|3|Ford Tractor
+SF|1973|1978|39|1|Clipper
+SF|1979|1981|39|2|Rolls Royce Silver Shadow II|MB039
+RW|1957|1960|40|1|Bedford 7 Ton Tipper
+RW|1961|1966|40|2|Leyland Royal Tiger Coach
+RW|1967|1970|40|3|Hay Trailer
+SF|1971|1975|40|1|Vauxhall Guildsman
+SF|1976|1981|40|2|Horse Box|MB040
+RW|1957|1959|41|1|"D" Type Jaguar (2 3/16")
+RW|1960|1964|41|2|"D" Type Jaguar (2 7/16")
+RW|1965|1969|41|3|Ford G.T. 40 (Sports Racer)
+SF|1970|1971|41|1|Ford GT
+SF|1972|1976|41|2|Siva Spyder
+SF|1977|1981|41|3|Chevrolet Ambulance|MB041
+RW|1957|1964|42|1|Bedford Evening News Van
+RW|1965|1968|42|2|Studebaker Lark Wagonaire
+RW|1969|1969|42|3|Iron Fairy Crane
+SF|1970|1971|42|1|Iron Fairy Crane
+SF|1972|1976|42|2|Tyre Fryer
+SF|1977|1981|42|3|Mercedes Container Truck|MB042
+RW|1958|1961|43|1|Hillman Minx
+RW|1962|1967|43|2|Aveling-Barford Tractor Shovel
+RW|1968|1969|43|3|Pony Trailer
+SF|1970|1971|43|1|Pony Trailer
+SF|1972|1977|43|2|Dragon Wheels
+SF|1978|1981|43|3|0-4-0 Loco|MB043
+RW|1958|1963|44|1|Rolls Royce Silver Cloud
+RW|1964|1966|44|2|Rolls Royce Phantom V
+RW|1967|1969|44|3|G.M.C. Refrigerator Truck
+SF|1970|1971|44|1|Refrigerator Truck
+SF|1972|1977|44|2|Boss Mustang
+SF|1978|1981|44|3|Passenger Coach|MB045
+RW|1958|1964|45|1|Vauxhall Victor
+RW|1965|1969|45|2|Ford Corsair with Boat
+SF|1970|1975|45|1|Ford Group 6
+SF|1976|1981|45|2|BMW 3.0 CSL
+RW|1958|1959|46|1|Morris Minor 1000
+RW|1960|1967|46|2|Pickfords Removal Van
+RW|1968|1969|46|3|Mercedes Benz 300 SE
+SF|1970|1971|46|1|Mercedes 300SE
+SF|1972|1977|46|2|Stretcha Fetcha
+SF|1978|1980|46|3|Ford Tractor|MB046
+SF|1981|1981|46|4|Hot Chocolate/Beetle Streaker
+RW|1958|1962|47|1|1 Ton Trojan Van
+RW|1963|1967|47|2|Commer Ice Cream Canteen
+RW|1968|1969|47|3|DAF Tipper Container Truck
+SF|1970|1973|47|1|DAF Tipper Truck
+SF|1974|1978|47|2|Beach Hopper
+SF|1979|1981|47|3|Pannier Loco
+RW|1958|1960|48|1|Meteor Sports Boat and Trailer
+RW|1961|1965|48|2|Sports Boat and Trailer
+RW|1966|1969|48|3|Dodge Dumper Truck
+SF|1970|1971|48|1|Dodge Dump Truck
+SF|1972|1976|48|2|Pi-Eyed Piper
+SF|1977|1980|48|3|Sambron Jacklift|MB048
+SF|1981|1981|48|4|Red Rider
+RW|1958|1966|49|1|M3 Personnel Carrier
+RW|1967|1969|49|2|Mercedes Unimog
+SF|1970|1972|49|1|Unimog
+SF|1973|1975|49|2|Chop Suey
+SF|1976|1981|49|3|Crane Truck|MB049
+RW|1958|1963|50|1|Commer Pickup
+RW|1964|1968|50|2|John Deere Tractor
+RW|1969|1969|50|3|Ford Kennel Truck
+SF|1970|1972|50|1|Kennel Truck
+SF|1973|1979|50|2|Articulated truck
+SF|1980|1981|50|3|Harley Davidson Motorcycle|MB050
+RW|1958|1963|51|1|Albion Chieftain
+RW|1964|1968|51|2|John Deere Trailer
+RW|1969|1969|51|3|8-Wheel Tipper
+SF|1970|1971|51|1|Eight Wheel Tipper
+SF|1972|1977|51|2|Citroen S.M.
+SF|1978|1980|51|3|Combine Harvester
+SF|1981|1981|51|4|Midnight Magic
+RW|1958|1964|52|1|Maserati 4CLT Racer
+RW|1965|1969|52|2|BRM Racing Car
+SF|1970|1975|52|1|Dodge Charger
+SF|1976|1980|52|2|Police Launch
+SF|1981|1981|52|3|BMW M1|MB052
+RW|1958|1962|53|1|Aston Martin
+RW|1963|1967|53|2|Mercedes Benz 220 SE
+RW|1968|1969|53|3|Ford Zodiac MKIV
+SF|1970|1971|53|1|Ford Zodiac
+SF|1972|1976|53|2|Tanzara
+SF|1977|1981|53|3|Jeep CJ6
+RW|1958|1964|54|1|Saracen Personnel Carrier
+RW|1965|1969|54|2|S&S Cadillac Ambulance
+SF|1970|1970|54|1|S&S Cadillac Ambulance
+SF|1971|1975|54|2|Ford Capri
+SF|1976|1979|54|3|Personnel Carrier
+SF|1980|1981|54|4|Mobile Home|MB054
+RW|1958|1962|55|1|D.U.K.W.
+RW|1963|1965|55|2|Ford Fairlane Police Car
+RW|1966|1967|55|3|Ford Galaxie Police Car
+RW|1968|1969|55|4|Mercury Police Car
+SF|1970|1970|55|1|Mercury Police Car
+SF|1971|1974|55|2|Mercury Police Commuter
+SF|1975|1978|55|3|Hellraiser
+SF|1979|1981|55|4|Ford Cortina
+RW|1958|1964|56|1|London Trolley Bus
+RW|1965|1969|56|2|Fiat 1500
+SF|1969|1973|56|1|BMC Pininfarina
+SF|1974|1978|56|2|Hi-Tailer
+SF|1979|1981|56|3|Mercedes 450SEL|MB056
+RW|1958|1960|57|1|Wolseley 1500
+RW|1961|1965|57|2|Chevrelet Impala
+RW|1966|1969|57|3|Land Rover Fire Truck
+SF|1970|1970|57|1|Land Rover Fire Engine
+SF|1971|1972|57|2|Eccles Caravan
+SF|1973|1981|57|3|Wildlife Truck
+RW|1958|1961|58|1|BAE Coach
+RW|1962|1967|58|2|Drott Excavator
+RW|1968|1969|58|3|DAF Girder Truck
+SF|1970|1971|58|1|DAF Girder Truck
+SF|1972|1975|58|2|Woosh-n-Push
+SF|1976|1981|58|3|Faun Dump Truck|MB058
+RW|1958|1962|59|1|Ford Thames Van
+RW|1963|1965|59|2|Ford Fairlaine Fire Chief Car
+RW|1966|1969|59|3|Ford Galaxie Fire Chief Car
+SF|1970|1970|59|1|Ford Galaxie Fire Chief Car
+SF|1971|1974|59|2|Mercury Fire Chief Car
+SF|1975|1979|59|3|Planet Scout
+SF|1980|1981|59|4|Porsche 928
+RW|1958|1965|60|1|Morris J2 Pickup
+RW|1966|1969|60|2|Site Hut Truck
+SF|1970|1970|60|1|Site Hut Truck
+SF|1971|1976|60|2|Lotus Super Seven
+SF|1977|1981|60|3|Holden Pickup
+RW|1959|1965|61|1|Ferret Scout Car
+RW|1966|1970|61|2|Alvis Stalwart
+SF|1971|1977|61|1|Blue Shark
+SF|1978|1981|61|2|Wreck Truck
+RW|1959|1962|62|1|General Service Lorry
+RW|1963|1967|62|2|TV Service Van
+RW|1968|1969|62|3|Mercury Cougar
+SF|1970|1970|62|1|Mercury Cougar
+SF|1971|1973|62|2|Mercury Cougar Dragster
+SF|1974|1978|62|3|Renault 17TL
+SF|1979|1981|62|4|Chevrolet Corvette
+RW|1959|1963|63|1|Ford Service Ambulance
+RW|1964|1967|63|2|"Foamite" Crash Tender
+RW|1968|1969|63|3|Dodge Crane Truck
+SF|1970|1972|63|1|Dodge Crane Truck
+SF|1973|1980|63|2|Freeway Gas Tanker
+SF|1981|1981|63|3|Dodge Challenger
+RW|1959|1965|64|1|Scammell Breakdown Truck
+RW|1966|1969|64|2|MG 1100
+SF|1970|1970|64|1|MG 1100
+SF|1971|1975|64|2|Slingshot Dragster
+SF|1976|1978|64|3|Fire Chief Car
+SF|1979|1981|64|4|Caterpillar Bulldozer
+RW|1959|1961|65|1|Jaguar 3.4 Litre Saloon (2 1/2")
+RW|1962|1966|65|2|Jaguar 3.8 Litre Saloon (2 5/8")
+RW|1967|1972|65|3|Claas Combine Harvester
+SF|1973|1976|65|1|Saab Sonnet
+SF|1977|1981|65|2|Airport Coach
+RW|1959|1961|66|1|Citroen DS19
+RW|1962|1966|66|2|Harley Davidson M'cycle/Sidecar
+RW|1967|1969|66|3|Greyhound Bus
+SF|1970|1970|66|1|Greyhound Bus
+SF|1971|1976|66|2|Mazda RX500
+SF|1977|1981|66|3|Ford Transit
+RW|1959|1966|67|1|Saladin Armoured Car
+RW|1967|1969|67|2|Volkswagen 1600 TL
+SF|1970|1972|67|1|Volkswagen 1600TL
+SF|1973|1977|67|2|Hot Rocker
+SF|1978|1981|67|3|Datsun 260Z
+RW|1959|1964|68|1|Austin MKII Radio Truck
+RW|1965|1969|68|2|Mercedes Coach
+SF|1970|1974|68|1|Porsche 910
+SF|1975|1978|68|2|Cosmobile
+SF|1979|1981|68|3|Chevy Van
+RW|1959|1964|69|1|Commer 30 CWT Van
+RW|1965|1969|69|2|Hatra Tractor Shovel
+SF|1969|1972|69|1|Rolls Royce Silver Shadow Coupe
+SF|1973|1977|69|2|Turbo Fury
+SF|1978|1981|69|3|Armored Truck
+RW|1959|1965|70|1|Ford Thames Estate Car
+RW|1966|1969|70|2|Ford Grit Spreader
+SF|1970|1970|70|1|Grit Spreader
+SF|1971|1975|70|2|Dodge Dragster
+SF|1976|1980|70|3|Self Propelled Gun
+SF|1981|1981|70|4|Ferrari 308GTB
+RW|1959|1963|71|1|Austin 200 Gallon Water Truck
+RW|1964|1967|71|2|Jeep Gladiator Pickup
+RW|1968|1969|71|3|Ford Heavy Wreck Truck
+SF|1970|1972|71|1|Ford Heavy Wreck Truck
+SF|1973|1975|71|2|Jumbo Jet
+SF|1976|1981|71|3|Cattle Truck
+RW|1959|1965|72|1|Fordson Tractor
+RW|1966|1969|72|2|Standard Jeep
+SF|1970|1971|72|1|Jeep
+SF|1972|1978|72|2|SRN6 Hovercraft
+SF|1979|1980|72|3|Bomag Road Roller
+SF|1981|1981|72|4|Maxi Taxi
+RW|1959|1961|73|1|10 Ton Pressure Refueller
+RW|1962|1967|73|2|Ferrari F1 Racing Car
+RW|1968|1969|73|3|Mercury Station Wagon
+SF|1970|1973|73|1|Mercury Commuter
+SF|1974|1978|73|2|Weasel
+SF|1979|1981|73|3|Model A Ford
+RW|1959|1965|74|1|Mobile Refreshment Canteen
+RW|1966|1969|74|2|Daimler Bus
+SF|1970|1971|74|1|Daimler Bus
+SF|1972|1977|74|2|Toe Joe
+SF|1978|1980|74|3|Cougar Villager
+SF|1981|1981|74|4|Orange Peel
+RW|1960|1964|75|1|Ford Thunderbird
+RW|1965|1969|75|2|Ferrari Berlinetta
+SF|1970|1970|75|1|Ferrari Berlinetta
+SF|1971|1976|75|2|Alfa Carabo
+SF|1977|1981|75|3|Seasprite Helecopter
+H|1957|1969|A|2|Accessories
+A|1957|1962|01|1|Esso Petrol Pumps and Sign
+A|1963|1969|01|2|BP Petrol Pumps and SIgn
+A|1957|1969|02|1|Bedford Car Transporter
+A|1967|1969|03|1|Garage
+A|1960|1969|04|1|Road Signs
+A|1961|1969|05|1|Home Store
+H|1957|1967|M|2|Major Packs
+M|1957|1960|01|1|Caterpillar Earth Scraper
+M|1961|1967|01|2|BP Autotanker
+M|1957|1960|02|1|Bedford Ice Cream Truck
+M|1961|1967|02|2|Bedford Truck and York Trailer
+M|1959|1967|03|1|Thornycraft Antar and Centurion Tank
+M|1959|1963|04|1|Ruston Bucyrus Power Shovel
+M|1964|1967|04|2|GMC Tractor/Freuhof Hopper Train
+M|1960|1967|05|1|Massey Ferguson Combine Harvestr
+M|1960|1964|06|1|Pickfords 200 Ton Transporter
+M|1965|1967|06|2|Racing Car Transporter
+M|1960|1967|07|1|Jennings Cattle Truck
+M|1960|1963|08|1|Mobilgas Petrol Tanker
+M|1964|1967|08|2|Guy Warrior Car Transporter
+M|1962|1967|09|1|Interstate Double Freighter
+M|1962|1967|10|1|Dinkum Dumper
+H|1960|1969|K|2|King Size
+K|1960|1963|001|1|Weatherill Hydraulic Shovel
+K|1964|1969|001|2|Hoveringham Tipper Truck
+K|1960|1963|002|1|Muir Hill Dumper
+K|1964|1968|002|2|K.W. Dump Truck
+K|1969|1969|002|3|Scammell Heavy Wreck Truck
+K|1960|1964|003|1|Caterpillar Bulldozer
+K|1965|1969|003|2|Hatra Tractor Shovel
+K|1960|1966|004|1|International Tractor
+K|1967|1968|004|2|GMC Tractor and Freuhof Hopper Train
+K|1969|1969|004|3|Leyland Tipper
+K|1961|1966|005|1|Foden Tipper Truck
+K|1967|1969|005|2|Racing Car Transporter
+K|1961|1966|006|1|Allis-Chalmers Earth Scraper
+K|1967|1969|006|2|Mercedes Benz "Binz" Ambulance
+K|1961|1966|007|1|Curtiss Wright Rear Dumper
+K|1967|1969|007|2|Refuse Truck
+K|1962|1966|008|1|Prime Mover and Caterpillar Tractor
+K|1967|1969|008|2|Guy Warrior Car Transporter
+K|1962|1966|009|1|Diesel Road Roller
+K|1967|1969|009|2|Class Combine Harvester
+K|1963|1966|010|1|Aveling Barford Tractor Shovel
+K|1967|1969|010|2|Pipe Truck
+K|1963|1968|011|1|Fordson Tractor and Farm Trailer
+K|1969|1969|011|2|DAF Car Transporter
+K|1963|1968|012|1|Heavy Breakdown Wreck Truck
+K|1969|1969|012|2|Scammell Crane Truck
+K|1963|1969|013|1|Readymix Concrete Truck
+K|1963|1969|014|1|Taylor Jumbo Crane
+K|1964|1969|015|1|Merryweather Fire Engine
+K|1966|1969|016|1|Dodge Tractor with Twin Tipper
+K|1967|1969|017|1|Low Loader with Bulldozer
+K|1967|1969|018|1|Articulated Horse Box
+K|1967|1969|019|1|Scammell Tipper Truck
+K|1968|1969|020|1|Tractor Transporter
+K|1968|1969|021|1|Mercury Cougar
+K|1969|1969|022|1|Dodge Charger
+K|1969|1969|023|1|Mercury Police Commuter
+K|1969|1969|024|1|Lamborghini Miura
+H|1963|1969|MF|1|Fire Stations
+MF|1963|1969|1|1|Matchbox Fire Station
+H|1959|1969|MG|1|Gas Stations
+MG|1959|1960|1|1|Matchbox One Story Garage
+MG|1961|1967|1|2|Matchbox Two Story Garage
+MG|1968|1969|1|3|Matchbox Service Station
+H|1957|1961|PS|1|Presentation Sets
+PS|1957|1958|1|1|Presentation Set
+PS|1959|1961|1|2|Private Owner Set
+PS|1957|1958|2|1|Presentation Set
+PS|1959|1961|2|2|Transporter with 4 Cars Set
+PS|1957|1958|3|1|Presentation Set
+PS|1959|1961|3|2|Transporter with 6 Cars Set
+PS|1958|1958|4|1|Presentation Set
+PS|1959|1961|4|2|Commercial Vehicle Set
+PS|1958|1958|5|1|Presentation Set
+PS|1959|1961|5|2|Army Transport Set
+PS|1958|1961|6|1|Presentation Set
+PS|1959|1961|7|1|Presentation Set
+PS|1959|1961|8|1|Presentation Set
+H|1960|1969|G|1|Gift Sets
+G|1960|1963|01|1|Commercial Motor Set
+G|1964|1969|01|2|Motorway Set
+G|1966|1969|01|3|Service Station Set
+G|1960|1969|02|1|Car Transporter Set
+G|1960|1962|03|1|Building Constructors Set
+G|1963|1965|03|2|Farm and Agricultural Set
+G|1966|1969|03|3|Vacation Set
+G|1968|1969|03|4|Farm Set
+G|1960|1969|04|1|Farm Set
+G|1964|1969|04|2|Grand Prix Racetrack Set
+G|1960|1965|05|1|Army Set
+G|1966|1969|05|2|Fire Station Set
+G|1968|1969|05|3|Famous Cars of Yesteryear
+G|1961|1969|06|1|Model of Yesteryear Gift Set
+G|1964|1969|06|2|Commercial Truck Set
+G|1960|1969|07|1|Model of Yesteryear Gift Set
+G|1962|1969|08|1|Construction Set
+G|1962|1969|09|1|Major Pack Set
+G|1964|1969|09|2|Service Station Set
+G|1962|1969|10|1|Garage Gift Set
+G|1964|1969|10|2|Fire Station Set
+H|1960|1969|R|1|Roadways
+R|1960|1961|01|1|Roadway Layout
+R|1962|1963|01|2|Roadway
+R|1964|1967|01|3|Roadway
+R|1968|1969|01|4|Roadway
+R|1961|1967|02|1|Roadway Layout "Heart of London"
+R|1968|1968|02|2|Construction Set
+R|1969|1969|02|3|Construction Set
+R|1961|1967|03|1|Roadway Layout "Royal London"
+R|1968|1969|03|2|Farmyard
+R|1961|1963|04|1|Racetrack Speedway
+R|1964|1969|04|2|Grand Prix Race Track
+H|1956|1969|Y|2|Models of Yesteryear
+Y|1956|1963|01|1|1925 Allchin Traction Engine
+Y|1964|1969|01|2|1911 Ford Model T
+Y|1956|1962|02|1|1911 "B" Type Bus
+Y|1963|1969|02|2|1911 Renault Two Seater
+Y|1956|1965|03|1|1907 London "E" Class Tram Car
+Y|1966|1969|03|2|1910 Benze Limousine
+Y|1956|1959|04|1|Sentinel Steam Wagon
+Y|1960|1965|04|2|Shand Mason Horse Drawn Fire Engine
+Y|1966|1969|04|3|1909 Opel Coupe
+Y|1957|1961|05|1|1929 LeMans Bentley
+Y|1962|1968|05|2|1929 4 1/2 Litre Bentley
+Y|1969|1969|05|3|1907 Peugeot
+Y|1957|1960|06|1|1916 A. E. C. "Y" Type Lorry
+Y|1961|1966|06|2|1926 Type 35 Bugatti
+Y|1967|1969|06|3|1913 Cadillac
+Y|1957|1960|07|1|1914 Ton Leyland Van
+Y|1961|1967|07|2|1913 Mercer Raceabout
+Y|1968|1969|07|3|1912 Rolls Royce
+Y|1958|1961|08|1|1926 Morris Cowley "Bullnose"
+Y|1962|1968|08|2|1914 Sunbeam Motorcycle/Sidecar
+Y|1969|1969|08|3|1914 Stutz Roadster
+Y|1958|1967|09|1|1924 Fowler Showman's Engine
+Y|1968|1969|09|2|1912 Simplex
+Y|1958|1962|10|1|1908 Grand Prix Mercedes
+Y|1963|1968|10|2|1928 Mercedes Benz 36/220
+Y|1969|1969|10|3|1906 Rolls Royce Silver Ghost
+Y|1959|1963|11|1|1920 Aveling and Porter Steam Roller
+Y|1964|1969|11|2|1912 Packard Landaulet
+Y|1959|1966|12|1|1899 London Horse Drawn Bus
+Y|1967|1969|12|2|1909 Thomas Flyabout
+Y|1959|1965|13|1|1862 Santa Fe Locomotive
+Y|1966|1969|13|2|1911 Daimler
+Y|1959|1964|14|1|1903 Duke of Connaught Loco
+Y|1965|1969|14|2|1911 Maxwell Roadster
+Y|1960|1968|15|1|1907 Rolls Royce Silver Ghost
+Y|1969|1969|15|2|Packard Victoria
+Y|1961|1969|16|1|Spyker
+H|1965|1969|CC|1|Carrying Cases
+CC|1965|1969|01|0|40-Compartment Carrying Case
+CC|1966|1969|02|0|48-Compartment Carrying Case
+CC|1966|1969|03|0|48-Compartment Carrying Case
+CC|1966|1969|04|0|Ideal Garage and Service Station Carrying Case
+CC|1967|1969|05|0|18-Compartment Carrying Case
+CC|1968|1969|06|0|72-Compartment Carrying Case
+CC|1969|1969|07|0|16-Compartment Yesteryear Carrying Case
+CC|1969|1969|08|0|24-Compartment Carrying Case
+CC|1969|1969|09|0|24-Compartment Carrying Case
+H|1969|1969|PZL|1|Puzzles
+PZL|1969|1969|29|0|Fire Pumper
+PZL|1969|1969|31|0|Lincoln Continental
+PZL|1969|1969|34|0|Camper
+PZL|1969|1969|35|0|Snow Trac
+PZL|1969|1969|39|0|Ford Tractor/Hay Tractor
+PZL|1969|1969|62|0|Mercury Cougar
+PZL|1969|1969|66|0|Greyhound Bus
+PZL|1969|1969|72|0|Standard Jeep
+GW|1961|1969|61|1|Souvenir Letter Opener

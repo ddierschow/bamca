@@ -1,0 +1,84 @@
+formatter|mcoll|sets|Matchbox Collectibles 1:18 Models|MC
+page|b:bgc,#663333|b:c,#FFFFFF|l:c,#6666FF|v:c,#FF6666
+style|.cell,0|fz,medium|h,8px|c,#FFFFFF|w,8px
+style|.cell,1|fz,medium|c,#FFFFFF
+style|.cell,2|bgc,#FFFF00|w,300px|c,#000000|p,0
+style|.cell,3|va,top|c,#000000|bgc,#CCCC99
+style|.section|bgc,#663333|fz,medium
+style|.table|bgc,#CC9966|c,#990000|bw,2px|p,1px|bsp,1px
+style|.hcell|ta,center|fw,bold|c,#FFFFFF|bc,#990000
+cells|num|name|pic|insetdesc
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|pic|Picture
+data|m|year,num,name
+
+table||year,num,name||0|118
+#table|prefix|cols|title|digits|label|header
+
+s|1999 VW Beetle
+m||92051|Coca-Cola
+d|red
+m||92052|Coca-Cola
+d|yellow
+m||38100|Coca-Cola
+d|red and white
+m||95702|Drew Carey Show
+m||96915
+m||96768|D.A.R.E.
+d|Bellevue Police
+
+s|1999 F350 Pickup
+m||96626|Coca-Cola
+m||92617|Campbell's
+m||97114|Good Year
+m||38076|Texaco
+
+s|Holmes 400 Series
+m||92883|Texaco
+m||97115|Mobil
+
+s|1946 Dodge Power Wagon
+m||92086|Texaco
+m||92619|Coca-Cola
+m||96479|green
+
+s|1940 Ford Van
+m||96138|Coca-Cola
+m||96646|Campbell's Soups
+
+s|1940 Ford Sedan
+m||91695|Holley
+m||92880|Police Department
+
+s|Chevy Suburban
+m||97116|Coca-Cola
+m||92142|Mesa Fire
+m||92618|McDonald's
+
+s|Jeepster
+m||37787|red
+m||92884|yellow
+m||96916
+
+s|1957 GMC Panel Van
+m||92882|Coca-Cola
+m||95699
+
+s|Jeep Liberty
+m||95106
+m||97417|red
+
+s|Chevy '57 Nomad
+
+s|1999 Ford F Series Super Duties KME Fire Pumper
+
+s|Ford TT Panel Van
+m||95698|Ford Parts Delivery
+m||97416|Champion
+
+s|Assortment
+m||95701
+

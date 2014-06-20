@@ -1,0 +1,1372 @@
+formatter|man|tomica|Tomica Lineup
+page|b:bgc,#FFFFFF|b:c,#000000|l:c,#0000CC|v:c,#CC0000
+style|.table|bgc,#FFFFFF
+data|m|id,subid,first_year,scale,rawname,desc
+data|H|year,label,title
+
+H|1970|m|Tomica Models
+
+m|  1|  1|1970|  1:60|Nissan Bluebird SSS 510
+m|  1|  2|1974| 1:147|Fuso Hato Bus
+m|  1|  3|1986| 1:145|Hino Grandview Bus
+m|  1|  4|2000| 1:156|Mitsubishi Fuso Aero Queen
+m|  1|  5|2008| 1:156|Mitsubishi Fuso Aero Queen
+m|  2|  1|1970|  1:62|Toyota Corona Mark II 1900HT SL
+m|  2|  2|1975|  1:60|Toyota Land Cruiser FJ40V
+m|  2|  3|1979|  1:96|Tadano Rough Terrain Crane TR151S
+m|  2|  4|2004|      |Mitsubishi Fuso Canter Tow Truck
+m|  2|  5|2011|  1:77|F1741WZ Asphalt Finisher
+m|  3|  1|1970|  1:66|Toyota Crown Super Deluxe
+m|  3|  2|1974| 1:110|Isuzu Fire Engine
+m|  3|  3|1980|  1:67|Nissan Caravan High Roof Van
+m|  3|  4|1988|  1:66|Toyota Hiace Delivery Van
+m|  3|  5|2002|  1:66|Toyota Megacruiser Patrol Car
+m|  3|  6|2012|      |Animal Transport Vehicle
+m|  4|  1|1970|  1:65|Toyota Crown Patrol Car
+m|  4|  2|1972|  1:65|Toyota Crown Patrol Car
+m|  4|  3|1975|  1:65|Toyota Crown Patrol Car
+m|  4|  4|1981|  1:59|Mazda Familia 1500XG
+m|  4|  5|1985|  1:59|Mazda Familia
+m|  4|  6|1988|  1:34|Honda Patrol Bike
+m|  4|  7|2005|  1:32|Honda VFR Police Bike
+m|  5|  1|1970|  1:60|Toyota 2000GT
+m|  5|  2|1981|  1:65|Toyota Soarar 2800GT
+m|  5|  3|1992|  1:62|Toyota Soarar
+m|  5|  4|2000|  1:60|Toyota BB
+m|  5|  5|2008|  1:65|Toyota Land Cruiser
+m|  5|  6|2013|  1:64|Chevrolet Corvette Z06
+m|  6|  1|1970|  1:60|Nissan Fairlady Z 432
+m|  6|  2|1976| 1:110|Isuzu Bonnet Bus BX
+m|  6|  3|1980|  1:61|Nissan Silvia 2000ZSE-X
+m|  6|  4|1984|  1:62|Nissan Silvia S12
+m|  6|  5|1989|  1:59|Nissan Silvia S13
+m|  6|  6|2001|  1:33|Honda Super Cub
+m|  6|  7|2007|  1:33|Honda Little Cub
+m|  6|  8|2011|      |Isuzu Elf
+m|  6|  9|2013|  1:62|Audi R8
+m|  7|  1|1970|  1:60|Honda 1300 Coupe
+m|  7|  2|1975| 1:127|Mitsubishi Fuso Panel Van
+m|  7|  3|1988| 1:102|Mitsubishi Fuso Refrigerator Car
+m|  7|  4|1997|      |Mitsubishi Super Great Truck
+m|  7|  5|2006|  1:64|Alsok Security Transport Car
+m|  7|  6|2011|  1:67|Subaru WSX STI 4door
+m|  8|  1|1971|  1:56|Nissan Sunny 1200 Coupe GX
+m|  8|  2|1975|  1:59|Nissan Sunny Excellent 1400GX
+m|  8|  3|1979| 1:122|Isuzu Blood Collection Car
+m|  8|  4|1988|  1:62|Nissan Cedric Taxi
+m|  8|  5|2002|  1:62|Nissan Skyline V35
+m|  8|  6|2007|  1:57|Nissan Pino
+m|  8|  7|2010|  1:64|Nissan Fuga
+m|  8|  8|2013|  1:68|Nissan Cima
+m|  9|  1|1971|  1:54|Subaru R2
+m|  9|  2|1974| 1:103|Komatsu Power Shovel 15HT
+m|  9|  3|1981| 1:122|Komatsu Power Shovel PC200
+m|  9|  4|1995| 1:122|Komatsu Power Shovel PC200
+m|  9|  5|2001| 1:122|Komatsu Power Shovel PC200 Galeo
+m|  9|  6|2012| 1:122|Komatsu Excavator PC200 10 type 
+m| 10|  1|1971|  1:54|Honda N 360
+m| 10|  2|1974|  1:62|Isuzu 117Coupe 1800XE
+m| 10|  3|1980|  1:72|Mitsubishi Canter Dump Truck
+m| 10|  4|1987|  1:52|Subaru Sambar Bakery
+m| 10|  5|2007|  1:55|Subaru Sambar Bakery
+m| 11|  1|1971|  1:59|Toyota Splinter Sl Ke25
+m| 11|  2|1975|      |Hino Semi Trailer Transport Tank
+m| 11|  3|2003|  1:60|Subaru Legacy
+m| 11|  4|2008|  1:59|Subaru Impreza WRX STI
+m| 12|  1|1971|  1:59|Mazda Capella Rotary Coupe
+m| 12|  2|1976|  1:37|Yamaha Sports TX750
+m| 12|  3|1978| 1:120|Toyota Forklift FD 200
+m| 12|  4|2006|  1:64|Nissan Paramedic
+m| 12|  5|2010|  1:68|Nissan March
+m| 12|  6|2013|  1:65|Toyota Porte
+m| 13|  1|1971|  1:59|Mitsubishi Galant Hardtop GS
+m| 13|  2|1975|      |Sunflower
+m| 13|  3|1976|  1:65|Nissan Cedric 2800SGL
+m| 13|  4|1980|  1:65|Nissan Cedric 280E Brougham
+m| 13|  5|1984|  1:65|Nissan Cedric 4Dr Hardtop
+m| 13|  6|1988|  1:65|Nissan Cedric Y31
+m| 13|  7|1996|      |Rescue Work Car
+m| 13|  8|2006| 1:159|Morita Airport Crash Tender MAF-125A
+m| 13|  9|2011|      |Mitsubishi Fuso Canter
+m| 14|  1|1971|  1:62|Nissan Laurel 2000GX
+m| 14|  2|1975| 1:153|Toyota Diesel Car Transporter
+m| 14|  3|1988|  1:78|Isuzu Elf Carcarrier
+m| 14|  4|1997|      |Mitsubishi Super Great Car Carrier
+m| 14|  5|2008| 1:142|Komatsu Landmine Deminer D85MS
+m| 15|  1|1971|  1:60|Toyota Corona 1700HT SL
+m| 15|  2|1976|  1:56|Nissan Sunny Coupe Racing
+m| 15|  3|1979|  1:61|Fairlady 280Z-T
+m| 15|  4|1984|  1:61|Nissan Fairlady Z 300ZX
+m| 15|  5|1990|  1:59|Nissan Fairlady Z
+m| 15|  6|2002|  1:54|Daihatsu Copen
+m| 15|  7|2007|  1:67|Hummer H2
+m| 16|  1|1971|  1:60|Mazda Cosmo Sports
+m| 16|  2|1974| 1:102|Nissan Diesel Dump Truck
+m| 16|  3|1998|  1:58|Toyota Corolla Spacio
+m| 16|  4|2002|  1:62|Mazda Atenza
+m| 16|  5|2007|  1:60|Suzuki Swift Sport Rallycup Car
+m| 16|  6|2012| 1:171|Isuzu Gala JR Bus Tohoku
+m| 17|  1|1971|  1:58|Nissan Cherry X1
+m| 17|  2|1975|  1:56|Nissan Cherry Fii 1400GX
+m| 17|  3|1979|      |Dd13 Diesel Locomotive
+m| 17|  4|1981|  1:64|Nissan Bluebird 1800 Turbo SSS-XG
+m| 17|  5|1984|  1:58|Honda Civic 3Door
+m| 17|  6|1990|  1:65|Toyota Celsior
+m| 17|  7|2001|  1:65|Toyota Celsior
+m| 17|  8|2008|  1:63|Nissan Cube
+m| 17|  9|2012|  1:58|Nissan March Patrol Car
+m| 18|  1|1971|  1:54|Honda Tn360 Truck
+m| 18|  2|1974|  1:62|Nissan Bluebird U 2000GT-X
+m| 18|  3|1977|  1:63|Mitsubishi Galant Lamda 2000GSR
+m| 18|  4|1980|  1:68|Toyota Dyna Vacuum Car
+m| 18|  5|2001|  1:60|Subaru Legacy Touring Wagon
+m| 18|  6|2004|  1:59|Nissan Wingroad
+m| 18|  7|2008|  1:64|Jeep Wrangler
+m| 18|  8|2010|      |Large Car Blower
+m| 18|  9|2013|  1:69|Nissan NV350 Caravan Ambulance
+m| 19|  1|1971|  1:54|Honda Tn360 Van
+m| 19|  2|1976|      |Kawasaki KV-107II
+m| 19|  3|1985|      |Hino Bulk Trailer
+m| 19|  4|1992| 1:102|Mitsubishi Fuso Wing Body Truck
+m| 19|  5|2005|  1:57|Suzuki Alto
+m| 19|  6|2007|  1:56|Daihatsu Mira
+m| 19|  7|2011|  1:65|Chevrolet Camaro
+m| 20|  1|1971|  1:54|Honda Tn360 Postal
+m| 20|  2|1976| 1:102|Nissan Diesel Panel Van
+m| 20|  3|1980|  1:65|Nissan Skyline 2000Rs-Turbo
+m| 20|  4|1982|  1:65|Nissan Skyline 2000Turbo GT-ES
+m| 20|  5|1986|  1:62|Nissan Skyline R31
+m| 20|  6|1990|  1:59|Nissan Skyline GT-R R32
+m| 20|  7|1995|  1:60|Nissan Skyline GT-R R33
+m| 20|  8|1999|  1:62|Nissan Skyline GT-R R34
+m| 20|  9|2005|  1:57|Daihatsu Move Custom
+m| 20| 10|2009|  1:60|Honda Insight
+m| 20| 11|2013|      |Honda N Box
+m| 21|  1|1971|  1:62|Datsun Skyline 2000GT
+m| 21|  2|1975|  1:62|Datsun Skyline 2000GT Racing
+m| 21|  3|1980|  1:50|Daihatsu Midget Van
+m| 21|  4|1983|  1:50|Subaru 360
+m| 21|  5|1997|  1:64|Honda Stepwagon
+m| 21|  6|2006|  1:64|Honda Step
+m| 21|  7|2010|  1:64|Honda Step
+m| 22|  1|1971|      |Nissan R-382
+m| 22|  2|1980|  1:90|Nissan Diesel Condor Fire Truck
+m| 22|  3|1983|  1:60|Nissan Pulsar Exa
+m| 22|  4|1987| 1:120|Nissan Diesel Fire Ladder
+m| 22|  5|2009|  1:60|Nissan Note
+m| 22|  6|2011|  1:88|Mercedes-Benz Unimog
+m| 23|  1|1971|  1:58|Toyota 7
+m| 23|  2|1980|  1:51|Honda Sports 800M
+m| 23|  3|1983|  1:61|Toyota Sprinter Carib
+m| 23|  4|1990| 1:102|Fuso Covered Truck
+m| 23|  5|1996|  1:64|Mazda Bongo Friendee
+m| 23|  6|2002|  1:62|Nissan Skyline Safety Car
+m| 23|  7|2007|  1:57|Toyota Probox Voluntary Security Car
+m| 23|  8|2011|  1:68|Mitsubishi RVR
+m| 23|  9|2013|  1:59|Mitsubishi Mirage
+m| 24|  1|1971|  1:68|Toyota Hiace Truck
+m| 24|  2|1975|      |Hino Semi Trailer Panel Van
+m| 24|  3|1980| 1:127|Fuso Container Truck
+m| 24|  4|1984|  1:56|Toyota MR-2
+m| 24|  5|1995|  1:57|Toyota RAV4
+m| 24|  6|2002|  1:61|Toyota Soarar
+m| 24|  7|2005|      |Komatsu Motor Grader
+m| 24|  8|2011| 1:167|Kawasaki BK-117 C-2 Helicopter
+m| 25|  1|1971|  1:56|Mitsubishi J3R Jeep
+m| 25|  2|1980|  1:57|Mitsubishi H-J58 Jeep
+m| 25|  3|1998|      |Mitsubishi H-J58 Big Foot
+m| 25|  4|2001|  1:68|Mitsuoka Le-Seyde
+m| 25|  5|2007|  1:63|Mitsuoka Orochi
+m| 26|  1|1971|  1:60|Toyota Celica 1600GT
+m| 26|  2|1978|  1:58|Kojima 009 Ford Racer
+m| 26|  3|1980|  1:68|Nissan Caball Skymaster
+m| 26|  4|1982|  1:72|Isuzu Elf Ts30 Crane
+m| 26|  5|1991|      |Exploration Bus (Lion Bus)
+m| 26|  6|2009|  1:65|Shimajiro Car
+m| 26|  7|2013|  1:67|Tokai University Solar Car Tokai Challenger
+m| 27|  1|1971|  1:65|Toyota Crown Fire Chief
+m| 27|  2|1972|  1:65|Toyota Crown Fire Chief
+m| 27|  3|1975|  1:65|Toyota Crown Fire Chief
+m| 27|  4|1978|  1:68|Toyota Hiace Potato Van
+m| 27|  5|1985|  1:70|Isuzu Hipac Footwork Van
+m| 27|  6|2000|  1:60|Toyota Will Vi
+m| 27|  7|2004|  1:64|Mitsubishi Grandis
+m| 27|  8|2007|  1:63|Toyota Corolla Axio
+m| 27|  9|2010|  1:64|Nissan Juke
+m| 28|  1|1971|  1:65|Toyota Crown Taxi
+m| 28|  2|1972|  1:65|Toyota Crown Taxi
+m| 28|  3|1977|  1:65|Datsun Cedric Taxi
+m| 28|  4|1980|  1:65|Datsun Cedric Taxi
+m| 28|  5|1984|  1:65|Toyota Crown Taxi
+m| 28|  6|1988|  1:63|Toyota Road Maintenance
+m| 28|  7|2004|  1:65|Honda Elysion
+m| 28|  8|2009|  1:60|Toyoda iQ
+m| 28|  9|2013| 1:174|John Deere Combine 9670STS
+m| 29|  1|1972| 1:110|Hino Fire Truck
+m| 29|  2|1975| 1:125|Hino Fire Truck
+m| 29|  3|2003|      |Mitsubishi Canter Sakai Moving Service
+m| 30|  1|1972|  1:60|Mitsubishi Galant GTO-MR
+m| 30|  2|1975|  1:37|Yamaha TX750 Bike
+m| 30|  3|1982|  1:34|Honda CB750F Bike
+m| 30|  4|1985|  1:60|Honda Quint Integra
+m| 30|  5|1993|  1:61|Mitsubishi Pajero Metal Top
+m| 30|  6|1999|  1:63|Mitsubishi Pajero Gdi
+m| 30|  7|2006| 1:141|Mitsubishi Fuso Aero Star Route Bus
+m| 30|  8|2011|      |Dinosaur Transport Vehicle
+m| 31|  1|1972|  1:62|Toyota EX-7
+m| 31|  2|1980|  1:55|Suzuki Carry Van
+m| 31|  3|1985|  1:52|Subaru Sambar Panel Van
+m| 31|  4|1994|  1:59|Nissan Primera
+m| 31|  5|2001|  1:65|Nissan Cima
+m| 31|  6|2006|      |Nissan Diesel Quon
+m| 31|  7|2012|      |UD Trucks Condor
+m| 32|  1|1972|  1:65|Toyota Crown
+m| 32|  2|1975|  1:65|Toyota Crown 2600 Royal Saloon
+m| 32|  3|1979| 1:165|Komatsu Motor Scraper WS16
+m| 32|  4|1983|  1:61|Toyota Corolla Sedan
+m| 32|  5|1987|  1:78|Isuzu Elf Panel Van
+m| 32|  6|2000|  1:65|Nissan Gloria
+m| 32|  7|2004|  1:63|Toyota Crown
+m| 32|  8|2008|  1:63|Toyota Crown
+m| 32|  9|2011|  1:57|Daihatsu Move
+m| 33|  1|1972|  1:65|Nissan Cedric
+m| 33|  2|1975|  1:96|Ishiko Pic Rover Rs Crane
+m| 33|  3|1978|  1:63|Toyota Celca LB2000GT
+m| 33|  4|1982|  1:64|Toyota Celca XX2800GT
+m| 33|  5|1986|  1:58|Toyota Celca 2000GT-R
+m| 33|  6|1994|  1:60|Toyota Supra
+m| 33|  7|2005|  1:59|Toyota Vitz
+m| 33|  8|2009|  1:56|Daihatsu Move Conte
+m| 33|  9|2013|  1:66|Volkswagen Beetle Stanza 
+m| 34|  1|1972|  1:62|Mazda RX500
+m| 34|  2|1979|      |Electric Locomotive ED-75
+m| 34|  3|1981|  1:59|Honda Civic Wagon
+m| 34|  4|1984|  1:60|Nissan Bluebird Wagon
+m| 34|  5|1992|  1:64|Mazda 787B
+m| 34|  6|2002|  1:60|Mitsubishi Lancer Evolution VII GT-A
+m| 34|  7|2008|  1:65|Mitsubishi Delica D:5
+m| 34|  8|2011| 1:122|PW200 Komatsu Hydraulic Excavator
+m| 35|  1|1972|  1:67|Isuzu Elf Dump Truck
+m| 35|  2|1980|  1:68|Dome Celica Turbo
+m| 35|  3|1991|      |Mitsubishi Pajero Big Foot
+m| 35|  4|2002|  1:58|Nissan March
+m| 35|  5|2008|  1:55|Subaru Samber Noodls Truck
+m| 36|  1|1972|  1:67|Isuzu Elf Refuse Truck
+m| 36|  2|1980|  1:67|Nissan Caravan Ambulance
+m| 36|  3|1988|  1:66|Toyota Hiace Ambulance
+m| 36|  4|2001|  1:64|Toyota Majesta Patrol Car
+m| 36|  5|2005|  1:57|Toyota Probox Highway Patrol Car
+m| 36|  6|2007|  1:68|Nexco Self Run Type Mark Car
+m| 36|  7|2011|  1:64|Suzuki Swift
+m| 37|  1|1972|  1:67|Isuzu Elf Vacuum Car
+m| 37|  2|1977|  1:77|Isuzu Low Decker Bus
+m| 37|  3|1980|  1:54|Toyota Jobsun SDK8 Shovel
+m| 37|  4|1995|      |Coca-Cola Event Car
+m| 37|  5|2006|      |Coca-Cola Event Car
+m| 37|  6|2009|      |Coca-Cola Event Car
+m| 37|  7|2012|      |Hino Dutro Truck with Crane
+m| 38|  1|1972|  1:68|Toyota Hiace Van
+m| 38|  2|1977|  1:68|Toyota Dyna Van
+m| 38|  3|1978|  1:64|Mazda Cosmo L Coupe
+m| 38|  4|1982|  1:60|Mitsubishi Lancer Turbo
+m| 38|  5|1987|  1:78|Isuzu Elf Aerial Truck
+m| 38|  6|1999| 1:145|Pokemonr Bus
+m| 38|  7|2011|  1:89|Mobile Rescue Vehicle
+m| 39|  1|1972|  1:68|Toyota Hiace Wrecker
+m| 39|  2|1976|  1:68|Toyota Dyna Wrecker
+m| 39|  3|1980|  1:55|Suzuki Carry Farm Truck
+m| 39|  4|2001| 1:122|Lift-Magnet Power Shovel
+m| 39|  5|2009|  1:61|Mitsubishi Lancer Evolution X Police
+m| 40|  1|1972|  1:70|Toyota Fs55V Ambulance
+m| 40|  2|1992|  1:59|Nissan Skyline GTR Racing (JECS)
+m| 40|  3|1993|  1:59|Nissan Skyline GTR Racing (Unisia JECS)
+m| 40|  4|1997|  1:60|Nissan Skyline GTR Racing (R33)
+m| 40|  5|2001|  1:61|Nissan Skyline Racing (R34)
+m| 40|  6|2005|  1:61|Mitsuoka Viewt
+m| 40|  7|2010|  1:57|Nissan Fairlady Z 40 Anniversary Car
+m| 41|  1|1973| 1:156|Mitsubishi Fuso Bus
+m| 41|  2|1976| 1:148|Fuji Semi-Decker Bus
+m| 41|  3|1981| 1:116|Hino Skeleton Rainbow Bus
+m| 41|  4|1988| 1:145|Isuzu Hi-Decker Bus
+m| 41|  5|2003|      |Morita Fire Engine Type Cd-I
+m| 42|  1|1972|  1:62|Datsun 1300 Truck
+m| 42|  2|1976| 1:102|Nissan Diesel Jet Pack Truck
+m| 42|  3|1982|  1:34|Honda Cb750F
+m| 42|  4|2004|      |Satellite Relay Truck
+m| 42|  5|2007| 1:139|Caterpillar Track Type Tractor
+m| 42|  6|2008| 1:156|Hato Bus
+m| 43|  1|1972|  1:66|Toyota Century
+m| 43|  2|1987| 1:120|Nissan Diesel Crane
+m| 43|  3|2006|  1:57|Mini Cooper
+m| 44|  1|1971|  1:60|Datsun Fairlady Z Patrol Car
+m| 44|  2|1975|  1:60|Datsun 240Zg Patrol Car
+m| 44|  3|1980|  1:61|Datrun Fairlady 280Z Patrol Car
+m| 44|  4|1984|  1:61|Nissan Fairlady Z Patrol Car
+m| 44|  5|1990|  1:59|Nissan Fairlady Z 300Zx Patrol Car
+m| 44|  6|2005|  1:59|Mazda Rx-8 Patrol Car
+m| 44|  7|2012|  1:62|Renault Megane RS
+m| 45|  1|1971|  1:60|Mazda Cosmo Sport Patrol Car
+m| 45|  2|1977|  1:64|Mazda Cosmo Ap Patrol Car
+m| 45|  3|1980|  1:55|Suzuki Carry Noodles Truck
+m| 45|  4|2006|      |Toyota Dyna Refuse Truck
+m| 46|  1|1972|  1:88|Mazda Light Bus
+m| 46|  2|1979|  1:58|Dome Zero
+m| 46|  3|1992|  1:54|Toyota Celica 2000GT-R Rally
+m| 46|  4|1996|  1:66|Honda Odyssey
+m| 46|  5|2001|  1:66|Honda Odyssey
+m| 46|  6|2004|  1:64|Honda Odyssey
+m| 46|  7|2009|  1:65|Honda Odyssey
+m| 46|  8|2012|  1:60|Toyota 86
+m| 47|  1|1973|  1:65|Datsun Cedric Wagon
+m| 47|  2|1977|  1:65|Datsun Gloria Wagon
+m| 47|  3|1979|  1:65|Datsun Cedric Airport Taxi
+m| 47|  4|1981|  1:72|Mitsubishi Canter Refuse Truck
+m| 47|  5|2006|      |Animal Carrier (Penguin)
+m| 47|  6|2010| 1:104|Rotary Snow Plow HTR265
+m| 48|  1|1972|  1:56|Nissan Sunny 1200 With Sky Carrier
+m| 48|  2|1973|  1:56|Komatsu FD30 Forklift
+m| 48|  3|1979| 1:190|Mitsunishi P.T.V. Elevating Bus
+m| 48|  4|1982|  1:62|Mitsubishi Starion 2000 Turbo
+m| 48|  5|1989|  1:78|Isuzu Elf Snow Plough
+m| 48|  6|1998|      |Sl Type Bus
+m| 48|  7|2005|  1:64|Toyota Hiace Multi Purpose Car
+m| 48|  8|2009|  1:59|Toyota Vellfire
+m| 49|  1|1972|  1:60|Honda 1300 Coupe With Surf Carrier
+m| 49|  2|1973|  1:81|Isuzu Elf High Roof Van
+m| 49|  3|1978|  1:72|Isuzu Elf FF Van
+m| 49|  4|1981|  1:28|Suzuki Genma
+m| 49|  5|1985|  1:64|March 85G
+m| 49|  6|1991| 1:130|Mitsubishi Fuso Zoo Park Bus
+m| 49|  7|2001|  1:78|Yamazaki Derivery Truck
+m| 49|  8|2008|      |Yamazaki Derivery Truck
+m| 50|  1|1972|  1:68|Toyota Hiace Farm Truck
+m| 50|  2|1977|  1:68|Toyota Dyna Farm Truck
+m| 50|  3|1979|  1:60|Mazda Savanna Rx-7 Limited (SA22)
+m| 50|  4|1986|  1:55|Mazda Savanna Rx-7 (FC3S)
+m| 50|  5|1997|  1:64|Toyota Ipsum
+m| 50|  6|2003|  1:58|Nissan Fairlady Z Racing Type
+m| 50|  7|2008|  1:64|Nissan GT-R Racing Car
+m| 50|  8|2010|  1:64|Hasemi Ebbro Tomica GT-R
+m| 50|  9|2011|  1:55|Lotus Exige S
+m| 51|  1|1972|  1:50|Mitsubishi Colt F2000
+m| 51|  2|1979|  1:90|Yutani Ty45 Power Shovel
+m| 51|  3|1988|  1:60|Nissan Bulebird
+m| 51|  4|1993|  1:78|Nissan Paramedic Ambulance
+m| 51|  5|2006|  1:63|Toyota Crown Taxi
+m| 51|  6|2007|  1:63|Toyota Crown Comfort Taxi
+m| 52|  1|1973| 1:102|Hino Tipper Truck
+m| 52|  2|1989| 1:102|Hino Tipper Truck
+m| 52|  3|2006|  1:59|Subaru Impreza Unmarked Police Car
+m| 52|  4|2010|  1:49|EG300 Series Yanmar Tractors Eco Tigers
+m| 53|  1|1973| 1:102|Hino Concrete Truck
+m| 53|  2|1989| 1:100|Nissan Diesel Concrete Truck
+m| 53|  3|2007|      |Nissan Diesel Quon Mixer Car
+m| 54|  1|1973| 1:102|Hino Tank Lorry
+m| 54|  2|1980|  1:68|Nissan Caball Truck
+m| 54|  3|1982|  1:57|Honda City
+m| 54|  4|1983|  1:57|Honda City Turbo
+m| 54|  5|1984|  1:57|Honda City Turbo Ii
+m| 54|  6|1988|  1:59|Honda Prelude
+m| 54|  7|1995|  1:64|Range Rover
+m| 54|  8|2001|  1:59|Subaru Impreza WRX
+m| 54|  9|2007|  1:64|Honda Civic Type R
+m| 54| 10|2011|  1:68|Honda Civic Type R EURO
+m| 55|  1|1972|  1:54|Honda Vamos
+m| 55|  2|1977|  1:64|Mazda Cosmo Ap Limited
+m| 55|  3|1980|  1:65|Toyota Crown 2800 Royal Saloon
+m| 55|  4|1984|  1:65|Toyota Crown 4Dr Sedan
+m| 55|  5|1988|  1:63|Toyota Crown 4Dr Sedan
+m| 55|  6|1992|  1:64|Toyota Crown Majesta
+m| 55|  7|2001|  1:58|Nissan Fairlady Z
+m| 55|  8|2009|  1:57|Nissan Fairlady Z
+m| 55|  9|2010|  1:57|Nissan Fairlady Z Roadster
+m| 56|  1|1972|  1:68|Toyota Hiace Camping Car
+m| 56|  2|1977| 1:104|Nissan Diesel Condor Truck
+m| 56|  3|1984| 1:104|Nissan Diesel Condor Dozer Carrier
+m| 56|  4|1989| 1:102|Hino Dozer Carrier
+m| 56|  5|2008| 1:109|Komatsu Bulldozer D155Ax-6
+m| 57|  1|1972|  1:68|Toyota Rh18V Ambulance
+m| 57|  2|1981| 1:100|Nissan Diesel Tank Lorry
+m| 57|  3|1997| 1:100|Nissan Diesel Tank Lorry
+m| 57|  4|2006|      |Nissan Diesel Quon Tank Lorry
+m| 57|  5|2011|      |Tank Eneosu
+m| 58|  1|1974|  1:60|Datsun Fairlady 240Zg
+m| 58|  2|1980|  1:65|Toyota Crown Patrol Car
+m| 58|  3|1984|  1:65|Nissan Cedric Patrol Car
+m| 58|  4|1988|  1:65|Nissan Cedric Patrol Car
+m| 58|  5|2000|  1:63|Nissan Cedric Patrol Car
+m| 58|  6|2009|  1:59|Suzuki Wagon R
+m| 59|  1|1973| 1:117|Hitachi Dh321 Dump Truck
+m| 59|  2|1983|  1:62|Dynapac Cc21 Roadroller
+m| 59|  3|2009|  1:60|Sakai Vibratory Tandem Roller Sw502-1
+m| 60|  1|1973|  1:49|Nissan No.1
+m| 60|  2|1981|  1:84|Mitsubishi Rosa Minibus
+m| 60|  3|2005|  1:65|Toyota Celsior Privately Owned Taxi
+m| 60|  4|2008|  1:61|Toyota Mark X Owned Car
+m| 60|  5|2013|  1:51|Toyota Corolla Fielder
+m| 61|  1|1972|  1:77|Kawasaki Road Roller
+m| 61|  2|1978|  1:65|Datsun Skyline 2000GT-ES
+m| 61|  3|1981|  1:62|Toyota Hilux 4Wd
+m| 61|  4|1988|  1:62|Toyota Hilux 4Wd Big Foot
+m| 61|  5|2007|  1:60|Suzuki Swift Sport
+m| 61|  6|2010|  1:56|Suzuki Alto
+m| 61|  7|2013|  1:61|BMW Z4
+m| 62|  1|1973|  1:60|Datsun Bluebird U SSS-E
+m| 62|  2|1977|  1:60|Datsun Silvia Ls Type-X
+m| 62|  3|1980|  1:98|Isuzu Journey Q Mobile Library
+m| 62|  4|1987|  1:58|Williams Honda Formula 1
+m| 62|  5|1990|  1:50|Daihatsu Midget Van
+m| 62|  6|1997|  1:50|Daihatsu Midget II
+m| 62|  7|2004|  1:63|Toyota Harrier
+m| 62|  8|2010|  1:61|Mazda Axela Sport
+m| 63|  1|1972|  1:79|Furukawa Wheel Loader
+m| 63|  2|2007|      |Maeda Seisakusho Mini Crawler Crane
+m| 64|  1|1973|  1:64|Toyota Hilux Van
+m| 64|  2|1978|  1:72|Isuzu Elf Ff Backhoe Truck
+m| 64|  3|1999|  1:57|Honda S2000
+m| 64|  4|2010|  1:61|Toyota Mark X
+m| 64|  5|2013|  1:64|Porsche Boxster
+m| 65|  1|1973|  1:77|Camping Trailer
+m| 65|  2|1976|  1:90|Sakai Multi-Tyre Roller
+m| 65|  3|1979|  1:62|Celica Turbo
+m| 65|  4|1982|  1:68|Nissan Skyline Silhouette
+m| 65|  5|1998| 1:102|M'Cdonald Panel Van
+m| 65|  6|2003|      |Nissan Diesel Big Thumb
+m| 65|  7|2009|  1:90|Hitachi Construction Machinery Asutako
+m| 66|  1|1973|  1:33|Honda Dax Motorcycle
+m| 66|  2|1977|      |Fuso Crane Truck
+m| 66|  3|2009|  1:47|Yanmar Combine AJ218
+m| 67|  1|1973|  1:68|Nissan Caball Police Car
+m| 67|  2|1978|  1:81|Toyota Hq15V Ambulance
+m| 67|  3|1981|  1:68|Nissan Caball Panel Truck
+m| 67|  4|1983|  1:61|Toyota Sprinter Trueno
+m| 67|  5|1986| 1:102|Nissan Diesel Panel Truck
+m| 67|  6|1998|  1:52|Subaru Sambar Panel Truck
+m| 67|  7|2008|  1:61|Mitsubishi Lancer Evolution X
+m| 68|  1|1973|  1:81|Isuzu Pump Fire Engine
+m| 68|  2|1985| 1:110|Isuzu Snorkel
+m| 68|  3|2009|  1:57|Mail car
+m| 69|  1|1973|  1:61|Toyota Mk Ii-L
+m| 69|  2|1978|  1:65|Toyota Mk Ii 2600 Grand
+m| 69|  3|1980|  1:81|Toyota Jsdf Truck
+m| 69|  4|1982|  1:60|Mitsubishi Pajero
+m| 69|  5|1993| 1:102|Mitsubishi Fuso Aquarium Truck
+m| 69|  6|2007|      |Aquarium Truck
+m| 70|  1|1972|  1:87|Komatsu D65A Bulldozer
+m| 70|  2|1976|  1:87|Komatsu D65A Dozer
+m| 70|  3|1977|  1:68|Komatsu D65A Bulldozer
+m| 70|  4|2004|  1:60|Isuzu Elf Aerial Platform
+m| 70|  5|    |      |Toyota Geneo Hybrid
+m| 71|  1|1973|  1:76|Yamaha Boat Trailer
+m| 71|  2|1978|  1:62|Shiden 77 BMW
+m| 71|  3|1981|  1:60|Moon Craft Special
+m| 71|  4|1987|  1:57|Nissan Mid-4
+m| 71|  5|1992|  1:56|Mitsubishi Minica Toppo
+m| 71|  6|1998|  1:57|Suzuki Wagon-R
+m| 71|  7|2001|  1:56|Suzuki Wagon R RR
+m| 71|  8|2007| 1:110|Hitachi Wheel Loader ZW220
+m| 72|  1|1973| 1:150|Nissan Diesel Crane Truck
+m| 72|  2|1992|  1:50|Honda Beat
+m| 72|  3|2001|  1:63|Mitsubishi Pajero Rally Type
+m| 72|  4|2005|  1:61|Toyota Mark X
+m| 72|  5|2010| 1:141|Mitsubishi Fuso Aero Star Eco Hybrid
+m| 73|  1|1974|  1:54|Honda F1 Racing Car
+m| 73|  2|1978| 1:111|Isuzu Dump Truck
+m| 73|  3|2004| 1:160|Tadano Rough Terrain Crane Crevo 600
+m| 73|  4|2011| 1:116|Panther X 250 Kobelco Rough Terrain Crane
+m| 74|  1|1973|  1:63|Datsun Laurel 2000SGX
+m| 74|  2|1979|  1:64|Mazda Cosmo AP Official Car
+m| 74|  3|1981|  1:60|Mazda Savanna RX-7 Racing (SA22)
+m| 74|  4|1984|  1:64|Nissan Skyline Turbo C
+m| 74|  5|1990| 1:102|Mitsubishi Fuso Container Truck
+m| 74|  6|2006|      |Rescue Truck III Type
+m| 75|  1|1972|  1:60|Mazda Cosmo Sports
+m| 75|  2|1974| 1:122|Isuzu NHK TV-Bus
+m| 75|  3|1978|  1:64|Datsun Bluebird 2000 G6-E-L
+m| 75|  4|1980| 1:127|Mitsubishi Fuso LPG Tank Lorry
+m| 75|  5|1983|  1:52|Suzuki Cervo
+m| 75|  6|1987|  1:67|Nissan Caravan Patrol Car
+m| 75|  7|2005|  1:50|Smart Fortwo Coupe
+m| 75|  8|2008|  1:62|Nissan X-Trail
+m| 75|  9|2011|  1:46|Ouroboros Connect Design
+m| 76|  1|1972|  1:65|Datsun Cedric Wagon Road Maintenance
+m| 76|  2|1976|  1:60|Toyota Land Cruiser Road Maintenance
+m| 76|  3|1978| 1:127|Mitsubishi Fuso Wing Roof Truck
+m| 76|  4|1989| 1:102|Mitsubishi Fuso Animal Truck
+m| 76|  5|2007|      |Isuzu Giga Dump Truck
+m| 77|  1|1972|  1:65|Datsun Cedric Wagon Patrol Car
+m| 77|  2|1977|  1:65|Datsun Gloria Patrol Car
+m| 77|  3|1978|  1:81|Toyota Hq15V Rocket Launcher
+m| 77|  4|1981|  1:72|Mitsubishi Canter Gully Truck
+m| 77|  5|1986|  1:72|Mitsubishi Canter Wrecker
+m| 77|  6|2005|      |Hino Profia
+m| 78|  1|1973|  1:65|Datsun Cedric Wagon Fire Chief Car
+m| 78|  2|1977|  1:59|Honda Accord Cvcc-Ex
+m| 78|  3|1980|  1:61|Toyota Corolla Coupe Levin
+m| 78|  4|1983|  1:61|Toyota Corolla Levin
+m| 78|  5|1987|  1:55|Lotus Honda Formula 1
+m| 78|  6|1991|  1:59|Honda Nsx
+m| 78|  7|2002|  1:65|Toyota Alphard
+m| 78|  8|2008|  1:59|Toyota Alphard
+m| 79|  1|1972|  1:59|Mitsubishi Galant GS 10-4-10-10
+m| 79|  2|1974| 1:131|Mitsubishi Fuso One Man Operated Bus
+m| 79|  3|1985| 1:130|Mitsubishi Fuso One Man Operated Bus
+m| 79|  4|2006|  1:64|Toyota Himedic
+m| 80|  1|1973|  1:59|Mazda Savanna GT
+m| 80|  2|1978|  1:59|Mazda Savanna GT Racing
+m| 80|  3|1980| 1:104|Nissan Diesel Truck With Crane And Pipes
+m| 80|  4|2006|  1:95|Hitachi Rubber Crawler Carrier Eg110R
+m| 80|  5|2012| 1:181|C11 1 Steam Locomotive
+m| 81|  1|1974|  1:67|Nissan President
+m| 81|  2|1988|  1:61|Porsche 930 Turbo
+m| 81|  3|2002|  1:59|Honda NSX-R
+m| 81|  4|2010|  1:61|Honda CR-Z
+m| 82|  1|1974|  1:64|Datsun Skyline 2000GT-X
+m| 82|  2|1989|      |Pizza Motor-Trike Van
+m| 82|  3|1998|  1:62|Nissan Stagea
+m| 82|  4|2004|  1:57|Toyota Passo
+m| 82|  5|2009|  1:56|Suzuki Lapin
+m| 82|  6|2012|  1:66|Mazda CX-5
+m| 83|  1|1974|  1:57|Honda Civic GL
+m| 83|  2|1977|  1:57|Honda Civic GL Rally Type
+m| 83|  3|1989| 1:145|Swimming School Bus
+m| 83|  4|2002|  1:68|Isuzu Elf Sagawa-Exp
+m| 83|  5|2011|  1:60|Patrol Car Honda Insight
+m| 84|  1|1974|  1:34|Suzuki Van Van Motorbike
+m| 84|  2|1977|  1:73|Ohara Snow Tiger Sm30
+m| 84|  3|1989|  1:62|Nissan Skyline Racing R31
+m| 84|  4|1990|  1:59|Nissan Skyline Racing R32
+m| 84|  5|1992|  1:65|Toyota Hilux Surf
+m| 84|  6|2003|  1:58|Nissan March Patrol Car
+m| 84|  7|2009|  1:59|Honda Freed
+m| 84|  8|2012|  1:64|Peugeot RCZ
+m| 85|  1|1974|  1:65|Datsun Gloria Hardtop 2000GX
+m| 85|  2|1978|  1:78|Isuzu Elf Truck
+m| 85|  3|1999|  1:60|Skyline Patrol Car
+m| 85|  4|2004|  1:63|Mitsubishi Pajero Control Vehicle
+m| 85|  5|2007|  1:65|Mitsubishi Pajero
+m| 85|  6|2011|  1:66|Toyota FJ Cruiser
+m| 86|  1|1974|  1:60|Toyota Celica Liftback 2000GT
+m| 86|  2|1988|  1:78|Rolls Royce Phantom VI
+m| 86|  3|1998|  1:58|Toyota Prius
+m| 86|  4|2004|  1:59|Mazda Demio
+m| 86|  5|2008|  1:60|Mazda Demio
+m| 86|  6|2012|  1:71|Toyota Prius Alpha
+m| 87|  1|1974|  1:68|Nissan Caball Pepsi Truck
+m| 87|  2|1988|  1:67|Mercedes Benz 450SEL
+m| 87|  3|1992|  1:64|Toyota Estima Ambulance
+m| 87|  4|2000|  1:63|Nissan Cedric
+m| 87|  5|2004|  1:62|Lamborghini Murcielago
+m| 87|  6|2012|  1:68|Lamborghini Aventador LP 700-4
+m| 88|  1|1974|  1:68|Nissan Caball Skymaster
+m| 88|  2|1988|  1:50|Mini Cooper S Mk Ii
+m| 88|  3|2003|  1:59|Toyota Will Cypha
+m| 88|  4|2006|  1:65|Mazda MPV
+m| 88|  5|2010|  1:64|Nissan Elgrand
+m| 89|  1|1975|  1:61|Toyota Corona 2000GT
+m| 89|  2|1988|  1:59|Porsche 356
+m| 89|  3|1999|  1:64|Nissan Elgrand
+m| 89|  4|2009|  1:60|Toyota Prius
+m| 90|  1|1975| 1:127|Mitsubishi Fuso Container Truck
+m| 90|  2|1988|  1:63|Porsche 935-78 Turbo
+m| 90|  3|1992|  1:63|Toyota Soarer Patrol Car
+m| 90|  4|2000|  1:78|Isuzu Fruit Shop Van
+m| 90|  5|2003|  1:55|Suzuki Carry
+m| 90|  6|2008|  1:55|Tentmushi
+m| 91|  1|1975| 1:127|Mitsubishi Fuso Lpg Lorry
+m| 91|  2|1988|  1:60|Ferrari Testarossa
+m| 91|  3|1999|  1:58|Porsche Boxster
+m| 91|  4|2012|  1:65|Mercedes-Benz SLS AMG
+m| 92|  1|1975|  1:42|Kubota Farm Tractor
+m| 92|  2|1988|  1:61|Lamborghini Lp500S
+m| 92|  3|1995|  1:60|Mercedes Benz C Class Type
+m| 92|  4|2002|  1:62|Toyota Crown Hybrid
+m| 92|  5|2005|  1:89|Toyota Coaster
+m| 92|  6|2011|  1:65|Toyota Ractis
+m| 93|  1|1975| 1:210|Mitsui Hovercraft
+m| 93|  2|1989| 1:102|Mitsubishi Fuso Racing Transporter
+m| 93|  3|1995|  1:72|Toyota Quick Delivery Van
+m| 93|  4|1999| 1:130|Mymelody Bus
+m| 93|  5|2002| 1:141|Mitsubishi Fuso Aero Star
+m| 93|  6|2009|  1:61|Toyota Wish
+m| 93|  7|2012|  1:67|Toyota Camry
+m| 94|  1|1975| 1:130|Tokyu Chemical Fire Engine
+m| 94|  2|1977|  1:90|Nissan Diesel Chemical Fire Engine
+m| 94|  3|1988|  1:67|Jaguar Xjs
+m| 94|  4|1992|  1:56|Mitsubishi Minica Toppo Flower House
+m| 94|  5|1999|  1:59|Mazda Rx-7 (Fd3S)
+m| 94|  6|2009|  1:61|Nissan GT-R
+m| 95|  1|1975| 1:119|Mitsubishi Aircraft Tractor
+m| 95|  2|1977| 1:104|Nissan Diesel Truck
+m| 95|  3|1988| 1:130|London Double Deck Bus
+m| 96|  1|1975|  1:60|Toyota Airport Baggage Truck
+m| 96|  2|1978|  1:64|Datsun Pickup Truck
+m| 96|  3|1988|  1:52|Subaru Sumbar Milkdelivery Van
+m| 96|  4|2000|  1:60|Toyota Celica
+m| 96|  5|2003|  1:59|Mazda Rx-8
+m| 96|  6|2010|  1:32|Yamaha YFZ450R
+m| 97|  1|1975|  1:67|Isuzu Airport Food Truck
+m| 97|  2|1977|  1:65|Toyota MP-1
+m| 97|  3|1988|  1:71|Citroen H Van
+m| 97|  4|1999|      |Hino Shinkansen Trailer
+m| 97|  5|2003|  1:57|Toyota Probox
+m| 97|  6|2009|  1:64|Toyota Townace
+m| 98|  1|1975|  1:68|Toyota Hiace Airport Stairs
+m| 98|  2|1988|  1:98|American Concrete Mixer Truck
+m| 98|  3|1999|  1:78|Isuzu Elf Panel Van
+m| 98|  4|2001|  1:60|Toyota Celica Racing Type
+m| 98|  5|2008|  1:67|Toyota Noah
+m| 98|  6|2012|  1:75|Toyota Avensis
+m| 98|  7|2012|  1:59|Toyota Aqua
+m| 99|  1|1975| 1:102|Hino Airport Aircon Truck
+m| 99|  2|1976|  1:62|Mazda Luce AP Custom Grii
+m| 99|  3|1988|  1:63|Mercedes Benz 300SL
+m| 99|  4|1992|  1:64|Toyota Estima
+m| 99|  5|2000|  1:65|Toyota Estima
+m| 99|  6|2007|  1:65|Toyota Estima
+m| 99|  7|2010|  1:67|Nissan Serena
+m|100|  1|1975|  1:47|Airport Baggage Trailer
+m|100|  2|1988|  1:60|Volkswagen 1200 LSE
+m|100|  3|2002|  1:59|Honda Fit
+m|100|  4|2008|  1:60|Honda Fit
+m|100|  5|2012|  1:68|Honda Fit Shuttle
+m|101|  1|1975|  1:68|Nissan Airport Minibus
+m|101|  2|1988|  1:55|Mclaren Formula 1
+m|101|  3|1991| 1:145|Isuzu Jr Highway Bus
+m|101|  4|2003|  1:66|Honda Odyssey Wagon Taxi
+m|101|  5|2006| 1:156|Hino Selega
+m|102|  1|1975|  1:65|Datsun Cedric Airport Wagon
+m|102|  2|1988| 1:119|Terex 33-07 Dump Truck
+m|102|  3|2009| 1:185|EH3500AC II Rigid Dump Truck Hitachi
+m|103|  1|1975| 1:156|Mitsubishi Fuso Airport Bus
+m|103|  2|1988|  1:62|BMW 320I
+m|103|  3|1994|  1:62|Komatsu Mini Power Shovel PC45
+m|103|  4|2005|      |Pikachu Car
+m|103|  5|2012|  1:63|Nissan Note
+m|104|  1|1975|      |D51 Steam Locomotive
+m|104|  2|1989|  1:63|Nissan Cima
+m|104|  3|2000|  1:59|Mitsubishi Lancer Evo.IV WRC
+m|104|  4|2006|  1:38|Suzuki Skywave
+m|104|  5|2011|  1:64|Toyota Vitz
+m|105|  1|1975|  1:64|Mazda Sigma MC74
+m|105|  2|1976|  1:90|Sakai Multi-Tyre Roller
+m|105|  3|1996|  1:78|Coca Cola Truck
+m|105|  4|2006|  1:68|Coca-Cola Route Rack
+m|105|  5|2009|      |Coca-Cola Route Rack
+m|105|  6|2012|  1:62|Suzuki MR Wagon
+m|106|  1|1975|  1:87|Komatsu D65S Shoveldozer
+m|106|  2|1988|  1:58|Porsche 959 Police
+m|106|  3|1993|  1:61|Mitsubishi Pajero Patrol Car
+m|106|  4|2004|  1:60|Toyota Prius
+m|106|  5|2009|  1:68|Nissan Fairlady Z Patrol Car
+m|106|  6|2012| 1:120|Komatsu Toe Bar-less Tractor WZ4000
+m|107|  1|1976|  1:68|Nissan Caball Newspaper Truck
+m|107|  2|1988|  1:95|Ford Horse Truck
+m|107|  3|1992|  1:62|Nissan Cedric JAF
+m|107|  4|2000|  1:67|Mercedes Benz A Class
+m|107|  5|2003|  1:60|Honda Element
+m|107|  6|2008|  1:67|Toyota Voxy
+m|107|  7|2012|  1:66|Lexus IS F CCS-R
+m|108|  1|1975|  1:59|Toyota Corolla 30 Levin
+m|108|  2|1988|  1:63|Toyota Hilux Camper
+m|108|  3|1998| 1:102|Mitsubishi Fuso Animal Truck
+m|108|  4|2002| 1:139|Hino Aerial Ladder Fire Truck
+m|109|  1|1988|  1:60|Nissan Bluebird Taxi
+m|109|  2|1997|      |Event Car
+m|109|  3|2003|  1:62|Toyota Crown Athlete
+m|109|  4|2007|  1:67|Nissan Serena
+m|109|  5|2010|  1:66|Mitsubishi Triton
+m|109|  6|2013|      |Volkswagen Polo
+m|110|  1|1976|  1:65|Toyota Crown Taxi
+m|110|  2|1989|  1:90|Nissan Diesel Pump Fire Engine
+m|110|  3|2000|  1:57|Toyota Vitz
+m|110|  4|2005|  1:63|Toyota Crown Patrol Car
+m|110|  5|2008|  1:63|Toyota Crown Patrol Car
+m|111|  1|1989|  1:78|Isuzu Elf Poster Truck
+m|111|  2|1994|  1:57|Mazda MX3 (Eunos) Roadster
+m|111|  3|2002|  1:61|Honda CR-V
+m|111|  4|2005|  1:56|Subaru R1
+m|111|  5|2010|  1:62|Nissan Skyline Crossover
+m|111|  6|2013|  1:60|Audi A1
+m|112|  1|1989|  1:78|Isuzu Elf Bottle Car
+m|112|  2|1996|  1:56|Mitsubishi Pajero Junior
+m|112|  3|2002|  1:65|High-Way Public Co. Patrol Car
+m|112|  4|2005|  1:62|Honda Airwave
+m|112|  5|2010|  1:60|Subaru Legacy B4
+m|113|  1|1988|  1:66|Mechanical Road Sweeper
+m|113|  2|2007|  1:62|Nissan Skyline (V36)
+m|113|  3|2011|  1:65|Lamborghini Reventon
+m|114|  1|1988|  1:66|Chevolet Camaro Z28 Police
+m|114|  2|1995| 1:135|Komatsu Bulldozer D375A
+m|114|  3|2006|  1:66|JSDF Light Armoured Vehicle
+m|115|  1|1988|  1:63|Toyota Crown Taxi
+m|115|  2|1993|  1:64|Toyota Crown Majesta Taxi
+m|115|  3|2006|  1:57|Mazda Roadster
+m|115|  4|2010|  1:61|Bentley Continental GT
+m|116|  1|1988|  1:66|Porsche 956
+m|116|  2|1996|      |Super Ambulance
+m|116|  3|2008|      |Super Ambulance
+m|117|  1|1988| 1:154|Neoplan Double Deck Bus
+m|117|  2|1992|      |Ferrari Formula 1
+m|117|  3|1999|  1:59|Mazda Rx-7 Patrol Car
+m|117|  4|2006|  1:58|Mitsubishi I
+m|117|  5|2010|  1:58|Mitsubishi i-MiEV
+m|117|  6|2013|  1:64|Porsche 911 Carrera
+m|118|  1|1988| 1:137|Terex 72-81 Shovel
+m|118|  2|2007|  1:89|Toyota Coaster Kindergarten Bus
+m|118|  3|2012|  1:66|Honda CR-V
+m|119|  1|1988|  1:52|Ferrari Bb512
+m|119|  2|1991|  1:66|Toyota Hiace Fire Chief
+m|119|  3|2001|  1:64|Care Support Car
+m|119|  4|2004|  1:74|Morita Fire Fighting Ambulance
+m|120|  1|1988|  1:58|Porsche 959
+m|120|  2|1992|      |Formula 1 Footwork
+m|120|  3|1993|  1:59|Honda Ndx Patrol Car
+m|120|  4|2002| 1:144|Komatsu Articulated Dump Truck
+m|120|  5|2011|  1:58|Nissan Leaf
+
+m|121|  1|2008|      |Hino Tank Profia
+m|122|  1|2008| 1:198|700 series Hikari Rail Star
+m|122|  2|2010| 1:198|Doctor Yellow Shape 923
+m|123|  1|2008|  1:91|Sakai Heavy Industries ER552F Road Cutter
+m|123|  2|2013| 1:154|E6 Shinkansen
+m|124|  1|2008| 1:195|Series N700 Shinkansen
+m|125|  1|2008|      |Cool containers Yanmar Trailer
+m|125|  2|2013|      |EF510-501 Hokutosei
+m|126|  1|2008| 1:187|Nagano Shinkansen Series E2
+m|126|  2|2011|      |Thomas the Tank Engine 
+m|127|  1|2008|      |Steam roller vans and tents Mikami Shop
+m|127|  2|2010|      |Isuzu Giga Dump Full Trailers 
+m|128|  1|2008| 1:198|700 series Shinkansen
+m|128|  2|2011|      |Mercedes-Benz Unimog Railroad Track Maintenance
+m|129|  1|2008|      |Racing Transporter
+m|130|  1|2008| 1:187|Series E2 Shinkansen
+m|130|  2|2011|1:1280|Sunflower Sapporo 
+m|131|  1|2009|      |Mitsubishi Fuso Super Great Car Carrier
+m|132|  1|2009| 1:113|All Terrain Crane KOBELCO KMG5220
+m|133|  1|2009| 1:187|Kayaba System Machinery boom header RH-10J-SS
+m|134|  1|2009| 1:120|Keisei bus articulated
+m|135|  1|2009| 1:133|Steam Locomotive D51 498
+m|136|  1|2009|      |Toyota Towing Tractors
+m|137|  1|2009|      |Isuzu Giga low-floor trailer
+m|138|  1|2009|      |Youth Bus Train No.
+m|139|  1|2009|      |Isuzu Giga Panel Van trailer
+m|140|  1|2010| 1:350|Kawasaki Plant Systems
+
+m|141|  1|2012|      |Super Sonic Runner
+m|142|  1|2012|      |Transformers Bumblebee
+m|143|  1|2012|      |Pikachu Car
+m|144|  1|2012|      |Mario Kart 7 Mario
+m|145|  1|2012|      |Mijumaruka
+m|146|  1|2012|      |Batmobile
+m|147|  1|2012|      |Optimu Prime
+m|148|  1|2012|      |Batmobile 4th
+m|149|  1|2012|      |Hyper Rescue No. 1 (II type)
+m|150|  1|2012|      |Mario Kart 7 Yoshi
+m|151|  1|2013|      |Chick bus
+m|152|  1|2013|      |Hello Kitty
+m|153|  1|2013|      |Snoopy
+m|154|  1|2013|      |Snoopy School Bus
+m|155|  1|2013|      |Rilakkuma
+m|156|  1|2013|      |Thomas Bus
+m|157|  1|2013|      |Hyper Builder No. 1
+
+m|F01|  1|1976|  1:97|Winnebago Motor Caravan
+m|F01|  2|1979|  1:67|Porsche 930 Turbo			|same as 081-02
+m|F02|  1|1976|  1:77|Cadillac Fleetwood Brougham
+m|F03|  1|1976|  1:61|Porsche 911S
+m|F04|  1|1976|  1:77|Lincoln Continental IV
+m|F05|  1|1976| 1:108|Carpenter School Bus
+m|F05|  2|1980|  1:56|Volkswagen Golf GLE
+m|F06|  1|1976|  1:78|Rolls Royce Phantom VI		|same as 086-02
+m|F07|  1|1976|  1:67|Mercedes Benz 450SL		|same as 087-02
+m|F08|  1|1976|  1:74|Dodge Coronet Patrol Car
+m|F08|  2|1979|  1:50|Blmc Mini Cooper S
+m|F09|  1|1976|  1:74|Dodge Coronet Custom
+m|F09|  2|1980|  1:78|Chevelet Van Police
+m|F09|  3|1983|  1:59|Porsche 356			|same as 089-02
+m|F10|  1|1976|  1:74|Dodge Coronet Fire Chief
+m|F10|  2|1979|  1:63|Porsche 935-78 Turbo		|same as 090-02
+m|F11|  1|1977|  1:60|Ford Model T 2-Door Coupe
+m|F11|  2|1979|  1:60|Fiat 131 Abarth Rally
+m|F12|  1|1977|  1:60|Ford Model T Open 4-Seater
+m|F12|  2|1980|  1:67|Renault 4 Van
+m|F12|  3|1987|  1:61|Lamborghini Countach LP500S	|same as 092-02
+m|F13|  1|1977|  1:60|Ford Model T Delivery Van
+m|F13|  2|1983|  1:68|Pontiac Firebird Trans Am
+m|F14|  1|1977|  1:64|AMC Pacer
+m|F14|  2|1979|  1:67|Panther-6
+m|F14|  3|1987|  1:67|Jaguar XJS			|same as 094-03
+m|F15|  1|1977| 1:130|London Double Deck Bus		|same as 095-03
+m|F16|  1|1976|  1:61|Porsche 911S Patrol Car
+m|F17|  1|1976|  1:61|Porsche 911S Rally
+m|F17|  2|1979|  1:71|Citroen H Van			|same as 097-03
+m|F18|  1|1976|  1:74|Dodge Coronet Taxi
+m|F18|  2|1979|  1:98|American Mixer			|same as 098-02
+m|F19|  1|1980|  1:77|Cadillac Fleetwood Ambulance
+m|F19|  2|1977|  1:57|Lancia Stratos Rally
+m|F19|  3|1980|  1:63|Mercedes Benz 300SL		|same as 099-03
+m|F20|  1|1977|  1:60|Volkswagen 1200 LSE		|same as 100-02
+m|F21|  1|1977|  1:64|Chevolet Corvette Stingray
+m|F22|  1|1977|  1:78|Chevolet Van Ambulance
+m|F22|  2|1980| 1:119|Terex 33-07 Dump Truck		|same as 102-02
+m|F23|  1|1977|  1:78|Chevolet Van
+m|F23|  2|1979|  1:60|Volkswagen 1303S Cabriolet
+m|F23|  3|1986|  1:62|BMW 320i				|same as 103-02
+m|F24|  1|1976|  1:62|Mercedes Benz 450SEL Patrol Car
+m|F24|  2|1979|  1:60|Lotus Esprit
+m|F25|  1|1977|  1:59|Lotus Europa
+m|F25|  2|1981|  1:58|Renault 5 Turbo
+m|F26|  1|1977|  1:57|Morgan Plus 8
+m|F27|  1|1977|  1:57|Lancia Stratos HF
+m|F27|  2|1981|  1:95|Ford Horse Box			|same as 107-02
+m|F28|  1|1977|  1:59|Fiat X1/9
+m|F28|  2|1984|  1:62|Lamborghini Cheetah
+m|F29|  1|1977|  1:67|Volkswagen Microbus
+m|F30|  1|1977|  1:60|BMW 3.5CSL
+m|F31|  1|1977|  1:61|Porsche 935 Turbo
+m|F31|  2|1986|  1:98|American Dump Truck
+m|F32|  1|1977|  1:52|Tyrell P34 Ford
+m|F32|  2|1983|  1:65|Audi 5000 Turbo
+m|F33|  1|1978| 1:143|American Fire Engine
+m|F34|  1|1977|  1:66|Citroen Sm
+m|F34|  2|1983|  1:66|Chevolet Camaro Z28
+m|F34|  3|1985|  1:66|Chevolet Camaro Z28 Police	|same as 114-01
+m|F35|  1|1977|  1:60|Ferrari 308 GTB
+m|F36|  1|1978|  1:59|Lotus 78 Ford
+m|F36|  2|1982|  1:58|Renault 5 Rally
+m|F36|  3|1984|  1:66|Porsche 956|same as 116-01
+m|F37|  1|1977|  1:61|Lamborghini Countach LP400
+m|F37|  2|1980| 1:154|Neoplan Skylner Bus		|same as 117-01
+m|F38|  1|1978|  1:63|For Mustang II Ghia
+m|F38|  2|1982|  1:98|Big Rig Racer
+m|F38|  3|1986| 1:137|Terex 72-81 Shovel		|same as 118-01
+m|F39|  1|1978|  1:56|Maclaren M26 Ford
+m|F39|  2|1980|  1:57|Citroen 2CV
+m|F39|  3|1986|  1:52|Ferrari BB512			|same as 119-01
+m|F40|  1|1977|  1:62|Lamborghini Miura SV
+m|F41|  1|1978|  1:70|Mercedes Benz Unimog
+m|F42|  1|1978|  1:68|Pontiac Firebird Trans Am		|same as F13-02
+m|F43|  1|1978|  1:59|Porsche 936 Turbo
+m|F43|  2|1980|  1:62|BMW 320I
+m|F44|  1|1978|  1:77|Chevolet Stepside Truck
+m|F44|  2|1980|  1:71|Citroen H Patrol Car
+m|F45|  1|1978|  1:62|Maserati Merak SS
+m|F45|  2|1981|  1:69|Cadillac Seville
+m|F46|  1|1978|  1:80|Bugatti Coupe De Ville
+m|F47|  1|1978|  1:63|Lotus Elite
+m|F48|  1|1978|  1:57|Alpine Renault A442 Turbo
+m|F49|  1|1977|  1:59|Lotus Europa JPS
+m|F49|  2|1979| 1:156|Greyhound Bus
+m|F50|  1|1978|  1:61|Lamborghini Countach LP500S
+m|F51|  1|1978|  1:77|Cadillac Fleetwood Patrol Car
+m|F52|  1|1978|  1:72|Packard Convertible
+m|F53|  1|1978|  1:63|Porsche 928
+m|F53|  2|1980|  1:84|Dodge Walkthru Van
+m|F54|  1|1978|  1:78|Oldsmobile Toronado XSR
+m|F54|  2|1980|  1:74|American Farm Tractor
+m|F55|  1|1978|  1:61|De Tomaso Pantera
+m|F56|  1|1978|  1:67|London Taxi
+m|F57|  1|1979|  1:52|Ferrari BB512
+m|F58|  1|1978|  1:60|Alpine Renault A310 Rally
+m|F58|  2|1980| 1:137|Teredx 72-81 Shovel
+m|F59|  1|1978|  1:55|Ferrari 312 T3
+m|F60|  1|1978|  1:77|Cadillac Estate Ambulance
+m|F61|  1|1978|  1:56|Brabham BT46 Alfa Romeo
+m|F62|  1|1978|  1:60|Alpine Renault A310 Racing
+m|F62|  2|1980|  1:95|Ford Tanker Lorry
+m|F63|  1|1978|  1:98|Holmes Power Wrecker
+m|F64|  1|1978|  1:61|De Tomaso Pantera Racing
+m|F64|  2|1980|  1:95|Ford Delivery Van
+m|F65|  1|1979|  1:62|Lamborghini Cheetah
+m|F66|  1|1978|  1:62|Lancia Stratos Turbo
+m|F67|  1|1978|  1:98|American Dump Truck
+m|F68|  1|1978|  1:67|Jaguar XJ-S
+m|F68|  2|1980|      |San Francisco Cable Car
+m|F69|  1|1978|  1:51|Tomica Chevron BMW
+m|F70|  1|1979|  1:60|Volkswagen Beetle Patrol Car
+
+m|F01|  X|1989|      |
+m|F02|  X|1989|      |
+m|F03|  X|1989|      |
+m|F04|  X|1989|      |
+m|F05|  X|1989|      |
+m|F06|  X|1989|      |
+m|F07|  X|1989|      |
+m|F08|  X|1989|      |
+m|F09|  X|1989|      |
+m|F10|  X|1989|      |
+m|F11|  X|1989|      |
+m|F12|  X|1989|      |
+m|F13|  X|1989|      |
+m|F14|  X|1989|      |
+m|F15|  X|1989|      |
+m|F16|  X|1989|      |
+m|F17|  X|1989|      |
+m|F18|  X|1989|      |
+m|F19|  X|1989|      |
+m|F20|  X|1989|      |
+m|F21|  X|1989|      |
+m|F22|  X|1989|      |
+m|F23|  X|1989|      |
+m|F24|  X|1989|      |
+m|F25|  X|1989|      |
+m|F26|  X|1989|      |
+m|F27|  X|1989|      |
+m|F28|  X|1989|      |
+m|F29|  X|1989|      |
+m|F30|  X|1989|      |
+m|F31|  X|1989|      |
+m|F32|  X|1989|      |
+m|F33|  X|1989|      |
+m|F34|  X|1989|      |
+m|F35|  X|1989|      |
+m|F36|  X|1989|      |
+m|F37|  X|1989|      |
+m|F38|  X|1989|      |
+m|F39|  X|1989|      |
+m|F40|  X|1989|      |
+m|F41|  X|1989|      |
+m|F42|  X|1989|      |
+m|F43|  X|1989|      |
+m|F44|  X|1989|      |
+m|F45|  X|1989|      |
+m|F46|  X|1989|      |
+m|F47|  X|1989|      |
+m|F48|  X|1989|      |
+m|F49|  X|1989|      |
+m|F50|  X|1989|      |
+m|F51|  X|1989|      |
+m|F52|  X|1989|      |
+m|F53|  X|1989|      |
+m|F54|  X|1989|      |
+m|F55|  X|1989|      |
+m|F56|  X|1989|      |
+m|F57|  X|1989|      |
+m|F58|  X|1989|      |
+m|F59|  X|1989|      |
+m|F60|  X|1989|      |
+m|F61|  X|1989|      |
+m|F62|  X|1989|      |
+m|F63|  X|1989|      |
+m|F64|  X|1989|      |
+m|F65|  X|1989|      |
+m|F66|  X|1989|      |
+m|F67|  X|1989|      |
+m|F68|  X|1989|      |
+m|F69|  X|1989|      |
+m|F70|  X|1989|      |
+
+m|P01|  1|2005|      |Prasle Car
+m|P02|  1|2005|      |Minun Car
+m|P03|  1|2005|      |Minun Car
+m|P04|  1|2005|      |Naetle Car
+m|P05|  1|2005|      |Hikozaru Car
+m|P06|  1|2005|      |Pochama Car
+
+m|S01|  1|1985|      |Pontiac Firebird Trans Am
+m|S02|  1|1991|      |Isuzu Elf Jaf Wrecker
+m|S03|  1|1993|      |Kajima Mazda MX-R01
+m|S04|  1|1994|      |Honda S800M (Opened)
+m|S05|  1|1994|      |Mitsubishi Fuso Wing Track
+m|S06|  1|1995|      |Hino Semi Trailer Shinkansen
+m|S07|  1|1995|      |Honda NSX-T
+m|S08|  1|1996|      |Nissan Skyline Racing R33
+m|S09|  1|1997|      |Mitsubishi Pajero Rally
+m|S10|  1|1997|      |Mitsubishi Lancer Evolution IV
+m|S11|  1|1988|      |Toyota Sprinter Trueno AE86
+m|S12|  1|1999|      |Sil-Eighty
+m|S13|  1|2000|      |Mitsubishi Canter Panel Van
+m|S15|  1|2001|      |Nissan Skyline GT-B
+m|S16|  1|2002|      |Disney Resort Cruiser
+m|S17|  1|2001|      |Toyoda Type-AA
+m|S18|  1|2002|      |Toyota 2000GT
+m|S19|  1|2003|      |Isuzu Elf Bottle Car
+m|S20|  1|2003|      |Toyota F1 Car
+m|S21|  1|2004|      |Mitsubishi Canter TV Car
+m|S27|  1|2004|      |Mini Cooper
+m|S29|  1|2006|      |Nissan Skyline Coupe
+m|S30|  1|2006|      |Toyota Dyna Dump Truck
+m|S32|  1|2007|      |Lexus GS430
+m|S34|  1|2008|      |TDM Fire Chief Car
+
+m|CN-01| |2011|  1:64|Toyota Camry
+m|CN-02| |2011|  1:64|Toyota Camry Taxi
+m|CN-03| |2011|  1:64|Mitsubishi Lancer Evolution
+m|CN-04| |2011|  1:64|Mitsubishi Lancer Evolution Patrol Car
+m|CN-05| |2011|  1:62|Nissan Fairlady Z
+m|CN-06| |2011|  1:62|Nissan Fairlady Z sports car
+m|CN-07| |2013|      |Hamsterland Hoppy Car
+m|CN-08| |2013|      |Hamsterland Foxman Car
+m|CN-09| |2013| 1:145|Hamsterland Wrapping Bus A
+m|CN-10| |2013| 1:145|Hamsterland Wrapping Bus B
+m|CN-11| |2012|  1:84|Faw Jieffang Qi
+m|CN-12| |2012|      |Faw Jieffang J6 (red)
+m|CN-13| |2012|      |Faw Jieffang J6 (orenge)
+m|CN-14| |2012| 1:164|Faw Jieffang Ke Che (blue)
+m|CN-15| |2012| 1:164|Faw Jieffang Ke Che (yellow)
+
+m|LV |  1|2004|  1:64|Nissan Cedric
+m|LV |  2|2004|  1:64|Prince Gloria 1500
+m|LV |  3|2004|  1:64|Toyota Crown
+m|LV |  4|2004|  1:64|Datsun Bluebird 1000
+m|LV |  5|2004|  1:64|Datsun Bluebird 1200
+m|LV |  6|2004|  1:64|Toyopet Corona 1500
+m|LV |  7|2004|  1:64|Prince Skyline 1500
+m|LV |  8|2004|  1:64|Toyota Publica
+m|LV |  9|2005|  1:64|Hino Contessa 1300S
+m|LV | 10|2005|  1:64|Isuzu Bellett 1500
+m|LV | 11|2005|  1:64|Isuzu Bellett 1100
+m|LV | 12|2005|  1:64|Daihatsu CO 10T
+m|LV | 13|2005|  1:64|Prince Clipper
+m|LV | 14|2005|  1:64|Prince Clipper
+m|LV | 15|2005|  1:64|Datsun 1200 Truck
+m|LV | 16|2005|  1:64|Isuzu Bellett 1300
+m|LV | 17|2005|  1:64|Isuzu Bellett 1500DX
+m|LV | 18|2005|  1:64|Toyopet Crown Road Service
+m|LV | 19|2005|  1:64|Toyopet Crown Osaka Police
+m|LV | 20|2006|  1:64|Toyota FS45V
+m|LV | 21|2005|  1:64|Toyota Toyopet Crown Wagon
+m|LV | 22|2006|  1:64|Mazda Luce Coupe RE
+m|LV | 23|2006|  1:64|Hino RB10 Type Bus
+m|LV | 24|2006|  1:64|Toyota Toyopet Crown
+m|LV | 25|2006|  1:64|Isuzu Hillman Minx
+m|LV | 26|2006|  1:64|Subaru 360 Custom
+m|LV | 27|2006|  1:64|Subaru Sambar
+m|LV | 28|2006|  1:64|Mazda Carol
+m|LV | 29|2006|  1:64|Mazda K360 Soft Top
+m|LV | 30|2006|  1:64|Nissan Junior Fire Engine
+m|LV | 31|2006|  1:64|Nissan Patrol Fire Engine
+m|LV | 32|2006|  1:64|Nissan Cedric Patrol Car
+m|LV | 33|2006|  1:64|Nissan Cedric Road Service
+m|LV | 34|2006|  1:64|Clipper Vacuum Car Tomii Seiso
+m|LV | 35|2006|  1:64|Prince Clipper Dust Cart Tokyo-Town
+m|LV | 36|2006|  1:64|Toyopet Crown Fire Chief Car
+m|LV | 37|2006|  1:64|Nissan Cedric
+m|LV | 38|2006|  1:64|Nissan Cedric
+m|LV | 39|2007|  1:64|Nissan Gloria
+m|LV | 40|2007|  1:64|Nissan Gloria DX
+m|LV | 41|2007|  1:64|Toyota Toyoace
+m|LV | 42|2007|  1:64|Mitsubishi Debonair
+m|LV | 43|2007|  1:64|Mitsubishi Debonair
+m|LV | 44|2007|  1:64|Toyota Publica DX
+m|LV | 45|2007|  1:64|Mitsubishi Galant
+m|LV | 46|2007|  1:64|Prince Skyline DX
+m|LV | 47|2007|  1:64|Prince Skyway
+m|LV | 48|2006|  1:64|Nissan Gloria Police
+m|LV | 49|2007|  1:64|Nissan Skyline 1800 Deluxe
+m|LV | 50|2007|  1:64|Nissan Skyline Van
+m|LV | 51|2007|  1:64|Mazda T2000
+m|LV | 52|2007|  1:64|Toyota Corona Mark II 1900DX
+m|LV | 53|2007|  1:64|Nissan Laurel
+m|LV | 54|2007|  1:64|Mitsubishi Pet Leo
+m|LV | 55|2008|  1:64|Toyota Corolla 1100 2DOOR Sedan
+m|LV | 56|2008|  1:64|Nissan Prince Skyline 1900 DX
+m|LV | 57|2008|  1:64|Nissan Prince Skyline 1900 DX Fire Chief
+m|LV | 58|2008|  1:64|Toyota Corolla 1200 4DOOR Sedan
+m|LV | 59|2008|  1:64|Mitsubishi Galant 16L GS
+m|LV | 60|2008|  1:64|Mitsubishi Pet Leo Van
+m|LV | 61|2008|  1:64|Honda 1300 77S
+m|LV | 62|2008|  1:64|Nissan 680 Newspaper Truck
+m|LV | 63|2008|  1:64|Subaru 1000 Super DX
+m|LV | 64|2008|  1:64|Toyopet Toyota Corona 1500DX
+m|LV | 65|2008|  1:64|Datsun Bluebird 1200DX
+m|LV | 66|2008|  1:64|Nissan 680 Dump Truck
+m|LV | 67|2008|  1:64|Honda 1300 99S
+m|LV | 68|2008|  1:64|Subaru Sambar Pumper Fire Engine
+m|LV | 69|2009|  1:64|Nissan Gloria Super DX
+m|LV | 70|2009|  1:64|Nissan Gloria Super DX
+m|LV | 71|2009|  1:64|Toyota Toyoace
+m|LV | 72|2009|  1:64|Toyota Toyoace Animal Truck
+m|LV | 73|2009|  1:64|Nissan 680 Flat Truck
+m|LV | 74|2009|  1:64|Prince Gloria BLSIP-III
+m|LV | 75|2009|  1:64|Nissan C80 Tow Truck
+m|LV | 76|2009|  1:64|Subaru 1000 Super DX 2 door
+m|LV | 77|2009|  1:64|Subaru Sambar Truck
+m|LV | 78|2009|  1:64|Suzuki Fronte 360DX
+m|LV | 79|2009|  1:64|Datsun Bluebird 1400 DX
+m|LV | 80|2009|  1:64|Nissan C80 Flat Truck
+m|LV | 81|2009|  1:64|Bluebird Estate Wagon
+m|LV | 82|2009|  1:64|Datsun Bluebird 1600 SSS
+m|LV | 83|2009|  1:64|Sunny 1000 DX 2 door
+m|LV | 84|2010|  1:64|Familia Van 800 DX
+m|LV | 85|2010|  1:64|Porsche 912 Police Car
+m|LV | 86|2010|  1:64|Porsche 911S 
+m|LV | 87|2010|  1:64|Toyopet Crown Taxi
+m|LV | 88|2010|  1:64|Suzuki Fronte SS360
+m|LV | 89|2010|  1:64|Datsun Bluebird 510
+m|LV | 90|2010|  1:64|Toyopet Masterline
+m|LV | 91|2010|  1:64|Toyopet Masterline Ambulance
+m|LV | 92|2010|  1:64|Coca-Cola Nissan Route Truck 3.5T
+m|LV | 93|2010|  1:64|Porsche 912 [1965]
+m|LV | 94|2010|  1:64|Nissan Cedric Special 6 1965
+m|LV | 95|2010|  1:64|Nissan Cedric Special 6 1966
+m|LV | 96|2010|  1:64|Nissan Cedric car battalion
+m|LV | 97|2010|  1:64|1900 Nissan
+m|LV | 98|2010|  1:64|Honda T360
+m|LV | 99|2010|  1:64|Honda T500 high floor
+m|LV |100|2010|  1:64|Nissan Caball Coca-Cola routecar
+m|LV |101|2010|  1:64|Mazda Familia Wagon
+m|LV |102|2010|  1:64|Mazda Familia Van Hiroshima Police 
+m|LV |103|2011|  1:64|Isuzu Bellett Police car
+m|LV |104|2011|  1:64|Toyota Land Cruiser FJ56V
+m|LV |105|2011|  1:64|Nissan Cedric Standard
+m|LV |106|2011|  1:64|Suzuki Fronte 360 Super DX
+m|LV |107|2011|  1:64|Suzuki Fronte 360 SSS
+m|LV |108|2011|  1:64|Nissan Diesel
+m|LV |109|2011|  1:64|Honda T360 Panel Van
+m|LV |110|2011|  1:64|Porsche 911
+m|LV |111|2011|  1:64|Caball 1900 Early Production Type
+m|LV |112|2011|  1:64|Mazda E2000 Low Floor
+m|LV |113|2011|  1:64|Land Cruiser JAF Service Car
+m|LV |114|2011|  1:64|Land Cruiser Public Road Patrol Car
+m|LV |115|2011|  1:64|Sunny 1000 Deluxe
+m|LV |116|2011|  1:64|Sunny 1000 Sport Deluxe 
+m|LV |117|2011|  1:64|Nissan Cedric Patrol Car
+
+#m|L  |  1|2001|  1:64|Skyline 2000 GT-R (KPGC110)
+#m|L  |  2|2001|  1:60|Cosmo Sport
+#m|L  |  3|2001|  1:60|Fairlady 240ZG
+#m|L  |  4|2001|  1:60|Savanna RX-7 Limited
+#m|L  |  5|2001|  1:60|Skyline 2000GT-B
+#m|L  |  6|2001|  1:51|Honda S800M
+#m|L  |  7|2001|  1:61|Sprinter Trueno (AE86)
+#m|L  |  8|2001|  1:65|Soarer 2800GT
+#m|L  |  9|2001|  1:64|Celica XX 2800GT
+#m|L  | 10|2001|  1:60|Celica 1600GT
+#m|L  | 11|2001|  1:60|Bluebird 1600 SSS Coupe
+#m|L  | 12|2001|  1:61|Nissan Silvia 2000ZSE-X
+#m|L  | 13|2002|  1:59|Nissan Skyline GT-R (R32)
+#m|L  | 14|2002|  1:62|Isuzu 117 Coupe 1800XE
+#m|L  | 15|2002|      |Toyoda Type AA
+#m|L  | 16|2002|  1:50|Subaru 360
+#m|L  | 17|2002|  1:59|Mazda RX-7
+#m|L  | 18|2002|  1:50|Daihatsu Midjet
+#m|L  | 19|2002|  1:59|Honda NSX
+#m|L  | 20|2002|  1:58|Fairlady Z
+#m|L  | 21|2002|  1:59|Toyota 2000GT
+#m|L  | 22|2002|  1:59|Subaru Impreza WRX
+#m|L  | 23|2002|  1:67|Nissan President
+#m|L  | 24|2002|  1:60|Skyline 2000GT-B
+#m|L  | 25|2003| 1:110|Isuzu Bonnet Bus
+#m|L  | 26|2003|  1:56|Mitsubishi Lancer Evolution IV
+#m|L  | 27|2003|  1:60|Fairlady 240ZG Patrol Car
+#m|L  | 28|2003|  1:60|Nismo GT-R LM
+#m|L  | 29|2003|  1:56|Sunny Coupe 1200GX
+#m|L  | 30|2003|  1:54|Daihatsu Copen
+#m|L  | 31|2003|  1:61|Lamborghini Countach LP500S
+#m|L  | 32|2003|  1:62|Mitsubishi Starion Turbo 2000 GSR-X
+#m|L  | 33|2003|  1:61|De Tomaso Pantera GTS
+#m|L  | 34|2003|  1:65|Nissan Cedric 2800SGL
+#m|L  | 35|2003|  1:57|Mazda MX-5 Eunos Roadster
+#m|L  | 36|2003|  1:59|Lotus Europa Special
+#m|L  | 37|2004|  1:65|Cedric 280E
+#m|L  | 38|2004|  1:58|Hasemi Sport Endless - Z
+#m|L  | 39|2004|  1:59|Mazda RX-8
+#m|L  | 40|2004|  1:59|Toyota 2000GT (no. 23 & 33 SCCA)
+#m|L  | 41|2004|  1:50|Subaru 360 (no. 9 & 12)
+#m|L  | 42|2004|  1:58|Dome Zero
+#m|L  | 43|2004|  1:62|Lamborghini Murcielago
+#m|L  | 44|2004|  1:60|Savanna RX-7 Racing
+#m|L  | 45|2004|  1:68|Nissan Skyline Silhouette
+#m|L  | 46|2004|  1:61|Porsche 911 Turbo (type 930)
+#m|L  | 47|2004|  1:59|Nissan R382
+#m|L  | 48|2004|  1:57|Mini Cooper
+#m|L  | 49|2005|  1:59|Mazda Savanna GT
+#m|L  | 50|2005|  1:58|Toyota 7
+#m|L  | 51|2005|  1:60|Nissan Fairlady Z432
+#m|L  | 52|2005|      |Xanavi Nismo Z Autobacs GT 2004 Series
+#m|L  | 53|2005|      |Motul Pitwork Z Autobacs GT 2004 Series
+#m|L  | 54|2005|      |Takata Dome NSX Autobacs GT 2004 Series
+#m|L  | 55|2005|      |Denso Sard Supra Autobacs Super GT 2005 Series
+#m|L  | 56|2005|      |Arta NSX Autobacs GT 2004 Series
+#m|L  | 57|2005|      |Epson NSX Autobacs GT 2004 Series
+#m|L  | 58|2005|      |Raybrig NSX Autobacs GT 2004 Series
+#m|L  | 59|2005|      |Esso Ultraflo Supra Autobacs Super GT 2005 Series
+#m|L  | 60|2005|      |Yelow Hat YMS Supra Autobacs Super GT 2005 Series
+#m|L  | 61|2005|      |Zent Cerumo Supra Autobacs Super GT 2005 Series
+#m|L  | 62|2005|      |Bandai Supra Autobacs Super GT 2005 Series
+#m|L  | 63|2005|      |Eclipse Advan Supra Autobacs Super GT 2005 Series
+#m|L  | 64|2005|      |Takata Dome NSX Autobacs Super GT 2005 Series
+#m|L  | 65|2005|      |Raybrig NSX Autobacs Super GT 2005 Series
+#m|L  | 66|2006|      |Arta NSX Autobacs Super GT 2005 Series
+#m|L  | 67|2006|      |Epson NSX Autobacs Super GT 2005 Series
+#m|L  | 68|2006|      |G'Zox SSR Hasemi Z Autobacs GT 2004 Series
+#m|L  | 69|2006|      |Honda NSX Test Car Autobacs GT 2004 Series
+#m|L  | 70|2006|      |Calsonic Impul Z Autobacs Super GT 2005 Series
+#m|L  | 71|2006|      |Xanavi Nismo Z Autobacs Super GT 2005 Series
+#m|L  | 72|2006|      |G'Zox Hasemi Z Autobacs Super GT 2005 Series
+#m|L  | 73|2006|  1:65|Toyota Crown MS60
+#m|L  | 74|2006|  1:57|Honda City Turbo II
+#m|L  | 75|2006|  1:60|Toyota Land Cruiser FJ40V
+#m|L  | 76|2006|  1:54|Honda Vamos
+#m|L  | 77|2006|  1:81|Isuzu Pump Fire Truck
+#m|L  | 78|2006| 1:147|Fuso Hato Bus
+#m|L  | 79|2007|  1:65|Nissan Cedric Wagon
+#m|L  | 80|2007|  1:62|Datsun Truck
+#m|L  | 81|2007|  1:61|Toyota Corona Mark II-L Hardtop
+#m|L  | 82|2007|  1:57|Honda Civic GL
+#m|L  | 83|2007|  1:65|Nissan Gloria Hardtop 2000GX
+#m|L  | 84|2007|  1:61|Toyota Corona 2000GT
+#m|L  | 85|2007|  1:59|Toyota Corolla Levin
+#m|L  | 86|2007|  1:65|Toyota Crown 2600 Royal Saloon
+#m|L  | 87|2007|  1:64|Mazda Cosmo AP Limited
+#m|L  | 88|2007|  1:64|Lexus GS430
+#m|L  | 89|2007|  1:63|Nissan Skyline 350GT
+#m|L  | 90|2007|  1:59|Nissan Primera EGT
+#m|L  | 91|2008|  1:58|Toyota Celica 2000GT-R (ST162)
+#m|L  | 92|2008|  1:59|Nissan Silvia S13
+#m|L  | 93|2008|  1:61|Toyota Corolla Levin (TE71)
+#m|L  | 94|2008|      |Jeep J3R
+#m|L  | 95|2008|  1:63|Mitsuoka Orochi
+#m|L  | 96|2008|  1:67|Nissan Serena
+#m|L  | 97|2008|  1:61|Mitsubishi Lancer Evolution X
+#m|L  | 98|2008|  1:64|Honda Civic Type R
+#m|L  | 99|2008|  1:61|Nissan GT-R
+#m|L  |100|2008|      |Morita Fire Engine Type CD-I
+#m|L  |101|2008|  1:63|Nissan Skyline V36 Investigation Car
+#m|L  |102|2008|  1:59|Toyota Vellfire
+#m|L  |103|2009|  1:63|Toyota Crown
+#m|L  |104|2009| 1:156|Hino S'Elega JR Bus Kanto
+#m|L  |105|2009|  1:64|Toyota Hiace Himedic
+#m|L  |106|2009|      |Isuzu Giga Dump Truck
+#m|L  |107|2009|      |Mitsubishi Fuso Canter Tow Truck (JAF)
+#m|L  |108|2009|      |Isuzu Giga Truck Japan Post
+#m|L  |109|2009|  1:57|Nissan Fairlady 370Z
+#m|L  |110|2009|  1:61|Nissan GT-R SpecV
+#m|L  |111|2009|  1:60|Toyota IQ
+#m|L  |112|2009|      |Nissan Diesel Quon Tank Lorry (Eneos)
+#m|L  |113|2009|      |Type III Disaster Rescue Vehicle
+#m|L  |114|2009|      |Isuzu Giga Mixer
+#m|L  |115|2010|      |Honda Insight
+#m|L  |116|2010|      |Mitsubishi i-MiEV
+#m|L  |117|2010|      |Toyota Prius
+#m|L  |118|2010|      |Nissan Skyline 2000 GT-B
+#m|L  |119|2010|      |Nissan Diesel Dump Truck
+#m|L  |120|2010|      |Mitsubishi Lancer EX2000 Turbo
+#m|L  |121|2010|      |Toyota Crown  MS50 (Greencab Taxi)
+#m|L  |122|2010|      |Nissan Gloria Van JAF
+#m|L  |123|2010|      |Honda F1 Racing
+#m|L  |124|2010|      |Nissan President Escort Vehicle
+#m|L  |125|2010|      |Toyota 2000GT (500 Suzuka)
+#m|L  |126|2010|      |Nissan Skyline 2000GT-R (KPGC10 catalog spec)
+#m|L  |127|2011|      |Nissan Cedric Patrol Wagon
+#m|L  |128|2011|      |Toyota Crown Fire Command
+#m|L  |129|2011|      |Toyota 2000GT (Late)
+#m|L  |130|2011|      |Nissan 240Z
+#m|L  |131|2011|      |Toyota Celica XX 2800GT
+#m|L  |132|2011|      |Nissan Skyline Investigation Car
+#m|L  |133|2011|      |Nissan Sileighty
+#m|L  |134|2011|      |Honda NSX-R
+#m|L  |135|2011|      |Nissan Skyline 2000 RS Turbo
+#m|L  |136|2011|      |Nissan GTR V Spec
+#m|L  |137|2011|      |Nissan Skyline 2000GTR PGC10
+#m|L  |138|2011|      |Nissan Bluebird SSS Coupe
+
+m|D01|  1|    |      |Ford T - Mickey
+m|D02|  1|    |      |Toyota Vitz - Minie
+m|D03|  1|    |      |Bus - Lilo & Stich
+m|D04|  1|    |      |Suzuki Wagon - Winnie The Pooh
+m|D05|  1|    |      |Toyota Bb - The Incredibles
+m|D06|  1|    |      |Toyota Will VI - Mickey
+m|D07|  1|    |      |Toyota EX7 - Buzz Lightyear
+m|D08|  1|    |      |Honda S2000 - Stich
+m|D09|  1|    |      |Toyota Supra - Kim possible
+m|D10|  1|    |      |Isuzu Bonnet Bus - Genie - Aladin
+m|D11|  1|    |      |Subaru R2 - Donald
+m|D12|  1|    |      |Isuzu Hipac Van - Monster Inc.
+m|D13|  1|    |      |Daihatsu Copen - Litle Mermaid-R
+m|D14|  1|    |      |Ford T - Nightmare before Christmas
+m|D15|  1|    |      |Mitsubishi Minica Toppo - Marie
+m|D16|  1|    |      |Daihatsu Midget - Chicken Little
+m|D17|  1|    |      |Subaru 360 - Mickey
+m|D18|  1|    |      |Honda Beat - Goofy
+m|D19|  1|    |      |Mazda RX-7 Sport - Squeeze Toy Aliens - Toy Story
+m|D20|  1|    |      |Honda City II - Dumbo
+m|D21|  1|    |      |Mitsubishi Rosa Bus - Simba
+m|D22|  1|    |      |Isuzu 117 Coupe - Tinker Bell
+m|D23|  1|    |      |Lighting Mc Queen
+m|D24|  1|    |      |Lighting Mc Queen
+m|D25|  1|    |      |Toyota - Pirates of Carebian
+m|D26|  1|    |      |Toyota Vitz - Pinochio
+m|D27|  1|    |      |Honda Civic GL - Chip & Dale
+m|D28|  1|    |      |Toyota Prius - Winnie the Pooh
+m|D29|  1|    |      |Mitsubishi Pajero - Nightmare before Christmas
+m|D30|  1|    |      |Honda S800 - Mickey
+m|D31|  1|    |      |Dinoco Mc Queen
+m|D32|  1|    |      |Cruisin Mc Queen
+m|D33|  1|    |      |Mitsuoka Le Seyde - Nightmare before Christmas
+m|D34|  1|    |      |Mitsubishi I - Ratatouille
+m|D35|  1|    |      |Daihatsu Move - Stich
+m|D36|  1|    |      |Mitsuoka - Night
+m|D37|  1|    |      |Eunos Roadster - Mickey
+m|D38|  1|    |      |Subaru Sanbar Bread - Chip & Dale
+#D26|       |Honda Jazz |  Finding Nemo
+m|D39|  1|    |      |Toyota Soarer - Mickey
+m|D40|  1|    |      |Mazda Demio - Stich
+m|D41|  1|    |      |Suzuki Alto - Alice
+m|D01|  2|    |      |Mickey Mouse T-Classic Cars
+m|D02|  2|    |      |Toyota Vitz - Minnie Mouse
+m|D03|  2|    |      |Lilo & Suteitchi Super Haidekka Isuzu Bus
+m|D04|  2|    |      |Suzuki Wagon R RR Pooh
+m|D05|  2|    |      |Toyota Bb - Mr. Incredibles
+m|D06|  2|    |      |WiLL Vi - Mickey Mouse
+m|D07|  2|    |      |Toy Story Toyota EX7 -
+m|D08|  2|    |      |Honda S2000 - Stitch
+m|D09|  2|    |      |Kim Possible R Toyota Supra
+m|D10|  2|    |      |Ginny R Isuzu Bonnet Bus
+m|D11|  2|    |      |Subaru R-2 - Donald R
+m|D12|  2|    |      |Isuzu Van M - pack High Ink R
+m|D13|  2|    |      |Daihatsu Copen Little Mermaid R
+m|D14|  2|    |      |The Nightmare Before Christmas T-R Coupe
+m|D15|  2|    |      |Marie R Mitsubishi Toppo Minica
+m|D16|  2|    |      |Daihatsu Midget Chicken Little R
+m|D17|  2|    |      |Mickey Mouse - Subaru 360 R
+m|D18|  2|    |      |Honda Beat Gufi R
+m|D19|  2|    |      |Mazda Savanna RX-7 Racing R - Little Green Men
+m|D20|  2|    |      |Honda City Turbo R ? Dumbo
+m|D21|  2|    |      |Pirates of the Caribbean Mega Cruiser Toyota R
+m|D22|  2|    |      |Chip & Dale R Honda Civic GL
+m|D01|  3|    |      |Mickey Mouse Vintage Car Type T (Love version)
+m|D02|  3|    |      |TOYOTA VITZ Minnie Mouse (Love version)
+
+m|C01|  1|2006|      |Lightning McQueen
+m|C02|  1|2006|      |Lightning McQueen (DINOCO)
+m|C03|  1|2007|      |Lightning McQueen (cruising)
+m|C04|  1|2008|      |Mater
+m|C05|  1|2008|      |Sally
+m|C06|  1|2008|      |Doc Hudson
+m|C07|  1|2008|      |Red
+m|C08|  1|2008|      |Ramone
+m|C09|  1|2008|      |Sheriff
+m|C10|  1|2008|      |King
+m|C11|  1|2008|      |Chick Hicks
+m|C12|  1|2009|      |Luigi
+m|C13|  1|2009|      |Guido
+m|C14|  1|2009|      |Fillmore
+m|C15|  1|2011|      |Lightning McQueen (World Grand Prix)
+m|C16|  1|2011|      |Finn Mac Missile
+m|C17|  1|2011|      |Francesco Bernoulli
+m|C18|  1|2011|      |Shu Todoroki
+m|C19|  1|2011|      |Raul Saruru
+m|C20|  1|2011|      |Max Schnell
+m|C21|  1|2011|      |Holly shift well
+m|C22|  1|2011|      |Professor Z
+m|C23|  1|2011|      |Hinterglemm
+m|C24|  1|2011|      |Esa
+m|C25|  1|2011|      |Rod Torque Redline
+m|C26|  1|2011|      |Mater (Spy A)
+m|C27|  1|2011|      |Jeff Gorubetto
+m|C28|  1|2011|      |Finn Mac Missile (airport security)
+m|C29|  1|2012|      |Carla Veloso
+m|C30|  1|2011|      |Mach Matsuo
+m|C30|  2|2012|      |Nigel Giasuri
+m|C31|  1|2012|      |Lightning McQueen (party)
+m|C32|  1|2012|      |Mater (Ivan)
+m|C33|  1|2012|      |Tombe
+m|C33|  2|2013|      |Surge
+m|C34|  1|2012|      |Lightning McQueen (TOON Tokyo custom)
+m|C35|  1|2012|      |Mater (TOON rescue)
+m|C36|  1|2012|      |Lightning McQueen (TOON police)
+m|C37|  1|2012|      |Miguel Camino
+m|Cxx|  1|2012|      |Kick

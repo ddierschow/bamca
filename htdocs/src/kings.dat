@@ -1,0 +1,1554 @@
+formatter|king|sets|Matchbox Kings and Super Kings|K
+page|b:bgc,#66CCFF|b:c,#000000|l:c,#0000CC|v:c,#CC0000
+style|.table|bgc,#FFCC99|c,#FFFFFF|bw,2px|p,1px|bsp,1px
+style|.cell,0,1,2|c,#000000|bw,1|h,8px
+style|.cell,3|bgc,#CCCCCC|w,300|p,0
+style|.cell,4|bgc,#CCCCCC|va,top|c,#000000
+style|.hcell|c,#000000|bw,1|h,8px|ta,center|fw,bold
+cells|num|name|year|pic|insetdesc
+
+field|num|No.
+field|name|Model Name
+field|year|Year
+field|rank|&nbsp;
+field|pic|Picture
+data|m|year,num,rank,name
+
+table|M|year,num,rank,name|Major Packs|2|maj
+m|1957| 1|A|Caterpillar Earth Scraper
+d|yellow body
+
+m|1961| 1|B|BP Autotanker
+d|yellow and green, "BP" decals
+
+m|1957| 2|A|Bedford Ice Cream Truck
+d|light-blue cab, cream trailer
+
+m|1961| 2|B|Bedford Truck and York Trailer
+d|orange cab, silver-gray trailer, "Davies Tires" decals
+d|silver-gray cab, maroon trailer, "LEP" decals
+
+m|1959| 3|A|Thornycraft Antar and Centurion Tank
+d|olive green
+
+m|1959| 4|A|Ruston Bucyrus Power Shovel
+d|maroon body, yellow shovel, red decals
+d|maroon body, yellow shovel, yellow decals
+
+m|1964| 4|B|GMC Tractor/Freuhof Hopper Train
+d|dark-red cab, silver-gray hoppers
+
+m|1960| 5|A|Massey Ferguson Combine Harvestr
+d|red
+
+m|1960| 6|A|Pickfords 200 Ton Transporter
+d|blue cab, maroon trailer
+d|blue cab, dark-red trailer
+
+m|1965| 6|B|Racing Car Transporter
+d|green, "BP" decals
+
+m|1960| 7|A|Jennings Cattle Truck
+d|red cab, tan trailer and rear door
+d|red cab, dark-tan trailer, red rear door
+
+m|1960| 8|A|Mobilgas Petrol Tanker
+d|red cab and trailer, "Mobilgas" decals
+
+m|1964| 8|B|Guy Warrior Car Transporter
+d|blue-green cab, orange trailer
+
+m|1962| 9|A|Interstate Double Freighter
+d|blue cab, pearly gray containers, yellow background decals
+d|blue cab, silver gray containers, yellow background decals
+d|blue cab, silver gray containers, orange background decals
+
+m|1962|10|A|Dinkum Dumper
+d|yellow body and dump
+
+table|K|year,num,rank,name|King Size|3|ks
+m|1960|  1|A|Weatherill Hydraulic Shovel
+d|yellow body and shovel, regular wheels
+
+m|1964|  1|B|Hoveringham Tipper Truck
+d|red body, orange dump, "HOVERINGHAM", regular wheels
+
+m|1970|  1|C|O&K Excavator
+d|red body, silver shovel, "O&K" labels, regular wheels
+d|red body, silver shovel, "O&K" labels, SuperFast wheels
+
+m|1960|  2|A|Muir Hill Dumper
+d|red body and dump, regular wheels
+
+m|1964|  2|B|K.W. Dump Truck
+d|yellow body and dump, regular wheels
+
+m|1969|  2|C|Scammell Heavy Wreck Truck
+d|white body, red grille, regular wheels
+d|gold body, red grille, regular wheels
+d|gold body, red grille, SuperFast wheels
+d|gold body, black grille, SuperFast wheels
+
+m|1977|  2|D|Car Recovery Vehicle
+d|SuperFast wheels
+d|green body, red ramps, "Car Recovery" labels
+d|green body, black ramps, "Car Recovery" labels
+d|green body, red ramps, "24 Hour" labels
+d|blue body, black ramps, "24 Hour" labels
+d|blue body, red ramps, "24 Hour" labels
+d|tan and white body, red ramps, "Race Haulage" labels
+d|yellow body, red ramps, "im Auftrag des-ADAC" labels
+
+m|1960|  3|A|Caterpillar Bulldozer
+d|yellow body, treads
+
+m|1965|  3|B|Hatra Tractor Shovel
+d|orange body and shovel, regular wheels
+
+m|1970|  3|C|Massey Ferguson Tractor and Trailer
+d|red tractor and red trailer with yellow chassis
+
+m|1974|  3|D|Mod Tractor and Trailer
+d|SuperFast wheels
+d|blue body, red or yellow seat, red or yellow grille, stars and stripes labels, blue trailer
+d|blue-green body, yellow seat and grille, no labels, blue-green trailer
+
+m|1981|  3|E|Grain Transporter
+d|SuperFast wheels
+d|red cab with white chassis, white tank with red chassis, "Kellogg's" labels
+d|green cab with white chassis, white tank with green chassis, "Heidelberger Zement" labels
+
+m|1960|  4|A|International Tractor
+d|red body, regular wheels
+
+m|1967|  4|B|GMC Tractor and Freuhof Hopper Train
+d|dark-red cab, silver-grey hoppers, regular wheels
+
+m|1969|  4|C|Leyland Tipper
+d|dark-red cab, silver-gray dump, "LE Transport" labels, regular wheels
+d|dark-red cab, silver-gray dump, "W. Wates" labels, regular wheels
+d|pea green cab and dump, "W. Wates" labels, regular wheels
+d|orange-red cab, pea green dump, "W. Wates" labels, regular wheels
+d|orange-red cab, lime dump, "W. Wates" labels, regular wheels
+d|orange-red cab, lime dump, "W. Wates" labels, SuperFast wheels
+d|orange-red cab, lime dump, no labels, SuperFast wheels
+d|powder blue cab, silver-gray dump, miner and cave labels, SuperFast wheels
+
+m|1974|  4|D|Big Tipper
+d|SuperFast wheels
+d|red body, yellow dump, 3 stripes labels, press-a-matic
+d|red body, yellow dump, "Laing" labels, press-a-matic
+d|red body, yellow dump, 3 stripes labels
+d|red body, yellow dump, "Laing" labels
+
+m|1961|  5|A|Foden Tipper Truck
+d|yellow cab and dump, regular wheels
+
+m|1967|  5|B|Racing Car Transporter
+d|green body, "BP" labels, regular wheels
+
+m|1972|  5|C|Muir Hill Tractor and Trailer
+d|yellow body, red chassis, blue driver, "Muir Hill" labels
+d|yellow body, red chassis, white driver, "Muir Hill" labels
+d|dark- and light-blue body, red chassis, white driver, "Hoch and Tief" labels
+
+m|1961|  6|A|Allis-Chalmers Earth Scraper
+d|orange body, regular wheels
+
+m|1967|  6|B|Mercedes Benz "Binz" Ambulance
+d|cream body, decals
+d|cream body, labels
+d|off-white body, labels
+
+m|1971|  6|C|Cement Mixer
+d|SuperFast wheels
+d|blue body, red chassis, yellow barrel, tan box on cab roof
+d|blue body, red chassis, yellow barrel, black box on cab roof
+
+m|1976|  6|D|Motorcycle Transporter
+d|SuperFast wheels
+d|blue body, "Team Honda" labels, exposed engine
+d|blue body, "Team Honda" labels, no engine-hood labels
+
+m|1961|  7|A|Curtiss Wright Rear Dumper
+d|yellow body and dump
+
+m|1967|  7|B|Refuse Truck
+d|red cab, silver-gray rear tipper, "Cleansing Service" decals, regular wheels
+d|red cab, silver-gray rear tipper, "Cleansing Service" labels, regular wheels
+d|red cab, red and silver-gray rear tipper, "Cleansing Service" labels, SuperFast wheels
+d|dark-blue cab, orange rear tipper, yellow/black/white labels, SuperFast wheels
+
+m|1973|  7|C|Racing Car Transporter
+d|SuperFast wheels
+d|yellow body, red gate,"Team Matchbox" labels
+d|white body and gate,"Martini Racing" labels
+
+m|1962|  8|A|Prime Mover and Caterpillar Tractor
+d|orange mover and trailer, "LAING" decals,  yellow tractor
+
+m|1967|  8|B|Guy Warrior Car Transporter
+d|blue-green cab, orange trailer
+d|blue-green cab, yellow trailer
+d|yellow cab, yellow trailer
+
+m|1970|  8|C|Caterpillar Traxcavator
+d|yellow body and shovel, green treads
+d|yellow body, orange shovel, green treads
+d|yellow-orange body, orange shovel, green treads
+d|yellow-orange body, orange shovel, black treads
+d|silver-gray body, orange shovel, black treads
+
+m|1980|  8|D|Animal Transporter
+d|orange cab, brown chassis, tan container, "Amitran" labels, SuperFast wheels
+
+m|1989|  8|E|Ferrari F40
+d|SuperFast wheels
+d|red body, small logo tempa
+d|white body
+d|white body, "Ferrari" tempa
+d|red body, "Ferrari" tempa
+d|lime body, caricature tempa
+
+m|1962|  9|A|Diesel Road Roller
+d|green body, red rollers, gray driver
+d|green body, red rollers, red driver
+
+m|1967|  9|B|Class Combine Harvester
+d|green body, red rotor, "Class" decal, white driver
+d|green body, red rotor, "Class" decal, no driver
+d|green body, red rotor, "Class" label, white driver
+d|red body, yellow rotor, "Class" label, tan driver
+d|red body, yellow rotor, "Class" label, no driver
+
+m|1973|  9|C|Fire Tender
+d|SuperFast wheels
+d|red body, gray ladder
+d|red body, white ladder
+d|red body, black ladder
+
+m|1963| 10|A|Aveling Barford Tractor Shovel
+d|blue-green body, air cleaner cast
+d|blue-green body, no air cleaner cast
+
+m|1967| 10|B|Pipe Truck
+d|yellow body and trailer, decals, gray plastic pipes, regular wheels
+d|yellow body and trailer, labels, gray plastic pipes, regular wheels
+d|purple body and trailer, labels, gray plastic pipes, SuperFast wheels
+d|purple body and trailer, labels, yellow plastic pipes, SuperFast wheels
+d|purple body and trailer, labels, orange plastic pipes, SuperFast wheels
+
+m|1976| 10|C|Car Transporter
+d|SuperFast wheels
+d|red body and trailer, "Auto Transport" labels
+d|red body and trailer, mustang horse labels
+d|red body and trailer, "4" labels
+
+m|1981| 10|D|Bedford Car Transporter
+d|blue body and trailer, "Bedford" and "Courier" labels, SuperFast wheels
+
+m|1963| 11|A|Fordson Tractor and Farm Trailer
+d|blue body, orange steering wheel
+d|blue body, blue steering wheel
+
+m|1969| 11|B|DAF Car Transporter
+d|blue cab, gold trailer, "DAF" labels, regular wheels
+d|yellow cab, yellow and orange trailer, "DAF" labels, regular wheels
+d|yellow cab, yellow and red trailer, "DAF" labels, SuperFast wheels
+d|yellow cab, yellow and orange trailer, "DAF" labels, SuperFast wheels
+d|yellow cab, yellow and orange trailer, stripes labels, SuperFast wheels
+
+m|1976| 11|C|Breakdown Truck
+d|SuperFast wheels
+d|yellow body, white booms, red hooks, "AA" labels
+d|yellow body, white booms, red hooks, "Shell Recovery" labels
+d|red body, white booms, red hooks, "Falck-Zonen" labels
+
+m|1981| 11|D|Dodge Delivery Van
+d|SuperFast wheels
+d|yellow body, "Michelin" labels
+d|blue body, "Frankfurter Allgemeine" labels
+d|blue body, "Suchard Express" labels
+d|yellow body, "Suchard Express" labels
+
+m|1963| 12|A|Heavy Breakdown Wreck Truck
+d|green body, no roof lights cast, "BP" decals
+d|green body, roof lights cast, "BP" decals
+
+m|1969| 12|B|Scammell Crane Truck
+d|yellow body and crane, regular wheels
+d|orange body and crane, SuperFast wheels
+d|silver-gray body, red crane, SuperFast wheels
+
+m|1975| 12|C|Hercules Mobile Crane
+d|SuperFast wheels
+d|yellow body, crane and hook, "LAING" labels
+d|yellow body and crane, red hook, "LAING" labels
+d|blue body, red crane and hook, "Hoch and Tief" labels
+
+m|1963| 13|A|Readymix Concrete Truck
+d|orange body, "Readymix" decals, regular wheels
+d|orange body, "RMC" decals, regular wheels
+
+m|1971| 13|B|Building Transporter
+d|SuperFast wheels
+d|light-green body
+d|lime green body
+
+m|1976| 13|C|Aircraft Transporter
+d|SuperFast wheels
+d|red body, "X4" labels, white plane
+d|red body, "12" labels, brown plane with white wings
+d|silver-gray body, no labels, white plane
+d|silver-gray body, stripes labels, white plane
+
+m|1963| 14|A|Taylor Jumbo Crane
+d|yellow body, yellow weight box, regular wheels
+d|yellow body, red weight box, regular wheels
+
+m|1971| 14|B|Scammell Freight Truck
+d|blue body, bronze-red container with white roof, "LEP" labels, SuperFast wheels
+
+m|1977| 14|C|Heavy Breakdown Truck
+d|white body, red rear section, "Shell Recovery" labels, SuperFast wheels
+
+m|1964| 15|A|Merryweather Fire Engine
+d|red body, gray ladder, regular wheels
+d|red body, gray ladder, SuperFast wheels
+d|red body, silver-gray ladder, SuperFast wheels
+
+m|1973| 15|B|The Londoner
+d|SuperFast wheels
+d|red body, "Swinging London Carnaby Street" labels, bell cast
+d|red body, "Swinging London Carnaby Street" labels, no bell cast
+d|silver-gray body, "Silver Jubilee 1952-1977" labels
+d|red body, "Harrods" labels
+d|red body, "Hamley's" labels
+d|red body, "Tourist London By Bus" labels
+d|red body, "London Dungeon" labels
+d|silver body, "London Dungeon" labels
+d|silver body, "Royal Wedding" labels
+d|red body, "Firestone" labels
+d|powder blue and dark-blue body, "Parish Church" labels
+d|powder blue and white body, "Macleans toothpaste" labels
+d|blue body, "Alton Towers" labels
+d|creme and blue body, "Telegraph and Argo" labels
+d|red body, "Nestles Milkybar" labels
+d|red body, "Petticoat Lane" labels
+d|yellow and brown body, "Butterkist Butter Toffe Popcorn" labels
+d|red body, "London Wide Tour Bus" labels
+d|red body, "The Planetarium" labels
+d|red body, "Besuchen Sie Berlin Hauptstadt Der DDR" labels
+d|red body, Chinese side labels, "Matchbox" roof label
+d|red body, "Around London Tour Bus" labels
+d|yellow body, "1 2 3 4" tempa
+d|silver-gray body, "Cada Toys" labels
+
+m|1982| 15|C|The Londoner
+d|beige body, "Berlin ist eine Reise Wert!" labels, SuperFast wheels
+d|has doors cast on opposite side from K-15-B
+
+m|1966| 16|A|Dodge Tractor with Twin Tipper
+d|green cab, yellow tippers, regular wheels
+d|yellow cab, powder blue tippers, SuperFast wheels
+
+m|1974| 16|B|Petrol Tanker
+d|SuperFast wheels; white tank unless otherwise noted
+d|red cab, "Texaco" labels
+d|green cab, "Texaco" labels
+d|green cab, "Quaker State" labels
+d|white cab, "Shell" labels
+d|white cab, "Exxon" labels
+d|blue cab, "Aral" labels
+d|white cab, "Total" labels
+d|white cab, "BP" labels
+d|red cab, "LEP" labels
+d|black cab, yellow tank, "Chemco" labels
+
+m|1967| 17|A|Low Loader with Bulldozer
+d|green cab and trailer, "Laing" decals, red and yellow bulldozer
+d|green cab and trailer, "Taylor Woodrow" decals, red and yellow bulldozer
+d|lime green cab and trailer, "Taylor Woodrow" decals, SuperFast wheels, orange and yellow bulldozer
+d|florescent red cab, lime green trailer, "Taylor Woodrow" decals, SuperFast wheels, orange and yellow bulldozer
+
+m|1974| 17|B|Scammell Articulated Container Truck
+d|SuperFast wheels
+d|red cab and trailer, yellow containers with blue roofs, "Gentransco" labels
+d|red cab and trailer, orange containers with blue roofs, "Gentransco" labels
+d|red cab and trailer, orange containers with orange roofs, "Gentransco" labels
+d|red cab and trailer, white containers with blue roofs, "Gentransco" labels
+d|red cab and trailer, white containers with orange roofs, "Gentransco" labels
+d|red cab and trailer, white containers with black roofs, "Gentransco" labels
+d|red cab and trailer, white containers with red roofs, "Gentransco" labels
+d|red cab, blue trailer, white containers with blue roofs, "Gentransco" labels
+d|blue cab and trailer, white containers with blue roofs, "Gentransco" labels
+d|red cab and trailer, white containers with blue roofs, "Ginny Vogue Dolls" labels
+d|red cab, black trailer, white containers with blue roofs, "Gentransco" labels
+d|red cab, white trailer, white containers with blue roofs, "Gentransco" labels
+d|yellow cab, black trailer, yellow containers with yellow roofs, "Gentransco" labels
+d|yellow cab, black trailer, yellow containers with yellow roofs, "DBP" labels
+d|yellow cab, black trailer, yellow containers with yellow roofs, "Deutsche Bundespost" labels
+d|blue cab, white trailer, white containers with blue roofs, "Pppick up a Penguin" labels
+d|white cab, black trailer, white containers with green roofs, "7 Up" labels
+
+m|1967| 18|A|Articulated Horse Box
+d|red cab, tan box, regular wheels
+d|red cab, tan box, SuperFast wheels
+d|red cab, orange box, SuperFast wheels
+
+m|1974| 18|B|Articulated Tipper Truck
+d|SuperFast wheels
+d|red cab, silver-gray chassis, black trailer chassis, yellow tipper, stripes labels
+d|silver-gray cab, red chassis, red trailer chassis, silver-gray tipper, stripes labels
+d|silver-gray cab, red chassis, red trailer chassis, silver-gray tipper, "Tarmac" labels
+d|silver-gray cab, red chassis, red trailer chassis, yellow tipper, "Tarmac" labels
+d|yellow cab, black chassis, black trailer chassis, yellow tipper, "US Steel" labels
+d|blue cab, red chassis, red trailer chassis, blue tipper, "Hoch and Tief" labels
+d|white cab, black chassis, black trailer chassis, silver-gray tipper, "Condor" labels
+
+m|1967| 19|A|Scammell Tipper Truck
+d|red cab, yellow tipper, black grille, decals, regular wheels
+d|red cab, yellow tipper, black grille, labels, regular wheels
+d|red cab, orange-yellow tipper, black grille, labels, regular wheels
+d|red cab, orange-yellow tipper, red grille, SuperFast wheels
+d|red cab, orange-yellow tipper, black grille, SuperFast wheels
+
+m|1979| 19|B|Security Truck
+d|SuperFast wheels
+d|white cab and chassis, yellow roof, "Group 4" labels
+d|white cab and chassis, orange roof, "Group 4" labels
+d|white cab and chassis, orange roof, "Fort Knox" labels
+d|white cab and chassis, red roof, "Fort Knox" labels
+
+m|1968| 20|A|Tractor Transporter
+d|red cab with yellow tanks, red trailer, blue tractors, regular wheels
+d|red cab with red tanks, red trailer, blue tractors, regular wheels
+d|florescent red cab, yellow trailer, blue tractors, SuperFast wheels
+d|blue cab, yellow trailer, orange tractors, SuperFast wheels
+d|blue cab, silver-gray trailer, orange tractors, SuperFast wheels
+d|blue cab, gold trailer, orange tractors, SuperFast wheels
+d|red cab, silver-gray trailer, orange tractors, SuperFast wheels
+
+m|1973| 20|B|Cargo Hauler and Pallet Loader
+d|SuperFast wheels
+d|metallic green body, yellow barrels
+d|lime green body, yellow barrels
+d|lime green body, blue barrels
+
+m|1979| 20|C|Peterbilt Wrecker
+d|SuperFast wheels
+d|dark-green body, red dome lights
+d|dark-green body, orange dome lights
+d|white body, orange dome lights
+d|dark-green body, blue dome lights
+d|light-green body, red dome lights
+
+m|1968| 21|A|Mercury Cougar
+d|gold body, regular wheels
+
+m|1971| 21|B|Cougar Dragster
+d|SuperFast wheels
+d|pink body, "Dinamite" labels
+d|purple body, "Dinamite" labels
+d|burgundy body, "Dinamite" labels
+d|purple body, "Bender" labels
+
+m|1974| 21|C|Tractor Transporter
+d|SuperFast wheels
+d|blue body, yellow ramp
+
+m|1979| 21|D|Ford Transcontinental
+d|SuperFast wheels
+d|blue cab, white chassis, white tarp, "Santa Fe" livery
+d|yellow cab, yellow chassis, green tarp, "Continental" livery
+d|yellow cab, white chassis, blue bed, green tarp, "Continental" livery
+d|green cab, white chassis, white tarp, "Nichts geht uber Barenmarke" livery
+d|yellow cab, blue chassis, blue tarp, "Danzas" livery
+d|green cab, white chassis, white tarp, "Polara" livery
+d|yellow cab, yellow chassis, yellow tarp, "Weetabix" livery
+d|blue cab, white chassis, orange canopy, "Sunkist" livery
+
+m|1969| 22|A|Dodge Charger
+d|dark-blue, regular wheels
+
+m|1971| 22|B|Dodge Dragster
+d|SuperFast wheels
+d|pinkish-orange body, "Bender" labels
+d|orange body, "Bender" labels
+d|orange body, "Dinamite" labels
+
+m|1974| 22|C|SRN6 Hovercraft
+d|SuperFast wheels
+d|blue deck, white hull, white window section, "SRN6" and "Seaspeed" labels
+d|white deck, black hull, red window section, "Calais-Ramsgate" and "Hoverfloyd" labels
+d|white deck, black hull, red window section, "SRN6" and "Seaspeed" labels
+d|white deck, white hull, white window section, "SRN6" and "Seaspeed" labels
+
+m|1969| 23|A|Mercury Police Commuter
+d|white body, regular wheels
+d|white body, SuperFast wheels
+
+m|1974| 23|B|Lowloader and Bulldozer
+d|SuperFast wheels
+d|blue cab, gold trailer, red buldozer with yellow blade
+d|blue cab, blue trailer, blue buldozer with red blade, "Hoch and Tief" labels
+d|yellow cab, orange trailer, yellow buldozer with silver-gray blade
+d|red cab, gold trailer, red buldozer with yellow blade
+d|orange cab, orange trailer, yellow buldozer with silver-gray blade
+
+m|1969| 24|A|Lamborghini Miura
+d|red body, regular wheels
+d|bronze body, regular wheels
+d|burgundy body, hood label, regular wheels
+d|blue body, yellow trunk, hood label, regular wheels
+
+m|1976| 24|B|Scammell Container Truck
+d|SuperFast wheels
+d|red body, white container, red roof, "Crowe" labels
+d|red body, white container, orange roof, "Crowe" labels
+d|red body, orange container, red roof, "Michelin" labels
+d|red body, white container, red roof, "Bauknecht Komplettkuchen" labels
+d|red body, white container, red roof, "Gentrasco" labels
+d|red body, white container, blue roof, "Gentrasco" labels
+
+t|All remaining models have SuperFast wheels where appropriate.
+
+m|1971| 25|A|Powerboat and Trailer
+d|all have white hull and yellow trailer
+d|orange deck, white prop, "Seaburst" labels
+d|orange deck, red prop, "Seaburst" labels
+d|red deck, red prop, "Chrysler" labels
+d|orange deck, red prop, "Chrysler" labels
+d|orange deck, blue prop, "Chrysler" labels
+
+m|1977| 25|B|Digger and Plow
+d|red body and plow, silver-gray backhoe and scoop
+d|orange body and plow, silver-gray backhoe and scoop
+d|yellow body, red plow, yellow backhoe, red scoop
+d|yellow body and plow, yellow backhoe and scoop
+d|green body, no plow, silver-gray backhoe, green scoop
+
+m|1971| 26|A|Mercedes Benz "Binz" Ambulance
+d|white body
+
+m|1978| 26|B|Cement Truck
+d|yellow body, gray barrel with red stripes, "McAlpine" labels
+d|yellow body, gray barrel with black stripes, "McAlpine" labels
+d|blue body, blue barrel with red stripes, "Hoch and Tief" labels
+d|red body, gray barrel with red stripes, "McAlpine" labels
+
+m|1971| 27|A|Camping Cruiser
+d|yellow body, orange roof, dots labels
+
+m|1978| 27|B|Boat Transporter
+d|all boats have white deck and hull
+d|all cabs have white chassis except where stated
+d|white cab, red ramp, "Miss Embassy" labels
+d|red cab, red ramp, "Miss Embassy" labels
+d|white cab, orange ramp, "Benihana" labels
+d|red cab, orange ramp, "Benihana" labels
+d|orange and white cab, orange ramp, "Benihana" labels
+d|orange cab, orange ramp, "Benihana" labels
+d|red cab, red ramp, "Matchbox" labels
+d|orange cab, red ramp, "Matchbox" labels
+d|white cab with red chassis, black ramp, "Miss Solo" labels
+d|white cab with red chassis and roof, black ramp, "Miss Solo" labels
+
+m|1983| 27|C|Ford Boat Transporter
+d|white cab, black ramp, red and blue stripes with "506" labels
+
+m|1971| 28|A|Drag Pack
+d|with K-21-A dragster
+d|with lime green or metallic green Mercury
+d|with yellow trailer with yellow or orange-yellow platform
+
+m|1978| 28|B|Skip Truck
+d|orange cab, orange-yellow containers, "Hales" labels
+d|red cab, yellow containers, "Hales" labels
+d|blue and red cab, blue containers, "Hoch and Tief" labels
+
+m|1971| 29|A|Miura Seaburst Set
+d|with K-24-A Miura
+d|with K-25-A Powerboat
+
+m|1978| 29|B|Ford Delivery Van
+d|orange and white cab, white chassis, gray container, "U-Haul"
+d|orange cab, white chassis, gray container, "U-Haul"
+d|red cab, white chassis, red container, "Avis"
+d|white cab, white chassis, red container, "Avis"
+d|white cab, dark-green chassis, lime container, "Mr. Softy"
+d|white cab, white chassis, lime container, "Mr. Softy"
+d|turquoise cab, chassis, and container, "75 Express"
+d|blue cab, white chassis, white container with blue roof, "Elefanten Jungen Mode"
+d|blue cab, white chassis, white container with blue roof, "Jelly Babies"
+d|blue cab, white chassis, white container with blue roof, "TAA"
+
+m|1972| 30|A|Mercedes C111
+d|gold
+d|lime
+d|dark-lime
+d|blue, "3" label
+
+m|1978| 30|B|Unimog and Compressor
+d|beige body, brown compressor
+d|gray body, brown compressor
+
+m|1971| 31|A|Bertone Runabout
+d|orange, serpent labels
+
+m|1978| 31|B|Peterbilt Refrigerator Truck
+d|white cab, blue chassis, white container, "Iglo Langnese"
+d|white cab, black chassis, white container, "Iglo Langnese"
+d|white cab, blue chassis, white container, "Christian Salvesen"
+d|red and white cab and chassis, red container with white roof, "Coca Cola"
+d|red cab and chassis, red container with white roof, "Coca Cola"
+d|white cab, black chassis, white container, "Glaces Gervais"
+d|white cab, blue chassis, white container with blue roof, "Pepsi Cola"
+d|white cab, black chassis, white container, "Burger King"
+d|white cab, blue chassis, white container, "Trink 10"
+d|white cab, red chassis, white container, "Trink 10"
+d|white cab, blue chassis, white container, "Acorn Duro-Penta"
+d|powder blue cab, blue chassis, powder blue container, "Euro-Express"
+
+m|1972| 32|A|Shovel Nose
+d|yellow body, "2" label
+d|yellow body, "4" label
+
+m|1978| 32|B|Farm Unimog and Trailer
+d|gray body, gray trailer
+
+m|1972| 33|A|Citroen S.M.
+d|magenta with tow hook
+d|magenta without tow hook
+
+m|1979| 33|B|Cargo Hauler
+d|blue cab, white chassis, white trailer, black crane, "US Steel"
+d|yellow cab, silver-gray chassis, yellow trailer, beige crane, "K"
+
+m|1972| 34|A|Thunderclap
+d|yellow body, "34" labels
+d|black body, "1" labels
+
+m|1979| 34|B|Pallet Loader and Forklift
+d|white cab, dark-blue chassis, blue tarp, "K" livery
+d|white cab, dark-blue chassis, blue tarp, "MW" livery
+d|white body, red chassis, white tarp, "WM International" livery
+d|with #15 Forklift
+
+m|1972| 35|A|Lightning
+d|red body, "Flame Out" labels
+d|red body, "35 Team Matchbox" and "Firestone" labels
+d|white body, "35 Team Matchbox" and "Firestone" labels
+d|white body, "35 Team Matchbox" and "Texaco" labels
+d|white body, "35 STP Champion" and "Texaco" labels
+
+m|1979| 35|B|Massey Ferguson Tractor and Trailer
+d|red tractor, white canopy, red trailer
+
+m|1972| 36|A|Bandalero
+d|blue body, white interior
+d|blue body, yellow interior
+
+m|1978| 36|B|Construction Transporter
+d|dark-yellow body, black plastic ramp and supports
+d|dark-yellow body, yellow plastic ramp and supports
+d|with #29 Tractor Shovel and #26 Site Dumper
+d|with #48 Sambron and #26 Site Dumper
+d|with SuperKing Lime Mercury
+
+m|1973| 37|A|Sand Cat
+d|orange body with green spatter, black roof
+d|red body, black roof, "3" label
+d|red body, gray roof, "3" label
+
+m|1979| 37|B|Leyland Tipper
+d|yellow cab and chassis, red tipper, "Laing" labels
+
+m|1973| 38|A|Gus's Gulper
+d|pink body, yellow interior and rollbar
+d|pink body, orange interior and rollbar
+d|dark-pink body, light-yellow interior and rollbar
+d|white body, yellow interior and rollbar
+
+m|1980| 38|B|Dodge Ambulance
+d|white body, orange painted hood and stripe, "Ambulance" and cross
+d|white body, "Notarzt"
+
+m|1973| 39|A|Milligan's Mill
+d|light-green body, orange interior, "Firestone" and flames
+d|dark-green body, orange interior, "Firestone" and flames
+d|dark-green body, yellowk interior, "Firestone" and flames
+d|dark-green body, orange interior, "Firestone" and stars and stripes
+
+m|1980| 39|B|Snorkel Fire Engine
+d|red body, silver-painted roof and rear, black interior, "County Fire department"
+
+m|1973| 40|A|Blaze Trailer
+d|red body, orange interior
+d|red body, yellow interior
+
+m|1980| 40|B|Delivery Truck
+d|white body, red roof and chassis, blue container roof, "Pepsi Cola"
+d|white body, blue roof, chassis and container roof, "Pepsi Cola"
+d|white body, blue chassis, white container roof, "Frohliches Durstloschen"
+
+m|1973| 41|A|Fuzz Buggy
+d|white body, yellow interior
+d|white body, white interior
+
+m|1977| 41|B|Brabham BT 44B
+d|red body, "Martini Brabham 7"
+d|red body, "Martini Brabham 7", "Goodyear"
+
+m|1981| 41|C|JCB Excavator
+d|yellow body and arm, red scoop, "808", "JCB"
+
+m|1973| 42|A|Nissan 270ZX
+d|orange body, yellow interior, "9"
+
+m|1979| 42|B|Traxcavator Road Ripper
+d|yellow body and shovel, red ripper, black roof
+d|yellow body, shovel and ripper, black roof
+d|yellow body, red shovel, ripper and roof
+
+m|1973| 43|A|Cambuster
+d|yellow body
+
+m|1981| 43|B|Log Transporter
+d|yellow body, red chassis, orange boom, three brown logs
+d|yellow body, red chassis and boom, three gray logs
+
+m|1973| 44|A|Bazooka
+d|red body, "Bazooka"
+d|red body, "Firestone"
+
+m|1977| 44|B|Surtees Formula 1
+d|white body, red airfoil, "Chesterfield 18"
+
+m|1981| 44|C|Bridge Layer
+d|beige cab, brown chassis, beige trailer, red bridge
+d|beige cab, brown chassis, beige trailer, orange bridge
+d|beige cab, brown chassis, beige trailer, yellow bridge
+
+m|1973| 45|A|Marauder
+d|burgundy body, orange interior and airfoil, "7"
+d|burgundy body, yellow interior and airfoil, "7"
+d|burgundy body, yellow interior, orange airfoil, "7"
+d|burgundy body, orange interior, yellow airfoil, "7"
+d|red body, yellow interior and airfoil, "Cibie"
+
+m|1973| 46|A|Racing Car Pack
+d|yellow Mercury, red roof rack, yellow Thunderclap, yellow trailer with blue platform
+d|yellow Mercury, red roof rack, black Thunderclap, yellow trailer with blue platform
+d|yellow Mercury, red roof rack, white Lightning, yellow trailer with blue platform
+d|yellow Mercury, red roof rack, red Lightning, yellow trailer with blue platform
+d|yellow Mercury, red roof rack, white Lightning, yellow trailer with black platform
+d|yellow Mercury, maroon roof rack, white Lightning, yellow trailer with blue platform
+d|lime Mercury, red roof rack, yellow Thunderclap, yellow trailer with blue platform
+
+m|1973| 47|A|Easy Rider
+d|blue body and seat, flames deco
+
+m|1973| 48|A|Mercedes 350SLC
+d|bronze body, yellow interior
+d|silver-gray body with black roof, yellow interior
+
+m|1973| 49|A|Ambulance
+d|white body, red roof and interior, "Ambulance"
+d|white body and interior, red roof, "Ambulance"
+d|red body, cream roof, white interior "Maltese"
+
+m|1973| 50|A|Street Rod
+d|lime body, light-green fenders, "Hot T"
+d|lime body, dark-green fenders, "Hot T"
+d|dark-green body and fenders, "Hot T"
+d|orange body, gold-plated fenders
+
+m|1973| 51|A|Barracuda
+d|blue body, yellow interior, orange airfoil, "5"
+d|blue body, yellow interior and airfoil, "5"
+d|blue body, orange interior, yellow airfoil, "5"
+d|blue body, yellow interior, lemon airfoil, "5"
+d|dark-blue body, yellow interior and airfoil, "5"
+d|white body and interior, yellow airfoil, "14"
+d|white body, yellow interior and airfoil, "14"
+d|white body and airfoil, yellow interior, "14"
+
+m|1974| 52|A|Datsun 260Z
+d|yellow body, red hood, "52"
+d|silver-gray body, red hood, "52"
+d|silver-gray body, black hood, "52"
+d|green body, white hood, "Cibie"
+
+m|1976| 53|A|Hot Fire Engine
+d|red body and chassis, black riders
+d|red body and chassis, blue riders
+
+m|1976| 54|A|AMX Javelin
+d|burgundy body, "7"
+d|red body, "24"
+d|black body
+
+m|1976| 55|A|Corvette Caper Cart
+d|dark-blue body, yellow interior, "55"
+d|dark-blue body, orange-yellow interior, "55"
+d|bronze body, black roof, yellow interior
+d|bronze body, black roof, orange-yellow interior
+d|light-blue body, white interior
+
+m|1976| 56|A|Maserati Bora
+d|silver-gray body, yellow interior
+d|silver-gray body, orange interior
+d|gold body, orange interior
+d|red body, yellow interior
+d|red body, yellow interior, "7"
+
+m|1976| 57|A|Javelin Drag Race Pack
+d|burgundy Javelin, dark-green Milligan's Mill, yellow trailer
+d|red Javelin, dark-green Milligan's Mill, yellow trailer
+d|burgundy Javelin, pink Gus's Gulper, yellow trailer
+
+m|1976| 58|A|Corvette Powerboat Set
+d|dark-blue Corvette, powerboat with red deck
+d|dark-blue Corvette, powerboat with orange deck
+d|bronze Corvette, powerboat with orange deck
+
+m|1976| 59|A|Ford Capri II
+d|white body, red interior, "Capri II"
+d|white body, black roof, red interior, "Capri II"
+d|beige body, black roof, red interior, "Capri II"
+d|beige body, brown roof, red interior, "Capri II"
+d|beige body, red interior
+d|metallic-silver body, red interior
+
+m|1976| 60|A|Ford Mustang II
+d|blue body, white interior, "20"
+
+m|1978| 60|B|Cobra Mustang
+d|white body and interior, "Cobra"
+d|red body, white interior, "207 Cobra"
+d|metallic red body, white interior, "207 Cobra"
+
+m|1977| 61|A|Mercedes Police Car
+d|white body, hood and doors, yellow interior, "Police"
+d|white body, hood and doors, yellow interior, "Polizei"
+d|white body, green hood and doors, yellow interior, "Polizei"
+
+m|1977| 62|A|Doctor's Emergency Car
+d|white body, "Doctor"
+
+m|1978| 63|A|Mercedes Benz "Binz" Ambulance
+d|white body and interior
+
+m|1979| 64|A|Range Rover Fire Engine
+d|red body, yellow ladder, black firemen, "Fire Control"
+d|red body, yellow ladder, black firemen, "Falck-Zonen"
+d|red body, yellow ladder, blue firemen, "Fire Control"
+
+m|1979| 65|A|Plymouth Trail Duster
+d|red body, "Emergency Rescue"
+d|green body, "Bergrettungswacht"
+
+m|1978| 66|A|Jaguar XJ12 Police Patrol
+d|white body, brown interior, blue stripe
+d|white body, brown interior, blue and orange stripes
+d|white body, black interior, blue and orange stripes
+d|white body, brown interior, "County Police" with checks
+d|white body, ivory interior, "County Police" with checks
+
+m|1979| 67|A|Dodge Monaco Fire Chief Car
+d|yellow body, white roof, red interior, "Hackensack"
+d|red body, white roof, yellow interior, "Fire Chief"
+d|red body and roof, yellow interior, "Fire Chief"
+
+m|1980| 68|A|Dodge Monaco and Trailer
+d|beige body, dark-brown roof, red interior, beige trailer, black canopy
+
+m|1979| 69|A|Sedan and Europa Caravan
+d|blue Jaguar, Caravan with beige body, white gas cover
+d|red Jaguar, Caravan with beige body, white gas cover
+d|red Jaguar, Caravan with white body and gas cover
+d|red Jaguar, Caravan with white body, beige gas cover
+d|red Jaguar, Caravan with beige body, unpainted gas cover
+d|light-brown Jaguar, Caravan with beige body, unpainted gas cover
+d|red Volvo, Caravan with beige body, unpainted gas cover
+d|light-brown Volvo, Caravan with pale-yellow body, unpainted gas cover
+
+m|1980| 70|A|Porsche Turbo
+d|dark-green body, black interior, "Turbo"
+d|lime body, black interior, "Turbo"
+d|black body, red interior, "Turbo"
+d|red body, black interior
+d|metallic-red body, cream interior, "Turbo"
+d|red body, red interior, "Dragon Racing Team"
+
+m|1980| 71|A|Porsche Polizei Patrol
+d|white body, dark-green doors, hood and trunk,"Polizei", "1705"
+
+m|1980| 72|A|Brabham BT44B
+d|red body and spoiler, white driver, "Martini-Brabham 7"
+d|blue-green body, white spoiler, brown driver
+
+m|1980| 73|A|Surtees Formula 1
+d|white body, red spoiler, white driver, "Chesterfield 18"
+d|light-tan body, black spoiler, brown driver
+
+m|1980| 74|A|Volvo Estate
+d|dark-red body, white interior, black roof deco
+d|dark-red body, white interior
+d|blue body, tan interior
+d|metallic-green body, ivory interior
+d|red body, orange-yellow interior
+d|light-brown body, orange-yellow interior
+
+m|1980| 75|A|Airport Fire Tender
+d|yellow body, "Airport Fire Tender"
+d|yellow body, "Security Aeroport"
+d|yellow body, "Flughafen-Feuerwehr"
+
+m|1980| 76|A|Volvo Rally Set
+d|white Volvo, tan roof rack, green Datsun with "Cibie"
+d|white Volvo, brown roof rack, green Datsun with "Cibie"
+
+m|1980| 77|A|Highway Rescue Vehicle
+d|white body, "Highway Rescue System"
+d|white body, "Secours Routier"
+d|white body, "Strassen Service"
+
+m|1980| 78|A|Gran Fury Police Car
+d|blue and white body, blue interior, "Polizei"
+d|blue and white body, blue interior, "Police"
+d|black body, blue interior, "Police"
+d|black body, white interior, "Police"
+d|blue body, blue interior, "Police"
+d|blue body, black interior, "Police"
+d|white body, blue interior, "City Police"
+d|maroon body, blue interior, "Fire Dept.", "Fire Chief"
+d|red body, black interior, "IAAFC"
+d|orange body, black interior, "Lindberg City Police"
+
+m|1980| 79|A|Gran Fury Taxi
+d|yellow body, red interior, assorted deco
+
+m|1980| 80|A|Dodge Custom Van
+d|light-blue body, white interior with flower pattern
+d|light-blue body, white interior
+d|dark-blue body, white interior
+
+m|1981| 81|A|Suzuki Motorcycle
+d|white body, red shield and driver, assorted deco
+d|dark-blue body, blue shield and driver, "Suzuki 30"
+
+m|1981| 82|A|BMW Motorcycle
+d|silver-gray body, black shield, blue driver, "BMW"
+d|silver-gray body, black shield, red driver, "BMW"
+d|silver-gray body, gray shield, brown and yellow driver, "BMW"
+d|black body, white shield, white driver, "Polizei"
+
+m|1981| 83|A|Harley-Davidson Motorcycle (Electraglide)
+d|white body and frame, tan gas tank, blue and black driver, "Police"
+d|red body, frame and gas tank, no driver, "Harley-Davidson"
+d|dark-blue body and frame, blue gas tank, no driver, "Harley-Davidson"
+d|black body, frame and gas tank, no driver, "Harley-Davidson"
+d|dark-purple body, frame and gas tank, no driver, "Harley-Davidson"
+d|white body and frame, blue gas tank, no driver, "MBPD-17"
+d|black body, frame and gas tank, no driver, "MBPD-17"
+d|dark-blue body, frame and gas tank, no driver, "Virginia State Police"
+d|black and white body and frame, black gas tank, no driver, "California Highway Patrol"
+d|black and white body and frame, black gas tank, no driver, "Kansas Highway Patrol"
+d|cream body and frame, black gas tank, no driver, "Florida State Trooper"
+d|gold-plated body, frame and gas tank, no driver, "Harley-Davidson"
+d|black and white body and frame, black gas tank, no driver, "M.B.P.D. 17/Dial 911"
+d|cream body, frame and gas tank, no driver, "M.B.P.D. Police"
+d|white body, frame and gas tank, no driver, "M.B.P.D./Dial 911"
+d|red body, frame and gas tank, no driver, "Harley-Davidson"
+
+m|1994| 83|B|Harley-Davidson Chopper
+d|red body
+d|blue body
+d|purple body
+d|gold-plated body
+d|black body
+d|black and florescent-orange body
+d|metallic-red body
+d|red body
+
+m|1994| 83|C|Harley-Davidson Sportster
+d|turquoise body
+d|blue body
+d|red body
+d|black body
+d|gold-plated body
+d|yellow body
+d|florescent-yellow body
+d|purple body
+
+m|1981| 84|A|Peugeot 305
+d|blue body, ivory interior
+d|white body, ivory interior, "14", assorted logos
+d|white body, black interior, "10", assorted logos
+d|metallic-blue body, ivory interior, "5", assorted logos
+
+m|1981| 86|A|VW Golf
+d|black body, ivory interior, stripes
+d|white body, ivory interior, stripes
+d|yellow body, ivory interior, "ADAC StraBenwacht", stripes
+
+m|1981| 87|A|Massey Ferguson Tractor and Rotary Rake
+d|red tractor, orange frame, yellow rakes
+d|green tractor and frame, yellow rakes
+
+m|1982| 88|A|Money Box
+d|white cab and container with red roof, "Fort Knox"
+d|white cab and container with red roof, "Matchbox"
+d|white cab and container with red roof, "Volksbank Raiffeisenbank"
+d|red cab, ivory container with red roof, "Caisse D'Epargne"
+d|orange cab, light-beige container with orange roof, "Caisse D'Epargne"
+d|lime cab, white container with lime roof, "De Speelboom Spaaravto"
+
+m|1982| 89|A|Forestry Range Rover and Trailer
+d|yellow Rover, brown interior, gray grille, "Keilder Forest", yellow trailer
+d|yellow Rover, brown interior, black grille, "Keilder Forest", yellow trailer
+d|yellow Rover, brown interior, gray grille, "Keilder Forest", "12", yellow trailer
+
+m|1982| 90|A|Matra Rancho
+d|red body, black interior, "Trans Globe Couriers"
+d|yellow body, black interior, "Pursuit Vehicle Interceptor 5000"
+d|white body, black interior, "Coast Guard Patrol 70"
+d|red body, black interior, "2 Fire Control Unit"
+
+m|1982| 91|A|Motorcycle Racing Set
+d|metallic-silver Gran Fury, assorted decos, red trailer with two motorcycles
+
+m|1982| 92|A|Helicopter Transporter
+d|yellow cab, green chassis and trailer, white helicopter, "Heli-Hire"
+
+m|1982| 93|A|Lamp Maintenance Set
+d|yellow body, black chassis, orange boom, yellow blucket, stripes
+
+m|never made| 94|A|Airport Crash Tender
+d|red body
+
+m|1982| 95|A|Audi Quattro
+d|white body, "Audi Sport 10", assorted logos
+d|white body, "17", assorted logos
+d|silver-gray body, "1", assorted logos
+d|silver-gray body, "1"
+d|white body, "Pirelli/Duckhams 10", assorted logos
+d|metallic-blue body, "OOOO"
+
+m|1982| 96|A|Volvo Ambulance
+d|white body, red interior, red stripes and cross
+
+m|1982| 97|A|Range Rover Police Car
+d|white body, brown interior, "Police"
+
+m|1979| 98|A|Forestry Unimog and Trailer
+d|dark green body, red chassis, stripes, green trailer
+
+m|1983| 98|B|Porsche 944
+d|silver-gray body, red interior, "Porsche 944"
+d|brown body, red interior, "Porsche 944"
+d|red body, black interior, "Porsche 944"
+d|silver-gray body, black interior, small logo
+d|black body, tan interior, small logo
+d|pearl-white body, black interior, small logo
+d|yellow body, black interior, small logo
+
+m|1979| 99|A|Range Rover Polizei Set
+d|cream body, green interior, "Polizei", with two motorcycles
+
+m|1983| 99|B|Dodge Polizei Van
+d|white body, green roof, "Polizei"
+
+m|1983|100|A|Ford Sierra XR4I
+d|white body, gray interior
+d|silver-gray body, gray interior
+d|powder-blue body, gray interior
+d|red body, gray interior, "XR4i"
+d|plum body, gray interior
+d|black body, gray interior, red stripe
+d|black body, gray interior, "XR4i", red stripe
+
+m|1983|101|B|Racing Porsche
+d|metallic beige body, black interior, "TC Racing", "Sunoco 16"
+d|red body and interior, "TC Racing", "Sunoco 16"
+d|red body, black interior, "TC Racing", "Sunoco 16"
+d|white body, black interior, "Team Porsche", "9 Esso"
+
+m|1983|102|B|Race Support Set
+d|yellow Dodge Van, red interior, white Porsche
+
+m|1983|103|B|Peterbilt Tanker
+d|silver-gray cab, blue chassis, white tank with blue chassis, "Comet"
+
+m|1983|104|B|Rancho Rescue Set
+d|white Matra Rancho. "Coast Guard Patrol 70", boat with white deck, blue hull, tan seats, "370", white plastic cradle on orange trailer
+d|white Matra Rancho. "Coast Guard Patrol 70", boat with white deck, blue hull, tan seats, "370", black plastic cradle on orange trailer
+
+m|1984|105|B|Peterbilt Tipper
+d|white body, black chassis, red dump
+d|yellow body, black chassis, yellow dump, "Taylor Woodrow"
+
+m|1984|106|B|Scammell Aircraft Transporter
+d|red cab, silver-gray chassis, silver-gray trailer, red airplane, "Aces"
+
+m|1984|107|B|Powerboat Transporter
+d|white cab, blue chassis, white trailer, boat with white deck and hull, "Spearhead"
+
+m|1984|108|B|Peterbilt Digger Transporter
+d|yellow cab, black chassis, "Avro", black trailer, yellow Digger, yellow backhoe, red scoop
+
+m|1984|109|B|Iveco Tanker
+d|yellow cab, white front fenders, white tank, "Shell"
+d|yellow cab, black front fenders, white tank, "Shell"
+
+m|1985|110|B|Fire Engine
+d|red body, gray ladder, "008"
+
+m|1985|111|B|Peterbilt Refuse Truck
+d|orange body, gray chassis, orange dump, "Waste Beater"
+
+m|1985|112|B|Fire Spotter Transporter
+d|red cab and chassis, "Fire 23", red trailer with black cradle, red plane with chrome-plated wings, "Fire"
+
+m|1985|113|B|Garage Transporter
+d|yellow cab, red chassis, red trailer, gray garage, orange-yellow tarp, "Shell"
+d|yellow cab, red chassis, red trailer, gray garage, white tarp, "Shell"
+
+m|1985|114|B|Crane Truck
+d|yellow body, crane cab and boom, black extending boom, "Taylor Woodrow"
+d|yellow body, crane cab and boom, black extending boom, "113", "Cotras"
+d|yellow body and boom, red crane cab and extending boom, "113", "Cotras"
+
+m|1985|115|B|Mercedes Benz 190E
+d|white body, black interior
+d|silver-blue body, black interior
+d|black body, tan interior
+d|gunmetal-gray body, red interior
+d|white body, black interior, "Fuji"
+d|light-silver-green body, black interior
+
+m|1985|116|B|Racing Car Transporter
+d|red cab, black interior, white chassis, red trailer, "Ferrari", includes 2 red Ferraris
+d|red cab, white interior and chassis, red trailer, "Ferrari", includes 2 red Ferraris
+
+m|1985|117|B|Scania Bulldozer Transporter
+d|yellow cab, brown chassis, "Taylor Woodrow", brown trailer with orange Traxcavator Road Ripper
+
+m|1985|118|B|Road Construction Set
+d|Ford Truck with yellow cab and body, black chassis, white roof, yellow support trailer, yellow Unimog with black chassis, "115", yellow compressor trailer
+
+m|1985|119|A|Fire Rescue Set
+d|red Unimog, red interior, "fire", white canopy, "8 Fire Dept.", with red Fire Truck and red Compressor Trailer
+
+m|1986|120|A|Car Transporter
+d|white cab, black chassis, white trailer with silver ramp, "Carrier"
+d|white cab, black chassis, white trailer with white ramp, "Carrier"
+d|yellow cab, red chassis, yellow trailer with red ramp, "Express Courier"
+
+m|1986|121|A|Peterbilt Wrecker
+d|dark-blue cab, white chassis and read bed, black booms, "Highway Patrol City Police"
+
+m|1986|122|A|DAF Road Train
+d|white cab, black chassis, white bed and canopies, "Eurotrans"
+d|white cab, black chassis, red bed, white canopies, "Toblerone"
+d|cream cab, dark-gray chassis, cream bed, gray canopies, "Marti"
+d|blue cab, black chassis, blue bed and canopies, "Henniez"
+d|yellow cab, black chassis, yellow bed and canopies, "Zweifel Pomy Chips"
+
+m|1986|123|A|Leyland Cement Truck
+d|yellow-orange cab and body, red chassis, gray barrel with black stripes, road design deco
+d|yellow-orange cab and body, red chassis, gray barrel, red and white stripes
+
+m|1986|124|A|Mercedes Container Truck
+d|white cab, red interior and front wheel fenders, dark-gray chassis, white container with dark-gray chassis, "7-Up"
+d|silver cab, black chassis, interior and front wheel fenders, silver-gray container with black chassis, "Tagler Frisch"
+
+m|1986|126|A|DAF Helicopter Transporter
+d|blue cab and chassis, "Royal Navy", blue trailer, dark-blue helicopter with orange pontoons, white interior
+d|white cab, powder-blue chassis, "Coast Guard", powder-blue trailer, white helicopter with orange pontoons, white interior
+
+m|1986|127|A|Peterbilt Tanker
+d|white cab, red chassis, white tank with red chassis, "Total"
+d|red cab and chassis, white tank with light-gray chassis, "Getty"
+
+m|1989|127|B|Iveco Tanker
+d|blue cab, white chassis, blue tank with white chassis,"British Farm Produce Milk"
+
+m|1986|128|A|DAF Aircraft Transporter
+d|red cab and chassis, red trailer with gray cradle, light-brown plane with olive, white and red deco
+d|red cab and chassis, red trailer with white cradle, silver-gray spotter plane with red pontoons and wings
+
+m|1986|129|A|Powerboat Transporter
+d|white cab, blue chassis, blue stripes, cream trailer, white boat, "Spearhead"
+d|blue cab, powder-blue chassis, "Kruger", gray trailer, white boat, "Spearhead"
+d|white cab, black chassis, "Coast Guard", gray trailer, gray, black and white boat, "4439 Coast Guard"
+d|white cab, powder-blue chassis, "Coast Guard", gray trailer, gray, orange, black and white boat, "4439 Coast Guard"
+
+m|1986|130|A|Scania Digger Transporter
+d|yellow cab, brown chassis, "Plant Hire", "B1", brown trailer, yellow Digger and Plow
+
+m|1986|131|A|Iveco Petrol Tanker
+d|yellow cab, white tank, "Shell"
+d|red cab and tank, "Texaco"
+d|white cab and tank, "Texaco"
+
+m|1986|132|A|Fire Engine
+d|red body, gray ladder, white interior, "008"
+d|red body, white ladder and interior, "Fire 201"
+d|red body, white ladder, black interior, "Fire 201"
+
+m|1986|133|A|Iveco Refuse Truck
+d|maroon cab and dump, "refuse City Corp"
+d|white cab and dump, "Recycle"
+d|white cab and dump, caricature deco
+d|blue cab and dump, "BFI 664"
+d|blue cab, white dump, "BFI 664"
+
+m|1986|134|A|Fire Spotter Transporter
+d|red cab, white chassis, "Patrol Unit 12 Fire", red trailer, brown cradle, red plane with red pontoons and chrome wings, "12", "C-802 Fire"
+d|red cab, white chassis, "Patrol Unit 12 Fire", red trailer, brown cradle, silver-gray plane with red pontoons and wings, "12", "Fire"
+
+m|1986|135|A|Garage Transporter
+d|yellow cab, red chassis and interior, dull-red trailer, gray garage, orange-yellow tarp, "Shell"
+d|yellow cab, red chassis, black interior, red trailer, gray garage, yellow tarp, "Shell"
+d|red cab and chassis, black interior, gray trailer and garage, red tarp, "Texaco"
+
+m|1986|136|A|Racing Car Transporter
+d|red cab, white chassis, black interior, red container, "ferrari", with two Ferrari racers
+
+m|1986|137|A|Road Construction Set
+d|orange-yellow DAF Truck, black chassis, red stripe, "1104", yellow trailer with black chassis, red stripe, "4172", yellow Unimog, black chassis, red stripe, "126", yellow compressor trailer, red stripe, "1127"
+
+m|1986|138|A|Fire Rescue Set
+d|red Unimog, black interior, "Fire", white canopy, "9 Foam Pump", red Fire Engine, red compressor trailer
+
+m|1987|139|A|Iveco Tipper Truck
+d|orange-yellow body and dump, black chassis, "Wimpey"
+d|orange-yellow body and dump, black chassis, "Department of Highways"
+d|red body and dump, black chassis, silver stripe
+d|orange-yellow body, red dump and chassis, red and white stripes
+
+m|1987|140|A|Car Recovery Vehicle
+d|white cab, blue chassis, white bed and ramp, blue and red deco
+
+m|1987|141|A|Iveco Skip Truck
+d|red cab, black chassis, gray dump, "ECD"
+d|red cab and chassis, orange-yellow dump
+
+m|1987|142|A|BMW Police Car
+d|white body, black interior, "Polizei" with green hood and doors
+d|white body, black interior, "Police" with checkers
+d|white body, black interior, "Fina Pace Car"
+
+m|1987|143|A|Bedford Emergency Van
+d|white body, blue windows, pink cross and stripe
+
+m|1987|144|A|Land Rover
+d|yellow body and roof, "Frankfurt Flughaven"
+d|orange-yellow body and roof, "Heathrow Airport"
+d|orange-yellow body and roof, "Road Maintenance"
+d|green body, cream roof, "Veterinary Surgeon"
+
+m|1988|145|A|Iveco Twin Tipper
+d|orange cab, black chassis, "S&G", pearly-silver twin tippers with black chassis, orange stripes
+
+m|1988|146|A|Jaguar XJ6
+d|white body, black interior
+d|metallic-red body, gray interior
+d|dark-green body, brown interior
+d|white body, maroon interior
+
+m|1988|147|A|BMW 750iL
+d|silver-blue body, gray interior
+d|red body, gray interior
+d|silver-gray body, white and black interior
+d|black body, gray interior
+d|silver-gray body, black interior
+
+m|1988|148|A|Crane Truck
+d|white cab, bed and crane post, red chassis, black boom, blue stripe, "PEX"
+
+m|1988|149|A|Ferrari Testarossa
+d|red body, black and cream interior
+
+m|1988|150|A|Leyland Truck
+d|blue cab and chassis with blue container, "SMF", white tipper bed, "SMF", powder-blue flatbed, "SMF"
+d|yellow cab, chassis and tipper bed
+
+m|1988|151|A|Skip Truck
+d|orange-yellow cab, bed and dump, black chassis, orange skip arms, road design deco
+d|orange-yellow cab, yellow bed and dump, black chassis, orange skip arms, road design deco
+d|orange-yellow cab, yellow bed, red dump, chassis and skip arms, white and red stripes
+
+m|1988|153|A|Jaguar XJ6 Police Car
+d|white body, black interior, "Police" with checkers
+d|white body, black interior, "Police" with light peach and blue stripes
+
+m|1988|154|A|BMW 750iL Police Car
+d|white body, black interior, green doors, trunk and hood, "Polizei"
+
+m|1988|155|A|Ferrari Testarossa Rallye
+d|yellow body, black and cream interior, gold and black stripes, "61"
+
+m|1988|156|A|Porsche Turbo Rallye
+d|red body, white interior, "18 Elf", "Pioneer"
+
+m|1988|157|A|Porsche 944 Rallye
+d|orange-yellow body, black interior, red and blue stripes, "Turbo Porsche 944"
+
+m|1988|158|A|Ford Sierra Rallye
+d|white body, gray interior, "Total"
+
+m|1988|159|A|Racing Car Transporter
+d|white cab and chassis, black interior, white container with black chassis, "Porsche", with two white Porsche 959's
+
+m|1988|160|A|Racing Car Transporter
+d|white cab, blue chassis, black interior, white container with blue chassis, "Matchbox Formula Racing Team", with two white F1 Racers
+
+m|1988|161|A|Rolls Royce Silver Spirit
+d|silver-gray body, gray interior
+d|metallic-red body, gray interior
+
+m|1989|162|A|Sierra RS500 Cosworth
+d|white body and spoiler, dark-gray interior, "Cosworth"
+d|white upper body, gray lower body, gray interior, dark-blue spoiler, "Gemini", "British Open Rally Championship"
+d|black upper body, gray lower body, light-gray interior, black spoiler, "Texaco 6"
+d|white body, black interior, black spoiler, "Caltex Bond"
+
+m|1989|163|A|Unimog Snow Plow
+d|orange body, black chassis, blue canopy, orange plow, "Schmidt"
+
+m|1989|164|A|Range Rover
+d|dark-blue body, gray interior, "Range Rover" on hood
+d|white body, gray interior, black zebra stripes, "Africa Safari Tours"
+d|beige body, gray interior, brown stripes
+d|green body, gray interior, yellow and white stripes
+
+m|1989|165|A|Range Rover Police
+d|white body, black interior, blue stripe, "Police"
+d|white body, black interior, orange band, "Police"
+
+m|1989|166|A|Mercedes Benz 190E Taxi
+d|dark-cream body, black interior, yellow "Taxi" roof sign
+
+m|1990|167|A|Ford Transit
+d|lavender body, white roof, black interior, "Milka"
+d|powder-blue body, white roof, black interior, "Surf N Sun"
+d|orange-yellow body, red roof, black intior, "Miller Construction Company"
+
+m|1990|168|A|Porsche 911 Carrera
+d|red body, black interior, "Carrera 4 Porsche"
+d|pearl-white body, black intior, "Carrera"
+d|yellow body, black intior, "Carrera 4 Porsche"
+
+m|1990|169|A|Ford Transit Ambulance
+d|white body, cream roof, yellow band and orange stripe, "Air Ambulance"
+d|white body, cream roof, light-orange and blue stripe, "Air Ambulance"
+
+m|1991|170|A|JCB Excavator
+d|orange-yellow body, chassis and crane booms, red cab and shovel, "JCB", "808"
+
+m|1990|171|A|Toyota Hi-Lux
+d|white body and bed, black interior, "Runnin Brave", with green and orange Honda ATC
+d|red body, gray interior, white bed, yellow stripes, with hay bale, 2 milk can, cow
+d|black body, bed and interior, "Harley-Davidson Motorcycles", blue and orange flames
+
+m|1991|172|A|Mercedes Benz 500SL
+d|silver-gray body, blue interior
+d|red body, dark-gray interior
+d|metallic-red body, gray interior
+
+m|1992|173|A|Lamborghini Diablo
+d|yellow body, black interior, "Diablo"
+d|black body, gray interior, "Diablo"
+
+m|1993|179|A|Suzuki Samurai
+d|red body, black interior, white spare tire carrier, "Suzuki"
+
+m|1995|186|A|Peterbilt Container Truck
+d|black cab, chrome chassis, black conatiner, "Jim Beam 200 Years"
+d|white cab, chrome chassis, white container with blue roof, "Tyco International"
+d|blue cab, chrome chassis, blue container, "Matchbox"
+
+m|1997|187|A|Freightliner Container Truck
+d|red cab, airdam and chassis, white container with red roof and chassis, "Beefeater-The Spirit of London"
+
+m|1997|188|A|Kenworth Cabover
+d|red body and airdam, black chassis, gold grille, "KW" logo
+
+m|1998|188|B|Peterbilt Container Truck
+d|black cab, chrome chassis, black container, "Harley-Davidson" with large flying eagle
+
+m|1997|189|A|Peterbilt Container Truck
+d|black cab, chrome chassis, gray container with black roof and chassis, "Jack Daniel's Tennessee"
+
+m|1996|190|A|Freightliner Container Truck
+d|dark-green cab, black chassis, dark-green container, "ingel ells ingle ells Don't Forget the J&B"
+
+m|1998|191|A|Freightliner Container Truck
+d|blue cab, chassis and container, "Stars and Stripes Forever 1897-1997"
+
+m|1998|192|A|Peterbilt Lowloader
+d|powder-blue cab, black chassis, "Pac Lease", brown flatbed trailer with two black Peterbilt cabs on porcelain crates
+
+m|1998|193|A|Peterbilt 359 Cabover Cab
+d|dark-green body, black chassis, "Peterbilt" logo
+
+m|1998|194|A|Kenworth W900 Cab
+d|metallic-blue body, black chassis, red stripes
+
+m|1998|199|A|Kenworth Container Truck
+d|red body, black chassis, red container, "Coca-Cola" with Santa Clause
+
+m|1998|200|A|Peterbilt Tanker
+d|yellow cab, gray chassis, chrome tank with gray chassis, "Formula Shell"
+
+m|1998|201|A|Freightliner Container Truck
+d|light-red cab, chassis and container, "Budweiser"
+
+m|2005|202|A|1970 Chevrolet Chevelle SS454
+d|magenta body, black roof
+d|yellow body, black roof
+
+m|2005|203|A|1971 Dodge Challenger
+d|burnt orange body, black roof
+d|silver body, black roof
+
+m|2005|204|A|1970 Oldsmobile 442
+d|chartreuse body, white hood, white interior
+d|chartreuse body, white hood, yellow interior
+d|blue body, white hood, white interior
+
+m|2005|205|A|1970 Ford Mustang Boss 302
+d|white body, black stripe
+d|blue body, black stripe
+
+m|2005|206|A|1971 Chevrolet El Camino
+d|black body
+
+m|2005|207|A|1970 Plymouth Roadrunner
+d|burnt orange body, white interior
+d|green body, yellow interior
+
+table|K|year,num,rank,name|Battle Kings|3|bk
+m|1974|101|A|Sherman Tank
+d|gold body, green rollers, gray treads, French flag
+d|gold body, green rollers, gray treads, "USA 48350"
+d|gold body, tan rollers, gray treads, "USA 48350"
+d|tan and green body, gray treads, "USA 48350"
+
+m|1974|102|A|M48-A2 Tank
+d|metallic-green body, green rollers, white star in circle
+d|beige and brown body, green rollers, "Armored Div."
+d|tan and green body, green rollers, "Armored Div."
+d|yellowish-green body, green rollers, "Armored Div."
+d|mottled-green and dark-brown body, green rollers, "Armored Div."
+
+m|1974|103|A|Chieftan Tank
+d|metallic-green body, green rollers, "8"
+d|metallic-green body, tan rollers, "8"
+d|tan and green body, green rollers, "8"
+d|tan and green body, tan rollers, "8"
+
+m|1974|104|A|King Tiger Tank
+d|silver-gray body, green rollers, cross, "23"
+d|silver-gray body, tan rollers, cross, "23"
+d|silver-gray body, green rollers, black camoflage, cross, "23"
+
+m|1974|105|A|Hover Raider
+m|1974|106|A|Tank Transporter
+m|1974|107|A|155mm Self Propelled Gun
+m|1974|108|A|M3A1 Half Track
+m|1976|109|A|M551 Sheridan
+m|1977|110|A|Recovery Vehicle
+m|1977|111|A|Missile Launcher
+m|1977|112|A|DAF Ambulance
+m|1977|113|A|Military Crane Truck
+m|1977|114|A|Army Aircraft Transporter
+m|1977|115|A|Army Petrol Tanker
+m|1977|116|A|Troop Carrier and Howitzer
+m|1977|117|A|Self Propelled "Hawk" Rocket Launcher
+m|1978|118|A|Kaman Seasprite Army Helicopter
+
+table|K|year,num,rank,name|Adventure 2000|4|a2k
+m|1977|2001|A|Raider Command
+m|1977|2002|A|Flight Hunter
+m|1977|2003|A|Crusader Tank
+m|1977|2004|A|Rocket Striker
+m|1977|2005|A|Command Force Set
+m|1982|2006|A|Shuttle Launcher
+
+table|K|num,rank,name,year|Sea Kings|3|sk
+m|301|A|Frigate|1976
+d|red deck, silver-gray hull, "F109"
+
+m|302|A|Corvette|1976
+d|black deck, silver-gray hull, "C70"
+
+m|303|A|Battleship|1976
+d|brown deck, silver-gray hull, "110"
+
+m|304|A|Aircraft Carrier|1976
+d|blue deck, gray hull, red and white deck label
+d|blue deck, gray hull, blue and yellow deck label
+
+m|305|A|Submarine Chaser|1976
+d|light-gray deck, blue-gray hull, "F101"
+
+m|306|A|Convoy Escort|1976
+d|red deck, silver-gray hull, "C17"
+
+m|307|A|Helicopter Carrier|1976
+d|brown deck, blue-gray hull, "I14"
+
+m|308|A|Guided Missile Destroyer|1976
+d|blue deck, silver-gray hull, "C02"
+d|blue deck, silver-gray hull, "D02"
+
+m|309|A|Submarine|1978
+d|black deck, dark-blue hull, "I17"
+
+m|310|A|Anti-Aircraft Cruiser|1978
+d|brown deck, silver-gray hull, "C115"
+
+m|311|A|Tanker|not made
+d|gray deck, blue hull
+
+m|312|A|Container Ship|not made
+d|gray deck, blue hull
+
+table|SP|num,rank,name,year|Specials|0|spec
+m|01/02|A|Kremer Porsche|1984
+m|03/04|A|Ferrari 512BB|1984
+m|05/06|A|Lancia Rallye|1984
+m|07/08|A|Zakspeed Ford Mustang|1984
+m|09/10|A|Chevy Pro Stocker|1984
+m|09/10|B|Jaguar XJ220|1993
+m|11/12|A|Chevrolet Camaro|1984
+m|11|B|Ford Thunderbird|1994
+m|12|B|Chevrolet Lumina|1994
+m|13/14|A|Porsche 959|1986
+
+table||num,rank,name,year|Other Large Scale Models|0|other
+m|CS-5|A|Unimog Tar Sprayer|1991
+m|FM-3|A|Shovel Tractor|1992
+m|FM-5|A|Muir Hill Tractor and Trailer|1992
+m|EM-13|A|Helicopter|1992
+m|EM-14|A|Suzuki Samurai|1993
+m|EM-15|A|Mercedes Benz 190E Police Car|1993
+
+ignore|1
+Ford Escort Cosworth|1995
+Mazda RX7|1995
+Harley Davidson Springer Softtail|1996
+1939 Harley Davidson Knucklehead|1996
+Rage Rig with Wrecking Tyrannosaurus|1997
+Rage Rig with Raging Stegosaurus|1997
+32630 Speedway Team Transporter|1991
+RB-2521 A.L.T.R.A.C.|1988
+RB-2522 V.A.R.M.I.T.|1988
+RB-2531 T.R.A.P.P.E.R.|1988
+RB-2532 M.O.R.G.|1988
+ignore|0
