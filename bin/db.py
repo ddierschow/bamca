@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import MySQLdb, datetime, os, sys, traceback
+import config
 import useful
 
 dbcs = {}
@@ -20,6 +21,9 @@ class db:
 	self.lastrowid = None
 	self.lastdescription = None
 
+    def __str__(self):
+	return "'<db.db instance>'"
+
     def escape_string(self, s):
 	return self.db.escape_string(s)
 
@@ -37,7 +41,7 @@ class db:
 		#sys.stderr.write('        args : %s\n' % args)
 	    sys.stdout.flush()
 	if 1:
-	    log_name = datetime.datetime.now().strftime('tb/dbq%Y%m.log')
+	    log_name = os.path.join(config.logroot, config.env + datetime.datetime.now().strftime('.dbq%Y%m.log'))
 	    try:
 		if self.nowrites:
 		    open(log_name, 'a').write('%s %s %s %s\n' % (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), self.user_id, os.environ.get('REMOTE_ADDR', ''), query))

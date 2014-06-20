@@ -4,6 +4,7 @@ import cgi, copy, datetime, getopt, os, stat, sys, time
 if os.getenv('REQUEST_METHOD'): # is this apache? # pragma: no cover
     import cgitb; cgitb.enable()
 
+import config
 import dbhandler
 import render
 import secure
@@ -28,6 +29,7 @@ class PageInfoFile():
 	self.request_uri = os.environ.get('REQUEST_URI', 'unknown')
 	self.remote_host = os.environ.get('REMOTE_HOST', 'host_unset')
 	self.remote_addr = os.environ.get('REMOTE_ADDR', '127.0.0.1')
+	self.SetServerEnv()
 	self.secure = secure.Security()
 	self.htdocs = self.secure.docroot
 	self.format_type = 'python'
@@ -54,10 +56,16 @@ class PageInfoFile():
 	self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
 	self.LogStart()
 
+    def SetServerEnv(self):
+	self.server_name = os.environ.get('SERVER_NAME', 'unset.server.name')
+	parts = self.server_name.split('.')
+	if len(parts) > 2:
+	    config.env = parts[-3]
+
     def LogStart(self):
 	if not self.IsAllowed('m') and not self.args:
 	    self.dbh.IncrementCounter(self.page_id)
-	    log_name = datetime.datetime.now().strftime('tb/url%Y%m.log')
+	    log_name = os.path.join(config.logroot, config.env + datetime.datetime.now().strftime('.url%Y%m.log'))
 	    try:
 		open(log_name, 'a').write('%s %s %s\n' % (self.time_start, self.remote_addr, self.request_uri))
 	    except:

@@ -257,7 +257,7 @@ def GrabURLPic(pif, url, pdir, fn, var=None, overwrite=False, track=False, desc=
 
 
 def GrabURLFile(pif, url, pdir, fn, var=None, overwrite=False, desc=''):
-    open('tb/upload.log', 'a').write(datetime.datetime.now().strftime('%Y%m%d.%H%M%S') + ' %s %s\n' % (url, pdir))
+    open(os.path.join(config.logroot, 'upload.log'), 'a').write(datetime.datetime.now().strftime('%Y%m%d.%H%M%S') + ' %s %s\n' % (url, pdir))
     try:
 	up = urllib2.urlopen(url).read()
     except:
@@ -319,7 +319,7 @@ def ShowPicture(pif, fn):
 
 
 def Log(pif, fn, tdir):
-    file("src/file.log", "a").write('|'.join([fn, tdir, str(pif.id)]) + '\n')
+    open(os.path.join(config.logroot, "file.log"), "a").write('|'.join([fn, tdir, str(pif.id)]) + '\n')
 
 
 def GetMan(pif):

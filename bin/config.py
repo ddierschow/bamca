@@ -2,6 +2,8 @@
 
 cgibin          = '../cgi-bin'
 htdocs          = '../htdocs'
+logroot         = '/home/bamca/logs'
+env             = 'unset'
 
 imgdir175       = 'pic/man'
 imgdirAcc       = 'pic/acc'

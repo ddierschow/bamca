@@ -78,10 +78,13 @@ class Presentation():
 	self.shown_flags = set()
 	self.secure = None
 #	if self.verbose:
-#	    self.dump_file = open("../htdocs/tb/" + datetime.datetime.now().strftime('%Y%m%d.%H%M%S') + '.log', 'w')
+#	    self.dump_file = open(os.path.join(config.logroot, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
+
+#    def __str__(self):
+#	return str(self.__dict__)
 
     def __str__(self):
-	return str(self.__dict__)
+	return "'<render.Presentation instance>'"
 
     def ErrorReport(self):
 	return str(self.__dict__)

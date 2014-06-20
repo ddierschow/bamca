@@ -102,6 +102,7 @@ else
 <h3><ul>
 <li><a href="cgi-bin/traverse.cgi">traverse</a>
     <a href="cgi-bin/traverse.cgi?d=./tb">tb</a>
+    <a href="cgi-bin/traverse.cgi?d=../../logs">logs</a>
 <li><a href="cgi-bin/editor.cgi">editor</a>
     <a href="cgi-bin/mass.cgi">mass</a>
 <li><a href="cgi-bin/edlinks.cgi">links</a>

@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+import config
 
 def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=False):
     import pifile
@@ -11,10 +12,12 @@ def HandleException(pif):
     import traceback
     str_tb = traceback.format_exc()
     import datetime
+    tb_file_name = os.path.join(config.logroot, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.') + config.env + '.')
     if pif:
-	erf = open("../htdocs/tb/" + datetime.datetime.now().strftime('%Y%m%d.%H%M%S') + '.' + pif.page_id, 'w')
+	tb_file_name += pif.page_id
     else:
-	erf = open("../htdocs/tb/" + datetime.datetime.now().strftime('%Y%m%d.%H%M%S') + '.unknown', 'w')
+	tb_file_name += 'unknown'
+    erf = open(tp_file_name, 'w')
     erf.write("tb = '''\n" + str_tb + "\n'''\n")
     if pif:
 	erf.write(pif.ErrorReport())
