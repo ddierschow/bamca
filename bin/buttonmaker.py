@@ -1,15 +1,17 @@
 #!/usr/local/bin/python
 
-import copy, os, re
+import copy, os, re, sys
 import cmdline
 import icon
 import Image
+
+sys.path.append('..htdocs/bin')
 
 palettepos = {0: (0,102,0), 1: (255,255,255), 2: (1,1,1)}
 paletteneg = {1: (0,102,0), 0: (255,255,255), 2: (1,1,1)}
 fontname = 'nx10'
 padding = 2
-direc = '.'
+direc = '../htdocs/pic/gfx'
 
 def write(fn, orig, width, height, palette):
     fn = fn.replace('|', '_').replace(' ', '_').lower() + '.gif'
@@ -36,7 +38,7 @@ def dump(image, w, h):
 
 
 def create_base_image(text, font):
-    text = fn.upper().replace('_', ' ')
+    text = text.upper().replace('_', ' ')
     texts = text.split('|')
     max_width = 0
     for ln in texts:
@@ -87,6 +89,7 @@ def color_eval(spec):
 
 
 def Main():
+    global paletteneg, palettepos, fontname, padding, direc
     switch, files = cmdline.CommandLine("n", "bcfpd", envar="BUTTONMAKER")
     print switch, files
 
