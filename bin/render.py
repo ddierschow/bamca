@@ -83,6 +83,9 @@ class Presentation():
 #    def __str__(self):
 #	return str(self.__dict__)
 
+    def __repr__(self):
+	return "'<render.Presentation instance>'"
+
     def __str__(self):
 	return "'<render.Presentation instance>'"
 

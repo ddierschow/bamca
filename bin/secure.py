@@ -16,6 +16,9 @@ class Security:
 	self.cipher = Crypto.Cipher.DES.new(self.crypkey, Crypto.Cipher.DES.MODE_ECB)
 	self.cookies = None
 
+    def __str__(self):
+	return "'<secure.Security>'"
+
     def ReadVersion(self):
 	if os.path.exists('version.txt'):
 	    self.htdocs_path = '.'

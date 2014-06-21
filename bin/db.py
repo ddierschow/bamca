@@ -21,6 +21,9 @@ class db:
 	self.lastrowid = None
 	self.lastdescription = None
 
+    def __repr__(self):
+	return "'<db.db instance>'"
+
     def __str__(self):
 	return "'<db.db instance>'"
 

@@ -27,11 +27,14 @@ class dbhandler:
 	#self.table_info = tables.table_info
 	self.SetConstants()
 
+    def __repr__(self):
+	return "'<dbhandler.dbhandler instance>'"
+
     def __str__(self):
 	return "'<dbhandler.dbhandler instance>'"
 
     def ErrorReport(self):
-	return str(self.__dict__) + '\n' + 'dbi ' + str(self.dbi.__dict__)
+	return str(self.__dict__) + '\n' + 'dbi = ' + str(self.dbi.__dict__)
 
     def SetVerbose(self, flag):
 	self.dbi.verbose = flag
