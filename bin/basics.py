@@ -9,15 +9,15 @@ def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=False):
 
 
 def HandleException(pif):
-    import os, traceback
+    import datetime, os, sys, traceback
     str_tb = traceback.format_exc()
-    import datetime
     tb_file_name = os.path.join(config.logroot, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.') + config.env + '.')
     if pif:
 	tb_file_name += pif.page_id
     else:
 	tb_file_name += 'unknown'
     erf = open(tb_file_name, 'w')
+    erf.write("headline = '''%s'''\n" % traceback.format_exception_only(sys.exc_type, sys.exc_value))
     erf.write("tb = '''\n" + str_tb + "\n'''\n")
     if pif:
 	erf.write(pif.ErrorReport())

@@ -60,6 +60,7 @@ image_inputters = {
     'xbm' : [['/usr/local/bin/xbmtopbm']],
 #    '' : [['/usr/local/bin/jpegtopnm']],
 }
+itypes = ['bmp', 'gif', 'ico', 'jpg', 'jpeg', 'png', 'tif', 'xbm']
 
 image_outputters = {
     'bmp' : [['/usr/local/bin/ppmtobmp']],

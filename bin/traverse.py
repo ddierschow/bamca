@@ -24,16 +24,17 @@ def ShowList(title, tdir, fl):
 	    perms = fst[stat.ST_MODE]
 	    if f[0] == '.':
 		print '<i>%s</i><br>' % f
-	    elif tdir.startswith('../'):
-		print '%s<br>' % f
 	    elif stat.S_ISDIR(perms):
 		print '<a href="/cgi-bin/traverse.cgi?d=%s">%s</a><br>' % (tdir + '/' + f, f)
+	    elif tdir.startswith('../'):
+		#print '%s<br>' % f
+		print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
 	    elif f[-4:] == '.dat':
 		#print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
 		print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
 	    elif (perms & 5) == 0:
 		print '%s<br>' % f
-	    elif ext in images.image_inputters:
+	    elif ext in images.itypes:
 		#print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
 		print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
 	    else:
@@ -184,10 +185,14 @@ def ShowScript(pif, mvl, rml):
 
 
 def ShowFile(pif, fn):
-    if fn.endswith('.dat'):
+    root, ext = useful.RootExt(fn)
+    if ext == 'dat':
 	ShowTable(pif, fn)
-    else:
+    elif ext in images.itypes:
 	images.ShowPicture(pif, fn)
+    else:
+	print '<p>'
+	print open(pif.render.pic_dir + '/' + fn).read().replace('\n', '<br>\n')
 
 
 

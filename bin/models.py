@@ -80,7 +80,6 @@ def AddModelTablePicLink(pif, mdict, flago=flago):
 
 #mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname
 def AddModelTableProductLink(pif, mdict):
-
     pif.render.Comment('AddModelTableProductLink', mdict)
 
     ostr = ''
