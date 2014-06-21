@@ -4,9 +4,12 @@ bamca
 Bay Area Matchbox Collectors Association
 
 This repository contains much of the source code that runs "bamca.org".
-There is still much missing but this is a start.
+There is still much missing but this is a start.  This repository
+does not, and will not, contain the pictures from the site.
+Absent that, the goal is to have enough recorded here that the
+site could be recreated.
 
-Please not that this was written by one person, and was never
+Please note that this was written by one person, and was never
 intended to be shared or passed on, so the documentation is rare
 to nonexistant.  I will be fixing that as I can.
 
