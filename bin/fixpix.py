@@ -46,10 +46,10 @@ def Main(pif):
 		    found = True
 		    break
 	    if not found:
-		if os.path.exists('lib/' + cas):
+		if os.path.exists('lib/man/' + cas):
 		    for src in glob.glob(pth + '/' + '?_' + cas + '-' + var + '.jpg'):
-			if not os.path.exists('lib/' + cas + src[src.rfind('/'):]):
-			    os.rename(src, 'lib/' + cas + src[src.rfind('/'):])
+			if not os.path.exists('lib/man/' + cas + src[src.rfind('/'):]):
+			    os.rename(src, 'lib/man/' + cas + src[src.rfind('/'):])
 		else:
 		    print '    Bad var:', cas, var, map(lambda x: x['variation.var'], dbvars)
 

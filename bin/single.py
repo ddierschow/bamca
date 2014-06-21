@@ -444,11 +444,11 @@ def ShowSingle(pif):
 	content += '<a href="vars.cgi?list=1&mod=%s">Variations</a><br>\n' % id
 	content += '<a href="vsearch.cgi?ask=1&id=%s">Search</a><br>\n' % id
 	if os.path.exists(os.path.join('lib', id.lower())):
-	    content += '<a href="traverse.cgi?g=1&d=./lib/%s">Library</a><br>\n' % id.lower()
+	    content += '<a href="traverse.cgi?g=1&d=./lib/man/%s">Library</a><br>\n' % id.lower()
 	content += '<a href="pics.cgi?m=%s">Pictures</a><br>\n' % id.lower()
 	content += '<a href="edlinks.cgi?page=single.%s">Links</a><br>\n' % id
 	if os.path.exists(os.path.join('lib', id.lower())):
-	    content += '<a href="upload.cgi?d=./lib/%s&m=%s">Library Upload</a><br>\n' % (id.lower(), id.lower())
+	    content += '<a href="upload.cgi?d=./lib/man/%s&m=%s">Library Upload</a><br>\n' % (id.lower(), id.lower())
 	prodstar = 'stargreen.gif'
 	if pic:
 	    prodstar = 'starwhite.gif'

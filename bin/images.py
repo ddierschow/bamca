@@ -120,7 +120,7 @@ def GetDir(tdir):
 
 
 def Filename(man, var='', ext='.jpg'):
-    pth = 'lib/' + man.lower()
+    pth = 'lib/man/' + man.lower()
     if var:
 	fn = (man + '-' + var).lower()
     else:
@@ -145,7 +145,7 @@ def UploadFile(pif, infile, pdir, fn, overwrite=False, desc=''):
 
 
 def ScrapeURLMod(pif, url, man, var, overwrite=False, desc=''):
-    pdir = pif.form.get('d', 'lib/' + man)
+    pdir = pif.form.get('d', 'lib/man/' + man)
     fn = url[url.rfind('/') + 1:].lower()
     ScrapeURLPic(pif, url, pdir, fn, overwrite, desc=desc)
 
@@ -238,7 +238,7 @@ def SafeSave(pif, pdir, fn, contents, overwrite=False):
 
 
 def GrabURLMod(pif, url, man, var, overwrite=False, desc=''):
-    pdir = pif.form.get('d', 'lib/' + man)
+    pdir = pif.form.get('d', 'lib/man/' + man)
     fn = url[url.rfind('/') + 1:].lower()
     GrabURLPic(pif, url, pdir, fn, var, overwrite, desc=desc)
 
@@ -282,7 +282,7 @@ def SelectFromLibrary(pif, man, var, desc=''):
     nfn = man.lower()
     if var:
 	nfn = nfn + '-' + var
-    tdir = 'lib/' + man.lower()
+    tdir = 'lib/man/' + man.lower()
     grafs = True
     os.chdir(tdir)
 
@@ -510,14 +510,14 @@ def Action(pif, tdir, fn, act=1):
     elif pif.form.get('lib'):
 	if not man:
 	    print 'What?'
-	elif not os.path.exists('./lib/' + man):
+	elif not os.path.exists('./lib/man/' + man):
 	    man2 = pif.dbh.FetchAlias(man)
 	    if not man2:
 		print 'bad destination'
 	    else:
-		useful.FileMover(tdir + '/' + fn, './lib/' + man2['ref_id'].lower() + '/' + fn, mv=mv, ov=ov)
+		useful.FileMover(tdir + '/' + fn, './lib/man/' + man2['ref_id'].lower() + '/' + fn, mv=mv, ov=ov)
 	else:
-	    useful.FileMover(tdir + '/' + fn, './lib/' + man + '/' + fn, mv=mv, ov=ov)
+	    useful.FileMover(tdir + '/' + fn, './lib/man/' + man + '/' + fn, mv=mv, ov=ov)
     elif pif.form.get('mvbin'):
 	if not os.path.exists('./new/' + cat):
 	    print 'bad destination'
@@ -1501,7 +1501,7 @@ def UploadMain(pif):
 	    DoAction(pif, direc, pif.form['f'], cy=pif.FormInt('cy'))
 	elif pif.form.get('m'):
 	    if not pif.form.get('d'):
-		direc = './lib/' + pif.form['m'].lower()
+		direc = './lib/man/' + pif.form['m'].lower()
 	    if pif.form.get('u'):
 		GrabURLMod(pif, pif.form['u'], pif.form['m'], pif.form.get('v'), overwrite=overwrite, desc=desc)
 	    elif pif.form.get('s'):

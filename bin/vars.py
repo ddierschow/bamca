@@ -70,7 +70,7 @@ def ShowVariation(pif, man, var_id):
     fname = useful.CleanName(variation['mod_id'] + '-' + pic_var)
     img = pif.render.FormatImageRequired([fname], pdir=pif.render.pic_dir + '/var', prefix=['h_', 'l_', 'm_', 's_'])
     if pif.IsAllowed('u'): # pragma: no cover
-	print '<a href="upload.cgi?d=./lib/%s&m=%s&v=%s">' % (id.lower(), id, pic_var) + img + '</a>'
+	print '<a href="upload.cgi?d=./lib/man/%s&m=%s&v=%s">' % (id.lower(), id, pic_var) + img + '</a>'
     else:
 	print '<a href="upload.cgi?m=%s&v=%s">%s</a>' % (id, var_id, img)
     print '<p></center>'
@@ -120,12 +120,12 @@ def ShowVariation(pif, man, var_id):
     if pif.IsAllowed('a'): # pragma: no cover
 	print '-', pif.render.FormatButton("delete", 'vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id))
 	print pif.render.FormatButton("edit", 'vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var_id))
-	print pif.render.FormatButton("pictures", 'upload.cgi?d=./lib/%s&m=%s&v=%s&l=1' % (mod_id.lower(), mod_id, var_id))
+	print pif.render.FormatButton("pictures", 'upload.cgi?d=./lib/man/%s&m=%s&v=%s&l=1' % (mod_id.lower(), mod_id, var_id))
 	print pif.render.FormatButton("remove_picture", '?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
 	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink(pif, 'casting', {'id' : mod_id}))
 	print pif.render.FormatButton("recalc", '?recalc=1&mod=%s' % mod_id)
     if pif.IsAllowed('u'): # pragma: no cover
-	print '-', pif.render.FormatButton("upload", 'upload.cgi?d=./lib/' + mod_id.lower())
+	print '-', pif.render.FormatButton("upload", 'upload.cgi?d=./lib/man/' + mod_id.lower())
     #print pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&man=%s&var=%s' % (pif.page_id, id, var_id), also={'class' : 'comment'}, lalso={})
     print pif.render.FormatButtonComment(pif, 'man=%s&var=%s' % (id, var_id))
     print '</form>'

@@ -79,7 +79,7 @@ def WebRead(url, noread=False, quiet=False, log=None):
 
 
 def FixFiles(page_id):
-    dir = os.path.join('lib/', page_id[7:].lower())
+    dir = os.path.join('lib/man/', page_id[7:].lower())
     os.system('sudo chown bamca:www %s' % dir)
     os.system('sudo chmod 775 %s' % dir)
     os.system('sudo chown bamca:www %s/*.*' % dir)
@@ -95,7 +95,7 @@ def GrabPage(url):
 def GrabList(ll, fl):
     for url in fl:
 	fn = url[url.rfind('/') + 1:]
-	libdir = os.path.join('lib/', ll['link_line.page_id'][7:].lower())
+	libdir = os.path.join('lib/man/', ll['link_line.page_id'][7:].lower())
 	if not os.path.exists(libdir):
 	    errors.append((ll, url))
 	sfn = os.path.join(libdir, fn)

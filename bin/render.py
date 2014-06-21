@@ -575,7 +575,8 @@ of Matchbox International Ltd. and are used with permission.
 	imalso = {'class' : 'button' ,'alt' : altname}
 	self.Comment('FormatButtonImage', bname, name, also, but_image, hov_image)
 	if not but_image or not useful.IsGood(but_image, v=self.verbose):
-	    return '<input type="submit" name="%s" value="%s">\n' % (inputname, altname)
+	    imalso = {'class':'textbutton', 'onmouseover':"this.class='textbuttonh';", 'onmouseout':"this.class='textbutton';"}
+	    return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, altname, useful.Also(imalso, also))
 	elif not hov_image or not useful.IsGood(hov_image, v=self.verbose):
 	    return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.Also(imalso, also))
 	else:

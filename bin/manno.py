@@ -482,7 +482,7 @@ class MannoFile:
 
     def ShowPictureModelTable(self, pif, mdict):
 	var_pic_keys = ['pic_a', 'pic_c', 'pic_1', 'pic_2', 'pic_f']
-	mdict['first_year'] = '<a href="traverse.cgi?g=1&d=./lib/%s">%s</a>' % (mdict['id'].lower(), mdict['first_year'])
+	mdict['first_year'] = '<a href="traverse.cgi?g=1&d=./lib/man/%s">%s</a>' % (mdict['id'].lower(), mdict['first_year'])
 	mdict['name'] = mades[int(mdict['made'])] % mdict
 	mdict.update({'img': self.ShowListPic(pif, ['', config.imgdir175], mdict['id'], 's')[1],
 	    'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
