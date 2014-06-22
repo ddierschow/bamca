@@ -77,19 +77,10 @@ def SaveForm(pif):
 def MakePageList(pif):
     pages = pif.dbh.FetchPages("format_type='packs'")
     pages.sort(key=lambda x: x['page_info.title'])
-
+    lsec = map(lambda x: pif.dbh.DePref('section', x), pif.dbh.FetchSections({'page_id' : 'packs'}))
     entries = list()
-    llineup = {
-	'id': 'main',
-	'name': '',
-	'columns': 2,
-	'section': [{
-	    'id': 'packs',
-	    'range' : [{
-		'entry' : entries
-	    }]
-	}],
-    }
+    lsec[0]['range'] = [{'entry' : entries}]
+    llineup = {'id': 'main', 'name': '', 'section': lsec}
     for page in pages:
 	page = pif.dbh.DePref('page_info', page)
 	if not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED):
