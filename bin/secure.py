@@ -20,23 +20,26 @@ class Security:
 	return "'<secure.Security>'"
 
     def ReadVersion(self):
-	if os.path.exists('version.txt'):
-	    self.htdocs_path = '.'
-	elif os.path.exists('../version.txt'):
-	    self.htdocs_path = '..'
-	elif os.path.exists('../htdocs/version.txt'):
-	    self.htdocs_path = '../htdocs'
-	else:
-	    self.htdocs_path = os.environ['DOCUMENT_ROOT']
-	ver = open(self.htdocs_path + '/version.txt')
-	for ln in ver.readlines():
-	    if '=' in ln:
-		key, val = ln.strip().split('=')
-		if key.startswith('$'):
-		    key = key[1:]
-		if val.endswith(';'):
-		    val = val[:-1]
-		self.__dict__[key.strip()] = eval(val.strip())
+#	if os.path.exists('version.txt'):
+#	    self.htdocs_path = '.'
+#	elif os.path.exists('../version.txt'):
+#	    self.htdocs_path = '..'
+#	elif os.path.exists('../htdocs/version.txt'):
+#	    self.htdocs_path = '../htdocs'
+#	else:
+#	    self.htdocs_path = os.environ['DOCUMENT_ROOT']
+#	ver = open(self.htdocs_path + '/version.txt')
+#	for ln in ver.readlines():
+#	    if '=' in ln:
+#		key, val = ln.strip().split('=')
+#		if key.startswith('$'):
+#		    key = key[1:]
+#		if val.endswith(';'):
+#		    val = val[:-1]
+#		self.__dict__[key.strip()] = eval(val.strip())
+	self.htdocs_path = os.environ['DOCUMENT_ROOT']
+	self.root = os.environ['SERVER_NAME'].split('.')[0]
+	self.version = os.environ['BAMCA_VERSION']
 	if self.root == 'beta':
 	    self.isbeta = True
 

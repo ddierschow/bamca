@@ -20,7 +20,7 @@ else
     $yearend = $answer[0][1];
 }
 
-function yearselect($name, $id, $defval, $min, $max)
+function SelectYear($name, $id, $defval, $min, $max)
 {
     echo '<select name="' . $name . '" id="' . $id . '">' . "\n";
     $yr = $max;
@@ -33,6 +33,8 @@ function yearselect($name, $id, $defval, $min, $max)
 	$yr = $yr - 1;
     }
     echo "</select><br>\n";
+    incrsel($id, -1);
+    echo "<br>\n";
 }
 
 DoResetJavascript();
@@ -67,6 +69,20 @@ function SectionTail($sect)
     echo "\n</form>\n\n</td></tr>\n";
 }
 
+function ChooseRegion($nrows)
+{
+?>
+<td valign=top rowspan="<?php echo $nrows;?>">Region:</td>
+<td valign=top rowspan="<?php echo $nrows;?>">
+<input type="radio" name="region" value="U" checked> USA<br>
+<input type="radio" name="region" value="R"> International<br>
+<input type="radio" name="region" value="L"> Latin America (2008-2011)<br>
+<input type="radio" name="region" value="B"> UK (2000, 2001)<br>
+<input type="radio" name="region" value="D"> Germany (1999-2001)<br>
+<input type="radio" name="region" value="A"> Australia (2000, 2001)<br>
+Note that Australian dealers might carry either USA or International assortments after 2001.</td>
+<?php
+}
 ?> 
 
 <center>
@@ -99,23 +115,14 @@ SectionHeader("year", "lineup.cgi", "Models by Year");
 <table><tr>
 <td valign=top>Year: </td>
 <td valign=top class="updown">
-<?php yearselect('year', 'yearYear', $yearend, $yearstart, $yearend); ?>
-<?php incrsel('yearYear', -1); ?>
+<?php SelectYear('year', 'yearYear', $yearend, $yearstart, $yearend); ?>
 
 </td>
 
 <td width=20></td>
-<td valign=top>Region:</td>
-<td valign=top>
-<input type="radio" name="region" value="U" checked> USA<br>
-<input type="radio" name="region" value="R"> International<br>
-<input type="radio" name="region" value="L"> Latin America (2008-2011)<br>
-<input type="radio" name="region" value="B"> UK (2000, 2001)<br>
-<input type="radio" name="region" value="D"> Germany (1999-2001)<br>
-<input type="radio" name="region" value="A"> Australia (2000, 2001)<br>
-Note that Australian dealers might carry either USA or International assortments after 2001.</td>
-
 <?php
+ChooseRegion(1);
+
 if ($isadmin)
 {
     echo '<td width=20></td><td>';
@@ -137,46 +144,58 @@ SectionHeader("rank", "lineup.cgi", "Models by Lineup Number");
 <table><tr>
 <td valign=top>
 Lineup number:<br>
-(1-100)
+(1-120)
 </td>
 <td valign=top class="updown">
 <input type="text" name="num" size="3" id="rankNum"><br>
-<?php incrnum('rankNum', 1, 100, ''); ?>
+<?php incrnum('rankNum', 1, 120, ''); ?>
 </td>
-<td width=16 style="text-align: right;"></td>
-<td valign=top>
+<td width=16></td>
+<td style="text-align: right;" valign=top>
 Start year:
 </td>
 <td valign=top class="updown">
-<?php yearselect('syear', 'rankSyear', $yearstart, $yearstart, $yearend); ?>
-<?php incrsel('rankSyear', -1); ?><br>
+<?php SelectYear('syear', 'rankSyear', $yearstart, $yearstart, $yearend); ?>
 </td>
 
 <td width=16 rowspan=2></td>
-<td valign=top rowspan=2>Region:</td>
-<td valign=top rowspan=2>
-<input type="radio" name="region" value="U" checked> USA<br>
-<input type="radio" name="region" value="R"> International<br>
-<input type="radio" name="region" value="L"> Latin America (2008-)<br>
-<input type="radio" name="region" value="B"> UK (2000, 2001)<br>
-<input type="radio" name="region" value="D"> Germany (1999-2001)<br>
-<input type="radio" name="region" value="A"> Australia (2000, 2001)<br>
-</td>
+<?php
+ChooseRegion(2);
 
+if ($isadmin)
+{
+    echo '<td width=16 rowspan=2></td>';
+    echo '<td valign="top" rowspan=2><i>';
+    echo '<input type="checkbox" name="large" value="1"> Large<p>' . "\n";
+    echo '<input type="checkbox" name="verbose" value="1"> Verbose<p>' . "\n";
+    echo '<input type="checkbox" name="prodpic" value="1"> Product Pics</i></td>' . "\n";
+}
+?>
+</tr><tr>
 <?php
 if ($isadmin)
 {
-    echo '<td width=16 rowspan=2></td></td>';
-    echo '<td valign="top" rowspan=2><i><input type="checkbox" name="large" value="1"> Large<br>' . "\n";
-    echo '<p><input type="checkbox" name="verbose" value="1"> Verbose<br></i></td>' . "\n";
+?>
+<td valign=top>
+<i>Ending number:<br>
+(1-120)</i>
+</td>
+<td valign=top class="updown">
+<input type="text" name="enum" size="3" id="rankNum"><br>
+<?php incrnum('rankNum', 1, 120, ''); ?>
+</td>
+<td width=16></td>
+<?php
+}
+else
+{
+    echo "<td colspan=3></td>\n";
 }
 ?>
-</tr>
-<tr><td colspan=3></td><td style="text-align: right; width: 80px;" valign=top>
+<td style="text-align: right;" valign=top>
 End year:
 </td><td class="updown">
-<?php yearselect('eyear', 'rankEyear', $yearend, $yearstart, $yearend); ?>
-<?php incrsel('rankEyear', -1); ?>
+<?php SelectYear('eyear', 'rankEyear', $yearend, $yearstart, $yearend); ?>
 </td>
 </table>
 
@@ -186,7 +205,7 @@ SectionTail('rank');
 SectionHeader("manno", "manno.cgi", "Manufacturing Numbers");
 ?>
 <table>
-<tr><td colspan=4>
+<tr><td colspan=7>
 <select name="section" id="manSection">
 <option value="" selected>Please select a range
 <?php
@@ -221,14 +240,13 @@ else
 <option value="all">All Ranges
 </select>
 <?php incrsel('manSection', -1); ?>
-</td><td colspan=3>
+</td><td rowspan=3>
 <?php
 if ($isadmin)
 {
-    echo ' <nobr><i><input type="checkbox" name="verbose" value="1"> Verbose' . "</i></nobr>\n";
-    echo '<i><input type="checkbox" name="nodesc" value="1"> No Notes</i>' . "\n";
 ?>
-<i>List type:</i>
+<i>
+List type:
 <select name="listtype">
 <option value="" selected>Normal
 <option value="ckl">Checklist
@@ -236,14 +254,17 @@ if ($isadmin)
 <option value="adl">Admin List
 <option value="pxl">Picture List
 <option value="vtl">Vehicle Type
-</select>
+</select><br>
+<nobr><input type="checkbox" name="verbose" value="1"> Verbose</nobr><br>
+<input type="checkbox" name="nodesc" value="1"> No Notes<br>
+</i>
 <?php
 }
 ?>
 </td></tr><tr>
-<td><input type="radio" name="range" value="all" checked> All numbers</td>
-<td><input type="radio" name="range" value="some"> Some numbers</td>
-<td>starting at:</td><td><input type="text" name="start" id="manStart" value="1" size="4" onFocus="document.manno.range[1].checked=true;">
+<td valign="top"><input type="radio" name="range" value="all" checked> All numbers</td>
+<td valign="top"><input type="radio" name="range" value="some"> Some numbers</td>
+<td valign="top">starting at:</td><td valign="top"><input type="text" name="start" id="manStart" value="1" size="4" onFocus="document.manno.range[1].checked=true;">
 <?php incrnum('manStart', 1, "document.getElementById('manEnd').value", 'document.manno.range[1].checked=true;'); ?>
 </td>
 <?php
@@ -255,14 +276,13 @@ if ($isadmin)
 Start year:
 </td>
 <td valign=top class="updown">
-<?php yearselect('syear', 'manSyear', $yearstart, $yearstart, $yearend + 1); ?>
-<?php incrsel('manSyear', -1); ?><br>
+<?php SelectYear('syear', 'manSyear', $yearstart, $yearstart, $yearend + 1); ?>
 </td>
 <?php
 }
 ?>
 </tr>
-<tr><td></td><td></td><td>ending at:</td><td><input type="text" name="end" id="manEnd" value="999" size="4" onFocus="document.manno.range[1].checked=true;">
+<tr><td></td><td></td><td valign="top">ending at:</td><td valign="top"><input type="text" name="end" id="manEnd" value="999" size="4" onFocus="document.manno.range[1].checked=true;">
 <?php incrnum('manEnd', "document.getElementById('manStart').value", 999, 'document.manno.range[1].checked=true;'); ?>
 </td>
 <?php
@@ -274,8 +294,7 @@ if ($isadmin)
 End year:
 </td>
 <td valign=top class="updown">
-<?php yearselect('eyear', 'manEyear', $yearend + 1, $yearstart, $yearend + 1); ?>
-<?php incrsel('manEyear', -1); ?><br>
+<?php SelectYear('eyear', 'manEyear', $yearend + 1, $yearstart, $yearend + 1); ?>
 </td>
 <?php
 }
@@ -373,7 +392,7 @@ if ($isadmin)
 <tr>
 <td><input type="radio" name="sect" value="sf"> SuperFast</td>
 <td></td><td>ending at:</td><td><input type="text" name="end" id="mackEnd" value="120" size="3" onFocus="document.mack.range[1].checked=true;">
-<?php incrnum('mackEnd', "document.getElementById('mackStart').value", 100, 'document.mack.range[1].checked=true;'); ?>
+<?php incrnum('mackEnd', "document.getElementById('mackStart').value", 120, 'document.mack.range[1].checked=true;'); ?>
 </td></tr>
 </table>
 
