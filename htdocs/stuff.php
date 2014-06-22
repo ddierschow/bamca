@@ -1,11 +1,5 @@
 <html>
 <?php
-/* Release 5.0 published Sunday, 11 July 2010 at 12:01 AM PDT */
-/* Release 5.1 published Monday, 12 April 2011 at 12:01 AM PDT */
-/* Release 5.2 published Monday, 16 May 2011 at 12:01 AM PDT */
-/* Release 5.3 published Monday, 01 August 2011 at 12:01 AM PDT */
-/* Release 5.4 published Monday, 07 September 2011 at 12:01 AM PDT */
-/* Release 5.5 published -- date not recorded */
 include "bin/basics.php";
 include "config.php";
 include "version.txt";
