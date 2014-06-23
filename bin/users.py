@@ -63,7 +63,7 @@ def PrintUserForm(pif, id):
 
 
 def DeleteUser(pif):
-    pif.dbh.DeleteUser(pif.form['id'])
+    pif.dbh.DeleteUser(pif.FormStr('id'))
 
 
 def UpdateUser(pif):
@@ -81,7 +81,7 @@ def UserMain(pif):
 	DeleteUser(pif)
 	PrintUsers(pif)
     elif 'id' in pif.form:
-	PrintUserForm(pif, pif.form['id'])
+	PrintUserForm(pif, pif.FormStr('id'))
     else:
 	PrintUsers(pif)
     print pif.render.FormatTail()
@@ -92,7 +92,7 @@ def PrintLoginForm(pif):
     print 'Please log in.'
     print '<form method="post" action="login.cgi">'
     if pif.form.get('dest'):
-	print '<input type="hidden" name="dest" value="%s">' % pif.form['dest']
+	print '<input type="hidden" name="dest" value="%s">' % pif.FormStr('dest')
     print '<table><tr><td>'
     print 'Name:</td><td>'
     print '<input type="text" name="n"></td></tr>'
@@ -111,7 +111,7 @@ def PrintLoginForm(pif):
 
 def Login(pif):
     id = None
-    id, privs = pif.dbh.Login(pif.form['n'], pif.form['p'])
+    id, privs = pif.dbh.Login(pif.FormStr('n'), pif.FormStr('p'))
     if id:
 	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
 	pif.render.PrintHtml(cookie)
@@ -243,8 +243,8 @@ def RegisterMain(pif):
     if pif.form.get('n'):
 	user.Create(pif)
     elif pif.form.get('k'):
-	u = pif.form['u']
-	k = pif.form['k']
+	u = pif.FormStr('u')
+	k = pif.FormStr('k')
 	user.Verify(pif, u, k)
     else:
 	pif.render.PrintHtml()
@@ -286,7 +286,7 @@ def ChangePass(pif):
 	PrintChangePasswordForm(pif)
 	return
 
-    id, privs = pif.dbh.Login(pif.form['n'], pif.form['op'])
+    id, privs = pif.dbh.Login(pif.FormStr('n'), pif.FormStr('op'))
     if id and pif.form.get('p1') == pif.form.get('p2', -1):
 	pif.dbh.UpdateUser(id, email=pif.form.get('em'), passwd=pif.form.get('p1'))
 	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)

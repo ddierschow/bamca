@@ -19,6 +19,7 @@ def Main(pif):
     act = GetLastActivity(pif)
     dat = ReadCommits(act['site_activity.timestamp'])
     WriteCommits(pif, dat)
+    WriteConfigFile()
 
 
 def GetLastActivity(pif):
@@ -33,14 +34,10 @@ def ReadCommits(endtime):
     commits = list()
     date_re = re.compile('Date:\s*(?P<d>... ... .. ..:..:.. ....)')
     for log_msg in re.compile('\ncommit ', re.M).split(l):
-	print
-	#print log_msg
 	if log_msg.find('Merge: ') >= 0:
-	    print "merge"
 	    continue
 	m = date_re.search(log_msg)
 	if not m:
-	    print "no date"
 	    continue
 	s = m.group('d')
 	commit = dict()
@@ -49,21 +46,31 @@ def ReadCommits(endtime):
 	commit['description'] = log_msg.split('\n', 4)[4].strip()
 	commit['timestamp'] = datetime.datetime.strptime(s, '%a %b %d %X %Y')
 	if commit['timestamp'] <= endtime:
-	    print "too old"
 	    continue
 	commits.append(commit)
-	print commit
     commits.sort(key=lambda x:x['timestamp'])
     return commits
 
 
 def WriteCommits(pif, commits):
-    print
     print "Writing to activity table."
     for commit in commits:
 	print commit
 	pif.dbh.InsertActivity(**commit)
+    print
     
+
+def WriteConfigFile():
+    print "Writing config file."
+    cfg = open('../bin/config.py').readlines()
+    cfg[0] = '<?php\n'
+    for idx in range(1, len(cfg)):
+	if cfg[idx][0] == '#':
+	    cfg[idx] = '//' + cg[idx][1:]
+	elif cfg[idx].find('=') >= 0:
+	    cfg[idx] = '$' + cfg[idx].replace('\n', ';\n')
+    cfg.append('?>\n')
+    open('config.php', 'w').writelines(cfg)
 
 
 if __name__ == '__main__': # pragma: no cover

@@ -35,7 +35,7 @@ def VerNo(rank):
 
 #--------- lineup ----------------------------------
 
-def ShowLineupModel(pif, mdict, comments, verbose=0, unroll=0):
+def ShowLineupModel(pif, mdict, comments, verbose=False, unroll=False):
     ostr = ''
 
     pif.render.Comment('ShowLineupModel',mdict)
@@ -131,7 +131,7 @@ def ShowLineupModel(pif, mdict, comments, verbose=0, unroll=0):
 	    comments.add('c')
 	mdict['href'] = "pub.cgi?id=%(publication.id)s" % mdict
 
-    if pif.form.get('large'):
+    if pif.FormBool('large'):
 	ostr += '<table><tr><td width=400>'
 	#def FormatLink(self, url, txt, args={}, nstyle=None, also={}):
 	img = pif.render.FormatImageRequired(mdict['product'], suffix='jpg', pdir=mdict['pdir'], also={'class':'largepic'})
@@ -142,7 +142,7 @@ def ShowLineupModel(pif, mdict, comments, verbose=0, unroll=0):
 	    ostr += ShowLineupModelVar(pif, mdict, comments, show_var=desc[0][0], verbose=verbose)
     else:
 	ostr += ShowLineupModelVar(pif, mdict, comments, verbose=verbose)
-    if pif.form.get('large'):
+    if pif.FormBool('large'):
 	ostr += '</center></td></tr></table>'
     return ostr
 
@@ -318,7 +318,7 @@ def GetManSections(pif, year, region):
 
 def GetExtraSections(pif, year):
     where = ["page_id='year.%s'" % year, "id like 'X%'"]
-    if not (pif.render.isbeta or pif.form.get('hidden')):
+    if not (pif.render.isbeta or pif.FormBool('hidden')):
 	where.append(' and not flags & %d' % pif.dbh.FLAG_SECTION_HIDDEN)
     return pif.dbh.DePref('section', pif.dbh.FetchSections(where))
 
@@ -406,7 +406,7 @@ def CorrectRegion(region, year):
 def ShowSection(pif, lsec, lran, mods, lup_region, year, comments):
     pif.render.Comment("ShowSection: range", lran)
     multivars = list()
-    unroll = int(pif.form.get('unroll', 0))
+    unroll = pif.FormBool('unroll')
     if lran['flags'] & pif.dbh.FLAG_SECTION_HIDDEN:
 	lran['name'] = '<i>' + lran['name'] + '</i>'
     for mdict in mods:
@@ -465,7 +465,7 @@ def RunFile(pif, region, year):
     lsec['range'] = []
     hdr = lsec['name']
 
-    if pif.form.get('large'):
+    if pif.FormBool('large'):
 	lsec['columns'] = 1
 
     comments = set()
@@ -502,7 +502,7 @@ def RunFile(pif, region, year):
 
     llineup['section'].append(lsec)
     llineup['tail'] = [pif.render.FormatImageArt('bamca_sm', also={'class' : 'centered'}), '']
-    llineup['tail'][1] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.form.get('year'), pif.form.get('region')))
+    llineup['tail'][1] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.FormStr('year'), pif.FormStr('region')))
     for comment in comments:
 	llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
 #    if int(year) > config.yearstart:
@@ -568,10 +568,10 @@ def RunMultiFile(pif, year, region, nyears):
     lsec['range'].append(lran)
 
     llineup['section'].append(lsec)
-    llineup['tail'] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.form.get('year'), pif.form.get('region')))
+    llineup['tail'] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.FormStr('year'), pif.FormStr('region')))
     for comment in comments:
 	llineup['tail'] += mbdata.comment_designation[comment] + '<br>'
-    #llineup['tail'] += pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&yr=%s&rg=%s' % (pif.page_id, pif.form.get('year'), pif.form.get('region')), also={'class' : 'comment'}, lalso=dict())
+    #llineup['tail'] += pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&yr=%s&rg=%s' % (pif.page_id, pif.FormStr('year'), pif.FormStr('region')), also={'class' : 'comment'}, lalso=dict())
     return llineup
 
 
@@ -702,9 +702,9 @@ def PictureCount(pif, region, year):
 
 
 def ProductPicLineupMain(pif):
-    pif.render.title = str(pif.form.get('region', 'Matchbox')) + ' Lineup'
+    pif.render.title = str(pif.FormStr('region', 'Matchbox')) + ' Lineup'
     print pif.render.FormatHead()
-    llineup = RunProductPictures(pif, pif.form['region'].upper())
+    llineup = RunProductPictures(pif, pif.FormStr('region').upper())
     print pif.render.FormatLineup(llineup)
 
 
@@ -712,11 +712,11 @@ def RankLineupMain(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append(('/cgi-bin/lineup.cgi', 'Annual Lineup'))
-    pif.render.hierarchy.append(('/cgi-bin/lineup.cgi?n=1&num=%s&region=%s&syear=%s&eyear=%s' % (pif.form.get('num'), pif.form.get('region'), pif.form.get('syear'), pif.form.get('eyear')),
-	"%s #%d" % (mbdata.regions.get(pif.form.get('region'), ''), pif.FormInt('num'))))
-    pif.render.title = str(pif.form.get('year', 'Matchbox')) + ' Lineup'
+    pif.render.hierarchy.append(('/cgi-bin/lineup.cgi?n=1&num=%s&region=%s&syear=%s&eyear=%s' % (pif.FormStr('num'), pif.FormStr('region'), pif.FormStr('syear'), pif.FormStr('eyear')),
+	"%s #%d" % (mbdata.regions.get(pif.FormStr('region'), ''), pif.FormInt('num'))))
+    pif.render.title = str(pif.FormStr('year', 'Matchbox')) + ' Lineup'
     print pif.render.FormatHead()
-    llineup = RunRanks(pif, pif.form.get('num'), pif.form.get('region', 'U').upper(), pif.form.get('syear', '1953'), pif.form.get('eyear', '2014'))
+    llineup = RunRanks(pif, pif.FormInt('num'), pif.FormStr('region', 'U').upper(), pif.FormStr('syear', '1953'), pif.FormStr('eyear', '2014'))
     print pif.render.FormatLineup(llineup)
 
 
@@ -724,11 +724,11 @@ def MultiYearsMain(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append(('/cgi-bin/lineup.cgi', 'Annual Lineup'))
-    pif.render.hierarchy.append(('/cgi-bin/lineup.cgi?year=%s&region=%s' % (pif.form.get('year'), pif.form.get('region')),
-	pif.form.get('year', '') + ' ' + mbdata.regions.get(pif.form.get('region'), '')))
-    pif.render.title = str(pif.form.get('year', 'Matchbox')) + ' Lineup'
+    pif.render.hierarchy.append(('/cgi-bin/lineup.cgi?year=%s&region=%s' % (pif.FormStr('year'), pif.FormStr('region')),
+	pif.FormStr('year', '') + ' ' + mbdata.regions.get(pif.FormStr('region'), '')))
+    pif.render.title = str(pif.FormStr('year', 'Matchbox')) + ' Lineup'
     print pif.render.FormatHead()
-    llineup = RunMultiFile(pif, pif.form['year'], pif.form['region'].upper(), int(pif.form['nyears']))
+    llineup = RunMultiFile(pif, pif.FormStr('year'), pif.FormStr('region').upper(), pif.FormInt('nyears'))
     print pif.render.FormatLineup(llineup)
 
 
@@ -736,28 +736,28 @@ def LineupMain(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append(('/cgi-bin/lineup.cgi', 'Annual Lineup'))
-    pif.render.hierarchy.append(('/cgi-bin/lineup.cgi?year=%s&region=%s' % (pif.form.get('year'), pif.form.get('region')),
-	pif.form.get('year', '') + ' ' + mbdata.regions.get(pif.form.get('region'), '')))
-    pif.render.title = str(pif.form.get('year', 'Matchbox')) + ' Lineup'
+    pif.render.hierarchy.append(('/cgi-bin/lineup.cgi?year=%s&region=%s' % (pif.FormStr('year'), pif.FormStr('region')),
+	pif.FormStr('year', '') + ' ' + mbdata.regions.get(pif.FormStr('region'), '')))
+    pif.render.title = str(pif.FormStr('year', 'Matchbox')) + ' Lineup'
     print pif.render.FormatHead()
-    llineup = RunFile(pif, pif.form['region'].upper(), pif.form['year'])
+    llineup = RunFile(pif, pif.FormStr('region').upper(), pif.FormStr('year'))
     print pif.render.FormatLineup(llineup)
 
 
 def Main(pif):
     pif.render.PrintHtml()
 
-    if 'prodpic' in pif.form:
+    if pif.FormHas('prodpic'):
 	ProductPicLineupMain(pif)
     elif pif.FormInt('n'):
 	RankLineupMain(pif)
     elif pif.FormInt('nyears', 1) > 1:
 	MultiYearsMain(pif)
-    elif pif.form.get('region') and pif.form.get('year'):
+    elif pif.FormStr('region') and pif.FormStr('year'):
 	LineupMain(pif)
     else:
-	print SelectLineup(pif, pif.form.get('region', 'W').upper(), pif.form.get('year', '0'))
-	pif.render.title = str(pif.form.get('year', 'Matchbox')) + ' Lineup'
+	print SelectLineup(pif, pif.FormStr('region', 'W').upper(), pif.FormStr('year', '0'))
+	pif.render.title = str(pif.FormStr('year', 'Matchbox')) + ' Lineup'
 	print pif.render.FormatHead()
     print pif.render.FormatTail()
 
@@ -916,7 +916,7 @@ def RunTextFile(pif, region, year):
 
     llineup['section'].append(lsec)
     llineup['tail'] = [pif.render.FormatImageArt('bamca_sm'), '']
-    llineup['tail'][1] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.form.get('year'), pif.form.get('region')))
+    llineup['tail'][1] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.FormStr('year'), pif.FormStr('region')))
 #    if int(year) > config.yearstart:
 #	llineup['tail'][1] += pif.render.FormatButton("previous_year", link='http://www.bamca.org/cgi-bin/lineup.cgi?year=%s&region=%s' % (int(year) - 1, region))
 #    if int(year) > config.yearend:
@@ -1005,11 +1005,10 @@ def GetProductImage(page, mnum):
 
 
 def RunRanks(pif, mnum, region, syear, eyear):
-    if not mnum or not mnum.isdigit():
+    if not mnum:
 	print 'Lineup number must be a number from 1 to 120.  Please back up and try again.'
 	print '<meta http-equiv="refresh" content="10;url=/database.php">'
 	return dict()
-    mnum = int(mnum)
     pif.render.Comment('lineup.RunRanks', mnum, region, syear, eyear)
 
     pages = dict(map(lambda x: (x['page_info.id'], x), pif.dbh.FetchPageYears()))
@@ -1046,8 +1045,8 @@ def RunRanks(pif, mnum, region, syear, eyear):
 
     llineup['section'].append(lsec)
     llineup['tail'] = [pif.render.FormatImageArt('bamca_sm'), '']
-    #llineup['tail'][1] += pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&yr=%s&rg=%s' % (pif.page_id, pif.form.get('year'), pif.form.get('region')), also={'class' : 'comment'}, lalso=dict())
-    llineup['tail'][1] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.form.get('year'), pif.form.get('region')))
+    #llineup['tail'][1] += pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&yr=%s&rg=%s' % (pif.page_id, pif.FormStr('year'), pif.FormStr('region')), also={'class' : 'comment'}, lalso=dict())
+    llineup['tail'][1] += pif.render.FormatButtonComment(pif, 'yr=%s&rg=%s' % (pif.FormStr('year'), pif.FormStr('region')))
     for comment in comments:
 	llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
     return llineup
@@ -1063,10 +1062,10 @@ def RunProductPictures(pif, region):
 	    if len(ln) > 1 and ln[1] == region:
 		halfstars[ln[0]] = map(int, ln[2:])
     pages = pif.dbh.FetchPageYears()
-    if pif.form.get('syear'):
-	pages = filter(lambda x: x['page_info.id'] >= 'year.' + pif.form['syear'], pages)
-    if pif.form.get('eyear'):
-	pages = filter(lambda x: x['page_info.id'] <= 'year.' + pif.form['eyear'], pages)
+    if pif.FormStr('syear'):
+	pages = filter(lambda x: x['page_info.id'] >= 'year.' + pif.FormStr('syear'), pages)
+    if pif.FormStr('eyear'):
+	pages = filter(lambda x: x['page_info.id'] <= 'year.' + pif.FormStr('eyear'), pages)
     pages = dict(map(lambda x: (x['page_info.id'], x), pages))
     GatherRankPages(pif, pages, region)
     region_list = mbdata.GetRegionTree(region)
@@ -1084,10 +1083,10 @@ def RunProductPictures(pif, region):
 	lmoddict = dict(map(lambda x: (x['lineup_model.number'], x), lmodlist))
 	min_num = 1
 	max_num = pages[page]['max(lineup_model.number)']
-	if pif.form.get('num'):
-	    min_num = int(pif.form['num'])
-	if pif.form.get('enum'):
-	    max_num = int(pif.form['enum'])
+	if pif.FormStr('num'):
+	    min_num = pif.FormInt('num')
+	if pif.FormStr('enum'):
+	    max_num = pif.FormInt('enum')
 	lsec['columns'] = max(lsec['columns'], max_num + 1)
 	lran = {'id' : pages[page]['page_info.id'], 'name' : '', 'entry' : [], 'note' : '', 'graphics' : []}
 	ent = {
@@ -1177,13 +1176,13 @@ def MackLineup(pif):
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append((pif.request_uri, 'Mack Numbers'))
     pif.render.PrintHtml()
-    region = pif.form.get('region', 'U')
-    series = pif.form.get('sect', 'all')
+    region = pif.FormStr('region', 'U')
+    series = pif.FormStr('sect', 'all')
     if series == 'all':
 	series = ['RW', 'SF']
     else:
 	series = [series.upper()]
-    range = pif.form.get('range', 'all')
+    range = pif.FormStr('range', 'all')
     import useful
     start = pif.FormInt('start', 1)
     end = pif.FormInt('end', 100)
@@ -1215,8 +1214,8 @@ def MackLineup(pif):
     llineup['section'].append(lsec)
 
     print pif.render.FormatLineup(llineup)
-    #print pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&rg=%s&sec=%s&start=%s&end=%s' % (pif.page_id, pif.form.get('region', ''), pif.form.get('sect', ''), pif.form.get('start', ''), pif.form.get('end', '')), also={'class' : 'comment'}, lalso=dict())
-    print pif.render.FormatButtonComment(pif, 'rg=%s&sec=%s&start=%s&end=%s' % (pif.form.get('region', ''), pif.form.get('sect', ''), pif.form.get('start', ''), pif.form.get('end', '')))
+    #print pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&rg=%s&sec=%s&start=%s&end=%s' % (pif.page_id, pif.FormStr('region', ''), pif.FormStr('sect', ''), pif.FormStr('start', ''), pif.FormStr('end', '')), also={'class' : 'comment'}, lalso=dict())
+    print pif.render.FormatButtonComment(pif, 'rg=%s&sec=%s&start=%s&end=%s' % (pif.FormStr('region', ''), pif.FormStr('sect', ''), pif.FormStr('start', ''), pif.FormStr('end', '')))
     print pif.render.FormatTail()
 
 #--------- makes -----------------------------------
@@ -1224,7 +1223,7 @@ def MackLineup(pif):
 def MakesMain(pif):
     makelist = map(lambda x: (x['vehicle_make.make'], x['vehicle_make.make_name']), pif.dbh.FetchVehicleMakes())
     makedict = dict(makelist + [('unl', 'Unlicensed'), ('', 'Unknown')])
-    make = pif.form.get('make', '')
+    make = pif.FormStr('make', '')
     makes = [make]
 
     pif.render.hierarchy.append(('/', 'Home'))
@@ -1238,7 +1237,7 @@ def MakesMain(pif):
     print pif.render.FormatHead()
 
     if make == 'text':
-	makename = pif.form.get('text')
+	makename = pif.FormStr('text')
 	if makename:
 	    makes = []
 	    for m in makelist:
@@ -1254,7 +1253,7 @@ def MakesMain(pif):
 	print pif.render.FormatLineup(llineup)
     else:
 	print MakesForm(pif, makelist)
-    print pif.render.FormatButtonComment(pif, 'make=%s&text=%s' % (pif.form.get('make', ''), pif.form.get('text', '')))
+    print pif.render.FormatButtonComment(pif, 'make=%s&text=%s' % (pif.FormStr('make', ''), pif.FormStr('text', '')))
     print pif.render.FormatTail()
 
 
@@ -1338,7 +1337,7 @@ def FullLineup(pif):
     year = pif.FormInt('year')
 
     import files
-    dblist = files.SimpleFile('src/mbx.dat')
+    dblist = files.SimpleFile(os.path.join(config.srcdir, 'mbx.dat'))
 
     print pif.render.FormatHead()
 
@@ -1371,7 +1370,7 @@ def FullLineup(pif):
 		ostr += "<h3><center>" + title + "</center></h3>"
 		shown = 0
 		cols = int(rank)
-	elif pif.form.get(cmd, '0') != '1':
+	elif pif.FormStr(cmd, '0') != '1':
 	    pass
 	elif cmd == 'CAT':
 	    llineup['graphics'].append({'file' : cmd + modno})

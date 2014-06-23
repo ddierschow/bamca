@@ -2,6 +2,7 @@
 # -*- coding: utf8 -*-
 
 import re, sys
+import config
 import mbdata
 
 '''
@@ -483,21 +484,25 @@ def ShowFileSettings(fn):
     debug('</table>')
 
 
+def ReadDat(fn):
+    return open(config.srcdir, fn + '.dat').readlines()
+
+
 init_done = False
 def Initialize(pif):
     global fnlookup, trans1, trans2, trans3, ctrans, htrans, plants, base_change, column_change, pre_cell_change, post_cell_change, init_done
     if not init_done:
-	fnlookup = ReadFilenames(open('src/vfilename.dat'))
-	plants = ReadPlants(open('src/vplants.dat'))
+	fnlookup = ReadFilenames(ReadDat('vfilename'))
+	plants = ReadPlants(ReadDat('vplants'))
 	trans1 = map(lambda x: [re.compile(x[0] + '\s*'), x[1]], trans1)
-	trans2 = ReadTrans(open('src/vtrans.dat').readlines())
+	trans2 = ReadTrans(ReadDat('vtrans'))
 	trans3 = map(lambda x: [re.compile(x[0] + '\s*'), x[1]], trans3)
 	ctrans = trans1 + trans2 + trans3
 	htrans = map(lambda x: [re.compile(x[0], re.S|re.M), x[1]], htrans)
-	base_change = ReadColumnChange(open('src/vbases.dat').readlines())
-	column_change = ReadColumnChange(open('src/vcolumns.dat').readlines())
-	pre_cell_change = ReadCellChange(open('src/vpre.dat').readlines())
-	post_cell_change = ReadCellChange(open('src/vpost.dat').readlines())
+	base_change = ReadColumnChange(ReadDat('vbases'))
+	column_change = ReadColumnChange(ReadDat('vcolumns'))
+	pre_cell_change = ReadCellChange(ReadDat('vpre'))
+	post_cell_change = ReadCellChange(ReadDat('vpost'))
 	pif.dbh.SetVerbose(True)
 	init_done = True
 

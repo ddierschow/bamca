@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import glob, os, sys
+import config
 
 def ren(cas, ov, nv):
     fl = glob.glob(os.path.join(pth, '?_' + cas + '-' + ov + '.jpg'))
@@ -46,10 +47,10 @@ def Main(pif):
 		    found = True
 		    break
 	    if not found:
-		if os.path.exists('lib/man/' + cas):
-		    for src in glob.glob(pth + '/' + '?_' + cas + '-' + var + '.jpg'):
-			if not os.path.exists('lib/man/' + cas + src[src.rfind('/'):]):
-			    os.rename(src, 'lib/man/' + cas + src[src.rfind('/'):])
+		if os.path.exists(os.path.join(config.libmandir, cas)):
+		    for src in glob.glob(os.path.join(pth, '?_' + cas + '-' + var + '.jpg')):
+			if not os.path.exists(os.path.join(config.libmandir, cas + src[src.rfind('/'):])):
+			    os.rename(src, os.path.join(config.libmandir, cas + src[src.rfind('/'):]))
 		else:
 		    print '    Bad var:', cas, var, map(lambda x: x['variation.var'], dbvars)
 

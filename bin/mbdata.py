@@ -207,6 +207,7 @@ casting_types = {
 }
 
 
+countries_dict = None
 countries = [
     ('AF', "Afghanistan"),
     ('AL', "Albania"),
@@ -505,6 +506,17 @@ def GetRegionTree(region):
 	line_regions.append(lreg)
 	lreg = regionparents.get(lreg, '')
     return line_regions
+
+
+def GetCountries():
+    global countries, countries_dict
+    if not countries_dict:
+	countries_dict = dict(countries)
+    return countries_dict
+
+
+def GetCountry(cc2):
+    return GetCountries().get(cc2, '')
 
 
 if __name__ == '__main__': # pragma: no cover

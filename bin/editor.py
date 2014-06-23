@@ -10,7 +10,7 @@ import useful
 #- presentation
 
 def Start(pif):
-    if pif.form.get('clear'):
+    if pif.FormBool('clear'):
 	pif.dbh.ClearHealth()
 
     errs = pif.dbh.FetchPages("health!=0")
@@ -59,7 +59,7 @@ def EditorMain(pif):
 
 
 def ShowTable(pif):
-    table_info = pif.dbh.GetFormTableInfo(pif, pif.form.get('table'))
+    table_info = pif.dbh.GetFormTableInfo(pif, pif.FormStr('table'))
     if not table_info:
 	Start(pif)
 	return
@@ -86,7 +86,7 @@ def ShowTable(pif):
 	cond = {}
 	for id in creat:
 	    pif.form.setdefault(id, creat[id])
-	    cond[id] = pif.form[id]
+	    cond[id] = pif.FormStr(id)
 	print 'cond', cond, '<br>'
 	print 'Write', table_info['name'], cond
 	lid = pif.dbh.Write(table_info['name'], cond, newonly=True, tag='ShowTableAdd', verbose=1)
@@ -101,7 +101,7 @@ def ShowTable(pif):
     where = pif.dbh.MakeWhere(pif.form, table_info['columns'])
     dats = pif.dbh.Fetch(table_info['name'], where=where, tag='ShowTable')
     if pif.form.get('order'):
-	dats.sort(key=lambda x: x[pif.form['order']])
+	dats.sort(key=lambda x: x[pif.FormStr('order')])
     if len(dats) > 1:
 	print len(dats), 'records'
 	ShowMulti(pif, table_info, dats, showsubs=True)

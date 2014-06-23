@@ -110,7 +110,7 @@ class BarFile:
 
     def ReadInclude(self, datname):
 	try:
-	    dbf = file(datname)
+	    dbf = open(datname)
 	except IOError:
 	    return []
 	return self.ReadFile(dbf)

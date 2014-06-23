@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
 
-import copy
+import copy, os
+import config
 import files
 
 # ------- ----------------------------------------------------------
 
 class CarsFile(files.ArgFile):
-    def __init__(self, fname="src/cars.dat"):
+    def __init__(self, fname=os.path.join(config.srcdir, "cars.dat")):
 	self.sec = []
 	self.ent = []
 	self.secname = ''
@@ -61,7 +62,7 @@ def RenderCars(pif, cf):
 def CarsMain(pif):
     pif.render.PrintHtml()
 
-    db = CarsFile('src/' + pif.form.get('page', 'cars') + '.dat')
+    db = CarsFile(os.path.join(config.srcdir, pif.FormStr('page', 'cars') + '.dat'))
 
     print pif.render.FormatHead()
     RenderCars(pif, db)

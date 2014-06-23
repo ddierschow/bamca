@@ -4,6 +4,8 @@
 # than standard libraries.
 
 import copy, filecmp, glob, os, stat
+import config # bleagh
+
 if os.getenv('REQUEST_METHOD'): # is this apache? # pragma: no cover
     import cgitb; cgitb.enable()
 
@@ -63,7 +65,7 @@ def IsGood(fname, v=True):
 
 def Render(fname):
     if IsGood(fname):
-	print file(fname).read()
+	print open(fname).read()
 
 
 def ImgSrc(pth, alt=None, also={}):
@@ -151,6 +153,10 @@ def SearchMatch(sobj, targ):
     return True
 
 
+def Warn(*message):
+    print '<div class="warning">%s</div>' % ' '.join(message)
+
+
 def FileMover(src, dst, mv=False, ov=False, inc=False, trash=False): # pragma: no cover
     #print "FileMover", src, dst, mv, ov, inc, '<br>'
     addon = 0
@@ -159,17 +165,17 @@ def FileMover(src, dst, mv=False, ov=False, inc=False, trash=False): # pragma: n
     while 1:
 	if src and dst and os.path.exists(src) and os.path.exists(dst) and os.path.samefile(src, dst):
 	    if not trash:
-		print "What?"
+		Warn("What?")
 	    return False
 	if not os.path.exists(src):
 	    if not trash:
-		print src, "- source not found"
+		Warn(src, "- source not found")
 	elif dst == None:
 	    if mv:
 		FileDelete(src)
 	    else:
 		if not trash:
-		    print "Eh?"
+		    Warn("Eh?")
 		return False
 	elif not os.path.exists(dst):
 	    if mv:
@@ -180,16 +186,16 @@ def FileMover(src, dst, mv=False, ov=False, inc=False, trash=False): # pragma: n
 	    if mv:
 		os.remove(src)
 		if not trash:
-		    print src, "- source removed"
+		    Warn(src, "- source removed")
 	    else:
 		if not trash:
-		    print "files are identical"
+		    Warn("files are identical")
 	elif ov:
 	    #os.remove(dst)
 	    path, filename = dst.rsplit('/', 1)
-	    FileMover(dst, 'lib/trash/' + filename, mv=True, inc=True, trash=True)
+	    FileMover(dst, os.path.join(config.libdir, 'trash', filename), mv=True, inc=True, trash=True)
 	    if not trash:
-		print dst, "- old file overwritten"
+		Warn(dst, "- old file overwritten")
 	    if mv:
 		FileMove(src, dst)
 	    else:
@@ -200,44 +206,44 @@ def FileMover(src, dst, mv=False, ov=False, inc=False, trash=False): # pragma: n
 	    continue
 	else:
 	    if not trash:
-		print "- destination exists"
+		Warn("- destination exists")
 	    return False
 	return True
 
 
 def FileMove(src, dst, ov=False, trash=False): # pragma: no cover
     if not trash:
-	print "mv", src, dst
+	Warn("mv", src, dst)
     os.rename(src, dst)
     return True
 
 
 def FileDelete(src, trash=False): # pragma: no cover
     if not trash:
-	print "rm", src
+	Warn("rm", src)
     if not os.path.exists(src):
 	if not trash:
-	    print "- not found"
+	    Warn("- not found")
     else:
 	try:
 	    os.unlink(src)
 	    if not trash:
-		print "- removed"
+		Warn("- removed")
 	except:
 	    if not trash:
-		print "- failed"
+		Warn("- failed")
 	    return False
     return True
 
 
 def FileCopy(src, dst, trash=False): # pragma: no cover
     if not trash:
-	print "copy", src, dst
+	Warn("copy", src, dst)
     try:
 	open(dst, 'w').write(open(src).read())
     except:
 	if not trash:
-	    print "- failed"
+	    Warn("- failed")
     return False
 
 

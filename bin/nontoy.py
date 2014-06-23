@@ -57,7 +57,7 @@ def Biblio(pif):
     pagename = pif.form.get('page', 'biblio')
 
     import files
-    dblist = files.SimpleFile('src/'+pagename+'.dat')
+    dblist = files.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
     print pif.render.FormatHead()
 
     shown = False
@@ -186,7 +186,7 @@ def Calendar(pif):
     pif.render.PrintHtml()
     global pagename
     pagename = pif.form.get('page', 'calendar')
-    dblist = files.SimpleFile('src/'+pagename+'.dat')
+    dblist = files.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
     print pif.render.FormatHead()
     shown = False
     ostr = ''

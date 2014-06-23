@@ -120,12 +120,12 @@ def GetDir(tdir):
 
 
 def Filename(man, var='', ext='.jpg'):
-    pth = 'lib/man/' + man.lower()
+    pth = os.path.join(config.libmandir, man.lower())
     if var:
 	fn = (man + '-' + var).lower()
     else:
 	fn = man.lower()
-    if os.path.exists(pth + '/' + fn + ext):
+    if os.path.exists(os.path.join(pth, fn + ext)):
 	i = 1
 	while os.path.exists(pth + '/' + fn + '-' + str(i) + ext):
 	    i = i + 1
@@ -145,7 +145,7 @@ def UploadFile(pif, infile, pdir, fn, overwrite=False, desc=''):
 
 
 def ScrapeURLMod(pif, url, man, var, overwrite=False, desc=''):
-    pdir = pif.form.get('d', 'lib/man/' + man)
+    pdir = pif.FormStr('d', os.path.join(config.libmandir, man))
     fn = url[url.rfind('/') + 1:].lower()
     ScrapeURLPic(pif, url, pdir, fn, overwrite, desc=desc)
 
@@ -225,7 +225,7 @@ def SafeSave(pif, pdir, fn, contents, overwrite=False):
     if os.path.exists(pdir + '/' + fn):
 	if overwrite:
 	    #os.unlink(pdir + '/' + fn)
-	    useful.FileMover(pdir + '/' + fn, 'lib/trash/' + fn, mv=True, inc=True, trash=True)
+	    useful.FileMover(pdir + '/' + fn, os.path.join(config.libdir, 'trash', fn), mv=True, inc=True, trash=True)
 	else:
 	    addon = 1
 	    while os.path.exists(pdir + '/' + root + '_' + str(addon) + '.' + ext):
@@ -238,7 +238,7 @@ def SafeSave(pif, pdir, fn, contents, overwrite=False):
 
 
 def GrabURLMod(pif, url, man, var, overwrite=False, desc=''):
-    pdir = pif.form.get('d', 'lib/man/' + man)
+    pdir = pif.FormStr('d', os.path.join(config.libmandir, man))
     fn = url[url.rfind('/') + 1:].lower()
     GrabURLPic(pif, url, pdir, fn, var, overwrite, desc=desc)
 
@@ -282,7 +282,7 @@ def SelectFromLibrary(pif, man, var, desc=''):
     nfn = man.lower()
     if var:
 	nfn = nfn + '-' + var
-    tdir = 'lib/man/' + man.lower()
+    tdir = os.path.join(config.libmandir, man.lower())
     grafs = True
     os.chdir(tdir)
 
@@ -324,8 +324,8 @@ def Log(pif, fn, tdir):
 
 
 def GetMan(pif):
-    #print 'GetMan man', pif.form.get('man'), 'pic_dir', pif.render.pic_dir, '<br>'
-    man = pif.form.get("man")
+    #print 'GetMan man', pif.FormStr('man'), 'pic_dir', pif.render.pic_dir, '<br>'
+    man = pif.FormStr("man")
     if man:
 	#print 'form', man, '<br>'
 	return man
@@ -334,23 +334,23 @@ def GetMan(pif):
 	pdir = pdir[2:]
     if pdir.endswith('/'):
 	pdir = pdir[:-1]
-    if pdir.startswith("lib"):
+    if pdir.startswith(config.libdir):
 	#print 'lib', pdir[pdir.rfind('/') + 1:], '<br>'
 	return pdir[pdir.rfind('/') + 1:]
     if pdir.startswith("pic/packs"):
-	if pif.form.get('f'):
-	    if len(pif.form['f']) > 2 and pif.form['f'][1] == '_':
-		#print 'pack1', pif.form.get('f')[2:-4], '<br>'
-		return pif.form.get('f')[2:-4]
+	if pif.FormStr('f'):
+	    if len(pif.FormStr('f')) > 2 and pif.FormStr('f')[1] == '_':
+		#print 'pack1', pif.FormStr('f')[2:-4], '<br>'
+		return pif.FormStr('f')[2:-4]
 	    else:
-		#print 'pack2', pif.form.get('f')[:-4], '<br>'
-		return pif.form.get('f')[:-4]
+		#print 'pack2', pif.FormStr('f')[:-4], '<br>'
+		return pif.FormStr('f')[:-4]
     if pdir.startswith("pic/cat"):
-	if pif.form.get('f'):
-	    if len(pif.form['f']) > 2 and pif.form['f'][1] == '_':
-		man = pif.form.get('f')[2:-4]
+	if pif.FormStr('f'):
+	    if len(pif.FormStr('f')) > 2 and pif.FormStr('f')[1] == '_':
+		man = pif.FormStr('f')[2:-4]
 	    else:
-		man = pif.form.get('f')[:-4]
+		man = pif.FormStr('f')[:-4]
 	    if '_' in man:
 		man = man[:man.find('_')]
 	    #print 'cat', man, '<br>'
@@ -454,14 +454,14 @@ def Picker(pif, fn):
     print '<input type=hidden name="act" value="1">'
     print '<input type=hidden name="d" value="%s">' % pif.render.pic_dir
     print '<input type=hidden name="f" value="%s">' % fn
-    print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&v=%s&cy=%d">%s</a>' % (pif.render.pic_dir, fn, pif.form.get('v', ''), cycle, pif.render.FormatButton('edit'))
+    print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&v=%s&cy=%d">%s</a>' % (pif.render.pic_dir, fn, pif.FormStr('v', ''), cycle, pif.render.FormatButton('edit'))
     print pif.render.FormatButtonInput('delete')
     print pif.render.FormatButton('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (pif.render.pic_dir + '/' + fn))
     print 'New name: <input type="text" size="32" name="newname" value="%s">' % fn
     print pif.render.FormatButtonInput('rename')
-    print pif.render.FormatRadio('cpmv', [('c', 'copy'), ('m', 'move')], pif.form.get('cpmv', 'c'))
+    print pif.render.FormatRadio('cpmv', [('c', 'copy'), ('m', 'move')], pif.FormStr('cpmv', 'c'))
     if pif.IsAllowed('m'): # pragma: no cover
-	if pif.form.get('ov'):
+	if pif.FormBool('ov'):
 	    print '<input type=checkbox name="ov" value="1" checked>'
 	else:
 	    print '<input type=checkbox name="ov" value="1">'
@@ -471,7 +471,7 @@ def Picker(pif, fn):
 	#print '''<a onclick="incrfield('man',-1);"><img src="../pic/gfx/but_dec.gif" alt="UP" onmouseover="this.src='../pic/gfx/hov_dec.gif';" onmouseout="this.src='../pic/gfx/but_dec.gif';" ></a>'''
 	print pif.render.FormatButtonUpDown('man')
 	print pif.render.FormatButtonInput('move to library', 'lib')
-	print 'Category:', pif.render.FormatSelect('cat', sel_cat, pif.form.get('cat',''))
+	print 'Category:', pif.render.FormatSelect('cat', sel_cat, pif.FormStr('cat',''))
 	print pif.render.FormatButtonInput('move to bin', 'mvbin')
 	if cycle:
 	    print '<input type=checkbox name="cy" value="1" checked>'
@@ -479,55 +479,55 @@ def Picker(pif, fn):
 	    print '<input type=checkbox name="cy" value="1">'
 	print 'cycle '
 	print '<input type=checkbox name="inc" value="1"> increment name'
-	print '<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % pif.form.get('v', '')
-	print 'Prefix:', pif.render.FormatSelect('pref', sel_pref, pif.form.get('pref',pif.form.get('tysz',szname)))
+	print '<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % pif.FormStr('v', '')
+	print 'Prefix:', pif.render.FormatSelect('pref', sel_pref, pif.FormStr('pref',pif.FormStr('tysz',szname)))
 	print pif.render.FormatButtonInput('select to casting', 'select')
-	print 'Move to:', pif.render.FormatSelect('moveto', sel_moveto, pif.form.get('moveto',''))
+	print 'Move to:', pif.render.FormatSelect('moveto', sel_moveto, pif.FormStr('moveto',''))
 	print pif.render.FormatButtonInput('select to category', 'selcat')
     print '</form>'
 
 
 def Action(pif, tdir, fn, act=1):
     global cycle
-    nname = pif.form.get('newname', '')
-    man = pif.form.get('man', '')
-    cat = pif.form.get('cat', '')
-    ov = pif.form.get('ov', False)
-    mv = pif.form.get('cpmv', 'c') == 'm'
-    if pif.form.get('delete'):
+    nname = pif.FormStr('newname', '')
+    man = pif.FormStr('man', '')
+    cat = pif.FormStr('cat', '')
+    ov = pif.FormBool('ov', False)
+    mv = pif.FormStr('cpmv', 'c') == 'm'
+    if pif.FormBool('delete'):
 	useful.FileDelete(tdir + '/' + fn)
-    elif pif.form.get('selcat'):
-	dest = pif.form.get('moveto', '')
+    elif pif.FormBool('selcat'):
+	dest = pif.FormStr('moveto', '')
 	if not nname or not dest:
-	    print 'What?'
+	    pif.render.FormatWarning('What?')
 	else:
 	    useful.FileMover(tdir + '/' + fn, dest + '/' + nname, mv=mv, ov=ov)
-    elif pif.form.get('rename'):
+    elif pif.FormBool('rename'):
 	if not nname:
-	    print 'What?'
+	    pif.render.FormatWarning('What?')
 	else:
 	    useful.FileMover(tdir + '/' + fn, tdir + '/' + nname, mv=mv, ov=ov)
-    elif pif.form.get('lib'):
+    elif pif.FormBool('lib'):
 	if not man:
-	    print 'What?'
-	elif not os.path.exists('./lib/man/' + man):
+	    pif.render.FormatWarning('What?')
+	elif not os.path.exists(os.path.join(config.libmandir, man)):
 	    man2 = pif.dbh.FetchAlias(man)
 	    if not man2:
-		print 'bad destination'
+		pif.render.FormatWarning('bad destination')
 	    else:
-		useful.FileMover(tdir + '/' + fn, './lib/man/' + man2['ref_id'].lower() + '/' + fn, mv=mv, ov=ov)
+		useful.FileMover(tdir + '/' + fn, os.path.join(config.libmandir, man2['ref_id'].lower(), fn), mv=mv, ov=ov)
 	else:
-	    useful.FileMover(tdir + '/' + fn, './lib/man/' + man + '/' + fn, mv=mv, ov=ov)
-    elif pif.form.get('mvbin'):
-	if not os.path.exists('./new/' + cat):
+	    useful.FileMover(tdir + '/' + fn, os.path.join(config.libmandir, man, fn), mv=mv, ov=ov)
+    elif pif.FormBool('mvbin'):
+	if not os.path.exists(os.path.join('lib/new', cat)):
 	    print 'bad destination'
 	else:
 	    useful.FileMover(tdir + '/' + fn, './new/' + cat + '/' + fn, mv=mv, ov=ov)
-    elif pif.form.get('select'):
-	var = pif.form.get('newvar', '')
-	pref = pif.form.get('pref', '')
-	man = pif.form.get('man', '')
-	inc = pif.form.get('inc', '')
+    elif pif.FormBool('select'):
+	var = pif.FormStr('newvar', '')
+	pref = pif.FormStr('pref', '')
+	man = pif.FormStr('man', '')
+	inc = pif.FormStr('inc', '')
 	if not man:
 	    #man = tdir[tdir.rfind('/') + 1:]
 	    print 'Huh? (select, no man)'
@@ -570,10 +570,10 @@ checked = {True : ' checked', False : ''}
 def ShowEditor(pif, pdir, fn):
     full_path = os.path.join(pdir, fn)
     if not os.path.exists(full_path):
-	print '<div class="warning">%s not found.</div><br>' % full_path
+	print pif.render.FormatWarning('%s not found.' % full_path)
 	return
     print editformstart
-    print pif.render.FormatHiddenInput({'c' : urllib.quote_plus(pif.form.get('c', ''))})
+    print pif.render.FormatHiddenInput({'c' : urllib.quote_plus(pif.FormStr('c', ''))})
     x,y = ShowEditForm(pif, pdir, fn)
     full_path = os.path.join(pdir, fn)
     root,ext = useful.RootExt(fn.strip())
@@ -657,7 +657,7 @@ def Cut(x1, y1, x2, y2):
 
 
 def MassResize(pif, pic_dir, fn, nname, q, original_size, desc=''):
-    var = pif.form.get('v', '')
+    var = pif.FormStr('v', '')
     man = GetMan(pif)
     if not man:
 	print 'Huh? (mass, no man)'
@@ -671,8 +671,8 @@ def MassResize(pif, pic_dir, fn, nname, q, original_size, desc=''):
 	if '.' in nname:
 	    nname = nname[:nname.rfind('.')]
 	nname = nname + '_' + pref
-	if pif.form.get('ot'):
-	    nname += '.' + pif.form['ot']
+	if pif.FormStr('ot'):
+	    nname += '.' + pif.FormStr('ot')
 	Shape(pif, pic_dir, fn, nname, q, mbdata.imagesizes[pref], original_size, False)
 
 	ddir = './' + config.imgdir175
@@ -778,7 +778,7 @@ def Shape(pif, tdir, fil, nname, bound, target_size, original_size, show_final=T
 def ShowRedoer(pif, pdir, fn):
     print editformstart
     ShowEditForm(pif, pdir, fn)
-    print 'Bounds:', pif.render.FormatTextInput('q', 20, value=pif.form['q'])
+    print 'Bounds:', pif.render.FormatTextInput('q', 20, value=pif.FormStr('q'))
     print editformend % {'f' : fn, 'd' : pdir}
     print '<hr>'
 
@@ -790,13 +790,13 @@ def ShowEditForm(pif, pdir, fn):
 	presets = dict()
     full_path = os.path.join(pdir, fn)
     if not os.path.exists(full_path):
-	print '<div class="warning">%s not found.</div><br>' % full_path
+	print pif.render.FormatWarning('%s not found.<br>' % full_path)
 	return 0,0
 
     x,y = GetSize(full_path)
     print '<div class="lefty">'
     print '(%d, %d)' % (x,y)
-    print '<input type="radio" name="tysz" value="q"%s>' % checked[presets.get('tysz') == 'q']#checked[not pif.form.get('v')]
+    print '<input type="radio" name="tysz" value="q"%s>' % checked[presets.get('tysz') == 'q']#checked[not pif.FormStr('v')]
     print 'x: <input name="x" type="text" size="4" value="%s"> y: <input name="y" type="text" size="4" value="%s">' % (xts, yts)
     print pif.render.FormatRadio('tysz', map(lambda x: (x, x.upper()), mbdata.image_size_names), presets.get('tysz', 's'))
     print '-', pif.render.FormatCheckbox("unlv", [("1", "V")], presets.get("unlv", []))
@@ -807,7 +807,7 @@ def ShowEditForm(pif, pdir, fn):
     print pif.render.FormatCheckbox("rr", [("1", "RR")], presets.get("rr", []))
     print pif.render.FormatCheckbox("fh", [("1", "FH")], presets.get("fh", []))
     print pif.render.FormatCheckbox("fv", [("1", "FV")], presets.get("fv", []))
-    print '<br>Name:', pif.render.FormatTextInput('newname', 20, value=pif.form.get('newname', ''))
+    print '<br>Name:', pif.render.FormatTextInput('newname', 20, value=pif.FormStr('newname', ''))
     print pif.render.FormatSelect('ot', otypes, 'jpg')
     print pif.render.FormatButtonInput('resize')
     print pif.render.FormatButtonInput('crop')
@@ -815,7 +815,7 @@ def ShowEditForm(pif, pdir, fn):
     print pif.render.FormatButtonInput('wipe')
     print pif.render.FormatButtonInput('rename')
     if pif.IsAllowed('m'): # pragma: no cover
-	print 'Var: ' + pif.render.FormatTextInput('v', 8, value=pif.form.get('v', ''))
+	print 'Var: ' + pif.render.FormatTextInput('v', 8, value=pif.FormStr('v', ''))
     print pif.render.FormatCheckbox("repl", [("1", "Replace")], presets.get("repl", []))
     print pif.render.FormatButtonInput('mass')
     return x,y
@@ -1007,55 +1007,54 @@ def ImaWidget(pif):
     pif.Restrict('v')
 
     #print pif.form, '<br>'
-    fn   = pif.form.get("f", '')
+    fn   = pif.FormStr("f", '')
     root,ext = useful.RootExt(fn.strip())
-    if pif.form.get('ot'):
-	ext = pif.form['ot']
-#    if pif.form.get('tysz'):
-#	root += '_' + pif.form['tysz']
+    if pif.FormStr('ot'):
+	ext = pif.FormStr('ot')
+#    if pif.FormStr('tysz'):
+#	root += '_' + pif.FormStr('tysz')
     nname = root + '.' + ext
-    tdir = pif.form.get("d", '.')
+    tdir = pif.FormStr("d", '.')
     if not pif.IsAllowed('m'):
 	tdir = './incoming'
 
     global xts, yts
-    nvar = pif.form.get("newvar", '')
-    pif.form.setdefault("v", '')
-    var  = pif.form["v"]
+    nvar = pif.FormStr("newvar", '')
+    pif.FormDef("v", '')
+    var  = pif.FormStr('v')
     pif.render.pic_dir = tdir
 
     pif.render.title = pif.render.pagetitle = pif.render.pic_dir + '/' + fn
     print pif.render.FormatHead(extra=def_edit_js + pif.render.increment_js)
-    if pif.form:
-	print pif.form,'<br>'
+    print pif.form,'<br>'
 
-    if pif.form.get('f') and os.path.exists(os.path.join(pif.form.get('d', ''), 'descr.txt')):
-	descs = open(os.path.join(pif.form.get('d', ''), 'descr.txt')).readlines()
+    if pif.FormStr('f') and os.path.exists(os.path.join(pif.FormStr('d', ''), 'descr.txt')):
+	descs = open(os.path.join(pif.FormStr('d', ''), 'descr.txt')).readlines()
 	descs = dict(map(lambda x: x.strip().split('\t', 1), descs))
 	# mod_id, var_id, year, comment
-	print descs.get(os.path.splitext(pif.form['f'])[0], '').replace('\t', '<br>')
+	print descs.get(os.path.splitext(pif.FormStr('f'))[0], '').replace('\t', '<br>')
 	print '<hr>'
 
-    if pif.form.get('keep'):
+    if pif.FormBool('keep'):
 	Picker(pif, fn)
 	print '<hr>'
 	print pif.render.FormatImageRequired([fn[:fn.rfind('.')]], suffix=fn[fn.rfind('.') + 1:], also={"border":"0"}),'<br>'
 	print pif.render.FormatTail()
 	return
 
-    pif.form.setdefault("q", '')
-    q     = pif.form["q"]
-    pif.form.setdefault("newname", root)
-    nname = pif.form["newname"]
+    pif.FormDef("q", '')
+    q     = pif.FormStr('q')
+    pif.FormDef("newname", root)
+    nname = pif.FormStr("newname")
 
-    tysz  = pif.form.get("tysz", "")
+    tysz  = pif.FormStr("tysz", "")
     xts = yts = 0
     if tysz == 'q':
 	xts   = pif.FormInt('x')
 	yts   = pif.FormInt('y')
     elif tysz:
 	xts,yts = mbdata.imagesizes[tysz]
-    if pif.form.get('wipe'):
+    if pif.FormBool('wipe'):
 	tysz = 'w'
     if pif.FormInt('unlv'):
 	yts   = 0
@@ -1067,8 +1066,8 @@ def ImaWidget(pif):
 	nname = nname[:nname.rfind('.')]
     if not pif.FormInt('repl') and tysz:
 	nname = nname + '_' + tysz
-    if pif.form.get('ot'):
-	nname += '.' + pif.form['ot']
+    if pif.FormStr('ot'):
+	nname += '.' + pif.FormStr('ot')
     else:
 	nname += '.jpg'
 
@@ -1080,30 +1079,30 @@ def ImaWidget(pif):
     print '<hr>'
     is_edited = nname != fn
     try:
-	if pif.form.get('mass'):
+	if pif.FormBool('mass'):
 	    MassResize(pif, pif.render.pic_dir, fn, nname, q, (xos, yos))
 	    man = GetMan(pif)
-	    if man and pif.form.get('v'):
-		print pif.render.FormatButton("promote", 'vars.cgi?mod=%s&var=%s&promote=1' % (man, pif.form['v']))
-	elif pif.form.get('wipe'):
+	    if man and pif.FormStr('v'):
+		print pif.render.FormatButton("promote", 'vars.cgi?mod=%s&var=%s&promote=1' % (man, pif.FormStr('v')))
+	elif pif.FormBool('wipe'):
 	    SavePresets(pif, pif.render.pic_dir)
 	    Wiper(pif, pif.render.pic_dir, fn, nname, q, xos, yos, pif.FormInt('unlv'), pif.FormInt('unlh'))
-	elif pif.form.get('resize'):
+	elif pif.FormBool('resize'):
 	    SavePresets(pif, pif.render.pic_dir)
-	    if not pif.form.get('repl'):
+	    if not pif.FormBool('repl'):
 		ShowRedoer(pif, pif.render.pic_dir, fn)
 	    Shape(pif, pif.render.pic_dir, fn, nname, q, (xts, yts), (xos, yos))
-	elif pif.form.get('crop'):
+	elif pif.FormBool('crop'):
 	    SavePresets(pif, pif.render.pic_dir)
-	    if not pif.form.get('repl'):
+	    if not pif.FormBool('repl'):
 		ShowRedoer(pif, pif.render.pic_dir, fn)
 	    Crop(pif, pif.render.pic_dir, fn, nname, q)
-	elif pif.form.get('shrink'):
+	elif pif.FormBool('shrink'):
 	    SavePresets(pif, pif.render.pic_dir)
-	    if not pif.form.get('repl'):
+	    if not pif.FormBool('repl'):
 		ShowRedoer(pif, pif.render.pic_dir, fn)
 	    Shrink(pif, pif.render.pic_dir, fn, nname, q, (xts, yts))
-	elif pif.form.get('rename'):
+	elif pif.FormBool('rename'):
 	    Rename(pif.render.pic_dir, fn, nname)
 	else:
 	    ShowEditor(pif, pif.render.pic_dir, fn)
@@ -1120,15 +1119,15 @@ def ImaWidget(pif):
 def SavePresets(pif, pdir):
     if os.path.exists(os.path.join(pdir, '.ima')):
 	presets = {
-	    "unlv" : [pif.form.get("unlv", '')],
-	    "unlh" : [pif.form.get("unlh", '')],
-	    "rl"   : [pif.form.get("rl", '')],
-	    "rh"   : [pif.form.get("rh", '')],
-	    "rr"   : [pif.form.get("rr", '')],
-	    "fh"   : [pif.form.get("fh", '')],
-	    "fv"   : [pif.form.get("fv", '')],
-	    "repl" : [pif.form.get("repl", '')],
-	    "tysz" : pif.form.get("tysz", ''),
+	    "unlv" : [pif.FormStr("unlv", '')],
+	    "unlh" : [pif.FormStr("unlh", '')],
+	    "rl"   : [pif.FormStr("rl", '')],
+	    "rh"   : [pif.FormStr("rh", '')],
+	    "rr"   : [pif.FormStr("rr", '')],
+	    "fh"   : [pif.FormStr("fh", '')],
+	    "fv"   : [pif.FormStr("fv", '')],
+	    "repl" : [pif.FormStr("repl", '')],
+	    "tysz" : pif.FormStr("tysz", ''),
 	}
 	open(os.path.join(pdir, '.ima'), 'w').write(str(presets))
 
@@ -1206,11 +1205,11 @@ def WiperCopy(img, xf1, yf1, xf2, yf2, xt1, yt1, xt2, yt2):
 
 
 def PicForm(pif, restrict=False, desc=''):
-    mod = pif.form.get('m', '')
-    var = pif.form.get('v', '')
+    mod = pif.FormStr('m', '')
+    var = pif.FormStr('v', '')
     print '<form action="upload.cgi" enctype="multipart/form-data" method="post" name="upload">'
-    if 'y' in pif.form:
-	print '<input type="hidden" name="y" value="%s">' % pif.form['y']
+    if pif.FormHas('y'):
+	print '<input type="hidden" name="y" value="%s">' % pif.FormStr('y')
     #FormatTable({'also':{}, 'id':'', 'style_id':'', 'rows':[]})
     #rows=[{'ids':[], 'also':{}, 'cells':[]}, ...]
     #cells=[{'col':None, 'content':"&nbsp;", 'hdr':False, 'also':{}, 'large':False, 'id':''}, ...]
@@ -1224,9 +1223,9 @@ def PicForm(pif, restrict=False, desc=''):
 	rows.append({'cells':[{'col':0, 'content':'Variation'}, {'col':1, 'content': pif.render.FormatTextInput('v', 8, value=var)}]})
     if not restrict:
 	rows.append({'cells':[{'col':0, 'content':'Directory'},
-		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.form.get('d', './incoming'))}]})
+		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming'))}]})
 	rows.append({'cells':[{'col':0, 'content':'Rename file to'},
-		    {'col':1, 'content':pif.render.FormatTextInput('n', 64, value=pif.form.get('r', '')) + " (optional)"}]})
+		    {'col':1, 'content':pif.render.FormatTextInput('n', 64, value=pif.FormStr('r', '')) + " (optional)"}]})
 	rows.append({'cells':[{'col':0},
 		    {'col':0, 'content':"Choose one of the following:"}]})
     rows.append({'cells':[{'col':0, 'content':'File to Upload'},
@@ -1256,9 +1255,9 @@ def PicForm(pif, restrict=False, desc=''):
 	rows.append({'cells':[{'col':0, 'content':'Variation'}, {'col':1, 'content': pif.render.FormatTextInput('v', 8, value=var)}]})
     if not restrict:
 	rows.append({'cells':[{'col':0, 'content':'Directory'},
-		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.form.get('d', './incoming'))}]})
+		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming'))}]})
 	rows.append({'cells':[{'col':0, 'content':'Rename file to'},
-		    {'col':1, 'content':pif.render.FormatTextInput('n', 64, value=pif.form.get('r', '')) + " (optional)"}]})
+		    {'col':1, 'content':pif.render.FormatTextInput('n', 64, value=pif.FormStr('r', '')) + " (optional)"}]})
 	rows.append({'cells':[{'col':0},
 		    {'col':0, 'content':"Choose one of the following:"}]})
     rows.append({'cells':[{'col':0, 'content':'File to Upload'},
@@ -1295,11 +1294,11 @@ def PicForm(pif, restrict=False, desc=''):
     if not restrict:
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'Directory')
-	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.form.get('d', './incoming')))
+	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming')))
 	print pif.render.FormatRowEnd()
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'Rename file to')
-	print pif.render.FormatCell(1, pif.render.FormatTextInput('n', 64, value=pif.form.get('r', '')) + " (optional)")
+	print pif.render.FormatCell(1, pif.render.FormatTextInput('n', 64, value=pif.FormStr('r', '')) + " (optional)")
 	print pif.render.FormatRowEnd()
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0)
@@ -1399,11 +1398,11 @@ def RestrictedUpload(pif):
 	fn = int(ln) + 1
     fn = '%09d' % fn
     pif.render.Comment("form", pif.form)
-    if pif.form.get('u'):
-	fn = GrabURLFile(pif, pif.form['u'], direc, fn)
+    if pif.FormStr('u'):
+	fn = GrabURLFile(pif, pif.FormStr('u'), direc, fn)
 	Thanks(pif, fn)
-    elif pif.form.get('f'):
-	UploadFile(pif, pif.form['f'], direc, fn)
+    elif pif.FormStr('f'):
+	UploadFile(pif, pif.FormStr('f'), direc, fn)
 	Thanks(pif, fn)
     else:
 	PicForm(pif, restrict=True)
@@ -1411,27 +1410,27 @@ def RestrictedUpload(pif):
 
 def Thanks(pif, fn):
     comment = '-'
-    if pif.form.get('c'):
-	comment = re.compile(r'\s\s*').sub(' ', pif.form['c'])
-    open('./submitted/descr.txt', 'a+').write('\t'.join([fn, pif.form.get('m', '-'), pif.form.get('v', '-'), pif.form.get('y', '-'), comment]) + '\n')
-    print '<div class="warning">Thank you for submitting that file.</div><br>'
+    if pif.FormStr('c'):
+	comment = re.compile(r'\s\s*').sub(' ', pif.FormStr('c'))
+    open('./submitted/descr.txt', 'a+').write('\t'.join([fn, pif.FormStr('m', '-'), pif.FormStr('v', '-'), pif.FormStr('y', '-'), comment]) + '\n')
+    print pif.render.FormatWarning('Thank you for submitting that file.')
     print "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
 
 
 def MassUploadMain(pif):
     # dnfus = bad
     # mvdfus = good
-    print '<hr>'
+    #print '<hr>'
     #print pif.form
     print '<hr>'
-    direc = pif.form.get('d', '')
+    direc = pif.FormStr('d', '')
     if not pif.IsAllowed('u'):
 	RestrictedUpload(pif)
 	return
     pif.render.Comment("form", pif.form)
 
-    if pif.form.get('ul'):
-	for url in pif.form['ul'].split('\n'):
+    if pif.FormStr('ul'):
+	for url in pif.FormStr('ul').split('\n'):
 	    url = url.strip()
 	    if url:
 		print url, '<br>'
@@ -1444,7 +1443,7 @@ def MassUploadMain(pif):
 	print pif.render.FormatTableStart()
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'Directory')
-	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.form.get('d', './incoming')))
+	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming')))
 	print pif.render.FormatRowEnd()
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'URLs to grab')
@@ -1463,21 +1462,21 @@ def UploadMain(pif):
     # mvdfus = good
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()
-    pif.render.title = 'upload - ' + pif.form.get('m', '')
+    pif.render.title = 'upload - ' + pif.FormStr('m', '')
     print pif.render.FormatHead(extra=def_edit_js + pif.render.reset_button_js + pif.render.increment_js)
-    if pif.form.get('mass'):
+    if pif.FormBool('mass'):
 	MassUploadMain(pif)
 	print pif.render.FormatTail()
 	return
     print pif.form
     print '<hr>'
-    desc = pif.form.get('c')
-    if pif.form.get('m') and pif.form.get('v'):
-	var = pif.dbh.FetchVariation(pif.form['m'], pif.form['v'])
+    desc = pif.FormStr('c')
+    if pif.FormStr('m') and pif.FormStr('v'):
+	var = pif.dbh.FetchVariation(pif.FormStr('m'), pif.FormStr('v'))
 	if var:
 	    var = var[0]
 	    var = pif.dbh.DePref('variation', var)
-	    print '<br>%s:<ul>' % pif.form['v']
+	    print '<br>%s:<ul>' % pif.FormStr('v')
 	    print '<li>description:', var['text_description']
 	    print '<li>base:', var['text_base']
 	    print '<li>body:', var['text_body']
@@ -1486,63 +1485,59 @@ def UploadMain(pif):
 	    print '<li>windows:', var['text_windows'], '</ul>'
 	    print '<hr>'
     overwrite = False
-    direc = pif.form.get('d', '')
+    direc = pif.FormStr('d', '')
     if not pif.IsAllowed('u'):
 	RestrictedUpload(pif)
 	print pif.render.FormatTail()
 	return
     elif not pif.IsAllowed('m'):
 	direc = './incoming'
-    elif pif.form.get('replace'):
+    elif pif.FormBool('replace'):
 	overwrite = True
     pif.render.Comment("form", pif.form)
     try:
 	if pif.FormInt('act'):
-	    DoAction(pif, direc, pif.form['f'], cy=pif.FormInt('cy'))
-	elif pif.form.get('m'):
-	    if not pif.form.get('d'):
-		direc = './lib/man/' + pif.form['m'].lower()
-	    if pif.form.get('u'):
-		GrabURLMod(pif, pif.form['u'], pif.form['m'], pif.form.get('v'), overwrite=overwrite, desc=desc)
-	    elif pif.form.get('s'):
-		ScrapeURLMod(pif, pif.form['s'], pif.form['m'], pif.form.get('v'), overwrite=overwrite, desc=desc)
-	    elif pif.form.get('f'):
-		UploadMod(pif, pif.form['f'], pif.form['m'], pif.form.get('v'), overwrite=overwrite, desc=desc)
-	    elif pif.form.get('l'):
-		SelectFromLibrary(pif, pif.form['m'], pif.form.get('v'), desc=desc)
+	    DoAction(pif, direc, pif.FormStr('f'), cy=pif.FormInt('cy'))
+	elif pif.FormStr('m'):
+	    if not pif.FormStr('d'):
+		direc = os.path.join(config.libmandir, pif.FormStr('m').lower())
+	    if pif.FormStr('u'):
+		GrabURLMod(pif, pif.FormStr('u'), pif.FormStr('m'), pif.FormStr('v'), overwrite=overwrite, desc=desc)
+	    elif pif.FormStr('s'):
+		ScrapeURLMod(pif, pif.FormStr('s'), pif.FormStr('m'), pif.FormStr('v'), overwrite=overwrite, desc=desc)
+	    elif pif.FormStr('f'):
+		UploadMod(pif, pif.FormStr('f'), pif.FormStr('m'), pif.FormStr('v'), overwrite=overwrite, desc=desc)
+	    elif pif.FormStr('l'):
+		SelectFromLibrary(pif, pif.FormStr('m'), pif.FormStr('v'), desc=desc)
 	    else:
 		PicForm(pif, desc=desc)
 	else:
-	    if pif.form.get('u'):
-		GrabURLPic(pif, pif.form['u'], direc, pif.form.get('n'), overwrite=overwrite, track=True, desc=desc)
-	    elif pif.form.get('s'):
-		ScrapeURLPic(pif, pif.form['s'], direc, pif.form.get('n'), overwrite=overwrite, desc=desc)
-	    elif pif.form.get('r'):
+	    if pif.FormStr('u'):
+		GrabURLPic(pif, pif.FormStr('u'), direc, pif.FormStr('n'), overwrite=overwrite, track=True, desc=desc)
+	    elif pif.FormStr('s'):
+		ScrapeURLPic(pif, pif.FormStr('s'), direc, pif.FormStr('n'), overwrite=overwrite, desc=desc)
+	    elif pif.FormStr('r'):
 		PicForm(pif, desc=desc)
-	    elif pif.form.get('f'):
-		fn = pif.form.get('n')
+	    elif pif.FormStr('f'):
+		fn = pif.FormStr('n')
 		if not fn:
-		    fn = pif.form.get('f.name')
+		    fn = pif.FormStr('f.name')
 		if not fn:
 		    fn = 'unknown'
-		UploadPic(pif, pif.form['f'], direc, fn, overwrite=overwrite, desc=desc)
-	    elif pif.form.get('n'):
-		PicShow(pif, direc, pif.form['n'], desc=desc)
-	    elif pif.form.get('d'):
+		UploadPic(pif, pif.FormStr('f'), direc, fn, overwrite=overwrite, desc=desc)
+	    elif pif.FormStr('n'):
+		PicShow(pif, direc, pif.FormStr('n'), desc=desc)
+	    elif pif.FormStr('d'):
 		ShowDir(pif, direc, desc=desc)
 	    else:
 		PicForm(pif, desc=desc)
     except OSError:
-	print '<div class="warning">'
-	print 'fail:', traceback.format_exc(0)
-	print '</div><br>'
+	print pif.render.FormatWarning('fail:', traceback.format_exc(0))
     print pif.render.FormatTail()
 
 
 def DoAction(pif, tdir, fn, act=1, cy=0):
-    print '<div class="warning">'
     nfn = Action(pif, tdir, fn, act)
-    print '</div><br>'
     if nfn:
 	ShowPicture(pif, nfn)
     elif cy:
@@ -1615,8 +1610,8 @@ def StitchReadForm(pif, verbose=False):
     fsl = list()
     for file_num in range(0, file_count + 1):
 	fs = dict()
-	if ('fn_%d' % file_num) in pif.form:
-	    fs['fn'] = pif.form.get('fn_%d' % file_num)
+	if pif.FormHas('fn_%d' % file_num):
+	    fs['fn'] = pif.FormStr('fn_%d' % file_num)
 	fs['n'] = '%d' % file_num
 	if file_num < file_count - 2:
 	    fs['x1'] = pif.FormInt('x1_%d' % file_num)
@@ -1624,7 +1619,7 @@ def StitchReadForm(pif, verbose=False):
 	    fs['x2'] = pif.FormInt('x2_%d' % file_num)
 	    fs['y2'] = pif.FormInt('y2_%d' % file_num)
 	elif file_num == file_count - 2:
-	    fs['x1'], fs['y1'], fs['x2'], fs['y2'] = map(lambda x: int(x), pif.form['q'].split(','))
+	    fs['x1'], fs['y1'], fs['x2'], fs['y2'] = map(lambda x: int(x), pif.FormStr('q').split(','))
 	elif file_num == file_count - 1:
 	    if fs.get('fn', '').startswith('http://'):
 		fs['fn'] = fs['fn'][fs['fn'].find('/', 7) + 1:]
@@ -1672,9 +1667,9 @@ def StitchFinalize(pif, verbose=False):
 
     print pif.render.FormatTableEnd()
     print 'Stitching...', final
-    limit_x = int(pif.form.get('limit_x', 0))
-    limit_y = int(pif.form.get('limit_y', 0))
-    if pif.form.get('or') == 'h':
+    limit_x = int(pif.FormInt('limit_x', 0))
+    limit_y = int(pif.FormInt('limit_y', 0))
+    if pif.FormStr('or') == 'h':
 	print 'horizontal'
 	StitchH(final, fa, miny, limit_x, limit_y, verbose)
     else:
@@ -1700,9 +1695,9 @@ def StitchFinalize(pif, verbose=False):
 def StitchFinish(pif, verbose=False):
     print pif.form, '<hr>'
 
-    for fn in pif.form.get('in', []):
-	useful.FileMover(fn, 'lib/trash/' + fn[fn.rfind('/') + 1:], mv=True, inc=True, trash=False)
-    useful.FileMover(pif.form.get('f'), pif.form.get('o'), mv=True, ov=True)
+    for fn in pif.FormList('in'):
+	useful.FileMover(fn, os.path.join(config.libdir, 'trash', fn[fn.rfind('/') + 1:]), mv=True, inc=True, trash=False)
+    useful.FileMover(pif.FormStr('f'), pif.FormStr('o'), mv=True, ov=True)
 
 
 def StitchMain(pif, verbose=False):
@@ -1711,9 +1706,9 @@ def StitchMain(pif, verbose=False):
     pif.render.title = 'stitch'
     print pif.render.FormatHead(extra=def_edit_js)
 
-    if 'finish' in pif.form:
+    if pif.FormHas('finish'):
 	StitchFinish(pif, verbose)
-    elif 'finalize' in pif.form:
+    elif pif.FormHas('finalize'):
 	StitchFinalize(pif, verbose)
     else:
 	StitchInput(pif, verbose)
@@ -1800,10 +1795,10 @@ def LineupPictures(pif, lup_models):
 
 def PicturesMain(pif):
     pif.render.PrintHtml()
-    pif.render.title = 'pictures - ' + pif.form.get('m', '')
+    pif.render.title = 'pictures - ' + pif.FormStr('m', '')
     print pif.render.FormatHead()
     pif.render.Comment("form", pif.form)
-    mod_id = pif.form.get('m', '')
+    mod_id = pif.FormStr('m', '')
     if mod_id:
 	map(lambda x: CastingPictures(pif, mod_id.lower(), x), [config.imgdir175, config.imgdirVar, 'pic/man/icon', config.imgdirAdd])
 	LineupPictures(pif, pif.dbh.FetchCastingLineups(mod_id))
@@ -2135,7 +2130,7 @@ def ShowLibraryImgs(pif, patt):
     print '<input type="hidden" name="d" value="%s">' % pif.render.pic_dir
     print '<input type="hidden" name="sc" value="1">'
     print pif.render.FormatButtonInput()
-    print '<a href="upload.cgi?d=%s">%s</a>' % (pif.form.get('d', '.'), pif.render.FormatButton('upload'))
+    print '<a href="upload.cgi?d=%s">%s</a>' % (pif.FormStr('d', '.'), pif.render.FormatButton('upload'))
     print '</form>'
 
 
@@ -2164,9 +2159,9 @@ class LibraryTableFile(files.ArgFile):
 #print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
 def ShowLibraryTable(pif, pagename):
     tablefile = LibraryTableFile(pif.render.pic_dir + '/' + pagename)
-    cols = '' # pif.form.get('cols', '')
+    cols = '' # pif.FormStr('cols', '')
     h = 0 # pif.FormInt('h')
-    sorty = pif.form.get('sort')
+    sorty = pif.FormStr('sort')
 
     print pif.render.FormatTableStart()
     hdr = ''
@@ -2223,12 +2218,12 @@ def LibraryMain(pif):
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()
     pif.Restrict('a')
-    #pif.render.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.form.get("d", '.'), pif.form.get("d", '.'))
-    pif.render.title = pif.render.pic_dir = pif.form.get("d", '.')
-    pif.render.title += '/' + pif.form.get("f", "")
+    #pif.render.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.FormStr("d", '.'), pif.FormStr("d", '.'))
+    pif.render.title = pif.render.pic_dir = pif.FormStr("d", '.')
+    pif.render.title += '/' + pif.FormStr("f", "")
     graf = pif.FormInt("g")
-    fnam = pif.form.get("f", '')
-    patt = pif.form.get("p", '')
+    fnam = pif.FormStr("f", '')
+    patt = pif.FormStr("p", '')
     cols = pif.FormInt("c", 5)
     act = pif.FormInt('act')
     cycle = pif.FormInt("cy")
@@ -2256,8 +2251,8 @@ def Thumber(pif):
     print 'Content-Type: image/gif'
     print
 
-    dir = pif.form.get('d', '.')
-    fil = pif.form.get('f', '')
+    dir = pif.FormStr('d', '.')
+    fil = pif.FormStr('f', '')
     pth = os.path.join(dir, fil)
 
     x = 100

@@ -217,6 +217,22 @@ class Presentation():
 	self.Comment('FindImageFile ret', '')
 	return ''
 
+    def FindButtonImages(self, name, image='', hover='', pdir=None):
+	name = name.replace('_', ' ').upper()
+	if not image:
+	    image = name.replace(' ', '_').lower()
+	if not hover:
+	    hover = image
+	if not image.startswith('but_'):
+	    image = 'but_' + image
+	if not hover.startswith('hov_'):
+	    hover = 'hov_' + hover
+	if not pdir:
+	    pdir = self.art_dir
+	but_image = self.FindImageFile(image, suffix='gif', pdir=pdir, art=True)
+	hov_image = self.FindImageFile(hover, suffix='gif', pdir=pdir, art=True)
+	return name, but_image, hov_image
+
     # immediate effect functions.
 
     def Comment(self, *args):
@@ -415,6 +431,9 @@ of Matchbox International Ltd. and are used with permission.
 
     #----
 
+    def FormatWarning(self, *message):
+	return '<div class="warning">%s</div>\n' % ' '.join(message)
+
     def FormatSection(self, content, fn=None, also=None, cols=0, id=''):
 	if not fn:
 	    fn = list()
@@ -497,6 +516,9 @@ of Matchbox International Ltd. and are used with permission.
 	for option in options:
 	    ostr += '<input type="radio" name="%s" value="%s"%s> %s\n' % (name, option[0], opt_checked[option[0] == checked], option[1]) + sep
 	return ostr
+
+    def FormatSelectCountry(self, name, selected='', id=None):
+	return self.FormatSelect(name, [('', '')] + mbdata.countries, selected='', id=None)
 
     def FormatSelect(self, name, options, selected='', id=None):
 	ostr = '<select name="%s"' % name
@@ -582,25 +604,6 @@ of Matchbox International Ltd. and are used with permission.
 	else:
 	    imalso.update({'onmouseover':"this.src='../%s';" % hov_image, 'onmouseout':"this.src='../%s';" % but_image})
 	    return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.Also(imalso, also))
-
-    def FindButtonImages(self, name, image='', hover='', pdir=None):
-	name = name.replace('_', ' ').upper()
-	if not image:
-	    image = name.replace(' ', '_').lower()
-	if not hover:
-	    hover = image
-	if not image.startswith('but_'):
-	    image = 'but_' + image
-	if not hover.startswith('hov_'):
-	    hover = 'hov_' + hover
-	if not pdir:
-	    pdir = self.art_dir
-	ext = 'gif'
-	#FindImageFile(self, fnames, vars=None, prefix='', suffix=None, largest=None, pdir=None, art=False):
-	but_image = self.FindImageFile(image, suffix='gif', art=True)
-	hov_image = self.FindImageFile(hover, suffix='gif', art=True)
-	#self.Comment('FormatImageButton', image, but_image, ';', hover, hov_image)
-	return name, but_image, hov_image
 
     def FormatImageButton(self, name, image='', hover='', pdir=None, also={}):
 	name, but_image, hov_image = self.FindButtonImages(name, image, hover, pdir)

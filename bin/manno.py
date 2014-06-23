@@ -119,8 +119,8 @@ class MannoFile:
 	self.mdict = dict()
 	self.tdict = dict(map(lambda x: (x['vehicle_type.ch'], x['vehicle_type.name']), pif.dbh.FetchVehicleTypes()))
 	self.plist = map(lambda x: x['page_info.id'], pif.dbh.FetchPages({'format_type' : 'manno'}))
-	if pif.form.get('section', 'all') != 'all':
-	    slist = pif.dbh.FetchSections({'id' : pif.form['section']})#, 'page_id' : self.page_name})
+	if pif.FormStr('section', 'all') != 'all':
+	    slist = pif.dbh.FetchSections({'id' : pif.FormStr('section')})#, 'page_id' : self.page_name})
 	else:
 	    slist = pif.dbh.FetchSections({'page_id' : self.page_name})
 	self.sdict = dict()
@@ -206,7 +206,7 @@ class MannoFile:
 	self.end = pif.FormInt('end', 9999)
 	self.firstyear = pif.FormInt('syear', 1)
 	self.lastyear = pif.FormInt('eyear', 9999)
-	if pif.form.get('range', 'all') == 'all':
+	if pif.FormStr('range', 'all') == 'all':
 	    self.start = self.end = None
 
     def DereferenceAlias(self, slist):
@@ -354,7 +354,7 @@ class MannoFile:
 	llineup['section'] = self.RunThing(pif, self.ShowSectionThumbs)
 	ostr = pif.render.FormatLineup(llineup)
 	ostr += pif.render.FormatButtonComment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
-	    (pif.form.get('selection', ''), pif.form.get('range', ''), pif.form.get('start', ''), pif.form.get('end', '')))
+	    (pif.FormStr('selection', ''), pif.FormStr('range', ''), pif.FormStr('start', ''), pif.FormStr('end', '')))
 
 	return ostr
 
@@ -482,7 +482,7 @@ class MannoFile:
 
     def ShowPictureModelTable(self, pif, mdict):
 	var_pic_keys = ['pic_a', 'pic_c', 'pic_1', 'pic_2', 'pic_f']
-	mdict['first_year'] = '<a href="traverse.cgi?g=1&d=./lib/man/%s">%s</a>' % (mdict['id'].lower(), mdict['first_year'])
+	mdict['first_year'] = '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (os.path.join(config.libmandir, mdict['id'].lower()), mdict['first_year'])
 	mdict['name'] = mades[int(mdict['made'])] % mdict
 	mdict.update({'img': self.ShowListPic(pif, ['', config.imgdir175], mdict['id'], 's')[1],
 	    'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
@@ -629,8 +629,8 @@ def Main(pif):
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append((pif.request_uri, 'Manufacturing Numbers'))
     pif.render.PrintHtml()
-    if pif.form.get('num'):
-	print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form['num']
+    if pif.FormStr('num'):
+	print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.FormStr('num')
 	return
     print pif.render.FormatHead()
     models.flago = flags.FlagList(pif)

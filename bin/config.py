@@ -33,6 +33,8 @@ imgdirVar       = 'pic/man/var'
 
 srcdir          = 'src'
 bindir          = 'bin'
+libdir          = 'lib'
+libmandir       = 'lib/man'
 flagdir         = 'pic/flags'
 pagedir         = 'pages'
 

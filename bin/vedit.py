@@ -78,11 +78,11 @@ def SaveAttribute(pif, attr_id):
 	attr = attr[0]
 	for key in attr.keys():
 	    if key + '.%d' % attr_id in pif.form:
-		attr[key] = pif.form[key + '.%d' % attr_id]
+		attr[key] = pif.FormStr(key + '.%d' % attr_id)
 	pif.dbh.UpdateAttribute(attr, attr_id)
 
 	if pif.form.get("description.%d" % attr_id, '') != "":
-	    rec = {"mod_id" : attr['mod_id'], "var_id" : "", "attr_id" : attr_id, "description" : pif.form["description.%d" % attr_id]}
+	    rec = {"mod_id" : attr['mod_id'], "var_id" : "", "attr_id" : attr_id, "description" : pif.FormStr("description.%d" % attr_id)}
 	    where = {"mod_id" : attr['mod_id'], "var_id" : "", "attr_id" : attr_id}
 	    pif.dbh.Write("detail", rec, where)
     else:
@@ -559,10 +559,10 @@ def ShowModelTable(pif, modids, fitab, fn, var_lup, var_desc):
 def HandleForm(pif):
     pif.render.PrintHtml()
     if 'mod_id' in pif.form:
-	mod_id = pif.form['mod_id']
+	mod_id = pif.FormStr('mod_id')
 	pif.render.title = 'Variations - ' + mod_id
     elif 'f' in pif.form:
-	pif.render.title = 'Variations - ' + pif.form['f']
+	pif.render.title = 'Variations - ' + pif.FormStr('f')
     print pif.render.FormatHead()
     if not pif.IsAllowed('a'):
 	return
@@ -577,18 +577,18 @@ def HandleForm(pif):
 	    if k.endswith("n.definition"): # pretty sure these are the new guys
 		attr = k[0:-12]
 		print "n_def", k, attr
-		rec = {"mod_id" : mod_id, "attribute_name" : pif.form[attr + "n.attribute_name"],
-			    "title" : pif.form[attr + "n.attribute_name"].replace('_', ' ').title(),
-			    "definition" : pif.form[k]}
-		pif.dbh.Write("attribute", rec, {"mod_id" : mod_id, "attribute_name" : pif.form[attr + "n.attribute_name"]})
+		rec = {"mod_id" : mod_id, "attribute_name" : pif.FormStr(attr + "n.attribute_name"),
+			    "title" : pif.FormStr(attr + "n.attribute_name").replace('_', ' ').title(),
+			    "definition" : pif.FormStr(k)}
+		pif.dbh.Write("attribute", rec, {"mod_id" : mod_id, "attribute_name" : pif.FormStr(attr + "n.attribute_name")})
 	    elif k[0:11] == "definition.":
 		attr = k[11:]
 		print "def", k, attr
-		rec = {"mod_id" : mod_id, "attribute_name" : pif.form["attribute_name." + attr], "title" : pif.form["title." + attr],
-			    "definition" : pif.form[k], "visual" : pif.form.get("visual." + attr, '1')}
+		rec = {"mod_id" : mod_id, "attribute_name" : pif.FormStr('attribute_name.' + attr), "title" : pif.FormStr('title.' + attr),
+			    "definition" : pif.FormStr(k), "visual" : pif.form.get("visual." + attr, '1')}
 		pif.dbh.Write("attribute", rec, {"id" : attr}, modonly=True)
 		if pif.form.get("description." + attr, '') != "":
-		    rec = {"mod_id" : mod_id, "var_id" : "", "attr_id" : attr, "description" : pif.form["description." + attr]}
+		    rec = {"mod_id" : mod_id, "var_id" : "", "attr_id" : attr, "description" : pif.FormStr("description." + attr)}
 		    where = {"mod_id" : mod_id, "var_id" : "", "attr_id" : attr}
 		    pif.dbh.Write("detail", rec, where)
     elif "add_new" in pif.form:
@@ -604,18 +604,18 @@ def HandleForm(pif):
 	rec = {}
 	for k in pif.form:
 	    if k[0:8] == "base_id.":
-		rec[k[8:]] = pif.form[k]
-	pif.dbh.Write("base_id", rec, {"id" : pif.form["base_id.id"]})
+		rec[k[8:]] = pif.FormStr(k)
+	pif.dbh.Write("base_id", rec, {"id" : pif.FormStr("base_id.id")})
     elif "save_casting" in pif.form:
 	print "save casting<br>"
 	rec = {}
 	for k in pif.form:
 	    if k[0:8] == "casting.":
-		rec[k[8:]] = pif.form[k]
-	pif.dbh.Write("casting", rec, {"id" : pif.form["casting.id"]})
+		rec[k[8:]] = pif.FormStr(k)
+	pif.dbh.Write("casting", rec, {"id" : pif.FormStr("casting.id")})
     elif "save" in pif.form:
 	print "save"
-	pif.dbh.UpdateVariation({'imported_from' : 'was ' + pif.form['current_file']}, {'imported_from' : pif.form['current_file'], 'mod_id' : mod_id})
+	pif.dbh.UpdateVariation({'imported_from' : 'was ' + pif.FormStr('current_file')}, {'imported_from' : pif.FormStr('current_file'), 'mod_id' : mod_id})
 	attrs = pif.dbh.FetchAttributes(mod_id)
 	attr_lup = {}
 	for attr in attrs:
@@ -628,9 +628,9 @@ def HandleForm(pif):
 		rec["imported"] = time.time()
 		det = {}
 		for vk in pif.form:
-		    vv = pif.form[vk]
-		    if vk[0:len(pif.form[k])] == pif.form[k]:
-			kk = vk[len(pif.form[k]) + 1:]
+		    vv = pif.FormStr(vk)
+		    if vk[0:len(pif.FormStr(k))] == pif.Formstr(k):
+			kk = vk[len(pif.FormStr(k)) + 1:]
 			if vv == '\\b':
 			    vv = ''
 			if kk == 'orignum':
@@ -660,26 +660,26 @@ def HandleForm(pif):
 	print "recalc<br>"
 	for k in pif.form:
 	    if k[-4:] == ".var":
-		nvars.append(k[0:-4] + "=" + pif.form[k])
+		nvars.append(k[0:-4] + "=" + pif.FormStr(k))
     elif "delete_all" in pif.form:
 	print "delete all<br>"
 	pif.dbh.DeleteDetail(where = {"mod_id" : mod_id})
 	pif.dbh.DeleteVariation(where = {"mod_id" : mod_id})
     elif "delattr" in pif.form:
 	print "delattr<br>"
-	pif.dbh.DeleteAttribute({"id" : pif.form['delattr']})
+	pif.dbh.DeleteAttribute({"id" : pif.FormStr('delattr')})
     elif "fix_numbers" in pif.form:
 	print "fix numbers<br>"
 	for k in pif.form:
 	    if k[-8:] == ".orignum":
-		if pif.form[k] != k[0:-8]:
+		if pif.FormStr(k) != k[0:-8]:
 		    retvar = -999
-		    vars.RenameVariation(pif, mod_id, pif.form[k], k[0:-8])
+		    vars.RenameVariation(pif, mod_id, pif.FormStr(k), k[0:-8])
     print "<br><hr>"
 
     args = ''
     if 'f' in pif.form:
-	ShowFile(pif, pif.form.get('d', 'src/mbxf'), pif.form['f'], ' '.join(nvars))
+	ShowFile(pif, pif.form.get('d', 'src/mbxf'), pif.FormStr('f'), ' '.join(nvars))
     else:
 	ShowFiles(pif, pif.form.get('d', 'src/mbxf'), start=pif.form.get('s'), num=pif.FormInt('n', 100), ff=int(pif.form.get('ff', 0)))
 

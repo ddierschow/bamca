@@ -14,8 +14,8 @@ def Links(pif):
     ostr = ''
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/cgi-bin/toylinks.cgi', 'Toy Links'))
-    if pif.form.get('id'):
-	link = pif.dbh.FetchLinkLine(pif.form.get('id', 0))
+    if pif.FormInt('id'):
+	link = pif.dbh.FetchLinkLine(pif.FormInt('id'))
 	if link['page_id'] != 'links.toylinks':
 	    pif.render.hierarchy.append(('/cgi-bin/toylinks.cgi?page=%s' % pif.page_id[6:], pif.render.title))
 	pif.render.hierarchy.append(('', 'Specific Link'))
@@ -46,13 +46,13 @@ def SingleLink(pif, link):
     ostr += pif.render.FormatButtonReset('comment') + '\n'
     ostr += '</form>\n'
     if pif.IsAllowed('a'): # pragma: no cover
-	ostr += pif.render.FormatButton("edit_this_page", link=pif.dbh.GetEditorLink(pif, 'link_line', {'id' : pif.form.get('id','')}), also={'class' : 'comment'}, lalso={})
+	ostr += pif.render.FormatButton("edit_this_page", link=pif.dbh.GetEditorLink(pif, 'link_line', {'id' : pif.FormStr('id','')}), also={'class' : 'comment'}, lalso={})
     ostr += '<br>' + str(link) + '<br>'
     return ostr
 
 
 def LinkPage(pif):
-    section_id = pif.form.get('section')
+    section_id = pif.FormStr('section')
     if section_id:
 	sections = pif.dbh.FetchSections({'page_id' : pif.page_id, 'id' : section_id})
     else:
@@ -228,7 +228,7 @@ def FormatForm(pif, listCats):
     ostr += pif.render.FormatRowEnd()
     ostr += pif.render.FormatRowStart()
     ostr += pif.render.FormatCell(0, 'Country:')
-    ostr += pif.render.FormatCell(1, pif.render.FormatSelect('country', mbdata.countries, ''))
+    ostr += pif.render.FormatCell(1, pif.render.FormatSelectCountry('country', ''))
     ostr += pif.render.FormatRowEnd()
     ostr += pif.render.FormatRowStart()
     ostr += pif.render.FormatCell(0, 'Category:')
@@ -280,8 +280,8 @@ def AddNewLink(pif, dictCats, listRejects):
     all_links, highest_disp_order = ReadAllLinks(pif)
     link = {}
     try:
-	link['url'] = url = pif.form.get('url', '')
-	link['section_id'] = pif.form.get('cat', '')
+	link['url'] = url = pif.FormStr('url', '')
+	link['section_id'] = pif.FormStr('cat', '')
 	link['page_id'] = 'links.' + dictCats[link['section_id']]
 	link['display_order'] = highest_disp_order[(link.get('page_id', 'unknown'), link.get('section_id', 'unknown'))] + 1
     except:
@@ -294,10 +294,10 @@ def AddNewLink(pif, dictCats, listRejects):
     if pif.IsAllowed('a'): # pragma: no cover
 	link['flags'] = 0
     link['link_type'] = 'l'
-    link['name'] = pif.form.get('name', '')
-    link['country'] = pif.form.get('country', '')
-    link['description'] = pif.form.get('desc', '')
-    link['note'] = pif.remote_addr + '/' + pif.remote_host + '. ' + pif.form.get('note', '')
+    link['name'] = pif.FormStr('name', '')
+    link['country'] = pif.FormStr('country', '')
+    link['description'] = pif.FormStr('desc', '')
+    link['note'] = pif.remote_addr + '/' + pif.remote_host + '. ' + pif.FormStr('note', '')
 
     url = FixURL(url)
     for reject in listRejects:
@@ -359,7 +359,7 @@ Please submit only links that have something to do with toys or toy collecting. 
 If you submit a site that has nothing to do with the subject material of this website, it will be summarily deleted.
 Note that if your submission includes just gibberish in the name or description, it will be rejected without being checked.
 '''
-    if pif.form.has_key('url'):
+    if pif.FormStr('url'):
 	ostr += AddNewLink(pif, dictCats, rejected)
     print ostr
     print pif.render.FormatTail()
@@ -394,41 +394,39 @@ def EditSingle(pif):
     listCats, listIndices, dictCats, listRejectCats = ReadConfig(pif, True)
     listCats.append(('single', 'single'))
     table_info = pif.dbh.table_info['link_line']
-    id = pif.form['id']
-    if pif.form.get('save'):
+    id = pif.FormStr('id')
+    if pif.FormBool('save'):
 	all_links, highest_disp_order = ReadAllLinks(pif)
-	nlink = dict(map(lambda x: (x, pif.form.get(x, '')), table_info['columns']))
+	nlink = dict(map(lambda x: (x, pif.FormStr(x)), table_info['columns']))
 	nlink['flags'] = 0
-	if pif.form.get('section_id') == 'single':
+	if pif.FormStr('section_id') == 'single':
 	    pass
 	else:
-	    nlink['page_id'] = 'links.' + dictCats.get(pif.form.get('section_id', ''), pif.form.get('section_id', ''))
+	    nlink['page_id'] = 'links.' + dictCats.get(pif.FormStr('section_id', ''), pif.FormStr('section_id', ''))
 	nlink['display_order'] = highest_disp_order.get((nlink['page_id'], nlink['section_id']), 0) + 1
-	formflags = pif.form.get('flags', [])
-	if type(formflags) == str:
-	    formflags = [formflags]
+	formflags = pif.FormList('flags')
 	for flag in formflags:
 	    nlink['flags'] += int(flag, 16)
 	if nlink['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
 	    nlink['last_status'] = 'NoVer'
 	pif.dbh.UpdateLinkLine(nlink)
 	print '<br>record saved<br>'
-    elif pif.form.get('test'):
+    elif pif.FormBool('test'):
 	link = pif.dbh.FetchLinkLine(id)
 	CheckLink(pif, link) # don't care about blacklist here, just actual check
-    elif pif.form.get('delete'):
+    elif pif.FormBool('delete'):
 	pif.dbh.DeleteLinkLine(id)
 	return "<br>deleted<br>"
-    elif pif.form.get('reject'):
-	nlink = dict(map(lambda x: (x, pif.form.get(x, '')), table_info['columns']))
+    elif pif.FormBool('reject'):
+	nlink = dict(map(lambda x: (x, pif.FormStr(x, '')), table_info['columns']))
 	nlink['page_id'] = 'links.rejects'
 	nlink['display_order'] = 1
-	nlink['section_id'] = pif.form['rejects_sec']
+	nlink['section_id'] = pif.FormStr('rejects_sec')
 	nlink['flags'] = 0
 	pif.dbh.UpdateLinkLine(nlink)
 	print '<br>record rejected<br>'
-    elif pif.form.get('add'):
-	id = pif.dbh.InsertLinkLine( {'page_id' : pif.form.get('page_id', ''), 'section_id' : pif.form.get('sec')})
+    elif pif.FormBool('add'):
+	id = pif.dbh.InsertLinkLine( {'page_id' : pif.FormStr('page_id', ''), 'section_id' : pif.FormStr('sec')})
 
     links = pif.dbh.FetchLinkLines(where="id='%s'" % id)
     link = links[0]
@@ -455,8 +453,7 @@ def EditSingle(pif):
 	elif col == 'flags':
 	    ostr += pif.render.FormatCell(1, pif.render.FormatCheckbox("flags", flag_check_names, useful.BitList(link[col_long])))
 	elif col == 'country':
-	    #ostr += pif.render.FormatCell(1, pif.render.FormatSelectCountry([('', '')] + mbdata.countries, link[col_long]))
-	    ostr += pif.render.FormatCell(1, pif.render.FormatSelect('country', mbdata.countries, link[col_long]))
+	    ostr += pif.render.FormatCell(1, pif.render.FormatSelectCountry('country', link[col_long]))
 	elif col == 'link_type':
 	    ostr += pif.render.FormatCell(1, pif.render.FormatSelect(col, link_type_names, selected=link[col_long]))
 	elif col == 'associated_link':
@@ -491,8 +488,8 @@ def EditSingle(pif):
 def EditMultiple(pif):
     table_info = pif.dbh.table_info['link_line']
     page_id = ''
-    sec_id = pif.form.get('sec', '')
-    if pif.form.get('as'):
+    sec_id = pif.FormStr('sec', '')
+    if pif.FormBool('as'):
 	linklines = pif.dbh.FetchLinkLines(where="flags&%d" % pif.dbh.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
     elif sec_id == 'new':
 	linklines = pif.dbh.FetchLinkLines(where="flags&%d" % pif.dbh.FLAG_LINK_LINE_NEW)
@@ -502,7 +499,7 @@ def EditMultiple(pif):
 	linklines = pif.dbh.FetchLinkLines(where="section_id='%s'" % sec_id, order="display_order")
 	page_id = pif.dbh.FetchSection(sec_id)['section.page_id']
     else:
-	linklines = pif.dbh.FetchLinkLines(where="page_id='%s'" % pif.form['page'], order="display_order")
+	linklines = pif.dbh.FetchLinkLines(where="page_id='%s'" % pif.FormStr('page'), order="display_order")
     ostr = pif.render.FormatTableStart()
     ostr += pif.render.FormatRowStart()
     for col in table_info['columns']:
@@ -545,16 +542,16 @@ def EditChoose(pif):
 def EditLinks(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead()
-    if pif.form.get('add'):
-	pif.form['id'] = pif.dbh.InsertLinkLine({'page_id' : pif.form.get('page_id'), 'country' : '', 'flags' : 1, 'link_type' : 'l'})
+    if pif.FormBool('add'):
+	pif.FormSet('id', pif.dbh.InsertLinkLine({'page_id' : pif.FormStr('page_id'), 'country' : '', 'flags' : 1, 'link_type' : 'l'}))
     ostr = ''
-    if pif.form.get('id'):
+    if pif.FormStr('id'):
 	ostr += EditSingle(pif)
-    elif pif.form.get('as'):
+    elif pif.FormBool('as'):
 	ostr += EditMultiple(pif)
-    elif pif.form.get('sec'):
+    elif pif.FormStr('sec'):
 	ostr += EditMultiple(pif)
-    elif pif.form.get('page'):
+    elif pif.FormStr('page'):
 	ostr += EditMultiple(pif)
     else:
 	ostr += EditChoose(pif)

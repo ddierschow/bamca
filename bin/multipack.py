@@ -55,22 +55,22 @@ def SaveForm(pif):
     for mod in mods:
 	pms.append({
 	    'id' : mod,
-	    'pack_id' : pif.form['id'],
+	    'pack_id' : pif.FormStr('id'),
 	    'mod_id' : pif.form.get('pm.mod_id.' + mod, ''),
 	    'var_id' : pif.form.get('pm.var_id.' + mod, ''),
-	    'display_order' : pif.form['pm.display_order.' + mod],
+	    'display_order' : pif.FormInt('pm.display_order.' + mod),
 	})
-    pif.dbh.UpdatePackModels(pms, pif.page_id, pif.form['o_id'])
+    pif.dbh.UpdatePackModels(pms, pif.page_id, pif.FormStr('o_id'))
     p_table_info = pif.dbh.table_info['pack']
     p_table_info['name'] = 'pack'
-    if pif.form['o_id'] != pif.form['id']: # change id of pack
-	pif.dbh.UpdateVariationSelectSub(pif.form['id'], pif.form['page_id'], pif.form['o_id'])
-	if os.path.exists(pif.render.pic_dir + '/' + pif.form['o_id'] + '.jpg'):
-	    os.rename(pif.render.pic_dir + '/' + pif.form['o_id'] + '.jpg', pif.render.pic_dir + '/' + pif.form['id'] + '.jpg')
-    pif.dbh.UpdatePack(pif.form['o_id'], dict(map(lambda x: (x, pif.form.get(x, '')), p_table_info['columns'])))
+    if pif.FormStr('o_id') != pif.FormStr('id'): # change id of pack
+	pif.dbh.UpdateVariationSelectSub(pif.FormStr('id'), pif.FormStr('page_id'), pif.FormStr('o_id'))
+	if os.path.exists(pif.render.pic_dir + '/' + pif.FormStr('o_id') + '.jpg'):
+	    os.rename(pif.render.pic_dir + '/' + pif.FormStr('o_id') + '.jpg', pif.render.pic_dir + '/' + pif.FormStr('id') + '.jpg')
+    pif.dbh.UpdatePack(pif.FormStr('o_id'), dict(map(lambda x: (x, pif.form.get(x, '')), p_table_info['columns'])))
     p_table_info = pif.dbh.table_info['base_id']
     p_table_info['name'] = 'base_id'
-    pif.dbh.UpdateBaseId(pif.form['o_id'], dict(map(lambda x: (x, pif.form.get(x, '')), p_table_info['columns'])))
+    pif.dbh.UpdateBaseId(pif.FormStr('o_id'), dict(map(lambda x: (x, pif.form.get(x, '')), p_table_info['columns'])))
 
 # ---- page list ------------------------------------------------------
 
@@ -300,7 +300,7 @@ def DoSinglePack(pif, pack):
 	    if related['pack.region']:
 		ostr += ' - ' + mbdata.regions[related['pack.region']]
 	    if related['pack.country']:
-		ostr += ' - Made in ' + dict(mbdata.countries).get(related['pack.country'], '')
+		ostr += ' - Made in ' + mbdata.GetCountry(related['pack.country'])
 	    if related['pack.material']:
 		ostr += ' - ' + materials.get(related['pack.material'], '')
 	    if related['base_id.description']:
@@ -374,7 +374,7 @@ def ShowPack(pif, pack):
 	ostr = '<a href="upload.cgi?d=./%s&r=%s">%s</a>' % (pif.render.pic_dir, pack['id'], ostr)
     else:
 	ostr = '<a href="upload.cgi">%s</a>' % (ostr)
-    pack['country'] = dict(mbdata.countries).get(pack['country'], '')
+    pack['country'] = mbdata.GetCountry(pack['country'])
     pack['material'] = materials.get(pack['material'], '')
     if pack['product_code']:
 	ostr += '<br>' + pack['product_code']
@@ -419,7 +419,7 @@ def DoPage(pif):
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append(('packs.cgi', 'Multi-Model Packs'))
     if type(pif.form.get('id')) == list:
-	pif.form['id'] = pif.form['id'][0]
+	pif.form['id'] = pif.FormStr('id')[0]
     year = pif.form.get('year')
     reg = pif.form.get('region')
     var = pif.form.get('ver')

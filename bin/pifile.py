@@ -61,6 +61,8 @@ class PageInfoFile():
 	parts = self.server_name.split('.')
 	if len(parts) > 2:
 	    config.env = parts[-3]
+	elif len(parts) == 2:
+	    config.env = 'www'
 
     def LogStart(self):
 	if not self.IsAllowed('m') and not self.args:
@@ -84,8 +86,40 @@ class PageInfoFile():
 	    return self.form['page']
 	return page_id
 
-    def FormInt(self, val, defval=0):
-	return useful.FormInt(self.form.get(val), defval)
+    def FormSet(self, key, val):
+	self.form[key] = val
+
+    def FormDef(self, key, val):
+	self.setdefault(key, val)
+
+    def FormHas(self, key):
+	return self.form.has_key(key)
+
+    def FormInt(self, key, defval=0):
+	try:
+	    return int(self.form[key])
+	except:
+	    return int(defval)
+
+    def FormBool(self, key, defval=False):
+	try:
+	    return bool(self.form[key])
+	except:
+	    return bool(defval)
+
+    def FormStr(self, key, defval=''):
+	try:
+	    return self.form[key]
+	except:
+	    return str(defval)
+
+    def FormList(self, key, defval=None):
+	val = self.form.get(key, defval)
+	if val == None:
+	    return list()
+	if type(val) != list:
+	    return [val]
+	return val
 
     def IsAllowed(self, priv):
 	for p in priv:

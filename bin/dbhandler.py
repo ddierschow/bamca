@@ -47,7 +47,7 @@ class dbhandler:
 
     def GetFormTableInfo(self, pif, table=None):
 	if not table:
-	    table = pif.form.get('table')
+	    table = pif.FormStr('table')
 	if not table:
 	    return None
 	table_info = self.table_info[table]
@@ -924,7 +924,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
     def DeleteUser(self, id):
 	self.Delete('user', 'id=%s' % id)
 
-#pif.dbh.RawFetch("update variation set imported_from='was %s' where imported_from='%s' and mod_id='%s'" % (pif.form['current_file'], pif.form['current_file'], mod_id))
+#pif.dbh.RawFetch("update variation set imported_from='was %s' where imported_from='%s' and mod_id='%s'" % (pif.FormStr('current_file'), pif.FormStr('current_file'), mod_id))
 #attrs = pif.dbh.RawFetch("select id, attribute_name from attribute where mod_id='" + mod_id + "'")
 
     #- site_activity

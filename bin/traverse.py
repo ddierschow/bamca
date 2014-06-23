@@ -7,11 +7,12 @@ import images
 import useful
 
 
-cols = 5
 
 def ShowList(title, tdir, fl):
     if not fl:
 	return
+    mlen = reduce(lambda x,y: max(x,len(y)), fl, 0)
+    cols = max(1, 160/max(1, mlen))
     clen = (len(fl) - 1) / cols + 1
     ffl = map(lambda x: fl[(x*clen):((x+1)*clen)], range(0, cols))
     print '<h4>%s (%d)</h4>' % (title, len(fl))
@@ -46,6 +47,9 @@ def ShowList(title, tdir, fl):
 
 def ShowDir(pif, tdir, grafs=0):
     print '<hr>'
+    if not os.path.exists(tdir):
+	print pif.render.FormatWarning('Path does not exist.')
+	return
 
     dl, gl, ol, sl, xl = images.GetDir(tdir)
 
@@ -147,8 +151,8 @@ def ShowScript(pif, mvl, rml):
 	mvl = [mvl]
     if type(rml) != type([]):
 	rml = [rml]
-    libl = map(lambda x: (x[4:], pif.form[x]), filter(lambda x: x.startswith('lib.'), pif.form.keys()))
-    renl = map(lambda x: (x[4:], pif.form[x]), filter(lambda x: x.startswith('ren.'), pif.form.keys()))
+    libl = map(lambda x: (x[4:], pif.FormStr(x)), filter(lambda x: x.startswith('lib.'), pif.form.keys()))
+    renl = map(lambda x: (x[4:], pif.FormStr(x)), filter(lambda x: x.startswith('ren.'), pif.form.keys()))
     rend = dict(renl)
     print '<pre>'
     for ren in renl:
@@ -165,11 +169,11 @@ def ShowScript(pif, mvl, rml):
 	dest = lb[1] # we might have renamed this...
 	if lb[0] in rend:
 	    lb[0] = rend[lb[0]]
-	if not os.path.exists('lib/' + dest):
-	    os.mkdir('lib/' + dest)
+	if not os.path.exists(os.path.join(config.libdir, dest)):
+	    os.mkdir(os.path.join(config.libdir, dest))
 	#print 'lb', os.path.join(pdir, lb[0]), os.path.join('lib', dest, lb[0])
 	#os.rename(os.path.join(pdir, lb[0]) os.path.join('lib', dest, lb[0]))
-	useful.FileMover(os.path.join(pdir, lb[0]), os.path.join('lib', dest, lb[0]), mv=True, inc=True)
+	useful.FileMover(os.path.join(pdir, lb[0]), os.path.join(os.path.libdir, dest, lb[0]), mv=True, inc=True)
     for rm in rml:
 	#print 'rm', rm
 	if os.path.exists(os.path.join(pdir, rm)):
@@ -268,7 +272,6 @@ def DoAction(pif, tdir, fn, act):
 
 
 def Main(pif):
-    global cols
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()
     pif.Restrict('a')
@@ -278,7 +281,6 @@ def Main(pif):
     graf = pif.FormInt("g")
     fnam = pif.form.get("f", '')
     patt = pif.form.get("p", '')
-    cols = pif.FormInt("c", 5)
     dups = pif.FormInt("du")
     shlv = pif.FormInt("sh")
     scrt = pif.FormInt('sc')

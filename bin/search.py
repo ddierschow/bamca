@@ -22,8 +22,8 @@ def SearchID(pif):
 	    print '<meta http-equiv="refresh" content="0;url=/cgi-bin/single.cgi?id=%s">' % mod[0]['casting.id']
 	return None
     elif not mod:
-	mod1 = pif.dbh.FetchCastingList(where="casting.id like '%%%s%%'" % pif.form['id'])
-	mod2 = pif.dbh.FetchAliases(where="alias.id like '%%%s%%'" % pif.form['id'])
+	mod1 = pif.dbh.FetchCastingList(where="casting.id like '%%%s%%'" % pif.FormStr('id'))
+	mod2 = pif.dbh.FetchAliases(where="alias.id like '%%%s%%'" % pif.FormStr('id'))
 	mod = filter(lambda x: x.get('section.page_id', 'manno') in ['manls', 'manno'], mod1 + mod2)
     return map(pif.dbh.ModifyManItem, mod)
 
@@ -67,13 +67,13 @@ def RunSearch(pif):
     mods = None
     pif.render.PrintHtml()
     if pif.form.has_key('query'):
-	targ = pif.form['query']
+	targ = pif.FormStr('query')
 	pif.render.title = 'Models matching name: ' + targ
 	mods = SearchName(pif)
 	mods = map(pif.dbh.ModifyManItem, mods)
 	print pif.render.FormatHead()
     elif pif.form.has_key('id'):
-	targ = pif.form['id']
+	targ = pif.FormStr('id')
 	mods = SearchID(pif)
 	if mods == None:
 	    return

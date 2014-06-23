@@ -70,7 +70,7 @@ def ShowVariation(pif, man, var_id):
     fname = useful.CleanName(variation['mod_id'] + '-' + pic_var)
     img = pif.render.FormatImageRequired([fname], pdir=pif.render.pic_dir + '/var', prefix=['h_', 'l_', 'm_', 's_'])
     if pif.IsAllowed('u'): # pragma: no cover
-	print '<a href="upload.cgi?d=./lib/man/%s&m=%s&v=%s">' % (id.lower(), id, pic_var) + img + '</a>'
+	print '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.libmandir, id.lower()), id, pic_var) + img + '</a>'
     else:
 	print '<a href="upload.cgi?m=%s&v=%s">%s</a>' % (id, var_id, img)
     print '<p></center>'
@@ -120,12 +120,12 @@ def ShowVariation(pif, man, var_id):
     if pif.IsAllowed('a'): # pragma: no cover
 	print '-', pif.render.FormatButton("delete", 'vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id))
 	print pif.render.FormatButton("edit", 'vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var_id))
-	print pif.render.FormatButton("pictures", 'upload.cgi?d=./lib/man/%s&m=%s&v=%s&l=1' % (mod_id.lower(), mod_id, var_id))
+	print pif.render.FormatButton("pictures", 'upload.cgi?d=%s&m=%s&v=%s&l=1' % (os.path.join(config.libmandir, mod_id.lower()), mod_id, var_id))
 	print pif.render.FormatButton("remove_picture", '?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
 	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink(pif, 'casting', {'id' : mod_id}))
 	print pif.render.FormatButton("recalc", '?recalc=1&mod=%s' % mod_id)
     if pif.IsAllowed('u'): # pragma: no cover
-	print '-', pif.render.FormatButton("upload", 'upload.cgi?d=./lib/man/' + mod_id.lower())
+	print '-', pif.render.FormatButton("upload", 'upload.cgi?d=' + os.path.join(config.libmandir, mod_id.lower()))
     #print pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&man=%s&var=%s' % (pif.page_id, id, var_id), also={'class' : 'comment'}, lalso={})
     print pif.render.FormatButtonComment(pif, 'man=%s&var=%s' % (id, var_id))
     print '</form>'
@@ -204,7 +204,7 @@ def ShowVariationEditor(pif, id, var_id):
     else:
 	img = pif.render.FormatImageRequired([fname], pdir=pif.render.pic_dir + '/var', prefix=['h_', 'l_', 'm_', 's_'])
     if pif.IsAllowed('u'): # pragma: no cover
-	print '<a href="upload.cgi?d=./lib/%s&m=%s&v=%s">' % (id.lower(), id, var_id) + img + '</a>'
+	print '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.libmandir, id.lower()), id, var_id) + img + '</a>'
     else:
 	print '<a href="upload.cgi?m=%s&v=%s">%s</a>' % (id, var_id, img)
     print '<p></center>'
@@ -290,9 +290,9 @@ def ShowVariationEditor(pif, id, var_id):
 	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink(pif, 'casting', {'id' : mod_id}))
 	print pif.render.FormatButton("recalc", '?recalc=1&mod=%s' % mod_id)
     if pif.IsAllowed('u'): # pragma: no cover
-	print pif.render.FormatButton("upload", 'upload.cgi?d=./lib/' + mod_id.lower())
+	print pif.render.FormatButton("upload", 'upload.cgi?d=' + os.path.join(config.libmandir, mod_id.lower()))
 	#print pif.render.FormatButton("pictures", 'traverse.cgi?d=./lib/%s' % mod_id.lower())
-	print pif.render.FormatButton("pictures", 'upload.cgi?d=./lib/%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (mod_id.lower(), mod_id, var_id, mod_id, var_id))
+	print pif.render.FormatButton("pictures", 'upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (os.path.join(config.libmandir, mod_id.lower()), mod_id, var_id, mod_id, var_id))
     #print pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&man=%s&var=%s' % (pif.page_id, id, var_id), also={'class' : 'comment'}, lalso={})
     print pif.render.FormatButtonComment(pif, 'man=%s&var=%s' % (id, var_id))
     print '</form>'
@@ -305,7 +305,7 @@ def Save(pif, mod_id, var_id):
 	attributes = dict(map(lambda x: (x['attribute_name'], x), pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))))
 	#attributes.update(dict(map(lambda x: (pif.dbh.table_info['variation']['columns'][x], {'title' : pif.dbh.table_info['variation']['titles'][x]}), range(0, len(pif.dbh.table_info['variation']['columns'])))))
 	pif.render.Comment("Save: ", pif.form, '<p>', attributes)
-	var_dict = {'mod_id' : pif.form['mod'], 'picture_id' : ''}
+	var_dict = {'mod_id' : pif.FormStr('mod'), 'picture_id' : ''}
 	det_dict = {}
 	for attr in note_attributes + detail_attributes:
 	    if 'id' in attributes.get(attr, {}):
@@ -316,17 +316,17 @@ def Save(pif, mod_id, var_id):
 	    if key.endswith('.' + var_id):
 		attr = key[:key.rfind('.')]
 		if attr == 'references':
-		    var_sel = pif.form[key] # make it work!
+		    var_sel = pif.FormStr(key) # make it work!
 		elif attr == 'repic':
-		    repic = pif.form[key]
+		    repic = pif.FormStr(key)
 		    print 'repic', repic, '<br>'
 		elif attr == 'picture_id':
-		    if pif.form[key] != var_id:
-			var_dict[attr] = pif.form[key]
+		    if pif.FormStr(key) != var_id:
+			var_dict[attr] = pif.FormStr(key)
 		elif 'id' in attributes.get(attr, {}):
-		    det_dict[attr] = pif.form[key]
+		    det_dict[attr] = pif.FormStr(key)
 		else:
-		    var_dict[attr] = pif.form[key]
+		    var_dict[attr] = pif.FormStr(key)
 	if 'from_CY_number' in var_dict and 'from_CY_number' not in attributes:
 	    del var_dict['from_CY_number']
 	print '<p>', det_dict, '<p>', var_dict
@@ -523,7 +523,7 @@ def DoVar(pif, model, wheels, data, hdrs, attributes, prev):
 #    fnl.reverse()
     cell = pif.render.FormatImageRequired([fname], pdir=pif.render.pic_dir + '/var', prefix=['s_'])
     if pif.IsAllowed('u'): # pragma: no cover
-	cell = '<a href="upload.cgi?d=./lib/%s&m=%s&v=%s">' % (model['mod_id'].lower(), model['mod_id'], model['var']) + cell + '</a>'
+	cell = '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.libmandir, model['mod_id'].lower()), model['mod_id'], model['var']) + cell + '</a>'
     else:
 	cell = '<a href="upload.cgi?m=%s&v=%s">' % (model['mod_id'], model['var']) + cell + '</a>'
     ostr += pif.render.FormatCell(2, cell)
@@ -783,12 +783,12 @@ def UpdateValues(var, values):
 def SaveModel(pif, id):
     for key in pif.form:
 	if key.startswith('picture_id.'):
-	    if key[11:] == pif.form[key]:
-		pif.dbh.UpdateVariation({'picture_id': pif.form[key]}, {'mod_id' : id, 'var' : ''})
+	    if key[11:] == pif.FormStr(key):
+		pif.dbh.UpdateVariation({'picture_id': pif.FormStr(key)}, {'mod_id' : id, 'var' : ''})
 	    else:
-		pif.dbh.UpdateVariation({'picture_id': pif.form[key]}, {'mod_id' : id, 'var' : key[11:]})
+		pif.dbh.UpdateVariation({'picture_id': pif.FormStr(key)}, {'mod_id' : id, 'var' : key[11:]})
 	elif key.startswith('var_sel.'):
-	    varsel = list(set(pif.form[key].split()))
+	    varsel = list(set(pif.FormStr(key).split()))
 	    #pif.dbh.Delete('variation_select', where="mod_id='%s'" % id)
 	    #print 'varsel', varsel, '<br>'
 	    pif.dbh.UpdateVariationSelects(id, key[8:], varsel)
@@ -863,8 +863,8 @@ def ShowModel(pif, model):
 	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink(pif, 'casting', {'id' : model['id']}))
 	print pif.render.FormatButton("recalc", '?recalc=1&mod=%s' % model['id'])
     if pif.IsAllowed('u'): # pragma: no cover
-	print pif.render.FormatButton("upload", 'upload.cgi?d=./lib/' + model['id'].lower() + '&m=' + model['id'])
-	print pif.render.FormatButton("pictures", 'traverse.cgi?d=./lib/%s' % model['id'].lower())
+	print pif.render.FormatButton("upload", 'upload.cgi?d=' + os.path.join(config.libmandir, model['id'].lower()) + '&m=' + model['id'])
+	print pif.render.FormatButton("pictures", 'traverse.cgi?d=%s' % os.path.join(config.libmandir, model['id'].lower()))
     #print pif.render.FormatButton("comment_on_this_page", link='../pages/comment.php?page=%s&man=%s&var=%s' % (pif.page_id, model['id'], varl), also={'class' : 'comment'}, lalso={})
     print pif.render.FormatButtonComment(pif, 'man=%s&var=%s' % (model['id'], varl))
     print '</form>'
@@ -885,7 +885,7 @@ def Main(pif):
     pif.render.hierarchy.append(('/cgi-bin/vars.cgi?mod=%s' % id, 'Variations'))
     pif.render.PrintHtml()
 
-    regs = dict(mbdata.countries)
+    regs = mbdata.GetCountries()
     regs.update(mbdata.regions)
     man = {}
     if id:

@@ -16,7 +16,7 @@ DoPageHeader($pif);
 <tr><td width="50">&nbsp;</td>
 <td valign="top">
 
-<!--<table class="special"><tr><td>MEETING OCTOBER 5!  <a href="pages/contact.html">EMAIL FOR DETAILS.</a></td></tr></table>-->
+<?php include "announce.php";?>
 
 <ul>
 <li>Information about BAMCA, the Bay Area Matchbox Collectors Association

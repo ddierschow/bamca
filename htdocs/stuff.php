@@ -95,7 +95,6 @@ else
 <td width=24% valign=top bgcolor="#EEEEEE">
 <h3><ul>
 <li><a href="cgi-bin/traverse.cgi">traverse</a>
-    <a href="cgi-bin/traverse.cgi?d=./tb">tb</a>
     <a href="cgi-bin/traverse.cgi?d=../../logs">logs</a>
 <li><a href="cgi-bin/editor.cgi">editor</a>
     <a href="cgi-bin/mass.cgi">mass</a>
@@ -225,12 +224,12 @@ echo "</span></td><td>";
 DoButtonLink('see', $imgdirArt, "cgi-bin/traverse.cgi?d=../inc");
 echo "</td></tr><tr><td>\n";
 
-$pf = glob("tb/comment.*");
+$pf = glob("../../logs/comment.*");
 echo 'New comments:</td><td><span class="warning">';
 if (count($pf))
     echo count($pf);
 echo "</span></td><td>";
-DoButtonLink('see', $imgdirArt, "cgi-bin/traverse.cgi?d=./tb");
+DoButtonLink('see', $imgdirArt, "cgi-bin/traverse.cgi?d=../../logs");
 echo "</td></tr>\n";
 
 ?>

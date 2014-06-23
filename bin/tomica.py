@@ -2,7 +2,9 @@
 # small: 200x120
 # large: 300x180
 
+import os
 import basics
+import config
 import files
 import models
 
@@ -209,10 +211,10 @@ table {page-break-inside:avoid}
 
 def Main(pif):
     pif.render.PrintHtml()
-    manf = MannoFile('src/tomica.dat')
+    manf = MannoFile(os.path.join(config.srcdir, 'tomica.dat'))
     mans = manf.dictlist
     if pif.form.get('num'):
-	print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form['num']
+	print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.FormStr('num')
 	return
     else:
 	print pif.render.FormatHead()

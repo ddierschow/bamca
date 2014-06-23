@@ -8,9 +8,11 @@ def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=False):
     return pif
 
 
-def HandleException(pif):
+def WriteTracebackFile(pif):
     import datetime, os, sys, traceback
     str_tb = traceback.format_exc()
+    if pif and pif.unittest:
+	return str_tb # unit testing should not leave tb files sitting around.
     tb_file_name = os.path.join(config.logroot, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.') + config.env + '.')
     if pif:
 	tb_file_name += pif.page_id
@@ -22,6 +24,11 @@ def HandleException(pif):
     if pif:
 	erf.write(pif.ErrorReport())
     erf.close()
+    return str_tb
+
+
+def HandleException(pif):
+    str_tb = WriteTracebackFile(pif)
     if not pif or not pif.render or not pif.dbh:
 	print 'Content-Type: text/html\n\n'
 	print '<!--\n' + str_tb + '-->'

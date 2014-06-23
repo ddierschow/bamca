@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+import os
+import config
 
 modnumlist = []
 dups = 0
@@ -54,7 +56,7 @@ def PrintTable(pif, db, setfile):
 	showme = True
 	for field in db['header']:
 	    if pif.form.has_key(field):
-		if model[field] != pif.form[field] or (not model[field] and not pif.form[field]):
+		if model[field] != pif.FormStr(field) or (not model[field] and not pif.FormStr(field)):
 		    showme = False
 	if not showme:
 	    continue
@@ -126,7 +128,7 @@ def PrintTable(pif, db, setfile):
 def PrintNoTable(pif, db):
     global modnumlist, dups
     ostr = '<a name="%(label)s">\n' % db
-    ostr += '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.form['page'] + '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db
+    ostr += '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.FormStr('page') + '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db
     return ostr
 
 
@@ -198,7 +200,7 @@ def SetsMain(pif):
 	global dups
 	dups = int(pif.form.get('dups', 0))
 	import files
-	setfile = files.SetFile('src/' + pif.form['page'] + '.dat')
+	setfile = files.SetFile(os.path.join(config.srcdir, pif.FormStr('page') + '.dat'))
 	print pif.render.FormatHead()
 	print DoSet(pif, setfile, set)
     else:
