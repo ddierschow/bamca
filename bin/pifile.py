@@ -109,7 +109,7 @@ class PageInfoFile():
 
     def FormStr(self, key, defval=''):
 	try:
-	    return self.form[key]
+	    return str(self.form[key])
 	except:
 	    return str(defval)
 

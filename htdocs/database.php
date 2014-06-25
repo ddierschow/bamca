@@ -94,6 +94,8 @@ Note that Australian dealers might carry either USA or International assortments
 <a href="#mack">By Mack Number</a> -
 <a href="#makes">By Make</a> -
 <a href="#search">By Text Search</a> -
+<a href="#vsearch">By Variation Text Search</a> -
+<a href="#packs">By Multi-Model Packs</a> -
 <a href="#sets">By Special Sets</a>
 </center>
 

@@ -692,10 +692,10 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	self.Delete('link_line', where="id=%s" % id)
 
     def UpdateLinkLine(self, rec):
-	self.Write('link_line', rec, 'id=%s' % rec['id'], modonly=True)
+	self.Write('link_line', rec, 'id=%s' % rec['id'], modonly=True, tag='UpdateLinkLine')
 
     def InsertLinkLine(self, rec):
-	return self.Write('link_line', rec, newonly=True)
+	return self.Write('link_line', rec, newonly=True, tag='InsertLinkLine')
 
     def FetchLinkLine(self, id):
 	link = self.dbi.select('link_line', where="id='%s'" % id)

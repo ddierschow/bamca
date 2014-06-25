@@ -189,6 +189,7 @@ def ShowScript(pif, mvl, rml):
 
 
 def ShowFile(pif, fn):
+    print pif.render.FormatButton('delete', link=pif.request_uri + '&delete=1&act=1')
     root, ext = useful.RootExt(fn)
     if ext == 'dat':
 	ShowTable(pif, fn)
@@ -196,7 +197,12 @@ def ShowFile(pif, fn):
 	images.ShowPicture(pif, fn)
     else:
 	print '<p>'
-	print open(pif.render.pic_dir + '/' + fn).read().replace('\n', '<br>\n')
+	fil = open(pif.render.pic_dir + '/' + fn).readlines()
+	for i in range(len(fil)):
+	    if fil[i].startswith('uri = '):
+		fil[i] = """uri = <a href="%s">%s</a>\n""" % (fil[i][9:-4], fil[i][9:-4])
+		break
+	print '<br>'.join(fil)
 
 
 

@@ -80,7 +80,7 @@ def Plural(thing):
     return ''
 
 
-def DumpDictComment(t, d, keys={}):
+def DumpDictComment(t, d, keys=None):
     print "<!-- Dump",t,":"
     if not keys:
 	keys = d.keys()
@@ -90,7 +90,7 @@ def DumpDictComment(t, d, keys={}):
     print '-->'
 
 
-def DumpDict(t, d, keys={}):
+def DumpDict(t, d, keys=None):
     print "<p><h3>",t,"</h3><p>"
     print '<dl>'
     if not keys:
