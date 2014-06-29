@@ -85,19 +85,19 @@ Note that Australian dealers might carry either USA or International assortments
 }
 ?> 
 
-<center>
 <!--The Interactive Matchbox Lineup-->
-<a href="#id">By Specific MAN ID</a> -
-<a href="#year">By Year</a> -
-<a href="#rank">By Lineup Number</a> -
-<a href="#manno">By MAN Number</a> -
-<a href="#mack">By Mack Number</a> -
-<a href="#makes">By Make</a> -
-<a href="#search">By Text Search</a> -
-<a href="#vsearch">By Variation Text Search</a> -
-<a href="#packs">By Multi-Model Packs</a> -
-<a href="#sets">By Special Sets</a>
-</center>
+<ul class="header-links">
+<li class="header-link-item"><a href="#id">By Specific MAN ID</a></li>
+<li class="header-link-item"><a href="#year">By Year</a></li>
+<li class="header-link-item"><a href="#rank">By Lineup Number</a></li>
+<li class="header-link-item"><a href="#manno">By MAN Number</a></li>
+<li class="header-link-item"><a href="#mack">By Mack Number</a></li>
+<li class="header-link-item"><a href="#makes">By Make</a></li>
+<li class="header-link-item"><a href="#search">By Text Search</a></li>
+<li class="header-link-item"><a href="#vsearch">By Variation Text Search</a></li>
+<li class="header-link-item"><a href="#packs">By Multi-Model Packs</a></li>
+<li class="header-link-item"><a href="#sets">By Special Sets</a></li>
+</ul>
 
 <table width="100%">
 

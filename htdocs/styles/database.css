@@ -8,6 +8,18 @@
 .sel_body {border-width: 1px; border-style: solid; padding: 8px;}
 .input_label {text-align: right;}
 
+.header-links {width: 90%; padding: 0 0 0 0; text-align: center; font-size: 0;}
+.header-link-item {margin: 2px 4px; padding: 1px 2px 2px 2px; white-space: nowrap;
+    font-weight: bold; font-size: 13px; background-color: #006600; color: #FFFFFF;
+    display: inline-block; /* an inline element that has all the benifits of a block element without bieng full width */
+    list-style-type: none; /* killing the bullet */
+}
+
+.header-link-item a:link       {color: #FFFFFF; background-color: #006600;}
+.header-link-item a:visited    {color: #FFFFFF; background-color: #006600;}
+.header-link-item a:active     {color: #FFFFFF; background-color: #006600;}
+.header-link-item a:hover      {color: #006600; background-color: #FFFFFF; text-decoration: none;}
+
 .id_head       {background-color: #BBBBBB;}
 .id_body       {background-color: #EEEEEE;}
 .year_head     {background-color: #FFFF66;}
