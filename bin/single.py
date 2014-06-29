@@ -39,7 +39,7 @@ def ShowModelTable(pif, mdict, link=True, prefix=['']):
 	    imgid.append(s[8:])
     mdict['imgid'] = []
     for pf in prefix:
-	mdict['imgid'].extend(map(lambda x: pf + x, imgid))
+	mdict['imgid'].extend([pf + x for x in imgid])
     mdict['img'] = pif.render.FormatImageRequired(mdict['imgid'], None, made=mdict['made'], pdir=config.imgdir175)
     ostr = '<center><font face="Courier">%(id)s</font><br>\n' % mdict
     if link and mdict['link']:
@@ -196,7 +196,7 @@ def ShowAdds(pif, id, attribute_pictures):
 
 angle_re = re.compile(r'<.*?>')
 def ShowLink(href, names):
-    return '<a href="%s">%s</a>' % (href, ' - '.join(filter(None, map(lambda x: angle_re.sub('', x), names))))
+    return '<a href="%s">%s</a>' % (href, ' - '.join(filter(None, [angle_re.sub('', x) for x in names])))
 
 
 def ShowModelLinks(pif, id, pic, appearances, matrixes, packs, man, show_comparison, external_links, baseplates=[]):
@@ -331,7 +331,7 @@ def FormatLineupAppearances(pif, appearances):
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def GetMackNumbers(pif, cid, mod_type):
-    aliases = map(lambda x: x['alias.id'], pif.dbh.FetchAliases(cid, 'mack'))
+    aliases = [x['alias.id'] for x in pif.dbh.FetchAliases(cid, 'mack')]
     mack_nums = []
     if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
 	aliases.append(cid)
@@ -340,7 +340,7 @@ def GetMackNumbers(pif, cid, mod_type):
 	if mack_id:
 	    mack_nums.append(mack_id)
     mack_nums.sort(cmp=lambda x,y: cmp(x[1],y[1]))
-    return map(lambda x: '-'.join(x).upper(), mack_nums)
+    return ['-'.join(x).upper() for x in mack_nums]
 
 
 img_re = re.compile('src="(?P<u>[^"]*)"')
@@ -384,8 +384,8 @@ def ShowSingle(pif):
     packs.sort(key=lambda x: x['base_id.first_year'])
 
     attribute_pictures = pif.dbh.FetchAttributePictures(id)
-    attribute_pictures = dict(map(lambda x:
-	(x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x), attribute_pictures))
+    attribute_pictures = dict([
+	(x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures])
 
     sections_recs = pif.dbh.FetchSections(where="page_id like 'year.%'")
     sections = {}
@@ -473,7 +473,7 @@ def ShowSingle(pif):
 	content += '<br>\n'.join(var_pics)
 	content += '</b><p>'
 	content += pif.render.FormatImageArt(prodstar) + '<p>'
-	var_ids = map(lambda x: x['v.var'], raw_variations)
+	var_ids = [x['v.var'] for x in raw_variations]
 	var_ids.sort()
 	for var in var_ids:
 	    content += '<a href="vars.cgi?mod=%s&var=%s&edit=1">%s</a><br>\n' % (id, var, var)

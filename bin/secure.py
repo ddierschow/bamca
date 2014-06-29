@@ -63,7 +63,8 @@ class Security:
 	cfgkey = '.'.join(self.host.split('.')[-2:])
 	if siteid:
 	    cfgkey = siteid + '.' + cfgkey
-	self.config = dict(map(lambda x: [x[0], dict(map(lambda y: y.split(','), x[1:]))], map(lambda x: x.strip().split('|'), self.cfgfile)))[cfgkey]
+	#self.config = dict(map(lambda x: [x[0], dict(map(lambda y: y.split(','), x[1:]))], map(lambda x: x.strip().split('|'), self.cfgfile)))[cfgkey]
+	self.config = {x[0]: dict([y.split(',') for y in x[1:]]) for x in [z.strip().split('|') for z in self.cfgfile]}[cfgkey]
 	for c in self.config:
 	    self.__dict__[c] = self.config[c].strip()
 

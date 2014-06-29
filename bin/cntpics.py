@@ -106,24 +106,24 @@ def CountLineups(pif):
 def CountPub(pif):
     recs = pif.dbh.FetchPublications()
     count = 0
-    count += CountCombo(config.imgdirCat, ['s_', ''], map(lambda x: x['base_id.id'].lower(), recs), ['', '_*'])
-    count += CountCombo(config.imgdir175, ['s_'], map(lambda x: x['base_id.id'].lower(), recs), [''])
+    count += CountCombo(config.imgdirCat, ['s_', ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
+    count += CountCombo(config.imgdir175, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 def CountPack(pif):
     recs = pif.dbh.FetchPacks()
     count = 0
-    count += CountComboOneOnly(config.imgdirPack, ['t_', 's_', 'c_', 'm_'], map(lambda x: x['base_id.id'].lower(), recs), [''])
-    count += CountCombo(config.imgdirPack, ['l_', 'h_'], map(lambda x: x['base_id.id'].lower(), recs), [''])
-    count += CountCombo(config.imgdir175, ['s_'], map(lambda x: x['base_id.id'].lower(), recs), [''])
+    count += CountComboOneOnly(config.imgdirPack, ['t_', 's_', 'c_', 'm_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += CountCombo(config.imgdirPack, ['l_', 'h_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += CountCombo(config.imgdir175, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 def CountMan(pif):
     recs = pif.dbh.FetchCastingList()
     count = 0
-    count += CountCombo(config.imgdir175, ['s_', 'm_', 'l_', 'z_'], map(lambda x: x['base_id.id'].lower(), recs), [''])
-    count += CountCombo(config.imgdirAdd, ['a_', 'b_', 'e_', 'i_', 'p_', 'r_'], map(lambda x: x['base_id.id'].lower(), recs), [''])
-    count += CountCombo(config.imgdir175 + '/icon', ['i_'], map(lambda x: x['base_id.id'].lower(), recs), [''])
+    count += CountCombo(config.imgdir175, ['s_', 'm_', 'l_', 'z_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += CountCombo(config.imgdirAdd, ['a_', 'b_', 'e_', 'i_', 'p_', 'r_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += CountCombo(config.imgdir175 + '/icon', ['i_'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 def CountVar(pif):

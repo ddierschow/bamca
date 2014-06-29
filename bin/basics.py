@@ -2,6 +2,7 @@
 
 import config
 
+
 def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=False):
     import pifile
     pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
@@ -19,7 +20,7 @@ def WriteTracebackFile(pif):
     else:
 	tb_file_name += 'unknown'
     erf = open(tb_file_name, 'w')
-    erf.write("headline = '''%s'''\n" % ' '.join(map(lambda x: x.strip(), traceback.format_exception_only(sys.exc_type, sys.exc_value))))
+    erf.write("headline = '''%s'''\n" % ' '.join([x.strip() for x in traceback.format_exception_only(sys.exc_type, sys.exc_value)]))
     erf.write("uri = '''%s'''\n" % os.environ.get('REQUEST_URI', ''))
     erf.write("tb = '''\n" + str_tb + "\n'''\n")
     erf.write("env = '''" + str(os.environ) + "'''\n")

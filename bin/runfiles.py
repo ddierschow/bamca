@@ -15,6 +15,10 @@ outloc = 'bamca@xocolatl.com:www/htdocs/src/mbxf'
 
 error_list = []
 
+def Unlink(fs):
+    map(os.unlink, glob.glob(fs))
+
+
 def Fetch(url, with_continue=True):
     fn = os.path.basename(url)
     #url = urllib.quote(url, ':/')
@@ -87,8 +91,8 @@ def GetFiles(url, file_list):
 
 def Process(filetype):
     if os.path.exists(tmploc + '/done.txt'):
-	os.unlink(tmploc + '/done.txt')
-    #map(os.unlink, glob.glob(tmploc + '/*.' + filetype))
+	Unlink(tmploc + '/done.txt')
+    #Unlink(tmploc + '/*.' + filetype)
     os.system(startword[filetype])
     while not os.path.exists(tmploc + '/done.txt'):
 	time.sleep(3)
@@ -100,27 +104,27 @@ def Main(args):
     else:
 	for arg in args:
 	    if arg == 'get':
-		map(os.unlink, glob.glob(tmploc + '/*.doc'))
+		Unlink(tmploc + '/*.doc')
 		fl = WebReadDirectory(inloc)
 		GetFiles(inloc, filter(lambda x: x.endswith('.doc'), fl))
 	    elif arg in startword:
 		Process(arg)
 	    elif arg == 'reset':
-		map(lambda x: os.unlink(x), glob.glob(tmploc + '/*.doc'))
-		map(lambda x: os.unlink(x), glob.glob(tmploc + '/*.rtf'))
-		map(lambda x: os.unlink(x), glob.glob(tmploc + '/*.htm'))
+		Unlink(tmploc + '/*.doc')
+		Unlink(tmploc + '/*.rtf')
+		Unlink(tmploc + '/*.htm')
 	    elif arg == 'clean':
-		docfiles = map(lambda x: x[:-4], glob.glob(tmploc + '/*.doc'))
-		rtffiles = map(lambda x: x[:-4], glob.glob(tmploc + '/*.rtf'))
-		htmfiles = map(lambda x: x[:-4], glob.glob(tmploc + '/*.htm'))
+		docfiles = [x[:-4] for x in glob.glob(tmploc + '/*.doc')]
+		rtffiles = [x[:-4] for x in glob.glob(tmploc + '/*.rtf')]
+		htmfiles = [x[:-4] for x in glob.glob(tmploc + '/*.htm')]
 		for fn in docfiles:
 		    if fn in htmfiles or fn in rtffiles:
-			os.unlink(fn + '.doc')
+			Unlink(fn + '.doc')
 		dirs = filter(lambda x: os.path.isdir(x), glob.glob(tmploc + '/*'))
 		for dir in dirs:
 		    for fn in glob.glob(dir + '/*'):
 			print '   deleting', fn
-			os.unlink(fn)
+			Unlink(fn)
 		    print ' removing', dir
 		    os.rmdir(dir)
 	    elif arg == 'put':

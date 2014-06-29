@@ -43,7 +43,7 @@ class dbhandler:
 	return self.dbi.escape_string(s)
 
     def MakeValues(self, table, values):
-	return dict(map(lambda x: (x, values.get(x, '')), self.GetTableInfo(table)['columns']))
+	return {x: values.get(x, '') for x in self.GetTableInfo(table)['columns']}
 
     def GetFormTableInfo(self, pif, table=None):
 	if not table:
@@ -67,6 +67,9 @@ class dbhandler:
 		if key in table_info['columns']:
 		    url += '&%s=%s' % (key, args[key])
 	return url
+
+    def TableCols(self, table):
+	return [table + '.' + x for x in self.table_info[table]['columns']]
 
     def SetConstants(self):
 	for key in tables.__dict__:
@@ -93,7 +96,7 @@ class dbhandler:
 	    tag = tab
 	columns = list()
 	if tab in self.table_info:
-	    columns.extend(map(lambda x: tag + '.' + x, self.table_info[tab]['columns']))
+	    columns.extend([tag + '.' + x for x in self.table_info[tab]['columns']])
 	else:
 	    columns.append(tag + '.*')
 	return columns
@@ -117,17 +120,17 @@ class dbhandler:
 	    table_name = '(%s)' % table_name
 	    for lj in left_joins:
 		table_name += ' left join %s on (%s)' % tuple(lj)
-		columns.extend(map(lambda x: lj[0] + '.' + x, self.table_info[lj[0]]['columns']))
+		columns.extend([lj[0] + '.' + x for x in self.table_info[lj[0]]['columns']])
 	return self.dbi.select(table_name, columns, where=where, group=group, order=order, tag=tag, verbose=verbose)
 
     def DescribeDict(self, table):
-	return dict(map(lambda x: (x['field'], x), self.Describe(table)))
+	return {x['field']: x for x in self.Describe(table)}
 
     def Describe(self, table):
 	return self.dbi.describe(table)
 
     def Columns(self, table):
-	return map(lambda x: x['field'], self.Describe(table))
+	return [x['field'] for x in self.Describe(table)]
 
     def DePref(self, table, results):
 	if type(results) == dict:
@@ -144,7 +147,7 @@ class dbhandler:
 	return results
 
     def Increment(self, table_name, values=None, where=None, tag='', verbose=False):
-	values = dict(map(lambda x: (x, x + '+1'), values))
+	values = {x: x + '+1' for x in values}
 	return self.dbi.updateraw(table_name, values, where, tag=tag, verbose=verbose)
 
     def Write(self, table_name, values=None, where=None, newonly=False, modonly=False, tag='', verbose=False):
@@ -447,18 +450,18 @@ class dbhandler:
 	cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.text_description', 'v.text_base',
 		'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.picture_id']
 	for key in varsq:
-	    wheres.extend(map(lambda x: "v.%s like %%s" % (key), varsq[key]))
-	    args.extend(map(lambda x: "%%%%%s%%%%" % (x), varsq[key]))
+	    wheres.extend(["v.%s like %%s" % (key) for x in varsq[key]])
+	    args.extend(["%%%%%s%%%%" % (x) for x in varsq[key]])
 	for key in castingq:
-	    wheres.extend(map(lambda x: "casting.%s like %%s" % (key), castingq[key]))
-	    args.extend(map(lambda x: "%%%%%s%%%%" % (x), castingq[key]))
+	    wheres.extend(["casting.%s like %%s" % (key) for x in castingq[key]])
+	    args.extend(["%%%%%s%%%%" % (x) for x in castingq[key]])
 	varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), args=args)
 	return varrecs
 
     def FetchVariationBySelect(self, mod_id, ref_id, sub_id):
 	cols = ['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id']
 	table = "variation_select vs"
-	sub_id = ','.join(map(lambda x: "'%s'" % x, sub_id))
+	sub_id = ','.join(["'%s'" % x for x in sub_id])
 	where = "vs.mod_id='%s' and vs.ref_id='%s' and vs.sub_id in (%s)" % (mod_id, ref_id, sub_id)
 	table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
 	return self.dbi.select(table, cols, where=where)
@@ -523,10 +526,10 @@ class dbhandler:
 	if nodefaults:
 	    commondetails = {}
 	else:
-	    commondetails = dict(map(lambda x: (x['attribute_name'], x['description']),
+	    commondetails = {x['attribute_name']: x['description'] for x in
 		self.dbi.select('detail, attribute',
 		    ['detail.mod_id', 'attr_id', 'description', 'attribute_name'],
-		    "detail.mod_id='%s' and detail.attr_id=attribute.id and detail.var_id=''" % mod_id)))
+		    "detail.mod_id='%s' and detail.attr_id=attribute.id and detail.var_id=''" % mod_id)}
 	if var_id != None:
 	    details = self.dbi.select('detail, attribute',
 		['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
@@ -575,7 +578,7 @@ class dbhandler:
        	table += " left join casting on casting.id=lineup_model.mod_id"
 	wheres = list()
 	if type(region) == list:
-	    wheres.append("lineup_model.region in (" + ','.join(map(lambda x: "'" + x + "'", region)) + ')')
+	    wheres.append("lineup_model.region in (" + ','.join(["'" + x + "'" for x in region]) + ')')
 	if year:
 	    wheres.append("lineup_model.year='" + year + "'")
 	if base_id:
@@ -596,7 +599,7 @@ class dbhandler:
        	table += " left join publication on publication.id=lineup_model.mod_id"
 	wheres = list()
 	if type(region) == list:
-	    wheres.append("lineup_model.region in (" + ','.join(map(lambda x: "'" + x + "'", region)) + ')')
+	    wheres.append("lineup_model.region in (" + ','.join(["'" + x + "'" for x in region]) + ')')
 	if year:
 	    cols.extend(['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id'])
 	    table += " left join variation_select vs on (vs.ref_id='year.%s')" % year
@@ -640,7 +643,7 @@ class dbhandler:
 
     def FetchRegions(self):
 	regs = self.Fetch('region', tag='Regions')
-	return dict(map(lambda x: (x['id'], x['name']), regs)), dict(map(lambda x: (x['id'], x['parent']), regs))
+	return {x['id']: x['name'] for x in regs}, {x['id']: x['parent'] for x in regs}
 
     #- matrix_model
 
@@ -771,9 +774,6 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	self.Write('pack', self.MakeValues('pack', values), "id='%s'" % id, modonly=True)
 
     #- pack_model
-
-    def TableCols(self, table):
-	return map(lambda x: table + '.' + x, self.table_info[table]['columns'])
 
     def InsertPackModel(self, pack_id):
 	return self.dbi.execute("insert into pack_model (pack_id,display_order) select'%s', 1+count(*) from pack_model where pack_id='%s'" % (pack_id, pack_id))

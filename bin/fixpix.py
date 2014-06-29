@@ -29,7 +29,7 @@ def Main(pif):
 
     for cas in casvar:
 	dbvars = pif.dbh.FetchVariations(cas)
-	#print cas, map(lambda x: x['variation.var'].lower(), dbvars)
+	#print cas, [x['variation.var'].lower() for x in dbvars]
 	for var in casvar[cas]:
 	    #print ' ', var
 	    found = False
@@ -52,7 +52,7 @@ def Main(pif):
 			if not os.path.exists(os.path.join(config.libmandir, cas + src[src.rfind('/'):])):
 			    os.rename(src, os.path.join(config.libmandir, cas + src[src.rfind('/'):]))
 		else:
-		    print '    Bad var:', cas, var, map(lambda x: x['variation.var'], dbvars)
+		    print '    Bad var:', cas, var, [x['variation.var'] for x in dbvars]
 
 
 if __name__ == '__main__':

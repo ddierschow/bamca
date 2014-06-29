@@ -169,9 +169,9 @@ def ReadConfig(pif, showall=False):
     dictCats = {}
     allpages = pif.dbh.FetchPages("id like 'links.%'")
     if pif.IsAllowed('a'): # and pif.render.isbeta: # pragma: no cover
-	showpage = dict(map(lambda x: (x['page_info.id'], 1), allpages))
+	showpage = {x['page_info.id']: 1 for x in allpages}
     else:
-	showpage = dict(map(lambda x: (x['page_info.id'], not (x['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED)), allpages))
+	showpage = {x['page_info.id']: not (x['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED) for x in allpages}
     sections = pif.dbh.FetchSections(where="page_id like 'links.%'")
     for section in sections:
 	page_name = section['section.page_id'].split('.', 1)[1]
@@ -187,8 +187,8 @@ def ReadConfig(pif, showall=False):
 
 def ReadBlacklist(pif):
     blacklist = pif.dbh.FetchBlacklist()
-    reject = map(lambda x: x['blacklist.target'], filter(lambda x: x['blacklist.reason'] == 'site', blacklist))
-    banned = map(lambda x: x['blacklist.target'], filter(lambda x: x['blacklist.reason'] == 'ip', blacklist))
+    reject = [x['blacklist.target'] for x in filter(lambda x: x['blacklist.reason'] == 'site', blacklist)]
+    banned = [x['blacklist.target'] for x in filter(lambda x: x['blacklist.reason'] == 'ip', blacklist)]
     return reject, banned
 #    reject = []
 #    banned = []
@@ -397,7 +397,7 @@ def EditSingle(pif):
     id = pif.FormStr('id')
     if pif.FormBool('save'):
 	all_links, highest_disp_order = ReadAllLinks(pif)
-	nlink = dict(map(lambda x: (x, pif.FormStr(x)), table_info['columns']))
+	nlink = {x: pif.FormStr(x) for x in table_info['columns']}
 	nlink['flags'] = 0
 	if pif.FormStr('section_id') == 'single':
 	    pass
@@ -418,7 +418,7 @@ def EditSingle(pif):
 	pif.dbh.DeleteLinkLine(id)
 	return "<br>deleted<br>"
     elif pif.FormBool('reject'):
-	nlink = dict(map(lambda x: (x, pif.FormStr(x, '')), table_info['columns']))
+	nlink = {x: pif.FormStr(x, '') for x in table_info['columns']}
 	nlink['page_id'] = 'links.rejects'
 	nlink['display_order'] = 1
 	nlink['section_id'] = pif.FormStr('rejects_sec')
@@ -430,7 +430,7 @@ def EditSingle(pif):
 
     links = pif.dbh.FetchLinkLines(where="id='%s'" % id)
     link = links[0]
-    asslinks = [(0, '')] + map(lambda x: (x['link_line.id'], x['link_line.name']), pif.dbh.FetchLinkLines(where="flags & %s" % pif.dbh.FLAG_LINK_LINE_ASSOCIABLE))
+    asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.FetchLinkLines(where="flags & %s" % pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)]
     ostr = pif.render.FormatTableStart()
     ostr += '<form>\n<input type="hidden" name="o_id" value="%s">\n' % link['link_line.id']
     descs = pif.dbh.DescribeDict('link_line')

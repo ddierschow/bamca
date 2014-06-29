@@ -71,7 +71,7 @@ def ShowTable(pif):
 
     print pif.form, '<br>'
     if pif.form.get('save'):
-	pif.dbh.Write(table_info['name'], dict(map(lambda x: (x, pif.form.get(x, '')), table_info['columns'])), pif.dbh.MakeWhere(pif.form, table_info['id'], 'o_'), modonly=True, tag='ShowTableSave')
+	pif.dbh.Write(table_info['name'], {x: pif.form.get(x, '') for x in table_info['columns']}, pif.dbh.MakeWhere(pif.form, table_info['id'], 'o_'), modonly=True, tag='ShowTableSave')
 	#del pif.form['id']
 	print '<br>record saved<br>'
     elif pif.form.get('delete'):
@@ -95,7 +95,7 @@ def ShowTable(pif):
 	print 'lid', lid, '<br>'
 	print '<br>record added<br>'
     elif pif.form.get('clone'):
-	pif.dbh.Write(table_info['name'], dict(map(lambda x: (x, pif.form.get(x, '')), table_info['columns'])), pif.dbh.MakeWhere(pif.form, table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
+	pif.dbh.Write(table_info['name'], {x: pif.form.get(x, '') for x in table_info['columns']}, pif.dbh.MakeWhere(pif.form, table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
 	#del pif.form['id']
 	print '<br>record cloned<br>'
     where = pif.dbh.MakeWhere(pif.form, table_info['columns'])
@@ -107,11 +107,11 @@ def ShowTable(pif):
 	ShowMulti(pif, table_info, dats, showsubs=True)
 	if table_info['name'] in table_info.get('add', {}):
 	    cond = {'add' : '1'}
-	    print pif.render.FormatButton('add', "?table=" + table_info['name'] + "&" + "&".join(map(lambda x: x + '=' + cond[x], cond.keys())))
+	    print pif.render.FormatButton('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
     elif len(dats) == 1:
 	ShowSingle(pif, table_info, dats[0])
     else:
-	ShowNone(pif, table_info, dict(map(lambda x: (x, pif.form.get(x, '')), table_info['columns'])))
+	ShowNone(pif, table_info, {x: pif.form.get(x, '') for x in table_info['columns']})
     return
     args = ''
     for col in table_info['columns']:
@@ -184,7 +184,7 @@ def ShowSingle(pif, table_info, dat):
 		fr, to = id.split('/')
 		cond[fr] = str(dat[to])
 	    #print pif.render.FormatCell(1, '<a href="?table=%s&%s">%s</a><br>' % (table_info['clinks'][col]['tab'], '&'.join(cond), dat[col]), also=also)
-	    print pif.render.FormatCell(1, pif.render.FormatLink('', dat[col], cond, also=also))
+	    print pif.render.FormatCell(1, pif.render.FormatLink('', str(dat[col]), cond, also=also))
 	else:
 	    print pif.render.FormatCell(1, str(dat[col]), also=also)
 	if col in table_info.get('readonly', []):
@@ -227,7 +227,7 @@ def ShowSingle(pif, table_info, dat):
 	for id in adds[table_info['name']]:
 	    fr, to = id.split('/')
 	    cond[fr] = dat[to]
-	print pif.render.FormatButton('add', "?table=" + table_info['name'] + "&" + "&".join(map(lambda x: x + '=' + cond[x], cond.keys())))
+	print pif.render.FormatButton('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
 	del adds[table_info['name']]
 	print pif.render.FormatButtonInput('clone')
     print '</form>'
@@ -247,7 +247,7 @@ def ShowSingle(pif, table_info, dat):
 	    for id in adds[subtab['tab']]:
 		fr, to = id.split('/')
 		cond[fr] = dat[to]
-	    print pif.render.FormatButton('add', "?table=" + subtab['tab'] + "&" + "&".join(map(lambda x: x + '=' + str(cond[x]), cond)))
+	    print pif.render.FormatButton('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
 	    del adds[subtab['tab']]
 
 	cond = dict()
@@ -258,12 +258,12 @@ def ShowSingle(pif, table_info, dat):
 		    cond[fr] = eval(to[1:])
 		else:
 		    cond[fr] = dat[to]
-	    print pif.render.FormatButton('show', "?table=" + subtab['tab'] + "&" + "&".join(map(lambda x: x + '=' + str(cond[x]), cond)))
+	    print pif.render.FormatButton('show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
 	    ShowSubTable(pif, pif.dbh.GetFormTableInfo(pif, subtab['tab']), cond, ref=subtab.get('ref', {}))
 	else:
 	    print pif.render.FormatButton('show', "?table=" + subtab['tab'])
 #	if subtab['tab'] in adds:
-#	    print pif.render.FormatButton('add', "?table=" + subtab['tab'] + "&" + "&".join(map(lambda x: x + '=' + str(cond[x]), cond)))
+#	    print pif.render.FormatButton('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) forx in cond]))
 
     print '<hr>'
 
@@ -277,14 +277,14 @@ def ShowNone(pif, table_info, dat):
 	for id in adds[table_info['name']]:
 	    fr, to = id.split('/')
 	    cond[fr] = dat.get(to, '')
-	print pif.render.FormatButton('add', "?table=" + table_info['name'] + "&" + "&".join(map(lambda x: x + '=' + cond[x], cond.keys())))
+	print pif.render.FormatButton('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
 	del adds[table_info['name']]
     for subtab in table_info.get('tlinks', []):
 	if not eval(subtab.get('if', '1')):
 	    continue
 	print "<hr>", subtab['tab']
 	if subtab['tab'] in adds:
-	    print pif.render.FormatButton('add', "?table=" + subtab['tab'] + "&" + "&".join(map(lambda x: x + '=' + str(cond[x]), cond)))
+	    print pif.render.FormatButton('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
 	cond = {}
 	if 'id' in subtab:
 	    for id in subtab['id']:
@@ -293,7 +293,7 @@ def ShowNone(pif, table_info, dat):
 		    cond[fr] = eval(to[1:])
 		else:
 		    cond[fr] = dat.get(to, '')
-	    print pif.render.FormatButton('show', "?table=" + subtab['tab'] + "&" + "&".join(map(lambda x: x + '=' + str(cond[x]), cond)))
+	    print pif.render.FormatButton('show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
 	    ShowSubTable(pif, pif.dbh.GetFormTableInfo(pif, subtab['tab']), cond, ref=subtab.get('ref', {}))
 	else:
 	    print pif.render.FormatButton('show', "?table=" + subtab['tab'])
@@ -312,18 +312,18 @@ def ShowSubTable(pif, table_info, cond, ref={}):
     # so in this case: ref = {'attr_id' : ['attribute', 'id', 'attribute_name']}
     tname = table_info['name']
     if ref:
-	cols = map(lambda x: table_info['name'] + '.' + x, table_info['columns'])
+	cols = [table_info['name'] + '.' + x for x in table_info['columns']]
 	lcond = {}
 	for key in ref:
 	    lcond[key] = ref[key][0] + '.' + ref[key][1]
 	    cols.append(ref[key][0] + '.' + ref[key][2])
 	    tname += ',' + ref[key][0] # this will break if we do two columns
-	where = " and ".join(map(lambda x: table_info['name'] + '.' + x + "='" + cond[x] +"'", cond.keys()))
+	where = " and ".join([table_info['name'] + '.' + x + "='" + cond[x] +"'" for x in cond])
 	if lcond:
-	    where += " and " + " and ".join(map(lambda x: table_info['name'] + '.' + x + "=" + lcond[x], lcond.keys()))
+	    where += " and " + " and ".join([table_info['name'] + '.' + x + "=" + lcond[x] for x in lcond])
     else:
 	cols = table_info['columns']
-	where = " and ".join(map(lambda x: table_info['name'] + '.' + x + "='" + str(cond[x]) +"'", cond.keys()))
+	where = " and ".join([table_info['name'] + '.' + x + "='" + str(cond[x]) +"'" for x in cond])
     dats = pif.dbh.Fetch(tname, columns=cols, where=where, tag='ShowSubTable')
     ShowMulti(pif, table_info, dats, cols)
 
@@ -395,7 +395,7 @@ def MassSelect(pif):
 		print pif.render.FormatCell(1, row[col])
 	    else:
 		print pif.render.FormatCell(1,
-		    pif.render.FormatTextInput(col + "." + '.'.join(map(lambda x: str(row[x]), table_info['id'])),
+		    pif.render.FormatTextInput(col + "." + '.'.join([str(row[x]) for x in table_info['id']]),
 		    256, 80, row[col]))
 	print pif.render.FormatRowEnd()
 
@@ -412,7 +412,7 @@ def MassSave(pif):
 	    col, ids = key.split('.', 1)
 	    if col in columns:
 		wheres = zip(table_info['id'], ids.split('.'))
-		#where = " and ".join(map(lambda x: "%s='%s'" % x, wheres))
+		#where = " and ".join(["%s='%s'" % x for x in wheres])
 		# update table set col=value where condition;
 		#query = "update %s set %s='%s' where %s" % (pif.form['from'], col, pif.dbh.escape_string(pif.form[key]), where)
 		#print query, '<br>'
@@ -494,7 +494,7 @@ def AddLineupFinal(pif):
 
 def AddLineupList(pif):
     modlist = urllib2.urlopen(pif.form['models']).read().split('\n')
-    castings = dict(map(lambda x: (x['base_id.rawname'].replace(';', ' '), x['base_id.id']), pif.dbh.FetchCastingList()))
+    castings = {x['base_id.rawname'].replace(';', ' '): x['base_id.id'] for x in pif.dbh.FetchCastingList()}
     num_models = int(pif.form['num'])
     year = pif.form['year']
     region = pif.form['region']

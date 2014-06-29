@@ -37,7 +37,7 @@ def Zero(fl):
     return 0
 
 def Count(pif):
-    castings = map(lambda x: x['id'].lower(), pif.dbh.dbi.select('casting', ['id']))
+    castings = [x['id'].lower() for x in pif.dbh.dbi.select('casting', ['id'])]
 
     dirs = [
 	    ('acc',	All),

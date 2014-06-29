@@ -12,11 +12,11 @@ import config
 
 def Model(mod):
     yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s' and region!='S' and region!='M' and region!='J'" % mod)[0]
-    yrs = map(lambda x: x[0], yrs)
+    yrs = [x[0] for x in yrs]
     yrs.sort()
 
     sel = pif.dbh.dbi.execute("select distinct ref_id from variation_select where mod_id='%s'" % mod)[0]
-    sel = map(lambda x: x[0][:9], sel)
+    sel = [x[0][:9] for x in sel]
 
     missing = []
     for yr in yrs:
@@ -69,7 +69,7 @@ def Main(pif):
 
     for spec in specs:
 	mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
-	mods = map(lambda x: x[0], mods)
+	mods = [x[0] for x in mods]
 	mods.sort()
 
 	for mod in mods:

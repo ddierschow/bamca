@@ -8,7 +8,7 @@ def ImportPSDC(pif):
     u = urllib2.urlopen('http://www.publicsafetydiecast.com/Matchbox_MAN.htm').read()
     u_re = re.compile('<a href="(?P<u>[^"]*)".*?<font.*?>(?P<i>.*?)<\/font>')
     q = pif.dbh.FetchLinkLines(where='associated_link=365')
-    ul = list(set(map(lambda x: x['link_line.url'], q)))
+    ul = list(set([x['link_line.url'] for x in q]))
     pl = list(set(u_re.findall(u)))
     for l in pl:
 	if not pref + l[0] in ul:

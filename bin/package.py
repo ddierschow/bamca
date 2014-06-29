@@ -92,7 +92,7 @@ def ShowBox(pif, mod, style):
 
 
 def ShowModel(pif, mod):
-    #img = pif.render.FormatImageRequired(map(lambda x: 's_' + x, mod['modpic'][1]), pdir=config.imgdir175)
+    #img = pif.render.FormatImageRequired(['s_' + x for x in mod['modpic'][1]], pdir=config.imgdir175)
     img = pif.render.FormatImageRequired('s_' + mod['casting.id'], pdir=config.imgdir175)
     url = "single.cgi?id=" + mod['casting.id']
     ostr  = "<center>%s<br>" % mod['id']

@@ -19,7 +19,7 @@ if __name__ == '__main__': # pragma: no cover
     aliases = pif.dbh.FetchAliases()
     lmodels = pif.dbh.FetchLineupModels()
 
-    a_dict = dict(map(lambda x: (x['alias.id'], x), aliases))
+    a_dict = {x['alias.id']: x for x in aliases}
     for lmodel in lmodels:
 	if lmodel['lineup_model.letter']:
 	    id = '%(base_id.model_type)s%(lineup_model.number)02d%(lineup_model.letter)s' % lmodel

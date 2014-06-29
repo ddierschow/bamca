@@ -48,7 +48,7 @@ def DeletePack(pif, id):
 
 def SaveForm(pif):
     print pif.form,'<br>'
-    mods = map(lambda x: x[6:], filter(lambda x: x.startswith('pm.id.'), pif.form.keys()))
+    mods = [x[6:] for x in filter(lambda x: x.startswith('pm.id.'), pif.form.keys())]
     pm_table_info = pif.dbh.table_info['pack_model']
     pm_table_info['name'] = 'pack_model'
     pms = []
@@ -67,17 +67,17 @@ def SaveForm(pif):
 	pif.dbh.UpdateVariationSelectSub(pif.FormStr('id'), pif.FormStr('page_id'), pif.FormStr('o_id'))
 	if os.path.exists(pif.render.pic_dir + '/' + pif.FormStr('o_id') + '.jpg'):
 	    os.rename(pif.render.pic_dir + '/' + pif.FormStr('o_id') + '.jpg', pif.render.pic_dir + '/' + pif.FormStr('id') + '.jpg')
-    pif.dbh.UpdatePack(pif.FormStr('o_id'), dict(map(lambda x: (x, pif.form.get(x, '')), p_table_info['columns'])))
+    pif.dbh.UpdatePack(pif.FormStr('o_id'), {x: pif.form.get(x, '') for x in p_table_info['columns']})
     p_table_info = pif.dbh.table_info['base_id']
     p_table_info['name'] = 'base_id'
-    pif.dbh.UpdateBaseId(pif.FormStr('o_id'), dict(map(lambda x: (x, pif.form.get(x, '')), p_table_info['columns'])))
+    pif.dbh.UpdateBaseId(pif.FormStr('o_id'), {x: pif.form.get(x, '') for x in p_table_info['columns']})
 
 # ---- page list ------------------------------------------------------
 
 def MakePageList(pif):
     pages = pif.dbh.FetchPages("format_type='packs'")
     pages.sort(key=lambda x: x['page_info.title'])
-    lsec = map(lambda x: pif.dbh.DePref('section', x), pif.dbh.FetchSections({'page_id' : 'packs'}))
+    lsec = [pif.dbh.DePref('section', x) for x in pif.dbh.FetchSections({'page_id' : 'packs'})]
     entries = list()
     lsec[0]['range'] = [{'entry' : entries}]
     llineup = {'id': 'main', 'name': '', 'section': lsec}
@@ -145,7 +145,7 @@ def MakePackList(pif, year=None, reg=None, lid=None):
 	    pack['stars'] = stars
 
 	relateds = []#pif.dbh.FetchPacksRelated(pack['id'])
-	pack['rel'] = map(lambda x: x['pack.id'], relateds)
+	pack['rel'] = [x['pack.id'] for x in relateds]
 	pack['rel'].sort()
 	pack['rel'] = ' '.join(pack['rel'])
 
@@ -169,7 +169,7 @@ def MakePackList(pif, year=None, reg=None, lid=None):
     print pif.render.FormatRadio('year', zip([''] + years, ['all'] + years), checked='', sep='<br>')
     print '<p>'
     print 'Filter by Region<br>'
-    print pif.render.FormatRadio('region', zip([''] + regions, ['all'] + map(lambda x: mbdata.regions[x], regions)), checked='', sep='<br>')
+    print pif.render.FormatRadio('region', zip([''] + regions, ['all'] + [mbdata.regions[x] for x in regions]), checked='', sep='<br>')
     print '<p>'
 #    print pif.render.FormatSelect('lid', CalcPackSelect(pif, packs))
     print '<p>'

@@ -256,10 +256,10 @@ def debug(*arg, **kwargs):
     if not comment_pending:
 	print '<!--',
     if kwargs.get('nonl'):
-	print ' '.join(map(str, arg)),
+	print ' '.join([str(x) for x in arg]),
 	comment_pending = True
     else:
-	print ' '.join(map(str, arg)), '-->'
+	print ' '.join([str(x) for x in arg]), '-->'
 	comment_pending = False
 
 #------- api -------------------------------------------------
@@ -394,7 +394,7 @@ def HeaderColumnChange(file_id, hdrs):
 
 
 def TransformRow(row, num_file_hdrs):
-    row = map(TransformCell, row)
+    row = [TransformCell(x) for x in row]
     while len(row) < num_file_hdrs:
 	row.append('')
     return row
@@ -494,11 +494,11 @@ def Initialize(pif):
     if not init_done:
 	fnlookup = ReadFilenames(ReadDat('vfilename'))
 	plants = ReadPlants(ReadDat('vplants'))
-	trans1 = map(lambda x: [re.compile(x[0] + '\s*'), x[1]], trans1)
+	trans1 = [[re.compile(x[0] + '\s*'), x[1]] for x in trans1]
 	trans2 = ReadTrans(ReadDat('vtrans'))
-	trans3 = map(lambda x: [re.compile(x[0] + '\s*'), x[1]], trans3)
+	trans3 = [[re.compile(x[0] + '\s*'), x[1]] for x in trans3]
 	ctrans = trans1 + trans2 + trans3
-	htrans = map(lambda x: [re.compile(x[0], re.S|re.M), x[1]], htrans)
+	htrans = [[re.compile(x[0], re.S|re.M), x[1]] for x in htrans]
 	base_change = ReadColumnChange(ReadDat('vbases'))
 	column_change = ReadColumnChange(ReadDat('vcolumns'))
 	pre_cell_change = ReadCellChange(ReadDat('vpre'))

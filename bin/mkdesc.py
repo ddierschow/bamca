@@ -35,9 +35,9 @@ if __name__ == '__main__': # pragma: no cover
     verbose = False
     #verbose = True
     if len(sys.argv) == 1:
-	castings = map(lambda x: x['id'], pif.dbh.dbi.select('casting', verbose=False))
+	castings = [x['id'] for x in pif.dbh.dbi.select('casting', verbose=False)]
     elif sys.argv[1][0] >= 'a':
-	castings = map(lambda x: x['id'], pif.dbh.dbi.select('casting', where="section_id='%s'" % sys.argv[1], verbose=False))
+	castings = [x['id'] for x in pif.dbh.dbi.select('casting', where="section_id='%s'" % sys.argv[1], verbose=False)]
     else:
 	castings = sys.argv[1:]
 	verbose = True

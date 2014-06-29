@@ -46,8 +46,8 @@ class MatrixFile:
 			ent['description'].append(ent['v.text_description'])
 		    if ent.get('matrix_model.description'):
 			ent['description'].extend(ent['matrix_model.description'].split(';'))
-		    if pif.render.verbose:
-			ent['description'].append('(' + ent['matrix_model.description'] + ')')
+#		    if pif.render.verbose:
+#			ent['description'].append('(' + ent['matrix_model.description'] + ')')
 		    ent['description'] = filter(None, ent['description'])
 		    ent['disp_id'] = ''
 		    ent['image'] = ''
@@ -78,7 +78,7 @@ class MatrixFile:
 			    ent['link'] = useful.CleanName(ffmt['link'], '/')
 #		    if ent['image']:
 #			ent['image'] = '<center><table><tr><td class="spicture">%s</td></tr></table></center>' % ent['image']
-		    mat['ents'].setdefault(ent['range_id'], [])
+		    mat['ents'].setdefault(ent['range_id'], list())
 		    mat['ents'][ent['range_id']].append(ent)
 		    ent['disp_format'] = mat['disp_format']
 		    pif.render.Comment('        entry:', ent)

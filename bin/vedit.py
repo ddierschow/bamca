@@ -57,7 +57,7 @@ def ShowAttrs(pif, file_id, mod, hdrs, var_desc):
 	var_desc[attr["attribute_name"]] = attr["definition"]
     cnt = 1
     for hdr in hdrs:
-	if not hdr in var_record_cols and not hdr in map(lambda x: x['attribute_name'], attrs):
+	if not hdr in var_record_cols and not hdr in [x['attribute_name'] for x in attrs]:
 	    print "<tr>"
 	    print "<td>new</td>"
 	    print "<td>%s</td>" % pif.render.FormatTextInput("%dn.attribute_name" % cnt, 32, 32, hdr)
@@ -149,7 +149,7 @@ def CheckFile(pif, fdir, fn):
     for fitab in fitabs:
 	if len(fitab) < 2 or not len(fitab[1]):
 	    return IS_NO_MODEL
-	hdrs = map(vdata.CleanHeader, fitab[1][0])
+	hdrs = [vdata.CleanHeader[x] for x in fitab[1][0]]
 	num_file_hdrs = len(hdrs)
 	if hdrs[0] == 'var' and fitab[0].find("BOX TYPES") < 0:
 	    nhdrs = vdata.HeaderColumnChange(fn, hdrs)
@@ -160,7 +160,7 @@ def CheckFile(pif, fdir, fn):
 		continue
 	    attrs = pif.dbh.FetchAttributes(mod['id'])
 	    attrs = pif.dbh.DePref('attribute', attrs)
-	    attr_names = var_record_cols + map(lambda x: x['attribute_name'], attrs)
+	    attr_names = var_record_cols + [x['attribute_name'] for x in attrs]
 
 	    for hdr in nhdrs:
 		if not hdr in attr_names:
@@ -168,7 +168,7 @@ def CheckFile(pif, fdir, fn):
 
 	    varis = pif.dbh.FetchVariations(mod['id'], nodefaults=True)
 	    varis = pif.dbh.DePref('variation', varis)
-	    dbvars = dict(map(lambda x: (x['var'], x), varis))
+	    dbvars = dict([(x['var'], x) for x in varis])
 
 	    for row in fitab[1][1:]:
 		row = vdata.TransformRow(row, num_file_hdrs)
@@ -245,7 +245,7 @@ def FindVarID(dbvars, firow, ids_used):
 def GetFileList(fdir):
     dats = []
     for ext in ['htm', 'html', 'dat']:
-	dats += map(lambda x: x[x.rfind('/') + 1:x.rfind('.')], glob.glob(fdir + '/*.' + ext))
+	dats += [x[x.rfind('/') + 1:x.rfind('.')] for x in glob.glob(fdir + '/*.' + ext)]
     dats = list(set(dats))
     dats.sort()
     return dats
@@ -392,7 +392,7 @@ def ShowFile(pif, fdir, fn, args):
     if len(modids) > 1:
 	for id in modids:
 	    print '<a href="#%s">%s</a>' % (id, id)
-    var_desc = dict(map(lambda x: (x['field'], x['type']), pif.dbh.DescribeDict('variation').values()))
+    var_desc = dict([(x['field'], x['type']) for x in pif.dbh.DescribeDict('variation').values()])
 
     for fitab in fitabs:
 	ShowModelTable(pif, modids, fitab, fn, var_lup, var_desc)
@@ -402,7 +402,7 @@ dat_name_re = re.compile(r'Name: (?P<n>.*)')
 dat_year_re = re.compile(r'Year: (?P<y>.*)')
 def ShowModelTable(pif, modids, fitab, fn, var_lup, var_desc):
     #print fitab[1][0], '<br>'
-    hdrs = map(vdata.CleanHeader, fitab[1][0])
+    hdrs = [vdata.CleanHeader[x] for x in fitab[1][0]]
     num_file_hdrs = len(hdrs)
     hdrs.append('imported_from')
     if hdrs[0] == 'var' and fitab[0].find("BOX TYPES") < 0:
@@ -416,7 +416,7 @@ def ShowModelTable(pif, modids, fitab, fn, var_lup, var_desc):
 	    print 'no model<br>'
 	    return
 
-	varfiles = map(lambda x: x['imported_from'], pif.dbh.FetchVariationFiles(mod['id']))
+	varfiles = [x['imported_from'] for x in pif.dbh.FetchVariationFiles(mod['id'])]
 	for vf in varfiles:
 	    if vf:
 		print '<a href="?f=%s">%s</a>' % (vf, vf)
@@ -440,7 +440,7 @@ def ShowModelTable(pif, modids, fitab, fn, var_lup, var_desc):
 	print "<h3>Variations</h3>"
 	varis = pif.dbh.FetchVariations(mod['id'], nodefaults=True)
 	varis = pif.dbh.DePref('variation', varis)
-	dbvars = dict(map(lambda x: [x['var'], x], varis))
+	dbvars = dict([[x['var'], x] for x in varis])
 	print '<form method="post">'
 	print '<input type="hidden" name="current_file" value="%s">' % fn
 	print '<input type="hidden" name="mod_id" value="%s">' % mod['id']

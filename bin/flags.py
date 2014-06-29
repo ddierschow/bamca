@@ -11,7 +11,7 @@ class FlagList():
     # interprets "175.dat"
     def __init__(self, pif):
 	self.isolist = mbdata.countries
-	self.lookup = dict(map(lambda x: (x[0], x[1]), self.isolist))
+	self.lookup = {x[0]: x[1] for x in self.isolist}
 	self.isolist.sort(key=lambda x: x[1])
 
     def Format(self, code2, hspace=0, also={}):

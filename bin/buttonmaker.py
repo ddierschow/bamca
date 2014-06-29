@@ -42,7 +42,7 @@ def create_base_image(text, font):
     texts = text.split('|')
     max_width = 0
     for ln in texts:
-	width = reduce(lambda x,y: x+y, map(lambda x: font.chars[x][0], ln))
+	width = reduce(lambda x,y: x+y, [font.chars[x][0] for x in ln])
 	max_width = max(max_width, width)
     height = (font.height + padding) * len(texts) + padding + 2
     width = max_width + 2 + 2 * padding
@@ -60,7 +60,7 @@ def create_base_image(text, font):
 
     y = padding + 1
     for ln in texts:
-	ln_width = reduce(lambda x,y: x+y, map(lambda x: font.chars[x][0], ln))
+	ln_width = reduce(lambda x,y: x+y, [font.chars[x][0] for x in ln])
 	x = 1 + padding + (max_width - ln_width) / 2
 	for c in ln:
 	    merge(image, x, y, width, font.height, font.chars[c], 1)

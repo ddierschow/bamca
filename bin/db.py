@@ -140,7 +140,7 @@ class db:
 	if self.db:
 	    res, desc, lid = self.execute('desc %s' % table, verbose=verbose)
 	    if res:
-		return map(lambda x: dict(zip(desc_cols, x)), res)
+		return [dict(zip(desc_cols, x)) for x in res]
 	return []
 
     def select(self, table, cols=None, where=None, group=None, order=None, args=None, tag='', verbose=None):
@@ -160,9 +160,9 @@ class db:
 		query += ''' order by %s''' % order
 	    res, desc, lid = self.execute(query, args, verbose=verbose)
 	    if not cols:
-		cols = map(lambda x: x[0], desc)
+		cols = [x[0] for x in desc]
 	    if res:
-		return map(lambda x: dict(zip(cols, x)), res)
+		return [dict(zip(cols, x)) for x in res]
 	return []
 
     def rawquery(self, query, tag='', verbose=None):
@@ -172,14 +172,14 @@ class db:
 	    res, desc, lid = self.execute(query, verbose=verbose)
 	    if not desc:
 		return []
-	    cols = map(lambda x: x[0], desc)
+	    cols = [x[0] for x in desc]
 	    if res:
-		return map(lambda x: dict(zip(cols, x)), res)
+		return [dict(zip(cols, x)) for x in res]
 	return []
 
     def insert_or_update(self, table, values, tag='', verbose=None):
 	if self.db:
-	    setlist = ','.join(map(lambda x: x + "=" + self.db.literal(str(values[x])), values))
+	    setlist = ','.join([x + "=" + self.db.literal(str(values[x])) for x in values])
 	    cols = []
 	    vals = []
 	    for item in values.items():
@@ -207,7 +207,7 @@ class db:
 	    query = 'update '
 	    if tag:
 		query += "/* %s */ " % tag
-	    setlist = ','.join(map(lambda x: x + "=" + self.db.literal(str(values[x])), values))
+	    setlist = ','.join([x + "=" + self.db.literal(str(values[x])) for x in values])
 	    query += '''%s set %s''' % (table, setlist)
 	    if where:
 		query += ''' where %s;''' % where
@@ -224,7 +224,7 @@ class db:
 	    query = 'update '
 	    if tag:
 		query += "/* %s */ " % tag
-	    setlist = ','.join(map(lambda x: x + "=" + values[x], values))
+	    setlist = ','.join([x + "=" + values[x] for x in values])
 	    query += '''%s set %s''' % (table, setlist)
 	    if where:
 		query += ''' where %s;''' % where
@@ -241,7 +241,7 @@ class db:
 	    query = 'update '
 	    if tag:
 		query += "/* %s */ " % tag
-	    setlist = ','.join(map(lambda x: x + "=" + str(values[x]), values))
+	    setlist = ','.join([x + "=" + str(values[x]) for x in values])
 	    query += '''%s set %s''' % (table, setlist)
 	    if where:
 		query += ''' where %s;''' % where

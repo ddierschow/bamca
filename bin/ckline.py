@@ -47,9 +47,9 @@ def Main(pif):
 	od = {}
 	fil = open('cf/lines/All' + fn + '.dat')
 	for ln in fil.readlines():
-	    arr = map(lambda x: x.strip(), ln.split('|'))
+	    arr = [x.strip() for x in ln.split('|')]
 	    if arr[0] == 'h':
-		hdr = map(lambda x: x.replace(' ', ''), arr)
+		hdr = [x.replace(' ', '') for x in arr]
 	    elif arr[0] == 'e':
 		d = dict(zip(hdr, arr))
 

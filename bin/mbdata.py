@@ -15,7 +15,7 @@ regions = {
     'L' : "Latin America",
     'X' : "Worldwide",
 }
-reverse_regions = dict(map(lambda x: (x[1], x[0]), regions.items()))
+reverse_regions = {regions[x]: x for x in regions}
 
 
 regionparents = {

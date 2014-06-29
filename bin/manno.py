@@ -117,8 +117,8 @@ class MannoFile:
 	self.firstyear = 1
 	self.lastyear = 9999
 	self.mdict = dict()
-	self.tdict = dict(map(lambda x: (x['vehicle_type.ch'], x['vehicle_type.name']), pif.dbh.FetchVehicleTypes()))
-	self.plist = map(lambda x: x['page_info.id'], pif.dbh.FetchPages({'format_type' : 'manno'}))
+	self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in pif.dbh.FetchVehicleTypes()}
+	self.plist = [x['page_info.id'] for x in pif.dbh.FetchPages({'format_type' : 'manno'})]
 	if pif.FormStr('section', 'all') != 'all':
 	    slist = pif.dbh.FetchSections({'id' : pif.FormStr('section')})#, 'page_id' : self.page_name})
 	else:
@@ -449,7 +449,7 @@ class MannoFile:
 	    'fvyear': '', 'lvyear': '',
 	    'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
 	    'nl': '<a href="%(link)s=%(id)s">%(name)s</a>' % mdict})
-	mdict.update(dict(map(lambda x: self.ShowListPic(pif, x, mdict['id'], x[0][0]), prefixes)))
+	mdict.update(dict([self.ShowListPic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
 	mdict.update(self.ShowListVarYears(pif, mdict['id']))
 	mdict.setdefault('own', '')
 	mdict.setdefault('mydesc', '')
@@ -487,12 +487,12 @@ class MannoFile:
 	mdict.update({'img': self.ShowListPic(pif, ['', config.imgdir175], mdict['id'], 's')[1],
 	    'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
 	    'nl': '<a href="%(link)s=%(id)s">%(name)s</a>' % mdict})
-	mdict.update(dict(map(lambda x: self.ShowListPic(pif, x, mdict['id'], x[0][0]), prefixes)))
+	mdict.update(dict([self.ShowListPic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
 	icon = self.ShowListPic(pif, [ 'i_', config.imgdir175 + '/icon' ], mdict['id'], 'i')
 	mdict['z_'] = icon[1]
 	#mdict['varpic'] = self.ShowListVarPics(pif, mdict['id'])
 	vp = single.ShowListVarPics(pif, mdict['id'])
-	mdict.update(dict(map(lambda x: (var_pic_keys[x], vp[x]), range(0,5))))
+	mdict.update({var_pic_keys[x]: vp[x] for x in range(0,5)})
 	#[percent_a, percent_c, percent_1, percent_2, percent_f]
 	return picture_fmtb % mdict
 
@@ -549,10 +549,10 @@ class MannoFile:
 	mdict['name'] = mdict['id'] + '<br>' + mdict['rawname']
 	mdict['img'] = pif.render.FormatImageRequired(img, None, made=mdict['made'])
 	mdict['sel'] = pif.render.FormatCheckbox('vt_' + mdict['id'], 
-		map(lambda x: [x, mbdata.model_types[x]], list(mbdata.model_type_chars[:13])),
+		[[x, mbdata.model_types[x]] for x in list(mbdata.model_type_chars[:13])],
 		checked=mdict['vehicle_type']) + '<br>'
 	mdict['sel'] += pif.render.FormatCheckbox('vt_' + mdict['id'], 
-		map(lambda x: [x, mbdata.model_types[x]], list(mbdata.model_type_chars[13:])),
+		[[x, mbdata.model_types[x]] for x in list(mbdata.model_type_chars[13:])],
 		checked=mdict['vehicle_type']) + '<br>'
 	mdict['sel'] += 'make: ' + pif.render.FormatTextInput('vm_' + mdict['id'], 3, 3, value=mdict['make'])
 	mdict['sel'] += 'country: ' + pif.render.FormatTextInput('co_' + mdict['id'], 2, 2, value=mdict['country'])
@@ -713,7 +713,7 @@ def Comparisons(pif, diffs):
 	ostr += pif.render.FormatRowEnd()
 	for main_id in keys:
 	    modset = modsets[main_id]
-	    ostr += pif.render.FormatRowStart(ids=map(lambda x: x[0], modset))
+	    ostr += pif.render.FormatRowStart(ids=[x[0] for x in modset])
 	    ostr += pif.render.FormatCellStart(imod, hdr=True, also={'colspan' : 3})
 	    names = list()
 	    for id, name, descs in modset:

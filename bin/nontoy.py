@@ -139,7 +139,7 @@ def Biblio(pif):
 			    if links[field] in fields:
 				url = fdict.get(links[field], '')
 			    elif links[field].find(',') >= 0:
-				url = MapLink(map(lambda x: fdict.get(x, ''), links[field].split(',')[1:]))
+				url = MapLink([fdict.get(x, '') for x in links[field].split(',')[1:]])
 			    elif cont.startswith('http://'):
 				url = cont
 			if url:
@@ -271,7 +271,7 @@ def Publication(pif):
     man = man[0]
     man['casting_type'] = 'Publication'
     man['name'] = man['base_id.rawname'].replace(';', ' ')
-    imgs = list(set(map(lambda x: x[2:], glob.glob(os.path.join(pif.render.pic_dir, '?_' + pub_id.lower() + '_*.jpg')))))
+    imgs = list(set([x[2:] for x in glob.glob(os.path.join(pif.render.pic_dir, '?_' + pub_id.lower() + '_*.jpg'))]))
 
     # top
 

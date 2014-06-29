@@ -127,7 +127,7 @@ def CommandLine(switches="", options="", long_options={}, version="", short_help
 	    switch[key] = [defaults[key]]
 
     if doglob:
-	files = reduce(lambda x,y: x+y, map(glob.glob, files), [])
+	files = reduce(lambda x,y: x+y, [glob.glob(x) for x in files], [])
 
     return (switch, files)
 

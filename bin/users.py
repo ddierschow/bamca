@@ -201,7 +201,7 @@ def Create(pif):
 
 def GenKey():
     s = string.digits + string.ascii_lowercase
-    return ''.join(map(lambda x:s[random.randrange(len(s))], range(0,10)))
+    return ''.join([s[random.randrange(len(s))] for x in range(0,10)])
 
 
 def GenEmail(name, email, vkey):

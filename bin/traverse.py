@@ -14,7 +14,7 @@ def ShowList(title, tdir, fl):
     mlen = reduce(lambda x,y: max(x,len(y)), fl, 0)
     cols = max(1, 160/max(1, mlen))
     clen = (len(fl) - 1) / cols + 1
-    ffl = map(lambda x: fl[(x*clen):((x+1)*clen)], range(0, cols))
+    ffl = [fl[(x*clen):((x+1)*clen)] for x in range(0, cols)]
     print '<h4>%s (%d)</h4>' % (title, len(fl))
     print "<table width=100%><tr valign=top>"
     for cl in ffl:
@@ -151,8 +151,8 @@ def ShowScript(pif, mvl, rml):
 	mvl = [mvl]
     if type(rml) != type([]):
 	rml = [rml]
-    libl = map(lambda x: (x[4:], pif.FormStr(x)), filter(lambda x: x.startswith('lib.'), pif.form.keys()))
-    renl = map(lambda x: (x[4:], pif.FormStr(x)), filter(lambda x: x.startswith('ren.'), pif.form.keys()))
+    libl = [(x[4:], pif.FormStr(x)) for x in filter(lambda x: x.startswith('lib.'), pif.form.keys())]
+    renl = [(x[4:], pif.FormStr(x)) for x in filter(lambda x: x.startswith('ren.'), pif.form.keys())]
     rend = dict(renl)
     print '<pre>'
     for ren in renl:

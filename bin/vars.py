@@ -48,8 +48,8 @@ def ShowVariation(pif, man, var_id):
     print '<table width=100%><tr><td class="title">' + pif.render.title + '</td></tr></table>'
     print pif.render.FormatButton("back_to_main_casting_page", "single.cgi?id=%s" % mod_id)
     values = {}
-    attributes = dict(map(lambda x: (x['attribute_name'], x), pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))))
-    attributes.update(dict(map(lambda x: (pif.dbh.table_info['variation']['columns'][x], {'title' : pif.dbh.table_info['variation']['titles'][x]}), range(0, len(pif.dbh.table_info['variation']['columns'])))))
+    attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
+    attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References', 'definition' : 'varchar(256)'}
 
     variation = pif.dbh.DePref('variation', pif.dbh.FetchVariation(mod_id, var_id))
@@ -78,9 +78,9 @@ def ShowVariation(pif, man, var_id):
     selects = GetVarSelects(pif, mod_id)
 
     values = UpdateValues(variation, values)
-    variation['area'] = ', '.join(map(lambda x: mbdata.regions.get(x, x), variation.get('area', '').split(';')))
+    variation['area'] = ', '.join([mbdata.regions.get(x, x) for x in variation.get('area', '').split(';')])
     data = variation.keys() + filter(lambda d: d not in variation, attributes)
-    hdrs = dict(map(lambda x: (x,x), variation.keys()))
+    hdrs = {x:x for x in variation}
     data.sort()
 
     print '<form action="vars.cgi" name="vars" method="post">'
@@ -177,8 +177,8 @@ def ShowVariationEditor(pif, id, var_id):
     sobj = []
     values = {}
     mod_id = man['id']
-    attributes = dict(map(lambda x: (x['attribute_name'], x), pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))))
-    attributes.update(dict(map(lambda x: (pif.dbh.table_info['variation']['columns'][x], {'title' : pif.dbh.table_info['variation']['titles'][x]}), range(0, len(pif.dbh.table_info['variation']['columns'])))))
+    attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
+    attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References', 'definition' : 'varchar(256)'}
 
     variation = pif.dbh.DePref('variation', pif.dbh.FetchVariation(mod_id, var_id))
@@ -225,12 +225,12 @@ def ShowVariationEditor(pif, id, var_id):
 
     variation['references'] = ' '.join(list(set(selects.get(var_id, []))))
     values = UpdateValues(variation, values)
-    variation['area'] = ', '.join(map(lambda x: mbdata.regions.get(x, x), variation.get('area', '').split(';')))
+    variation['area'] = ', '.join([mbdata.regions.get(x, x) for x in variation.get('area', '').split(';')])
     data = variation.keys()
     for key in attributes:
 	if not key in data:
 	    data.append(key)
-    hdrs = dict(map(lambda x: (x,x), variation.keys()))
+    hdrs = {x: x for x in variation.keys()}
     data.sort()
 
     print pif.render.FormatRowStart()
@@ -302,8 +302,8 @@ def ShowVariationEditor(pif, id, var_id):
 def Save(pif, mod_id, var_id):
     if var_id:
 	var_sel = repic = ''
-	attributes = dict(map(lambda x: (x['attribute_name'], x), pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))))
-	#attributes.update(dict(map(lambda x: (pif.dbh.table_info['variation']['columns'][x], {'title' : pif.dbh.table_info['variation']['titles'][x]}), range(0, len(pif.dbh.table_info['variation']['columns'])))))
+	attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
+	#attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
 	pif.render.Comment("Save: ", pif.form, '<p>', attributes)
 	var_dict = {'mod_id' : pif.FormStr('mod'), 'picture_id' : ''}
 	det_dict = {}
@@ -422,7 +422,7 @@ def SearchForm(pif, attributes, values={}):
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, attributes[key]['title'])
 	if key == 'category':
-	    cates = [('', '')] + map(lambda x: (x, mbdata.categories.get(x,x)), values[key])
+	    cates = [('', '')] + [(x, mbdata.categories.get(x,x)) for x in values[key]]
 	    cates.sort(key=lambda x: x[1])
 	    pulldown = pif.render.FormatButtonUpDownSelect(key, -1) + pif.render.FormatSelect(key, cates, id=key)
 	    pulldown += '&nbsp;' + pif.render.FormatCheckbox('c1', [(1, 'Code 1 only')])
@@ -478,7 +478,7 @@ def ParseModel(model):
 
 def DoVar(pif, model, wheels, data, hdrs, attributes, prev):
     data.sort()
-    cats = map(lambda x: mbdata.categories.get(x, x), model['catlist'])
+    cats = [mbdata.categories.get(x, x) for x in model['catlist']]
 
     ostr = pif.render.FormatRowStart()
     ostr += pif.render.FormatCellStart(0)
@@ -554,9 +554,9 @@ def DoVarGrid(pif, model):
     else:
 	pic_var = model['var']
     data = model.keys()
-    hdrs = dict(map(lambda x: (x,x), model.keys()))
+    hdrs = {x: x for x in model}
     data.sort()
-    cats = map(lambda x: mbdata.categories.get(x, x), model['catlist'])
+    cats = [mbdata.categories.get(x, x) for x in model['catlist']]
 
     fname = useful.CleanName("%s-%s" % (model['mod_id'], pic_var)).lower()
     imgstr = pif.render.FormatImageRequired([fname], pdir=pif.render.pic_dir + '/var', prefix=['s_'])
@@ -567,7 +567,7 @@ def DoVarGrid(pif, model):
     ostr += '<table class="vartable">'
     ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % model['text_description']
     ostr += "</table>"
-    ostr += ', '.join(map(lambda x: mbdata.categories.get(x, x), model['catlist']))
+    ostr += ', '.join([mbdata.categories.get(x, x) for x in model['catlist']])
     return ostr
 
 
@@ -655,8 +655,8 @@ def DoModel(pif, man, variations, display_type):
     values = {}
 
     mod_id = man['id']
-    attributes = dict(map(lambda x: (x['attribute_name'], x), pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))))
-    attributes.update(dict(map(lambda x: (pif.dbh.table_info['variation']['columns'][x], {'title' : pif.dbh.table_info['variation']['titles'][x]}), range(0, len(pif.dbh.table_info['variation']['columns'])))))
+    attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
+    attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References'}
     selects = GetVarSelects(pif, mod_id)
 
@@ -729,12 +729,12 @@ def DoModel(pif, man, variations, display_type):
 			DescMatch(attrq, model, bool(pif.form.get('ci'))) and \
 			FieldMatch(pif, attrq, model):
 		count += 1
-		model['area'] = ', '.join(map(lambda x: mbdata.regions.get(x, x), model.get('area', '').split(';')))
+		model['area'] = ', '.join([mbdata.regions.get(x, x) for x in model.get('area', '').split(';')])
 		if display_type == DISPLAY_TYPE_GRID:
 		    ostr = DoVarGrid(pif, model)
 		    lran['entry'].append({'text' : ostr})
 		elif display_type == DISPLAY_TYPE_FULL:
-		    print DoVar(pif, model, None, model.keys(), dict(map(lambda x: (x,x), model.keys())), attributes, prev)
+		    print DoVar(pif, model, None, model.keys(), {x: x for x in model}, attributes, prev)
 		prev = model
 
 	if display_type == DISPLAY_TYPE_GRID and count:
@@ -809,8 +809,8 @@ def ShowModel(pif, model):
     varl = pif.form.get("v", '')
     cateq = pif.form.get("var.cate")
     wheelq = pif.form.get("var.wheels")
-    attributes = dict(map(lambda x: (x['attribute_name'], x), pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(model['id']))))
-    attributes.update(dict(map(lambda x: (pif.dbh.table_info['variation']['columns'][x], {'title' : pif.dbh.table_info['variation']['titles'][x]}), range(0, len(pif.dbh.table_info['variation']['columns'])))))
+    attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(model['id']))}
+    attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References'}
     attrq = {}
     for attr in attributes:
@@ -828,7 +828,7 @@ def ShowModel(pif, model):
     #print '<h2>' + model['name'] + '</h2>'
     #print '<h3>%s</h3>' % '-'.join(ParseModel(model['id'])).upper()
     print '<center>'
-    print pif.render.FormatImageRequired(map(lambda x: x + model['id'].lower(), ['m_', 's_']), pdir=config.imgdir175)
+    print pif.render.FormatImageRequired([x + model['id'].lower() for x in ['m_', 's_']], pdir=config.imgdir175)
     print '</center><br>'
     if varl:
 	print 'Selected models'
@@ -985,34 +985,46 @@ def FmtDetail(var, fmt, verbose):
 
 
 # Sometimes this causes duplicate output.  It would be nice to merge those.
+'''
 def Fmt(var, casting, ovar, field, verbose):
     ovar['text_' + field] = ''
-    fmt = ', '.join(filter(None, map(lambda x: FmtDetail(var, x, verbose), casting['format_' + field].split('|'))))
+    fmt = ', '.join(filter(None, [FmtDetail(var, x, verbose) for x in casting['format_' + field].split('|')]))
     try:
 	ovar['text_' + field] = fmt % var
     except:
 	if verbose:
 	    print '!', field
+'''
+
+def FmtDesc(var, casting, field, verbose):
+    fmt = ', '.join(filter(None, [FmtDetail(var, x, verbose) for x in casting[field].split('|')]))
+    desc = ''
+    try:
+	desc = fmt % var
+    except:
+	if verbose:
+	    print '!', field
+    return desc
 
 
 cols = ['description', 'body', 'base', 'wheels', 'interior', 'windows']
 def RecalcDescription(pif, mod_id, verbose=False):
-    textcols = map(lambda x: 'text_' + x, cols)
+    textcols = ['text_' + x for x in cols]
     casting = pif.dbh.FetchCasting(mod_id)
     vars = pif.dbh.DePref('variation', pif.dbh.FetchVariations(mod_id))
     for var in vars:
 	if verbose:
 	    print var['var']
-	ovar = dict(zip(textcols, [''] * len(textcols)))
-	map(lambda x: Fmt(var, casting, ovar, x, verbose), cols)
+	ovar = {x: '' for x in textcols}
+	ovar.update({'text_' + x: FmtDesc(var, casting, 'format_' + x, verbose) for x in cols})
 	pif.dbh.UpdateVariation(ovar, {'mod_id' : var['mod_id'], 'var' : var['var']})
 
 
-cas_cols = map(lambda x: 'format_' + x, cols)
+cas_cols = ['format_' + x for x in cols]
 var_cols = ['base', 'body', 'interior', 'windows', 'manufacture']
 def CheckFormatting(pif, mod_id, verbose=False, linesep=''):
     casting = pif.dbh.FetchCasting(mod_id)
-    attributes = var_cols + map(lambda x: x['attribute.attribute_name'], pif.dbh.FetchAttributes(mod_id))
+    attributes = var_cols + [x['attribute.attribute_name'] for x in pif.dbh.FetchAttributes(mod_id)]
     for attr in attributes:
 	if attr == 'from_CY_number':
 	    continue
@@ -1081,8 +1093,8 @@ def VarSearchAsk(pif):
     varl = pif.form.get("v", '')
     cateq = pif.form.get("var.cate")
     wheelq = pif.form.get("var.wheels")
-    attributes = dict(map(lambda x: (x['attribute_name'], x), pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(model['id']))))
-    attributes.update(dict(map(lambda x: (pif.dbh.table_info['variation']['columns'][x], {'title' : pif.dbh.table_info['variation']['titles'][x]}), range(0, len(pif.dbh.table_info['variation']['columns'])))))
+    attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(model['id']))}
+    attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References'}
     attrq = {}
     for attr in attributes:
@@ -1134,8 +1146,8 @@ def VarSearch(pif):
     pif.render.title = 'Models matching: ' + ' '.join(pif.GetSearch('query'))
     print pif.render.FormatHead()
     modsperpage = 100
-    varsq = dict(map(lambda x: (vfields[x], pif.GetSearch(x)), vfields))
-    castq = dict(map(lambda x: (cfields[x], pif.GetSearch(x)), cfields))
+    varsq = {vfields[x]: pif.GetSearch(x) for x in vfields}
+    castq = {cfields[x]: pif.GetSearch(x) for x in cfields}
     codes = GetCodes(pif)
     if codes == None:
 	print "This submission was not created by the form provided.<p>"
@@ -1157,8 +1169,8 @@ def VarSearch(pif):
 	lran['entry'].append({'text' : AddModelVarTablePicLink(pif, mod)})
     lsec['range'] = [lran]
     llineup['section'] = [lsec]
-    qf = '&'.join(map(lambda x: '%s=%s' % (x, pif.form.get(x, '')), vfields)) + '&'
-    qf += '&'.join(map(lambda x: '%s=%s' % (x, pif.form.get(x, '')), cfields))
+    qf = '&'.join(['%s=%s' % (x, pif.form.get(x, '')) for x in vfields]) + '&'
+    qf += '&'.join(['%s=%s' % (x, pif.form.get(x, '')) for x in cfields])
     if pif.render.verbose:
 	qf += '&verbose=1'
     qf += '&codes=%s' % codes

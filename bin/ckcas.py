@@ -15,7 +15,7 @@ verbose = False
 
 def RunModels(mods):
     upics = spics = sfound = cpics = cfound = mpics = mfound = apics = afound = 0
-    mods = map(lambda x: x[0], mods)
+    mods = [x[0] for x in mods]
     mods.sort()
 
     for mod in mods:

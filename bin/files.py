@@ -13,11 +13,11 @@ class ArgList:
 	self.llist = []
 	line = line.strip( )
 	if len( line ) and line[0] != '#':
-	    self.llist = map(lambda x: x.strip(), line.split('|'))
+	    self.llist = [x.strip() for x in line.split('|')]
 	self.curarg = 0
 
     def Clean(self):
-	self.llist = map(lambda x: x.strip(), self.llist)
+	self.llist = [x.strip() for x in self.llist]
 
     def Args(self):
 	return len(self.llist)

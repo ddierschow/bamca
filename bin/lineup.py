@@ -172,9 +172,9 @@ def ShowLineupModelVar(pif, mdict, comments, show_var=None, verbose=0):
     mdict['imgstr'] = pif.render.FormatImageRequired(imglist, prefix='s_', vars=mdict['varlist'], pdir=config.imgdir175)
 
     if show_var:
-	mdict['descriptions'] = map(lambda x: x[1], filter(lambda x: show_var in x[0], mdict['cvarlist']))
+	mdict['descriptions'] = [x[1] for x in filter(lambda y: show_var in y[0], mdict['cvarlist'])]
     else:
-	mdict['descriptions'] = map(lambda x: x[1], mdict['vars'])
+	mdict['descriptions'] = [x[1] for x in mdict['vars']]
 
     mdict['no_specific_image'] = 0
     if mdict['casting.id'] and not mdict.get('not_made'):
@@ -261,7 +261,7 @@ def CreateLineup(mods, parents, year, region, verbose=0):
     if verbose: # pragma: no cover
 	pass#print 'CreateLineup', len(mods), parents, year, region, '<br>'
 #    if region == 'X':
-#	return dict(map(lambda x: (x['lineup_model.number'], x), mods))
+#	return {x['lineup_model.number']: x for x in mods}
 
     rankmods = dict()
     reg_list = []
@@ -350,7 +350,7 @@ def GenerateManLineup(pif, year, region):
 
 
 def CreateExtraLineup(pif, year, secs, verbose=0): # currently unimplemented # pragma: no cover
-    line_regions = map(lambda x: x['id'], secs)
+    line_regions = [x['id'] for x in secs]
     lmods = pif.dbh.FetchLineupModels(str(year), line_regions)
     if verbose: # pragma: no cover
 	print 'CreateExtraLineup', year, len(lmods), '<br>'
@@ -516,7 +516,7 @@ def RunFile(pif, region, year):
 
 def RunMultiFile(pif, year, region, nyears):
     pif.render.Comment('lineup.RunMultiFile', region, year, nyears)
-    pages = pif.dbh.FetchPages('id in (' + ','.join(map(lambda x: "'year.%d'" % x, range(int(year), int(year) + nyears))) + ')')
+    pages = pif.dbh.FetchPages('id in (' + ','.join(["'year.%d'" % x for x in range(int(year), int(year) + nyears)]) + ')')
 
     modlistlist = []
     max_mods = 0
@@ -804,7 +804,7 @@ def ShowTextLineupModel(pif, mdict, verbose=0):
 	mdict['mod_id'] = mdict['lineup_model.mod_id']
 	mdict['ref_id'] = mdict['vs.ref_id']
 	mdict['sub_id'] = mdict['vs.sub_id']
-	mdict['descriptions'] = map(lambda x: x[1], mdict['vars'])
+	mdict['descriptions'] = [x[1] for x in mdict['vars']]
 	mdict['href'] = ""
 	if mdict['casting.id']:
 	    if mdict['lineup_model.picture_id']:
@@ -983,7 +983,7 @@ def GenerateRankLineup(pif, rank, region, syear, eyear):
 def GatherRankPages(pif, pages, region):
     region_list = mbdata.GetRegionTree(region)
     sections = pif.dbh.FetchSections(where="page_id like 'year.%'")
-    sections = map(lambda x: pif.dbh.DePref('section', x), sections)
+    sections = [pif.dbh.DePref('section', x) for x in sections]
     sections = filter(lambda x: x['id'][0] in region_list, sections)
     sections.sort(key=lambda x: x['start'], reverse=True)
     for rg in region_list:
@@ -1011,7 +1011,7 @@ def RunRanks(pif, mnum, region, syear, eyear):
 	return dict()
     pif.render.Comment('lineup.RunRanks', mnum, region, syear, eyear)
 
-    pages = dict(map(lambda x: (x['page_info.id'], x), pif.dbh.FetchPageYears()))
+    pages = {x['page_info.id']: x for x in pif.dbh.FetchPageYears()}
     GatherRankPages(pif, pages, region)
 
     lmodlist = GenerateRankLineup(pif, mnum, region, syear, eyear)
@@ -1066,7 +1066,7 @@ def RunProductPictures(pif, region):
 	pages = filter(lambda x: x['page_info.id'] >= 'year.' + pif.FormStr('syear'), pages)
     if pif.FormStr('eyear'):
 	pages = filter(lambda x: x['page_info.id'] <= 'year.' + pif.FormStr('eyear'), pages)
-    pages = dict(map(lambda x: (x['page_info.id'], x), pages))
+    pages = {x['page_info.id']: x for x in pages}
     GatherRankPages(pif, pages, region)
     region_list = mbdata.GetRegionTree(region)
 
@@ -1080,7 +1080,7 @@ def RunProductPictures(pif, region):
     for page in keys:
 	lmodlist = pif.dbh.FetchSimpleLineupModels(page[5:], region)
 	lmodlist = filter(lambda x: x['lineup_model.region'][0] in region_list, lmodlist)
-	lmoddict = dict(map(lambda x: (x['lineup_model.number'], x), lmodlist))
+	lmoddict = {x['lineup_model.number']: x for x in lmodlist}
 	min_num = 1
 	max_num = pages[page]['max(lineup_model.number)']
 	if pif.FormStr('num'):
@@ -1221,7 +1221,7 @@ def MackLineup(pif):
 #--------- makes -----------------------------------
 
 def MakesMain(pif):
-    makelist = map(lambda x: (x['vehicle_make.make'], x['vehicle_make.make_name']), pif.dbh.FetchVehicleMakes())
+    makelist = [(x['vehicle_make.make'], x['vehicle_make.make_name']) for x in pif.dbh.FetchVehicleMakes()]
     makedict = dict(makelist + [('unl', 'Unlicensed'), ('', 'Unknown')])
     make = pif.FormStr('make', '')
     makes = [make]
