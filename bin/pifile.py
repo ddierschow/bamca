@@ -90,7 +90,7 @@ class PageInfoFile():
 	self.form[key] = val
 
     def FormDef(self, key, val):
-	self.setdefault(key, val)
+	self.form.setdefault(key, val)
 
     def FormHas(self, key):
 	return self.form.has_key(key)
