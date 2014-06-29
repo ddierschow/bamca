@@ -3,17 +3,17 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-import copy, filecmp, glob, os, stat
+import copy, filecmp, glob, os, pprint, stat
 import config # bleagh
 
 if os.getenv('REQUEST_METHOD'): # is this apache? # pragma: no cover
     import cgitb; cgitb.enable()
 
-def FormInt(val, defval=0):
-    try:
-	return int(val)
-    except:
-	return int(defval)
+#def FormInt(val, defval=0):
+#    try:
+#	return int(val)
+#    except:
+#	return int(defval)
 
 
 def ReadDir(patt, tdir):
@@ -25,6 +25,19 @@ def ReadDir(patt, tdir):
 
 
 def RootExt(fn):
+    '''Split fn into root and ext.  In this case, ext has no dot.
+
+    >>> RootExt('abc.def')
+    ('abc', 'def')
+    >>> RootExt('.abc')
+    ('.abc', '')
+    >>> RootExt('abc.')
+    ('abc', '')
+    >>> RootExt('abc')
+    ('abc', '')
+    >>> RootExt('')
+    ('', '')
+    '''
     root, ext = os.path.splitext(fn)
     if ext:
 	ext = ext[1:]
@@ -82,11 +95,12 @@ def Plural(thing):
 
 def DumpDictComment(t, d, keys=None):
     print "<!-- Dump",t,":"
-    if not keys:
-	keys = d.keys()
-    keys.sort()
-    for k in keys:
-	print '   ', k, ':', d[k]
+#    if not keys:
+#	keys = d.keys()
+#    keys.sort()
+#    for k in keys:
+#	print '   ', k, ':', d[k]
+    pprint.pprint(d, indent=1, width=132)
     print '-->'
 
 
@@ -258,7 +272,7 @@ def HeaderDone():
 def WriteComment(*args):
     global header_done, pending_comments
     if header_done:
-	print '<!--', ' '.join(map(lambda x: str(x), args)), '-->'
+	print '<!--', ' '.join([str(x) for x in args]), '-->'
     else:
 	pending_comments.append(args)
 
