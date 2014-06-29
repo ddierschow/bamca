@@ -698,7 +698,7 @@ def MassResize(pif, pic_dir, fn, nname, q, original_size, desc=''):
 def Shape(pif, tdir, fil, nname, bound, target_size, original_size, show_final=True):
     global xts, yts
     xts,yts = target_size
-    x1,y1,x2,y2 = map(lambda x: int(x), bound.split(','))
+    x1,y1,x2,y2 = [int(x) for x in bound.split(',')]
     pth = tdir + '/' + fil
     root,ext = useful.RootExt(fil.strip())
     xcs = x2 - x1
@@ -798,7 +798,7 @@ def ShowEditForm(pif, pdir, fn):
     print '(%d, %d)' % (x,y)
     print '<input type="radio" name="tysz" value="q"%s>' % checked[presets.get('tysz') == 'q']#checked[not pif.FormStr('v')]
     print 'x: <input name="x" type="text" size="4" value="%s"> y: <input name="y" type="text" size="4" value="%s">' % (xts, yts)
-    print pif.render.FormatRadio('tysz', map(lambda x: (x, x.upper()), mbdata.image_size_names), presets.get('tysz', 's'))
+    print pif.render.FormatRadio('tysz', [(x, x.upper()) for x in mbdata.image_size_names], presets.get('tysz', 's'))
     print '-', pif.render.FormatCheckbox("unlv", [("1", "V")], presets.get("unlv", []))
     print pif.render.FormatCheckbox("unlh", [("1", "H")], presets.get("unlh", []))
     print pif.render.FormatButtonInput('keep')
@@ -937,7 +937,7 @@ def Normalize(x1, x2, y1, y2, xm, ym):
 def Shrink(pif, tdir, fil, nname, bound, maxsize):
     print 'In Shrink', tdir, fil, nname, bound, maxsize, '<br>'
     global xts, yts
-    x1,y1,x2,y2 = map(lambda x: int(x), bound.split(','))
+    x1,y1,x2,y2 = [int(x) for x in bound.split(',')]
     xts, yts = maxsize
     xcs = x2 - x1
     ycs = y2 - y1
@@ -979,7 +979,7 @@ def Shrink(pif, tdir, fil, nname, bound, maxsize):
 
 def Crop(pif, tdir, fil, nname, bound):
     global xts, yts
-    x1,y1,x2,y2 = map(lambda x: int(x), bound.split(','))
+    x1,y1,x2,y2 = [int(x) for x in bound.split(',')]
     pth = tdir + '/' + fil
     print 'Crop',x1,y1,x2,y2,':',x2-x1,y2-y1,'<br>',pth,'<br>'
     print "cutting",'<br>'
@@ -1016,7 +1016,7 @@ def ImaWidget(pif):
     nname = root + '.' + ext
     tdir = pif.FormStr("d", '.')
     if not pif.IsAllowed('m'):
-	tdir = './incoming'
+	tdir = '../inc'
 
     global xts, yts
     nvar = pif.FormStr("newvar", '')
@@ -1030,7 +1030,7 @@ def ImaWidget(pif):
 
     if pif.FormStr('f') and os.path.exists(os.path.join(pif.FormStr('d', ''), 'descr.txt')):
 	descs = open(os.path.join(pif.FormStr('d', ''), 'descr.txt')).readlines()
-	descs = dict(map(lambda x: x.strip().split('\t', 1), descs))
+	descs = dict([x.strip().split('\t', 1) for x in descs])
 	# mod_id, var_id, year, comment
 	print descs.get(os.path.splitext(pif.FormStr('f'))[0], '').replace('\t', '<br>')
 	print '<hr>'
@@ -1223,7 +1223,7 @@ def PicForm(pif, restrict=False, desc=''):
 	rows.append({'cells':[{'col':0, 'content':'Variation'}, {'col':1, 'content': pif.render.FormatTextInput('v', 8, value=var)}]})
     if not restrict:
 	rows.append({'cells':[{'col':0, 'content':'Directory'},
-		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming'))}]})
+		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', '../inc'))}]})
 	rows.append({'cells':[{'col':0, 'content':'Rename file to'},
 		    {'col':1, 'content':pif.render.FormatTextInput('n', 64, value=pif.FormStr('r', '')) + " (optional)"}]})
 	rows.append({'cells':[{'col':0},
@@ -1255,7 +1255,7 @@ def PicForm(pif, restrict=False, desc=''):
 	rows.append({'cells':[{'col':0, 'content':'Variation'}, {'col':1, 'content': pif.render.FormatTextInput('v', 8, value=var)}]})
     if not restrict:
 	rows.append({'cells':[{'col':0, 'content':'Directory'},
-		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming'))}]})
+		    {'col':1, 'content':pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', '../inc'))}]})
 	rows.append({'cells':[{'col':0, 'content':'Rename file to'},
 		    {'col':1, 'content':pif.render.FormatTextInput('n', 64, value=pif.FormStr('r', '')) + " (optional)"}]})
 	rows.append({'cells':[{'col':0},
@@ -1294,7 +1294,7 @@ def PicForm(pif, restrict=False, desc=''):
     if not restrict:
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'Directory')
-	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming')))
+	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', '../inc')))
 	print pif.render.FormatRowEnd()
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'Rename file to')
@@ -1351,7 +1351,7 @@ def ShowList(pif, title, tdir, fl):
     if not fl:
 	return
     clen = (len(fl) - 1) / cols + 1
-    ffl = map(lambda x: fl[(x*clen):((x+1)*clen)], range(0, cols))
+    ffl = [fl[(x*clen):((x+1)*clen)] for x in range(0, cols)]
     print '<h4>%s (%d)</h4>' % (title, len(fl))
     print "<table width=100%><tr valign=top>"
     for cl in ffl:
@@ -1443,7 +1443,7 @@ def MassUploadMain(pif):
 	print pif.render.FormatTableStart()
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'Directory')
-	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', './incoming')))
+	print pif.render.FormatCell(1, pif.render.FormatTextInput('d', 64, value=pif.FormStr('d', '../inc')))
 	print pif.render.FormatRowEnd()
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, 'URLs to grab')
@@ -1491,7 +1491,7 @@ def UploadMain(pif):
 	print pif.render.FormatTail()
 	return
     elif not pif.IsAllowed('m'):
-	direc = './incoming'
+	direc = '../inc'
     elif pif.FormBool('replace'):
 	overwrite = True
     pif.render.Comment("form", pif.form)
@@ -1619,7 +1619,7 @@ def StitchReadForm(pif, verbose=False):
 	    fs['x2'] = pif.FormInt('x2_%d' % file_num)
 	    fs['y2'] = pif.FormInt('y2_%d' % file_num)
 	elif file_num == file_count - 2:
-	    fs['x1'], fs['y1'], fs['x2'], fs['y2'] = map(lambda x: int(x), pif.FormStr('q').split(','))
+	    fs['x1'], fs['y1'], fs['x2'], fs['y2'] = [int(x) for x in pif.FormStr('q').split(',')]
 	elif file_num == file_count - 1:
 	    if fs.get('fn', '').startswith('http://'):
 		fs['fn'] = fs['fn'][fs['fn'].find('/', 7) + 1:]
@@ -1800,7 +1800,7 @@ def PicturesMain(pif):
     pif.render.Comment("form", pif.form)
     mod_id = pif.FormStr('m', '')
     if mod_id:
-	map(lambda x: CastingPictures(pif, mod_id.lower(), x), [config.imgdir175, config.imgdirVar, 'pic/man/icon', config.imgdirAdd])
+	[CastingPictures(pif, mod_id.lower(), x) for x in [config.imgdir175, config.imgdirVar, 'pic/man/icon', config.imgdirAdd]]
 	LineupPictures(pif, pif.dbh.FetchCastingLineups(mod_id))
     else:
 	print 'Huh?'
@@ -1889,8 +1889,8 @@ def IconMain(pif):
 
     logo = pif.render.FindArt(title)
 
-    #manlist = filter(lambda x: x[0] == 'm', map(lambda x: x.strip().split('|'), open('../../src/man.dat').readlines()))
-    #mandict = dict(map(lambda x: (x[1].strip().lower(), MangleName(x[6])), manlist))
+    #manlist = filter(lambda x: x[0] == 'm', [x.strip().split('|') for x in open('../../src/man.dat').readlines()])
+    #mandict = {x[1].strip().lower(): MangleName(x[6])) for x in manlist}
 
     mandict = GetManList(pif)
 
@@ -2006,7 +2006,7 @@ def ShowLibraryList(pif, title, tdir, fl):
     if not fl:
 	return
     clen = (len(fl) - 1) / cols + 1
-    ffl = map(lambda x: fl[(x*clen):((x+1)*clen)], range(0, cols))
+    ffl = [fl[(x*clen):((x+1)*clen)] for x in range(0, cols)]
     print '<h4>%s (%d)</h4>' % (title, len(fl))
     print "<table width=100%><tr valign=top>"
     for cl in ffl:
