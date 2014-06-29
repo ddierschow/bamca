@@ -1414,7 +1414,7 @@ def Thanks(pif, fn):
     comment = '-'
     if pif.FormStr('c'):
 	comment = re.compile(r'\s\s*').sub(' ', pif.FormStr('c'))
-    open('./submitted/descr.txt', 'a+').write('\t'.join([fn, pif.FormStr('m', '-'), pif.FormStr('v', '-'), pif.FormStr('y', '-'), comment]) + '\n')
+    open('../inc/descr.txt', 'a+').write('\t'.join([fn, pif.FormStr('m', '-'), pif.FormStr('v', '-'), pif.FormStr('y', '-'), comment]) + '\n')
     print pif.render.FormatWarning('Thank you for submitting that file.')
     print "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
 
