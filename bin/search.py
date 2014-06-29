@@ -4,7 +4,7 @@ import flags
 import models
 
 def SearchName(pif):
-    return pif.dbh.FetchCastingList(where=map(lambda x: "base_id.rawname like '%%%s%%'" % x, pif.GetSearch('query')), verbose=True)
+    return pif.dbh.FetchCastingList(where=["base_id.rawname like '%%%s%%'" % x for x in pif.GetSearch('query')], verbose=True)
 
 
 # specific id request goes through here
@@ -21,11 +21,12 @@ def SearchID(pif):
 	if mod[0].get('alias.id'):
 	    print '<meta http-equiv="refresh" content="0;url=/cgi-bin/single.cgi?id=%s">' % mod[0]['casting.id']
 	return None
-    elif not mod:
+
+    if not mod:
 	mod1 = pif.dbh.FetchCastingList(where="casting.id like '%%%s%%'" % pif.FormStr('id'))
 	mod2 = pif.dbh.FetchAliases(where="alias.id like '%%%s%%'" % pif.FormStr('id'))
 	mod = filter(lambda x: x.get('section.page_id', 'manno') in ['manls', 'manno'], mod1 + mod2)
-    return map(pif.dbh.ModifyManItem, mod)
+    return [pif.dbh.ModifyManItem(x) for x in mod]
 
 
 def GetCastingId(id):
@@ -70,7 +71,7 @@ def RunSearch(pif):
 	targ = pif.FormStr('query')
 	pif.render.title = 'Models matching name: ' + targ
 	mods = SearchName(pif)
-	mods = map(pif.dbh.ModifyManItem, mods)
+	mods = filter(lambda x: x['section.page_id'] in ('manls', 'manno'), [pif.dbh.ModifyManItem(x) for x in mods])
 	print pif.render.FormatHead()
     elif pif.form.has_key('id'):
 	targ = pif.FormStr('id')
