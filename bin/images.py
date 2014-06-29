@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import datetime, filecmp, glob, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
+import basics
 import cmdline
 import config
 import icon
@@ -1002,6 +1003,7 @@ def Rename(tdir, fil, nname):
 	print "Target exists"
 
 
+@basics.WebPage
 def ImaWidget(pif):
     pif.render.PrintHtml()
     pif.Restrict('v')
@@ -1457,6 +1459,7 @@ def MassUploadMain(pif):
 	print '</form>'
 
 
+@basics.WebPage
 def UploadMain(pif):
     # dnfus = bad
     # mvdfus = good
@@ -1700,6 +1703,7 @@ def StitchFinish(pif, verbose=False):
     useful.FileMover(pif.FormStr('f'), pif.FormStr('o'), mv=True, ov=True)
 
 
+@basics.WebPage
 def StitchMain(pif, verbose=False):
     pif.render.PrintHtml()
 
@@ -1793,6 +1797,7 @@ def LineupPictures(pif, lup_models):
     print '<hr>'
 
 
+@basics.WebPage
 def PicturesMain(pif):
     pif.render.PrintHtml()
     pif.render.title = 'pictures - ' + pif.FormStr('m', '')
@@ -1938,6 +1943,7 @@ def ImageStar(pif, image_path, pic_id='', halfstar=False):
 
 # -- bits
 
+@basics.WebPage
 def BitsMain(pif):
     years = {
 	'1998' : { 'd' : config.imgdirMtLaurel, 'p' : '1998', 'r' : 'ur' },
@@ -2214,6 +2220,7 @@ def DoLibraryAction(pif, tdir, fn, act):
 	ShowLibraryLibraryDir(pif, tdir, 0)
 
 
+@basics.WebPage
 def LibraryMain(pif):
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()
@@ -2243,6 +2250,7 @@ def LibraryMain(pif):
 
 # -- thumber
 
+@basics.WebPage
 def Thumber(pif):
     os.environ['PATH'] += ':/usr/local/bin'
 

@@ -277,6 +277,7 @@ def DoAction(pif, tdir, fn, act):
 	ShowDir(pif, tdir, 0)
 
 
+@basics.WebPage
 def Main(pif):
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()

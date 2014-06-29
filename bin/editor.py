@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import copy, os, urllib2
+import basics
 import mbdata
 import useful
 
@@ -50,6 +51,7 @@ def Ask(pif, table_info):
 
 # primary entry
 
+@basics.WebPage
 def EditorMain(pif):
     pif.render.PrintHtml()
     pif.Restrict('a')
@@ -329,6 +331,7 @@ def ShowSubTable(pif, table_info, cond, ref={}):
 
 # ------- mass -----------------------------------------------------
 
+@basics.WebPage
 def MassMain(pif):
     if pif.form.get('type') == 'lineup':
 	AddLineupMain(pif)
@@ -637,6 +640,7 @@ def RoamShowSingle(pif, cols, dat, clinks, tlinks):
 	print '<a href="roam.cgi?table=%s&%s">%s</a><br>' % (tlink['tab'], '&'.join(cond), tlink['tab'])
 
 
+@basics.WebPage
 def RoamMain(pif):
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()
@@ -653,6 +657,7 @@ def RoamMain(pif):
 
 # ------- counters -------------------------------------------------
 
+@basics.WebPage
 def ShowCounters(pif):
     pif.render.PrintHtml()
     pif.Restrict('a')

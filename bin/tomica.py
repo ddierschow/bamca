@@ -209,6 +209,7 @@ table {page-break-inside:avoid}
 </style>
 '''
 
+@basics.WebPage
 def Main(pif):
     pif.render.PrintHtml()
     manf = MannoFile(os.path.join(config.srcdir, 'tomica.dat'))

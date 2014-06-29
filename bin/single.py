@@ -344,6 +344,7 @@ def GetMackNumbers(pif, cid, mod_type):
 
 
 img_re = re.compile('src="(?P<u>[^"]*)"')
+@basics.WebPage
 def ShowSingle(pif):
     pif.render.PrintHtml()
     if pif.form.get('useprev'): # pragma: no cover

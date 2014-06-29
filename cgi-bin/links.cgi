@@ -3,7 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-if __name__ == '__main__':
-    import basics
-    import links
-    basics.StartPage(links.Links, 'links', 'page', 'toylinks')
+import links
+links.Links('links', 'page', 'toylinks')

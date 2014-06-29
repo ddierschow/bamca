@@ -4,6 +4,7 @@
 
 import glob, os, re, sys, time
 
+import basics
 import config
 import vdata
 import tables
@@ -556,6 +557,7 @@ def ShowModelTable(pif, modids, fitab, fn, var_lup, var_desc):
     print fitab[2]
 
 
+@basics.WebPage
 def HandleForm(pif):
     pif.render.PrintHtml()
     if 'mod_id' in pif.form:

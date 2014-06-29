@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import glob, os, re
+import basics
 import config
 import flags
 import mbdata
@@ -624,6 +625,7 @@ def RenameBaseID(pif, old_mod_id, new_mod_id, force=False):
 
 #---- main ----------------------------------
 
+@basics.WebPage
 def Main(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
@@ -673,6 +675,7 @@ def Main(pif):
 
 #---- play ----------------------------------
 
+@basics.WebPage
 def PlayMain(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead()
@@ -746,6 +749,7 @@ def Comparisons(pif, diffs):
     return ostr
 
 
+@basics.WebPage
 def CompareMain(pif):
     pif.render.PrintHtml()
     secs = pif.dbh.FetchSections({'page_id' : pif.page_id})

@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import os
+import basics
 import config
 
 modnumlist = []
@@ -192,6 +193,7 @@ def SelectSet(pif):
     return ostr
 
 
+@basics.WebPage
 def SetsMain(pif):
     pif.render.PrintHtml()
 

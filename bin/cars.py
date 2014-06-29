@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import copy, os
+import basics
 import config
 import files
 
@@ -59,6 +60,7 @@ def RenderCars(pif, cf):
     print pif.render.FormatTableEnd()
 
 
+@basics.WebPage
 def CarsMain(pif):
     pif.render.PrintHtml()
 

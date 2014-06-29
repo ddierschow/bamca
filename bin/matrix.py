@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import copy, re
+import basics
 import config
 import mbdata
 import models
@@ -253,6 +254,7 @@ def SelectMatrix(pif):
     return ostr
 
 
+@basics.WebPage
 def Main(pif):
     pif.render.PrintHtml()
     matf = None

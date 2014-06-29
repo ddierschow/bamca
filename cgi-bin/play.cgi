@@ -3,7 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-if __name__ == '__main__':
-    import basics
-    import manno
-    basics.StartPage(manno.PlayMain, 'manno')
+import manno
+manno.PlayMain('manno')

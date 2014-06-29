@@ -3,7 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-if __name__ == '__main__':
-    import basics
-    import package
-    basics.StartPage(package.Blister, 'package', 'page', 'blister')
+import package
+package.Blister('package', 'page', 'blister')

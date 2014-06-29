@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import glob, os
+import basics
 import config
 import useful
 
@@ -102,6 +103,7 @@ def ShowModel(pif, mod):
     return ostr
 
 
+@basics.WebPage
 def ShowBoxes(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead()
@@ -163,6 +165,7 @@ def CountBoxes(pif):
     return pr_count, im_count
 
 
+@basics.WebPage
 def Blister(pif):
     pif.render.PrintHtml()
     global pagename

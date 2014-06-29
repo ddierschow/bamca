@@ -3,7 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-if __name__ == '__main__':
-    import basics
-    import msets
-    basics.StartPage(msets.SetsMain, 'sets', 'page')
+import msets
+msets.SetsMain('sets', 'page')

@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import copy, os, sys
+import basics
 import config
 import flags
 import images
@@ -744,6 +745,7 @@ def LineupMain(pif):
     print pif.render.FormatLineup(llineup)
 
 
+@basics.WebPage
 def Main(pif):
     pif.render.PrintHtml()
 
@@ -1171,6 +1173,7 @@ def ModToMack(mack, rec, key, start, end, series):
 	    
 
 
+@basics.WebPage
 def MackLineup(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
@@ -1220,6 +1223,7 @@ def MackLineup(pif):
 
 #--------- makes -----------------------------------
 
+@basics.WebPage
 def MakesMain(pif):
     makelist = [(x['vehicle_make.make'], x['vehicle_make.make_name']) for x in pif.dbh.FetchVehicleMakes()]
     makedict = dict(makelist + [('unl', 'Unlicensed'), ('', 'Unknown')])
@@ -1330,6 +1334,7 @@ def ShowMakes(pif, makedict, makes):
 #--------- mline -----------------------------------
 
 # Kill it with a stick!
+@basics.WebPage
 def FullLineup(pif):
     pif.render.PrintHtml()
     #pif.ReadForm({ 'year' : '1966' })

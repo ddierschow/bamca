@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import glob, os
+import basics
 import config
 import files
 import models
@@ -51,6 +52,7 @@ def MapLink(bits):
 #    return (fmt + addr + ',' + city + ',' + state).replace(' ', '+')
 
 
+@basics.WebPage
 def Biblio(pif):
     pif.render.PrintHtml()
     global pagename
@@ -182,6 +184,7 @@ def PrintType(pif, event):
     return pif.render.FormatCell(0, '<center><b>%s</b></center>' % pif.render.FormatImageArt(event, event.upper()))
 
 
+@basics.WebPage
 def Calendar(pif):
     pif.render.PrintHtml()
     global pagename
@@ -259,6 +262,7 @@ def Calendar(pif):
 
 # -- pub
 
+@basics.WebPage
 def Publication(pif):
     pif.render.PrintHtml()
     ostr = pif.render.FormatHead()
@@ -333,6 +337,7 @@ def Publication(pif):
     return ostr
 
 
+@basics.WebPage
 def ActivityMain(pif):
     pif.render.PrintHtml()
     pif.render.title = "Site Activity"

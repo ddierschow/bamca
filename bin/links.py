@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import os, sys, urllib2
+import basics
 import config
 import mbdata
 import useful
@@ -9,6 +10,7 @@ import useful
 # -- links
 
 # main entry point for toylinks
+@basics.WebPage
 def Links(pif):
     pif.render.PrintHtml()
     ostr = ''
@@ -338,6 +340,7 @@ def AddNewLink(pif, dictCats, listRejects):
 
 
 # main routine for addlink
+@basics.WebPage
 def AddPage(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead(extra=pif.render.reset_button_js)
@@ -539,6 +542,7 @@ def EditChoose(pif):
 
 
 # main entry point for links editor
+@basics.WebPage
 def EditLinks(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead()

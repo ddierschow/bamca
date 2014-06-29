@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import os, random, string, sys, urllib
+import basics
 
 # ------ user
 
@@ -70,6 +71,7 @@ def UpdateUser(pif):
     pif.dbh.UpdateUser(pif.form.get('id', ''), email=pif.form.get('email'), state=pif.form.get('state'), name=pif.form.get('name'), privs=pif.form.get('privs'))
 
 
+@basics.WebPage
 def UserMain(pif):
     pif.render.PrintHtml()
     pif.Restrict('a')
@@ -123,6 +125,7 @@ def Login(pif):
 	PrintLoginForm(pif)
 
 
+@basics.WebPage
 def LoginMain(pif):
     if pif.form.get('n'):
 	Login(pif)
@@ -135,6 +138,7 @@ def LoginMain(pif):
 
 # ------ logout
 
+@basics.WebPage
 def LogoutMain(pif):
     cookie = pif.render.secure.ClearCookie(['id'])
     pif.render.PrintHtml(cookie)
@@ -239,6 +243,7 @@ def Verify(pif, name, vkey):
 
 # ------ signup
 
+@basics.WebPage
 def RegisterMain(pif):
     if pif.form.get('n'):
 	user.Create(pif)
@@ -298,6 +303,7 @@ def ChangePass(pif):
 	PrintChangePasswordForm(pif)
 
 
+@basics.WebPage
 def ChangePasswordMain():
     import basics
     pif = basics.GetPageInfo('user')

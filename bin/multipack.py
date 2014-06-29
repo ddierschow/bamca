@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import glob, os, re, sys
+import basics
 import config
 import images
 import mbdata
@@ -413,6 +414,7 @@ def EditModel(pif, mdict):
 
 # ---- main -----------------------------------------------------------
 
+@basics.WebPage
 def DoPage(pif):
     pif.render.PrintHtml()
     pif.render.hierarchy.append(('/', 'Home'))

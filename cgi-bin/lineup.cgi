@@ -3,7 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-if __name__ == '__main__':
-    import basics
-    import lineup
-    basics.StartPage(lineup.Main, 'year', 'year')
+import lineup
+lineup.Main('year', 'year')

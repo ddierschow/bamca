@@ -58,18 +58,21 @@ def FinalExit():
 
 #---- -------------------------------------------------------------------
 
-def StartPage(main_fn, page_id, form_key='', defval='', args='', dbedit=False):
-    pif = None
-    try:
-	pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
-	ret = main_fn(pif)
-	if ret:
-	    print ret
-    except SystemExit:
-	pass
-    except:
-	HandleException(pif)
-	raise
+# Decorator that wraps web page mains.
+def WebPage(main_fn):
+    def CallMain(page_id, form_key='', defval='', args='', dbedit=False):
+	pif = None
+	try:
+	    pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
+	    ret = main_fn(pif)
+	    if ret:
+		print ret
+	except SystemExit:
+	    pass
+	except:
+	    HandleException(pif)
+	    raise
+    return CallMain
 
 #---- -------------------------------------------------------------------
 

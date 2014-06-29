@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+import basics
 import flags
 import models
 
@@ -61,6 +62,7 @@ def CreateLineup(pif, mods):
     return llineup
 
 
+@basics.WebPage
 def RunSearch(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))

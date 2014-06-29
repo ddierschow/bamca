@@ -3,7 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-if __name__ == '__main__':
-    import basics
-    import nontoy
-    basics.StartPage(nontoy.Publication, 'pub')
+import nontoy
+nontoy.Publication('pub')

@@ -2,6 +2,7 @@
 
 import copy, glob, os, re
 
+import basics
 import config
 import flags
 import mbdata
@@ -874,6 +875,7 @@ def ShowModel(pif, model):
 #{'body': 'dark green', 'list': ('16', '10'), 'page': 'vars', 'list.x': '16', 'list.y': '10', 'mod': 'SF34b'}
 
 
+@basics.WebPage
 def Main(pif):
     id = pif.form.get('mod', '')
     var = pif.form.get('var', '')
@@ -1070,6 +1072,7 @@ vfields = {'base' : 'text_base', 'body' : 'text_body', 'interior': 'text_interio
 cfields = {'casting' : 'rawname'}
 
 
+@basics.WebPage
 def RunSearch(pif):
     if pif.form.get('ask'):
 	VarSearchAsk(pif)

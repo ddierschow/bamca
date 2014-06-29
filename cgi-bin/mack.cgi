@@ -3,7 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-if __name__ == '__main__':
-    import basics
-    import lineup
-    basics.StartPage(lineup.MackLineup, 'mack')
+import lineup
+lineup.MackLineup('mack')
