@@ -100,7 +100,7 @@ class Presentation():
 	    self.pic_dir = row['page_info.pic_dir']
 	    self.description = row['page_info.description']
 	    self.note = self.FmtPseudo(row['page_info.note'])
-	    self.tail = dict(map(lambda x: (x, 1), row['page_info.tail'].split(',')))
+	    self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
 
     def StyleName(self, previous, prefix, col=None, id=None):
 	class_ids = list()
@@ -124,7 +124,7 @@ class Presentation():
 
     def GetFlags(self):
 	if not self.flag_info:
-	    self.flag_info = dict(map(lambda x: (x[0], (x[1], config.flagdir + '/' + x[0].lower() + '.gif')), mbdata.countries))
+	    self.flag_info = {x[0]: (x[1], config.flagdir + '/' + x[0].lower() + '.gif') for x in mbdata.countries}
 	return self.flag_info
 
     def ShowFlag(self, country):
@@ -237,7 +237,7 @@ class Presentation():
 
     def Comment(self, *args):
 	if self.dump_file: # pragma: no cover
-	    self.dump_file.write(' '.join(map(lambda x: str(x), args)) + '\n')
+	    self.dump_file.write(' '.join([str(x) for x in args]) + '\n')
 	elif self.verbose:
 	    useful.WriteComment(*args)
 
@@ -334,7 +334,7 @@ of Matchbox International Ltd. and are used with permission.
 	    ostr += '<center>\n'
 	    listFlag = list(self.shown_flags)
 	    listFlag.sort(key=lambda x: self.flag_info[x][0])
-	    ostr += ball.join(map(lambda x: '<nobr>%s %s</nobr> ' % (self.FormatImageFlag(x), self.flag_info[x][0]), listFlag))
+	    ostr += ball.join(['<nobr>%s %s</nobr> ' % (self.FormatImageFlag(x), self.flag_info[x][0]) for x in listFlag])
 	    ostr += '</center><p>\n'
 
 	st = self.tail.get('stat')
@@ -456,6 +456,21 @@ of Matchbox International Ltd. and are used with permission.
 	    ostr += self.FormatRowEnd()
 	return ostr
 
+    def FormatSectionFreestanding(self, content, fn=[], also={}, cols=0, id=''):
+	nalso = copy.deepcopy(also)
+	nalso['class'] = self.StyleName(also.get('class'), 'sh', id)
+	ostr = strimg = ''
+	if not self.simple and fn:
+	    strimg = self.FmtOptImg(fn)
+	    if len(strimg) > 6:
+		strimg += '<br>'
+	    else:
+		strimg = ''
+#	if not self.simple:
+#	    nalso.update(self.style.FindClassID('sh', simple=self.simple))
+	ostr += '  <div%s>%s%s</div>\n' % (useful.Also(nalso), strimg, self.FmtPseudo(content))
+	return ostr
+
 
     def FormatRange(self, content, col, fn=[], also={}, large=False, nstyle=None, cols=3, id=''):
 	nalso = copy.deepcopy(also)
@@ -493,7 +508,7 @@ of Matchbox International Ltd. and are used with permission.
 	else:
 	    ostr += '<a href="%s"%s>%s</a>' % (url, useful.Also(also), txt)
 	if args:
-	    args = "&".join(map(lambda x: x + '=' + args[x], args.keys()))
+	    args = "&".join([x + '=' + args[x] for x in args.keys()])
 	    if '?' in url:
 		url += '&' + args
 	    else:
@@ -683,12 +698,6 @@ of Matchbox International Ltd. and are used with permission.
 
     def FormatImageSized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None, required=False):
 	return self.FmtImg(fnames, alt='', vars=vars, nobase=nobase, suffix=suffix, largest=largest, pdir=pdir, required=required)
-#	prefixes = mbdata.image_size_names
-#	if largest in prefixes:
-#	    prefixes = prefixes[:prefixes.index(largest) + 1]
-#	prefixes.reverse()
-#	prefixes = map(lambda x: x + '_', prefixes)
-#	return self.FmtImg(fnames, alt='', vars=vars, prefix=prefixes, suffix=suffix, pdir=pdir, required=required)
 
     #---- lower level rendering blocks
 
@@ -776,8 +785,8 @@ of Matchbox International Ltd. and are used with permission.
     #     display_id, text, rowspan, colspan, class, st_suff, style, also,
 
     def FormatLineup(self, llineup):
+	ostr = '<!-- Starting FormatLineup -->\n'
 	self.CommentDict('lineup', llineup)
-	ostr = llineup.get('name', '')
 	if llineup.get('graphics'):
 	    for graf in llineup['graphics']:
 		ostr += self.FmtOptImg(graf, suffix='gif')
@@ -857,11 +866,62 @@ of Matchbox International Ltd. and are used with permission.
 	    ostr += self.FormatCellEnd()
 	    ostr += self.FormatRowEnd()
 	    ostr += self.FormatTableEnd()
-	if llineup.get('tail'):
-	    ostr += self.FormatBoxTail(llineup['tail'])
+	ostr += self.FormatBoxTail(llineup.get('tail'))
+	return ostr
+
+    def FormatULLineup(self, llineup):
+	ostr = '<!-- Starting FormatULLineup -->\n'
+	if llineup.get('graphics'):
+	    for graf in llineup['graphics']:
+		ostr += self.FmtOptImg(graf, suffix='gif')
+	lin_id = llineup.get('id', '')
+	if llineup.get('note'):
+	    ostr += llineup['note'] + '<br>'
+	for sec in llineup.get('section', []):
+	    salso = dict()
+	    sec_id = sec.get('id', '')
+	    ostr += self.FmtAnchor(sec.get('anchor'))
+	    ncols = sec.get('columns', llineup.get('columns', 4))
+	    if 'switch' in sec:
+		ostr += self.FormatButtonInputVisibility(sec_id, sec['switch'])
+		ostr += sec.get('count', '')
+	    if sec.get('name'):
+		ostr += self.FormatSectionFreestanding(sec.get('name', ''), cols=ncols, id=sec['id'])
+	    if sec.get('note'):
+		salso['class'] = self.StyleName(salso.get('class'), 'sb', sec_id)
+		ostr += '<div%s>%s</div>' % (useful.Also(salso), sec['note'])
+	    for ran in sec.get('range', []):
+		ralso = dict()
+		ran_id = ran.get('id', '')
+		ostr += self.FmtAnchor(ran.get('anchor'))
+#		if ran.get('name') or ran.get('graphics'):
+#		    ostr += self.FormatRange(ran.get('name', ''), None, ran.get('graphics', list()), cols=sec['columns'], id=ran.get('id', ''))
+		if ran.get('name'):
+		    ralso['class'] = self.StyleName(ralso.get('class'), 'rh', ran_id)
+		    ostr += '<div%s>%s</div>\n' % (useful.Also(ralso), ran['name'])
+		if ran.get('note'):
+		    #ralso['class'] = self.StyleName(ralso.get('class'), 'rb', ran_id)
+		    ostr += '<div%s>%s</div>\n' % (useful.Also({'class':'rb ' + ran_id}), ran['note'])
+		ostr += '<ul%s>\n' % useful.Also(ralso)
+		for ent in ran.get('entry', []):
+		    disp_id = ent.get('display_id')
+		    if not disp_id:
+			disp_id = ran_id
+		    ealso = {'class': self.StyleName(ent.get('class'), 'eb')}
+		    if ent.get('style'):
+			ealso['style'] = ent['style']
+		    if ent.get('also'):
+			ealso.update(ent['also'])
+		    if not 'width' in ealso:
+			ealso['width'] = '%d%%' % (100/ncols)
+		    ostr += '<li%s>%s</li>\n' % (useful.Also(ealso), ent['text'])
+		ostr += '</ul>\n'
+	ostr += self.FormatBoxTail(llineup.get('tail'))
 	return ostr
 
     def FormatBoxTail(self, tail):
+	if not tail:
+	    return ''
 	ostr = self.FormatTableStart(style_id="tail")
 	ostr += self.FormatRowStart()
 	if type(tail) != list:
