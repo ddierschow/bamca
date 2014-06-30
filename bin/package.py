@@ -73,6 +73,18 @@ def DoTreePage(pif, dblist):
 		print '</font>'
 
 
+@basics.WebPage
+def Blister(pif):
+    pif.render.PrintHtml()
+    global pagename
+    pagename = pif.form.get('page', 'blister')
+
+    import files
+    dblist = files.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
+
+    print pif.render.FormatHead()
+    DoTreePage(pif, dblist)
+    print pif.render.FormatTail()
 
 # -- boxart
 
@@ -163,20 +175,6 @@ def CountBoxes(pif):
 	    pr_count += 1
 
     return pr_count, im_count
-
-
-@basics.WebPage
-def Blister(pif):
-    pif.render.PrintHtml()
-    global pagename
-    pagename = pif.form.get('page', 'blister')
-
-    import files
-    dblist = files.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
-
-    print pif.render.FormatHead()
-    DoTreePage(pif, dblist)
-    print pif.render.FormatTail()
 
 
 if __name__ == '__main__': # pragma: no cover
