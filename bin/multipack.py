@@ -420,7 +420,7 @@ def DoPage(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append(('packs.cgi', 'Multi-Model Packs'))
-    if type(pif.form.get('id')) == list:
+    if isinstance(pif.form.get('id'), list):
 	pif.form['id'] = pif.FormStr('id')[0]
     year = pif.form.get('year')
     reg = pif.form.get('region')

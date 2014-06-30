@@ -158,7 +158,7 @@ def BitList(val, format="%02x"):
 def SearchMatch(sobj, targ):
     if not targ:
 	return False
-    if not sobj or type(targ) != str:
+    if not sobj or not isinstance(targ, str):
 	return True
     targ = targ.lower()
     for s in sobj:

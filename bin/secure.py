@@ -56,7 +56,7 @@ class Security:
 	    os.putenv('DOCUMENT_ROOT', self.docroot)
 
     def ReadConfig(self, siteid):
-	self.cfgfile = open(self.htdocs_path + '/' + self.cgibin + '/.config').readlines()
+	self.cfgfile = open(os.path.join(self.htdocs_path, self.cgibin, '.config')).readlines()
 	self.SetConfig(siteid)
 
     def SetConfig(self, siteid):

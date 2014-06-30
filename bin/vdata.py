@@ -426,7 +426,7 @@ def GetModelIDs(omn):
     for fnl in fnlookup:
 	if fnl[0] == omn:
 	    return fnl[1]
-	elif type(fnl[0]) == str:
+	elif isinstance(fnl[0], str):
 	    continue
 	else:
 	    fnl_m = fnl[0].match(omn)
@@ -460,9 +460,9 @@ def ShowSettings(sets, cols):
 	for row in sets:
 	    debug('<tr>')
 	    for col in row:
-		if type(col) == list:
+		if isinstance(col, list):
 		    debug('<td>%s</td>' % '; '.join(col))
-		elif type(col) == str:
+		elif isinstance(col, str):
 		    debug('<td>%s</td>' % col)
 		else:
 		    debug('<td>%s</td>' % col.pattern)

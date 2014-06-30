@@ -117,7 +117,7 @@ class PageInfoFile():
 	val = self.form.get(key, defval)
 	if val == None:
 	    return list()
-	if type(val) != list:
+	if not isinstance(val, list):
 	    return [val]
 	return val
 
@@ -160,7 +160,7 @@ class PageInfoFile():
 	if os.environ.has_key('REQUEST_METHOD'): # is this apache?
 	    self.cgiform = cgi.FieldStorage()
 	    for field in self.cgiform.keys():
-		if type(self.cgiform[field]) == list:
+		if isinstance(self.cgiform[field], list):
 		    form.setdefault(field, [])
 		    for elem in self.cgiform[field]:
 			form[field].append(elem.value)

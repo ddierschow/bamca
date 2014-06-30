@@ -103,7 +103,7 @@ class dbhandler:
 
     def Fetch(self, table_name, left_joins=None, columns=None, where=None, group=None, order=None, tag='', verbose=False):
 	if not columns:
-	    if type(table_name) == str:
+	    if isinstance(table_name, str):
 		table_name = table_name.split(',')
 	    columns = list()
 	    for tab in table_name:
@@ -112,9 +112,9 @@ class dbhandler:
 		else:
 		    columns.extend(self.MakeColumns(tab))
 	    table_name = ','.join(table_name)
-	if type(where) == list:
+	if isinstance(where, list):
 	    where = ' and '.join(where)
-	elif type(where) == dict:
+	elif isinstance(where, dict):
 	    where = self.MakeWhere(where)
 	if left_joins:
 	    table_name = '(%s)' % table_name
@@ -133,7 +133,7 @@ class dbhandler:
 	return [x['field'] for x in self.Describe(table)]
 
     def DePref(self, table, results):
-	if type(results) == dict:
+	if isinstance(results, dict):
 	    for key in results.keys():
 		if key.startswith(table + '.'):
 		    results[key[len(table) + 1:]] = results[key]
@@ -272,9 +272,9 @@ class dbhandler:
 	    wheres.append("alias.ref_id='%s'" % ref_id)
 	if type_id:
 	    wheres.append("alias.type='%s'" % type_id)
-	if type(where) == list:
+	if isinstance(where, list):
 	    wheres += where
-	elif type(where) == str:
+	elif isinstance(where, str):
 	    wheres.append(where)
 	return self.Fetch("base_id,casting,alias", where=wheres, tag='Aliases')
 
@@ -293,9 +293,9 @@ class dbhandler:
 	wheres = ['base_id.id=casting.id', 'casting.section_id=section.id']
 	if page_id:
 	    wheres.append('section.page_id="%s"' % page_id)
-	if type(where) == list:
+	if isinstance(where, list):
 	    wheres += where
-	elif type(where) == str:
+	elif isinstance(where, str):
 	    wheres.append(where)
 	if section_id:
 	    wheres.append('section.id="%s"' % section_id)
@@ -577,7 +577,7 @@ class dbhandler:
        	table += " left join base_id on base_id.id=lineup_model.mod_id"
        	table += " left join casting on casting.id=lineup_model.mod_id"
 	wheres = list()
-	if type(region) == list:
+	if isinstance(region, list):
 	    wheres.append("lineup_model.region in (" + ','.join(["'" + x + "'" for x in region]) + ')')
 	if year:
 	    wheres.append("lineup_model.year='" + year + "'")
@@ -598,7 +598,7 @@ class dbhandler:
        	table += " left join pack on pack.id=lineup_model.mod_id"
        	table += " left join publication on publication.id=lineup_model.mod_id"
 	wheres = list()
-	if type(region) == list:
+	if isinstance(region, list):
 	    wheres.append("lineup_model.region in (" + ','.join(["'" + x + "'" for x in region]) + ')')
 	if year:
 	    cols.extend(['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id'])

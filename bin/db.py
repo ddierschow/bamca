@@ -184,7 +184,7 @@ class db:
 	    vals = []
 	    for item in values.items():
 		cols.append(item[0])
-		if type(item[1]) == str:
+		if isinstance(item[1], str):
 		    vals.append(repr(item[1]))
 		else:
 		    vals.append(str(item[1]))

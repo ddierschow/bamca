@@ -155,7 +155,7 @@ def ModNum(prefix, model, suffix):
 
 def Img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
     pif.render.Comment(prefix, model, suffix, digits, made)
-    if type(model) != type([]):
+    if not isinstance(model, list):
 	model = [model,]
     modnum = []
     for m in model:

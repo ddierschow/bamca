@@ -147,9 +147,9 @@ def ShowImgs(pif, patt, dups, shlv):
 
 def ShowScript(pif, mvl, rml):
     pdir = pif.render.pic_dir
-    if type(mvl) != type([]):
+    if not isinstance(mvl, list):
 	mvl = [mvl]
-    if type(rml) != type([]):
+    if not isinstance(rml, list):
 	rml = [rml]
     libl = [(x[4:], pif.FormStr(x)) for x in filter(lambda x: x.startswith('lib.'), pif.form.keys())]
     renl = [(x[4:], pif.FormStr(x)) for x in filter(lambda x: x.startswith('ren.'), pif.form.keys())]

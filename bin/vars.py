@@ -436,7 +436,7 @@ def SearchForm(pif, attributes, values={}):
 	print pif.render.FormatCell(0, pif.render.FormatCheckbox('not_' + key, [(1, 'not')]))
 	print pif.render.FormatRowEnd()
 
-    if pif.IsAllowed('a') and type(values.get('imported_from')) == list: # pragma: no cover
+    if pif.IsAllowed('a') and isinstance(values.get('imported_from'), list): # pragma: no cover
 	print pif.render.FormatRowStart()
 	print pif.render.FormatCell(0, attributes['imported_from']['title'])
 	values['imported_from'].sort()

@@ -640,7 +640,7 @@ def Main(pif):
 	for key in pif.form:
 	    if key.startswith('vt_'):
 		val = pif.form[key]
-		if type(val) == list:
+		if isinstance(val, list):
 		    val = ''.join(val)
 		print key[3:], 'type', val, '<br>'
 		pif.dbh.WriteCasting(values={'vehicle_type' : val}, id=key[3:])

@@ -653,7 +653,7 @@ def HandleForm(pif):
 	print pif.form, '<br>'
 	print "delete orphans<br>"
 	orphans = pif.form.get('orphan', [])
-	if type(orphans) == str:
+	if isinstance(orphans, str):
 	    orphans = [orphans]
 	for var_id in orphans:
 	    print 'deleting', mod_id, var_id, '<br>'

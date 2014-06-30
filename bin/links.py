@@ -469,7 +469,7 @@ def EditSingle(pif):
 		link[col_long] = 0
 	    colwidth = int(coltype[4:-1])
 	    val = link[col_long]
-	    if type(val) == str and val.isdigit():
+	    if isinstance(val, str) and val.isdigit():
 		val = str(int(val))
 	    elif not val:
 		val = ''

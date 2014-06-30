@@ -202,7 +202,7 @@ def ShowSingle(pif, table_info, dat):
 		dat[col] = 0
 	    colwidth = int(coltype[8:-1])
 	    val = dat[col]
-	    if type(val) == str and val.isdigit():
+	    if isinstance(val, str) and val.isdigit():
 		val = str(int(val))
 	    elif not val:
 		val = '0'
@@ -212,7 +212,7 @@ def ShowSingle(pif, table_info, dat):
 		dat[col] = 0
 	    colwidth = int(coltype[4:-1])
 	    val = dat[col]
-	    if type(val) == str and val.isdigit():
+	    if isinstance(val, str) and val.isdigit():
 		val = int(val)
 	    elif not val:
 		val = 0

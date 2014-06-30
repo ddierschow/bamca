@@ -30,7 +30,7 @@ All arguments are optional.
 '''
 
 def Req(sw, reqs=[]):
-    if type(sw) == dict:
+    if isinstance(sw, dict):
 	osw = []
 	for opt in sw.keys():
 	    if opt[0] == '+':
@@ -181,9 +181,9 @@ class FlagClass:
 	if not attr in self.__dict__:
 	    return value
 	dval = self.__dict__[attr]
-	if type(dval) == int:
+	if isinstance(dval, int):
 	    return dval
-	elif type(dval) == str:
+	elif isinstance(dval, str):
 	    return int(dval)
 	elif not dval:
 	    return value
@@ -193,7 +193,7 @@ class FlagClass:
 	if not attr in self.__dict__:
 	    return value
 	dval = self.__dict__[attr]
-	if type(dval) == str:
+	if isinstance(dval, str):
 	    return dval
 	elif not dval:
 	    return value

@@ -61,7 +61,7 @@ class MannoFile(files.ArgFile):
 
 
 def GetManItem(llist, data=None):
-    if type(llist) != dict:
+    if not isinstance(llist, dict):
 	mod = dict(zip(data, llist[1:]))
     else:
 	mod = llist

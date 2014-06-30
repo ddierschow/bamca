@@ -383,7 +383,7 @@ def CreateExtraLineup(pif, year, secs, verbose=0): # currently unimplemented # p
 
 
 def CorrectRegion(region, year):
-    if type(year) == str:
+    if isinstance(year, str):
 	year = int(''.join(filter(lambda x: x.isdigit(), year)))
     if year < 1982:
 	region = 'W'
