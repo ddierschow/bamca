@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 
 import config
+import pifile
 
 
 def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=False):
-    import pifile
     pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
     return pif
 
@@ -63,7 +63,10 @@ def WebPage(main_fn):
     def CallMain(page_id, form_key='', defval='', args='', dbedit=False):
 	pif = None
 	try:
-	    pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
+	    if isinstance(page_id, pifile.PageInfoFile):
+		pif = page_id
+	    else:
+		pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
 	    ret = main_fn(pif)
 	    if ret:
 		print ret
