@@ -16,3 +16,8 @@ img    {margin-left: auto; margin-right: auto; display: block;}
 
 .ok {color: #FFFFFF;}
 .no {color: #FFFF99;}
+
+.tb_boxes     {border-width: 0; border-style: solid; background-color: transparent; text-align: center; width: auto;}
+.sh_box       {border-width: 0; border-style: solid; background-color: transparent; text-align: center; font-size: large;}
+.tb_boxes .eb {border-width: 0; border-style: solid; background-color: transparent; text-align: center; padding: 0px 4px;}
+.tb_boxes .er {border-width: 0; border-style: solid; background-color: transparent; text-align: center;}
