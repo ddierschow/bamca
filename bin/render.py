@@ -146,12 +146,12 @@ class Presentation():
 	if not fnames:
 	    self.Comment('FindImageFile ret', '')
 	    return ''
-	elif type(fnames) == str:
+	elif isinstance(fnames, str):
 	    fnames = [fnames]
 
 	if suffix == None:
 	    suffix = graphic_types
-	elif type(suffix) == str:
+	elif isinstance(suffix, str):
 	    suffix = [suffix]
 
 	if largest: # overrides previous setting of prefixes.
@@ -159,7 +159,7 @@ class Presentation():
 	    if largest in prefix:
 		prefix = prefix[:prefix.index(largest) + 1]
 	    prefix.reverse()
-	elif type(prefix) == str:
+	elif isinstance(prefix, str):
 	    prefix = [prefix]
 
 	if not pdir:
@@ -174,7 +174,7 @@ class Presentation():
 	    base = ['']
 	if not vars:
 	    vars = base
-	elif type(vars) == str:
+	elif isinstance(vars, str):
 	    vars = [vars] + base
 	else:
 	    vars = vars + base
@@ -541,7 +541,7 @@ of Matchbox International Ltd. and are used with permission.
 	    ostr += ' id="%s"' % id
 	ostr += '>\n'
 	for option in options:
-	    if type(option) == str:
+	    if isinstance(option, str):
 		option = (option, option)
 	    ostr += '<option value="%s"%s>%s\n' % (option[0], opt_selected[option[0] == selected], option[1])
 	ostr += '</select>'
@@ -682,18 +682,21 @@ of Matchbox International Ltd. and are used with permission.
 	self.Comment('FormatImageList', fn, alt, wc, prefix, suffix, pdir)
 	if not pdir:
 	    pdir = self.pic_dir
-	if type(suffix) == str:
+	if isinstance(suffix, str):
 	    suffix = [suffix]
+	if isinstance(prefix, str):
+	    prefix = [prefix]
 	imgs = list()
 
 	for suf in suffix:
-	    orig = (prefix + fn + '.' + suf)
-	    patt = (prefix + fn + wc + '.' + suf)
+	    for pref in prefix:
+		orig = (pref + fn + '.' + suf)
+		patt = (pref + fn + wc + '.' + suf)
 
-	    for fname in [orig] + useful.ReadDir(patt, pdir):
-		img = self.FmtImgSrc(pdir + '/' + fname, alt)
-		if img:
-		    imgs.append(img)
+		for fname in [orig] + useful.ReadDir(patt, pdir):
+		    img = self.FmtImgSrc(pdir + '/' + fname, alt)
+		    if img:
+			imgs.append(img)
 	return imgs
 
     def FormatImageSized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None, required=False):
@@ -813,7 +816,7 @@ of Matchbox International Ltd. and are used with permission.
 		ostr += self.FormatRowEnd()
 	    ostr += self.FormatRowStart()
 	    ostr += '<td>\n'
-	    ostr += self.FormatTableStart(id=sec_id, style_id=lin_id, also={'style':"border-width: 0; padding: 0;"})
+	    #ostr += self.FormatTableStart(id=sec_id, style_id=lin_id, also={'style':"border-width: 0; padding: 0;"})
 	    for ran in sec.get('range', []):
 		ran_id = ran.get('id', '')
 		ostr += self.FmtAnchor(ran.get('anchor'))
@@ -862,7 +865,7 @@ of Matchbox International Ltd. and are used with permission.
 			icol = 0
 		if icol:
 		    ostr += self.FormatRowEnd()
-	    ostr += self.FormatTableEnd()
+	    #ostr += self.FormatTableEnd()
 	    ostr += self.FormatCellEnd()
 	    ostr += self.FormatRowEnd()
 	    ostr += self.FormatTableEnd()
@@ -924,7 +927,7 @@ of Matchbox International Ltd. and are used with permission.
 	    return ''
 	ostr = self.FormatTableStart(style_id="tail")
 	ostr += self.FormatRowStart()
-	if type(tail) != list:
+	if not isinstance(tail, list):
 	    tail = [tail]
 	ntail = 1
 	for tent in tail:
