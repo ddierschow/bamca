@@ -53,16 +53,19 @@ def ShowModelTable(pif, mdict, link=True, prefix=['']):
     return ostr
 
 
-def ShowBoxes(pif, box_styles, id):
-    box_fmt = "<td><center><b>%s style box</b></center>%s</td>\n"
-    mults = '[abcdefghi]'
-    ostr = '<h3>Boxes</h3>'
-    tstr = "<table><tr>\n"
+def ShowBoxes(pif, box_styles, mack_nums):
+    box_fmt = "<b>%s style box</b>%s\n"
+    entries = list()
     for c in box_styles:
-	for box in pif.render.FormatImageList(id.lower() + '-' + c.lower(), wc=mults, pdir=config.imgdirBox):
-	    tstr += box_fmt % (c, box)
-    tstr += "</tr></table>\n"
-    ostr += pif.render.FormatTableSingleCell(tstr)
+	fnames = [id.replace('-', '').lower() + '-' + c.lower() for id in mack_nums]
+	box = pif.render.FormatImageSized(fnames, pdir=config.imgdirBox, required=True)
+	entries.append({'text' : box_fmt % (c, box)})
+    llineup = {'id' : 'boxes', 'name' : 'Boxes', 'columns' : min(2, len(entries)),
+	'section' : [{'id' : 'box', 'name' : 'Box Styles',
+	    'range' : [{'entry' : entries}],
+	}],
+    }
+    ostr = pif.render.FormatLineup(llineup)
     return ostr
 
 
@@ -330,8 +333,7 @@ def FormatLineupAppearances(pif, appearances):
 
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
-def GetMackNumbers(pif, cid, mod_type):
-    aliases = [x['alias.id'] for x in pif.dbh.FetchAliases(cid, 'mack')]
+def GetMackNumbers(pif, cid, mod_type, aliases):
     mack_nums = []
     if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
 	aliases.append(cid)
@@ -376,7 +378,8 @@ def ShowSingle(pif):
     appearances = pif.dbh.FetchCastingLineups(id)
 
     appearances.sort(key=lambda x: x['lineup_model.year'])
-    mack_nums = GetMackNumbers(pif, cid, man['model_type'])
+    aliases = [x['alias.id'] for x in pif.dbh.FetchAliases(cid, 'mack')]
+    mack_nums = GetMackNumbers(pif, cid, man['model_type'], aliases)
 
     matrixes = filter(lambda x: not x['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED, pif.dbh.FetchMatrixAppearances(id))
     matrixes.sort(key=lambda x: x['page_info.description'])
@@ -555,7 +558,7 @@ def ShowSingle(pif):
     print '<tr><td>'
     print '<center>'
     if boxstyles:
-	print ShowBoxes(pif, boxstyles, boxid)
+	print ShowBoxes(pif, boxstyles, aliases)
 
     print ShowAdds(pif, id, attribute_pictures)
 
