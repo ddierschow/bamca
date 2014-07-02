@@ -414,7 +414,7 @@ def MassSave(pif):
 	if '.' in key:
 	    col, ids = key.split('.', 1)
 	    if col in columns:
-		wheres = zip(table_info['id'], ids.split('.'))
+		wheres = pif.dbh.MakeWhere(dict(zip(table_info['id'], ids.split('.'))))
 		#where = " and ".join(["%s='%s'" % x for x in wheres])
 		# update table set col=value where condition;
 		#query = "update %s set %s='%s' where %s" % (pif.form['from'], col, pif.dbh.escape_string(pif.form[key]), where)

@@ -799,7 +799,7 @@ def ShowEditForm(pif, pdir, fn):
     print '(%d, %d)' % (x,y)
     print '<input type="radio" name="tysz" value="q"%s>' % checked[presets.get('tysz') == 'q']#checked[not pif.FormStr('v')]
     print 'x: <input name="x" type="text" size="4" value="%s"> y: <input name="y" type="text" size="4" value="%s">' % (xts, yts)
-    print pif.render.FormatRadio('tysz', [(x, x.upper()) for x in mbdata.image_size_names], presets.get('tysz', 's'))
+    print pif.render.FormatRadio('tysz', [(siz, siz.upper()) for siz in mbdata.image_size_names], presets.get('tysz', 's'))
     print '-', pif.render.FormatCheckbox("unlv", [("1", "V")], presets.get("unlv", []))
     print pif.render.FormatCheckbox("unlh", [("1", "H")], presets.get("unlh", []))
     print pif.render.FormatButtonInput('keep')
@@ -1373,7 +1373,7 @@ def ShowList(pif, title, tdir, fl):
     print '<br><hr>'
 
 
-def ShowDir(pif, tdir):
+def ShowDir(pif, tdir, desc=''):
     print '<hr>'
 
     dl, gl, ol, sl, xl = GetDir(tdir)
@@ -1471,7 +1471,7 @@ def UploadMain(pif):
 	MassUploadMain(pif)
 	print pif.render.FormatTail()
 	return
-    print pif.form
+    #print pif.form
     print '<hr>'
     desc = pif.FormStr('c')
     if pif.FormStr('m') and pif.FormStr('v'):
@@ -2136,7 +2136,7 @@ def ShowLibraryImgs(pif, patt):
     print '<input type="hidden" name="d" value="%s">' % pif.render.pic_dir
     print '<input type="hidden" name="sc" value="1">'
     print pif.render.FormatButtonInput()
-    print '<a href="upload.cgi?d=%s">%s</a>' % (pif.FormStr('d', '.'), pif.render.FormatButton('upload'))
+    print '<a href="upload.cgi?d=%s&r=1">%s</a>' % (pif.FormStr('d', '.'), pif.render.FormatButton('upload'))
     print '</form>'
 
 

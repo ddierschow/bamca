@@ -141,7 +141,7 @@ def ShowImgs(pif, patt, dups, shlv):
     print '<input type="hidden" name="d" value="%s">' % pif.render.pic_dir
     print '<input type="hidden" name="sc" value="1">'
     print pif.render.FormatButtonInput()
-    print '<a href="upload.cgi?d=%s">%s</a>' % (pif.form.get('d', '.'), pif.render.FormatButton('upload'))
+    print '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (pif.form.get('d', '.'), pif.render.FormatButton('upload'))
     print '</form>'
 
 

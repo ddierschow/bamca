@@ -32,9 +32,9 @@ if __name__ == '__main__': # pragma: no cover
 
     for sect in manf.slist:
 
+	sect['models'].sort(key=lambda x: x['id'])
         for mod in sect['models']:
 
             mod = manf.DereferenceAlias(mod)
 
-	    print mod
 	    of.write(",".join([mod['id'], NumFormat(mod['first_year']), NumFormat(mod['scale']), TextFormat(mod['name']), TextFormat(', '.join(mod['descs']))]) + '\r\n')
