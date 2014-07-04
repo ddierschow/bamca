@@ -21,6 +21,7 @@ class PageInfoFile():
     def __init__(self, page_id, form_key='', defval='', args='', dbedit=False):
 	self.render = self.dbh = None
 	self.args = args # this is for unittest only!
+	self.argv = [] # this is for command line only!
 	self.unittest = bool(args)
 	self.form = self.GetForm()
 	self.page_id = self.GetPageID(page_id, form_key, defval)
@@ -182,30 +183,8 @@ class PageInfoFile():
 		    form[spl[0]] = spl[1]
 
 	else: # faking from command line
-	    switches = options = ""
-	    switch = {}
-	    opts = args = []
-	    coptions = switches
-	    if options:
-		coptions += ':'.join(list(options)) + ':'
-
-	    try: # get command line
-		opts, args = getopt.getopt(sys.argv[1:], coptions)
-	    except getopt.GetoptError:
-		return dict()
-
-	    for opt in switches:
-		switch[opt] = False
-	    for opt in options:
-		switch[opt] = []
-
-	    for opt in opts:
-		if opt[0][1] in options:
-		    switch[opt[0][1]] = switch.get(opt[0][1], []) + [opt[1]]
-		else:
-		    switch[opt[0][1]] = not switch.get(opt[0][1], False)
-
-	    for fl in args:
+	    self.argv = sys.argv[1:] # command line utils will use this and ignore form.
+	    for fl in sys.argv:
 		if '=' in fl:
 		    spl = fl.split('=')
 		    form[spl[0]] = spl[1]

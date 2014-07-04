@@ -3,7 +3,6 @@
 import os, sys
 
 if __name__ == '__main__': # pragma: no cover
-    #sys.path.append('../../cgi-bin')
     import mbdata
 
     if len(sys.argv) > 1:

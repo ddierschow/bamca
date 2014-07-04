@@ -1,30 +1,24 @@
 #!/usr/local/bin/python
 
-import os, sys
-import cmdline
-#os.environ['DOCUMENT_ROOT'] = '/usr/local/www/bamca/beta/htdocs'
-#os.environ['SERVER_NAME'] = 'beta.bamca.org'
-#sys.path.append('../../cgi-bin')
+import os
 import basics
 import mbdata
 import config
 
-# Start here
 verbose = False
 
-
-def RunModels(mods):
+def RunModels(pif, mods):
     upics = spics = sfound = cpics = cfound = mpics = mfound = apics = afound = 0
     mods = [x[0] for x in mods]
     mods.sort()
 
     for mod in mods:
 	uf, af, mf, cf, sf = ShowListVarPics(pif, mod)
-	if (not switch['q']) and \
-	   (not switch['s'] or sf[2] < 100) and \
-	   (not switch['c'] or cf[2] < 100) and \
-	   (not switch['m'] or mf[2] < 100) and \
-	   (not switch['a'] or af[2] < 100):
+	if (not pif.switch['q']) and \
+	   (not pif.switch['s'] or sf[2] < 100) and \
+	   (not pif.switch['c'] or cf[2] < 100) and \
+	   (not pif.switch['m'] or mf[2] < 100) and \
+	   (not pif.switch['a'] or af[2] < 100):
 	    print '%-8s%5d | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%%' % ((mod, uf) + af + mf + cf + sf)
 
 	upics  += uf
@@ -89,18 +83,18 @@ def FormatCalc(found, pics):
     return (0, 0, 100)
 
 
+@basics.CommandLine
 def Main(pif):
 
-    switch, files = cmdline.CommandLine('qvscma', '')
     upics = nmods = spics = sfound = cpics = cfound = mpics = mfound = apics = afound = 0
 
-    if switch['v']:
+    if pif.switch['v']:
 	verbose = True
-    if files:
-	for spec in files:
+    if pif.filelist:
+	for spec in pif.filelist:
 	    mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
 	    nmods += len(mods)
-	    uf, sp, sf, cp, cf, mp, mf, ap, af = RunModels(mods)
+	    uf, sp, sf, cp, cf, mp, mf, ap, af = RunModels(pif, mods)
 
 	    upics  += uf
 	    spics  += sp
@@ -115,7 +109,7 @@ def Main(pif):
     else:
 	mods = pif.dbh.dbi.execute("select distinct id from casting")[0]
 	nmods += len(mods)
-	uf, sp, sf, cp, cf, mp, mf, ap, af = RunModels(mods)
+	uf, sp, sf, cp, cf, mp, mf, ap, af = RunModels(pif, mods)
 
 	upics  += uf
 	spics  += sp
@@ -132,5 +126,4 @@ def Main(pif):
 	FormatCalc(afound, apics) + FormatCalc(mfound, mpics) + FormatCalc(cfound, cpics) + FormatCalc(sfound, spics))
 
 if __name__ == '__main__': # pragma: no cover
-    pif = basics.GetPageInfo('vars')
-    Main(pif)
+    Main('vars', switches='qvscma')

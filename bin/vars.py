@@ -353,12 +353,16 @@ def AddVariation(pif, mod_id, var_id='unset', attributes={}): # pragma: no cover
 
 
 def RenameVariation(pif, mod_id, old_var_id, new_var_id): # pragma: no cover
+    verbose = False
+    if pif.argv:
+	print 'RenameVariation', mod_id, old_var_id, new_var_id
+	pif.dbh.dbi.verbose = verbose = True
     if old_var_id == new_var_id:
 	return
-    pif.dbh.UpdateVariation({'var' : new_var_id, 'imported_var' : new_var_id}, {'mod_id' : mod_id, 'var' : old_var_id})
-    pif.dbh.UpdateVariation({'picture_id' : new_var_id}, {'mod_id' : mod_id, 'picture_id' : old_var_id})
-    pif.dbh.UpdateDetail({'var_id' : new_var_id}, {'var_id' : old_var_id, 'mod_id' : mod_id})
-    pif.dbh.Write('variation_select', {'var_id' : new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, mod_id), modonly=True)
+    pif.dbh.UpdateVariation({'var' : new_var_id, 'imported_var' : new_var_id}, {'mod_id' : mod_id, 'var' : old_var_id}, verbose=verbose)
+    pif.dbh.UpdateVariation({'picture_id' : new_var_id}, {'mod_id' : mod_id, 'picture_id' : old_var_id}, verbose=verbose)
+    pif.dbh.UpdateDetail({'var_id' : new_var_id}, {'var_id' : old_var_id, 'mod_id' : mod_id}, verbose=verbose)
+    pif.dbh.Write('variation_select', {'var_id' : new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, mod_id), modonly=True, verbose=verbose)
     # If we're renaming, I'd like to also rename the pictures.
     RenameVariationPictures(pif, mod_id, old_var_id, new_var_id)
 
@@ -1187,20 +1191,17 @@ def VarSearch(pif):
     print pif.render.FormatTail()
 
 
+@basics.CommandLine
 def Commands(pif):
-    import cmdline
-
-    switch, files = cmdline.CommandLine()
-
-    if files and files[0] == 'd':
-	DeleteVariation(pif, files[1], files[2])
-    elif files and files[0] == 'r':
-	RenameVariation(pif, files[1], files[2], files[3])
-    elif files and files[0] == 's':
-	RenameVariation(pif, files[1], files[2], files[2] + 'x')
-	RenameVariation(pif, files[1], files[3], files[2])
-	RenameVariation(pif, files[1], files[2] + 'x', files[3])
-    elif files and files[0] == 'm':
+    if pif.filelist and pif.filelist[0] == 'd':
+	DeleteVariation(pif, pif.filelist[1], pif.filelist[2])
+    elif pif.filelist and pif.filelist[0] == 'r':
+	RenameVariation(pif, pif.filelist[1], pif.filelist[2], pif.filelist[3])
+    elif pif.filelist and pif.filelist[0] == 's':
+	RenameVariation(pif, pif.filelist[1], pif.filelist[2], pif.filelist[2] + 'x')
+	RenameVariation(pif, pif.filelist[1], pif.filelist[3], pif.filelist[2])
+	RenameVariation(pif, pif.filelist[1], pif.filelist[2] + 'x', pif.filelist[3])
+    elif pif.filelist and pif.filelist[0] == 'm':
 	print "move not yet implemented"
     else:
 	print "./vars.py [d|r|s|m] ..."
@@ -1212,5 +1213,4 @@ def Commands(pif):
 
 if __name__ == '__main__': # pragma: no cover
     import basics
-    pif = basics.GetPageInfo('vars')
-    Commands(pif)
+    Commands('vars', dbedit=True)

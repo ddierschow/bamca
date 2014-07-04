@@ -78,6 +78,11 @@ def AddModelTablePicLink(pif, mdict, flago=flago):
     return mod_tab_pic_lnk_pat % mdict
 
 
+def GenerateModelTablePicLink(pif, mdict, mlist):
+    for mod_id in mlist:
+	yield {'text' : AddModelTablePicLink(pif, mdict[mod_id])}
+
+
 #mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname
 def AddModelTableProductLink(pif, mdict):
     pif.render.Comment('AddModelTableProductLink', mdict)

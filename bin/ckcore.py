@@ -1,16 +1,13 @@
 #!/usr/local/bin/python
 
-import os, sys
-#os.environ['DOCUMENT_ROOT'] = '/usr/local/www/bamca/beta/htdocs'
-#os.environ['SERVER_NAME'] = 'beta.bamca.org'
-#sys.path.append('../../cgi-bin')
+import os
 import basics
 import mbdata
 import config
 
 # Start here
 
-def Model(mod):
+def Model(pif, mod):
     yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s' and region!='S' and region!='M' and region!='J'" % mod)[0]
     yrs = [x[0] for x in yrs]
     yrs.sort()
@@ -33,6 +30,7 @@ def ShowListVarPics(pif, mod_id):
     vars = pif.dbh.FetchVariations(mod_id)
     cpics = cfound = pics = found = 0
     for var in vars:
+	var = pif.dbh.DePref('variation', var)
 	if var['var'].startswith('f') or mbdata.categories.get(var['category'], '').startswith('['):
 	    continue
 	elif not var['picture_id']:
@@ -58,9 +56,10 @@ def ShowListVarPics(pif, mod_id):
     return af, cf
 
 
+@basics.CommandLine
 def Main(pif):
 
-    specs = sys.argv[1:]
+    specs = pif.filelist
 
     sw = []
     if specs[0][0] == '0':
@@ -73,7 +72,7 @@ def Main(pif):
 	mods.sort()
 
 	for mod in mods:
-	    missing, bad = Model(mod)
+	    missing, bad = Model(pif, mod)
 	    af, cf = ShowListVarPics(pif, mod)
 
 	    if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
@@ -90,5 +89,4 @@ def Main(pif):
 		print
 
 if __name__ == '__main__': # pragma: no cover
-    pif = basics.GetPageInfo('vars')
-    Main(pif)
+    Main('vars')

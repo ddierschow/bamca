@@ -207,11 +207,11 @@ def RunLine(ll):
     FixFiles(ll['link_line.page_id'])
     print
 
-if __name__ == '__main__':
-    pif = basics.GetPageInfo('vars')
 
-    if len(sys.argv) > 1:
-	for arg in sys.argv[1:]:
+@basics.CommandLine
+def Main(pif):
+    if pif.filelist:
+	for arg in pif.filelist:
 	    for ll in pif.dbh.FetchLinkLines(page_id='single.' + arg, section='single'):
 		RunLine(ll)
     else:
@@ -222,3 +222,7 @@ if __name__ == '__main__':
     print 'Errors found...'
     for err in errors:
 	print err[0]['link_line.page_id'], err[1]
+
+
+if __name__ == '__main__':
+    Main('vars')

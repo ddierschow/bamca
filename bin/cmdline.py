@@ -53,8 +53,9 @@ def CommandLine(switches="", options="", long_options={}, version="", short_help
     switches, reqs = Req(switches)
     options, reqs = Req(options, reqs)
     loptions, reqs = Req(long_options, reqs)
-    switch = FlagClass()
-    opts = files = []
+    switch = dict()
+    opts = list()
+    files = list()
     coptions = switches
     if options:
 	coptions += ':'.join(list(options)) + ':'
@@ -83,11 +84,11 @@ def CommandLine(switches="", options="", long_options={}, version="", short_help
     for opt in switches:
 	switch[opt] = None
     for opt in options:
-	switch[opt] = []
+	switch[opt] = list()
     for opt in long_options:
 	if not long_options[opt]:
 	    if opt[-1] == '=':
-		switch[opt[:-1]] = []
+		switch[opt[:-1]] = list()
 	    else:
 		switch[opt] = None
 
@@ -103,13 +104,13 @@ def CommandLine(switches="", options="", long_options={}, version="", short_help
 		    switch[opt[0][2:]] = not switch.get(opt[0][2:], False)
 	    elif opt[0][2:] + '=' in long_options:
 		if long_options[opt[0][2:] + '=']:
-		    sw = switch.get(long_options[opt[0][2:] + '='], [])
+		    sw = switch.get(long_options[opt[0][2:] + '='], list())
 		    switch[long_options[opt[0][2:] + '=']] = sw + [opt[1]]
 		else:
-		    sw = switch.get(opt[0][2:], [])
+		    sw = switch.get(opt[0][2:], list())
 		    switch[opt[0][2:]] = sw + [opt[1]]
 	elif opt[0][1] in options:
-	    sw = switch.get(opt[0][1], [])
+	    sw = switch.get(opt[0][1], list())
 	    switch[opt[0][1]] = sw + [opt[1]]
 	else:
 	    switch[opt[0][1]] = not switch.get(opt[0][1], False)
@@ -130,77 +131,6 @@ def CommandLine(switches="", options="", long_options={}, version="", short_help
 	files = reduce(lambda x,y: x+y, [glob.glob(x) for x in files], [])
 
     return (switch, files)
-
-
-class FlagClass:
-    def __init__(self, switch={}, flagmap={}, OPTIONS=''):
-	for flag in OPTIONS:
-	    self[flag] = []
-	if flagmap:
-	    for flag in flagmap:
-		if flag in switch:
-		    self[flagmap[flag]] = switch.get(flag)
-		elif OPTIONS.find(flag) >= 0:
-		    self[flagmap[flag]] = []
-		else:
-		    self[flagmap[flag]] = False
-	else:
-	    for flag in switch:
-		self[flag] = switch[flag]
-
-    def __str__(self):
-	return 'FlagClass(%s)' % str(self.__dict__)
-
-    def __getattr__(self, attr):
-	return self.__dict__.get(attr)
-
-    def __getitem__(self, attr):
-	return self.__dict__.get(attr)
-
-    def __setitem__(self, attr, value):
-	self.__dict__[attr] = value
-
-    def __nonzero__(self):
-	return bool(self.__dict__)
-
-    def __iter__(self):
-	return self.__dict__.__iter__()
-
-    def __contains__(self, a):
-	return a in self.__dict__
-
-    def get(self, attr, value=None):
-	return self.__dict__.get(attr, value)
-
-    def teg(self, arg, key, value=None):
-	if arg == None:
-	    arg = self.__dict__.get(key, value)
-	return arg
-
-    def getnum(self, attr, value=None):
-	if not attr in self.__dict__:
-	    return value
-	dval = self.__dict__[attr]
-	if isinstance(dval, int):
-	    return dval
-	elif isinstance(dval, str):
-	    return int(dval)
-	elif not dval:
-	    return value
-	return int(dval[-1])
-
-    def getstr(self, attr, value=None):
-	if not attr in self.__dict__:
-	    return value
-	dval = self.__dict__[attr]
-	if isinstance(dval, str):
-	    return dval
-	elif not dval:
-	    return value
-	return dval[-1]
-
-def MakeFlags(switch, flagmap, OPTIONS):
-    return FlagClass(switch, flagmap, OPTIONS)
 
 
 if __name__ == '__main__': # pragma: no voer

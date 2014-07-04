@@ -300,7 +300,11 @@ def CreateLineup(mods, parents, year, region, verbose=0):
     return llineup
 
 
+'''
 def GetManSections(pif, year, region):
+    # rewrite this!  one query, then deal in code.
+    # split out X sections here.
+    # order by display_order
     while 1:
 	wheres = ["page_id='year.%s'" % year]
 	if region:
@@ -314,7 +318,7 @@ def GetManSections(pif, year, region):
 	if not region in mbdata.regionparents:
 	    return '', dict(), []
 	region = mbdata.regionparents[region]
-    return region, secs[0], secs[1:]
+    return region, secs[0], secs[1:], list()
 
 
 def GetExtraSections(pif, year):
@@ -322,15 +326,41 @@ def GetExtraSections(pif, year):
     if not (pif.render.isbeta or pif.FormBool('hidden')):
 	where.append(' and not flags & %d' % pif.dbh.FLAG_SECTION_HIDDEN)
     return pif.dbh.DePref('section', pif.dbh.FetchSections(where))
+'''
+
+
+def GetManSections(pif, year, region):
+    # rewrite this!  one query, then deal in code.
+    # split out X sections here.
+    # order by display_order
+
+    wheres = ["page_id='year.%s'" % year]
+    if not pif.render.isbeta:
+	wheres.append("not flags & %d" % pif.dbh.FLAG_SECTION_HIDDEN)
+    secs = pif.dbh.DePref('section', pif.dbh.FetchSections(wheres))
+    secs.sort(key=lambda x: x['display_order'])
+
+    lsecs = list()
+    xsecs = filter(lambda x: x['id'].startswith('X'), secs)
+    secs = filter(lambda x: not x['id'].startswith('X'), secs)
+
+    while 1:
+	lsecs = filter(lambda x: x['id'].startswith(region), secs)
+	if lsecs:
+	    break
+	if not region in mbdata.regionparents:
+	    return '', dict(), lsecs, xsecs
+	region = mbdata.regionparents[region]
+    return region, lsecs[0], lsecs[1:], xsecs
 
 
 def GetLineupModels(pif, year, region):
     line_regions = mbdata.GetRegionTree(region)
     lmodlist = pif.dbh.FetchLineupModels(str(year), line_regions)
     lmodlist.sort(key=lambda x: x['lineup_model.number'])
-    for mod in lmodlist:
-	pif.render.Comment('GetLineupModels:', mod)
-    #print 'GetLineupModels', len(lmodlist), '<br>'
+    #print 'GetLineupModels', len(lmodlist), 'models<br>'
+#    for mod in lmodlist:
+#	pif.render.Comment('GetLineupModels:', mod)
     return lmodlist
 
 
@@ -404,8 +434,9 @@ def CorrectRegion(region, year):
     return region, year
 
 
-def ShowSection(pif, lsec, lran, mods, lup_region, year, comments):
+def ShowSection(pif, lran, mods, lup_region, year, comments):
     pif.render.Comment("ShowSection: range", lran)
+    lran['entry'] = list()
     multivars = list()
     unroll = pif.FormBool('unroll')
     if lran['flags'] & pif.dbh.FLAG_SECTION_HIDDEN:
@@ -438,7 +469,7 @@ def ShowSection(pif, lsec, lran, mods, lup_region, year, comments):
 	    ent['class'] = 'newcasting'
 	lran['entry'].append(ent)
     lran['multivars'] = multivars
-    lsec['range'].append(lran)
+    return lran
 
 
 def RunFile(pif, region, year):
@@ -446,7 +477,7 @@ def RunFile(pif, region, year):
     lup_region, year = CorrectRegion(region, year)
     llineup = {'id' : lup_region, 'section' : [], 'name' : '', 'tail' : []}
 
-    lup_region, lsec, secs = GetManSections(pif, year, region)
+    lup_region, lsec, secs, xsecs = GetManSections(pif, year, region)
     if not lup_region:
 	return llineup
 
@@ -476,30 +507,28 @@ def RunFile(pif, region, year):
 	for lran in secs:
 	    lran.update({
 		'id' : lup_region + '_' + str(lran['display_order']),
-		'entry' : [],
 		'graphics' : [lran['img_format'][:4] + lup_region + 's%02d' % lran['display_order']]
 	    })
-	    ShowSection(pif, lsec, lran, modlist[lran['start']:lran['end']], lup_region, year, comments)
+	    lsec['range'].append(ShowSection(pif, lran, modlist[lran['start']:lran['end']], lup_region, year, comments))
 	    multivars.extend(lran['multivars'])
     else:
 	lran = copy.deepcopy(lsec)
-	lran.update({'id' : lup_region + '_1', 'name' : '', 'entry' : [], 'note' : '', 'graphics' : []})
-	ShowSection(pif, lsec, lran, modlist, lup_region, year, comments)
+	lran.update({'id' : lup_region + '_1', 'name' : '', 'note' : '', 'graphics' : []})
+	lsec['range'].append(ShowSection(pif, lran, modlist, lup_region, year, comments))
 	multivars.extend(lran['multivars'])
 
     #==================================
 
-    secs = GetExtraSections(pif, year)
-    CreateExtraLineup(pif, year, secs, verbose=pif.render.verbose)
+    #xsecs = GetExtraSections(pif, year)
+    CreateExtraLineup(pif, year, xsecs, verbose=pif.render.verbose)
 
-    for lran in secs:
+    for lran in xsecs:
 	lran['anchor'] = 'S' + lran['id'].replace('.', '')
 	lran.update({
 	    'id' : 'X_' + str(lran['display_order']),
-	    'entry' : [],
 	    'graphics' : [lran['img_format'][:2] + lup_region + 's%02d' % lran['display_order']]
 	})
-	ShowSection(pif, lsec, lran, lran['mods'], 'X', year, comments)
+	lsec['range'].append(ShowSection(pif, lran, lran['mods'], 'X', year, comments))
 
     llineup['section'].append(lsec)
     llineup['tail'] = [pif.render.FormatImageArt('bamca_sm', also={'class' : 'centered'}), '']
@@ -525,7 +554,7 @@ def RunMultiFile(pif, year, region, nyears):
     nyears = len(pages)
     for page in pages:
 	page['year'] = str(y)
-	reg, lsec, secs = GetManSections(pif, str(y), region)
+	reg, lsec, secs, xsecs = GetManSections(pif, str(y), region)
 	page['region'] = reg
 	page['sec'] = lsec
 	page['img_format'] = lsec['img_format']
@@ -654,7 +683,7 @@ def PictureCount(pif, region, year):
     region, year = CorrectRegion(region, year)
     llineup = {'id' : region, 'section' : [], 'name' : '', 'tail' : []}
 
-    region, lsec, secs = GetManSections(pif, year, region)
+    region, lsec, secs, xsecs = GetManSections(pif, year, region)
     if not region:
 	return 0
 
@@ -687,10 +716,10 @@ def PictureCount(pif, region, year):
 
     #==================================
 
-    secs = GetExtraSections(pif, year)
-    CreateExtraLineup(pif, year, secs, verbose=pif.render.verbose)
+    #xsecs = GetExtraSections(pif, year)
+    CreateExtraLineup(pif, year, xsecs, verbose=pif.render.verbose)
 
-    for lran in secs:
+    for lran in xsecs:
 	lran.update({
 	    'id' : 'X_' + str(lran['display_order']),
 	    'entry' : [],
@@ -874,7 +903,7 @@ def RunTextFile(pif, region, year):
     lup_region, year = CorrectRegion(region, year)
     llineup = {'id' : lup_region, 'section' : [], 'name' : '', 'tail' : []}
 
-    lup_region, lsec, secs = GetManSections(pif, year, region)
+    lup_region, lsec, secs, xsecs = GetManSections(pif, year, region)
     if not lup_region:
 	return ostr
 
@@ -904,10 +933,10 @@ def RunTextFile(pif, region, year):
 
     #==================================
 
-    secs = GetExtraSections(pif, year)
-    CreateExtraLineup(pif, year, secs, verbose=pif.render.verbose)
+    #xsecs = GetExtraSections(pif, year)
+    CreateExtraLineup(pif, year, xsecs, verbose=pif.render.verbose)
 
-    for lran in secs:
+    for lran in xsecs:
 	lran['anchor'] = 'S' + lran['id'].replace('.', '')
 	lran.update({
 	    'id' : 'X_' + str(lran['display_order']),
@@ -1062,7 +1091,7 @@ def RunProductPictures(pif, region):
 	for ln in open('pic/multivars.dat').readlines():
 	    ln = ln.strip().split()
 	    if len(ln) > 1 and ln[1] == region:
-		halfstars[ln[0]] = map(int, ln[2:])
+		halfstars[ln[0]] = [int(x) for x in ln[2:]]
     pages = pif.dbh.FetchPageYears()
     if pif.FormStr('syear'):
 	pages = filter(lambda x: x['page_info.id'] >= 'year.' + pif.FormStr('syear'), pages)

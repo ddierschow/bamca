@@ -140,10 +140,7 @@ class dbhandler:
 		    del results[key]
 	else:
 	    for result in results:
-		for key in result.keys():
-		    if key.startswith(table + '.'):
-			result[key[len(table) + 1:]] = result[key]
-			del result[key]
+		self.DePref(table, result)
 	return results
 
     def Increment(self, table_name, values=None, where=None, tag='', verbose=False):
@@ -352,8 +349,7 @@ class dbhandler:
 	    return id_m
 	return id_m.group('a').upper() + '-' + id_m.group('d')
 
-    def ModifyManItem(self, mod, pfx='', linky=1):
-
+    def ModifyManItem(self, mod):
 	mod = self.DePref('casting', mod)
 	mod = self.DePref('base_id', mod)
 	mod.setdefault('make', '')
@@ -363,9 +359,6 @@ class dbhandler:
 	    mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
 	    mod.setdefault('description', '')
 	    mod['made'] = not (mod['flags'] & self.FLAG_MODEL_NOT_MADE)
-	    mod['notmade'] = {True: '', False: '*'}[mod['made']]
-	    mod['link'] = linkurl[linky]
-	    mod['linkid'] = mod.get('mod_id', mod.get('id'))
 	    mod['visual_id'] = self.DefaultID(mod['id'])
 	else:
 	    mod['id'] = ''
@@ -374,10 +367,10 @@ class dbhandler:
 	    mod['unlicensed'] = '?'
 	    mod['description'] = ''
 	    mod['made'] = False
-	    mod['notmade'] = {True: '', False: '*'}[mod['made']]
-	    mod['link'] = linkurl[linky]
-	    mod['linkid'] = mod.get('mod_id', mod.get('id'))
 	    mod['visual_id'] = ''
+	mod['notmade'] = {True: '', False: '*'}[mod['made']]
+	mod['linkid'] = mod.get('mod_id', mod.get('id'))
+	mod['link'] = "single.cgi?id"
 	mod['descs'] = filter(lambda x:x, mod['description'].split(';'))
 	mod['iconname'] = self.IconName(mod.get('rawname', ''))
 	mod['shortname'] = self.ShortName(mod.get('rawname', ''))
@@ -483,8 +476,8 @@ class dbhandler:
 	    det = {'var_id' : nvar['var'], 'mod_id' : mod_id, 'attr_id' : attr['attribute.id'], 'description' : attributes.get(attr['attribute.attribute_name'], '')}
 	    self.Write('detail', det, newonly=True)
 
-    def UpdateVariation(self, values, id):
-	self.Write('variation', values, self.MakeWhere(id), modonly=True)
+    def UpdateVariation(self, values, id, verbose=False):
+	self.Write('variation', values, self.MakeWhere(id), modonly=True, verbose=verbose)
 
     def DeleteVariation(self, where):
 	self.Delete('variation', where=self.MakeWhere(where))
@@ -545,8 +538,8 @@ class dbhandler:
 	    mvars[det['var_id']][det['attribute_name']] = det['description']
 	return mvars
 
-    def UpdateDetail(self, values, where):
-	self.Write('detail', values, where=self.MakeWhere(where), modonly=True)
+    def UpdateDetail(self, values, where, verbose=False):
+	self.Write('detail', values, where=self.MakeWhere(where), modonly=True, verbose=verbose)
 
     #- vehicle_make
 

@@ -79,5 +79,25 @@ def WebPage(main_fn):
 
 #---- -------------------------------------------------------------------
 
+# Decorator that command line mains.
+def CommandLine(main_fn):
+    def CallMain(page_id, form_key='', defval='', args='', dbedit=False, switches='', options=''):
+	pif = None
+	try:
+	    if isinstance(page_id, pifile.PageInfoFile):
+		pif = page_id
+	    else:
+		pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
+	    import cmdline
+	    pif.switch, pif.filelist = cmdline.CommandLine(switches, options)
+	    ret = main_fn(pif)
+	    if ret:
+		print ret
+	except SystemExit:
+	    pass
+    return CallMain
+
+#---- -------------------------------------------------------------------
+
 if __name__ == '__main__': # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

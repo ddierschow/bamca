@@ -779,16 +779,17 @@ of Matchbox International Ltd. and are used with permission.
 	return ostr
 
     # a lineup consists of a header (outside of the table) plus a set of sections, each in its own table.
-    #     id, name, section, graphics, note, columns, tail
+    #     id, name, note, graphics, columns, tail | section
     # a section consists of a header (inside the table) plus a set of ranges.
-    #     id, name, anchor, columns, note, range, switch, count
+    #     id, name, note, anchor, columns, switch, count | range
     # a range consists of a header plus a set of entries.
-    #     id, name, anchor, note, graphics, entry, note
+    #     id, name, note, anchor, graphics | entry
     # an entry contains the contents of a cell plus cell controls
     #     display_id, text, rowspan, colspan, class, st_suff, style, also,
 
     def FormatLineup(self, llineup):
 	ostr = '<!-- Starting FormatLineup -->\n'
+	maxes = {'s':0, 'r':0, 'e':0}
 	self.CommentDict('lineup', llineup)
 	if llineup.get('graphics'):
 	    for graf in llineup['graphics']:
@@ -796,7 +797,9 @@ of Matchbox International Ltd. and are used with permission.
 	lin_id = llineup.get('id', '')
 	if llineup.get('note'):
 	    ostr += llineup['note'] + '<br>'
+	sc = 0
 	for sec in llineup.get('section', []):
+	    sc += 1
 	    sec_id = sec.get('id', '')
 	    ostr += self.FmtAnchor(sec.get('anchor'))
 	    ncols = sec.get('columns', llineup.get('columns', 4))
@@ -817,7 +820,9 @@ of Matchbox International Ltd. and are used with permission.
 	    ostr += self.FormatRowStart()
 	    ostr += '<td>\n'
 	    #ostr += self.FormatTableStart(id=sec_id, style_id=lin_id, also={'style':"border-width: 0; padding: 0;"})
+	    rc = 0
 	    for ran in sec.get('range', []):
+		rc += 1
 		ran_id = ran.get('id', '')
 		ostr += self.FmtAnchor(ran.get('anchor'))
 		if ran.get('name') or ran.get('graphics'):
@@ -830,7 +835,9 @@ of Matchbox International Ltd. and are used with permission.
 		    ostr += self.FormatRowEnd()
 		icol = 0
 		spans = [[0, 0]] * ncols
+		ec = 0
 		for ent in ran.get('entry', []):
+		    ec += 1
 		    if icol == 0:
 			ostr += self.FormatRowStart(also={'class' : 'er'})
 		    disp_id = ent.get('display_id')
@@ -863,12 +870,16 @@ of Matchbox International Ltd. and are used with permission.
 		    if icol >= ncols:
 			ostr += self.FormatRowEnd()
 			icol = 0
+		    maxes['e'] = max(maxes['e'], ec)
 		if icol:
 		    ostr += self.FormatRowEnd()
+		maxes['r'] = max(maxes['r'], rc)
 	    #ostr += self.FormatTableEnd()
 	    ostr += self.FormatCellEnd()
 	    ostr += self.FormatRowEnd()
 	    ostr += self.FormatTableEnd()
+	    maxes['s'] = max(maxes['s'], sc)
+	#print 'sec %(s)d ran %(r)d ent %(e)d<br>' % maxes
 	ostr += self.FormatBoxTail(llineup.get('tail'))
 	return ostr
 

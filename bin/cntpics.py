@@ -1,9 +1,6 @@
 #!/usr/local/bin/python
 
 import copy, glob, os, re, sys, urllib2
-#os.environ['DOCUMENT_ROOT'] = '/usr/local/www/bamca/beta/htdocs'
-#os.environ['SERVER_NAME'] = 'beta.bamca.org'
-#sys.path.append('../../cgi-bin')
 import basics
 import mbdata
 import images

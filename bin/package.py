@@ -100,6 +100,8 @@ def ShowBox(pif, mod, style):
     ostr = ''
     for style in box_styles:
 	pic = pif.render.FormatImageSized([mod['id'] + '-' + style], largest=largest, pdir=config.imgdirBox, required=True)
+	if pif.IsAllowed('ma'):
+	    pic = '<a href="http://www.bamca.org/cgi-bin/upload.cgi?d=%s&r=%s">%s</a>' % (config.imgdirBox, mod['id'].lower() + '-' + style.lower() + '.jpg', pic)
 	ostr += pif.render.FormatTableSingleCell(1, "<center><b>%s style</b></center>%s" % (style, pic))
     return ostr
 

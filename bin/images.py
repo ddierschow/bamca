@@ -1,8 +1,7 @@
 #!/usr/local/bin/python
 
-import datetime, filecmp, glob, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
+import datetime, glob, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
 import basics
-import cmdline
 import config
 import icon
 import javascript
@@ -1881,16 +1880,12 @@ def GetManList(pif):
     return mans
 
 
+@basics.CommandLine
 def IconMain(pif):
 
-    SWITCHES = "av"
-    OPTIONS = "bn"
-
-    switch, files = cmdline.CommandLine(SWITCHES, OPTIONS)
-
     title = 'mb2'
-    if switch['b']:
-	title = switch['b'][-1]
+    if pif.switch['b']:
+	title = pif.switch['b'][-1]
 
     logo = pif.render.FindArt(title)
 
@@ -1899,18 +1894,18 @@ def IconMain(pif):
 
     mandict = GetManList(pif)
 
-    if switch['a']:
+    if pif.switch['a']:
 	for man in mandict:
 	    name = MangleName(mandict[man]['rawname'])
-	    if switch['n']:
-		name = switch['n'][-1].split(';')
+	    if pif.switch['n']:
+		name = pif.switch['n'][-1].split(';')
 	    CreateIcon(man, name, logo)
-    elif files:
-	for man in files:
+    elif pif.filelist:
+	for man in pif.filelist:
 	    if man in mandict:
 		name = MangleName(mandict[man]['rawname'])
-		if switch['n']:
-		    name = switch['n'][-1].split(';')
+		if pif.switch['n']:
+		    name = pif.switch['n'][-1].split(';')
 		CreateIcon(man, name, logo)
     else:
 	print 'huh?' # print mandict
@@ -2273,4 +2268,4 @@ def Thumber(pif):
 
 
 if __name__ == '__main__': # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    IconMain('editor', switches='av', options='bn')

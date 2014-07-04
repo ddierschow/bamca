@@ -1,23 +1,18 @@
-import glob, os, re, sys, time, urllib2
+import datetime, fnmatch, glob, os, re, sys, time, urllib2
 
-# This runs on Windows and uses Word to convert files.
-# There is a macro that has to be installed in Word for this to work.
+# todo:
+#   add a start date
 
 inloc = 'http://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents'
 tmploc = 'tmp'
-wordloc = 'C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Microsoft Office'
 startword = {
     'rtf' : 'word.lnk /mrtfconv',
     'html' : 'word.lnk /mhtmlconv',
 }
-startvcp = '"c:\\Program Files (x86)\\SecureCRT\\vcp"'
+startscp = '"c:\\Program Files\\pscp"'
 outloc = 'bamca@xocolatl.com:www/htdocs/src/mbxf'
 
 error_list = []
-
-def Unlink(fs):
-    map(os.unlink, glob.glob(fs))
-
 
 def Fetch(url, with_continue=True):
     fn = os.path.basename(url)
@@ -76,10 +71,16 @@ def Fetch(url, with_continue=True):
     return img
 
 
-web_index_re    = re.compile('<a href="(?P<u>[^"]*)">', re.I)
-def WebReadDirectory(dir_path):
-    retval = urllib2.urlopen(dir_path).read()
-    files = filter(lambda x: not x.startswith('?') and not x.find('/') >= 0, web_index_re.findall(retval))
+web_index_re    = re.compile('<a href="(?P<u>[^"]*)">.*?<\/a>\s*(?P<d>....-..-..)', re.I)
+def WebReadDirectory(dir_path, start_date=None, fn_patt=None):
+    page_text = urllib2.urlopen(dir_path).read()
+    files = web_index_re.findall(page_text)
+    if start_date:
+	files = filter(lambda x: datetime.datetime.strptime(x[1], '%Y-%m-%d') > start_date, files)
+    files = filter(lambda x: not x.startswith('?') and not x.find('/') >= 0, [y[0] for y in files])
+    if fn_patt:
+	print fn_patt
+	files = filter(lambda x: fnmatch.fnmatch(x, fn_patt) , files)
     return files
 
 
@@ -91,44 +92,56 @@ def GetFiles(url, file_list):
 
 def Process(filetype):
     if os.path.exists(tmploc + '/done.txt'):
-	Unlink(tmploc + '/done.txt')
-    #Unlink(tmploc + '/*.' + filetype)
+	os.unlink(tmploc + '/done.txt')
+    #map(os.unlink, glob.glob(tmploc + '/*.' + filetype))
     os.system(startword[filetype])
     while not os.path.exists(tmploc + '/done.txt'):
 	time.sleep(3)
 
 
 def Main(args):
+    start_date = None
+    fn_patt = None
     if not args:
-	print "Commands are: get", ' '.join(startword.keys()), "clean put reset"
+	print "Commands are: get list date= file=", ' '.join(startword.keys()), "clean put reset"
     else:
 	for arg in args:
 	    if arg == 'get':
-		Unlink(tmploc + '/*.doc')
-		fl = WebReadDirectory(inloc)
+		if not os.path.exists(tmploc):
+		    os.mkdir(tmp)
+		map(os.unlink, glob.glob(tmploc + '/*.doc'))
+		fl = WebReadDirectory(inloc, start_date, fn_patt)
 		GetFiles(inloc, filter(lambda x: x.endswith('.doc'), fl))
+	    elif arg == 'list':
+		fl = WebReadDirectory(inloc, start_date, fn_patt)
+		print '\n'.join(fl)
+	    elif arg.startswith('date='):
+		start_date = datetime.datetime.strptime(arg, 'date=%d-%b-%Y')
+		print start_date
+	    elif arg.startswith('file='):
+		fn_patt = arg[5:]
 	    elif arg in startword:
 		Process(arg)
 	    elif arg == 'reset':
-		Unlink(tmploc + '/*.doc')
-		Unlink(tmploc + '/*.rtf')
-		Unlink(tmploc + '/*.htm')
+		map(os.unlink, glob.glob(tmploc + '/*.doc'))
+		map(os.unlink, glob.glob(tmploc + '/*.rtf'))
+		map(os.unlink, glob.glob(tmploc + '/*.htm'))
 	    elif arg == 'clean':
 		docfiles = [x[:-4] for x in glob.glob(tmploc + '/*.doc')]
 		rtffiles = [x[:-4] for x in glob.glob(tmploc + '/*.rtf')]
 		htmfiles = [x[:-4] for x in glob.glob(tmploc + '/*.htm')]
 		for fn in docfiles:
 		    if fn in htmfiles or fn in rtffiles:
-			Unlink(fn + '.doc')
+			os.unlink(fn + '.doc')
 		dirs = filter(lambda x: os.path.isdir(x), glob.glob(tmploc + '/*'))
 		for dir in dirs:
 		    for fn in glob.glob(dir + '/*'):
 			print '   deleting', fn
-			Unlink(fn)
+			os.unlink(fn)
 		    print ' removing', dir
 		    os.rmdir(dir)
 	    elif arg == 'put':
-		os.system(startvcp + ' ' + tmploc + '\\*.rtf ' + tmploc + '\\*.htm ' + outloc)
+		os.system(startscp + ' ' + tmploc + '\\*.rtf ' + tmploc + '\\*.htm ' + outloc)
     if error_list:
 	print
 	print 'errors:'

@@ -1,11 +1,6 @@
 #!/usr/local/bin/python
 
-import os, sys
-#os.environ['DOCUMENT_ROOT'] = '/usr/local/www/bamca/beta/htdocs'
-#os.environ['SERVER_NAME'] = 'beta.bamca.org'
-#sys.path.append('../../cgi-bin')
 import basics
-import vars
 
 def Check(pif, reg, num, yr, man, d):
     num = int(num.replace(' ',''))
@@ -35,9 +30,11 @@ def Check(pif, reg, num, yr, man, d):
 	print '  mbxf', d
 	print
 
+
+@basics.CommandLine
 def Main(pif):
 
-    for fn in sys.argv[1:]:
+    for fn in pif.filelist:
 	yr = int(fn)
 	if yr < 53:
 	    yr += 2000
@@ -95,5 +92,4 @@ def Main(pif):
 		od = d
 
 if __name__ == '__main__': # pragma: no cover
-    pif = basics.GetPageInfo('vars')
-    Main(pif)
+    Main('vars')

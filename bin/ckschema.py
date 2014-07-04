@@ -1,16 +1,8 @@
 #!/usr/local/bin/python
 
-import os, sys
-import cmdline
-#os.environ['DOCUMENT_ROOT'] = '/usr/local/www/bamca/beta/htdocs'
-#os.environ['SERVER_NAME'] = 'beta.bamca.org'
-#sys.path.append('../../cgi-bin')
 import basics
-import mbdata
-import config
 
-# Start here
-
+@basics.CommandLine
 def Main(pif):
     import tables
     tablelist = pif.dbh.dbi.execute('show tables')
@@ -29,5 +21,4 @@ def Main(pif):
 
 
 if __name__ == '__main__': # pragma: no cover
-    pif = basics.GetPageInfo('vars')
-    Main(pif)
+    Main('vars')

@@ -62,30 +62,37 @@ def LinkPage(pif):
     sections = pif.dbh.DePref('section', sections)
     linklines = pif.dbh.FetchLinkLines(pif.page_id)
     linklines = pif.dbh.DePref('link_line', linklines)
-    linklines.sort(lambda x,y: int(x['display_order']) - int(y['display_order']))
+    linklines.sort(key=lambda x: int(x['display_order']))
+    sect_links = dict()
+    for link in linklines:
+	sect_links.setdefault(link['section_id'], list())
+	sect_links[link['section_id']].append(link)
 
     llineup = {'id' : pif.page_id, 'name' : '', 'section' : []}
     for lsec in sections:
-	lsec.update({'anchor' : lsec['id'], 'columns' : 1, 'range' : []})
-	lran = {'id' : 'range', 'name' : '', 'entry' : []}
-	for ent in linklines:
-	    if ent['section_id'] == lsec['id'] and ent['link_type'] != 'x' and not (ent['flags'] & pif.dbh.FLAG_LINK_LINE_NEW):
-		lnk = dict()
-		lnk['text'], lnk['desc'] = Entry(pif, ent)
-		lnk['indent'] = (ent['flags'] & pif.dbh.FLAG_LINK_LINE_INDENTED) != 0
-		lnk['id'] = ent['id']
-		cmd = ent['link_type']
-		if pif.IsAllowed('m'): # pragma: no cover
-		    lnk['comment'] = True
-		    if ent.get('last_status') == 'exc':
-			cmd = 'b'
-		lnk['linktype'] = linktypes.get(cmd)
-		lnk['large'] = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
-		lran['entry'].append(lnk)
-	lsec['range'].append(lran)
+	lsec.update({'anchor' : lsec['id'], 'columns' : 1})
+	lran = {'id' : 'range', 'name' : '', 'entry' : GenerateLinks(pif, sect_links.get(lsec['id'], []))}
+	lsec['range'] = [lran]
 	llineup['section'].append(lsec)
 
     return pif.render.FormatLinks(llineup) + '\n' + EndOfPage(pif)
+
+
+def GenerateLinks(pif, links):
+    for ent in links:
+	if ent['link_type'] != 'x' and not (ent['flags'] & pif.dbh.FLAG_LINK_LINE_NEW):
+	    lnk = dict()
+	    lnk['text'], lnk['desc'] = FormatEntry(pif, ent)
+	    lnk['indent'] = (ent['flags'] & pif.dbh.FLAG_LINK_LINE_INDENTED) != 0
+	    lnk['id'] = ent['id']
+	    cmd = ent['link_type']
+	    if pif.IsAllowed('m'): # pragma: no cover
+		lnk['comment'] = True
+		if ent.get('last_status') == 'exc':
+		    cmd = 'b'
+	    lnk['linktype'] = linktypes.get(cmd)
+	    lnk['large'] = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
+	    yield lnk
 
 
 # the grafic for each of these, if any
@@ -100,7 +107,7 @@ linktypes = {
     'x' : 'trash', #trash
 }
 
-def Entry(pif, ent):
+def FormatEntry(pif, ent):
     dictFlag = {
 	    '' : ('o', pif.render.FindArt('wheel.gif')),
 	    'Reciprocal' : ('Reciprocal', pif.render.FindArt('recip.gif')),
@@ -192,14 +199,6 @@ def ReadBlacklist(pif):
     reject = [x['blacklist.target'] for x in filter(lambda x: x['blacklist.reason'] == 'site', blacklist)]
     banned = [x['blacklist.target'] for x in filter(lambda x: x['blacklist.reason'] == 'ip', blacklist)]
     return reject, banned
-#    reject = []
-#    banned = []
-#    for llist in blacklist:
-#	if llist['blacklist.reason'] == 'site':
-#	    reject.append(llist['blacklist.target'])
-#	elif llist['blacklist.reason'] == 'ip':
-#	    banned.append(llist['blacklist.target'])
-#    return reject, banned
 
 
 def IsBlacklisted(url, rejects):
@@ -332,7 +331,7 @@ def AddNewLink(pif, dictCats, listRejects):
     else:
 	pif.dbh.InsertLinkLine(link)
 	ostr += "The following has been added to the list:<br><ul>\n"
-	ent = Entry(pif, link)
+	ent = FormatEntry(pif, link)
 	ostr += ent[0] + ' '
 	ostr += '<br>' .join(ent[1])
 	ostr += '\n</ul>\n'
@@ -563,25 +562,25 @@ def EditLinks(pif):
     print pif.render.FormatTail()
 
 
-# used by a script in bin
-def CheckLinks(sec=None, listRejects=[]):
+def CheckLinks(pif, sections=None, reject=[]):
     pif.dbh.dbi.verbose = True
-    links = pif.dbh.FetchLinkLines(section=sec, rejects=listRejects)
-    for lnk in links:
-	CheckLink(pif, link)
+    for sec in sections if sections else [None]:
+	links = pif.dbh.FetchLinkLines(section=sec)
+	for link in links:
+	    CheckLink(pif, link, reject)
 
 
-# used by a script in bin
 def CheckLink(pif, link, rejects=[]):
     if link:
+	link = pif.dbh.DePref('link_line', link)
 	lstatus = 'unset'
 	print link['url'],
 	if link['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
 	    lstatus = 'NoVer'
-	elif link['link_type'] in 'bglnsx':
-            ret = IsBlacklisted(link['url'], rejects)
-            if ret:
-                print link['id'], link['section_id'], link['url'], "BLACKLISTED", ret
+	elif link['link_type'] in 'bglsx':
+#            ret = IsBlacklisted(link['url'], rejects)
+#            if ret:
+#                print link['id'], link['section_id'], link['url'], "BLACKLISTED", ret
                 #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
 	    try:
 		url = urllib2.urlopen(link['url'])
@@ -596,6 +595,19 @@ def CheckLink(pif, link, rejects=[]):
 		lstatus = 'exc'
 	print lstatus
 	pif.dbh.UpdateLinkLine({'id' : str(link['id']), 'last_status' : lstatus})
+
+
+def CheckBlacklistedLinks(pif, sections=None):
+    reject, banned = links.ReadBlacklist(pif)
+    pif.dbh.dbi.verbose = True
+    for sec in sections if sections else [None]:
+	for link in pif.dbh.FetchLinkLines(section=sec):
+	    link = pif.dbh.DePref('link_line', link)
+	    if link['link_type'] in 'blsxg':
+		ret = IsBlacklisted(link['url'], reject)
+		if ret:
+		    print link['id'], link['section_id'], link['url'], "BLACKLISTED", ret
+		    #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
 
 
 if __name__ == '__main__': # pragma: no cover

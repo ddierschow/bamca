@@ -66,7 +66,7 @@ def Biblio(pif):
     fields = []
     layout = []
     table = []
-    links = {}
+    row_links = {}
     for llist in dblist:
 
 	if llist.GetArg() == 'b':
@@ -119,7 +119,7 @@ def Biblio(pif):
 	    shown = True
 
 	elif cmd == 'l':
-	    links[llist[1]] = llist[2]
+	    row_links[llist[1]] = llist[2]
 
 	elif cmd == 't':
 	    for tlist in table:
@@ -137,11 +137,11 @@ def Biblio(pif):
 			    continue
 			cont = tlist.GetArg('&nbsp;')
 			url = ''
-			if field in links:
-			    if links[field] in fields:
-				url = fdict.get(links[field], '')
-			    elif links[field].find(',') >= 0:
-				url = MapLink([fdict.get(x, '') for x in links[field].split(',')[1:]])
+			if field in row_links:
+			    if row_links[field] in fields:
+				url = fdict.get(row_links[field], '')
+			    elif row_links[field].find(',') >= 0:
+				url = MapLink([fdict.get(x, '') for x in row_links[field].split(',')[1:]])
 			    elif cont.startswith('http://'):
 				url = cont
 			if url:

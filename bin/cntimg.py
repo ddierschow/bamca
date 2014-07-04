@@ -36,6 +36,7 @@ def All(fl):
 def Zero(fl):
     return 0
 
+@basics.CommandLine
 def Count(pif):
     castings = [x['id'].lower() for x in pif.dbh.dbi.select('casting', ['id'])]
 
@@ -73,5 +74,4 @@ def Count(pif):
     print t
 
 if __name__ == '__main__': # pragma: no cover
-    pif = basics.GetPageInfo('vars')
-    Count(pif)
+    Count('vars')

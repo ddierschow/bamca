@@ -1,21 +1,10 @@
 #!/usr/local/bin/python
 
-import os, sys
-import cmdline
-#os.environ['DOCUMENT_ROOT'] = '/usr/local/www/bamca/beta/htdocs'
-#os.environ['SERVER_NAME'] = 'beta.bamca.org'
-#sys.path.append('../../cgi-bin')
 import basics
-import mbdata
-import config
-
-# Start here
 
 
-
-if __name__ == '__main__': # pragma: no cover
-    pif = basics.GetPageInfo('vars')
-
+@basics.CommandLine
+def Main(pif):
     aliases = pif.dbh.FetchAliases()
     lmodels = pif.dbh.FetchLineupModels()
 
@@ -30,3 +19,6 @@ if __name__ == '__main__': # pragma: no cover
 	    elif lmodel['base_id.id'] != a_dict[id]['alias.ref_id']:
 		print 'bad', id, lmodel['base_id.id'], a_dict[id]['alias.ref_id']
 
+
+if __name__ == '__main__': # pragma: no cover
+    Main('vars')

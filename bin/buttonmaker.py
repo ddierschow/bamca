@@ -5,7 +5,7 @@ import cmdline
 import icon
 import Image
 
-sys.path.append('..htdocs/bin')
+sys.path.append('../htdocs/bin')
 
 palettepos = {0: (0,102,0), 1: (255,255,255), 2: (1,1,1)}
 paletteneg = {1: (0,102,0), 0: (255,255,255), 2: (1,1,1)}

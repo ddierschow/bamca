@@ -9,7 +9,6 @@ information.
 '''
 
 import datetime, os, re, subprocess, sys
-import cmdline
 import basics
 
 # Start here
@@ -23,7 +22,7 @@ def Main(pif):
 
 
 def GetLastActivity(pif):
-    acts = pif.dbh.FetchActivities()
+    acts = filter(lambda x: x['site_activity.name'] == 'commit', pif.dbh.FetchActivities())
     acts.sort(key=lambda x: x['site_activity.id'])
     return acts[-1]
 
