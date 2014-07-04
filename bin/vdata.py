@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: utf8 -*-
 
-import re, sys
+import os, re, sys
 import config
 import mbdata
 
@@ -485,7 +485,7 @@ def ShowFileSettings(fn):
 
 
 def ReadDat(fn):
-    return open(config.srcdir, fn + '.dat').readlines()
+    return open(os.path.join(config.srcdir, fn + '.dat')).readlines()
 
 
 init_done = False

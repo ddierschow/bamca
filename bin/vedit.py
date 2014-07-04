@@ -150,7 +150,7 @@ def CheckFile(pif, fdir, fn):
     for fitab in fitabs:
 	if len(fitab) < 2 or not len(fitab[1]):
 	    return IS_NO_MODEL
-	hdrs = [vdata.CleanHeader[x] for x in fitab[1][0]]
+	hdrs = [vdata.CleanHeader(x) for x in fitab[1][0]]
 	num_file_hdrs = len(hdrs)
 	if hdrs[0] == 'var' and fitab[0].find("BOX TYPES") < 0:
 	    nhdrs = vdata.HeaderColumnChange(fn, hdrs)
@@ -403,7 +403,7 @@ dat_name_re = re.compile(r'Name: (?P<n>.*)')
 dat_year_re = re.compile(r'Year: (?P<y>.*)')
 def ShowModelTable(pif, modids, fitab, fn, var_lup, var_desc):
     #print fitab[1][0], '<br>'
-    hdrs = [vdata.CleanHeader[x] for x in fitab[1][0]]
+    hdrs = [vdata.CleanHeader(x) for x in fitab[1][0]]
     num_file_hdrs = len(hdrs)
     hdrs.append('imported_from')
     if hdrs[0] == 'var' and fitab[0].find("BOX TYPES") < 0:
@@ -631,7 +631,7 @@ def HandleForm(pif):
 		det = {}
 		for vk in pif.form:
 		    vv = pif.FormStr(vk)
-		    if vk[0:len(pif.FormStr(k))] == pif.Formstr(k):
+		    if vk[0:len(pif.FormStr(k))] == pif.FormStr(k):
 			kk = vk[len(pif.FormStr(k)) + 1:]
 			if vv == '\\b':
 			    vv = ''
