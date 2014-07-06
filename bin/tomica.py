@@ -4,12 +4,12 @@
 
 import os
 import basics
+import bfiles
 import config
-import files
 import models
 
 # interprets "manno.dat"
-class MannoFile(files.ArgFile):
+class MannoFile(bfiles.ArgFile):
     def __init__(self, fname):
 	self.slabel = ''
 	self.stitle = ''
@@ -18,7 +18,7 @@ class MannoFile(files.ArgFile):
 	self.mdlist = []
 	self.dictlist = []
 	self.mdict = {}
-	files.ArgFile.__init__(self, fname)
+	bfiles.ArgFile.__init__(self, fname)
 	self.FinishSection()
 
     def Parse_H(self, llist):

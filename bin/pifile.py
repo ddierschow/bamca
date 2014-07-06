@@ -18,7 +18,7 @@ import useful
 import environ
 
 class PageInfoFile():
-    def __init__(self, page_id, form_key='', defval='', args='', dbedit=False):
+    def __init__(self, page_id, form_key='', defval='', args='', dbedit=None):
 	self.render = self.dbh = None
 	self.args = args # this is for unittest only!
 	self.argv = [] # this is for command line only!
@@ -41,7 +41,7 @@ class PageInfoFile():
 	self.id = int(self.rawcookies.get('id', '0'))
 	self.privs = self.rawcookies.get('pr', '')
 	self.secure.cookies = self.rawcookies.get('co')
-	if self.IsAllowed('am') or dbedit:
+	if self.IsAllowed(dbedit):
 	    self.secure.SetConfig('edit')
 
 	os.chdir(self.secure.docroot)
@@ -123,6 +123,10 @@ class PageInfoFile():
 	return val
 
     def IsAllowed(self, priv):
+	if priv == None: # None = never allowed
+	    return False
+	if priv == '': # '' = always allowed
+	    return True
 	for p in priv:
 	    if p in self.privs:
 		self.render.Comment('IsAllowed', priv, self.privs, 'YES')

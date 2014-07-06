@@ -2,14 +2,15 @@
 
 '''
 This script takes commits from the git log and puts them
-into the site activity table in the database.  It will only
-do them back to the previously most recent entry in the table,
-so it is best run after every commit so as not to lose any
-information.
+into the site activity table in the database.
+
+It also does some other housekeeping: man2csv, and writing
+the config file for php's use.
 '''
 
 import datetime, os, re, subprocess, sys
 import basics
+import manno
 
 # Start here
 
@@ -19,6 +20,7 @@ def Main(pif):
     dat = ReadCommits(act['site_activity.timestamp'])
     WriteCommits(pif, dat)
     WriteConfigFile()
+    WriteManCSV(pif)
 
 
 def GetLastActivity(pif):
@@ -31,7 +33,8 @@ def ReadCommits(endtime):
     p = subprocess.Popen(["/usr/local/bin/git", "log"], stdout=subprocess.PIPE, stderr=None, close_fds=True)
     l = p.stdout.read()
     commits = list()
-    date_re = re.compile('Date:\s*(?P<d>... ... .. ..:..:.. ....)')
+    #Date:   Fri Jun 13 19:26:34 2014 +0200
+    date_re = re.compile('Date:\s*(?P<d>... ... \d+ \d+:\d+:\d+ \d+)')
     for log_msg in re.compile('\ncommit ', re.M).split(l):
 	if log_msg.find('Merge: ') >= 0:
 	    continue
@@ -62,7 +65,7 @@ def WriteCommits(pif, commits):
 def WriteConfigFile():
     print "Writing config file."
     cfg = open('../bin/config.py').readlines()
-    cfg[0] = '<?php\n'
+    cfg[0] = '<?php\n// Generated file.  Do not modify.\n'
     for idx in range(1, len(cfg)):
 	if cfg[idx][0] == '#':
 	    cfg[idx] = '//' + cg[idx][1:]
@@ -70,8 +73,16 @@ def WriteConfigFile():
 	    cfg[idx] = '$' + cfg[idx].replace('\n', ';\n')
     cfg.append('?>\n')
     open('config.php', 'w').writelines(cfg)
+    print
+
+
+def WriteManCSV(pif):
+    print "Writing Man CSV file."
+    manf = manno.MannoFile(pif)
+    manf.RunMan2CSV(pif)
+    print
 
 
 if __name__ == '__main__': # pragma: no cover
-    pif = basics.GetPageInfo('editor', dbedit=True)
+    pif = basics.GetPageInfo('editor', dbedit='')
     Main(pif)

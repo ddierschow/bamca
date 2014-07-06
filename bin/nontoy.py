@@ -2,8 +2,10 @@
 
 import glob, os
 import basics
+import bfiles
 import config
-import files
+import bfiles
+import javascript
 import models
 import useful
 
@@ -11,36 +13,7 @@ pagename = 'biblio'
 
 # -- biblio
 
-def_map_link = '''
-function maplink($arr)
-{
-    $st = $arr[0];
-    unset($arr[0]);
-    $to = '';
-    $url = 'http://maps.google.com/maps?f=d&saddr=' . $st[0] . '&daddr=';
-    $k = 1;
-    $v = '';
-    foreach ($arr as $d)
-    {   
-        $url .= $to . $d[0];
-        if (!$d[1])
-        {
-        }
-        else if (!$v)
-        {   
-            $v .= $k;
-        }
-        else
-        {
-            $v .= ',' . $k;
-        }
-        $k += 1;
-        $to = '+to:';
-    }
-    $url .= '&hl=en&via=' . $v;
-    return $url;
-}
-'''
+def_map_link = javascript.def_map_link
 fmt = '''http://maps.google.com/maps?f=q&source=s_q&hl=en&geocode=&q='''
 
 def MapLink(bits):
@@ -58,8 +31,7 @@ def Biblio(pif):
     global pagename
     pagename = pif.form.get('page', 'biblio')
 
-    import files
-    dblist = files.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
     print pif.render.FormatHead()
 
     shown = False
@@ -189,7 +161,7 @@ def Calendar(pif):
     pif.render.PrintHtml()
     global pagename
     pagename = pif.form.get('page', 'calendar')
-    dblist = files.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
     print pif.render.FormatHead()
     shown = False
     ostr = ''
@@ -343,8 +315,12 @@ def ActivityMain(pif):
     pif.render.title = "Site Activity"
 
     print pif.render.FormatHead()
+    if pif.FormHas('d'):
+	for id in pif.FormList('d'):
+	    pif.dbh.DeleteActivity(id)
     print '<hr>'
     acts = pif.dbh.FetchActivities()
+    acts.sort(key=lambda x: x['site_activity.timestamp'])
     acts.reverse()
     for act in acts:
 	if not act['site_activity.user_id']:
@@ -358,6 +334,8 @@ def ActivityMain(pif):
 	print 'Change made by %s at %s<br>' % (act['user.name'], act['site_activity.timestamp'])
 	if act['site_activity.url']:
 	    print '</a>'
+	if pif.IsAllowed('am'):
+	    print pif.render.FormatButton('delete', link='?d=%s' % act['site_activity.id'])
 	print '<hr>'
     print pif.render.FormatTail()
 

@@ -1,8 +1,8 @@
 #!/usr/local/bin/python
 
+import config
 import mbdata
 import useful
-import config
 
 #US|United States Minor Outlying Islands|UM|PA|us
 

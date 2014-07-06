@@ -2,7 +2,7 @@
 
 import copy, os, re, sys
 import cmdline
-import icon
+import imicon
 import Image
 
 sys.path.append('../htdocs/bin')
@@ -111,7 +111,7 @@ def Main():
 	padding = int(switch['p'][-1])
     if switch['d']:
 	direc = switch['d'][-1]
-    font = icon.font(fontname + '.font')
+    font = imicon.font(fontname + '.font')
 
     print "NEG:", paletteneg
     print "POS:", palettepos

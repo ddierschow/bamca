@@ -2,8 +2,9 @@
 
 import datetime, glob, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
 import basics
+import bfiles
 import config
-import icon
+import imicon
 import javascript
 import mbdata
 import useful
@@ -1830,7 +1831,7 @@ def CreateIcon(fn, name, logo, isizex=100, isizey=100):
     thumb = thumb.resize((isizex, isizex * thumb.size[1] / thumb.size[0]), Image.NEAREST)
     banner = Image.open(logo)
 
-    text = icon.icon(isizex, isizey)
+    text = imicon.icon(isizex, isizey)
     top = banner.size[1] + thumb.size[1]
     texttop = top + (isizey - top - 6 * len(name) + 1) / 2
     for n in name:
@@ -2146,11 +2147,10 @@ def ShowLibraryFile(pif, fn):
 colors = ["#FFFFFF", "#CCCCCC"]
 
 
-import files
-class LibraryTableFile(files.ArgFile):
+class LibraryTableFile(bfiles.ArgFile):
     def __init__(self, fname):
 	self.dblist = []
-	files.ArgFile.__init__(self, fname)
+	bfiles.ArgFile.__init__(self, fname)
 
     def ParseElse(self, llist):
 	self.dblist.append(llist)

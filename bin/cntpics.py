@@ -2,11 +2,11 @@
 
 import copy, glob, os, re, sys, urllib2
 import basics
-import mbdata
+import config
 import images
 import lineup
+import mbdata
 import package
-import config
 
 # Start here
 

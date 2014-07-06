@@ -2,7 +2,7 @@
 
 import os, stat
 import basics
-import files
+import bfiles
 import images
 import useful
 
@@ -209,10 +209,10 @@ def ShowFile(pif, fn):
 colors = ["#FFFFFF", "#CCCCCC"]
 
 
-class TableFile(files.ArgFile):
+class TableFile(bfiles.ArgFile):
     def __init__(self, fname):
 	self.dblist = []
-	files.ArgFile.__init__(self, fname)
+	bfiles.ArgFile.__init__(self, fname)
 
     def ParseElse(self, llist):
 	self.dblist.append(llist)

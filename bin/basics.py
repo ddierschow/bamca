@@ -4,7 +4,7 @@ import config
 import pifile
 
 
-def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=False):
+def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=None):
     pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
     return pif
 
@@ -60,7 +60,7 @@ def FinalExit():
 
 # Decorator that wraps web page mains.
 def WebPage(main_fn):
-    def CallMain(page_id, form_key='', defval='', args='', dbedit=False):
+    def CallMain(page_id, form_key='', defval='', args='', dbedit=None):
 	pif = None
 	try:
 	    if isinstance(page_id, pifile.PageInfoFile):
@@ -81,7 +81,7 @@ def WebPage(main_fn):
 
 # Decorator that command line mains.
 def CommandLine(main_fn):
-    def CallMain(page_id, form_key='', defval='', args='', dbedit=False, switches='', options=''):
+    def CallMain(page_id, form_key='', defval='', args='', dbedit=None, switches='', options=''):
 	pif = None
 	try:
 	    if isinstance(page_id, pifile.PageInfoFile):

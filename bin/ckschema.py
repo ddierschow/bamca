@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 
 import basics
+import tables
 
 @basics.CommandLine
 def Main(pif):
-    import tables
     tablelist = pif.dbh.dbi.execute('show tables')
     for table in tablelist[0]:
 	table = table[0]

@@ -3,10 +3,11 @@
 import os, re
 import basics
 import config
-import flags
+import images
 import mbdata
-import useful
+import mflags
 import models
+import useful
 
 
 def UsePreviousProductPic(pif): # pragma: no cover
@@ -70,7 +71,7 @@ def ShowBoxes(pif, box_styles, mack_nums):
 
 
 def ShowModelInfo(pif, man, mack):
-    flago = flags.FlagList(pif)
+    flago = mflags.FlagList(pif)
     ostr = '<center><table cellspacing=8><tr>'
     if man['scale']:
 	ostr += '<th>Scale</th>\n'
@@ -458,7 +459,6 @@ def ShowSingle(pif):
 	    content += '<a href="upload.cgi?d=./%s&r=%s&c=%s">Product Upload</a><br>\n' % (dir, pic, pic)
 	    prodpic = pif.render.FindImageFile(pic, pdir=dir)
 	    if prodpic:
-		import images
 		x, y = images.GetSize(prodpic)
 		if x > 400:
 		    prodstar = 'staryellow.gif'

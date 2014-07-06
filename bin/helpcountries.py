@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import os, sys
+import mbdata
 
 jsfun = '''<SCRIPT LANGUAGE="JavaScript">
 <!--
@@ -17,7 +18,6 @@ function pick(symbol) {
 '''
 
 if __name__ == '__main__': # pragma: no cover
-    import mbdata
 
     if len(sys.argv) > 1:
 	print jsfun % sys.argv[1]

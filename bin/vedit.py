@@ -6,9 +6,9 @@ import glob, os, re, sys, time
 
 import basics
 import config
-import vdata
 import tables
 import vars
+import vdata
 
 IS_GOOD = 0
 IS_CHANGED_SCHEMA = 1
@@ -570,7 +570,6 @@ def HandleForm(pif):
 	return
 
     pif.render.Comment(pif.form)
-    import vdata
     vdata.Initialize(pif)
     nvars = []
     if "add" in pif.form:

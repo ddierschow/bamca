@@ -197,10 +197,6 @@ class font:
 	return self.chars.get(key, defval)
 
 
-if __name__ == '__main__':
-    pass
-
-
 if __name__ == '__main__': # pragma: no cover
     pass
 

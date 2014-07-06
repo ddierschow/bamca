@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import links
-links.AddPage('addlink', dbedit=True)
+links.AddPage('addlink', dbedit='')

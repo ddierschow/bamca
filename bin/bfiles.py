@@ -4,7 +4,6 @@ import os, re, sys
 
 import mbdata
 import useful
-#from config import *
 
 #---- barparse ----------------------------------------------------------
 

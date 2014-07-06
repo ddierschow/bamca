@@ -2,10 +2,11 @@
 
 import copy, os, sys
 import basics
+import bfiles
 import config
-import flags
 import images
 import mbdata
+import mflags
 import models
 import useful
 
@@ -1215,7 +1216,6 @@ def MackLineup(pif):
     else:
 	series = [series.upper()]
     range = pif.FormStr('range', 'all')
-    import useful
     start = pif.FormInt('start', 1)
     end = pif.FormInt('end', 100)
     if range == 'all':
@@ -1352,7 +1352,7 @@ def ShowMakeSection(pif, make_id, make_dict):
 
 def ShowMakes(pif, makedict, makes):
     llineup = {'id' : '', 'name' : '', 'section' : []}
-    models.flago = flags.FlagList(pif)
+    models.flago = mflags.FlagList(pif)
 
     for make_id in makes:
 	lsec = ShowMakeSection(pif, make_id, makedict)
@@ -1367,11 +1367,9 @@ def ShowMakes(pif, makedict, makes):
 def FullLineup(pif):
     pif.render.PrintHtml()
     #pif.ReadForm({ 'year' : '1966' })
-    import useful
     year = pif.FormInt('year')
 
-    import files
-    dblist = files.SimpleFile(os.path.join(config.srcdir, 'mbx.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.srcdir, 'mbx.dat'))
 
     print pif.render.FormatHead()
 

@@ -4,7 +4,6 @@ import copy, glob, os, re
 
 import basics
 import config
-import flags
 import mbdata
 import useful
 
@@ -1212,5 +1211,4 @@ def Commands(pif):
 
 
 if __name__ == '__main__': # pragma: no cover
-    import basics
-    Commands('vars', dbedit=True)
+    Commands('vars', dbedit='am')

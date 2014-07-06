@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import users
-users.ChangePasswordMain('user')
+users.ChangePasswordMain('user', dbedit='')

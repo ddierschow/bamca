@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import users
-users.RegisterMain('user')
+users.RegisterMain('user', dbedit='')

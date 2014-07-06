@@ -1,8 +1,8 @@
 #!/usr/local/bin/python
 
 import config
-import useful
 import mbdata
+import useful
 
 
 arts = {

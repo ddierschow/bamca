@@ -63,8 +63,7 @@ def CommandLine(switches="", options="", long_options={}, version="", short_help
 	coptions += 'h'
     if envar and os.environ.has_key(envar):
 	try: # get command line
-	    import string
-	    opts, files = getopt.getopt(string.split(os.environ[envar]), coptions, loptions)
+	    opts, files = getopt.getopt(os.environ[envar].split(), coptions, loptions)
 	except getopt.GetoptError:
 	    if not noerror:
 		print "*** Environment error"

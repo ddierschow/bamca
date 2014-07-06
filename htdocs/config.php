@@ -1,4 +1,5 @@
 <?php
+// Generaged file.  Do not modify.
 
 $cgibin          = '../cgi-bin';
 $htdocs          = '../htdocs';

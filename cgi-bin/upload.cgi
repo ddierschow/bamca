@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import images
-images.UploadMain('editor')
+images.UploadMain('editor', dbedit='')

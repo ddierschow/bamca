@@ -938,5 +938,8 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	    rec['timestamp'] = timestamp
 	return self.Write('site_activity', rec, newonly=True, tag='InsertActivity', verbose=True)
 
+    def DeleteActivity(self, id):
+	self.Delete('site_activity', where=self.MakeWhere({'id':id}), tag='DeleteActivity')
+
 if __name__ == '__main__': # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

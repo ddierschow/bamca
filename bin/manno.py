@@ -3,7 +3,7 @@
 import copy, glob, os, re
 import basics
 import config
-import flags
+import mflags
 import mbdata
 import models
 import single
@@ -592,7 +592,7 @@ def Main(pif):
 	print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.FormStr('num')
 	return
     print pif.render.FormatHead()
-    models.flago = flags.FlagList(pif)
+    models.flago = mflags.FlagList(pif)
     if pif.form.get('vtset'):
 	WriteVehicleTypes(pif)
     elif not pif.form.get('section'):
@@ -620,7 +620,6 @@ def Main(pif):
 def PlayMain(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead()
-    import manno
     manf = manno.MannoFile(pif)
     llineup = manf.Run(pif)
     llineup['section'][0]['range'][0]['entry'][0].update({'rowspan':2, 'colspan':2})

@@ -2,6 +2,7 @@
 
 import os
 import basics
+import bfiles
 import config
 
 modnumlist = []
@@ -201,8 +202,7 @@ def SetsMain(pif):
 	set = pif.form.get('set')
 	global dups
 	dups = int(pif.form.get('dups', 0))
-	import files
-	setfile = files.SetFile(os.path.join(config.srcdir, pif.FormStr('page') + '.dat'))
+	setfile = bfiles.SetFile(os.path.join(config.srcdir, pif.FormStr('page') + '.dat'))
 	print pif.render.FormatHead()
 	print DoSet(pif, setfile, set)
     else:

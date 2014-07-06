@@ -226,3 +226,33 @@ editformend = '''
 </form>
 '''
 
+def_map_link = '''
+function maplink($arr)
+{
+    $st = $arr[0];
+    unset($arr[0]);
+    $to = '';
+    $url = 'http://maps.google.com/maps?f=d&saddr=' . $st[0] . '&daddr=';
+    $k = 1;
+    $v = '';
+    foreach ($arr as $d)
+    {   
+        $url .= $to . $d[0];
+        if (!$d[1])
+        {
+        }
+        else if (!$v)
+        {   
+            $v .= $k;
+        }
+        else
+        {
+            $v .= ',' . $k;
+        }
+        $k += 1;
+        $to = '+to:';
+    }
+    $url .= '&hl=en&via=' . $v;
+    return $url;
+}
+'''

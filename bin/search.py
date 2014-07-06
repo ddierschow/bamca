@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 import basics
-import flags
+import mflags
 import models
 
 def SearchName(pif):
@@ -50,7 +50,7 @@ def GetCastingId(id):
 
 
 def CreateLineup(pif, mods):
-    flago = flags.FlagList(pif)
+    flago = mflags.FlagList(pif)
     llineup = {'columns' : 4}
     lsec = pif.dbh.FetchSections({'page_id' : pif.page_id})[0]
     lran = {'entry' : []}

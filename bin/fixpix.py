@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import glob, os, sys
+import basics
 import config
 
 def ren(cas, ov, nv):
@@ -56,6 +57,5 @@ def Main(pif):
 
 
 if __name__ == '__main__':
-    import basics
     pif = basics.GetPageInfo('vars')
     Main(pif)

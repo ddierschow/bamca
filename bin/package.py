@@ -2,6 +2,7 @@
 
 import glob, os
 import basics
+import bfiles
 import config
 import useful
 
@@ -79,8 +80,7 @@ def Blister(pif):
     global pagename
     pagename = pif.form.get('page', 'blister')
 
-    import files
-    dblist = files.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
 
     print pif.render.FormatHead()
     DoTreePage(pif, dblist)

@@ -1,9 +1,9 @@
 #!/usr/local/bin/python
 
 import os, sys
+import mbdata
 
 if __name__ == '__main__': # pragma: no cover
-    import mbdata
 
     if len(sys.argv) > 1:
 	print '''<SCRIPT LANGUAGE="JavaScript">

@@ -2,17 +2,17 @@
 
 import copy, os
 import basics
+import bfiles
 import config
-import files
 
 # ------- ----------------------------------------------------------
 
-class CarsFile(files.ArgFile):
+class CarsFile(bfiles.ArgFile):
     def __init__(self, fname=os.path.join(config.srcdir, "cars.dat")):
 	self.sec = []
 	self.ent = []
 	self.secname = ''
-	files.ArgFile.__init__(self, fname)
+	bfiles.ArgFile.__init__(self, fname)
 
     def Parse_c(self, llist):
 	self.ParseEnd()

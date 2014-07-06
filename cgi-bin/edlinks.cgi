@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import links
-links.EditLinks('editor')
+links.EditLinks('editor', dbedit='am')

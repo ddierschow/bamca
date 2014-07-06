@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
-import os, random, string, sys, urllib
+import os, random, string, subprocess, sys, urllib
+
 import basics
 
 # ------ user
@@ -222,7 +223,6 @@ by visiting the following link:
 
 Thank you!
 ''' % {'name' : urllib.quote_plus(name), 'email' : email, 'vkey' : vkey, 'host' : os.environ['SERVER_NAME']}
-    import subprocess
     proc = subprocess.Popen(['/usr/sbin/sendmail', '-t'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None, close_fds=True)
     o, e = proc.communicate(msg)
 
@@ -305,7 +305,6 @@ def ChangePass(pif):
 
 @basics.WebPage
 def ChangePasswordMain():
-    import basics
     pif = basics.GetPageInfo('user')
     if pif.form.get('n'):
 	ChangePass(pif)

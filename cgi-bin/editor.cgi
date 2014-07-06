@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import editor
-editor.EditorMain('editor', dbedit=True)
+editor.EditorMain('editor', dbedit='am')

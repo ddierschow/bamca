@@ -74,14 +74,14 @@ def Fetch(url, with_continue=True):
 web_index_re    = re.compile('<a href="(?P<u>[^"]*)">.*?<\/a>\s*(?P<d>....-..-..)', re.I)
 def WebReadDirectory(dir_path, start_date=None, fn_patt=None):
     page_text = urllib2.urlopen(dir_path).read()
-    files = web_index_re.findall(page_text)
+    bfiles = web_index_re.findall(page_text)
     if start_date:
-	files = filter(lambda x: datetime.datetime.strptime(x[1], '%Y-%m-%d') > start_date, files)
-    files = filter(lambda x: not x.startswith('?') and not x.find('/') >= 0, [y[0] for y in files])
+	bfiles = filter(lambda x: datetime.datetime.strptime(x[1], '%Y-%m-%d') > start_date, bfiles)
+    bfiles = filter(lambda x: not x.startswith('?') and not x.find('/') >= 0, [y[0] for y in bfiles])
     if fn_patt:
 	print fn_patt
-	files = filter(lambda x: fnmatch.fnmatch(x, fn_patt) , files)
-    return files
+	bfiles = filter(lambda x: fnmatch.fnmatch(x, fn_patt) , bfiles)
+    return bfiles
 
 
 def GetFiles(url, file_list):
