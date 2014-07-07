@@ -3,6 +3,7 @@
 import os, stat
 import basics
 import bfiles
+import config
 import images
 import useful
 
@@ -173,7 +174,7 @@ def ShowScript(pif, mvl, rml):
 	    os.mkdir(os.path.join(config.libdir, dest))
 	#print 'lb', os.path.join(pdir, lb[0]), os.path.join('lib', dest, lb[0])
 	#os.rename(os.path.join(pdir, lb[0]) os.path.join('lib', dest, lb[0]))
-	useful.FileMover(os.path.join(pdir, lb[0]), os.path.join(os.path.libdir, dest, lb[0]), mv=True, inc=True)
+	useful.FileMover(os.path.join(pdir, lb[0]), os.path.join(config.libdir, dest, lb[0]), mv=True, inc=True)
     for rm in rml:
 	#print 'rm', rm
 	if os.path.exists(os.path.join(pdir, rm)):
