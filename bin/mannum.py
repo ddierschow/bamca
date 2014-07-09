@@ -3,8 +3,8 @@
 import copy, glob, os, re
 import basics
 import config
-import mflags
 import mbdata
+import mflags
 import models
 import single
 import useful
@@ -620,7 +620,7 @@ def Main(pif):
 def PlayMain(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead()
-    manf = manno.MannoFile(pif)
+    manf = MannoFile(pif)
     llineup = manf.Run(pif)
     llineup['section'][0]['range'][0]['entry'][0].update({'rowspan':2, 'colspan':2})
     print pif.render.FormatLineup(llineup)
@@ -709,10 +709,26 @@ def Commands(pif):
 	pass # DeleteCasting(pif, pif.argv[1], pif.argv[2])
     elif pif.argv and pif.argv[0] == 'r':
 	RenameBaseId(pif, pif.argv[1], pif.argv[2], True)
+    elif pif.argv and pif.argv[0] == 'f':
+	RunSearch(pif, pif.argv[1:])
     else:
-	print "./manno.py [d|r] ..."
+	print "./mannum.py [f|d|r] ..."
+	print "  f for find: search-criterion"
 	print "  d for delete: mod_id"
 	print "  r for rename: old_mod_id new_mod_id"
+
+
+def SearchName(pif, targ):
+    where = map(lambda x: "base_id.rawname like '%%%s%%'" % x, targ)
+    return pif.dbh.FetchCastingList(page_id='manno', where=where, verbose=False) + \
+	    pif.dbh.FetchCastingList(page_id='manls', where=where, verbose=False)
+
+
+def RunSearch(pif, args):
+    mods = map(pif.dbh.ModifyManItem, SearchName(pif, args))
+    mods.sort(key=lambda x:x['id'])
+    for mod in mods:
+	print '%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod
 
 
 if __name__ == '__main__': # pragma: no cover

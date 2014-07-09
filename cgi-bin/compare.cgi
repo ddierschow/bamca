@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import manno
-manno.CompareMain('compare')
+import mannum
+mannum.CompareMain('compare')

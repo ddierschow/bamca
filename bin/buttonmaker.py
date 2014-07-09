@@ -1,9 +1,9 @@
 #!/usr/local/bin/python
 
 import copy, os, re, sys
-import cmdline
-import imicon
 import Image
+import basics
+import imicon
 
 sys.path.append('../htdocs/bin')
 
@@ -25,6 +25,7 @@ def write(fn, orig, width, height, palette):
     for iY in range(0, height):
 	for iX in range(0, width):
 	    im.putpixel((iX, iY), image.pop(0))
+    print 'writing', fn
     im.save(fn, transparency=2)
 
 
@@ -88,9 +89,9 @@ def color_eval(spec):
 	return eval(spec)
 
 
-def Main():
+@basics.Standalone
+def Main(switch, files):
     global paletteneg, palettepos, fontname, padding, direc
-    switch, files = cmdline.CommandLine("n", "bcfpd", envar="BUTTONMAKER")
     print switch, files
 
     if not files:
@@ -128,4 +129,4 @@ def Main():
 
 
 if __name__ == '__main__':
-    Main()
+    Main("n", "bcfpd", envar="BUTTONMAKER")

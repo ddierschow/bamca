@@ -1,7 +1,7 @@
 import unittest
 import basics
 import db
-import dbhandler
+import dbhand
 import pifile
 import render
 
@@ -17,7 +17,7 @@ class TestPIF(unittest.TestCase):
         self.assertIsInstance(self.pif.render, render.Presentation)
 
     def test_2a(self):
-        self.assertIsInstance(self.pif.dbh, dbhandler.dbhandler)
+        self.assertIsInstance(self.pif.dbh, dbhand.dbhandler)
 
     def test_2b(self):
         self.assertIsInstance(self.pif.dbh.dbi, db.db)
@@ -56,16 +56,16 @@ class TestPIF(unittest.TestCase):
 	self.assertTrue(self.pif.ShowError() == None)
 
     def testLinks(self):
-	import links
-	listRejects, blacklist = links.ReadBlacklist(self.pif)
+	import tlinks
+	listRejects, blacklist = tlinks.ReadBlacklist(self.pif)
 	self.assertTrue(type(listRejects) == list)
 	self.assertTrue(len(listRejects) > 0)
 	self.assertTrue(type(blacklist) == list)
 	self.assertTrue(len(blacklist) > 0)
-        self.assertTrue(links.IsBlacklisted('nope', blacklist) == '')
-        self.assertTrue(links.FixURL('a/b') == 'a/b')
-        self.assertTrue(links.FixURL('a/b/') == 'a/b')
-	all_links, highest_disp_order = links.ReadAllLinks(self.pif)
+        self.assertTrue(tlinks.IsBlacklisted('nope', blacklist) == '')
+        self.assertTrue(tlinks.FixURL('a/b') == 'a/b')
+        self.assertTrue(tlinks.FixURL('a/b/') == 'a/b')
+	all_links, highest_disp_order = tlinks.ReadAllLinks(self.pif)
 	self.assertTrue(len(all_links) > 0)
 
 

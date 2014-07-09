@@ -5,7 +5,7 @@ if os.getenv('REQUEST_METHOD'): # is this apache? # pragma: no cover
     import cgitb; cgitb.enable()
 
 import config
-import dbhandler
+import dbhand
 import render
 import secure
 import useful
@@ -50,7 +50,7 @@ class PageInfoFile():
 	self.cgibin = '../cgi-bin'
 	self.render.simple = int(self.form.get("simple", 0))
 
-	self.dbh = dbhandler.dbhandler(self.secure.config, self.id, self.render.verbose)
+	self.dbh = dbhand.dbhandler(self.secure.config, self.id, self.render.verbose)
 	self.dbh.dbi.nowrites = self.unittest
 	self.render.SetPageInfo(self.dbh.FetchPage(self.page_id))
 	self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_NOT_RELEASED) != 0

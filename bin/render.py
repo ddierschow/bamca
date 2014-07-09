@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import cgi, copy, datetime, os, re, stat, sys, time
+import cgi, copy, os, re, sys
 import config
 import javascript
 import mbdata
@@ -78,6 +78,7 @@ class Presentation():
 	self.shown_flags = set()
 	self.secure = None
 #	if self.verbose:
+#	    import datetime
 #	    self.dump_file = open(os.path.join(config.logroot, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
 
 #    def __str__(self):
@@ -339,7 +340,7 @@ of Matchbox International Ltd. and are used with permission.
 
 	st = self.tail.get('stat')
 	if st: # pragma: no cover
-	    ostr += time.strftime('\n<font size=-1><i>Last updated %A, %d %B %Y at %I:%M:%S %p %Z.</i></font>', time.localtime(st[stat.ST_MTIME])) + '\n'
+	    ostr += '\n<font size=-1><i>%s</i></font>\n' % st
 	if self.isbeta:
 	    ostr += '</td></tr><tr><td height=24 class="beta">&nbsp;</td></tr></table>\n';
 	ostr += "</body>\n</html>\n"

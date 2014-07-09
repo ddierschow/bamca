@@ -28,10 +28,10 @@ class dbhandler:
 	self.SetConstants()
 
     def __repr__(self):
-	return "'<dbhandler.dbhandler instance>'"
+	return "'<dbhand.dbhandler instance>'"
 
     def __str__(self):
-	return "'<dbhandler.dbhandler instance>'"
+	return "'<dbhand.dbhandler instance>'"
 
     def ErrorReport(self):
 	return str(self.__dict__) + '\n' + 'dbi = ' + str(self.dbi.__dict__)

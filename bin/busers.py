@@ -246,14 +246,14 @@ def Verify(pif, name, vkey):
 @basics.WebPage
 def RegisterMain(pif):
     if pif.form.get('n'):
-	user.Create(pif)
+	Create(pif)
     elif pif.form.get('k'):
 	u = pif.FormStr('u')
 	k = pif.FormStr('k')
-	user.Verify(pif, u, k)
+	Verify(pif, u, k)
     else:
 	pif.render.PrintHtml()
-	user.PrintSignupForm(pif)
+	PrintSignupForm(pif)
 
 # ------ chpass
 

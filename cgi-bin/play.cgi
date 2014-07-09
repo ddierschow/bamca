@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import manno
-manno.PlayMain('manno')
+import mannum
+mannum.PlayMain('manno')

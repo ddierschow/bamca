@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import users
-users.RegisterMain('user', dbedit='')
+import busers
+busers.RegisterMain('user', dbedit='')

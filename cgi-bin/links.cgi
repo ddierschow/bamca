@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import links
-links.Links('links', 'page', 'toylinks')
+import tlinks
+tlinks.Links('links', 'page', 'toylinks')

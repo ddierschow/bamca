@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import os, re, sys
+import os, re, sys, time
 
 import mbdata
 import useful
@@ -199,7 +199,7 @@ class ArgFile (BarFile):
 	self.tail = {}
 
     def Read(self):
-	self.tail['stat'] = self.srcstat
+	self.tail['stat'] = time.strftime('Last updated %A, %d %B %Y at %I:%M:%S %p %Z.', time.localtime(self.srcstat.st_mtime))
 	try:
 	    return BarFile.Read(self)
 	except IOError:

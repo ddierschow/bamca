@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import users
-users.LogoutMain('user')
+import busers
+busers.LogoutMain('user')

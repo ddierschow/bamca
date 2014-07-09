@@ -1,10 +1,6 @@
 import unittest
 import basics
 import config
-import db
-import dbhandler
-import pifile
-import render
 
 class TestRender(unittest.TestCase):
 

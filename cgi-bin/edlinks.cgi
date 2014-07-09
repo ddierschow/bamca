@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import links
-links.EditLinks('editor', dbedit='am')
+import tlinks
+tlinks.EditLinks('editor', dbedit='am')

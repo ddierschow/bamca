@@ -2,8 +2,8 @@
 
 import os
 import basics
-import mbdata
 import config
+import mbdata
 
 # Start here
 

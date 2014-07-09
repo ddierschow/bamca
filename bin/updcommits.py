@@ -10,7 +10,7 @@ the config file for php's use.
 
 import datetime, os, re, subprocess, sys
 import basics
-import manno
+import mannum
 
 # Start here
 
@@ -78,7 +78,7 @@ def WriteConfigFile():
 
 def WriteManCSV(pif):
     print "Writing Man CSV file."
-    manf = manno.MannoFile(pif)
+    manf = mannum.MannoFile(pif)
     manf.RunMan2CSV(pif)
     print
 

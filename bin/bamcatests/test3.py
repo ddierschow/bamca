@@ -1,10 +1,5 @@
 import unittest
 import basics
-import config
-import db
-import dbhandler
-import pifile
-import render
 
 class TestRender(unittest.TestCase):
 
@@ -55,30 +50,30 @@ class TestRender(unittest.TestCase):
         self.assertTrue(lineup.Main('year', 'year', args='n=1 num=5 syear=1971 region=U prodpic=1 enum=15 eyear=1980 submit=1') != '')
 
     def testLinks(self):
-	import links
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="verbose=1") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="page=clubs") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="page=dealers") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="page=mailorder") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="page=manuf") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="page=other") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="page=rejects") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="id=3") != '')
-        self.assertTrue(links.Links('links', 'page', 'toylinks', args="id=286") != '')
-        self.assertTrue(links.AddPage('addlink', args="verbose=0") != '')
-#    links.EditLinks('editor')
+	import tlinks
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="verbose=1") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="page=clubs") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="page=dealers") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="page=mailorder") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="page=manuf") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="page=other") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="page=rejects") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="id=3") != '')
+        self.assertTrue(tlinks.Links('links', 'page', 'toylinks', args="id=286") != '')
+        self.assertTrue(tlinks.AddPage('addlink', args="verbose=0") != '')
+#    tlinks.EditLinks('editor')
 
     def testManno(self):
-	import manno
-        self.assertTrue(manno.CompareMain('compare', args='verbose=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=all listtype= range=all start=1 syear=1953 end=999 eyear=2015 type_a=y type_9=n type_o=m type_c=m type_b=m type_i=m type_2=m type_d=m type_e=m type_j=m type_1=m type_g=m type_r=m type_f=m type_4=m type_m=m type_u=m type_p=m type_z=m type_l=m type_t=m type_8=m type_v=m type_h=m type_5=m type_x=m submit=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=wr listtype= range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=sf listtype= range=some start=5 syear=1972 end=9 eyear=1974 nodesc=1 submit=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=wr listtype=adl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=mi listtype=pxl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=wr listtype=thm range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=wr listtype=ckl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(manno.Main('manno', args='section=wr listtype=vtl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+	import mannum
+        self.assertTrue(mannum.CompareMain('compare', args='verbose=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=all listtype= range=all start=1 syear=1953 end=999 eyear=2015 type_a=y type_9=n type_o=m type_c=m type_b=m type_i=m type_2=m type_d=m type_e=m type_j=m type_1=m type_g=m type_r=m type_f=m type_4=m type_m=m type_u=m type_p=m type_z=m type_l=m type_t=m type_8=m type_v=m type_h=m type_5=m type_x=m submit=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=wr listtype= range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=sf listtype= range=some start=5 syear=1972 end=9 eyear=1974 nodesc=1 submit=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=wr listtype=adl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=mi listtype=pxl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=wr listtype=thm range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=wr listtype=ckl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+        self.assertTrue(mannum.Main('manno', args='section=wr listtype=vtl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
 
     def testMatrix(self):
 	import matrix
@@ -122,10 +117,10 @@ class TestRender(unittest.TestCase):
 	self.assertTrue(search.RunSearch('search', args="submit=1") != '')
 
     def testSets(self):
-	import msets
-	self.assertTrue(msets.SetsMain('sets', 'page', args="verbose=1") != '')
-	self.assertTrue(msets.SetsMain('sets', 'page', args="page=kings") != '')
-	self.assertTrue(msets.SetsMain('sets', 'page', args="page=kings set=ks") != '')
+	import mbsets
+	self.assertTrue(mbsets.SetsMain('sets', 'page', args="verbose=1") != '')
+	self.assertTrue(mbsets.SetsMain('sets', 'page', args="page=kings") != '')
+	self.assertTrue(mbsets.SetsMain('sets', 'page', args="page=kings set=ks") != '')
 
     def testSingle(self):
 	import single

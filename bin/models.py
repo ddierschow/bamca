@@ -16,7 +16,7 @@ flago = None
 
 
 
-# lineup, manno
+# lineup, mannum
 # shows first_year, flag, pic, model name, description, with link to single.
 mod_tab_pic_lnk_pat = '''
   <center>
@@ -136,7 +136,7 @@ def AddModelTableProductLink(pif, mdict):
     return ostr
 
 
-# lineup, manno
+# lineup, mannum
 # shows scale, flag, pic, model name, description, with link to single.
 mod_txt_lin_pat = '''%(long_id)s|%(name)s|%(desc)s    
 '''
@@ -176,7 +176,7 @@ def AddModelLink(pif, mdict):
     return ostr
 
 
-# lineup, manno
+# lineup, mannum
 # shows scale, flag, pic, model name, description, with link to single.
 mod_tab_lst_ent_pat = '''  <td>%(box_sm)s</td>
   <td><center>%(id)s</center></td>

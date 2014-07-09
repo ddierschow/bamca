@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import links
-links.AddPage('addlink', dbedit='')
+import tlinks
+tlinks.AddPage('addlink', dbedit='')

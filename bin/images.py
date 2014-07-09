@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import datetime, glob, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
+import Image
 import basics
 import bfiles
 import config
@@ -8,7 +9,6 @@ import imicon
 import javascript
 import mbdata
 import useful
-import Image
 
 #os.environ['PATH'] += ':/usr/local/bin'
 

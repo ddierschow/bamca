@@ -1,10 +1,4 @@
 import unittest
-import basics
-import config
-import db
-import dbhandler
-import pifile
-import render
 import useful
 
 class TestUseful(unittest.TestCase):
