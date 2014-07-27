@@ -1399,7 +1399,6 @@ def RestrictedUpload(pif):
 		break
 	fn = int(ln) + 1
     fn = '%09d' % fn
-    pif.render.Comment("form", pif.form)
     if pif.FormStr('u'):
 	fn = GrabURLFile(pif, pif.FormStr('u'), direc, fn)
 	Thanks(pif, fn)
@@ -1429,7 +1428,6 @@ def MassUploadMain(pif):
     if not pif.IsAllowed('u'):
 	RestrictedUpload(pif)
 	return
-    pif.render.Comment("form", pif.form)
 
     if pif.FormStr('ul'):
 	for url in pif.FormStr('ul').split('\n'):
@@ -1497,7 +1495,6 @@ def UploadMain(pif):
 	direc = '../inc'
     elif pif.FormBool('replace'):
 	overwrite = True
-    pif.render.Comment("form", pif.form)
     try:
 	if pif.FormInt('act'):
 	    DoAction(pif, direc, pif.FormStr('f'), cy=pif.FormInt('cy'))
@@ -1777,7 +1774,7 @@ def CastingPictures(pif, mod_id, direc):
     if fl:
 	print '<h3>%s</h3>' % direc
 	if direc == config.imgdirAdd:
-	    print pif.render.FormatButton('describe', pif.dbh.GetEditorLink(pif, 'attribute_picture', {'mod_id' : mod_id})) + '<br>'
+	    print pif.render.FormatButton('describe', pif.dbh.GetEditorLink('attribute_picture', {'mod_id' : mod_id})) + '<br>'
 	for fn in fl:
 	    print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&man=%s"><img src="../%s">%s</a> ' % (direc, fn[fn.rfind('/') + 1:], mod_id, fn, fn)
 	    print '<br>'
@@ -1802,7 +1799,6 @@ def PicturesMain(pif):
     pif.render.PrintHtml()
     pif.render.title = 'pictures - ' + pif.FormStr('m', '')
     print pif.render.FormatHead()
-    pif.render.Comment("form", pif.form)
     mod_id = pif.FormStr('m', '')
     if mod_id:
 	[CastingPictures(pif, mod_id.lower(), x) for x in [config.imgdir175, config.imgdirVar, 'pic/man/icon', config.imgdirAdd]]
@@ -2175,7 +2171,7 @@ def ShowLibraryTable(pif, pagename):
     if sorty:
 	global sortfield
 	sortfield = int(sorty)
-	table.sort(lambda x, y: cmp(x[sortfield].lower(), y[sortfield].lower()))
+	table.sort(key=lambda x: x[sortfield].lower())
 
     row = 0
     icol = irow = 0

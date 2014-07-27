@@ -49,7 +49,7 @@ def DeletePack(pif, id):
 
 def SaveForm(pif):
     print pif.form,'<br>'
-    mods = [x[6:] for x in filter(lambda x: x.startswith('pm.id.'), pif.form.keys())]
+    mods = [x[6:] for x in pif.FormKeys(start='pm.id.')]
     pm_table_info = pif.dbh.table_info['pack_model']
     pm_table_info['name'] = 'pack_model'
     pms = []
@@ -57,8 +57,8 @@ def SaveForm(pif):
 	pms.append({
 	    'id' : mod,
 	    'pack_id' : pif.FormStr('id'),
-	    'mod_id' : pif.form.get('pm.mod_id.' + mod, ''),
-	    'var_id' : pif.form.get('pm.var_id.' + mod, ''),
+	    'mod_id' : pif.FormStr('pm.mod_id.' + mod),
+	    'var_id' : pif.FormStr('pm.var_id.' + mod),
 	    'display_order' : pif.FormInt('pm.display_order.' + mod),
 	})
     pif.dbh.UpdatePackModels(pms, pif.page_id, pif.FormStr('o_id'))
@@ -68,10 +68,10 @@ def SaveForm(pif):
 	pif.dbh.UpdateVariationSelectSub(pif.FormStr('id'), pif.FormStr('page_id'), pif.FormStr('o_id'))
 	if os.path.exists(pif.render.pic_dir + '/' + pif.FormStr('o_id') + '.jpg'):
 	    os.rename(pif.render.pic_dir + '/' + pif.FormStr('o_id') + '.jpg', pif.render.pic_dir + '/' + pif.FormStr('id') + '.jpg')
-    pif.dbh.UpdatePack(pif.FormStr('o_id'), {x: pif.form.get(x, '') for x in p_table_info['columns']})
+    pif.dbh.UpdatePack(pif.FormStr('o_id'), {x: pif.FormStr(x) for x in p_table_info['columns']})
     p_table_info = pif.dbh.table_info['base_id']
     p_table_info['name'] = 'base_id'
-    pif.dbh.UpdateBaseId(pif.FormStr('o_id'), {x: pif.form.get(x, '') for x in p_table_info['columns']})
+    pif.dbh.UpdateBaseId(pif.FormStr('o_id'), {x: pif.FormStr(x) for x in p_table_info['columns']})
 
 # ---- page list ------------------------------------------------------
 
@@ -99,7 +99,7 @@ def MakePackList(pif, year=None, reg=None, lid=None):
 	pif.dbh.DePref('base_id', pack)
 	pif.dbh.DePref('pack', pack)
 	pack['name'] = pack['rawname'].replace(';', ' ')
-    packs.sort(key=lambda x: (x[pif.form.get('order', 'name')], x['name'], x['first_year']))
+    packs.sort(key=lambda x: (x[pif.FormStr('order', 'name')], x['name'], x['first_year']))
     years = []
     regions = []
 
@@ -150,7 +150,7 @@ def MakePackList(pif, year=None, reg=None, lid=None):
 	pack['rel'].sort()
 	pack['rel'] = ' '.join(pack['rel'])
 
-	pack['page'] = pif.form.get('page', '')
+	pack['page'] = pif.FormStr('page')
 	pack['regionname'] = mbdata.regions[pack['region']]
 	if pif.IsAllowed('m'): # pragma: no cover
 	    print '<tr><td>%(id)s</td><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(region)s</td><td>%(country)s</td><td>%(thumb)s</td><td>%(pic)s</td><td>%(material)s</td><td>%(stars)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
@@ -175,8 +175,8 @@ def MakePackList(pif, year=None, reg=None, lid=None):
 #    print pif.render.FormatSelect('lid', CalcPackSelect(pif, packs))
     print '<p>'
     print pif.render.FormatButtonInput()
-    print pif.render.FormatButton("add", '?add_pack=unset&page=%s' % pif.form.get('page', '5packs'))
-    print '<input type="hidden" name="page" value="%s">' % pif.form.get('page')
+    print pif.render.FormatButton("add", '?add_pack=unset&page=%s' % pif.FormStr('page', '5packs'))
+    print '<input type="hidden" name="page" value="%s">' % pif.FormStr('page')
     print '</form>'
     print '</td></tr></table>\n'
     print pif.render.FormatButtonComment(pif)
@@ -270,8 +270,8 @@ def DoSinglePack(pif, pack):
     content = ''
     if pif.IsAllowed('a'): # pragma: no cover
 	content += str(pack['page_id']) + '/' + str(pack['id']) + '<br>'
-	content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.GetEditorLink(pif, 'base_id', {'id' : id})
-	content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.GetEditorLink(pif, 'pack', {'id' : id})
+	content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.GetEditorLink('base_id', {'id' : id})
+	content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.GetEditorLink('pack', {'id' : id})
 	content += '<b><a href="traverse.cgi?d=./pic/packs">Library</a></b>\n'
 
     ostr = '<table width="100%"><tr>\n'
@@ -295,7 +295,7 @@ def DoSinglePack(pif, pack):
 	ostr += '<h3>Related Packs</h3>\n<ul>\n'
 	for related in relateds:
 	    ostr += '<li>'
-	    ostr += pif.render.FormatLink("?page=" + pif.form.get('page', '') + "&id=" + related['pack.id'], related['base_id.rawname'])
+	    ostr += pif.render.FormatLink("?page=" + pif.FormStr('page') + "&id=" + related['pack.id'], related['base_id.rawname'])
 	    if related['pack.product_code']:
 		ostr += ' - (' + related['pack.product_code'] + ')'
 	    if related['pack.region']:
@@ -311,7 +311,7 @@ def DoSinglePack(pif, pack):
 
     # bottom bar
     ostr += '<tr><td class="bottombar">\n'
-    ostr += pif.render.FormatButtonComment(pif, 'd=%s' % pif.form.get('id'))
+    ostr += pif.render.FormatButtonComment(pif, 'd=%s' % pif.FormStr('id'))
     for comment in tcomments:
 	ostr += mbdata.comment_designation[comment] + '<br>'
     ostr += '</td></tr></table>\n'
@@ -420,21 +420,24 @@ def DoPage(pif):
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append(('packs.cgi', 'Multi-Model Packs'))
-    if isinstance(pif.form.get('id'), list):
-	pif.form['id'] = pif.FormStr('id')[0]
-    year = pif.form.get('year')
-    reg = pif.form.get('region')
-    var = pif.form.get('ver')
-    id = pif.form.get('id')
-    lid = pif.form.get('lid')
-    if pif.form.get('add_pack'):
-	pif.dbh.InsertPack(pif.form.get('add_pack'), pif.page_id)
-	id = pif.form.get('add_pack')
-	if pif.form.get('page') == '5packs':
+    #pif.FormSet('id', pif.FormList('id')[0]) # with no id this blows
+#    if isinstance(pif.form.get('id'), list):
+#	pif.form['id'] = pif.FormStr('id')[0]
+    if pif.FormHas('id'):
+	pif.FormSet('id', pif.FormList('id')[0]) # with no id this blows
+    year = pif.FormStr('year')
+    reg = pif.FormStr('region')
+    var = pif.FormStr('ver')
+    id = pif.FormStr('id')
+    lid = pif.FormStr('lid')
+    if pif.FormHas('add_pack'):
+	pif.dbh.InsertPack(pif.FormStr('add_pack'), pif.page_id)
+	id = pif.FormStr('add_pack')
+	if pif.FormStr('page') == '5packs':
 	    AddModel(pif, id, 5)
-	elif pif.form.get('page') == '10packs':
+	elif pif.FormStr('page') == '10packs':
 	    AddModel(pif, id, 10)
-    elif pif.form.get('delete'):
+    elif pif.FormHas('delete'):
 	DeletePack(pif, id)
 	return
     pack = dict()
@@ -445,9 +448,9 @@ def DoPage(pif):
 	    pif.render.hierarchy.append(('', pack['base_id.rawname']))
     print pif.render.FormatHead()
     if id:
-	if pif.form.get('add'):
-	    AddModel(pif, pif.form.get('o_id', 'unset'), pif.FormInt('n', 1))
-	elif pif.form.get('save'):
+	if pif.FormHas('add'):
+	    AddModel(pif, pif.FormStr('o_id', 'unset'), pif.FormInt('n', 1))
+	elif pif.FormHas('save'):
 	    SaveForm(pif)
 	pack_l, mod_form = DoSinglePack(pif, pack)
 	print pack_l
@@ -460,7 +463,7 @@ def DoPage(pif):
 	    print pif.render.FormatTextInput('n', 2, 2, '1')
 	    print pif.render.FormatButtonInput("add")
 	    print '</form>'
-    elif pif.form.get('page'):
+    elif pif.FormHas('page'):
 	MakePackList(pif, year, reg, lid)
     else:
 	MakePageList(pif)

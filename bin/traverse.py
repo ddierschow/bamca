@@ -142,7 +142,7 @@ def ShowImgs(pif, patt, dups, shlv):
     print '<input type="hidden" name="d" value="%s">' % pif.render.pic_dir
     print '<input type="hidden" name="sc" value="1">'
     print pif.render.FormatButtonInput()
-    print '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (pif.form.get('d', '.'), pif.render.FormatButton('upload'))
+    print '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (pif.FormStr('d', '.'), pif.render.FormatButton('upload'))
     print '</form>'
 
 
@@ -152,8 +152,8 @@ def ShowScript(pif, mvl, rml):
 	mvl = [mvl]
     if not isinstance(rml, list):
 	rml = [rml]
-    libl = [(x[4:], pif.FormStr(x)) for x in filter(lambda x: x.startswith('lib.'), pif.form.keys())]
-    renl = [(x[4:], pif.FormStr(x)) for x in filter(lambda x: x.startswith('ren.'), pif.form.keys())]
+    libl = [(x[4:], pif.FormStr(x)) for x in pif.FormKeys(start='lib.')]
+    renl = [(x[4:], pif.FormStr(x)) for x in pif.FormKeys(start='ren.')]
     rend = dict(renl)
     print '<pre>'
     for ren in renl:
@@ -223,9 +223,9 @@ class TableFile(bfiles.ArgFile):
 #print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
 def ShowTable(pif, pagename):
     tablefile = TableFile(pif.render.pic_dir + '/' + pagename)
-    cols = '' # pif.form.get('cols', '')
+    cols = '' # pif.FormStr('cols')
     h = 0 # pif.FormInt('h')
-    sorty = pif.form.get('sort')
+    sorty = pif.FormInt('sort')
 
     print pif.render.FormatTableStart()
     hdr = ''
@@ -237,8 +237,8 @@ def ShowTable(pif, pagename):
 
     if sorty:
 	global sortfield
-	sortfield = int(sorty)
-	table.sort(lambda x, y: cmp(x[sortfield].lower(), y[sortfield].lower()))
+	sortfield = sorty
+	table.sort(key=lambda x: x[sortfield].lower())
 
     row = 0
     icol = irow = 0
@@ -283,12 +283,12 @@ def Main(pif):
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()
     pif.Restrict('a')
-    #pif.render.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.form.get("d", '.'), pif.form.get("d", '.'))
-    pif.render.title = pif.render.pic_dir = pif.form.get("d", '.')
-    pif.render.title += '/' + pif.form.get("f", "")
+    #pif.render.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.FormStr("d", '.'), pif.FormStr("d", '.'))
+    pif.render.title = pif.render.pic_dir = pif.FormStr("d", '.')
+    pif.render.title += '/' + pif.FormStr("f")
     graf = pif.FormInt("g")
-    fnam = pif.form.get("f", '')
-    patt = pif.form.get("p", '')
+    fnam = pif.FormStr("f")
+    patt = pif.FormStr("p")
     dups = pif.FormInt("du")
     shlv = pif.FormInt("sh")
     scrt = pif.FormInt('sc')
@@ -300,7 +300,7 @@ def Main(pif):
     if patt:
 	ShowImgs(pif, patt, dups, shlv)
     elif scrt:
-	ShowScript(pif, pif.form.get('mv', []), pif.form.get('rm', []))
+	ShowScript(pif, pif.FormList('mv'), pif.FormList('rm'))
     elif act:
 	DoAction(pif, pif.render.pic_dir, fnam, act)
     elif fnam:

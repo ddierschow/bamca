@@ -9,7 +9,7 @@ modnumlist = []
 dups = 0
 
 
-def DoSet(pif, setfile, set=None):
+def DoSet(pif, setfile, set_id=None):
     tables = setfile.tables
 
     ostr = '<center>'
@@ -27,7 +27,7 @@ def DoSet(pif, setfile, set=None):
     '''
 
     for db in tables:
-	if len(tables) == 1 or not db['title'] or set == db['label'] or set == 'all': # or not set
+	if len(tables) == 1 or not db['title'] or set_id == db['label'] or set_id == 'all': # or not set_id
 	    ostr += PrintTable(pif, db, setfile)
 	else:
 	    ostr += PrintNoTable(pif, db)
@@ -57,7 +57,7 @@ def PrintTable(pif, db, setfile):
     for model in db['model']:
 	showme = True
 	for field in db['header']:
-	    if pif.form.has_key(field):
+	    if pif.FormHas(field):
 		if model[field] != pif.FormStr(field) or (not model[field] and not pif.FormStr(field)):
 		    showme = False
 	if not showme:
@@ -198,13 +198,13 @@ def SelectSet(pif):
 def SetsMain(pif):
     pif.render.PrintHtml()
 
-    if pif.form.get('page'):
-	set = pif.form.get('set')
+    if pif.FormHas('page'):
+	set_id = pif.FormStr('set')
 	global dups
-	dups = int(pif.form.get('dups', 0))
+	dups = pif.FormInt('dups')
 	setfile = bfiles.SetFile(os.path.join(config.srcdir, pif.FormStr('page') + '.dat'))
 	print pif.render.FormatHead()
-	print DoSet(pif, setfile, set)
+	print DoSet(pif, setfile, set_id)
     else:
 	print pif.render.FormatHead()
 	print SelectSet(pif)

@@ -101,7 +101,7 @@ class MatrixFile:
 	    section = {'id' : table['id'], 'name' : section_name, 'range' : [], 'anchor' : table['id'], 'columns' : table['columns'], 'anchor' : table['id']}
 	    if pif.IsAllowed('a'): # pragma: no cover
 		section['name'] += " (%s/%s)" % (pif.page_id, section['id'])
-		if pif.form.get('large'):
+		if pif.FormHas('large'):
 		    section['columns'] = 1
 	    ran = {'entry' : []}
 	    range_ids = table['ents'].keys()
@@ -197,7 +197,7 @@ class MatrixFile:
 	if pif.render.FindImageFile(ent['product'], suffix='jpg'):
 	    comments.add('c')
 	    ent['is_product_picture'] = 1
-	    if pif.IsAllowed('a') and pif.form.get('large'): # pragma: no cover
+	    if pif.IsAllowed('a') and pif.FormHas('large'): # pragma: no cover
 		pass
 	if ent['flags'] & tables.FLAG_MODEL_NOT_MADE:
 	    comments.add('n')
@@ -224,7 +224,7 @@ class MatrixFile:
 	#mdict: descriptions imgstr name no_casting not_made number pdir product
 	ostr = models.AddModelTableProductLink(pif, ent)
 	if pif.IsAllowed('a'): # pragma: no cover
-	    ostr += pif.render.FormatButton("edit", pif.dbh.GetEditorLink(pif, 'matrix_model', {'id' : ent['id']}))
+	    ostr += pif.render.FormatButton("edit", pif.dbh.GetEditorLink('matrix_model', {'id' : ent['id']}))
 	    ostr += pif.render.FormatButton("upload", "upload.cgi?d=%s&r=%s" % (pif.render.pic_dir, ent['link'] + '.jpg'))
 	return ostr
 
@@ -258,15 +258,15 @@ def SelectMatrix(pif):
 def Main(pif):
     pif.render.PrintHtml()
     matf = None
-    if pif.form.get('page'):
+    if pif.FormHas('page'):
 	matf = MatrixFile(pif)
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append(('/cgi-bin/matrix.cgi', 'Series'))
-    pif.render.hierarchy.append(('/cgi-bin/matrix.cgi?page=%s' % pif.form.get('page', ''), pif.render.title))
+    pif.render.hierarchy.append(('/cgi-bin/matrix.cgi?page=%s' % pif.FormStr('page'), pif.render.title))
     print pif.render.FormatHead()
     if matf:
-	#print pif.render.FormatImageOptional(pif.form.get('page', 'default').split('.'), also={'class':'centered'})
+	#print pif.render.FormatImageOptional(pif.FormStr('page', 'default').split('.'), also={'class':'centered'})
 	llineup = matf.Matrix(pif)
 	print pif.render.FormatLineup(llineup)
     else:

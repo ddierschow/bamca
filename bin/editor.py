@@ -31,7 +31,7 @@ def Start(pif):
     for table in table_list:
 	print '<hr>'
 	print '<b>' + table + '</b>'
-	Ask(pif, pif.dbh.GetFormTableInfo(pif, table))
+	Ask(pif, pif.dbh.GetTableInfo(table))
 
 
 def Ask(pif, table_info):
@@ -54,6 +54,7 @@ def Ask(pif, table_info):
 @basics.WebPage
 def EditorMain(pif):
     pif.render.PrintHtml()
+    print pif.form, '<br>'
     pif.Restrict('a')
     print pif.render.FormatHead(extra=pif.render.reset_button_js)
     ShowTable(pif)
@@ -61,48 +62,49 @@ def EditorMain(pif):
 
 
 def ShowTable(pif):
-    table_info = pif.dbh.GetFormTableInfo(pif, pif.FormStr('table'))
-    if not table_info:
+    if not pif.FormStr('table'):
 	Start(pif)
 	return
+    table_info = pif.dbh.GetTableInfo(pif.FormStr('table'))
     print '<b>', table_info['name'], '</b>'
     print pif.render.FormatButton('show all', "?table=" + table_info['name'])
-    if len(pif.form) == 1 and table_info.get('ask'):
-	Ask(pif, table_info)
-	return
-
     print pif.form, '<br>'
-    if pif.form.get('save'):
-	pif.dbh.Write(table_info['name'], {x: pif.form.get(x, '') for x in table_info['columns']}, pif.dbh.MakeWhere(pif.form, table_info['id'], 'o_'), modonly=True, tag='ShowTableSave')
-	#del pif.form['id']
+    # DOES ANYBODY KNOW WHAT THE HELL I WAS THINKING HERE?
+#    if len(pif.form) == 1 and table_info.get('ask'):
+#	Ask(pif, table_info)
+#	return
+
+    if pif.FormHas('save'):
+	pif.dbh.Write(table_info['name'], {x: pif.FormStr(x) for x in table_info['columns']}, pif.FormWhere(table_info['id'], 'o_'), modonly=True, tag='ShowTableSave')
+	#del pif.FormDel('id')
 	print '<br>record saved<br>'
-    elif pif.form.get('delete'):
-	pif.dbh.Delete(table_info['name'], pif.dbh.MakeWhere(pif.form, table_info['id'], 'o_'))
-	del pif.form['id']
+    elif pif.FormHas('delete'):
+	pif.dbh.Delete(table_info['name'], pif.FormWhere(table_info['id'], 'o_'))
+	pif.FormDel('id')
 	print '<br>record deleted<br>'
-    elif pif.form.get('add'):
+    elif pif.FormHas('add'):
 	print '<br>add', table_info.get('name', 'unset'), '<br>'
 	print table_info, '<br>'
 	adds = table_info.get('add', {})
 	creat = table_info.get('create', {})
 	cond = {}
 	for id in creat:
-	    pif.form.setdefault(id, creat[id])
+	    pif.FormDef(id, creat[id])
 	    cond[id] = pif.FormStr(id)
 	print 'cond', cond, '<br>'
 	print 'Write', table_info['name'], cond
 	lid = pif.dbh.Write(table_info['name'], cond, newonly=True, tag='ShowTableAdd', verbose=1)
 	if lid > 0:
-	    pif.form['id'] = lid
+	    pif.FormSet('id', lid)
 	print 'lid', lid, '<br>'
 	print '<br>record added<br>'
-    elif pif.form.get('clone'):
-	pif.dbh.Write(table_info['name'], {x: pif.form.get(x, '') for x in table_info['columns']}, pif.dbh.MakeWhere(pif.form, table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
-	#del pif.form['id']
+    elif pif.FormHas('clone'):
+	pif.dbh.Write(table_info['name'], {x: pif.FormStr(x) for x in table_info['columns']}, pif.FormWhere(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
+	#del pif.FormDel('id')
 	print '<br>record cloned<br>'
-    where = pif.dbh.MakeWhere(pif.form, table_info['columns'])
+    where = pif.FormWhere(table_info['columns'])
     dats = pif.dbh.Fetch(table_info['name'], where=where, tag='ShowTable')
-    if pif.form.get('order'):
+    if pif.FormHas('order'):
 	dats.sort(key=lambda x: x[pif.FormStr('order')])
     if len(dats) > 1:
 	print len(dats), 'records'
@@ -113,12 +115,12 @@ def ShowTable(pif):
     elif len(dats) == 1:
 	ShowSingle(pif, table_info, dats[0])
     else:
-	ShowNone(pif, table_info, {x: pif.form.get(x, '') for x in table_info['columns']})
+	ShowNone(pif, table_info, {x: pif.FormStr(x) for x in table_info['columns']})
     return
     args = ''
     for col in table_info['columns']:
-	if pif.form.get(col):
-	    args += '&' + col + '=' + pif.form[col]
+	if pif.FormHas(col):
+	    args += '&' + pif.FormReformat([col])
     print '<a href="?table=' + table_info['name'] + '&add=1' + args + '">' + pif.render.FormatButton('add') + '</a>'
 
 
@@ -126,8 +128,9 @@ def ShowMulti(pif, table_info, dats, cols=None, showsubs=False):
     print '%s entries' % len(dats)
     if not cols:
 	cols = table_info['columns']
-    if pif.form.get('order'):
-	dats.sort(lambda x,y: cmp(x[pif.form['order']], y[pif.form['order']]))
+    if pif.FormHas('order'):
+	sort_ord = pif.FormStr('order')
+	dats.sort(key=lambda x: x[sort_ord])
     print pif.render.FormatTableStart()
     print pif.render.FormatRowStart()
     for col in cols:
@@ -261,7 +264,7 @@ def ShowSingle(pif, table_info, dat):
 		else:
 		    cond[fr] = dat[to]
 	    print pif.render.FormatButton('show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
-	    ShowSubTable(pif, pif.dbh.GetFormTableInfo(pif, subtab['tab']), cond, ref=subtab.get('ref', {}))
+	    ShowSubTable(pif, pif.dbh.GetTableInfo(subtab['tab']), cond, ref=subtab.get('ref', {}))
 	else:
 	    print pif.render.FormatButton('show', "?table=" + subtab['tab'])
 #	if subtab['tab'] in adds:
@@ -296,7 +299,7 @@ def ShowNone(pif, table_info, dat):
 		else:
 		    cond[fr] = dat.get(to, '')
 	    print pif.render.FormatButton('show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
-	    ShowSubTable(pif, pif.dbh.GetFormTableInfo(pif, subtab['tab']), cond, ref=subtab.get('ref', {}))
+	    ShowSubTable(pif, pif.dbh.GetTableInfo(subtab['tab']), cond, ref=subtab.get('ref', {}))
 	else:
 	    print pif.render.FormatButton('show', "?table=" + subtab['tab'])
 	if subtab['tab'] in adds:
@@ -333,15 +336,15 @@ def ShowSubTable(pif, table_info, cond, ref={}):
 
 @basics.WebPage
 def MassMain(pif):
-    if pif.form.get('type') == 'lineup':
+    if pif.FormStr('type') == 'lineup':
 	AddLineupMain(pif)
     else:
 	pif.render.PrintHtml()
 	pif.Restrict('a')
 	print pif.render.FormatHead(extra=pif.render.reset_button_js)
-	if 'save' in pif.form:
+	if pif.FormHas('save'):
 	    MassSave(pif)
-	elif 'select' in pif.form:
+	elif pif.FormHas('select'):
 	    MassSelect(pif)
 	else:
 	    MassAsk(pif)
@@ -377,12 +380,12 @@ def MassAsk(pif):
     print "</form>"
 
 def MassSelect(pif):
-    columns = pif.form.get('select', '').split(',')
-    table_info = pif.dbh.table_info[pif.form.get('from')]
-    rows = pif.dbh.Fetch(pif.form.get('from', ''), columns=columns + table_info['id'], where=pif.form.get('where'), order=pif.form.get('order'), tag='MassSelect')
+    columns = pif.FormStr('select').split(',')
+    table_info = pif.dbh.table_info[pif.FormStr('from')]
+    rows = pif.dbh.Fetch(pif.FormStr('from'), columns=columns + table_info['id'], where=pif.FormStr('where'), order=pif.FormStr('order'), tag='MassSelect')
     print '<form method="post">'
-    print '<input type="hidden" name="from" value="%s">' % pif.form.get('from')
-    print '<input type="hidden" name="select" value="%s">' % pif.form.get('select')
+    print '<input type="hidden" name="from" value="%s">' % pif.FormStr('from')
+    print '<input type="hidden" name="select" value="%s">' % pif.FormStr('select')
     print '<input type="hidden" name="verbose" value="1">'
     print pif.render.FormatTableStart()
 
@@ -407,21 +410,21 @@ def MassSelect(pif):
     print "</form>"
 
 def MassSave(pif):
-    columns = pif.form.get('select', '').split(',')
-    table_info = pif.dbh.table_info[pif.form.get('from')]
+    columns = pif.FormStr('select').split(',')
+    table_info = pif.dbh.table_info[pif.FormStr('from')]
 
-    for key in pif.form:
-	if '.' in key:
-	    col, ids = key.split('.', 1)
-	    if col in columns:
-		wheres = pif.dbh.MakeWhere(dict(zip(table_info['id'], ids.split('.'))))
-		#where = " and ".join(["%s='%s'" % x for x in wheres])
-		# update table set col=value where condition;
-		#query = "update %s set %s='%s' where %s" % (pif.form['from'], col, pif.dbh.escape_string(pif.form[key]), where)
-		#print query, '<br>'
-		#pif.dbh.RawExecute(query, tag='MassSave')
-		# note: untested
-		pif.dbh.Write(pif.form['from'], values={col: pif.dbh.escape_string(pif.form[key])}, where=wheres, modonly=True, tag='MassSave')
+    for key in pif.FormKeys(has='.'):
+	col, ids = key.split('.', 1)
+	if col in columns:
+	    wheres = pif.dbh.MakeWhere(dict(zip(table_info['id'], ids.split('.'))))
+	    #where = " and ".join(["%s='%s'" % x for x in wheres])
+	    # update table set col=value where condition;
+	    #query = "update %s set %s='%s' where %s" % (pif.FormStr('from'), col, pif.dbh.escape_string(pif.FormStr(key)), where)
+	    #print query, '<br>'
+	    #pif.dbh.RawExecute(query, tag='MassSave')
+	    # note: untested
+	    # note: Write might already escape values
+	    pif.dbh.Write(pif.FormStr('from'), values={col: pif.dbh.escape_string(pif.FormStr(key))}, where=wheres, modonly=True, tag='MassSave')
 
 # ------- add lineup -----------------------------------------------
 
@@ -430,9 +433,9 @@ def AddLineupMain(pif):
     pif.render.PrintHtml()
     pif.Restrict('a')
     print pif.render.FormatHead(extra=pif.render.reset_button_js)
-    if 'save' in pif.form:
+    if pif.FormHas('save'):
 	AddLineupFinal(pif)
-    elif 'num' in pif.form:
+    elif pif.FormHas('num'):
 	AddLineupList(pif)
     else:
 	print "<form>"
@@ -452,55 +455,54 @@ def AddLineupMain(pif):
 def AddLineupFinal(pif):
     pif.dbh.dbi.insert_or_update('page_info', 
     {
-	'id'          : pif.form.get('page_id', ''),
+	'id'          : pif.FormStr('page_id'),
 	'flags'       : 0,
 	'health'      : '',
 	'format_type' : '',
 	'title'       : '',
-	'pic_dir'     : pif.form.get('picdir', ''),
+	'pic_dir'     : pif.FormStr('picdir'),
 	'tail'        : '',
 	'description' : '',
 	'note'        : '',
     })
     pif.dbh.dbi.insert_or_update('section', 
     {
-	'id'            : pif.form.get('region', ''),
-	'page_id'       : pif.form.get('page_id', ''),
+	'id'            : pif.FormStr('region'),
+	'page_id'       : pif.FormStr('page_id'),
 	'display_order' : 0,
 	'category'      : 'man',
 	'flags'         : 0,
-	'name'          : pif.form.get('sec_title', ''),
-	'columns'       : pif.form.get('cols', 4),
+	'name'          : pif.FormStr('sec_title'),
+	'columns'       : pif.FormInt('cols', 4),
 	'start'         : 0,
 	'pic_dir'       : '',
 	'disp_format'   : '%d.',
-	'link_format'   : pif.form.get('link_fmt', ''),
+	'link_format'   : pif.FormStr('link_fmt'),
 	'img_format'    : '',
 	'note'          : '',
     })
 
-    for key in pif.form:
-	if key.startswith('mod_id.'):
-	    num = key[7:]
-	    pif.dbh.dbi.insert_or_update('lineup_model', 
-	    {
-		'mod_id'     : pif.form[key],
-		'number'     : num,
-		'style_id'   : pif.form.get('style_id.' + num, ''),
-		'picture_id' : '',
-		'region'     : pif.form.get('region', ''),
-		'year'       : pif.form.get('year', ''),
-		'page_id'    : pif.form.get('page_id', ''),
-		'name'       : pif.form.get('name.' + num),
-	    })
+    for key in pif.FormKeys(start='mod_id.'):
+	num = key[7:]
+	pif.dbh.dbi.insert_or_update('lineup_model', 
+	{
+	    'mod_id'     : pif.FormStr(key),
+	    'number'     : num,
+	    'style_id'   : pif.FormStr('style_id.' + num),
+	    'picture_id' : '',
+	    'region'     : pif.FormStr('region'),
+	    'year'       : pif.FormStr('year'),
+	    'page_id'    : pif.FormStr('page_id'),
+	    'name'       : pif.FormStr('name.' + num),
+	})
 
 
 def AddLineupList(pif):
-    modlist = urllib2.urlopen(pif.form['models']).read().split('\n')
+    modlist = urllib2.urlopen(pif.FormStr('models')).read().split('\n')
     castings = {x['base_id.rawname'].replace(';', ' '): x['base_id.id'] for x in pif.dbh.FetchCastingList()}
-    num_models = int(pif.form['num'])
-    year = pif.form['year']
-    region = pif.form['region']
+    num_models = pif.FormInt('num')
+    year = pif.FormStr('year')
+    region = pif.FormStr('region')
     print '<form method="post" action="mass.cgi">'
 
     print pif.render.FormatTableStart()
@@ -574,8 +576,8 @@ def RoamShowTable(pif, table):
     cols = pif.dbh.table_info[table]['columns']
     wheres = []
     for col in cols:
-	if pif.form.has_key(col):
-	    wheres.append(col + "='" + pif.form[col] + "'")
+	if pif.FormHas(col):
+	    wheres.append(pif.FormReformat(col))
     dats = pif.dbh.Fetch(table, where=" and ".join(wheres), tag='Roam')
 
     if len(dats) > 1:
@@ -645,11 +647,11 @@ def RoamMain(pif):
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.PrintHtml()
     pif.Restrict('a')
-    table = pif.form.get('table', 'tables')
+    table = pif.FormStr('table', 'tables')
     pif.render.title = table
 
     print pif.render.FormatHead()
-    if 'table' in pif.form:
+    if pif.FormHas('table'):
 	editor.RoamShowTable(pif, table)
     else:
 	editor.RoamSelectTable(pif)
@@ -664,7 +666,7 @@ def ShowCounters(pif):
     print pif.render.FormatHead(extra=pif.render.reset_button_js)
     columns = ['ID', 'Value', 'Timestamp']
     res = pif.dbh.FetchCounters()
-    sortorder = pif.form.get('s', 'id')
+    sortorder = pif.FormStr('s', 'id')
     revorder = pif.FormInt('r')
     res.sort(key=lambda x: x['counter.' + sortorder.lower()])
     if revorder:

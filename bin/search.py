@@ -5,13 +5,13 @@ import mflags
 import models
 
 def SearchName(pif):
-    return pif.dbh.FetchCastingList(where=["base_id.rawname like '%%%s%%'" % x for x in pif.GetSearch('query')], verbose=True)
+    return pif.dbh.FetchCastingList(where=["base_id.rawname like '%%%s%%'" % x for x in pif.FormSearch('query')], verbose=True)
 
 
 # specific id request goes through here
 # would like to accept K43a like things
 def SearchID(pif):
-    cid = GetCastingId(pif.form.get('id'))
+    cid = GetCastingId(pif.FormStr('id'))
     mod = pif.dbh.FetchCasting(cid)
     if mod:
 	print '<meta http-equiv="refresh" content="0;url=/cgi-bin/single.cgi?id=%s">' % mod['id']
@@ -69,13 +69,13 @@ def RunSearch(pif):
     pif.render.hierarchy.append((pif.request_uri, 'Model Search'))
     mods = None
     pif.render.PrintHtml()
-    if pif.form.has_key('query'):
+    if pif.FormHas('query'):
 	targ = pif.FormStr('query')
 	pif.render.title = 'Models matching name: ' + targ
 	mods = SearchName(pif)
 	mods = filter(lambda x: x['section.page_id'] in ('manls', 'manno'), [pif.dbh.ModifyManItem(x) for x in mods])
 	print pif.render.FormatHead()
-    elif pif.form.has_key('id'):
+    elif pif.FormHas('id'):
 	targ = pif.FormStr('id')
 	mods = SearchID(pif)
 	if mods == None:
@@ -90,7 +90,7 @@ def RunSearch(pif):
 	llineup = CreateLineup(pif, mods)
 	#llineup['name'] ='Models matching: ' + targ
 	print pif.render.FormatLineup(llineup)
-    print pif.render.FormatButtonComment(pif, 'query=%s' % (pif.form.get('query', '')))
+    print pif.render.FormatButtonComment(pif, 'query=%s' % (pif.FormStr('query')))
     print pif.render.FormatTail()
 
 

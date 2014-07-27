@@ -29,7 +29,7 @@ def MapLink(bits):
 def Biblio(pif):
     pif.render.PrintHtml()
     global pagename
-    pagename = pif.form.get('page', 'biblio')
+    pagename = pif.FormStr('page', 'biblio')
 
     dblist = bfiles.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
     print pif.render.FormatHead()
@@ -47,10 +47,10 @@ def Biblio(pif):
 	    llist.Rewind()
 	    layout.append(llist)
 
-    if pif.form.has_key('sort'):
+    if pif.FormHas('sort'):
 	global sortfield
 	sortfield = pif.FormInt('sort')
-	table.sort(lambda x, y: cmp(x[sortfield].lower(), y[sortfield].lower()))
+	table.sort(key=lambda x: x[sortfield].lower())
 
     ostr = ''
     for llist in layout:
@@ -160,7 +160,7 @@ def PrintType(pif, event):
 def Calendar(pif):
     pif.render.PrintHtml()
     global pagename
-    pagename = pif.form.get('page', 'calendar')
+    pagename = pif.FormStr('page', 'calendar')
     dblist = bfiles.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
     print pif.render.FormatHead()
     shown = False
@@ -238,7 +238,7 @@ def Calendar(pif):
 def Publication(pif):
     pif.render.PrintHtml()
     ostr = pif.render.FormatHead()
-    pub_id = pif.form.get('id', '')
+    pub_id = pif.FormStr('id')
 
     man = pif.dbh.FetchPublication(pub_id)
     if not man:
@@ -255,8 +255,8 @@ def Publication(pif):
     # left bar
     content = ''
     if pif.IsAllowed('a'): # pragma: no cover
-	content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.GetEditorLink(pif, 'base_id', {'id' : pub_id})
-	content += '<a href="%s">Publication ID</a><br>\n' % pif.dbh.GetEditorLink(pif, 'publication', {'id' : pub_id})
+	content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.GetEditorLink('base_id', {'id' : pub_id})
+	content += '<a href="%s">Publication ID</a><br>\n' % pif.dbh.GetEditorLink('publication', {'id' : pub_id})
 	content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % config.imgdirCat
 	content += '<a href="upload.cgi?d=%s">Library Upload</a><br>\n' % config.imgdirCat
 

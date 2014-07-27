@@ -659,7 +659,7 @@ of Matchbox International Ltd. and are used with permission.
 	ostr = self.FormatButton("comment_on_this_page", link='../pages/comment.php?%s' % args, also={'class' : 'comment'}, lalso=dict())
 	if pif.IsAllowed('a'): # pragma: no cover
 	    ostr += self.FormatButton("pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class' : 'comment'}, lalso=dict())
-	    ostr += self.FormatButton("edit_this_page", link=pif.dbh.GetEditorLink(pif, 'page_info', {'id' : pif.page_id}), also={'class' : 'comment'}, lalso=dict())
+	    ostr += self.FormatButton("edit_this_page", link=pif.dbh.GetEditorLink('page_info', {'id' : pif.page_id}), also={'class' : 'comment'}, lalso=dict())
 	return ostr
 
     #---- images

@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import os, sys
+import useful
 
 #---- Web Pages ---------------------------------------------------------
 
@@ -202,6 +203,7 @@ def WebPage(main_fn):
 	    else:
 		pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
 	    ret = main_fn(pif)
+	    useful.WriteComment()
 	    if ret:
 		print ret
 	except SystemExit:
@@ -225,6 +227,7 @@ def CommandLine(main_fn):
 		pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
 	    pif.switch, pif.filelist = GetCommandLine(switches, options)
 	    ret = main_fn(pif)
+	    useful.WriteComment()
 	    if ret:
 		print ret
 	except SystemExit:
@@ -241,6 +244,7 @@ def Standalone(main_fn):
 		version=version, short_help=short_help, long_help=long_help, envar=envar, noerror=noerror,
 		defaults=defaults, doglob=doglob)
 	    ret = main_fn(switch, filelist)
+	    useful.WriteComment()
 	    if ret:
 		print ret
 	except SystemExit:

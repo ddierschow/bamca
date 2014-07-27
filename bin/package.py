@@ -78,7 +78,7 @@ def DoTreePage(pif, dblist):
 def Blister(pif):
     pif.render.PrintHtml()
     global pagename
-    pagename = pif.form.get('page', 'blister')
+    pagename = pif.FormStr('page', 'blister')
 
     dblist = bfiles.SimpleFile(os.path.join(config.srcdir, pagename + '.dat'))
 
@@ -121,8 +121,8 @@ def ShowModel(pif, mod):
 def ShowBoxes(pif):
     pif.render.PrintHtml()
     print pif.render.FormatHead()
-    series = pif.form.get('series')
-    style = pif.form.get('style')
+    series = pif.FormStr('series')
+    style = pif.FormStr('style')
     boxes = pif.dbh.FetchCastingsByBox(series, style)
     for box in boxes:
 	if box.get('alias.id'):

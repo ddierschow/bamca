@@ -48,7 +48,7 @@ def SingleLink(pif, link):
     ostr += pif.render.FormatButtonReset('comment') + '\n'
     ostr += '</form>\n'
     if pif.IsAllowed('a'): # pragma: no cover
-	ostr += pif.render.FormatButton("edit_this_page", link=pif.dbh.GetEditorLink(pif, 'link_line', {'id' : pif.FormStr('id','')}), also={'class' : 'comment'}, lalso={})
+	ostr += pif.render.FormatButton("edit_this_page", link=pif.dbh.GetEditorLink('link_line', {'id' : pif.FormStr('id','')}), also={'class' : 'comment'}, lalso={})
     ostr += '<br>' + str(link) + '<br>'
     return ostr
 
@@ -535,7 +535,7 @@ def EditChoose(pif):
     sections.sort(key=lambda x: x['section.page_id'])
     for sec in sections:
 	ostr += '<li><a href="edlinks.cgi?sec=%(section.id)s">%(section.page_id)s: %(section.name)s</a>\n' % sec
-    ostr += '<li><a href="%s">Blacklist</a>' % pif.dbh.GetEditorLink(pif, 'blacklist', {})
+    ostr += '<li><a href="%s">Blacklist</a>' % pif.dbh.GetEditorLink('blacklist', {})
     ostr += '</ul>\n'
     return ostr
 

@@ -49,8 +49,8 @@ class TestPIF(unittest.TestCase):
     def testGetForm(self):
 	self.assertTrue(self.pif.GetForm() == {})
 
-    def testGetSearch(self):
-	self.assertTrue(self.pif.GetSearch('a') == [])
+    def testFormSearch(self):
+	self.assertTrue(self.pif.FormSearch('a') == [])
 
     def testShowError(self):
 	self.assertTrue(self.pif.ShowError() == None)

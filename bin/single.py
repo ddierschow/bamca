@@ -11,7 +11,7 @@ import useful
 
 
 def UsePreviousProductPic(pif): # pragma: no cover
-    thispic = pif.form.get('pic', '')
+    thispic = pif.FormStr('pic')
     if not thispic:
 	return
     thismods = pif.dbh.FetchSimpleLineupModels(base_id=thispic)
@@ -342,7 +342,7 @@ def GetMackNumbers(pif, cid, mod_type, aliases):
 	mack_id = mbdata.GetMackNumber(alias)
 	if mack_id:
 	    mack_nums.append(mack_id)
-    mack_nums.sort(cmp=lambda x,y: cmp(x[1],y[1]))
+    mack_nums.sort(key=lambda x: x[1])
     return ['-'.join(x).upper() for x in mack_nums]
 
 
@@ -350,13 +350,13 @@ img_re = re.compile('src="(?P<u>[^"]*)"')
 @basics.WebPage
 def ShowSingle(pif):
     pif.render.PrintHtml()
-    if pif.form.get('useprev'): # pragma: no cover
+    if pif.FormHas('useprev'): # pragma: no cover
 	UsePreviousProductPic(pif)
-    man = pif.dbh.FetchCasting(pif.form.get('id'))
-    pic = pif.form.get('pic', '')
-    dir = pif.form.get('dir')
-    ref = pif.form.get('ref', '')
-    sub = pif.form.get('sub', '')
+    man = pif.dbh.FetchCasting(pif.FormStr('id'))
+    pic = pif.FormStr('pic')
+    dir = pif.FormStr('dir')
+    ref = pif.FormStr('ref')
+    sub = pif.FormStr('sub')
     cid = man.get('id', '')
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
@@ -437,15 +437,15 @@ def ShowSingle(pif):
     content = '<center>'
     if pif.IsAllowed('a'): # pragma: no cover
 	content += '<b><a href="vars.cgi?recalc=1&mod=%s">Recalculate</a><br>\n' % id
-	content += '<a href="%s">Base ID</a><br>\n' % pif.dbh.GetEditorLink(pif, 'base_id', {'id' : id})
-	content += '<a href="%s">Casting</a><br>\n' % pif.dbh.GetEditorLink(pif, 'casting', {'id' : id})
-	content += '<a href="%s">AttrPics</a><br>\n' % pif.dbh.GetEditorLink(pif, 'attribute_picture', {'mod_id' : id})
+	content += '<a href="%s">Base ID</a><br>\n' % pif.dbh.GetEditorLink('base_id', {'id' : id})
+	content += '<a href="%s">Casting</a><br>\n' % pif.dbh.GetEditorLink('casting', {'id' : id})
+	content += '<a href="%s">AttrPics</a><br>\n' % pif.dbh.GetEditorLink('attribute_picture', {'mod_id' : id})
 	if ref.startswith('year.'):
-	    content += '<a href="%s">Lineup Model</a><br>\n' % pif.dbh.GetEditorLink(pif, 'lineup_model', {'year' : ref[5:], 'mod_id' : id})
+	    content += '<a href="%s">Lineup Model</a><br>\n' % pif.dbh.GetEditorLink('lineup_model', {'year' : ref[5:], 'mod_id' : id})
 	elif ref.startswith('matrix.'):
-	    content += '<a href="%s">Matrix Model</a><br>\n' % pif.dbh.GetEditorLink(pif, 'matrix_model', {'page_id' : ref, 'mod_id' : id})
+	    content += '<a href="%s">Matrix Model</a><br>\n' % pif.dbh.GetEditorLink('matrix_model', {'page_id' : ref, 'mod_id' : id})
 	elif ref.startswith('packs.'):
-	    content += '<a href="%s">Pack Model</a><br>\n' % pif.dbh.GetEditorLink(pif, 'pack_model', {'pack_id' : sub, 'mod_id' : id})
+	    content += '<a href="%s">Pack Model</a><br>\n' % pif.dbh.GetEditorLink('pack_model', {'pack_id' : sub, 'mod_id' : id})
 	content += '<a href="vars.cgi?list=1&mod=%s">Variations</a><br>\n' % id
 	content += '<a href="vsearch.cgi?ask=1&id=%s">Search</a><br>\n' % id
 	content += '<a href="pics.cgi?m=%s">Pictures</a><br>\n' % id.lower()

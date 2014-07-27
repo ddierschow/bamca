@@ -46,8 +46,8 @@ def ShowVariation(pif, man, var_id):
     #pif.render.title = mod_id + ': ' + man['name']
     print pif.render.FormatHead(extra=pif.render.reset_button_js + pif.render.increment_select_js)
     print '<table width=100%><tr><td class="title">' + pif.render.title + '</td></tr></table>'
-    print pif.render.FormatButton("back_to_main_casting_page", "single.cgi?id=%s" % mod_id)
-    values = {}
+    #print pif.render.FormatButton("back_to_main_casting_page", "single.cgi?id=%s" % mod_id)
+    values = dict()
     attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
     attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References', 'definition' : 'varchar(256)'}
@@ -122,7 +122,7 @@ def ShowVariation(pif, man, var_id):
 	print pif.render.FormatButton("edit", 'vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var_id))
 	print pif.render.FormatButton("pictures", 'upload.cgi?d=%s&m=%s&v=%s&l=1' % (os.path.join(config.libmandir, mod_id.lower()), mod_id, var_id))
 	print pif.render.FormatButton("remove_picture", '?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
-	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink(pif, 'casting', {'id' : mod_id}))
+	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink('casting', {'id' : mod_id}))
 	print pif.render.FormatButton("recalc", '?recalc=1&mod=%s' % mod_id)
     if pif.IsAllowed('u'): # pragma: no cover
 	print '-', pif.render.FormatButton("upload", 'upload.cgi?d=' + os.path.join(config.libmandir, mod_id.lower()))
@@ -172,10 +172,7 @@ def ShowVariationEditor(pif, id, var_id):
     man = pif.dbh.FetchCasting(id)
     pif.render.title = man['id'] + ': ' + man['name']
     print pif.render.FormatHead(extra=pif.render.reset_button_js + pif.render.increment_select_js)
-    cateq = pif.form.get("var.cate")
-    wheelq = pif.form.get("var.wheels")
-    sobj = []
-    values = {}
+    values = dict()
     mod_id = man['id']
     attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
     attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
@@ -185,8 +182,7 @@ def ShowVariationEditor(pif, id, var_id):
     if not variation:
 	return
     variation = variation[0]
-    vardescs = pif.dbh.Describe('variation')
-    for vardesc in vardescs:
+    for vardesc in pif.dbh.Describe('variation'):
 	if vardesc['field'] in attributes:
 	    attributes[vardesc['field']]['definition'] = vardesc['type']
     print '<center>Variation %s<p>' % variation['var'].upper()
@@ -287,7 +283,7 @@ def ShowVariationEditor(pif, id, var_id):
 	print pif.render.FormatButton("delete", 'vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id))
 	print pif.render.FormatButton("remove_picture", 'vars.cgi?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
 	print pif.render.FormatButton("promote", '?mod=%s&var=%s&promote=1' % (mod_id, var_id))
-	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink(pif, 'casting', {'id' : mod_id}))
+	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink('casting', {'id' : mod_id}))
 	print pif.render.FormatButton("recalc", '?recalc=1&mod=%s' % mod_id)
     if pif.IsAllowed('u'): # pragma: no cover
 	print pif.render.FormatButton("upload", 'upload.cgi?d=' + os.path.join(config.libmandir, mod_id.lower()))
@@ -304,29 +300,28 @@ def Save(pif, mod_id, var_id):
 	var_sel = repic = ''
 	attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
 	#attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
-	pif.render.Comment("Save: ", pif.form, '<p>', attributes)
+	pif.render.Comment("Save: ", attributes)
 	var_dict = {'mod_id' : pif.FormStr('mod'), 'picture_id' : ''}
-	det_dict = {}
+	det_dict = dict()
 	for attr in note_attributes + detail_attributes:
 	    if 'id' in attributes.get(attr, {}):
-		det_dict[attr] = pif.form.get(attr + '.' + var_id, '')
+		det_dict[attr] = pif.FormStr(attr + '.' + var_id)
 	    else:
-		var_dict[attr] = pif.form.get(attr + '.' + var_id, '')
-	for key in pif.form:
-	    if key.endswith('.' + var_id):
-		attr = key[:key.rfind('.')]
-		if attr == 'references':
-		    var_sel = pif.FormStr(key) # make it work!
-		elif attr == 'repic':
-		    repic = pif.FormStr(key)
-		    print 'repic', repic, '<br>'
-		elif attr == 'picture_id':
-		    if pif.FormStr(key) != var_id:
-			var_dict[attr] = pif.FormStr(key)
-		elif 'id' in attributes.get(attr, {}):
-		    det_dict[attr] = pif.FormStr(key)
-		else:
+		var_dict[attr] = pif.FormStr(attr + '.' + var_id)
+	for key in pif.FormKeys(end='.' + var_id):
+	    attr = key[:key.rfind('.')]
+	    if attr == 'references':
+		var_sel = pif.FormStr(key) # make it work!
+	    elif attr == 'repic':
+		repic = pif.FormStr(key)
+		print 'repic', repic, '<br>'
+	    elif attr == 'picture_id':
+		if pif.FormStr(key) != var_id:
 		    var_dict[attr] = pif.FormStr(key)
+	    elif 'id' in attributes.get(attr, {}):
+		det_dict[attr] = pif.FormStr(key)
+	    else:
+		var_dict[attr] = pif.FormStr(key)
 	if 'from_CY_number' in var_dict and 'from_CY_number' not in attributes:
 	    del var_dict['from_CY_number']
 	print '<p>', det_dict, '<p>', var_dict
@@ -626,7 +621,7 @@ def FieldMatch(pif, attrq, var):
     if not attrq:
 	return True
     for attr in attrq:
-	search_not = bool(pif.form.get('not_' + attr))
+	search_not = pif.FormBool('not_' + attr)
 	var_val = var.get(attr, '')
 	query_val = ' '.join(attrq.get(attr, []))
 	if attr == 'category':
@@ -652,11 +647,11 @@ def FieldMatch(pif, attrq, var):
 
 def DoModel(pif, man, variations, display_type):
     #print '<input type="hidden" name="list" value="1">'
-    varl = pif.form.get("v", '')
-    wheelq = pif.form.get("var.wheels")
-    sobj = pif.GetSearch("var.s")
-    cateq = pif.form.get('category', '')
-    values = {}
+    varl = pif.FormStr("v")
+    wheelq = pif.FormStr("var.wheels")
+    sobj = pif.FormSearch("var.s")
+    cateq = pif.FormStr('category', '')
+    values = dict()
 
     mod_id = man['id']
     attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(mod_id))}
@@ -664,17 +659,17 @@ def DoModel(pif, man, variations, display_type):
     attributes['references'] = {'title' : 'References'}
     selects = GetVarSelects(pif, mod_id)
 
-    attrq = {}
+    attrq = dict()
     for attr in attributes:
-	if pif.form.get(attr):
-	#if not attr in hidden_attributes and pif.form.get(attr):
-	    attrq[attr] = pif.GetSearch(attr)
+	if pif.FormStr(attr):
+	#if not attr in hidden_attributes and pif.FormHas(attr):
+	    attrq[attr] = pif.FormSearch(attr)
 
-    mvars = {}
+    mvars = dict()
     for var in variations:
 	mvars[var['var']] = var
 
-    wheels = []
+    wheels = list()
 
     if display_type == DISPLAY_TYPE_GRID:
 	# a lineup consists of a header (outside of the table) plus a set of sections, each in its own table.
@@ -697,10 +692,10 @@ def DoModel(pif, man, variations, display_type):
 
     keys = mvars.keys()
     keys.sort()
-    prev = {}
-    cates = []
+    prev = dict()
+    cates = list()
     codes = [1]
-    if not pif.form.get('c1'):
+    if not pif.FormBool('c1'):
 	codes.append(2)
     for code in codes:
 	if display_type == DISPLAY_TYPE_GRID:
@@ -727,10 +722,10 @@ def DoModel(pif, man, variations, display_type):
 		wheels.append(model.get('text_wheels'))
 	    values = UpdateValues(model, values)
 	    if VarMatch(varl, key) and \
-			CateMatch(cateq, category, code, bool(pif.form.get('not_category'))) and \
+			CateMatch(cateq, category, code, pif.FormBool('not_category')) and \
 			SearchMatch(sobj, model) and \
 			WheelMatch(wheelq, model) and \
-			DescMatch(attrq, model, bool(pif.form.get('ci'))) and \
+			DescMatch(attrq, model, pif.FormBool('ci')) and \
 			FieldMatch(pif, attrq, model):
 		count += 1
 		model['area'] = ', '.join([mbdata.regions.get(x, x) for x in model.get('area', '').split(';')])
@@ -760,7 +755,7 @@ def DoModel(pif, man, variations, display_type):
 
 def GetVarSelects(pif, mod_id):
     var_selects = pif.dbh.DePref('variation_select', pif.dbh.FetchVariationSelects(mod_id))
-    selects = {}
+    selects = dict()
     for var_sel in var_selects:
 	selects.setdefault(var_sel['var_id'], [])
 	if var_sel['sub_id']:
@@ -785,22 +780,21 @@ def UpdateValues(var, values):
 
 
 def SaveModel(pif, id):
-    for key in pif.form:
-	if key.startswith('picture_id.'):
-	    if key[11:] == pif.FormStr(key):
-		pif.dbh.UpdateVariation({'picture_id': pif.FormStr(key)}, {'mod_id' : id, 'var' : ''})
-	    else:
-		pif.dbh.UpdateVariation({'picture_id': pif.FormStr(key)}, {'mod_id' : id, 'var' : key[11:]})
-	elif key.startswith('var_sel.'):
-	    varsel = list(set(pif.FormStr(key).split()))
-	    #pif.dbh.Delete('variation_select', where="mod_id='%s'" % id)
-	    #print 'varsel', varsel, '<br>'
-	    pif.dbh.UpdateVariationSelects(id, key[8:], varsel)
+    for key in pif.FormKeys(start='picture_id.'):
+	if key[11:] == pif.FormStr(key):
+	    pif.dbh.UpdateVariation({'picture_id': pif.FormStr(key)}, {'mod_id' : id, 'var' : ''})
+	else:
+	    pif.dbh.UpdateVariation({'picture_id': pif.FormStr(key)}, {'mod_id' : id, 'var' : key[11:]})
+    for key in pif.FormKeys(start='var_sel.'):
+	varsel = list(set(pif.FormStr(key).split()))
+	#pif.dbh.Delete('variation_select', where="mod_id='%s'" % id)
+	#print 'varsel', varsel, '<br>'
+	pif.dbh.UpdateVariationSelects(id, key[8:], varsel)
 
 
 def ShowModel(pif, model):
     id = model['id']
-    if pif.form.get('recalc'):
+    if pif.FormHas('recalc'):
 	RecalcDescription(pif, id)
     model = pif.dbh.FetchCasting(id)
     #pif.render.title = model['id'] + ': ' + model['name']
@@ -810,17 +804,17 @@ def ShowModel(pif, model):
 	print "<h2>That is not a recognized model ID.</h2>"
 	return
 
-    varl = pif.form.get("v", '')
-    cateq = pif.form.get("var.cate")
-    wheelq = pif.form.get("var.wheels")
+    varl = pif.FormStr("v", '')
+    cateq = pif.FormStr("var.cate")
+    wheelq = pif.FormStr("var.wheels")
     attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(model['id']))}
     attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References'}
-    attrq = {}
+    attrq = dict()
     for attr in attributes:
-	if pif.form.get(attr):
-	#if not attr in hidden_attributes and pif.form.get(attr):
-	    attrq[attr] = pif.GetSearch(attr)
+	if pif.FormHas(attr):
+	#if not attr in hidden_attributes and pif.FormHas(attr):
+	    attrq[attr] = pif.FormSearch(attr)
     cates = ['MB']
     variations = pif.dbh.DePref('variation', pif.dbh.FetchVariations(model['id']))
     for variation in variations:
@@ -846,10 +840,10 @@ def ShowModel(pif, model):
 	print 'matching search'
 
     print '<form action="vars.cgi" name="vars" method="post">'
-    if pif.form.get('verbose'):
+    if pif.FormBool('verbose'):
 	print '<input type="hidden" name="verbose" value="1">'
 
-    values = DoModel(pif, model, variations, {True:DISPLAY_TYPE_FULL, False:DISPLAY_TYPE_GRID}['list' in pif.form])
+    values = DoModel(pif, model, variations, {True:DISPLAY_TYPE_FULL, False:DISPLAY_TYPE_GRID}[pif.FormHas('list')])
 
     print '<p style="font-weight: bold; font-size: large;">'
     print pif.render.FormatButtonInputVisibility("varsearch", True)
@@ -864,7 +858,7 @@ def ShowModel(pif, model):
     if pif.IsAllowed('a'): # pragma: no cover
 	print pif.render.FormatButtonInput('save')
 	print pif.render.FormatButton("add", 'vars.cgi?edit=1&mod=%s&add=1' % model['id'])
-	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink(pif, 'casting', {'id' : model['id']}))
+	print pif.render.FormatButton("casting", pif.dbh.GetEditorLink('casting', {'id' : model['id']}))
 	print pif.render.FormatButton("recalc", '?recalc=1&mod=%s' % model['id'])
     if pif.IsAllowed('u'): # pragma: no cover
 	print pif.render.FormatButton("upload", 'upload.cgi?d=' + os.path.join(config.libmandir, model['id'].lower()) + '&m=' + model['id'])
@@ -880,8 +874,8 @@ def ShowModel(pif, model):
 
 @basics.WebPage
 def Main(pif):
-    id = pif.form.get('mod', '')
-    var = pif.form.get('var', '')
+    id = pif.FormStr('mod')
+    var = pif.FormStr('var')
 
     pif.render.hierarchy.append(('/', 'Home'))
     pif.render.hierarchy.append(('/database.php', 'Database'))
@@ -892,7 +886,7 @@ def Main(pif):
 
     regs = mbdata.GetCountries()
     regs.update(mbdata.regions)
-    man = {}
+    man = dict()
     if id:
 	man = pif.dbh.FetchCasting(id)
 	if not man:
@@ -907,24 +901,23 @@ def Main(pif):
 	pif.render.title += ' - Variations'
     else:
 	pass
-    pif.render.Comment("form", pif.form)
 
     #print pif.render.FormatHead(extra=pif.render.reset_button_js + pif.render.increment_select_js)
-    if pif.form.get("add"):
+    if pif.FormHas("add"):
 	AddVariation(pif, id, 'unset', {'imported_from': 'web'})
 	ShowVariationEditor(pif, id, 'unset')
-    elif pif.form.get('edit'):
-	ShowVariationEditor(pif, id, pif.form.get('var'))
-    elif pif.form.get("rmpic"):
+    elif pif.FormHas('edit'):
+	ShowVariationEditor(pif, id, pif.FormStr('var'))
+    elif pif.FormHas("rmpic"):
 	RemovePicture(pif, id, var)
 	ShowVariation(pif, man, var)
-    elif pif.form.get("promote"):
+    elif pif.FormHas("promote"):
 	PromotePicture(pif, id, var)
 	ShowVariation(pif, man, var)
-    elif pif.form.get("delete"):
+    elif pif.FormHas("delete"):
 	DeleteVariation(pif, id, var)
 	ShowModel(pif, man)
-    elif pif.form.get("save"):
+    elif pif.FormHas("save"):
 	Save(pif, id, var)
     elif var:
 	ShowVariation(pif, man, var)
@@ -1077,7 +1070,7 @@ cfields = {'casting' : 'rawname'}
 
 @basics.WebPage
 def RunSearch(pif):
-    if pif.form.get('ask'):
+    if pif.FormHas('ask'):
 	VarSearchAsk(pif)
     else:
 	VarSearch(pif)
@@ -1086,7 +1079,7 @@ def RunSearch(pif):
 def VarSearchAsk(pif):
     pif.render.Comment('VarSearchAsk')
     pif.render.PrintHtml()
-    id = pif.form.get('id')
+    id = pif.FormStr('id')
     model = pif.dbh.FetchCasting(id)
 
     #pif.render.title = model['id'] + ': ' + model['name']
@@ -1096,17 +1089,17 @@ def VarSearchAsk(pif):
 	print "<h2>That is not a recognized model ID.</h2>"
 	return
 
-    varl = pif.form.get("v", '')
-    cateq = pif.form.get("var.cate")
-    wheelq = pif.form.get("var.wheels")
+    varl = pif.FormStr("v")
+    cateq = pif.FormStr("var.cate")
+    wheelq = pif.FormStr("var.wheels")
     attributes = {x['attribute_name']: x for x in pif.dbh.DePref('attribute', pif.dbh.FetchAttributes(model['id']))}
     attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title' : pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     attributes['references'] = {'title' : 'References'}
-    attrq = {}
+    attrq = dict()
     for attr in attributes:
-	if pif.form.get(attr):
-	#if not attr in hidden_attributes and pif.form.get(attr):
-	    attrq[attr] = pif.GetSearch(attr)
+	if pif.FormHas(attr):
+	#if not attr in hidden_attributes and pif.FormHas(attr):
+	    attrq[attr] = pif.FormSearch(attr)
     cates = ['MB']
     variations = pif.dbh.DePref('variation', pif.dbh.FetchVariations(model['id']))
     for variation in variations:
@@ -1115,7 +1108,7 @@ def VarSearchAsk(pif):
 		cates.append(c)
 
     print '<form action="vars.cgi" name="vars" method="post">'
-    if pif.form.get('verbose'):
+    if pif.FormBool('verbose'):
 	print '<input type="hidden" name="verbose" value="1">'
 
     values = DoModel(pif, model, variations, DISPLAY_TYPE_NONE)
@@ -1137,7 +1130,7 @@ def VarSearchAsk(pif):
 
 def GetCodes(pif):
     codes = 0
-    for code in pif.form.get('codes', []):
+    for code in pif.FormList('codes'):
 	if code not in "12":
 	    return None
 	codes += int(code)
@@ -1149,11 +1142,11 @@ def VarSearch(pif):
     pif.render.hierarchy.append(('/database.php', 'Database'))
     pif.render.hierarchy.append((pif.request_uri, 'Variation Search'))
     pif.render.PrintHtml()
-    pif.render.title = 'Models matching: ' + ' '.join(pif.GetSearch('query'))
+    pif.render.title = 'Models matching: ' + ' '.join(pif.FormSearch('query'))
     print pif.render.FormatHead()
     modsperpage = 100
-    varsq = {vfields[x]: pif.GetSearch(x) for x in vfields}
-    castq = {cfields[x]: pif.GetSearch(x) for x in cfields}
+    varsq = {vfields[x]: pif.FormSearch(x) for x in vfields}
+    castq = {cfields[x]: pif.FormSearch(x) for x in cfields}
     codes = GetCodes(pif)
     if codes == None:
 	print "This submission was not created by the form provided.<p>"
@@ -1175,8 +1168,7 @@ def VarSearch(pif):
 	lran['entry'].append({'text' : AddModelVarTablePicLink(pif, mod)})
     lsec['range'] = [lran]
     llineup['section'] = [lsec]
-    qf = '&'.join(['%s=%s' % (x, pif.form.get(x, '')) for x in vfields]) + '&'
-    qf += '&'.join(['%s=%s' % (x, pif.form.get(x, '')) for x in cfields])
+    qf = pif.FormReformat(vfields) + '&' + pif.FormReformat(cfields)
     if pif.render.verbose:
 	qf += '&verbose=1'
     qf += '&codes=%s' % codes
@@ -1186,7 +1178,7 @@ def VarSearch(pif):
 	llineup['tail'] += pif.render.FormatButton("next", 'vsearch.cgi?%s&start=%d' % (qf, min(start + modsperpage, nmods)))
     
     print pif.render.FormatLineup(llineup)
-    print pif.render.FormatButtonComment(pif, 'casting=%s&base=%s&body=%s&interior=%s&wheels=%s&windows=%s' % (pif.form.get('casting', ''), pif.form.get('base', ''), pif.form.get('body', ''), pif.form.get('interior', ''), pif.form.get('wheels', ''), pif.form.get('windows', '')))
+    print pif.render.FormatButtonComment(pif, 'casting=%s&base=%s&body=%s&interior=%s&wheels=%s&windows=%s' % (pif.FormStr('casting'), pif.FormStr('base'), pif.FormStr('body'), pif.FormStr('interior'), pif.FormStr('wheels'), pif.FormStr('windows')))
     print pif.render.FormatTail()
 
 
@@ -1211,4 +1203,4 @@ def Commands(pif):
 
 
 if __name__ == '__main__': # pragma: no cover
-    Commands('vars', dbedit='am')
+    Commands('vars', dbedit='')

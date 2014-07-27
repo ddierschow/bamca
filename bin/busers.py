@@ -69,7 +69,7 @@ def DeleteUser(pif):
 
 
 def UpdateUser(pif):
-    pif.dbh.UpdateUser(pif.form.get('id', ''), email=pif.form.get('email'), state=pif.form.get('state'), name=pif.form.get('name'), privs=pif.form.get('privs'))
+    pif.dbh.UpdateUser(pif.FormStr('id'), email=pif.FormStr('email'), state=pif.FormStr('state'), name=pif.FormStr('name'), privs=pif.FormStr('privs'))
 
 
 @basics.WebPage
@@ -77,13 +77,13 @@ def UserMain(pif):
     pif.render.PrintHtml()
     pif.Restrict('a')
     print pif.render.FormatHead(extra=pif.render.reset_button_js)
-    if 'name' in pif.form:
+    if pif.FormHas('name'):
 	UpdateUser(pif)
 	PrintUsers(pif)
-    elif 'delete' in pif.form:
+    elif pif.FormHas('delete'):
 	DeleteUser(pif)
 	PrintUsers(pif)
-    elif 'id' in pif.form:
+    elif pif.FormHas('id'):
 	PrintUserForm(pif, pif.FormStr('id'))
     else:
 	PrintUsers(pif)
@@ -94,7 +94,7 @@ def UserMain(pif):
 def PrintLoginForm(pif):
     print 'Please log in.'
     print '<form method="post" action="login.cgi">'
-    if pif.form.get('dest'):
+    if pif.FormHas('dest'):
 	print '<input type="hidden" name="dest" value="%s">' % pif.FormStr('dest')
     print '<table><tr><td>'
     print 'Name:</td><td>'
@@ -105,10 +105,10 @@ def PrintLoginForm(pif):
     print '<tr><td></td><td>'
     #print '<input type="image" name="submit" src="../pic/gfx/but_log_in.gif" class="img">'
     print pif.render.FormatButtonInput("log in", "submit")
-    #print '<input type="hidden" name="dest" value="%s">' % pif.form.get('dest', '/index.php')
+    #print '<input type="hidden" name="dest" value="%s">' % pif.FormStr('dest', '/index.php')
     print '</form>'
     print '</td></tr><tr><td></td><td>'
-    print '<p><a href="signup.cgi?dest=%s">%s</a>' % (pif.form.get('dest', '/index.php'), pif.render.FormatButton('register'))
+    print '<p><a href="signup.cgi?dest=%s">%s</a>' % (pif.FormStr('dest', '/index.php'), pif.render.FormatButton('register'))
     print '</td></tr></table>'
 
 
@@ -118,7 +118,7 @@ def Login(pif):
     if id:
 	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
 	pif.render.PrintHtml(cookie)
-	print '<meta http-equiv="refresh" content="1;url=%s">' % pif.form.get('dest', '/index.php')
+	print '<meta http-equiv="refresh" content="1;url=%s">' % pif.FormStr('dest', '/index.php')
     else:
 	pif.render.PrintHtml()
 	print pif.render.FormatHead()
@@ -128,7 +128,7 @@ def Login(pif):
 
 @basics.WebPage
 def LoginMain(pif):
-    if pif.form.get('n'):
+    if pif.FormHas('n'):
 	Login(pif)
     else:
 	pif.render.PrintHtml()
@@ -143,7 +143,7 @@ def LoginMain(pif):
 def LogoutMain(pif):
     cookie = pif.render.secure.ClearCookie(['id'])
     pif.render.PrintHtml(cookie)
-    print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get('dest', '../')
+    print '<meta http-equiv="refresh" content="0;url=%s>' % pif.FormStr('dest', '../')
     #print '<meta http-equiv="refresh" content="0;url=%s>' % '/index.php'
 
 # ------ signup
@@ -173,17 +173,17 @@ def PrintSignupForm(pif):
     print pif.render.FormatCell(0, pif.render.FormatButtonInput("register", "submit"))
     print pif.render.FormatRowEnd()
     print pif.render.FormatTableEnd()
-    print '<input type="hidden" name="dest" value="%s">' % pif.form.get('dest', '/index.php')
+    print '<input type="hidden" name="dest" value="%s">' % pif.FormStr('dest', '/index.php')
     print '</form>'
     print pif.render.FormatTail()
 
 
 def Create(pif):
     os.environ['PYTHON_EGG_CACHE'] = '/var/tmp'
-    n = pif.form.get('n')
-    p = pif.form.get('p')
-    p2 = pif.form.get('p2')
-    e = pif.form.get('e')
+    n = pif.FormStr('n')
+    p = pif.FormStr('p')
+    p2 = pif.FormStr('p2')
+    e = pif.FormStr('e')
     if not n or not p or p != p2 or not e:
 	pif.render.PrintHtml()
 	PrintSignupForm(pif)
@@ -245,9 +245,9 @@ def Verify(pif, name, vkey):
 
 @basics.WebPage
 def RegisterMain(pif):
-    if pif.form.get('n'):
+    if pif.FormStr('n'):
 	Create(pif)
-    elif pif.form.get('k'):
+    elif pif.FormStr('k'):
 	u = pif.FormStr('u')
 	k = pif.FormStr('k')
 	Verify(pif, u, k)
@@ -280,23 +280,23 @@ def PrintChangePasswordForm(pif):
     #print '<input type="image" name="submit" src="../pic/gfx/but_save_changes.gif" class="img">'
     print pif.render.FormatButtonInput("save changes", "submit")
     print '</td></tr></table>'
-    print '<input type="hidden" name="dest" value="%s">' % pif.form.get('dest', '/index.php')
+    print '<input type="hidden" name="dest" value="%s">' % pif.FormStr('dest', '/index.php')
     print '</form>'
     print pif.render.FormatTail()
 
 
 def ChangePass(pif):
-    if not pif.form.get('p1') or pif.form.get('p1') != pif.form.get('p2'):
+    if not pif.FormStr('p1') or pif.FormStr('p1') != pif.FormStr('p2'):
 	pif.render.PrintHtml()
 	PrintChangePasswordForm(pif)
 	return
 
     id, privs = pif.dbh.Login(pif.FormStr('n'), pif.FormStr('op'))
-    if id and pif.form.get('p1') == pif.form.get('p2', -1):
-	pif.dbh.UpdateUser(id, email=pif.form.get('em'), passwd=pif.form.get('p1'))
+    if id and pif.FormStr('p1') == pif.FormStr('p2', -1):
+	pif.dbh.UpdateUser(id, email=pif.FormStr('em'), passwd=pif.FormStr('p1'))
 	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
 	pif.render.PrintHtml(cookie)
-	print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get('dest', '/index.php')
+	print '<meta http-equiv="refresh" content="0;url=%s>' % pif.FormStr('dest', '/index.php')
     else:
 	cookie = pif.render.secure.ClearCookie(['id'])
 	pif.render.PrintHtml()
@@ -306,7 +306,7 @@ def ChangePass(pif):
 @basics.WebPage
 def ChangePasswordMain():
     pif = basics.GetPageInfo('user')
-    if pif.form.get('n'):
+    if pif.FormStr('n'):
 	ChangePass(pif)
     else:
 	pif.render.PrintHtml()

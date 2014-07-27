@@ -91,7 +91,7 @@ def AddModelTableProductLink(pif, mdict):
     if mdict.get('anchor'):
 	ostr += '<a name="%s"></a>' % mdict['anchor']
 
-#    if pif.form.get('large'):
+#    if pif.FormHas('large'):
 #	ostr += pif.render.FormatImageOptional(mdict['product'], suffix='jpg', pdir=mdict['pdir'], also={'class':'largepic'})
     ostr += '<center><table width=100%><tr><td width=40%>'
     if mdict.get('no_casting'):

@@ -124,15 +124,15 @@ class MannoFile:
 	self.corevars = self.corepics = 0
 	self.c2vars = self.c2pics = 0
 
-	for key in pif.form:
-	    if key.startswith("type_"):
-		t = key[-1]
-		self.types.setdefault(pif.form[key], list())
-		self.types[pif.form[key]] += t
+	for key in pif.FormKeys(start='type_'):
+	    val = pif.FormStr(key)
+	    t = key[-1]
+	    self.types.setdefault(val, list())
+	    self.types[val] += t
 
-	self.section = pif.form.get('section', None)
+	self.section = pif.FormStr('section')
 	if self.section == 'all':
-	    self.section = None
+	    self.section = ''
 	self.start = pif.FormInt('start', 1)
 	self.end = pif.FormInt('end', 9999)
 	self.firstyear = pif.FormInt('syear', 1)
@@ -217,7 +217,7 @@ class MannoFile:
 	llineup['section'] = self.RunThing(pif, self.ShowSectionManno)
 	return pif.render.FormatLineup(llineup) + \
 	    pif.render.FormatButtonComment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
-		(pif.form.get('selection', ''), pif.form.get('range', ''), pif.form.get('start', ''), pif.form.get('end', '')))
+		(pif.FormStr('selection'), pif.FormStr('range'), pif.FormStr('start'), pif.FormStr('end')))
 
     def Run(self, pif):
 	llineup = {'section' : list(), 'columns' : 4}
@@ -566,19 +566,16 @@ def RenameBaseID(pif, old_mod_id, new_mod_id, force=False):
 
 
 def WriteVehicleTypes(pif):
-    for key in pif.form:
-	if key.startswith('vt_'):
-	    val = pif.form[key]
-	    if isinstance(val, list):
-		val = ''.join(val)
-	    print key[3:], 'type', val, '<br>'
-	    pif.dbh.WriteCasting(values={'vehicle_type' : val}, id=key[3:])
-	elif key.startswith('vm_'):
-	    print key[3:], 'make', pif.form[key], '<br>'
-	    pif.dbh.WriteCasting(values={'make' : pif.form[key]}, id=key[3:])
-	elif key.startswith('co_'):
-	    print key[3:], 'country', pif.form[key], '<br>'
-	    pif.dbh.WriteCasting(values={'country' : pif.form[key]}, id=key[3:])
+    for key in pif.FormKeys(start='vt_'):
+	val = ''.join(pif.FormList(key))
+	print key[3:], 'type', val, '<br>'
+	pif.dbh.WriteCasting(values={'vehicle_type' : val}, id=key[3:])
+    for key in pif.FormKeys(start='vm_'):
+	print key[3:], 'make', pif.FormStr(key), '<br>'
+	pif.dbh.WriteCasting(values={'make' : pif.FormStr(key)}, id=key[3:])
+    for key in pif.FormKeys(start='co_'):
+	print key[3:], 'country', pif.FormStr(key), '<br>'
+	pif.dbh.WriteCasting(values={'country' : pif.FormStr(key)}, id=key[3:])
 
 #---- main ----------------------------------
 
@@ -593,12 +590,12 @@ def Main(pif):
 	return
     print pif.render.FormatHead()
     models.flago = mflags.FlagList(pif)
-    if pif.form.get('vtset'):
+    if pif.FormHas('vtset'):
 	WriteVehicleTypes(pif)
-    elif not pif.form.get('section'):
+    elif not pif.FormHas('section'):
 	print "Please select a range to display."
     else:
-	listtype = pif.form.get('listtype')
+	listtype = pif.FormStr('listtype')
 	manf = MannoFile(pif, withaliases=True)
 	if listtype == 'adl':
 	    print manf.RunAdminList(pif)

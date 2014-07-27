@@ -269,13 +269,22 @@ def HeaderDone():
     map(lambda x: WriteComment(*x), pending_comments)
     pending_comments = list()
 
-def WriteComment(*args):
-    global header_done, pending_comments
-    if header_done:
-	print '<!--', ' '.join([str(x) for x in args]), '-->'
-    else:
-	pending_comments.append(args)
-
+partial_comment = False
+def WriteComment(*args, **kwargs):
+    global header_done, pending_comments, partial_comment
+    partial = kwargs.get('nonl')
+    if partial:
+	if partial_comment == False:
+	    partial_comment = list()
+	partial_comment.extend(args)
+    elif partial_comment:
+	args = partial_comment + args
+	partial_comment = False
+    if args:
+	if header_done:
+	    print '<!--', ' '.join([str(x) for x in args]), '-->'
+	else:
+	    pending_comments.append(args)
 
 #---- -------------------------------------------------------------------
 
