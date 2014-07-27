@@ -64,6 +64,7 @@ LS24c|labels|labels_tampo
 LS25d|base|base;base_number
 LS26c|front_wheels|rear_wheels
 LS26c|back_wheels|front_wheels
+LS27b|base|base;reg_mark
 LS27b|interior_engine|interior;engine
 LS28a|body_dump|body;dump
 LS28a|front_rear_wheels_hubs|front_wheels_hubs;rear_wheels_hubs
@@ -110,6 +111,7 @@ LS46a|labels|labels_tampo
 EA46a|tampo|labels_tampo
 LS46b|window_roof_lights|windows;roof_lights
 LS46c|base|base;engine
+MI046|base|base;engine
 LS48e|base|base;plow
 LS49b|base|base;engine
 EA49d|wheels_hubs|wheels
@@ -141,7 +143,7 @@ LS61c|base|base;grille
 MI061|base|base;grille
 LS62b|front_rear_wheels|front_wheels;rear_wheels
 MI062|front_rear_wheels|front_wheels;rear_wheels
-LS62d|side_tampo|tampo
+MI062|tampo|side_tampo
 LS63b|base|cab_base
 LS63c|base|coupling_base
 LS64c|windows_roof_light|windows;roof_light
@@ -481,6 +483,12 @@ MW690|eleph|elephant_on_base
 MW700|base_nr|base_number
 MW561|windshield|windows
 MW747|chassis_interior|chassis;interior
+MW769|interior_rear_load|interior;rear_load
+MW795|windshield|windows
+MW795|interior_bumpers|interior;bumpers
+MW827|interior_fenders|interior;fenders
+MW833|interior_fenders|interior;fenders
+MW843|windshield|windows
 MI940|tampo|tampo_labels
 MW038|note|category
 MW042|note|category

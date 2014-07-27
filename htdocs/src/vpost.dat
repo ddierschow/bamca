@@ -41,6 +41,14 @@ LS44c|roof_fitting|A|small side windows or raised part of roof at front
 LS44c|roof_fitting|B|small side windows or raised part of roof at rear 
 MI044|roof_fitting|A|small side windows or raised part of roof at front
 MI044|roof_fitting|B|small side windows or raised part of roof at rear 
+LS46c|base|\(A\)|
+LS46c|base|\(B\)|
+LS46c|engine|\(A\)|, full details
+LS46c|engine|\(B\)|, partial details
+MI046|base|\(A\)|
+MI046|base|\(B\)|
+MI046|engine|\(A\)|, full details
+MI046|engine|\(B\)|, partial details
 EA46f|wheels|.* skis|
 EA46f|skis|.* wheels|
 LS50b|trailer_base_insert|\bA\s|arrow, two rivets,
