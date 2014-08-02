@@ -31,12 +31,14 @@ IS_NO_MODEL = 1
 IS_DIFFERENT_NUMBER = 2
 IS_CHANGED_SCHEMA = 3
 IS_CHANGED = 4
-IS_NEW_VAR = 5
+IS_INVALID = 5
+IS_NEW_VAR = 6
 
 file_list_class = {
     IS_GOOD : 'good',
     IS_CHANGED_SCHEMA : 'changed_schema',
     IS_CHANGED : 'changed',
+    IS_INVALID : 'changed',
     IS_NEW_VAR : 'changed',
     IS_NO_MODEL : 'no_model',
     IS_DIFFERENT_NUMBER : 'different',
@@ -68,6 +70,7 @@ def ParseFile(pif, fdir, fn, args=''):
     for rawfitab in fitabs:
 	fitab = {
 	    'stat' : set(),
+	    'is_valid' : False,
 	    'modid' : None,
 	    'preface' : '',
 	    'filehead' : [],
@@ -96,6 +99,7 @@ def ParseFile(pif, fdir, fn, args=''):
 	    fitab['body'] = modtab
 	    continue
 	fitab['filehead'] = hdrs
+	fitab['is_valid'] = True
 	num_file_hdrs = len(hdrs) # not including imported_from
 	hdrs.append('imported_from')
 	fitab['gridhead'] = nhdrs = vid.HeaderColumnChange(fn, hdrs)
@@ -421,10 +425,7 @@ def FindVarID(dbvars, firow, ids_used):
 		    break
 	    else:
 		return varid + trailer
-	if trailer:
-	    trailer = chr(ord(trailer) + 1)
-	else:
-	    trailer = 'a'
+	trailer = chr(ord(trailer) + 1) if trailer else 'a'
 
 
 def CastingHelp(pif, col, mod):
@@ -456,6 +457,7 @@ def ShowFile(pif, fdir, fn, args):
     print '<h3>File Settings</h3>'
     vid.ShowFileSettings(fn)
     print '<br>'
+    print list(varfile['stat']), '-'
 
     ShowFileLink(fn, 'html', 'HTML')
     ShowFileLink(fn, 'htm', 'HTM')
@@ -619,6 +621,7 @@ def HandleForm(pif):
     pif.dbh.SetVerbose(True)
     global vid # for now.  restructuring one thing at a time.
     vid = vdata.VariationImportData()
+    vid.verbose = pif.render.verbose
     nvars = list()
     file_dir = pif.FormStr('d', 'src/mbxf')
 

@@ -1,152 +1,192 @@
-sp sp>|spoke spiral |
-sp squ>|spoke square |
-mal. cr.|maltese cross |
-malt. cr.|maltese cross |
--spoke | spoke |
-5ar>|5 arch |
-5cr>|5 crown |
-5sp>|5 spoke |
-add.|additional |
-addit.|additional |
-ar>|arch |
-amb.|amber |
-am-ber|amber |
-backgr.|background |
-blk.|black |
-bl.k>|black |
-bl.|black |
-bmp.|bump |
-brn.|brown |
-brt.|bright |
-burg.|burgundy |
-camoufl.|camouflage |
-char-coal|charcoal |
-charc.|charcoal |
-check.|checkers |
-choco-late|chocolate |
-chr.|chrome |
-color-less|colorless |
-con.|concave |
-con>|concave |
-conc.|concave |
-conc>|concave |
-cr>|crown |
-crm.|cream |
-d. dash>|dot dash |
-des.|design |
-det.|detail |
-dk.|dark |
-dk>|dark |
-dot d.|dot dash |
-eng.|engine |
-ext.|extensions |
-fl.|flower |
-fl>|flower |
-flu.|fluorescent |
-fluo.|fluorescent |
-fluor.|fluorescent |
-fm.|from |
-frm.|from |
-frt.|front |
-geometr.|geometric |
-gl.|gloss |
-grn.|green |
-gunm.|gunmetal |
-gunmet.|gunmetal |
-hol.|hollow |
-impr.|improved |
-int.|interior |
-inv.|inverted |
-irid.|iridescent |
-irid>|iridescent |
-lavnd.|lavender |
-laven.|lavender |
-let.|letters |
-lett.|letter |
-lem.|lemon |
-lg.|large |
-lic. pl.|license plate |
-lic.|license |
-license pl.|license plate |
-lt.|light |
-lt>|light |
-malt.|maltese |
-matt>|matte |
-ma-roon>|maroon |
-med.|medium |
-met.|metallic |
-met>|metallic |
-mid.|medium |
-narr.|narrow |
-num.|number |
-orig.|origin |
-orng.|orange |
-orng>|orange |
-orn.|orange |
-outl.|outline |
-pear.|pearl |
-pk.|pink |
-pl.|plastic |
-plas.|plastic |
-plast.|plastic |
-plt.|plated |
-pntd.|painted |
-pnted.|painted |
-purpl.|purple |
-purp.|purple |
-pwdr.|powder |
-rac. sp.|racing spec.|
-rac.|racing |
-rea.|rear |
-re-cessed|recessed |
-reinf.|reinforced |
-rev.|reversed |
-rub.|rubber |
-saw.|sawblade |
-sawbl.|sawblade |
-sawbl>|sawblade |
-sep.|separate |
-sil.|silver |
-sil-|silver-|
-sil>|silver |
-sm.|small |
-smth.|smooth |
-smo-ke.|smoke |
-smo-ke>|smoke |
-sp.|spoke |
-sp>|spoke |
-spoked>|spoke |
-squ.|square |
-squ>|square |
-star-burst|starburst |
-str.|stripe |
-struc-tured|structured|
-t.|tampo |
-text.|textured |
-tow.|towards |
-tr.|trim |
-transl.|transluscent |
-transluc.|transluscent |
-tri spoke>|tri-spoke |
-tri |triangular |
-triang.|triangular |
-tur-quoise>|turquoise |
-turqu.|turquoise |
-turq.|turquoise |
-turq>|turquoise |
-turqouise>|turquoise |
-unp.|unpainted |
-unp>|unpainted |
-ut.|utility |
-ut>|utility |
-wh.|white |
-whi.|white |
-wht>|white |
-windsh.|windshield |
-yel *.|yellow |
-yell.|yellow |
-yell>|yellow |
-yllw>|yellow |
-yes>|with |
-ye *s>|with |
+\xa0| |
+&#169|\xc2\xa9|
+&#174|\xc2\xae|
+&#178|\xc2\xb2|
+&#188|\xc2\xbc|
+&#195|\xc3\x83|
+&#196|\xc3\x84|
+&#201|\xc3\x89|
+&#204|\xc3\x8c|
+&#209|\xc3\x91|
+&#214|\xc3\x96|
+&#220|\xc3\x9c|
+&#8221|\xe2\x80\x9d|
+&quot;|"|
+&#8230|\xe2\x80\xa6|
+&#1640|\xd9\xa8|
+&#9829|\xe2\x99\xa5|
+\s *| |
+...*|.|
+>w/|with |
+>wo/|without |
+/| / |
+, *$| |
+/ */|// |
+&amp;|and |
 &nbsp;| |
+>sp sp>|spoke spiral |
+>sp squ>|spoke square |
+>mal. cr.|maltese cross |
+>malt. cr.|maltese cross |
+>-spoke | spoke |
+>5ar>|5 arch |
+>5cr>|5 crown |
+>5sp>|5 spoke |
+>add.|additional |
+>addit.|additional |
+>ar>|arch |
+>amb.|amber |
+>am-ber|amber |
+>backgr.|background |
+>blk.|black |
+>bl.k>|black |
+>bl.|black |
+>bmp.|bump |
+>brn.|brown |
+>brt.|bright |
+>burg.|burgundy |
+>camoufl.|camouflage |
+>char-coal|charcoal |
+>charc.|charcoal |
+>check.|checkers |
+>choco-late|chocolate |
+>chr.|chrome |
+>color-less|colorless |
+>con.|concave |
+>con>|concave |
+>conc.|concave |
+>conc>|concave |
+>cr>|crown |
+>crm.|cream |
+>d. dash>|dot dash |
+>des.|design |
+>det.|detail |
+>dk.|dark |
+>dk>|dark |
+>dot d.|dot dash |
+>eng.|engine |
+>ext.|extensions |
+>fl.|flower |
+>fl>|flower |
+>flu.|fluorescent |
+>fluo.|fluorescent |
+>fluor.|fluorescent |
+>fm.|from |
+>frm.|from |
+>frt.|front |
+>geometr.|geometric |
+>gl.|gloss |
+>grn.|green |
+>gunm.|gunmetal |
+>gunmet.|gunmetal |
+>hol.|hollow |
+>impr.|improved |
+>int.|interior |
+>inv.|inverted |
+>irid.|iridescent |
+>irid>|iridescent |
+>lavnd.|lavender |
+>laven.|lavender |
+>let.|letters |
+>lett.|letter |
+>lem.|lemon |
+>lg.|large |
+>lic. pl.|license plate |
+>lic.|license |
+>license pl.|license plate |
+>lt.|light |
+>lt>|light |
+>malt.|maltese |
+>matt>|matte |
+>ma-roon>|maroon |
+>med.|medium |
+>met.|metallic |
+>met>|metallic |
+>mid.|medium |
+>narr.|narrow |
+>num.|number |
+>orig.|origin |
+>orng.|orange |
+>orng>|orange |
+>orn.|orange |
+>outl.|outline |
+>pear.|pearl |
+>pk.|pink |
+>pl.|plastic |
+>plas.|plastic |
+>plast.|plastic |
+>plt.|plated |
+>pntd.|painted |
+>pnted.|painted |
+>purpl.|purple |
+>purp.|purple |
+>pwdr.|powder |
+>rac. sp.|racing spec.|
+>rac.|racing |
+>rea.|rear |
+>re-cessed|recessed |
+>reinf.|reinforced |
+>rev.|reversed |
+>rub.|rubber |
+>saw.|sawblade |
+>sawbl.|sawblade |
+>sawbl>|sawblade |
+>sep.|separate |
+>sil.|silver |
+>sil-|silver-|
+>sil>|silver |
+>sm.|small |
+>smth.|smooth |
+>smo-ke.|smoke |
+>smo-ke>|smoke |
+>sp.|spoke |
+>sp>|spoke |
+>spoked>|spoke |
+>squ.|square |
+>squ>|square |
+>star-burst|starburst |
+>str.|stripe |
+>strai.|straight |
+>struc-tured|structured|
+>t.|tampo |
+>text.|textured |
+>tow.|towards |
+>tr.|trim |
+>transl.|transluscent |
+>transluc.|transluscent |
+>tri spoke>|tri-spoke |
+>tri |triangular |
+>triang.|triangular |
+>tur-quoise>|turquoise |
+>turqu.|turquoise |
+>turq.|turquoise |
+>turq>|turquoise |
+>turqouise>|turquoise |
+>unp.|unpainted |
+>unp>|unpainted |
+>ut.|utility |
+>ut>|utility |
+>wh.|white |
+>whi.|white |
+>wht>|white |
+>windsh.|windshield |
+>yel *.|yellow |
+>yell.|yellow |
+>yell>|yellow |
+>yllw>|yellow |
+>yes>|with |
+>ye *s>|with |
+, *none$||
+, *none,|,|
+>none>|no |
+, *- *|, no |
+, *no *$||
+, *no *,|,|
+\s*-|-|
+- *|-|
+\s*, *|, |
+\( *| (|
+\s*\)|) |
+\s*, *|, |
+\s *| |
+^ *||

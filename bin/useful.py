@@ -277,8 +277,9 @@ def WriteComment(*args, **kwargs):
 	if partial_comment == False:
 	    partial_comment = list()
 	partial_comment.extend(args)
+	args = ''
     elif partial_comment:
-	args = partial_comment + args
+	args = partial_comment + list(args)
 	partial_comment = False
     if args:
 	if header_done:
