@@ -26,7 +26,7 @@ images.UploadMain
 images.cycle
 images.def_edit_app
 images.def_edit_js
-images.image_inputters
+images.image_inputter
 '''
 
 # -- form markups
@@ -50,7 +50,19 @@ yts = 125
 
 cycle = 0
 
-image_inputters = {
+image_content_type = {
+    'bmp' : 'Content-Type: image/bmp',
+    'gif' : 'Content-Type: image/gif',
+    'ico' : 'Content-Type: image/x-icon',
+    'jpg' : 'Content-Type: image/jpeg',
+    'jpeg' : 'Content-Type: image/jpeg',
+    'png' : 'Content-Type: image/png',
+    'tif' : 'Content-Type: image/tiff',
+    'xbm' : 'Content-Type: image/x-xbitmap',
+    '' : 'Content-Type: image/jpeg',
+}
+
+image_inputter = {
     'bmp' : [['/usr/local/bin/bmptopnm']],
     'gif' : [['/usr/local/bin/giftopnm']],
     'ico' : [['/usr/local/bin/winicontoppm']],
@@ -63,7 +75,7 @@ image_inputters = {
 }
 itypes = ['bmp', 'gif', 'ico', 'jpg', 'jpeg', 'png', 'tif', 'xbm']
 
-image_outputters = {
+image_outputter = {
     'bmp' : [['/usr/local/bin/ppmtobmp']],
     'gif' : [['/usr/local/bin/pnmquant', '256'], ['/usr/local/bin/ppmtogif']],
     'ico' : [['/usr/local/bin/ppmtowinicon']],
@@ -79,7 +91,7 @@ def ImportFile(fn):
     fex = fn[fn.rfind('.') + 1:]
     if '?' in fex:
 	fex = fex[:fex.find('?')]
-    return image_inputters[fex]
+    return image_inputter[fex]
 
 def ExportFile(nfn, ofn=''):
     nfn = nfn[nfn.rfind('/') + 1:]
@@ -88,7 +100,7 @@ def ExportFile(nfn, ofn=''):
     else:
 	ofn = ofn[ofn.rfind('/') + 1:]
 	fex = ofn[ofn.rfind('.') + 1:]
-    return image_outputters[fex]
+    return image_outputter[fex]
 
 # -- upload
 
@@ -111,7 +123,7 @@ def GetDir(tdir):
 		dl.append(f)
 	    elif ext == 'dat':
 		sl.append(f)
-	    elif ext in image_inputters:
+	    elif ext in image_inputter:
 		gl.append(f)
 	    elif stat.S_IMODE(perms) & stat.S_IXUSR:
 		xl.append(f)
@@ -287,7 +299,7 @@ def SelectFromLibrary(pif, man, var, desc=''):
     grafs = True
     os.chdir(tdir)
 
-    gl = filter(lambda f: not stat.S_ISDIR(os.stat(f)[stat.ST_MODE]) and useful.RootExt(f)[1] in image_inputters, os.listdir('.'))
+    gl = filter(lambda f: not stat.S_ISDIR(os.stat(f)[stat.ST_MODE]) and useful.RootExt(f)[1] in image_inputter, os.listdir('.'))
     gl.sort()
 
     if gl:
@@ -310,6 +322,8 @@ def Show(pif, pdir, fn):
     #print '<img src="../%s/%s"></center>' % (pdir, fn)
     #Picker(pif, fn)
 
+#for things out of http space:
+#print '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.render.pic_dir, fn)
 def ShowPicture(pif, fn):
     Picker(pif, fn)
     root,ext = useful.RootExt(fn.strip())
@@ -1364,7 +1378,7 @@ def ShowList(pif, title, tdir, fl):
 	    perms = fst[stat.ST_MODE]
 	    if (perms & 5) == 0:
 		print '%s<br>' % f
-	    elif ext in image_inputters:
+	    elif ext in image_inputter:
 		print '<a href="?d=%s&n=%s">%s</a><br>' % (tdir, f, f)
 	    else:
 		print f
@@ -2237,6 +2251,14 @@ def LibraryMain(pif):
     else:
 	ShowLibraryDir(pif, pif.render.pic_dir, graf)
     print pif.render.FormatTail()
+
+
+# -- image
+
+@basics.WebPage
+def ShowImage(pif):
+    print 'Content-Type: image/jpeg\n'
+    print open(os.path.join(pif.FormStr('d', '.'), pif.FormStr('f', '')), "rb").read()
 
 
 # -- thumber
