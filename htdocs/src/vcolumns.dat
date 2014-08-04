@@ -61,6 +61,7 @@ LS22c|labels|labels_tampo
 EA22c|tampo|labels_tampo
 EA23a|tampo|labels_tampo
 LS24c|labels|labels_tampo
+LS25c|type|container_type;opening_doors
 LS25d|base|base;base_number
 #LS26c|rear_wheels|back_wheels
 #LS26c|front_wheels|rear_wheels
@@ -78,6 +79,11 @@ LS33a|label|label_tampo
 EA33a|tampo|label_tampo
 LS33b|front_rear_wheels|front_wheels;rear_wheels
 LS33c|labels|labels_tampo
+LS33c|rider_painted|rider;rider_painted
+LS33c|body|body;base
+MI033|body|body;base
+#MI033|rider|rider_painted
+MI033|rider|rider;rider_painted
 EA33e|hood_tampo;side_tampo|tampo
 MI024|tampo|labels_tampo
 LS30c|base|base;hull
@@ -85,9 +91,6 @@ LS30e|base|base;grille
 MI031|tampo|labels_tampo
 EA31e|hood_tampo;side_tampo|tampo
 LS32c|base|body;base
-LS33c|body|body;base
-MI033|body|body;base
-MI033|rider|rider_painted
 LS35a|base|base;base_type
 LS35a|body|body;additional_panel;ridge
 LS36d|side_labels|labels_tampo

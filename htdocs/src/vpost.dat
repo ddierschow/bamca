@@ -23,6 +23,12 @@ LS20b|labels_tampo|LS 59-B|SF59b
 LS20b|labels_tampo|LS 55-B|SF55b
 LS20b|labels_tampo|LS 33-C|SF33c
 LS20b|labels_tampo|CTY.|COUNTY
+LS25c|container_type|A|plastic container, base without lettering is part of body, ribs top and bottom, smooth center
+LS25c|container_type|B|plastic container, black separate base with "P.S.1 CONTAINER" lettering
+LS25c|container_type|C|cardboard container, lettering printed on sides
+LS25c|opening_doors|A|with
+LS25c|opening_doors|B|no
+LS25c|opening_doors|C|no
 LS38c|front_seat_casting|A|no tabs behind
 LS38c|front_seat_casting|B|large tabs behind
 LS38c|front_seat_casting|C|no tabs behind

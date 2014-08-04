@@ -69,7 +69,7 @@ def ReadFilenames(fil):
     changes = list()
     for ln in fil:
 	transfrom, transto = ln.split('|')[:2]
-	changes.append([re.compile('^%s$' % transfrom) if '?' in transfrom else transfrom, transto.split(';')])
+	changes.append([re.compile('^%s$' % transfrom) if '?' in transfrom else transfrom, transto.split(';') if transto else []])
     return changes
 
 class VariationImportData:
@@ -334,16 +334,15 @@ class VariationImportData:
 
     def GetModelIDs(self, omn):
 	mn = omn
-	for fnl in self.fnam_change:
-	    if fnl[0] == omn:
-		return fnl[1]
-	    elif isinstance(fnl[0], str):
-		continue
-	    else:
-		fnl_m = fnl[0].match(omn)
+	for transfrom, transto in self.fnam_change:
+	    if transfrom == omn:
+		return transto
+	    elif not isinstance(transfrom, str): # re
+		fnl_m = transfrom.match(omn)
 		if fnl_m:
-		    mn = fnl[1][0] % fnl_m.group('n')
-		    break
+		    if transto:
+			transto = [transto[0] % fnl_m.group('n')]
+		    return transto
 	return [mn]
 
 
