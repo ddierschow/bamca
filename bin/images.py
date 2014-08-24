@@ -330,7 +330,8 @@ def ShowPicture(pif, fn):
     pif.render.Comment(root, ext)
     print '<table><tr><td></td><td>' + pif.render.FormatImageArt('hruler.gif') + '</td></tr>'
     print '<tr><td valign="top">' + pif.render.FormatImageArt('vruler.gif') + '</td><td valign="top">'
-    print '<a href="../' + pif.render.pic_dir + '/' + fn + '">' + pif.render.FormatImageRequired([root], suffix=ext, also={"border":"0"}) + '</a>'
+    #print '<a href="../' + pif.render.pic_dir + '/' + fn + '">' + pif.render.FormatImageRequired([root], suffix=ext, also={"border":"0"}) + '</a>'
+    print '<a href="/cgi-bin/image.cgi?d=%s&f=%s"><img src="/cgi-bin/image.cgi?d=%s&f=%s"></a>' % (pif.render.pic_dir, fn, pif.render.pic_dir, fn)
     print '</td></tr></table>'
 
 

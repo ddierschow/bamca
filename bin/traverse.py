@@ -195,9 +195,9 @@ def ShowFile(pif, fn):
     if ext == 'dat':
 	ShowTable(pif, fn)
     elif ext in images.itypes:
-	if pif.render.pic_dir.startswith('..'):
-	    print '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.render.pic_dir, fn)
-	else:
+#	if pif.render.pic_dir.startswith('..'):
+#	    print '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.render.pic_dir, fn)
+#	else:
 	    images.ShowPicture(pif, fn)
     else:
 	print '<p>'
