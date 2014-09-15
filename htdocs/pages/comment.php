@@ -26,7 +26,7 @@ if ($pif['bad_ip'])
     echo "The comment capability has been disabled.  You can try sending email if you really want to get through,\n";
     echo "but don't hope for too much.";
 }
-else if (!(array_key_exists('mycomment', $_POST))
+else if (!(array_key_exists('mycomment', $_POST)))
 {
     echo "Not sure what's going on here.  It doesn't look like you've given me a comment to post.  Sorry about that.";
 }
