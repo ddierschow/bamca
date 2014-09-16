@@ -15,18 +15,18 @@ def Links(pif):
     pif.render.PrintHtml()
     ostr = ''
     pif.render.hierarchy.append(('/', 'Home'))
-    pif.render.hierarchy.append(('/cgi-bin/toylinks.cgi', 'Toy Links'))
+    pif.render.hierarchy.append(('/cgi-bin/links.cgi', 'Toy Links'))
     if pif.FormInt('id'):
 	link = pif.dbh.FetchLinkLine(pif.FormInt('id'))
 	if link['page_id'] != 'links.toylinks':
-	    pif.render.hierarchy.append(('/cgi-bin/toylinks.cgi?page=%s' % pif.page_id[6:], pif.render.title))
+	    pif.render.hierarchy.append(('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title))
 	pif.render.hierarchy.append(('', 'Specific Link'))
 	ostr += pif.render.FormatHead()
 	ostr += SingleLink(pif, link)
 	ostr += pif.render.FormatTail()
     else:
 	if pif.page_id != 'links.toylinks':
-	    pif.render.hierarchy.append(('/cgi-bin/toylinks.cgi?page=%s' % pif.page_id[6:], pif.render.title))
+	    pif.render.hierarchy.append(('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title))
 	ostr += pif.render.FormatHead()
 	ostr += LinkPage(pif)
 	ostr += pif.render.FormatTail()

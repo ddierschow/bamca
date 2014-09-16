@@ -278,6 +278,8 @@ def ShowIndex(pif, fdir, start=None, num=100, ff=0):
     if not dats:
 	print "no files?"
 	return
+    print pif.render.FormatLink("?ff=1&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff-ID'), '-'
+    print pif.render.FormatLink("?ff=2&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff'), '-'
     for i in range(0, len(dats), num):
 	if start == dats[i]:
 	    print '<b>' + pif.render.FormatLink("?s=" + dats[i] + "&n=" + str(num), str(i / num + 1)) + '</b>', '-'
