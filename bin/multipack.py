@@ -126,8 +126,8 @@ def MakePackList(pif, year=None, reg=None, lid=None):
 	    continue
 	pack['thumb'] = pack['pic'] = pack['stars'] = ''
 	if pif.IsAllowed('m'): # pragma: no cover
-	    models = pif.dbh.FetchPackModels(pack_id=pack['id'], page_id=pif.page_id)
-	    pmodels = DistillModels(pif, pack, models)
+	    model_list = pif.dbh.FetchPackModels(pack_id=pack['id'], page_id=pif.page_id)
+	    pmodels = DistillModels(pif, pack, model_list)
 
 	    stars = ''
 	    keys = pmodels.keys()
@@ -278,11 +278,7 @@ def DoSinglePack(pif, pack):
     ostr += models.AddLeftBar(pif, pif.page_name, id, '', 4, content)
 
     # top bar
-    ostr += '<td class="titlebar">\n'
-    ostr += pack['name']
-    if pack['note']:
-	ostr += '<br><span style="font-size: smaller;">' + pack['note'] + '</span>'
-    ostr += '</td></tr>\n'
+    ostr += models.AddBanner(pif, pack['name'], pack['note'])
 
     # our feature presentation
     ostr += '<tr><td>\n'
@@ -319,7 +315,7 @@ def DoSinglePack(pif, pack):
     return ostr, pstr
 
 
-def DistillModels(pif, pack, models):
+def DistillModels(pif, pack, model_list):
     pack['pic'] = ''
     for pic in glob.glob('pic/packs/' + pack['id'] + '.jpg'):
 	pack['pic'] += images.ImageStar(pif, pic)
@@ -328,7 +324,7 @@ def DistillModels(pif, pack, models):
     pmodels = {}
     #['pack_model.pack_id', 'pack_model.mod_id', 'pack.layout', 'vs.ref_id', 'pack_model.id', 'casting.rawname', 'base_id.id', 'pack.year', 'v.text_description', 'casting.vehicle_type', 'casting.model_type', 'vs.sub_id', 'pack.name', 'pack.material', 'base_id.description', 'pack.country', 'casting.scale', 'pack_model.var_id', 'pack.id', 'pack.section_id', 'casting.country', 'casting.section_id', 'pack.product_code', 'vs.var_id', 'v.picture_id', 'base_id.model_type', 'pack_model.display_order', 'casting.make', 'pack.page_id', 'base_id.flags', 'vs.mod_id', 'casting.first_year', 'casting.description', 'base_id.rawname', 'base_id.first_year', 'casting.id', 'pack.region']
 
-    for mod in filter(lambda x: x['pack.id'] == pack['id'], models):
+    for mod in filter(lambda x: x['pack.id'] == pack['id'], model_list):
 	#print mod,'<br>'
 	mod = pif.dbh.ModifyManItem(mod)
 	sub_ids = [None, '', pack['id'], pack['id'] + '.' + str(mod['pack_model.display_order'])]

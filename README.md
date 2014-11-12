@@ -11,7 +11,9 @@ site could be recreated.
 
 Please note that this was written by one person, and was never
 intended to be shared or passed on, so the documentation is rare
-to nonexistant.  I will be fixing that as I can.
+to nonexistant.  I will be fixing that as I can.  Most of the
+stylistic elements were set long before I ever heard of PEP8, and
+I haven't gotten around to updating the codebase.  Maybe someday.
 
 Milestones:
 

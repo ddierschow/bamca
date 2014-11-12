@@ -486,10 +486,9 @@ def ShowSingle(pif):
     print models.AddLeftBar(pif, '', man['id'], man['vehicle_type'], 4, content)
 
     # title banner
-    print '<td class="titlebar">'
-    print '%s %s: %s' % (mbdata.casting_types[man['model_type']], id, man['name'])
-    print '</td></tr><tr><td>'
+    print models.AddBanner('%s %s: %s' % (mbdata.casting_types[man['model_type']], id, man['name']))
 
+    print '<tr><td>'
     print '<center>'
     print '<table cellspacing=8><tr>'
     if product_box:

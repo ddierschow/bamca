@@ -229,5 +229,15 @@ def AddLeftBar(pif, type_id=None, base_id=None, vehicle_type='', rowspan=4, cont
     return ostr
 
 
+def AddBanner(pif, title, note=''):
+    # title banner
+    ostr = '<td class="titlebar">\n'
+    ostr += '%s\n' % title
+    if note:
+	ostr += '<br><span style="font-size: smaller;">%s</span>' % note
+    ostr += '</td></tr>\n'
+    return ostr
+
+
 if __name__ == '__main__': # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
