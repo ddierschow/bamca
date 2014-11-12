@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import nontoy
-nontoy.Publication('pub')
+import pub
+pub.Publication('pub')
