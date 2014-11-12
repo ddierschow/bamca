@@ -23,6 +23,7 @@ def PrintUsers(pif):
     print pif.render.FormatRowEnd()
 
     for user in users:
+	user = pif.dbh.DePref('user', user)
 	print pif.render.FormatRowStart()
 	for col in cols:
 	    if col[0] == 'name':
@@ -35,7 +36,7 @@ def PrintUsers(pif):
 
 
 def PrintUserForm(pif, id):
-    user = pif.dbh.FetchUser(id)[0]
+    user = pif.dbh.DePref('user', pif.dbh.FetchUser(id)[0])
     print '<form name="userform">'
     print pif.render.FormatTableStart(also={'border':1})
 
@@ -193,7 +194,7 @@ def Create(pif):
     id = pif.dbh.CreateUser(n, p, e, vkey)
     if id:
 	GenEmail(n, e, vkey)
-	cookie = pif.render.secure.MakeCookie(id, privs, expires=15 * 12 * 60 * 60)
+	cookie = pif.render.secure.MakeCookie(id, '', expires=15 * 12 * 60 * 60)
 	pif.render.PrintHtml(cookie)
 	print pif.render.FormatHead()
 	print "Your account has been created.  Please check your email for the verification."
