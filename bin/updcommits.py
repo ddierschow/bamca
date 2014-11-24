@@ -36,41 +36,41 @@ def ReadCommits(endtime):
     #Date:   Fri Jun 13 19:26:34 2014 +0200
     date_re = re.compile('Date:\s*(?P<d>... ... \d+ \d+:\d+:\d+ \d+)')
     for log_msg in re.compile('\ncommit ', re.M).split(l):
-	if log_msg.find('Merge: ') >= 0:
-	    continue
-	m = date_re.search(log_msg)
-	if not m:
-	    continue
-	s = m.group('d')
-	commit = dict()
-	commit['user_id'] = 1
-	commit['name'] = 'commit'
-	commit['description'] = log_msg.split('\n', 4)[4].strip()
-	commit['timestamp'] = datetime.datetime.strptime(s, '%a %b %d %X %Y')
-	if commit['timestamp'] <= endtime:
-	    continue
-	commits.append(commit)
-    commits.sort(key=lambda x:x['timestamp'])
+        if log_msg.find('Merge: ') >= 0:
+            continue
+        m = date_re.search(log_msg)
+        if not m:
+            continue
+        s = m.group('d')
+        commit = dict()
+        commit['user_id'] = 1
+        commit['name'] = 'commit'
+        commit['description'] = log_msg.split('\n', 4)[4].strip()
+        commit['timestamp'] = datetime.datetime.strptime(s, '%a %b %d %X %Y')
+        if commit['timestamp'] <= endtime:
+            continue
+        commits.append(commit)
+    commits.sort(key=lambda x: x['timestamp'])
     return commits
 
 
 def WriteCommits(pif, commits):
     print "Writing to activity table."
     for commit in commits:
-	print commit
-	pif.dbh.InsertActivity(**commit)
+        print commit
+        pif.dbh.InsertActivity(**commit)
     print
-    
+
 
 def WriteConfigFile():
     print "Writing config file."
     cfg = open('../bin/config.py').readlines()
     cfg[0] = '<?php\n// Generated file.  Do not modify.\n'
     for idx in range(1, len(cfg)):
-	if cfg[idx][0] == '#':
-	    cfg[idx] = '//' + cg[idx][1:]
-	elif cfg[idx].find('=') >= 0:
-	    cfg[idx] = '$' + cfg[idx].replace('\n', ';\n')
+        if cfg[idx][0] == '#':
+            cfg[idx] = '//' + cg[idx][1:]
+        elif cfg[idx].find('=') >= 0:
+            cfg[idx] = '$' + cfg[idx].replace('\n', ';\n')
     cfg.append('?>\n')
     open('config.php', 'w').writelines(cfg)
     print
@@ -83,6 +83,6 @@ def WriteManCSV(pif):
     print
 
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     pif = basics.GetPageInfo('editor', dbedit='')
     Main(pif)

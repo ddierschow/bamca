@@ -5,28 +5,28 @@ verno = ' abcdefghijklmnopqrstuvwxyz'
 regionlist = ['W', 'U', 'R', 'A', 'B', 'D', 'L']
 
 regions = {
-    'W' : "Worldwide",
-    'U' : "United States",
-    'R' : "Rest of World",
-    'B' : "Britain",
-    'D' : "Germany",
-    'A' : "Australia",
-    'J' : "Japan",
-    'L' : "Latin America",
-    'X' : "Worldwide",
+    'W': "Worldwide",
+    'U': "United States",
+    'R': "Rest of World",
+    'B': "Britain",
+    'D': "Germany",
+    'A': "Australia",
+    'J': "Japan",
+    'L': "Latin America",
+    'X': "Worldwide",
 }
 reverse_regions = {regions[x]: x for x in regions}
 
 
 regionparents = {
-    'W' : '',
-    'U' : 'W',
-    'R' : 'W',
-    'B' : 'R',
-    'D' : 'R',
-    'A' : 'R',
-    'J' : 'W',
-    'L' : 'W',
+    'W': '',
+    'U': 'W',
+    'R': 'W',
+    'B': 'R',
+    'D': 'R',
+    'A': 'R',
+    'J': 'W',
+    'L': 'W',
 }
 
 ''' unidentified
@@ -186,24 +186,24 @@ code2_categories = ['ASAP', 'C2', 'CCI', 'CQ', 'NC', 'WR', 'YF']
 
 
 casting_types = {
-    'AC' : 'Casting',		# Accessory
-    'ET' : 'Casting',		# Early toy
-    'KS' : 'Casting',		# King size
-    'RW' : 'Casting',		# Regular wheel
-    'SB' : 'Casting',		# Sky Buster
-    'SF' : 'Casting',		# Superfast
-    'YY' : 'Casting',		# YesterYear
-    'PS' : 'Assembly',		# Playset
-    'CC' : 'Case',		# Carrying Case
-    'PC' : 'Publication',	# Pocket Catalog
-    'DC' : 'Publication',	# Dealer Catalog
-    'RY' : 'Publication',	# Roadway
-    'PZ' : 'Publication',	# Puzzle
-    'BK' : 'Publication',	# Book
-    'AD' : 'Advertisement',	# Ad
-    'MP' : 'Package',		# Multipack
-    'SE' : 'Package',		# Series
-    'LI' : 'Package',		# Lineup
+    'AC': 'Casting',           # Accessory
+    'ET': 'Casting',           # Early toy
+    'KS': 'Casting',           # King size
+    'RW': 'Casting',           # Regular wheel
+    'SB': 'Casting',           # Sky Buster
+    'SF': 'Casting',           # Superfast
+    'YY': 'Casting',           # YesterYear
+    'PS': 'Assembly',          # Playset
+    'CC': 'Case',              # Carrying Case
+    'PC': 'Publication',       # Pocket Catalog
+    'DC': 'Publication',       # Dealer Catalog
+    'RY': 'Publication',       # Roadway
+    'PZ': 'Publication',       # Puzzle
+    'BK': 'Publication',       # Book
+    'AD': 'Advertisement',     # Ad
+    'MP': 'Package',           # Multipack
+    'SE': 'Package',           # Series
+    'LI': 'Package',           # Lineup
 }
 
 
@@ -416,86 +416,86 @@ imagesizes = dict(zip(image_size_names, image_size_sizes))
 
 model_type_chars = "aob2e1r4uztv59cidjgfmpl8hx"
 model_types = {
-	"a": "aircraft",
-	"o": "boat",
-	"b": "bus",
-	"2": "coupe",
-	"e": "equipment",
-	"1": "motorcycle",
-	"r": "railroad",
-	"4": "sedan",
-	"u": "sport/utility",
-	"z": "trailer",
-	"t": "truck",
-	"v": "van",
-	"5": "wagon",
+        "a": "aircraft",
+        "o": "boat",
+        "b": "bus",
+        "2": "coupe",
+        "e": "equipment",
+        "1": "motorcycle",
+        "r": "railroad",
+        "4": "sedan",
+        "u": "sport/utility",
+        "z": "trailer",
+        "t": "truck",
+        "v": "van",
+        "5": "wagon",
 
-	"9": "ambulance",
-	"c": "commercial",
-	"i": "construction",
-	"d": "convertible",
-	"j": "fantasy",
-	"g": "farm",
-	"f": "fire",
-	"m": "military",
-	"p": "pick-up",
-	"l": "police",
-	"8": "racer",
-	"h": "recreation",
-	"x": "taxi",
+        "9": "ambulance",
+        "c": "commercial",
+        "i": "construction",
+        "d": "convertible",
+        "j": "fantasy",
+        "g": "farm",
+        "f": "fire",
+        "m": "military",
+        "p": "pick-up",
+        "l": "police",
+        "8": "racer",
+        "h": "recreation",
+        "x": "taxi",
 }
 
 model_icons = {
-	"a": "i_air",
-	"B": "i_boat",
-	"b": "i_bus",
-	"c": "i_coupe",
-	"e": "i_equip",
-	"m": "i_motor",
-	"r": "i_rail",
-	"s": "i_sedan",
-	"u": "i_suv",
-	"T": "i_trail",
-	"t": "i_truck",
-	"v": "i_van",
-	"w": "i_wagon",
+        "a": "i_air",
+        "B": "i_boat",
+        "b": "i_bus",
+        "c": "i_coupe",
+        "e": "i_equip",
+        "m": "i_motor",
+        "r": "i_rail",
+        "s": "i_sedan",
+        "u": "i_suv",
+        "T": "i_trail",
+        "t": "i_truck",
+        "v": "i_van",
+        "w": "i_wagon",
 
-	"A": "i_amb",
-	"C": "i_comm",
-	"N": "i_const",
-	"V": "i_conv",
-	"f": "i_fant",
-	"G": "i_farm",
-	"F": "i_fire",
-	"M": "i_mil",
-	"p": "i_pickup",
-	"P": "i_police",
-	"R": "i_racer",
-	"n": "i_rec",
-	"x": "i_taxi",
+        "A": "i_amb",
+        "C": "i_comm",
+        "N": "i_const",
+        "V": "i_conv",
+        "f": "i_fant",
+        "G": "i_farm",
+        "F": "i_fire",
+        "M": "i_mil",
+        "p": "i_pickup",
+        "P": "i_police",
+        "R": "i_racer",
+        "n": "i_rec",
+        "x": "i_taxi",
 }
 
 
 comment_designation = {
-	'm' : '<img src="/pic/gfx/stargreen.gif"> - casting information not available',
-	'i' : '<img src="/pic/gfx/star.gif"> - actual picture not available',
-	'v' : '<img src="/pic/gfx/starred.gif"> - variation information not available',
-	'c' : '<img src="/pic/gfx/camera.gif"> - product example picture available',
-	'n' : '<img src="/pic/gfx/no.gif"> - never released',
+        'm': '<img src="/pic/gfx/stargreen.gif"> - casting information not available',
+        'i': '<img src="/pic/gfx/star.gif"> - actual picture not available',
+        'v': '<img src="/pic/gfx/starred.gif"> - variation information not available',
+        'c': '<img src="/pic/gfx/camera.gif"> - product example picture available',
+        'n': '<img src="/pic/gfx/no.gif"> - never released',
 }
 
 
-packsize = {'2' : '2', '3' : '3', '4' : '4', '5' : '5', '8' : '8', 't' : '10', 'w' : '20'}
+packsize = {'2': '2', '3': '3', '4': '4', '5': '5', '8': '8', 't': '10', 'w': '20'}
 
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def GetMackNumber(cid):
     id_m = id_re.match(cid)
     if id_m:
-	mack_prefix = ''
-	if id_m.group('p') == 'SF':
-	    mack_prefix = 'MB'
-	return (mack_prefix,) + id_m.groups()[1:]
+        mack_prefix = ''
+        if id_m.group('p') == 'SF':
+            mack_prefix = 'MB'
+        return (mack_prefix,) + id_m.groups()[1:]
     return None
 
 
@@ -503,15 +503,15 @@ def GetRegionTree(region):
     line_regions = list()
     lreg = region.upper()
     while lreg:
-	line_regions.append(lreg)
-	lreg = regionparents.get(lreg, '')
+        line_regions.append(lreg)
+        lreg = regionparents.get(lreg, '')
     return line_regions
 
 
 def GetCountries():
     global countries, countries_dict
     if not countries_dict:
-	countries_dict = dict(countries)
+        countries_dict = dict(countries)
     return countries_dict
 
 
@@ -519,5 +519,5 @@ def GetCountry(cc2):
     return GetCountries().get(cc2, '')
 
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

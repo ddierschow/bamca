@@ -17,12 +17,12 @@ def Model(pif, mod):
 
     missing = []
     for yr in yrs:
-	if not 'year.' + yr in sel:
-	    missing.append(yr)
+        if not 'year.' + yr in sel:
+            missing.append(yr)
     bad = []
     for pg in sel:
-	if pg.startswith('year.') and not pg[5:9] in yrs:
-	    bad.append(pg)
+        if pg.startswith('year.') and not pg[5:9] in yrs:
+            bad.append(pg)
     return missing, bad
 
 
@@ -30,29 +30,29 @@ def ShowListVarPics(pif, mod_id):
     vars = pif.dbh.FetchVariations(mod_id)
     cpics = cfound = pics = found = 0
     for var in vars:
-	var = pif.dbh.DePref('variation', var)
-	if var['var'].startswith('f') or mbdata.categories.get(var['category'], '').startswith('['):
-	    continue
-	elif not var['picture_id']:
-	    fn = mod_id + '-' + var['var']
-	elif var['picture_id'] == var['var']:
-	    fn = mod_id + '-' + var['picture_id']
-	else:
-	    continue
-	pics += 1
-	if not var['category']:
-	    cpics += 1
-	#print '<!--', config.imgdir175 + '/var/' + fn + '.jpg', '-->'
-	if os.path.exists(config.imgdir175 + '/var/s_' + fn.lower() + '.jpg'):
-	    found += 1
-	    if not var['category']:
-		cfound += 1
+        var = pif.dbh.DePref('variation', var)
+        if var['var'].startswith('f') or mbdata.categories.get(var['category'], '').startswith('['):
+            continue
+        elif not var['picture_id']:
+            fn = mod_id + '-' + var['var']
+        elif var['picture_id'] == var['var']:
+            fn = mod_id + '-' + var['picture_id']
+        else:
+            continue
+        pics += 1
+        if not var['category']:
+            cpics += 1
+        #print '<!--', config.imgdir175 + '/var/' + fn + '.jpg', '-->'
+        if os.path.exists(config.imgdir175 + '/var/s_' + fn.lower() + '.jpg'):
+            found += 1
+            if not var['category']:
+                cfound += 1
     af = '%d/%d' % (found, pics)
     cf = '%d/%d' % (cfound, cpics)
     if found == pics:
-	af = '--'
+        af = '--'
     if cfound == cpics:
-	cf = '--'
+        cf = '--'
     return af, cf
 
 
@@ -63,30 +63,30 @@ def Main(pif):
 
     sw = []
     if specs[0][0] == '0':
-	sw = list(specs[0][1:])
-	specs = specs[1:]
+        sw = list(specs[0][1:])
+        specs = specs[1:]
 
     for spec in specs:
-	mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
-	mods = [x[0] for x in mods]
-	mods.sort()
+        mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
+        mods = [x[0] for x in mods]
+        mods.sort()
 
-	for mod in mods:
-	    missing, bad = Model(pif, mod)
-	    af, cf = ShowListVarPics(pif, mod)
+        for mod in mods:
+            missing, bad = Model(pif, mod)
+            af, cf = ShowListVarPics(pif, mod)
 
-	    if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
-		print mod,
-	    if 'p' in sw or af != '--' or cf != '--':
-		print af, cf,
-	    if missing:
-		print 'needs', ' '.join(missing),
+            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
+                print mod,
+            if 'p' in sw or af != '--' or cf != '--':
+                print af, cf,
+            if missing:
+                print 'needs', ' '.join(missing),
 
-	    if bad:
-		print 'has bad', ' '.join(bad),
+            if bad:
+                print 'has bad', ' '.join(bad),
 
-	    if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
-		print
+            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
+                print
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     Main('vars')

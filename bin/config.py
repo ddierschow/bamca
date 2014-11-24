@@ -42,4 +42,3 @@ cssfile         = 'styles/main.css'
 
 yearstart       = 1953
 yearend         = 2014
-

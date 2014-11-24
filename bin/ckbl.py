@@ -7,5 +7,5 @@ import tlinks
 def Main(pif):
     tlinks.CheckBlacklistedLinks(pif, pif.filelist)
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
     Main('editor')

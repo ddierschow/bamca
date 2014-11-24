@@ -3,10 +3,10 @@
 import os, sys
 import mbdata
 
-if __name__ == '__main__': # pragma: no cover
+if __name__ == '__main__':  # pragma: no cover
 
     if len(sys.argv) > 1:
-	print '''<SCRIPT LANGUAGE="JavaScript">
+        print '''<SCRIPT LANGUAGE="JavaScript">
 <!--
 
 function pick(symbol) {
@@ -24,15 +24,15 @@ function pick(symbol) {
     cols = 5
     rows = ((len(mbdata.countries) - 1) / cols) + 1
     while rows:
-	print "<tr>"
-	for col in range(0, cols):
-	    cc = mbdata.countries.pop(0)
-	    if len(sys.argv) > 1:
-		print '''<td><a href="javascript:pick('%s')">%s</a></td>''' % cc
-	    else:
-		print '''<td>%s</td>''' % cc[1]
-	    if not mbdata.countries:
-		break
-	print "</tr>"
-	rows -= 1
+        print "<tr>"
+        for col in range(0, cols):
+            cc = mbdata.countries.pop(0)
+            if len(sys.argv) > 1:
+                print '''<td><a href="javascript:pick('%s')">%s</a></td>''' % cc
+            else:
+                print '''<td>%s</td>''' % cc[1]
+            if not mbdata.countries:
+                break
+        print "</tr>"
+        rows -= 1
     print "</table>"

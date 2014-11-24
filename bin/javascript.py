@@ -236,13 +236,13 @@ function maplink($arr)
     $k = 1;
     $v = '';
     foreach ($arr as $d)
-    {   
+    {
         $url .= $to . $d[0];
         if (!$d[1])
         {
         }
         else if (!$v)
-        {   
+        {
             $v .= $k;
         }
         else
