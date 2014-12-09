@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import images
-images.ImaWidget('editor')
+images.imawidget('editor')

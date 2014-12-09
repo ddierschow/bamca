@@ -2,7 +2,8 @@
 
 import glob, os, re, sys, urllib2
 
-def Main():
+
+def main():
     src = 'http://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents/'
     ln_re = re.compile('''<img src=".*?".*?> <a href="(?P<f>[^"]*)">''')
 
@@ -23,4 +24,4 @@ def Main():
         print fn, 'not on source'
 
 if __name__ == '__main__':  # pragma: no cover
-    Main()
+    main()

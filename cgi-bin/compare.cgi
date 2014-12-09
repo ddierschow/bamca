@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import mannum
-mannum.CompareMain('compare')
+mannum.compare_main('compare')

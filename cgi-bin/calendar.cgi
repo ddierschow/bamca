@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import nontoy
-nontoy.Calendar('calendar')
+nontoy.calendar('calendar')

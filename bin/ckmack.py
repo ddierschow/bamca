@@ -3,10 +3,10 @@
 import basics
 
 
-@basics.CommandLine
-def Main(pif):
-    aliases = pif.dbh.FetchAliases()
-    lmodels = pif.dbh.FetchLineupModels()
+@basics.command_line
+def main(pif):
+    aliases = pif.dbh.fetch_aliases()
+    lmodels = pif.dbh.fetch_lineup_models()
 
     a_dict = {x['alias.id']: x for x in aliases}
     for lmodel in lmodels:
@@ -21,4 +21,4 @@ def Main(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    Main('vars')
+    main('vars')

@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import pub
-pub.Publication('pub')
+pub.publication('pub')

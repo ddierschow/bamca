@@ -44,12 +44,15 @@ file_list_class = {
     IS_DIFFERENT_NUMBER: 'different',
 }
 
-var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'category', 'area', 'date', 'note', 'manufacture', 'imported_from', 'imported_var']
+var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'category', 'area', 'date', 'note', 'manufacture',
+                   'imported_from', 'imported_var']
+
 
 # ----- general helpers ------------------------------------------------
 
-def ParseFile(pif, fdir, fn, args=''):
-    modids, fitabs = ReadFile(pif, fdir, fn)
+
+def parse_file(pif, vid, fdir, fn, args=''):
+    modids, fitabs = read_file(pif, vid, fdir, fn)
     varfile = {
         'filename': fn,
         'stat': {IS_GOOD},
@@ -93,7 +96,7 @@ def ParseFile(pif, fdir, fn, args=''):
         if len(rawfitab) > 2:
             fitab['epilog'] = rawfitab[2]
 
-        hdrs = [vid.TransformHeader(x) for x in modtab[0]]
+        hdrs = [vid.transform_header(x) for x in modtab[0]]
         if hdrs[0] != 'var' or fitab['preface'].find("BOX TYPES") >= 0:
             fitab['stat'].add(IS_NO_MODEL)
             fitab['body'] = modtab
@@ -102,63 +105,63 @@ def ParseFile(pif, fdir, fn, args=''):
         fitab['is_valid'] = True
         num_file_hdrs = len(hdrs)  # not including imported_from
         hdrs.append('imported_from')
-        fitab['gridhead'] = nhdrs = vid.HeaderColumnChange(fn, hdrs)
+        fitab['gridhead'] = nhdrs = vid.header_column_change(fn, hdrs)
 
         mn = modids.pop(0)
         fitab['modid'] = mn
-        mod = GetModelRec(pif, mn)
+        mod = get_model_rec(pif, mn)
         fitab['casting'] = mod
         if not mod:
             fitab['stat'].add(IS_NO_MODEL)
             continue
-        fitab['attrs'] = pif.dbh.FetchAttributes(mod['id'])
+        fitab['attrs'] = pif.dbh.fetch_attributes(mod['id'])
         attr_names = var_record_cols + [x['attribute.attribute_name'] for x in fitab['attrs']]
 
         for hdr in nhdrs:
             if hdr not in attr_names:
                 varfile['stat'].add(IS_CHANGED_SCHEMA)
 
-        varis = pif.dbh.FetchVariations(mod['id'], nodefaults=True)
-        varis = pif.dbh.DePref('variation', varis)
+        varis = pif.dbh.fetch_variations(mod['id'], nodefaults=True)
+        varis = pif.dbh.depref('variation', varis)
         dbvars = {x['var']: x for x in varis}
         fitab['dbvars'] = dbvars
 
         for row in modtab[1:]:
-            row = vid.TransformRow(row)
+            row = vid.transform_row(row)
             if not reduce(lambda x, y: x or bool(y), row[1:], False):
                 continue
             rowd = dict(itertools.izip_longest(hdrs, row, fillvalue=""))
-            nrow = vid.RowColumnChange(fn, rowd)
+            nrow = vid.row_column_change(fn, rowd)
             if nrow.get('is_valid'):
                 fitab['body'].append(nrow)
 
     return varfile
 
 
-def ReadFile(pif, fdir, fn):
+def read_file(pif, vid, fdir, fn):
     modids, fitabs = list(), list()
     if os.path.exists(fdir + '/' + fn + '.html'):
-        modids, fitabs = ReadHtmlFile(pif, fdir, fn)
+        modids, fitabs = read_html_file(pif, vid, fdir, fn)
     elif os.path.exists(fdir + '/' + fn + '.htm'):
-        modids, fitabs = ReadHtmlFile(pif, fdir, fn)
+        modids, fitabs = read_html_file(pif, vid, fdir, fn)
     elif os.path.exists(fdir + '/' + fn + '.dat'):
-        modids, fitabs = ReadDatFile(pif, fdir, fn)
+        modids, fitabs = read_dat_file(pif, vid, fdir, fn)
     return modids, fitabs
 
 
-def ReadHtmlFile(pif, fdir, fn):
-    modids = vid.GetModelIDs(fn)
+def read_html_file(pif, vid, fdir, fn):
+    modids = vid.get_model_ids(fn)
     fitabs = list(), ''
     if not modids:
         pass
     elif os.path.exists(fdir + '/' + fn + '.html'):
-        fitabs = vid.GetHtmlTables(fdir + '/' + fn + '.html')
+        fitabs = vid.get_html_tables(fdir + '/' + fn + '.html')
     elif os.path.exists(fdir + '/' + fn + '.htm'):
-        fitabs = vid.GetHtmlTables(fdir + '/' + fn + '.htm')
+        fitabs = vid.get_html_tables(fdir + '/' + fn + '.htm')
     return modids, fitabs
 
 
-def ReadDatFile(pif, fdir, fn):
+def read_dat_file(pif, vid, fdir, fn):
     fn = fdir + '/' + fn + '.dat'
     modids = list()
     fitabs = list()
@@ -185,75 +188,77 @@ def ReadDatFile(pif, fdir, fn):
     return modids, fitabs
 
 
-def ShowFileLink(fn, ft, show_as):
+def show_file_link(fn, ft, show_as):
     fp = os.path.join('src/mbxf', fn + '.' + ft.lower())
     if os.path.exists(fp):
         print '<a href="/%s">%s</a>' % (fp, show_as)
 
 
-def GetModelRec(pif, mn):
-    modrec = pif.dbh.FetchCasting(mn)
-    modrec = pif.dbh.DePref('casting', modrec)
+def get_model_rec(pif, mn):
+    modrec = pif.dbh.fetch_casting(mn)
+    modrec = pif.dbh.depref('casting', modrec)
 
-    #debug("FetchCasting", mn, modrec)
+    #debug("fetch_casting", mn, modrec)
     if not modrec:
-        modrec = pif.dbh.FetchAlias(mn)
-        #debug("FetchAlias", mn, modrec)
+        modrec = pif.dbh.fetch_alias(mn)
+        #debug("fetch_alias", mn, modrec)
         if modrec:
-            modrec = pif.dbh.DePref('alias', modrec)
-            modrec = pif.dbh.DePref('casting', modrec)
-            modrec = pif.dbh.DePref('base_id', modrec)
+            modrec = pif.dbh.depref('alias', modrec)
+            modrec = pif.dbh.depref('casting', modrec)
+            modrec = pif.dbh.depref('base_id', modrec)
             modrec['id'] = modrec['ref_id']
 
     #debug('GetModRec', modrec)
     return modrec
 
 
-def CheckRow(dbrow, firow, fihdrs):
-    #pif.render.Comment("db", dbrow)
+def check_row(dbrow, firow, fihdrs):
+    #pif.render.comment("db", dbrow)
     for hdr in fihdrs:
         dbdet = str(dbrow.get(hdr, ''))
         fidet = firow.get(hdr, '')
         if hdr == 'var':
             continue  # doesn't figure in
         elif dbdet != fidet:
-            #pif.render.Comment('#', hdr, ':', dbdet, '|', fidet)
+            #pif.render.comment('#', hdr, ':', dbdet, '|', fidet)
             return False
-        #pif.render.Comment('=', hdr, ':', dbdet, '|', fidet)
-    #pif.render.Comment("match found")
+        #pif.render.comment('=', hdr, ':', dbdet, '|', fidet)
+    #pif.render.comment("match found")
     return True
 
 
-def FindRec(fn, dbvars, firow, fihdrs):
+def find_record(fn, dbvars, firow, fihdrs):
     # match up to existing record
-    #pif.render.Comment("fh", fihdrs)
-    #pif.render.Comment("fi", firow)
+    #pif.render.comment("fh", fihdrs)
+    #pif.render.comment("fi", firow)
     for dbvar in dbvars:
         imported_var = dbvars[dbvar].get('imported_var', dbvars[dbvar]['var'])
         if dbvars[dbvar].get('imported_from', '') == fn and imported_var == firow['var']:
             return dbvars[dbvar]
     for dbvar in dbvars:
-        if CheckRow(dbvars[dbvar], firow, fihdrs):
+        if check_row(dbvars[dbvar], firow, fihdrs):
             return dbvars[dbvar]
     return dict()
 
+
 # ----- overview functions ---------------------------------------------
 
-def CheckFile(pif, fdir, fn):
-    varfile = ParseFile(pif, fdir, fn)
+
+def check_file(pif, vid, fdir, fn):
+    varfile = parse_file(pif, vid, fdir, fn)
 
     for fitab in varfile['tabs']:
         if not fitab.get('is_valid'):
             continue
         for row in fitab['body']:
-            dbvar = FindRec(fn, fitab['dbvars'], row, fitab['gridhead'])
+            dbvar = find_record(fn, fitab['dbvars'], row, fitab['gridhead'])
             if dbvar:
                 for col in fitab['gridhead']:
                     if col != 'var' and row.get(col, '') != dbvar.get(col, ''):
-                        #pif.render.Comment('changed', col, row.get(col, ''), dbvar.get(col, ''))
+                        #pif.render.comment('changed', col, row.get(col, ''), dbvar.get(col, ''))
                         varfile['stat'].add(IS_CHANGED)
                 if dbvar['var'] != row['var'] and row['var'][0] != 'f':
-                    #pif.render.Comment('diff#', dbvar['var'], row['var'])
+                    #pif.render.comment('diff#', dbvar['var'], row['var'])
                     varfile['stat'].add(IS_DIFFERENT_NUMBER)
             else:
                 varfile['stat'].add(IS_NEW_VAR)
@@ -262,7 +267,7 @@ def CheckFile(pif, fdir, fn):
     return varfile
 
 
-def GetFileList(fdir):
+def get_file_list(fdir):
     dats = list()
     for ext in ['htm', 'html', 'dat']:
         dats += [x[x.rfind('/') + 1:x.rfind('.')] for x in glob.glob(fdir + '/*.' + ext)]
@@ -272,19 +277,19 @@ def GetFileList(fdir):
 
 
 # ff: 0 = all, 1 = changed or differing var id, 2 = changed only
-def ShowIndex(pif, fdir, start=None, num=100, ff=0):
+def show_index(pif, vid, fdir, start=None, num=100, ff=0):
     cols = 4
-    dats = GetFileList(fdir)
+    dats = get_file_list(fdir)
     if not dats:
         print "no files?"
         return
-    print pif.render.FormatLink("?ff=1&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff-ID'), '-'
-    print pif.render.FormatLink("?ff=2&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff'), '-'
+    print pif.render.format_link("?ff=1&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff-ID'), '-'
+    print pif.render.format_link("?ff=2&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff'), '-'
     for i in range(0, len(dats), num):
         if start == dats[i]:
-            print '<b>' + pif.render.FormatLink("?s=" + dats[i] + "&n=" + str(num), str(i / num + 1)) + '</b>', '-'
+            print '<b>' + pif.render.format_link("?s=" + dats[i] + "&n=" + str(num), str(i / num + 1)) + '</b>', '-'
         else:
-            print pif.render.FormatLink("?d=" + fdir + "&s=" + dats[i] + "&n=" + str(num), str(i / num + 1)), '-'
+            print pif.render.format_link("?d=" + fdir + "&s=" + dats[i] + "&n=" + str(num), str(i / num + 1)), '-'
     prev = dats[0]
     if start in dats:
         i = dats.index(start)
@@ -295,19 +300,19 @@ def ShowIndex(pif, fdir, start=None, num=100, ff=0):
         next = dats[num]
     else:
         next = dats[-1]
-    #dats = dats[:num]
+#    dats = dats[:num]
     rows = (num - 1) / cols + 1
-    print pif.render.FormatButton("next", "?d=" + fdir + "&s=" + next + "&n=" + str(num)), '-'
-    print pif.render.FormatButton("previous", "?d=" + fdir + "&s=" + prev + "&n=" + str(num))
+    print pif.render.format_button("next", "?d=" + fdir + "&s=" + next + "&n=" + str(num)), '-'
+    print pif.render.format_button("previous", "?d=" + fdir + "&s=" + prev + "&n=" + str(num))
     print '<table width="100%"><tr>'
     for col in range(0, cols):
         irow = 0
-        print '<td valign="top" width="%d%%">' % (100/cols)
+        print '<td valign="top" width="%d%%">' % (100 / cols)
         while 1:
             if not dats:
                 break
             fn = dats.pop(0)
-            varfile = CheckFile(pif, fdir, fn)
+            varfile = check_file(pif, vid, fdir, fn)
             mod_update = max(varfile['stat'])
             if ff and (mod_update == IS_GOOD or mod_update == IS_NO_MODEL):
                 continue
@@ -315,10 +320,10 @@ def ShowIndex(pif, fdir, start=None, num=100, ff=0):
                 continue
             sclass = ' '.join([file_list_class[x] for x in varfile['stat']])
             print '<a href="?d=%s&f=%s"><span class="%s">%s</span></a>' % (fdir, fn, sclass, fn)
-            ShowFileLink(fn, 'doc', 'w')
-            ShowFileLink(fn, 'htm', 'h')
-            ShowFileLink(fn, 'html', 'h')
-            #print list(varfile['stat'])
+            show_file_link(fn, 'doc', 'w')
+            show_file_link(fn, 'htm', 'h')
+            show_file_link(fn, 'html', 'h')
+#            print list(varfile['stat'])
             print '<br>'
             irow += 1
             sys.stdout.flush()
@@ -328,32 +333,34 @@ def ShowIndex(pif, fdir, start=None, num=100, ff=0):
     print "</tr></table>"
     print 'done'
 
+
 # ----- single file importer -------------------------------------------
 
+
 #{'definition': 'varchar(64)', 'mod_id': 'MB652', 'attribute_name': 'dump', 'id': 1L}
-def ShowAttrs(pif, file_id, mod, hdrs, var_desc):
+def show_attrs(pif, file_id, mod, hdrs, var_desc):
     mod_id = mod['id']
-    attrs = pif.dbh.FetchAttributes(mod_id)
-    attrs = pif.dbh.DePref('attribute', attrs)
+    attrs = pif.dbh.fetch_attributes(mod_id)
+    attrs = pif.dbh.depref('attribute', attrs)
     print '<form method="post">'
     print '<input type="hidden" name="mod_id" value="%s">' % mod_id
-    det = pif.dbh.FetchDetails(mod_id, "").get('', dict())
-    det = pif.dbh.DePref('detail', det)
+    det = pif.dbh.fetch_details(mod_id, "").get('', dict())
+    det = pif.dbh.depref('detail', det)
     print "<table border=1>"
     print "<tr><th>ID</th><th>Name</th><th>Definition</th><th>Title</th><th>V</th><th>Default</th></tr>"
     for attr in attrs:
         visuals = {True: ['visual.%(id)d' % attr], False: list()}
-        #pif.render.Comment(attr, visuals)
+        #pif.render.comment(attr, visuals)
         print "<tr>"
         print '<td style="background-color: %s">' % bg_color[attr['attribute_name'] in hdrs + var_record_cols]
-        print '<a href="%s">%s</a></td>' % (pif.dbh.GetEditorLink('attribute', {'id': attr['id']}), attr['id'])
-        print "<td>%s</td>" % pif.render.FormatTextInput("attribute_name.%(id)d" % attr, 32, 32, attr["attribute_name"])
-        print "<td>%s</td>" % pif.render.FormatTextInput("definition.%(id)d" % attr, 32, 32, attr["definition"])
-        print "<td>%s</td>" % pif.render.FormatTextInput("title.%(id)d" % attr, 32, 32, attr["title"])
-        print "<td>%s</td>" % pif.render.FormatCheckbox("visual.%(id)d" % attr, [(1, '')], [attr['visual']])
-        print "<td>%s</td>" % pif.render.FormatTextInput("description.%(id)d" % attr, 64, 32, det.get(attr["attribute_name"], ""))
-        print "<td>%s</td>" % (pif.render.FormatButton("delete", "?f=%s&delattr=%d" % (file_id, attr['id'])) +
-                              pif.render.FormatButtonInput(bname="save", name='renattr.%d' % attr['id']))
+        print '<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', {'id': attr['id']}), attr['id'])
+        print "<td>%s</td>" % pif.render.format_text_input("attribute_name.%(id)d" % attr, 32, 32, attr["attribute_name"])
+        print "<td>%s</td>" % pif.render.format_text_input("definition.%(id)d" % attr, 32, 32, attr["definition"])
+        print "<td>%s</td>" % pif.render.format_text_input("title.%(id)d" % attr, 32, 32, attr["title"])
+        print "<td>%s</td>" % pif.render.format_checkbox("visual.%(id)d" % attr, [(1, '')], [attr['visual']])
+        print "<td>%s</td>" % pif.render.format_text_input("description.%(id)d" % attr, 64, 32, det.get(attr["attribute_name"], ""))
+        print "<td>%s</td>" % (pif.render.format_button("delete", "?f=%s&delattr=%d" % (file_id, attr['id'])) +
+                               pif.render.format_button_input(bname="save", name='renattr.%d' % attr['id']))
         print "</tr>"
         var_desc[attr["attribute_name"]] = attr["definition"]
     cnt = 1
@@ -361,58 +368,58 @@ def ShowAttrs(pif, file_id, mod, hdrs, var_desc):
         if hdr not in var_record_cols and hdr not in [x['attribute_name'] for x in attrs]:
             print "<tr>"
             print "<td>new</td>"
-            print "<td>%s</td>" % pif.render.FormatTextInput("%dn.attribute_name" % cnt, 32, 32, hdr)
-            print "<td>%s</td>" % pif.render.FormatTextInput("%dn.definition" % cnt, 32, 32, "varchar(64)")
+            print "<td>%s</td>" % pif.render.format_text_input("%dn.attribute_name" % cnt, 32, 32, hdr)
+            print "<td>%s</td>" % pif.render.format_text_input("%dn.definition" % cnt, 32, 32, "varchar(64)")
             print "</tr>"
             cnt += 1
             var_desc[hdr] = "varchar(64)"
     print "</table>"
-    print pif.render.FormatButtonInput('add')
-    print pif.render.FormatButtonInput('add new')
+    print pif.render.format_button_input('add')
+    print pif.render.format_button_input('add new')
     print "</form>"
 
 
-def ShowBaseID(pif, mod):
+def show_base_id(pif, mod):
     # base id form
     print "<h3>Base ID</h3>"
-    print pif.render.FormatImageOptional(mod['id'], prefix=['m_', 's_'], pdir='pic/man', also={'align': 'right'})
-    base_id_info = pif.dbh.DescribeDict('base_id')
+    print pif.render.format_image_optional(mod['id'], prefix=['m_', 's_'], pdir='pic/man', also={'align': 'right'})
+    base_id_info = pif.dbh.describe_dict('base_id')
     print '<form method="post" name="base_id">'
     print "<table border=1>"
     print "<tr><th>Column</th><th>Value</th></tr>"
     for col in tables.table_info['base_id']['columns']:
         flen = int(paren_re.search(base_id_info[col]['type']).group('len'))
         print "<tr><td>%s</td><td>%s</td>" \
-            % (col, pif.render.FormatTextInput("base_id." + col, flen, flen, mod[col]))
+            % (col, pif.render.format_text_input("base_id." + col, flen, flen, mod[col]))
         print "</tr>"
     print "</table>"
     #print '<input type="image" src="../pic/gfx/but_save.gif" name="save_base_id">'
-    print pif.render.FormatButtonInput('save', 'save base id')
+    print pif.render.format_button_input('save', 'save base id')
     print "</form>"
 
 
-def ShowCasting(pif, mod):
+def show_casting(pif, mod):
     # casting form
     print "<h3>Casting</h3>"
-    casting_info = pif.dbh.DescribeDict('casting')
+    casting_info = pif.dbh.describe_dict('casting')
     print '<form method="post" name="casting">'
     print "<table border=1>"
     print "<tr><th>Column</th><th>Value</th><th>&nbsp;</th></tr>"
     for col in tables.table_info['casting']['columns']:
         flen = int(paren_re.search(casting_info[col]['type']).group('len'))
         print "<tr><td>%s</td><td>%s</td>" \
-            % (col, pif.render.FormatTextInput("casting." + col, flen, flen, mod[col]))
-        print "<td>%s</td></tr>" % CastingHelp(pif, col, mod)
+            % (col, pif.render.format_text_input("casting." + col, flen, flen, mod[col]))
+        print "<td>%s</td></tr>" % casting_help(pif, col, mod)
     print "</table>"
     print '<input type="image" src="../pic/gfx/but_save.gif" name="save_casting">'
     print "</form>"
 
-    if vars.CheckFormatting(pif, mod['id']):
-        vars.CheckFormatting(pif, mod['id'], True, '<br>')
+    if vars.check_formatting(pif, mod['id']):
+        vars.check_formatting(pif, mod['id'], True, '<br>')
     print '<br>'
 
 
-def FindVarID(dbvars, firow, ids_used):
+def find_var_id(dbvars, firow, ids_used):
     # fabricate unique id with no record
     varid = firow['var']
     if varid not in dbvars:
@@ -430,15 +437,15 @@ def FindVarID(dbvars, firow, ids_used):
         trailer = chr(ord(trailer) + 1) if trailer else 'a'
 
 
-def CastingHelp(pif, col, mod):
+def casting_help(pif, col, mod):
     if col == 'rawname':
         return ' | '.join(mod.get('iconname', list()))
     if col == 'vehicle_type':
-        return pif.render.FormatButton("help", "../pages/types.php", lalso={'target': '_blank'})
+        return pif.render.format_button("help", "../pages/types.php", lalso={'target': '_blank'})
     if col == 'country':
-        return pif.render.FormatButton("help", "../pages/countries.php", lalso={'target': '_blank'})
+        return pif.render.format_button("help", "../pages/countries.php", lalso={'target': '_blank'})
     if col == 'make':
-        return pif.render.FormatButton("help", "../pages/makes.php", lalso={'target': '_blank'})
+        return pif.render.format_button("help", "../pages/makes.php", lalso={'target': '_blank'})
     if col == 'flags':
         return "NOT_MADE = 1"
     if col == 'section_id':
@@ -449,36 +456,38 @@ def CastingHelp(pif, col, mod):
 text_color = {True: '#0000FF', False: '#FF0000'}
 bg_color = {True: '#FFFFFF', False: '#FFCCCC'}
 paren_re = re.compile(r'\((?P<len>\d*)\)')
-def ShowFile(pif, fdir, fn, args):
-    varfile = ParseFile(pif, fdir, fn, args)
-    #modids, fitabs = ReadFile(pif, fdir, fn)
+
+
+def show_file(pif, vid, fdir, fn, args):
+    varfile = parse_file(pif, vid, fdir, fn, args)
+    #modids, fitabs = read_file(pif, vid, fdir, fn)
     if not varfile['modids']:
         print "Huh?"
         return
 
     print '<h3>File Settings</h3>'
-    vid.ShowFileSettings(fn)
+    vid.show_file_settings(fn)
     print '<br>'
     print list(varfile['stat']), '-'
 
-    ShowFileLink(fn, 'html', 'HTML')
-    ShowFileLink(fn, 'htm', 'HTM')
-    ShowFileLink(fn, 'doc', 'DOC')
-    ShowFileLink(fn, 'dat', 'DAT')
+    show_file_link(fn, 'html', 'HTML')
+    show_file_link(fn, 'htm', 'HTM')
+    show_file_link(fn, 'doc', 'DOC')
+    show_file_link(fn, 'dat', 'DAT')
     print '-'
     for id in varfile['modids']:
         print '<a href="#%s">%s</a>' % (id, id)
-    varfile['var_desc'] = dict([(x['field'], x['type']) for x in pif.dbh.DescribeDict('variation').values()])
+    varfile['var_desc'] = dict([(x['field'], x['type']) for x in pif.dbh.describe_dict('variation').values()])
 
     for fitab in varfile['tabs']:
         if fitab['casting']:
-            ShowModelTable(pif, varfile, fitab)
+            show_model_table(pif, varfile, fitab)
         else:
-            ShowNoModel(pif, varfile, fitab)
+            show_no_model(pif, varfile, fitab)
         print fitab['epilog']
 
 
-def ShowNoModel(pif, varfile, fitab):
+def show_no_model(pif, varfile, fitab):
     print fitab['preface'], "<br>"
     print "<table border=1>"
     for row in [fitab['gridhead']] + fitab['body']:
@@ -489,28 +498,28 @@ def ShowNoModel(pif, varfile, fitab):
     print "</table>"
 
 
-def ShowModelTable(pif, varfile, fitab):
+def show_model_table(pif, varfile, fitab):
     # casting form
     print '<a name="%s"></a>' % fitab['modid']
     mod = fitab['casting']
 
-    for vf in filter(None, [x['imported_from'] for x in pif.dbh.FetchVariationFiles(mod['id'])]):
+    for vf in filter(None, [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod['id'])]):
         print '<a href="?f=%s">%s</a>' % (vf, vf)
     print '<br>'
     print '<center><h2><a href="single.cgi?id=%s">%s</a>' % (mod['id'], mod['id'])
     print "<h3>", mod.get('rawname', 'no rawname?'), "</h3></center>"
 
     # base id form
-    ShowBaseID(pif, mod)
+    show_base_id(pif, mod)
 
     # casting form
-    ShowCasting(pif, mod)
+    show_casting(pif, mod)
 
     print fitab['preface'], "<br>"
 
     # attributes form
     print "<h3>Attributes</h3>"
-    ShowAttrs(pif, varfile['filename'], mod, fitab['gridhead'], varfile['var_desc'])
+    show_attrs(pif, varfile['filename'], mod, fitab['gridhead'], varfile['var_desc'])
 
     # variations form
     print "<h3>Variations</h3>"
@@ -534,18 +543,19 @@ def ShowModelTable(pif, varfile, fitab):
             rec["var"] = varfile['var_lup'].get(rec["var"], rec["var"])
             dbvar = dbvars.get(rec['var'], dict())
         else:
-            dbvar = FindRec(varfile['filename'], dbvars, rec, fitab['gridhead'])
+            dbvar = find_record(varfile['filename'], dbvars, rec, fitab['gridhead'])
         if not dbvar:
-            dbvar = {'var': FindVarID(dbvars, rec, ids_used)}
+            dbvar = {'var': find_var_id(dbvars, rec, ids_used)}
             is_new = True
         else:  # gray
             del dbvars[dbvar['var']]  # gray
         ids_used.append(dbvar['var'])
-        pic = config.imgdirVar + '/s_' + mod['id'].lower() + '-' + dbvar.get('var', '') + '.jpg'
+        pic = config.IMG_DIR_VAR + '/s_' + mod['id'].lower() + '-' + dbvar.get('var', '') + '.jpg'
         print '<tr><td style="font-weight: bold; color: %s">' % (text_color[rec['var'] == dbvar.get('var')])
         print '<input type="hidden" name="%s.orignum" value="%s">' % (rec['var'], dbvar.get('var'))
         if dbvar.get('var'):
-            print '<a href="/cgi-bin/vars.cgi?mod=%s&edit=1&var=%s" style="color: %s">%s</a>' % (mod['id'], dbvar['var'], text_color[rec['var'] == dbvar.get('var')], rec['var'])
+            print '<a href="/cgi-bin/vars.cgi?mod=%s&edit=1&var=%s" style="color: %s">%s</a>' % \
+                  (mod['id'], dbvar['var'], text_color[rec['var'] == dbvar.get('var')], rec['var'])
         else:
             print rec['var']
         if os.path.exists(pic):
@@ -562,9 +572,9 @@ def ShowModelTable(pif, varfile, fitab):
             print str(dbvar.get(hdr, '')) + "<br>"
             if dbdet != fidet or hdr == 'var':
                 if fidet:
-                    print pif.render.FormatTextInput(rec['var'] + '.' + hdr, int(varfile['var_desc'][hdr][8:-1]), 16, fidet)
+                    print pif.render.format_text_input(rec['var'] + '.' + hdr, int(varfile['var_desc'][hdr][8:-1]), 16, fidet)
                 else:
-                    print pif.render.FormatTextInput(rec['var'] + '.' + hdr, int(varfile['var_desc'][hdr][8:-1]), 16, "\\b")
+                    print pif.render.format_text_input(rec['var'] + '.' + hdr, int(varfile['var_desc'][hdr][8:-1]), 16, "\\b")
             elif hdr == 'imported_from':
                 print '<input type="hidden" name="%s.imported_from" value="%s">' % (rec['var'], varfile['filename'])
                 print dbvar.get('imported_var', 'unset')
@@ -575,14 +585,15 @@ def ShowModelTable(pif, varfile, fitab):
     for varid in dbvarkeys:
         dbvar = dbvars[varid]
         is_same_file = dbvar.get('imported_from') == varfile['filename']
-        #pif.render.Comment(str(dbvar))
-        pic = config.imgdirVar + '/s_' + mod['id'].lower() + '-' + dbvar.get('var', '') + '.jpg'
-        #pif.render.Comment("pic", pic)
+        #pif.render.comment(str(dbvar))
+        pic = config.IMG_DIR_VAR + '/s_' + mod['id'].lower() + '-' + dbvar.get('var', '') + '.jpg'
+        #pif.render.comment("pic", pic)
         if is_same_file:
             print '<input type="hidden" name="orphan" value="%s">' % varid
         print '<tr><th style="background-color: #CCCCCCC">'
         if dbvar.get('var'):
-            print '<a href="/cgi-bin/vars.cgi?mod=%s&edit=1&var=%s" style="color: #000000">%s</a>' % (mod['id'], dbvar['var'], dbvar['var'])
+            print '<a href="/cgi-bin/vars.cgi?mod=%s&edit=1&var=%s" style="color: #000000">%s</a>' % \
+                  (mod['id'], dbvar['var'], dbvar['var'])
         else:
             print '%s' % dbvar['var']
         if os.path.exists(pic):
@@ -599,126 +610,130 @@ def ShowModelTable(pif, varfile, fitab):
         print "</tr>"
     print "</table>"
 
-    print pif.render.FormatButtonInput('save')
-    print pif.render.FormatButtonInput('recalc')
-    print pif.render.FormatButtonInput('delete all')
-    print pif.render.FormatButtonInput('fix numbers')
-    print pif.render.FormatButtonInput('delete orphans')
+    print pif.render.format_button_input('save')
+    print pif.render.format_button_input('recalc')
+    print pif.render.format_button_input('delete all')
+    print pif.render.format_button_input('fix numbers')
+    print pif.render.format_button_input('delete orphans')
     print '</form>'
+
 
 # ----- mainlike functions ---------------------------------------------
 
-@basics.WebPage
-def HandleForm(pif):
-    pif.render.PrintHtml()
-    mod_id = pif.FormStr('mod_id')
+
+@basics.web_page
+def handle_form(pif):
+    pif.render.print_html()
+    mod_id = pif.form_str('mod_id')
     if mod_id:
         pif.render.title = 'Variations - ' + mod_id
-    elif pif.FormHas('f'):
-        pif.render.title = 'Variations - ' + pif.FormStr('f')
-    print pif.render.FormatHead()
-    if not pif.IsAllowed('a'):
+    elif pif.form_has('f'):
+        pif.render.title = 'Variations - ' + pif.form_str('f')
+    print pif.render.format_head()
+    if not pif.is_allowed('a'):
         return
 
-    pif.dbh.SetVerbose(True)
-    global vid  # for now.  restructuring one thing at a time.
+    pif.dbh.set_verbose(True)
     vid = vdata.VariationImportData()
     vid.verbose = pif.render.verbose
     nvars = list()
-    file_dir = pif.FormStr('d', 'src/mbxf')
+    file_dir = pif.form_str('d', 'src/mbxf')
 
-    if pif.FormHas("recalc"):  # doesn't really fit the pattern
+    if pif.form_has("recalc"):  # doesn't really fit the pattern
         print "recalc<br>"
-        for k in pif.FormKeys(end='.var'):
-            nvars.append(k[0:-4] + "=" + pif.FormStr(k))
+        for k in pif.form_keys(end='.var'):
+            nvars.append(k[0:-4] + "=" + pif.form_str(k))
     else:
-        DoAction(pif, mod_id)
+        do_action(pif, mod_id)
     print "<br><hr>"
 
     args = ''
-    if pif.FormHas('f'):
-        ShowFile(pif, file_dir, pif.FormStr('f'), ' '.join(nvars))
+    if pif.form_has('f'):
+        show_file(pif, vid, file_dir, pif.form_str('f'), ' '.join(nvars))
     else:
-        ShowIndex(pif, file_dir, start=pif.FormStr('s'), num=pif.FormInt('n', 100), ff=int(pif.FormInt('ff')))
+        show_index(pif, vid, file_dir, start=pif.form_str('s'), num=pif.form_int('n', 100), ff=int(pif.form_int('ff')))
 
-    print pif.render.FormatTail()
+    print pif.render.format_tail()
 
 
-def SaveAttribute(pif, attr_id):
-    attr = pif.dbh.FetchAttribute(attr_id)
-    attr = pif.dbh.DePref('attribute', attr)
+def save_attribute(pif, attr_id):
+    attr = pif.dbh.fetch_attribute(attr_id)
+    attr = pif.dbh.depref('attribute', attr)
     if len(attr) == 1:
         attr = attr[0]
         for key in attr.keys():
-            if pif.FormHas(key + '.%d' % attr_id):
-                attr[key] = pif.FormStr(key + '.%d' % attr_id)
-        pif.dbh.UpdateAttribute(attr, attr_id)
+            if pif.form_has(key + '.%d' % attr_id):
+                attr[key] = pif.form_str(key + '.%d' % attr_id)
+        pif.dbh.update_attribute(attr, attr_id)
 
-        if pif.FormStr("description.%d" % attr_id) != "":
-            rec = {"mod_id": attr['mod_id'], "var_id": "", "attr_id": attr_id, "description": pif.FormStr("description.%d" % attr_id)}
+        if pif.form_str("description.%d" % attr_id) != "":
+            rec = {"mod_id": attr['mod_id'], "var_id": "", "attr_id": attr_id,
+                   "description": pif.form_str("description.%d" % attr_id)}
             where = {"mod_id": attr['mod_id'], "var_id": "", "attr_id": attr_id}
-            pif.dbh.Write("detail", rec, where)
+            pif.dbh.write("detail", rec, where)
     else:
         print '%d attributes returned!' % len(attr)
 
 
-def DoAction(pif, mod_id):
-    if pif.FormHas("add"):
+def do_action(pif, mod_id):
+    if pif.form_has("add"):
         print "add<br>"
-        for k in pif.FormKeys(end='n.definition'):  # pretty sure these are the new guys
+        for k in pif.form_keys(end='n.definition'):  # pretty sure these are the new guys
             attr = k[0:-12]
             print "n_def", k, attr
-            rec = {"mod_id": mod_id, "attribute_name": pif.FormStr(attr + "n.attribute_name"),
-                        "title": pif.FormStr(attr + "n.attribute_name").replace('_', ' ').title(),
-                        "definition": pif.FormStr(k)}
-            pif.dbh.Write("attribute", rec, {"mod_id": mod_id, "attribute_name": pif.FormStr(attr + "n.attribute_name")})
-        for k in pif.FormKeys(start='definition.'):
+            rec = {"mod_id": mod_id, "attribute_name": pif.form_str(attr + "n.attribute_name"),
+                   "title": pif.form_str(attr + "n.attribute_name").replace('_', ' ').title(),
+                   "definition": pif.form_str(k)}
+            pif.dbh.write("attribute", rec, {"mod_id": mod_id, "attribute_name": pif.form_str(attr + "n.attribute_name")})
+        for k in pif.form_keys(start='definition.'):
             attr = k[11:]
             print "def", k, attr
-            rec = {"mod_id": mod_id, "attribute_name": pif.FormStr('attribute_name.' + attr), "title": pif.FormStr('title.' + attr),
-                        "definition": pif.FormStr(k), "visual": pif.FormStr("visual." + attr, '1')}
-            pif.dbh.Write("attribute", rec, {"id": attr}, modonly=True)
-            if pif.FormStr("description." + attr, '') != "":
-                rec = {"mod_id": mod_id, "var_id": "", "attr_id": attr, "description": pif.FormStr("description." + attr)}
+            rec = {"mod_id": mod_id, "attribute_name": pif.form_str('attribute_name.' + attr),
+                   "title": pif.form_str('title.' + attr),
+                   "definition": pif.form_str(k), "visual": pif.form_str("visual." + attr, '1')}
+            pif.dbh.write("attribute", rec, {"id": attr}, modonly=True)
+            if pif.form_str("description." + attr, '') != "":
+                rec = {"mod_id": mod_id, "var_id": "", "attr_id": attr, "description": pif.form_str("description." + attr)}
                 where = {"mod_id": mod_id, "var_id": "", "attr_id": attr}
-                pif.dbh.Write("detail", rec, where)
-    elif pif.FormHas("add_new"):
+                pif.dbh.write("detail", rec, where)
+    elif pif.form_has("add_new"):
         print "add new<br>"
-        pif.dbh.Write("attribute", {"mod_id": mod_id}, list())
-    elif pif.FormFind('renattr'):
-        keys = pif.FormFind('renattr')
+        pif.dbh.write("attribute", {"mod_id": mod_id}, list())
+    elif pif.form_find('renattr'):
+        keys = pif.form_find('renattr')
         print "renattr", keys, "<br>"
         for key in keys:
             attr_id = int(key[8:])
-            SaveAttribute(pif, attr_id)
-    elif pif.FormHas("save_base_id"):
+            save_attribute(pif, attr_id)
+    elif pif.form_has("save_base_id"):
         print "save base_id<br>"
         rec = dict()
-        for k in pif.FormKeys(start='base_id.'):
-            rec[k[8:]] = pif.FormStr(k)
-        pif.dbh.Write("base_id", rec, {"id": pif.FormStr("base_id.id")})
-    elif pif.FormHas("save_casting"):
+        for k in pif.form_keys(start='base_id.'):
+            rec[k[8:]] = pif.form_str(k)
+        pif.dbh.write("base_id", rec, {"id": pif.form_str("base_id.id")})
+    elif pif.form_has("save_casting"):
         print "save casting<br>"
         rec = dict()
-        for k in pif.FormKeys(start='casting.'):
-            rec[k[8:]] = pif.FormStr(k)
-        pif.dbh.Write("casting", rec, {"id": pif.FormStr("casting.id")})
-    elif pif.FormHas("save"):
+        for k in pif.form_keys(start='casting.'):
+            rec[k[8:]] = pif.form_str(k)
+        pif.dbh.write("casting", rec, {"id": pif.form_str("casting.id")})
+    elif pif.form_has("save"):
         print "save"
-        pif.dbh.UpdateVariation({'imported_from': 'was ' + pif.FormStr('current_file')}, {'imported_from': pif.FormStr('current_file'), 'mod_id': mod_id})
-        attrs = pif.dbh.FetchAttributes(mod_id)
+        pif.dbh.update_variation({'imported_from': 'was ' + pif.form_str('current_file')},
+                                 {'imported_from': pif.form_str('current_file'), 'mod_id': mod_id})
+        attrs = pif.dbh.fetch_attributes(mod_id)
         attr_lup = dict()
         for attr in attrs:
             print attr, '<br>'
             attr_lup[attr['attribute.attribute_name']] = attr.get('attribute.id')
-        var_cols = pif.dbh.Columns("variation")
-        for k in pif.FormKeys(end='.var'):
+        var_cols = pif.dbh.columns("variation")
+        for k in pif.form_keys(end='.var'):
             rec = {"mod_id": mod_id}
             rec["imported"] = time.time()
             det = dict()
-            for vk in pif.FormKeys(start=pif.FormStr(k)):
-                vv = pif.FormStr(vk)
-                kk = vk[len(pif.FormStr(k)) + 1:]
+            for vk in pif.form_keys(start=pif.form_str(k)):
+                vv = pif.form_str(vk)
+                kk = vk[len(pif.form_str(k)) + 1:]
                 if vv == '\\b':
                     vv = ''
                 if kk == 'orignum':
@@ -727,35 +742,37 @@ def DoAction(pif, mod_id):
                     rec[kk] = vv
                 else:
                     det[kk] = vv
-            pif.dbh.Write("variation", rec, {"mod_id": mod_id, "var": k[0:-4]})
+            pif.dbh.write("variation", rec, {"mod_id": mod_id, "var": k[0:-4]})
             print 'variation', rec, '<br>'
             for dk in det:
                 if dk in attr_lup:
                     detrec = {"mod_id": mod_id, "var_id": k[0:-4], "attr_id": attr_lup[dk], "description": det[dk]}
-                    pif.dbh.Write("detail", detrec, {"mod_id": mod_id, "var_id": k[0:-4], "attr_id": attr_lup[dk]})
+                    pif.dbh.write("detail", detrec, {"mod_id": mod_id, "var_id": k[0:-4], "attr_id": attr_lup[dk]})
                     print 'detail', detrec, '<br>'
         print "done"
-    elif pif.FormHas("delete_orphans"):
+    elif pif.form_has("delete_orphans"):
         print "delete orphans<br>"
-        orphans = pif.FormList('orphan', list())
+        orphans = pif.form_list('orphan', list())
         for var_id in orphans:
             print 'deleting', mod_id, var_id, '<br>'
-            vars.DeleteVariation(pif, mod_id, var_id)
-    elif pif.FormHas("delete_all"):
+            vars.delete_variation(pif, mod_id, var_id)
+    elif pif.form_has("delete_all"):
         print "delete all<br>"
-        pif.dbh.DeleteDetail(where={"mod_id": mod_id})
-        pif.dbh.DeleteVariation(where={"mod_id": mod_id})
-    elif pif.FormHas("delattr"):
+        pif.dbh.delete_detail(where={"mod_id": mod_id})
+        pif.dbh.delete_variation(where={"mod_id": mod_id})
+    elif pif.form_has("delattr"):
         print "delattr<br>"
-        pif.dbh.DeleteAttribute({"id": pif.FormStr('delattr')})
-    elif pif.FormHas("fix_numbers"):
+        pif.dbh.delete_attribute({"id": pif.form_str('delattr')})
+    elif pif.form_has("fix_numbers"):
         print "fix numbers<br>"
-        for k in pif.FormKeys(end='.orignum'):
-            if pif.FormStr(k) != k[0:-8]:
+        for k in pif.form_keys(end='.orignum'):
+            if pif.form_str(k) != k[0:-8]:
                 retvar = -999
-                vars.RenameVariation(pif, mod_id, pif.FormStr(k), k[0:-8])
+                vars.rename_variation(pif, mod_id, pif.form_str(k), k[0:-8])
+
 
 # ----- ----------------------------------------------------------------
+
 
 if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

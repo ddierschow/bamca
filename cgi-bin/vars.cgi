@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import vars
-vars.Main('vars', dbedit='am')
+vars.main('vars', dbedit='am')

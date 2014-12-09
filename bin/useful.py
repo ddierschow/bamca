@@ -9,14 +9,14 @@ import config  # bleagh
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
 
-#def FormInt(val, defval=0):
+#def form_int(val, defval=0):
 #    try:
 #       return int(val)
 #    except:
 #       return int(defval)
 
 
-def ReadDir(patt, tdir):
+def read_dir(patt, tdir):
     odir = os.getcwd()
     os.chdir(tdir)
     flist = glob.glob(patt.strip())
@@ -24,18 +24,18 @@ def ReadDir(patt, tdir):
     return flist
 
 
-def RootExt(fn):
+def root_ext(fn):
     '''Split fn into root and ext.  In this case, ext has no dot.
 
-    >>> RootExt('abc.def')
+    >>> root_ext('abc.def')
     ('abc', 'def')
-    >>> RootExt('.abc')
+    >>> root_ext('.abc')
     ('.abc', '')
-    >>> RootExt('abc.')
+    >>> root_ext('abc.')
     ('abc', '')
-    >>> RootExt('abc')
+    >>> root_ext('abc')
     ('abc', '')
-    >>> RootExt('')
+    >>> root_ext('')
     ('', '')
     '''
     root, ext = os.path.splitext(fn)
@@ -44,7 +44,7 @@ def RootExt(fn):
     return root, ext
 
 
-def CleanName(f, morebad=''):
+def clean_name(f, morebad=''):
     badlist = [',', '#']
 
     n = f.strip()
@@ -56,45 +56,45 @@ def CleanName(f, morebad=''):
     return n
 
 
-def IsGood(fname, v=True):
+def is_good(fname, v=True):
     fname = os.path.normpath(fname)
     if not fname:
         if v:
-            WriteComment("IsGood B", os.getcwd(), fname)
+            write_comment("is_good B", os.getcwd(), fname)
         return False
     if not os.path.exists(fname):
         if v:
-            WriteComment("IsGood N", os.getcwd(), fname)
+            write_comment("is_good N", os.getcwd(), fname)
         return False
     st = os.stat(fname)
     if (st[stat.ST_MODE] & 0x004) == 0:
         if v:
-            WriteComment("IsGood S", os.getcwd(), fname)
+            write_comment("is_good S", os.getcwd(), fname)
         return False
     if v:
-        WriteComment("IsGood +", os.getcwd(), fname)
+        write_comment("is_good +", os.getcwd(), fname)
     return True
 
 
-def Render(fname):
-    if IsGood(fname):
+def render(fname):
+    if is_good(fname):
         print open(fname).read()
 
 
-def ImgSrc(pth, alt=None, also={}):
-    if 1:  #IsGood(pth):
-        return '<img src="../' + pth + '"' + Also({'alt': alt}, also) + '>'
+def img_src(pth, alt=None, also={}):
+    if 1:  #is_good(pth):
+        return '<img src="../' + pth + '"' + fmt_also({'alt': alt}, also) + '>'
     return ''
 
 
-def Plural(thing):
+def plural(thing):
     if len(thing) != 1:
         return 's'
     return ''
 
 
-def DumpDictComment(t, d, keys=None):
-    print "<!-- Dump", t, ":"
+def dump_dict_comment(t, d, keys=None):
+    print "<!-- dump", t, ":"
 #    if not keys:
 #       keys = d.keys()
 #    keys.sort()
@@ -104,7 +104,7 @@ def DumpDictComment(t, d, keys=None):
     print '-->'
 
 
-def DumpDict(t, d, keys=None):
+def dump_dict(t, d, keys=None):
     print "<p><h3>", t, "</h3><p>"
     print '<dl>'
     if not keys:
@@ -115,8 +115,8 @@ def DumpDict(t, d, keys=None):
     print '</dl>'
 
 
-def Also(also={}, style={}):
-    nalso = DictMerge(style, also)
+def fmt_also(also={}, style={}):
+    nalso = dict_merge(style, also)
     ostr = ''
     for tag in nalso:
         if nalso.get(tag):
@@ -124,26 +124,26 @@ def Also(also={}, style={}):
     return ostr
 
 
-def DictMerge(*dicts):
+def dict_merge(*dicts):
     out_dict = dict()
     for in_dict in dicts:
         out_dict.update(in_dict)
     return out_dict
 
 
-def SetAndAddList(d, k, l):
+def set_and_add_list(d, k, l):
     d.setdefault(k, [])
     d[k].extend(l)
 
 
-def AnyCharMatch(t1, t2):
+def any_char_match(t1, t2):
     for c in t2:
         if c in t1:
             return True
     return False
 
 
-def BitList(val, format="%02x"):
+def bit_list(val, format="%02x"):
     olst = []
     bit = 1
     while val:
@@ -155,7 +155,7 @@ def BitList(val, format="%02x"):
 
 
 # sobj is a list of word-like things, targ is a string
-def SearchMatch(sobj, targ):
+def search_match(sobj, targ):
     if not targ:
         return False
     if not sobj or not isinstance(targ, str):
@@ -167,111 +167,116 @@ def SearchMatch(sobj, targ):
     return True
 
 
-def Warn(*message):
+def warn(*message):
     print '<div class="warning">%s</div>' % ' '.join(message)
 
 
-def FileMover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma: no cover
-    #print "FileMover", src, dst, mv, ov, inc, '<br>'
+def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma: no cover
+    #print "file_mover", src, dst, mv, ov, inc, '<br>'
     addon = 0
     if dst and inc:
         root, ext = dst.rsplit('.', 1)  # for inc
     while 1:
         if src and dst and os.path.exists(src) and os.path.exists(dst) and os.path.samefile(src, dst):
             if not trash:
-                Warn("What?")
+                warn("What?")
             return False
         if not os.path.exists(src):
             if not trash:
-                Warn(src, "- source not found")
+                warn(src, "- source not found")
         elif dst is None:
             if mv:
-                FileDelete(src)
+                file_delete(src)
             else:
                 if not trash:
-                    Warn("Eh?")
+                    warn("Eh?")
                 return False
         elif not os.path.exists(dst):
             if mv:
-                FileMove(src, dst)
+                file_move(src, dst)
             else:
-                FileCopy(src, dst)
+                file_copy(src, dst)
         elif filecmp.cmp(src, dst, False):
             if mv:
                 os.remove(src)
                 if not trash:
-                    Warn(src, "- source removed")
+                    warn(src, "- source removed")
             else:
                 if not trash:
-                    Warn("files are identical")
+                    warn("files are identical")
         elif ov:
             #os.remove(dst)
             path, filename = dst.rsplit('/', 1)
-            FileMover(dst, os.path.join(config.libdir, 'trash', filename), mv=True, inc=True, trash=True)
+            file_mover(dst, os.path.join(config.LIB_DIR, 'trash', filename), mv=True, inc=True, trash=True)
             if not trash:
-                Warn(dst, "- old file overwritten")
+                warn(dst, "- old file overwritten")
             if mv:
-                FileMove(src, dst)
+                file_move(src, dst)
             else:
-                FileCopy(src, dst)
+                file_copy(src, dst)
         elif inc:
             addon += 1
             dst = root + '-' + str(addon) + '.' + ext
             continue
         else:
             if not trash:
-                Warn("- destination exists")
+                warn("- destination exists")
             return False
         return True
 
 
-def FileMove(src, dst, ov=False, trash=False):  # pragma: no cover
+def file_move(src, dst, ov=False, trash=False):  # pragma: no cover
     if not trash:
-        Warn("mv", src, dst)
+        warn("mv", src, dst)
     os.rename(src, dst)
     return True
 
 
-def FileDelete(src, trash=False):  # pragma: no cover
+def file_delete(src, trash=False):  # pragma: no cover
     if not trash:
-        Warn("rm", src)
+        warn("rm", src)
     if not os.path.exists(src):
         if not trash:
-            Warn("- not found")
+            warn("- not found")
     else:
         try:
             os.unlink(src)
             if not trash:
-                Warn("- removed")
+                warn("- removed")
         except:
             if not trash:
-                Warn("- failed")
+                warn("- failed")
             return False
     return True
 
 
-def FileCopy(src, dst, trash=False):  # pragma: no cover
+def file_copy(src, dst, trash=False):  # pragma: no cover
     if not trash:
-        Warn("copy", src, dst)
+        warn("copy", src, dst)
     try:
         open(dst, 'w').write(open(src).read())
     except:
         if not trash:
-            Warn("- failed")
+            warn("- failed")
     return False
 
 
+# File-level globals.  Not to be imported by any other file.
 pending_comments = list()
-header_done = False
-def HeaderDone():
-    global header_done, pending_comments
-    header_done = True
-    map(lambda x: WriteComment(*x), pending_comments)
+header_done_flag = False
+def is_header_done():
+    global header_done_flag
+    return header_done_flag
+
+def header_done():
+    global header_done_flag, pending_comments
+    header_done_flag = True
+    map(lambda x: write_comment(*x), pending_comments)
     pending_comments = list()
 
 partial_comment = None
-def WriteComment(*args, **kwargs):
-    global header_done, pending_comments, partial_comment
+def write_comment(*args, **kwargs):
+    global header_done_flag, pending_comments, partial_comment
     partial = kwargs.get('nonl')
     if partial:
         if partial_comment is None:  # separate from empty list
@@ -282,7 +287,7 @@ def WriteComment(*args, **kwargs):
         args = partial_comment + list(args)
         partial_comment = None
     if args:
-        if header_done:
+        if header_done_flag:
             print '<!--', ' '.join([str(x) for x in args]), '-->'
         else:
             pending_comments.append(args)

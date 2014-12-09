@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import mannum
-mannum.Main('manno')
+mannum.main('manno')

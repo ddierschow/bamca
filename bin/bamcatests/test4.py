@@ -7,73 +7,73 @@ class TestUseful(unittest.TestCase):
 	import os
 	os.putenv('SERVER_NAME', 'www.bamca.org')
 
-    def testFormInt(self):
-	pass#self.assertTrue(useful.FormInt('', 0) == '0')
-	pass#self.assertTrue(useful.FormInt(0, 0) == '0')
+    def test_form_int(self):
+	pass#self.assertTrue(useful.form_int('', 0) == '0')
+	pass#self.assertTrue(useful.form_int(0, 0) == '0')
 
-    def testReadDir(self):
-	pass#self.assertTrue(useful.ReadDir(patt, tdir) == '')
+    def test_read_dir(self):
+	pass#self.assertTrue(useful.read_dir(patt, tdir) == '')
 
-    def testRootExt(self):
-	self.assertTrue(useful.RootExt('foo') == ('foo',''))
-	self.assertTrue(useful.RootExt('foo.bar') == ('foo','bar'))
+    def test_root_ext(self):
+	self.assertTrue(useful.root_ext('foo') == ('foo',''))
+	self.assertTrue(useful.root_ext('foo.bar') == ('foo','bar'))
 
-    def testCleanName(self):
-	pass#self.assertTrue(useful.CleanName(f, morebad='') == '')
+    def test_clean_name(self):
+	pass#self.assertTrue(useful.clean_name(f, morebad='') == '')
 
-    def testIsGood(self):
-	pass#self.assertTrue(useful.IsGood(fname, v=True) == '')
+    def test_is_good(self):
+	pass#self.assertTrue(useful.is_good(fname, v=True) == '')
 
-    def testRender(self):
-	pass#self.assertTrue(useful.Render(fname) == '')
+    def test_render(self):
+	pass#self.assertTrue(useful.render(fname) == '')
 
-    def testImgSrc(self):
-	pass#self.assertTrue(useful.ImgSrc(pth, alt=None, also={}) == '')
+    def test_img_src(self):
+	pass#self.assertTrue(useful.img_src(pth, alt=None, also={}) == '')
 
-    def testPlural(self):
-	pass#self.assertTrue(useful.Plural(thing) == '')
+    def test_plural(self):
+	pass#self.assertTrue(useful.plural(thing) == '')
 
-    def testDumpDictComment(self):
-	pass#self.assertTrue(useful.DumpDictComment(t, d, keys={}) == '')
+    def test_dump_dict_comment(self):
+	pass#self.assertTrue(useful.dump_dict_comment(t, d, keys={}) == '')
 
-    def testDumpDict(self):
-	pass#self.assertTrue(useful.DumpDict(t, d, keys={}) == '')
+    def test_dump_dict(self):
+	pass#self.assertTrue(useful.dump_dict(t, d, keys={}) == '')
 
-    def testAlso(self):
-	pass#self.assertTrue(useful.Also(also={}, style={}) == '')
+    def test_also(self):
+	pass#self.assertTrue(useful.also(also={}, style={}) == '')
 
-    def testDictMerge(self):
-	pass#self.assertTrue(useful.DictMerge(*dicts) == '')
+    def test_dict_merge(self):
+	pass#self.assertTrue(useful.dict_merge(*dicts) == '')
 
-    def testSetAndAddList(self):
-	pass#self.assertTrue(useful.SetAndAddList(d, k, l) == '')
+    def test_set_and_add_list(self):
+	pass#self.assertTrue(useful.set_and_add_list(d, k, l) == '')
 
-    def testAnyCharMatch(self):
-	pass#self.assertTrue(useful.AnyCharMatch(t1, t2) == '')
+    def test_any_char_match(self):
+	pass#self.assertTrue(useful.any_char_match(t1, t2) == '')
 
-    def testBitList(self):
-	pass#self.assertTrue(useful.BitList(val, format="%02x") == '')
+    def test_bit_list(self):
+	pass#self.assertTrue(useful.bit_list(val, format="%02x") == '')
 
-    def testSearchMatch(self):
-	pass#self.assertTrue(useful.SearchMatch(sobj, targ) == '')
+    def test_search_match(self):
+	pass#self.assertTrue(useful.search_match(sobj, targ) == '')
 
-    def testFileMover(self):
-	pass#self.assertTrue(useful.FileMover(src, dst, mv=False, ov=False, inc=False, trash=False) == '')
+    def test_file_mover(self):
+	pass#self.assertTrue(useful.file_mover(src, dst, mv=False, ov=False, inc=False, trash=False) == '')
 
-    def testFileMove(self):
-	pass#self.assertTrue(useful.FileMove(src, dst, ov=False, trash=False) == '')
+    def test_file_move(self):
+	pass#self.assertTrue(useful.file_move(src, dst, ov=False, trash=False) == '')
 
-    def testFileDelete(self):
-	pass#self.assertTrue(useful.FileDelete(src, trash=False) == '')
+    def test_file_delete(self):
+	pass#self.assertTrue(useful.file_delete(src, trash=False) == '')
 
-    def testFileCopy(self):
-	pass#self.assertTrue(useful.FileCopy(src, dst, trash=False) == '')
+    def test_file_copy(self):
+	pass#self.assertTrue(useful.file_copy(src, dst, trash=False) == '')
 
-    def testHeaderDone(self):
-	pass#self.assertTrue(useful.HeaderDone() == '')
+    def test_header_done(self):
+	pass#self.assertTrue(useful.header_done() == '')
 
-    def testWriteComment(self):
-	pass#self.assertTrue(useful.WriteComment(*args) == '')
+    def test_write_comment(self):
+	pass#self.assertTrue(useful.write_comment(*args) == '')
 
 
 if __name__ == '__main__': # pragma: no cover

@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import multipack
-multipack.DoPage('packs', 'page', dbedit='am')
+multipack.do_page('packs', 'page', dbedit='am')

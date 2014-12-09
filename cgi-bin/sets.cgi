@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import mbsets
-mbsets.SetsMain('sets', 'page')
+mbsets.sets_main('sets', 'page')

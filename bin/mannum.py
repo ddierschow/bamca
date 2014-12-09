@@ -79,18 +79,18 @@ picture_fmtb = reduce(lambda x, y: x+'<td>%('+y[0]+')s</td>', picture_cols, '<tr
 picture_fmth = reduce(lambda x, y: x+'<th>%('+y[0]+')s</th>', picture_cols, '<tr>') + '</tr>'
 mades = {False: '<i>%(name)s</i>', True: '%(name)s'}
 prefixes = [
-        ['a_', config.imgdirAdd],
-        ['b_', config.imgdirAdd],
-        ['d_', config.imgdirAdd],
-        ['i_', config.imgdirAdd],
-        ['h_', config.imgdir175],
-        ['l_', config.imgdir175],
-        ['m_', config.imgdir175],
-        ['p_', config.imgdirAdd],
-        ['r_', config.imgdirAdd],
-        ['s_', config.imgdir175],
-        ['t_', config.imgdir175],
-        ['z_', config.imgdir175 + '/icon'],
+        ['a_', config.IMG_DIR_ADD],
+        ['b_', config.IMG_DIR_ADD],
+        ['d_', config.IMG_DIR_ADD],
+        ['i_', config.IMG_DIR_ADD],
+        ['h_', config.IMG_DIR_MAN],
+        ['l_', config.IMG_DIR_MAN],
+        ['m_', config.IMG_DIR_MAN],
+        ['p_', config.IMG_DIR_ADD],
+        ['r_', config.IMG_DIR_ADD],
+        ['s_', config.IMG_DIR_MAN],
+        ['t_', config.IMG_DIR_MAN],
+        ['z_', config.IMG_DIR_MAN + '/icon'],
 ]
 
 #---- the manno object ----------------------
@@ -102,21 +102,21 @@ class MannoFile:
         self.end = 9999
         self.firstyear = 1
         self.lastyear = 9999
-        self.nodesc = pif.FormInt('nodesc')
-        vtypes = pif.dbh.FetchVehicleTypes()
+        self.nodesc = pif.form_int('nodesc')
+        vtypes = pif.dbh.fetch_vehicle_types()
         self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in vtypes}
-        self.types = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
-        self.plist = ['manno', 'manls']  # [x['page_info.id'] for x in pif.dbh.FetchPages({'format_type': 'manno'})]
-        if pif.FormStr('section', 'all') != 'all':
-            slist = pif.dbh.FetchSections({'id': pif.FormStr('section')})  #, 'page_id': pif.page_id})
+        self.vtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
+        self.plist = ['manno', 'manls']  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
+        if pif.form_str('section', 'all') != 'all':
+            slist = pif.dbh.fetch_sections({'id': pif.form_str('section')})  #, 'page_id': pif.page_id})
         else:
-            slist = pif.dbh.FetchSections({'page_id': pif.page_id})
+            slist = pif.dbh.fetch_sections({'page_id': pif.page_id})
         self.mdict = dict()
         self.sdict = dict()
         self.slist = list()
         for section in slist:
             if section['section.page_id'] in self.plist and (not self.section or section['id'] == self.section):
-                section = pif.dbh.DePref('section', section)
+                section = pif.dbh.depref('section', section)
                 section.setdefault('model_ids', list())
                 self.sdict[section['id']] = section
                 self.slist.append(section)
@@ -124,36 +124,36 @@ class MannoFile:
         self.corevars = self.corepics = 0
         self.c2vars = self.c2pics = 0
 
-        for key in pif.FormKeys(start='type_'):
-            val = pif.FormStr(key)
+        for key in pif.form_keys(start='type_'):
+            val = pif.form_str(key)
             t = key[-1]
-            self.types.setdefault(val, list())
-            self.types[val] += t
+            self.vtypes.setdefault(val, list())
+            self.vtypes[val] += t
 
-        self.section = pif.FormStr('section')
+        self.section = pif.form_str('section')
         if self.section == 'all':
             self.section = ''
-        self.start = pif.FormInt('start', 1)
-        self.end = pif.FormInt('end', 9999)
-        self.firstyear = pif.FormInt('syear', 1)
-        self.lastyear = pif.FormInt('eyear', 9999)
-        if pif.FormStr('range', 'all') == 'all':
+        self.start = pif.form_int('start', 1)
+        self.end = pif.form_int('end', 9999)
+        self.firstyear = pif.form_int('syear', 1)
+        self.lastyear = pif.form_int('eyear', 9999)
+        if pif.form_str('range', 'all') == 'all':
             self.start = self.end = None
 
-        for casting in pif.dbh.FetchCastingList():  #(page_id=pif.page_id):
-            self.AddCasting(pif, casting)
+        for casting in pif.dbh.fetch_casting_list():  #(page_id=pif.page_id):
+            self.add_casting(pif, casting)
         if withaliases:
-            for alias in pif.dbh.FetchAliases(where="section_id != ''"):
-                #self.AddCasting(pif, alias)
-                self.AddAlias(pif, alias)
+            for alias in pif.dbh.fetch_aliases(where="section_id != ''"):
+                #self.add_casting(pif, alias)
+                self.add_alias(pif, alias)
 
-    def AddCasting(self, pif, casting):
-        manitem = pif.dbh.ModifyManItem(casting)
+    def add_casting(self, pif, casting):
+        manitem = pif.dbh.modify_man_item(casting)
         if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
-            self.AddItem(manitem)
+            self.add_item(manitem)
 
-    def AddAlias(self, pif, alias):
-        manitem = pif.dbh.ModifyManItem(alias)
+    def add_alias(self, pif, alias):
+        manitem = pif.dbh.modify_man_item(alias)
         if manitem['alias.section_id'] in self.sdict:
             manitem['id'] = manitem['alias.id']
             if 'ref_id' in manitem:
@@ -164,19 +164,19 @@ class MannoFile:
                 refitem['descs'] = manitem['descs']
                 refitem['descs'].append('same as ' + manitem['ref_id'])
                 manitem = refitem
-            self.AddItem(manitem)
+            self.add_item(manitem)
 
-    def AddItem(self, manitem):
-        if self.IsItemShown(manitem):
+    def add_item(self, manitem):
+        if self.is_item_shown(manitem):
             manitem['nodesc'] = self.nodesc
-            manitem['type_desc'] = self.Types(manitem['vehicle_type'])
+            manitem['type_desc'] = self.types(manitem['vehicle_type'])
             self.sdict[manitem['section_id']]['model_ids'].append(manitem['id'])
             self.mdict[manitem['id']] = manitem
 
-    def Types(self, typespec):
+    def types(self, typespec):
         return ', '.join(filter(None, [self.tdict.get(t) for t in typespec]))
 
-    def RunThing(self, pif, FunctionShowSection):
+    def run_thing(self, pif, FunctionShowSection):
         sections = list()
         for sec in self.slist:
             if sec['model_ids']:
@@ -184,7 +184,7 @@ class MannoFile:
                 sections.append(FunctionShowSection(pif, sec))
         return sections
 
-    def IsItemShown(self, mod):
+    def is_item_shown(self, mod):
         '''Makes decision of whether to show based on vehicle type, # range, and year range.'''
         if self.start and self.end:
             modno = 0
@@ -197,36 +197,36 @@ class MannoFile:
         if mod['first_year'] and (self.firstyear > int(mod['first_year']) or self.lastyear < int(mod['first_year'])):
             return False
 
-        if self.types.get('y') or self.types.get('n'):
-            if useful.AnyCharMatch(self.types['n'], mod['vehicle_type']):
+        if self.vtypes.get('y') or self.vtypes.get('n'):
+            if useful.any_char_match(self.vtypes['n'], mod['vehicle_type']):
                 return False
-            if self.types['y'] and not useful.AnyCharMatch(self.types['y'], mod['vehicle_type']):
+            if self.vtypes['y'] and not useful.any_char_match(self.vtypes['y'], mod['vehicle_type']):
                 return False
         return True
 
     # ----- castings --------------------------------------------
 
-    def ShowSectionManno(self, pif, sect):
+    def show_section_manno(self, pif, sect):
         sect['anchor'] = sect['id']
         sect['id'] = ''
-        sect['range'] = [{'entry': models.GenerateModelTablePicLink(pif, self.mdict, sect['model_ids'])}]
+        sect['range'] = [{'entry': models.generate_model_table_pic_link(pif, self.mdict, sect['model_ids'])}]
         return sect
 
-    def RunMannoList(self, pif):
+    def run_manno_list(self, pif):
         llineup = dict(columns=4)
-        llineup['section'] = self.RunThing(pif, self.ShowSectionManno)
-        return pif.render.FormatLineup(llineup) + \
-            pif.render.FormatButtonComment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
-                (pif.FormStr('selection'), pif.FormStr('range'), pif.FormStr('start'), pif.FormStr('end')))
+        llineup['section'] = self.run_thing(pif, self.show_section_manno)
+        return pif.render.format_lineup(llineup) + \
+            pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+                (pif.form_str('selection'), pif.form_str('range'), pif.form_str('start'), pif.form_str('end')))
 
-    def Run(self, pif):
+    def run(self, pif):
         llineup = {'section': list(), 'columns': 4}
-        llineup['section'] = self.RunThing(pif, self.ShowSectionManno)
+        llineup['section'] = self.run_thing(pif, self.show_section_manno)
         return llineup
 
     # ----- check list ------------------------------------------
 
-    def ShowSectionList(self, pif, sect):
+    def show_section_list(self, pif, sect):
         cols = 3
         ostr = '<a name="'+sect['id']+'_list"></a>\n'
         ostr += '<tr><td colspan=%d style="text-align: center; font-weight: bold;">%s</td></tr>' % (4 * cols, sect['name'])
@@ -244,7 +244,7 @@ class MannoFile:
             for col in range(0, cols):
                 if mods[col]:
                     slist = self.mdict[mods[col].pop(0)]
-                    ostr += models.AddModelTableListEntry(pif, slist)
+                    ostr += models.add_model_table_list_entry(pif, slist)
                     found = True
             ostr += ' </tr>\n'
             if not found:
@@ -255,15 +255,15 @@ class MannoFile:
         ostr += '</tr>'
         return ostr
 
-    def RunChecklist(self, pif):
+    def run_checklist(self, pif):
         ostr = '<table class="smallprint" width=100%>\n'
-        ostr += '\n'.join(self.RunThing(pif, self.ShowSectionList))
+        ostr += '\n'.join(self.run_thing(pif, self.show_section_list))
         ostr += "</table>\n\n"
         return ostr
 
     # ----- thumbnails ------------------------------------------
 
-    def ShowSectionThumbs(self, pif, sect):
+    def show_section_thumbs(self, pif, sect):
         sect['range'] = list()
         sect['anchor'] = sect['id']
         sect['id'] = ''
@@ -273,34 +273,34 @@ class MannoFile:
             mdict = self.mdict[mod_id]
             mdict['nodesc'] = 1
             mdict['prefix'] = 't'
-            ran['entry'].append({'text': models.AddModelTablePicLink(pif, mdict)})
+            ran['entry'].append({'text': models.add_model_table_pic_link(pif, mdict)})
         sect['range'].append(ran)
         return sect
 
-    def RunThumbnails(self, pif):
+    def run_thumbnails(self, pif):
         llineup = {'section': list(), 'columns': 4}
-        llineup['section'] = self.RunThing(pif, self.ShowSectionThumbs)
-        ostr = pif.render.FormatLineup(llineup)
-        ostr += pif.render.FormatButtonComment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
-            (pif.FormStr('selection', ''), pif.FormStr('range', ''), pif.FormStr('start', ''), pif.FormStr('end', '')))
+        llineup['section'] = self.run_thing(pif, self.show_section_thumbs)
+        ostr = pif.render.format_lineup(llineup)
+        ostr += pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+            (pif.form_str('selection', ''), pif.form_str('range', ''), pif.form_str('start', ''), pif.form_str('end', '')))
 
         return ostr
 
     # ----- admin list ------------------------------------------
 
-    def ShowListPic(self, pif, prefix, id, txt):
+    def show_list_pic(self, pif, prefix, id, txt):
         if glob.glob(prefix[1]+'/'+prefix[0]+id.lower()+'.jpg'):
-            return [prefix[0], pif.render.FormatImageAsLink([prefix[0]+id.lower()], txt.upper(), prefix[1])]
+            return [prefix[0], pif.render.format_image_as_link([prefix[0]+id.lower()], txt.upper(), prefix[1])]
         if glob.glob(prefix[1]+'/'+prefix[0]+id.lower()+'-*.jpg'):
-            return [prefix[0], pif.render.FormatImageAsLink([prefix[0]+id.lower()], txt.upper(), prefix[1])]
+            return [prefix[0], pif.render.format_image_as_link([prefix[0]+id.lower()], txt.upper(), prefix[1])]
         if glob.glob(prefix[1]+'/'+prefix[0]+id.lower()+'.gif'):
-            return [prefix[0], pif.render.FormatImageAsLink([prefix[0]+id.lower()], txt.upper(), prefix[1])]
+            return [prefix[0], pif.render.format_image_as_link([prefix[0]+id.lower()], txt.upper(), prefix[1])]
         if glob.glob(prefix[1]+'/'+prefix[0]+id.lower()+'-*.gif'):
-            return [prefix[0], pif.render.FormatImageAsLink([prefix[0]+id.lower()], txt.upper(), prefix[1])]
+            return [prefix[0], pif.render.format_image_as_link([prefix[0]+id.lower()], txt.upper(), prefix[1])]
         return [prefix[0], '-']
 
-    def ShowListVarPics(self, pif, mod_id):
-        vars = pif.dbh.FetchVariations(mod_id)
+    def show_list_var_pics(self, pif, mod_id):
+        vars = pif.dbh.fetch_variations(mod_id)
         cpics = cfound = pics = found = 0
         for var in vars:
             is_c2 = False
@@ -321,8 +321,8 @@ class MannoFile:
                 is_c2 = True
             else:
                 pics += 1
-            #pif.render.Comment(config.imgdirVar + '/' + fn + '.jpg')
-            if os.path.exists(config.imgdirVar + '/s_' + fn.lower() + '.jpg'):
+            #pif.render.comment(config.IMG_DIR_VAR + '/' + fn + '.jpg')
+            if os.path.exists(config.IMG_DIR_VAR + '/s_' + fn.lower() + '.jpg'):
                 if is_c2:
                     self.c2pics += 1
                     continue
@@ -340,9 +340,9 @@ class MannoFile:
         return af + ' ' + cf
 
 
-    def ShowListVarYears(self, pif, mod_id):
+    def show_list_var_years(self, pif, mod_id):
         fy = ly = None
-        vars = pif.dbh.FetchVariations(mod_id)
+        vars = pif.dbh.fetch_variations(mod_id)
         for var in vars:
             dt = var['variation.date'].split('/')
             if len(dt) > 1:
@@ -361,35 +361,35 @@ class MannoFile:
 
     # ----- admin -----------------------------------------------
 
-    def ShowAdminModelTable(self, pif, mdict):
+    def show_admin_model_table(self, pif, mdict):
         mdict.update({x: '-' for x in a_links})
-        for lnk in pif.dbh.FetchLinkLines("single." + mdict['id']):
-            mdict[str(lnk['link_line.associated_link'])] = pif.render.FormatLink(lnk['link_line.url'], 'X')
+        for lnk in pif.dbh.fetch_link_lines("single." + mdict['id']):
+            mdict[str(lnk['link_line.associated_link'])] = pif.render.format_link(lnk['link_line.url'], 'X')
         mdict['name'] = mades[int(mdict['made'])] % mdict
-        mdict.update({'img': self.ShowListPic(pif, ['', config.imgdir175], mdict['id'], 's')[1],
+        mdict.update({'img': self.show_list_pic(pif, ['', config.IMG_DIR_MAN], mdict['id'], 's')[1],
             'fvyear': '', 'lvyear': '',
             'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
             'nl': '<a href="%(link)s=%(id)s">%(name)s</a>' % mdict})
-        mdict.update(dict([self.ShowListPic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
-        mdict.update(self.ShowListVarYears(pif, mdict['id']))
+        mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
+        mdict.update(self.show_list_var_years(pif, mdict['id']))
         mdict.setdefault('own', '')
         mdict.setdefault('mydesc', '')
         return admin_fmtb % mdict
 
 
-    def ShowSectionAdmin(self, pif, sect):
+    def show_section_admin(self, pif, sect):
         sect['cols'] = len(admin_cols)
         ostr = '<tr><th colspan=%(cols)d><a name="%(id)s">%(name)s</a></th></tr>\n' % sect
         ostr += admin_fmth % dict(admin_cols) + '\n'
         for mod in sect['model_ids']:
-            ostr += self.ShowAdminModelTable(pif, self.mdict[mod]) + '\n'
+            ostr += self.show_admin_model_table(pif, self.mdict[mod]) + '\n'
         return ostr
 
 
-    def RunAdminList(self, pif):
-        ostr = pif.render.FormatTableStart()
-        ostr += '\n'.join(self.RunThing(pif, self.ShowSectionAdmin))
-        ostr += pif.render.FormatTableEnd()
+    def run_admin_list(self, pif):
+        ostr = pif.render.format_table_start()
+        ostr += '\n'.join(self.run_thing(pif, self.show_section_admin))
+        ostr += pif.render.format_table_end()
         self.totalvars = max(self.totalvars, 1)
         self.corevars = max(self.corevars, 1)
         self.c2vars = max(self.c2vars, 1)
@@ -400,41 +400,41 @@ class MannoFile:
 
     # ----- picture -----------------------------------------------
 
-    def ShowPictureModelTable(self, pif, mdict):
+    def show_picture_model_table(self, pif, mdict):
         var_pic_keys = ['pic_a', 'pic_c', 'pic_1', 'pic_2', 'pic_f']
-        mdict['first_year'] = '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (os.path.join(config.libmandir, mdict['id'].lower()), mdict['first_year'])
+        mdict['first_year'] = '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (os.path.join(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year'])
         mdict['name'] = mades[int(mdict['made'])] % mdict
-        mdict.update({'img': self.ShowListPic(pif, ['', config.imgdir175], mdict['id'], 's')[1],
+        mdict.update({'img': self.show_list_pic(pif, ['', config.IMG_DIR_MAN], mdict['id'], 's')[1],
             'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
             'nl': '<a href="%(link)s=%(id)s">%(name)s</a>' % mdict})
-        mdict.update(dict([self.ShowListPic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
-        icon = self.ShowListPic(pif, ['i_', config.imgdir175 + '/icon'], mdict['id'], 'i')
+        mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
+        icon = self.show_list_pic(pif, ['i_', config.IMG_DIR_MAN + '/icon'], mdict['id'], 'i')
         mdict['z_'] = icon[1]
-        #mdict['varpic'] = self.ShowListVarPics(pif, mdict['id'])
-        vp = single.ShowListVarPics(pif, mdict['id'])
+        #mdict['varpic'] = self.show_list_var_pics(pif, mdict['id'])
+        vp = single.show_list_var_pics(pif, mdict['id'])
         mdict.update({var_pic_keys[x]: vp[x] for x in range(0, 5)})
         #[percent_a, percent_c, percent_1, percent_2, percent_f]
         return picture_fmtb % mdict
 
 
-    def ShowSectionPicture(self, pif, sect):
+    def show_section_picture(self, pif, sect):
         sect['cols'] = len(picture_cols)
         ostr = '<tr><th colspan=%(cols)d><a name="%(id)s">%(name)s</a></th></tr>\n' % sect
         ostr += picture_fmth % dict(picture_cols) + '\n'
         for mod in sect['model_ids']:
-            ostr += self.ShowPictureModelTable(pif, self.mdict[mod]) + '\n'
+            ostr += self.show_picture_model_table(pif, self.mdict[mod]) + '\n'
         return ostr
 
 
-    def RunPictureList(self, pif):
+    def run_picture_list(self, pif):
         self.totals = [[0, 0]] * 5
-        ostr = pif.render.FormatTableStart()
-        ostr += '\n'.join(self.RunThing(pif, self.ShowSectionPicture))
-        ostr += pif.render.FormatTableEnd()
+        ostr = pif.render.format_table_start()
+        ostr += '\n'.join(self.run_thing(pif, self.show_section_picture))
+        ostr += pif.render.format_table_end()
         ostr += str(self.totals) + '<br>'
         return ostr
 
-    def GetMine(self, dblist, mans):
+    def get_mine(self, dblist, mans):
         dats = dict()
         mine = dict()
         for mdict in dblist:
@@ -458,7 +458,7 @@ class MannoFile:
 
     # ----- vehicle types ---------------------------------------
 
-    def ShowVTModelTable(self, pif, mdict):
+    def show_vt_model_table(self, pif, mdict):
         img = ['s_' + mdict['id']]
         if mdict.get('picture_id'):
             img = ['s_' + mdict['picture_id']]
@@ -466,43 +466,43 @@ class MannoFile:
             if s.startswith('same as '):
                 img.append('s_' + s[8:])
         mdict['name'] = mdict['id'] + '<br>' + mdict['rawname']
-        mdict['img'] = pif.render.FormatImageRequired(img, None, made=mdict['made'])
-        mdict['sel'] = pif.render.FormatCheckbox('vt_' + mdict['id'],
+        mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'])
+        mdict['sel'] = pif.render.format_checkbox('vt_' + mdict['id'],
                 [[x, mbdata.model_types[x]] for x in list(mbdata.model_type_chars[:13])],
                 checked=mdict['vehicle_type']) + '<br>'
-        mdict['sel'] += pif.render.FormatCheckbox('vt_' + mdict['id'],
+        mdict['sel'] += pif.render.format_checkbox('vt_' + mdict['id'],
                 [[x, mbdata.model_types[x]] for x in list(mbdata.model_type_chars[13:])],
                 checked=mdict['vehicle_type']) + '<br>'
-        mdict['sel'] += 'make: ' + pif.render.FormatTextInput('vm_' + mdict['id'], 3, 3, value=mdict['make'])
-        mdict['sel'] += 'country: ' + pif.render.FormatTextInput('co_' + mdict['id'], 2, 2, value=mdict['country'])
+        mdict['sel'] += 'make: ' + pif.render.format_text_input('vm_' + mdict['id'], 3, 3, value=mdict['make'])
+        mdict['sel'] += 'country: ' + pif.render.format_text_input('co_' + mdict['id'], 2, 2, value=mdict['country'])
         return vt_fmtb % mdict
 
-    def ShowSectionVehicleType(self, pif, sect):
+    def show_section_vehicle_type(self, pif, sect):
         sect['cols'] = len(vt_cols)
         ostr = '<tr><th colspan=%(cols)d><a name="%(id)s">%(name)s</a></th></tr>\n' % sect
         ostr += vt_fmth % dict(vt_cols) + '\n'
         for mod in sect['model_ids']:
-            ostr += self.ShowVTModelTable(pif, self.mdict[mod]) + '\n'
+            ostr += self.show_vt_model_table(pif, self.mdict[mod]) + '\n'
         return ostr
 
-    def RunVehicleTypeList(self, pif):
+    def run_vehicle_type_list(self, pif):
         ostr = '<form method="post">\n'
         ostr += '<input type="hidden" name="vtset" value="1">\n'
-        ostr += pif.render.FormatTableStart()
-        ostr += '\n'.join(self.RunThing(pif, self.ShowSectionVehicleType))
-        ostr += pif.render.FormatTableEnd()
-        ostr += pif.render.FormatButtonInput()
+        ostr += pif.render.format_table_start()
+        ostr += '\n'.join(self.run_thing(pif, self.show_section_vehicle_type))
+        ostr += pif.render.format_table_end()
+        ostr += pif.render.format_button_input()
         ostr += '</form>\n'
         return ostr
 
     # ----- csv -------------------------------------------------
 
-    def ShowSectionMan2CSV(self, pif, sect):
+    def show_section_man2csv(self, pif, sect):
 
-        def NumFormat(t):
+        def num_format(t):
             return '"=""%s"""' % t
 
-        def TextFormat(t):
+        def text_format(t):
             if '"' in t or ',' in t:
                 t = '"' + t.replace('"', '""') + '"'
             return t
@@ -510,40 +510,40 @@ class MannoFile:
         ret = list()
         for mod_id in sect['model_ids']:
             mod = self.mdict[mod_id]
-            ret.append(",".join([mod_id, NumFormat(mod['first_year']), NumFormat(mod['scale']), TextFormat(mod['name']), TextFormat(', '.join(mod['descs']))]))
+            ret.append(",".join([mod_id, num_format(mod['first_year']), num_format(mod['scale']), text_format(mod['name']), text_format(', '.join(mod['descs']))]))
         return '\r\n'.join(ret) + '\r\n'
 
-    def RunMan2CSV(self, pif):
+    def run_man2csv(self, pif):
         out_file = open('pages/man.csv', 'w')
         out_file.write("MAN #,Year,Scale,Name,Notes\r\n")
-        secs = self.RunThing(pif, self.ShowSectionMan2CSV)
+        secs = self.run_thing(pif, self.show_section_man2csv)
         out_file.write(''.join(secs))
 
 #---- useful stuff --------------------------
 
-def RenameBaseID(pif, old_mod_id, new_mod_id, force=False):
-    rec = pif.dbh.FetchBaseID(new_mod_id)
+def rename_base_id(pif, old_mod_id, new_mod_id, force=False):
+    rec = pif.dbh.fetch_base_id(new_mod_id)
     if rec:
         if not force:
             print new_mod_id, "exists"
             return
     else:
-        pif.dbh.RenameBaseID(old_mod_id, new_mod_id)
+        pif.dbh.rename_base_id(old_mod_id, new_mod_id)
 
     # If we're renaming, I'd like to also rename the pictures.
     filename_re = re.compile('(?P<path>.*/)(?P<p>[a-z]_)?(?P<m>[^-.]*)(?P<s>-[^.]*)?(?P<e>\..*)')
     none_blank = {None: ''}
     patts = [
-        config.imgdir175 + '/?_%s.*' % old_mod_id,
-        config.imgdir175 + '/%s.*' % old_mod_id,
-        config.imgdirVar + '/?_%s-*.*' % old_mod_id,
-        config.imgdirVar + '/%s-*.*' % old_mod_id,
-        config.imgdir175 + '/icon/?_%s-*.*' % old_mod_id,
-        config.imgdirAdd + '/?_%s.*' % old_mod_id,
-        config.imgdirCat + '/?_%s.*' % old_mod_id,
-        config.imgdirCat + '/%s.*' % old_mod_id,
-        config.imgdirPack + '/?_%s.*' % old_mod_id,
-        config.imgdirPack + '/%s.*' % old_mod_id,
+        config.IMG_DIR_MAN + '/?_%s.*' % old_mod_id,
+        config.IMG_DIR_MAN + '/%s.*' % old_mod_id,
+        config.IMG_DIR_VAR + '/?_%s-*.*' % old_mod_id,
+        config.IMG_DIR_VAR + '/%s-*.*' % old_mod_id,
+        config.IMG_DIR_MAN + '/icon/?_%s-*.*' % old_mod_id,
+        config.IMG_DIR_ADD + '/?_%s.*' % old_mod_id,
+        config.IMG_DIR_CAT + '/?_%s.*' % old_mod_id,
+        config.IMG_DIR_CAT + '/%s.*' % old_mod_id,
+        config.IMG_DIR_PACK + '/?_%s.*' % old_mod_id,
+        config.IMG_DIR_PACK + '/%s.*' % old_mod_id,
     ]
     pics = reduce(lambda x, y: x + glob.glob(y.lower()), patts, list())
     for pic in pics:
@@ -565,67 +565,67 @@ def RenameBaseID(pif, old_mod_id, new_mod_id, force=False):
         os.rename(pic, pic_new)
 
 
-def WriteVehicleTypes(pif):
-    for key in pif.FormKeys(start='vt_'):
-        val = ''.join(pif.FormList(key))
+def write_vehicle_types(pif):
+    for key in pif.form_keys(start='vt_'):
+        val = ''.join(pif.form_list(key))
         print key[3:], 'type', val, '<br>'
-        pif.dbh.WriteCasting(values={'vehicle_type': val}, id=key[3:])
-    for key in pif.FormKeys(start='vm_'):
-        print key[3:], 'make', pif.FormStr(key), '<br>'
-        pif.dbh.WriteCasting(values={'make': pif.FormStr(key)}, id=key[3:])
-    for key in pif.FormKeys(start='co_'):
-        print key[3:], 'country', pif.FormStr(key), '<br>'
-        pif.dbh.WriteCasting(values={'country': pif.FormStr(key)}, id=key[3:])
+        pif.dbh.write_casting(values={'vehicle_type': val}, id=key[3:])
+    for key in pif.form_keys(start='vm_'):
+        print key[3:], 'make', pif.form_str(key), '<br>'
+        pif.dbh.write_casting(values={'make': pif.form_str(key)}, id=key[3:])
+    for key in pif.form_keys(start='co_'):
+        print key[3:], 'country', pif.form_str(key), '<br>'
+        pif.dbh.write_casting(values={'country': pif.form_str(key)}, id=key[3:])
 
 #---- main ----------------------------------
 
-@basics.WebPage
-def Main(pif):
-    pif.render.hierarchy.append(('/', 'Home'))
-    pif.render.hierarchy.append(('/database.php', 'Database'))
-    pif.render.hierarchy.append((pif.request_uri, 'Manufacturing Numbers'))
-    pif.render.PrintHtml()
-    if pif.FormStr('num'):
-        print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.FormStr('num')
+@basics.web_page
+def main(pif):
+    pif.render.hierarchy_append('/', 'Home')
+    pif.render.hierarchy_append('/database.php', 'Database')
+    pif.render.hierarchy_append(pif.request_uri, 'Manufacturing Numbers')
+    pif.render.print_html()
+    if pif.form_str('num'):
+        print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form_str('num')
         return
-    print pif.render.FormatHead()
+    print pif.render.format_head()
     models.flago = mflags.FlagList(pif)
-    if pif.FormHas('vtset'):
-        WriteVehicleTypes(pif)
-    elif not pif.FormHas('section'):
+    if pif.form_has('vtset'):
+        write_vehicle_types(pif)
+    elif not pif.form_has('section'):
         print "Please select a range to display."
     else:
-        listtype = pif.FormStr('listtype')
+        listtype = pif.form_str('listtype')
         manf = MannoFile(pif, withaliases=True)
         if listtype == 'adl':
-            print manf.RunAdminList(pif)
+            print manf.run_admin_list(pif)
         elif listtype == 'pxl':
-            print manf.RunPictureList(pif)
+            print manf.run_picture_list(pif)
         elif listtype == 'ckl':
-            print manf.RunChecklist(pif)
+            print manf.run_checklist(pif)
         elif listtype == 'thm':
-            print manf.RunThumbnails(pif)
+            print manf.run_thumbnails(pif)
         elif listtype == 'vtl':
-            print manf.RunVehicleTypeList(pif)
+            print manf.run_vehicle_type_list(pif)
         else:
-            print manf.RunMannoList(pif)
-    print pif.render.FormatTail()
+            print manf.run_manno_list(pif)
+    print pif.render.format_tail()
 
 #---- play ----------------------------------
 
-@basics.WebPage
-def PlayMain(pif):
-    pif.render.PrintHtml()
-    print pif.render.FormatHead()
+@basics.web_page
+def play_main(pif):
+    pif.render.print_html()
+    print pif.render.format_head()
     manf = MannoFile(pif)
-    llineup = manf.Run(pif)
+    llineup = manf.run(pif)
     llineup['section'][0]['range'][0]['entry'][0].update({'rowspan': 2, 'colspan': 2})
-    print pif.render.FormatLineup(llineup)
-    print pif.render.FormatTail()
+    print pif.render.format_lineup(llineup)
+    print pif.render.format_tail()
 
 #---- compare -------------------------------
 
-def Comparisons(pif, diffs):
+def comparisons(pif, diffs):
     ostr = ''
     imod = 0
     for sec in diffs:
@@ -644,70 +644,70 @@ def Comparisons(pif, diffs):
         keys = modsets.keys()
         keys.sort()
 
-        ostr += pif.render.FormatTableStart()
-        ostr += pif.render.FormatSection(sec['section.name'], also={'colspan': 3})
-        ostr += pif.render.FormatRowStart()
-        ostr += pif.render.FormatCell(0, sec['section.note'], also={'colspan': 3})
-        ostr += pif.render.FormatRowEnd()
+        ostr += pif.render.format_table_start()
+        ostr += pif.render.format_section(sec['section.name'], also={'colspan': 3})
+        ostr += pif.render.format_row_start()
+        ostr += pif.render.format_cell(0, sec['section.note'], also={'colspan': 3})
+        ostr += pif.render.format_row_end()
         for main_id in keys:
             modset = modsets[main_id]
-            ostr += pif.render.FormatRowStart(ids=[x[0] for x in modset])
-            ostr += pif.render.FormatCellStart(imod, hdr=True, also={'colspan': 3})
+            ostr += pif.render.format_row_start(ids=[x[0] for x in modset])
+            ostr += pif.render.format_cell_start(imod, hdr=True, also={'colspan': 3})
             names = list()
             for id, name, descs in modset:
-                #ostr += pif.render.FmtAnchor(id)
+                #ostr += pif.render.fmt_anchor(id)
                 if name not in names:
                     names.append(name)
             ostr += ", ".join(names)
-            ostr += pif.render.FormatCellEnd(hdr=True)
-            ostr += pif.render.FormatRowEnd()
-            pic = pif.render.FormatImageOptional(main_id, prefix='z_')
+            ostr += pif.render.format_cell_end(hdr=True)
+            ostr += pif.render.format_row_end()
+            pic = pif.render.format_image_optional(main_id, prefix='z_')
             for id, name, descs in modset:
-                desc = pif.render.FormatBulletList(descs)
-                ostr += pif.render.FormatRowStart()
-                ostr += pif.render.FormatCell(imod, models.AddModelPicLinkShort(pif, id),
+                desc = pif.render.format_bullet_list(descs)
+                ostr += pif.render.format_row_start()
+                ostr += pif.render.format_cell(imod, models.add_model_pic_link_short(pif, id),
                                 also={'style': 'text-align: center;'})
                 if pic:
                     if desc:
-                        ostr += pif.render.FormatCell(imod, desc)
+                        ostr += pif.render.format_cell(imod, desc)
                     if id == main_id:
-                        ostr += pif.render.FormatCell(imod, pif.render.FormatImageOptional(main_id, prefix='z_'),
+                        ostr += pif.render.format_cell(imod, pif.render.format_image_optional(main_id, prefix='z_'),
                                     also={'rowspan': len(modsets[main_id])})
                 else:
                     if desc:
-                        ostr += pif.render.FormatCell(imod, desc, also={'colspan': 2})
+                        ostr += pif.render.format_cell(imod, desc, also={'colspan': 2})
                     else:
-                        ostr += pif.render.FormatCell(imod, '&nbsp;', also={'colspan': 2})
-                ostr += pif.render.FormatRowEnd()
+                        ostr += pif.render.format_cell(imod, '&nbsp;', also={'colspan': 2})
+                ostr += pif.render.format_row_end()
             imod = (imod + 1) % 2
-        ostr += pif.render.FormatTableEnd()
+        ostr += pif.render.format_table_end()
     return ostr
 
 
-@basics.WebPage
-def CompareMain(pif):
-    pif.render.PrintHtml()
-    secs = pif.dbh.FetchSections({'page_id': pif.page_id})
-    mods = pif.dbh.FetchCastingCompares()
+@basics.web_page
+def compare_main(pif):
+    pif.render.print_html()
+    secs = pif.dbh.fetch_sections({'page_id': pif.page_id})
+    mods = pif.dbh.fetch_casting_compares()
     for sec in secs:
         sec['mods'] = filter(lambda x: x['cc.section_id'] == sec['section.id'], mods)
 
-    print pif.render.FormatHead()
-    print Comparisons(pif, secs)
-    print pif.render.FormatButtonComment(pif)
-    print pif.render.FormatTail()
+    print pif.render.format_head()
+    print comparisons(pif, secs)
+    print pif.render.format_button_comment(pif)
+    print pif.render.format_tail()
 
 #---- ---------------------------------------
 
-@basics.CommandLine
-def Commands(pif):
+@basics.command_line
+def commands(pif):
     if pif.argv and pif.argv[0] == 'd':
         print "delete not yet implemented"
         pass  # DeleteCasting(pif, pif.argv[1], pif.argv[2])
     elif pif.argv and pif.argv[0] == 'r':
-        RenameBaseId(pif, pif.argv[1], pif.argv[2], True)
+        rename_base_id(pif, pif.argv[1], pif.argv[2], True)
     elif pif.argv and pif.argv[0] == 'f':
-        RunSearch(pif, pif.argv[1:])
+        run_search(pif, pif.argv[1:])
     else:
         print "./mannum.py [f|d|r] ..."
         print "  f for find: search-criterion"
@@ -715,18 +715,18 @@ def Commands(pif):
         print "  r for rename: old_mod_id new_mod_id"
 
 
-def SearchName(pif, targ):
+def search_name(pif, targ):
     where = map(lambda x: "base_id.rawname like '%%%s%%'" % x, targ)
-    return pif.dbh.FetchCastingList(page_id='manno', where=where, verbose=False) + \
-            pif.dbh.FetchCastingList(page_id='manls', where=where, verbose=False)
+    return pif.dbh.fetch_casting_list(page_id='manno', where=where, verbose=False) + \
+            pif.dbh.fetch_casting_list(page_id='manls', where=where, verbose=False)
 
 
-def RunSearch(pif, args):
-    mods = map(pif.dbh.ModifyManItem, SearchName(pif, args))
+def run_search(pif, args):
+    mods = map(pif.dbh.modify_man_item, search_name(pif, args))
     mods.sort(key=lambda x: x['id'])
     for mod in mods:
         print '%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod
 
 
 if __name__ == '__main__':  # pragma: no cover
-    Commands('vars')
+    commands('vars')

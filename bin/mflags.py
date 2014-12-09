@@ -14,10 +14,10 @@ class FlagList():
         self.lookup = {x[0]: x[1] for x in self.isolist}
         self.isolist.sort(key=lambda x: x[1])
 
-    def Format(self, code2, hspace=0, also={}):
+    def format(self, code2, hspace=0, also={}):
         if code2 not in self:
             return ''
-        return '<img alt="[%s]" src="../%s/%s"%s>' % (self[code2], config.flagdir, code2, useful.Also({'hspace': hspace}, also))
+        return '<img alt="[%s]" src="../%s/%s"%s>' % (self[code2], config.FLAG_DIR, code2, useful.fmt_also({'hspace': hspace}, also))
 
     def has_key(self, code):
         return code in self.lookup

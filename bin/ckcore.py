@@ -7,8 +7,10 @@ import mbdata
 
 # Start here
 
-def Model(pif, mod):
-    yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s' and region!='S' and region!='M' and region!='J'" % mod)[0]
+
+def model(pif, mod):
+    # formerly regions S, M and J were excluded, but there are no longer any entries with these regions.
+    yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s'" % mod)[0]
     yrs = [x[0] for x in yrs]
     yrs.sort()
 
@@ -26,11 +28,11 @@ def Model(pif, mod):
     return missing, bad
 
 
-def ShowListVarPics(pif, mod_id):
-    vars = pif.dbh.FetchVariations(mod_id)
+def show_list_var_pics(pif, mod_id):
+    vars = pif.dbh.fetch_variations(mod_id)
     cpics = cfound = pics = found = 0
     for var in vars:
-        var = pif.dbh.DePref('variation', var)
+        var = pif.dbh.depref('variation', var)
         if var['var'].startswith('f') or mbdata.categories.get(var['category'], '').startswith('['):
             continue
         elif not var['picture_id']:
@@ -42,8 +44,8 @@ def ShowListVarPics(pif, mod_id):
         pics += 1
         if not var['category']:
             cpics += 1
-        #print '<!--', config.imgdir175 + '/var/' + fn + '.jpg', '-->'
-        if os.path.exists(config.imgdir175 + '/var/s_' + fn.lower() + '.jpg'):
+#        print '<!--', config.IMG_DIR_MAN + '/var/' + fn + '.jpg', '-->'
+        if os.path.exists(config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'):
             found += 1
             if not var['category']:
                 cfound += 1
@@ -56,8 +58,8 @@ def ShowListVarPics(pif, mod_id):
     return af, cf
 
 
-@basics.CommandLine
-def Main(pif):
+@basics.command_line
+def main(pif):
 
     specs = pif.filelist
 
@@ -72,8 +74,8 @@ def Main(pif):
         mods.sort()
 
         for mod in mods:
-            missing, bad = Model(pif, mod)
-            af, cf = ShowListVarPics(pif, mod)
+            missing, bad = model(pif, mod)
+            af, cf = show_list_var_pics(pif, mod)
 
             if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
                 print mod,
@@ -89,4 +91,4 @@ def Main(pif):
                 print
 
 if __name__ == '__main__':  # pragma: no cover
-    Main('vars')
+    main('vars')

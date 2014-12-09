@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import mannum
-mannum.PlayMain('manno')
+mannum.play_main('manno')

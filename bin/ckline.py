@@ -2,7 +2,8 @@
 
 import basics
 
-def Check(pif, reg, num, yr, man, d):
+
+def check(pif, reg, num, yr, man, d):
     num = int(num.replace(' ', ''))
     if not num:
         return
@@ -31,8 +32,8 @@ def Check(pif, reg, num, yr, man, d):
         print
 
 
-@basics.CommandLine
-def Main(pif):
+@basics.command_line
+def main(pif):
 
     for fn in pif.filelist:
         yr = int(fn)
@@ -65,31 +66,31 @@ def Main(pif):
                 if 'Area' in d:
                     if 'MAN#' in d:
                         if d.get('USA#', ''):
-                            Check(pif, 'U', d['USA#'], yr, d['MAN#'], d)
+                            check(pif, 'U', d['USA#'], yr, d['MAN#'], d)
                         if d.get('D#', ''):
-                            Check(pif, 'R', d['ROW#'], yr, d['MAN#'], d)
+                            check(pif, 'R', d['ROW#'], yr, d['MAN#'], d)
                     else:
                         if d.get('USA#', ''):
-                            Check(pif, 'U', d['USA#'], yr, d['CAT#'], d)
+                            check(pif, 'U', d['USA#'], yr, d['CAT#'], d)
                         if d.get('D#', ''):
-                            Check(pif, 'R', d['ROW#'], yr, d['CAT#'], d)
+                            check(pif, 'R', d['ROW#'], yr, d['CAT#'], d)
                 else:
                     if d.get('USA#', ''):
-                        Check(pif, 'U', d['USA#'][1:], yr, d['MAN#'], d)
+                        check(pif, 'U', d['USA#'][1:], yr, d['MAN#'], d)
                     if d.get('D#', ''):
-                        Check(pif, 'D', d['D#'][1:], yr, d['MAN#'], d)
+                        check(pif, 'D', d['D#'][1:], yr, d['MAN#'], d)
                     if d.get('GB#', ''):
-                        Check(pif, 'B', d['GB#'][1:], yr, d['MAN#'], d)
+                        check(pif, 'B', d['GB#'][1:], yr, d['MAN#'], d)
                     if d.get('AUS#', ''):
-                        Check(pif, 'A', d['AUS#'][1:], yr, d['MAN#'], d)
+                        check(pif, 'A', d['AUS#'][1:], yr, d['MAN#'], d)
                     if d.get('LAAM#', ''):
-                        Check(pif, 'L', d['LAAM#'][1:], yr, d['MAN#'], d)
+                        check(pif, 'L', d['LAAM#'][1:], yr, d['MAN#'], d)
                     if d.get('ROW#', ''):
-                        Check(pif, 'R', d['ROW#'][1:], yr, d['MAN#'], d)
+                        check(pif, 'R', d['ROW#'][1:], yr, d['MAN#'], d)
                     if d.get('MW#', ''):
-                        Check(pif, 'U', d['MW#'], yr, d['MAN#'], d)
-                        Check(pif, 'R', d['MW#'], yr, d['MAN#'], d)
+                        check(pif, 'U', d['MW#'], yr, d['MAN#'], d)
+                        check(pif, 'R', d['MW#'], yr, d['MAN#'], d)
                 od = d
 
 if __name__ == '__main__':  # pragma: no cover
-    Main('vars')
+    main('vars')

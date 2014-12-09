@@ -161,10 +161,10 @@ function toggle_visibility(tbid,lnkid)
 </script>
 '''
 
-def_reset_button_js     = '''<script type="text/javascript" src="/bin/reset.js"></script>\n'''
-def_increment_js        = '''<script type="text/javascript" src="/bin/increment.js"></script>\n'''
+def_reset_button_js = '''<script type="text/javascript" src="/bin/reset.js"></script>\n'''
+def_increment_js = '''<script type="text/javascript" src="/bin/increment.js"></script>\n'''
 def_increment_select_js = '''<script type="text/javascript" src="/bin/incrsel.js"></script>\n'''
-#def_toggle_display_js   = '''<script type="text/javascript" src="/bin/togdisp.js"></script>\n'''
+#def_toggle_display_js = '''<script type="text/javascript" src="/bin/togdisp.js"></script>\n'''
 
 def_google_analytics_js = '''
 <script type="text/javascript">

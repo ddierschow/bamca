@@ -14,7 +14,7 @@ outloc = 'bamca@xocolatl.com:www/htdocs/src/mbxf'
 
 error_list = []
 
-def Fetch(url, with_continue=True):
+def fetch(url, with_continue=True):
     fn = os.path.basename(url)
     #url = urllib.quote(url, ':/')
     img = ''
@@ -72,7 +72,7 @@ def Fetch(url, with_continue=True):
 
 
 web_index_re    = re.compile('<a href="(?P<u>[^"]*)">.*?<\/a>\s*(?P<d>....-..-..)', re.I)
-def WebReadDirectory(dir_path, start_date=None, fn_patt=None):
+def web_read_directory(dir_path, start_date=None, fn_patt=None):
     page_text = urllib2.urlopen(dir_path).read()
     bfiles = web_index_re.findall(page_text)
     if start_date:
@@ -84,13 +84,13 @@ def WebReadDirectory(dir_path, start_date=None, fn_patt=None):
     return bfiles
 
 
-def GetFiles(url, file_list):
+def get_files(url, file_list):
     for fn in file_list:
         print fn
-        open(tmploc + '/' + fn, 'wb').write(Fetch(url + '/' + fn))
+        open(tmploc + '/' + fn, 'wb').write(fetch(url + '/' + fn))
 
 
-def Process(filetype):
+def process(filetype):
     if os.path.exists(tmploc + '/done.txt'):
         os.unlink(tmploc + '/done.txt')
     #map(os.unlink, glob.glob(tmploc + '/*.' + filetype))
@@ -99,7 +99,7 @@ def Process(filetype):
         time.sleep(3)
 
 
-def Main(args):
+def main(args):
     start_date = None
     fn_patt = None
     if not args:
@@ -110,10 +110,10 @@ def Main(args):
                 if not os.path.exists(tmploc):
                     os.mkdir(tmp)
                 map(os.unlink, glob.glob(tmploc + '/*.doc'))
-                fl = WebReadDirectory(inloc, start_date, fn_patt)
-                GetFiles(inloc, filter(lambda x: x.endswith('.doc'), fl))
+                fl = web_read_directory(inloc, start_date, fn_patt)
+                get_files(inloc, filter(lambda x: x.endswith('.doc'), fl))
             elif arg == 'list':
-                fl = WebReadDirectory(inloc, start_date, fn_patt)
+                fl = web_read_directory(inloc, start_date, fn_patt)
                 print '\n'.join(fl)
             elif arg.startswith('date='):
                 start_date = datetime.datetime.strptime(arg, 'date=%d-%b-%Y')
@@ -121,7 +121,7 @@ def Main(args):
             elif arg.startswith('file='):
                 fn_patt = arg[5:]
             elif arg in startword:
-                Process(arg)
+                process(arg)
             elif arg == 'reset':
                 map(os.unlink, glob.glob(tmploc + '/*.doc'))
                 map(os.unlink, glob.glob(tmploc + '/*.rtf'))
@@ -149,4 +149,4 @@ def Main(args):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    Main(sys.argv[1:])
+    main(sys.argv[1:])

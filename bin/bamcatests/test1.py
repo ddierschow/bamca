@@ -8,7 +8,7 @@ import render
 class TestPIF(unittest.TestCase):
 
     def setUp(self):
-	self.pif = basics.GetPageInfo('editor')
+	self.pif = basics.get_page_info('editor')
 
     def test_1(self):
         self.assertIsInstance(self.pif, pifile.PageInfoFile)
@@ -17,55 +17,55 @@ class TestPIF(unittest.TestCase):
         self.assertIsInstance(self.pif.render, render.Presentation)
 
     def test_2a(self):
-        self.assertIsInstance(self.pif.dbh, dbhand.dbhandler)
+        self.assertIsInstance(self.pif.dbh, dbhand.DBHandler)
 
     def test_2b(self):
-        self.assertIsInstance(self.pif.dbh.dbi, db.db)
+        self.assertIsInstance(self.pif.dbh.dbi, db.DB)
 
     def test_3(self):
-	self.assertTrue(len(self.pif.dbh.Fetch('page_info', where='not health=0', tag='unittest')) == 0)
+	self.assertTrue(len(self.pif.dbh.fetch('page_info', where='not health=0', tag='unittest')) == 0)
 
-    def testFormInt(self):
-	self.assertTrue(self.pif.FormInt('a', defval=0) == 0)
+    def test_form_int(self):
+	self.assertTrue(self.pif.form_int('a', defval=0) == 0)
 
-#    def testUpdate(self):
+#    def test_Update(self):
 #	pass#self.assertTrue(self.pif.Update(argfile)
 
-    def testIsAllowed(self):
-	self.assertTrue(self.pif.IsAllowed('a') == False)
+    def test_is_allowed(self):
+	self.assertTrue(self.pif.is_allowed('a') == False)
 
-    def testRestrict(self):
-	pass#self.assertTrue(self.pif.Restrict(priv)
+    def test_restrict(self):
+	pass#self.assertTrue(self.pif.restrict(priv)
 
-    def testDump(self):
-	self.assertTrue(self.pif.Dump(True) == None)
+    def test_dump(self):
+	self.assertTrue(self.pif.dump(True) == None)
 
-    def testErrorReport(self):
-	self.assertTrue(self.pif.ErrorReport() != '')
+    def test_error_report(self):
+	self.assertTrue(self.pif.error_report() != '')
 
-    def testFormFind(self):
-	self.assertTrue(self.pif.FormFind('b') == [])
+    def test_form_find(self):
+	self.assertTrue(self.pif.form_find('b') == [])
 
-    def testGetForm(self):
-	self.assertTrue(self.pif.GetForm() == {})
+    def test_get_form(self):
+	self.assertTrue(self.pif.get_form() == {})
 
-    def testFormSearch(self):
-	self.assertTrue(self.pif.FormSearch('a') == [])
+    def test_form_search(self):
+	self.assertTrue(self.pif.form_search('a') == [])
 
-    def testShowError(self):
-	self.assertTrue(self.pif.ShowError() == None)
+    def test_show_error(self):
+	self.assertTrue(self.pif.show_error() == None)
 
-    def testLinks(self):
+    def test_links(self):
 	import tlinks
-	listRejects, blacklist = tlinks.ReadBlacklist(self.pif)
+	listRejects, blacklist = tlinks.read_blacklist(self.pif)
 	self.assertTrue(type(listRejects) == list)
 	self.assertTrue(len(listRejects) > 0)
 	self.assertTrue(type(blacklist) == list)
 	self.assertTrue(len(blacklist) > 0)
-        self.assertTrue(tlinks.IsBlacklisted('nope', blacklist) == '')
-        self.assertTrue(tlinks.FixURL('a/b') == 'a/b')
-        self.assertTrue(tlinks.FixURL('a/b/') == 'a/b')
-	all_links, highest_disp_order = tlinks.ReadAllLinks(self.pif)
+        self.assertTrue(tlinks.is_blacklisted('nope', blacklist) == '')
+        self.assertTrue(tlinks.fix_url('a/b') == 'a/b')
+        self.assertTrue(tlinks.fix_url('a/b/') == 'a/b')
+	all_links, highest_disp_order = tlinks.read_all_links(self.pif)
 	self.assertTrue(len(all_links) > 0)
 
 

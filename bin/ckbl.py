@@ -3,9 +3,10 @@
 import basics
 import tlinks
 
-@basics.CommandLine
-def Main(pif):
-    tlinks.CheckBlacklistedLinks(pif, pif.filelist)
+
+@basics.command_line
+def main(pif):
+    tlinks.check_blacklisted_links(pif, pif.filelist)
 
 if __name__ == '__main__':  # pragma: no cover
-    Main('editor')
+    main('editor')

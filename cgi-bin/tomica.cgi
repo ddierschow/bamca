@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import tomica
-tomica.Main('tomica')
+tomica.main('tomica')

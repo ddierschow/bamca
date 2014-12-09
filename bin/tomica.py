@@ -19,11 +19,11 @@ class MannoFile(bfiles.ArgFile):
         self.dictlist = []
         self.mdict = {}
         bfiles.ArgFile.__init__(self, fname)
-        self.FinishSection()
+        self.finish_section()
 
-    def Parse_H(self, llist):
-        slist = self.ParseData(llist)
-        self.FinishSection()
+    def parse_H(self, llist):
+        slist = self.parse_data_line(llist)
+        self.finish_section()
         self.stitle = slist['title']
         self.slabel = slist['label']
         self.sdict['title'] = self.stitle
@@ -31,28 +31,28 @@ class MannoFile(bfiles.ArgFile):
         self.sdict['comment'] = []
         self.mdlist = []
 
-    def Parse_c(self, slist):
-        slist = self.ParseData(slist)
+    def parse_c(self, slist):
+        slist = self.parse_data_line(slist)
         self.sdict['comment'].append(slist['text'])
 
-    def Parse_m(self, slist):
-        slist = self.ParseData(slist)
-        manitem = GetManItem(slist)
+    def parse_m(self, slist):
+        slist = self.parse_data_line(slist)
+        manitem = get_man_item(slist)
         self.mdlist.append(manitem)
         self.mdict[manitem['id']] = manitem
 
-    def Parse_p(self, slist):
-        slist = self.ParseData(slist)
+    def parse_p(self, slist):
+        slist = self.parse_data_line(slist)
         slist.setdefault('descs', [])
         if slist.get('description'):
             slist['descs'].extend(slist['description'].split(';'))
         self.mdlist.append(slist)
         self.mdict[slist['id']] = slist
 
-    def Parse_t(self, llist):
+    def parse_t(self, llist):
         self.tdict[llist[1]] = llist[2]
 
-    def FinishSection(self):
+    def finish_section(self):
         if self.slabel:
             self.sdict['models'] = self.mdlist
             self.dictlist.append(self.sdict)
@@ -60,7 +60,7 @@ class MannoFile(bfiles.ArgFile):
 
 
 
-def GetManItem(llist, data=None):
+def get_man_item(llist, data=None):
     if not isinstance(llist, dict):
         mod = dict(zip(data, llist[1:]))
     else:
@@ -92,14 +92,14 @@ def GetManItem(llist, data=None):
     return mod
 
 
-def TypeMatch(t1, t2):
+def type_match(t1, t2):
     for c in t2:
         if c in t1:
             return True
     return False
 
 
-def ShowSection(pif, manf, sect, start=None, end=None, year=None):
+def show_section(pif, manf, sect, start=None, end=None, year=None):
     print '<a name="'+sect['label']+'"></a>'
     print "<hr><center><h3>"+sect['title']+"</h3></center>"
     if sect['comment']:
@@ -126,7 +126,7 @@ def ShowSection(pif, manf, sect, start=None, end=None, year=None):
             for c in slist['id']:
                 if c.isdigit():
                     modno = 10 * modno + int(c)
-            pif.render.Comment(start, end, modno)
+            pif.render.comment(start, end, modno)
             if modno < start or modno > end:
                 continue
 
@@ -144,7 +144,7 @@ def ShowSection(pif, manf, sect, start=None, end=None, year=None):
             print "<center><table><tr align=top>"
         shown += 1
         print " <td valign=top width=%d>" % 200
-        print models.AddModelTablePicLink(pif, slist)
+        print models.add_model_table_pic_link(pif, slist)
         print " </td>"
         if (shown == cols):
             print "</tr></table></center>"
@@ -156,7 +156,7 @@ def ShowSection(pif, manf, sect, start=None, end=None, year=None):
         print
 
 
-def ShowSectionList(pif, sect):
+def show_section_list(pif, sect):
     cols = 3
     print '<a name="'+sect['label']+'_list"></a>'
     print '<table class="smallprint pagebreak" width=100%>'
@@ -176,7 +176,7 @@ def ShowSectionList(pif, sect):
             if mods[col]:
                 slist = mods[col].pop(0)
                 slist['shortname'] = slist['name']
-                print models.AddModelTableListEntry(pif, slist)
+                print models.add_model_table_list_entry(pif, slist)
                 found = True
         print ' </tr>'
         if not found:
@@ -191,13 +191,13 @@ def ShowSectionList(pif, sect):
     print
 
 
-def RunFile(pif, manf, start=0, end=9999, year=None):
+def run_file(pif, manf, start=0, end=9999, year=None):
     for sect in manf.dictlist:
-        ShowSection(pif, manf, sect, start, end, year)
+        show_section(pif, manf, sect, start, end, year)
 
     for sect in manf.dictlist:
         sect['name'] = 'Tomica Models'
-        ShowSectionList(pif, sect)
+        show_section_list(pif, sect)
 
 
 
@@ -209,20 +209,22 @@ table {page-break-inside:avoid}
 </style>
 '''
 
-@basics.WebPage
-def Main(pif):
-    pif.render.PrintHtml()
-    manf = MannoFile(os.path.join(config.srcdir, 'tomica.dat'))
+@basics.web_page
+def main(pif):
+    pif.render.print_html()
+    '''
+    manf = MannoFile(os.path.join(config.SRC_DIR, 'tomica.dat'))
     mans = manf.dictlist
-    if pif.FormHas('num'):
-        print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.FormStr('num')
+    if pif.form_has('num'):
+        print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form_str('num')
         return
     else:
-        print pif.render.FormatHead()
-        RunFile(pif, manf, year=pif.FormStr('year'))
-        #print pif.render.FormatLineup(llineup)
-        #print pif.render.FormatButtonComment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (pif.FormStr('selection'), pif.FormStr('range'), pif.FormStr('start'), pif.FormStr('end')))
-    print pif.render.FormatTail()
+        print pif.render.format_head()
+        run_file(pif, manf, year=pif.form_str('year'))
+        #print pif.render.format_lineup(llineup)
+        #print pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (pif.form_str('selection'), pif.form_str('range'), pif.form_str('start'), pif.form_str('end')))
+    '''
+    print pif.render.format_tail()
 
 
 if __name__ == '__main__':  # pragma: no cover

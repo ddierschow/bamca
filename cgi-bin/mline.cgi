@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import lineup
-lineup.FullLineup('mline')
+lineup.full_lineup('mline')

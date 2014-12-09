@@ -25,8 +25,8 @@ fields = [
 ]
 
 
-@basics.CommandLine
-def Main(pif):
+@basics.command_line
+def main(pif):
     for field in fields:
         pif.dbh.dbi.execute("update variation set %s='' where %s is NULL" % (field, field))
     count = 0
@@ -42,15 +42,15 @@ def Main(pif):
     for casting in castings:
         sys.stdout.write(casting + ' ')
         sys.stdout.flush()
-        if vars.CheckFormatting(pif, casting, verbose=verbose):
+        if vars.check_formatting(pif, casting, verbose=verbose):
             print '*'
             count += 1
         else:
             print
-        vars.RecalcDescription(pif, casting, verbose)
+        vars.recalc_description(pif, casting, verbose)
     print
     print count, "to go *"
 
 
 if __name__ == '__main__':  # pragma: no cover
-    Main('vars')
+    main('vars')

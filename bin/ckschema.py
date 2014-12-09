@@ -3,8 +3,9 @@
 import basics
 import tables
 
-@basics.CommandLine
-def Main(pif):
+
+@basics.command_line
+def main(pif):
     tablelist = pif.dbh.dbi.execute('show tables')
     for table in tablelist[0]:
         table = table[0]
@@ -21,4 +22,4 @@ def Main(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    Main('vars')
+    main('vars')

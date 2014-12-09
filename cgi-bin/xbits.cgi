@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import images
-images.BitsMain('editor')
+images.bits_main('editor')

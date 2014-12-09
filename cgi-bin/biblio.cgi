@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import nontoy
-nontoy.Biblio('bib', 'page', 'biblio')
+nontoy.biblio('bib', 'page', 'biblio')

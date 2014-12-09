@@ -3,69 +3,71 @@
 import os, re
 import basics
 
+
 # Start here
 
-def Blisters(fl):
+
+def blisters(fl):
     fn_re = re.compile('[0-9][0-9][a-z][0-9][0-9]*\.')
     cnt = 0
     for fn in fl:
         m = fn_re.match(fn)
         if m:
-            pass  #print fn, 'yes'
+            pass  # print fn, 'yes'
             cnt += 1
         else:
-            pass  #print fn, '-'
+            pass  # print fn, '-'
     return cnt
 
 
-def Castings(fl):
+def castings(fl):
     fn_re = re.compile('[a-z]_(?P<c>[a-z0-9]*)(-[a-z0-9]*)?\.')
     cnt = 0
     for fn in fl:
         m = fn_re.match(fn)
         if m:
-            pass  #print fn, m.group('c')
+            pass  # print fn, m.group('c')
             if m.group('c') in castings:
                 cnt += 1
         else:
-            pass  #print fn, '-'
+            pass  # print fn, '-'
     return cnt
 
 
-def All(fl):
+def count_all(fl):
     return len(fl)
 
 
-def Zero(fl):
+def zero(fl):
     return 0
 
 
-@basics.CommandLine
-def Count(pif):
+@basics.command_line
+def count(pif):
     castings = [x['id'].lower() for x in pif.dbh.dbi.select('casting', ['id'])]
 
     dirs = [
-            ('acc',     All),
-            ('add',     Castings),
-            ('ads',     All),
-            ('blister', All),
-            ('box',     All),
-            ('errors',  All),
-            ('flags',   All),
-            ('gfx',     Zero),  # not considered part of the collection
-            ('king',    All),
-            ('lesney',  All),
-            ('man',     Castings),
-            ('man/var', Castings),
-            ('mattel',  Blisters),
-            ('mcoll',   All),
-            ('packs',   All),
-            ('pages',   Zero),
-            ('prem',    All),
-            ('series',  All),
-            ('sky',     All),
-            ('tyco',    Blisters),
-            ('univ',    Blisters),
+        ('acc',     count_all),
+        ('add',     castings),
+        ('ads',     count_all),
+        ('blister', count_all),
+        ('box',     count_all),
+        ('errors',  count_all),
+        ('flags',   count_all),
+        ('gfx',     zero),  # not considered part of the collection
+        ('king',    count_all),
+        ('lesney',  count_all),
+        ('man',     castings),
+        ('man/var', castings),
+        ('mattel',  blisters),
+        ('mcoll',   count_all),
+        ('packs',   count_all),
+        ('pages',   zero),
+        ('prem',    count_all),
+        ('series',  count_all),
+        ('sky',     count_all),
+        ('tyco',    blisters),
+        ('univ',    blisters),
     ]
 
     t = 0
@@ -79,4 +81,4 @@ def Count(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    Count('vars')
+    count('vars')

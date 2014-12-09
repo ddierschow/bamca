@@ -15,21 +15,21 @@ import mannum
 # Start here
 
 
-def Main(pif):
-    act = GetLastActivity(pif)
-    dat = ReadCommits(act['site_activity.timestamp'])
-    WriteCommits(pif, dat)
-    WriteConfigFile()
-    WriteManCSV(pif)
+def main(pif):
+    act = get_last_activity(pif)
+    dat = read_commits(act['site_activity.timestamp'])
+    write_commits(pif, dat)
+    write_config_file()
+    write_man_csv(pif)
 
 
-def GetLastActivity(pif):
-    acts = filter(lambda x: x['site_activity.name'] == 'commit', pif.dbh.FetchActivities())
+def get_last_activity(pif):
+    acts = filter(lambda x: x['site_activity.name'] == 'commit', pif.dbh.fetch_activities())
     acts.sort(key=lambda x: x['site_activity.id'])
     return acts[-1]
 
 
-def ReadCommits(endtime):
+def read_commits(endtime):
     p = subprocess.Popen(["/usr/local/bin/git", "log"], stdout=subprocess.PIPE, stderr=None, close_fds=True)
     l = p.stdout.read()
     commits = list()
@@ -54,15 +54,15 @@ def ReadCommits(endtime):
     return commits
 
 
-def WriteCommits(pif, commits):
+def write_commits(pif, commits):
     print "Writing to activity table."
     for commit in commits:
         print commit
-        pif.dbh.InsertActivity(**commit)
+        pif.dbh.insert_activity(**commit)
     print
 
 
-def WriteConfigFile():
+def write_config_file():
     print "Writing config file."
     cfg = open('../bin/config.py').readlines()
     cfg[0] = '<?php\n// Generated file.  Do not modify.\n'
@@ -76,13 +76,13 @@ def WriteConfigFile():
     print
 
 
-def WriteManCSV(pif):
+def write_man_csv(pif):
     print "Writing Man CSV file."
     manf = mannum.MannoFile(pif)
-    manf.RunMan2CSV(pif)
+    manf.run_man2csv(pif)
     print
 
 
 if __name__ == '__main__':  # pragma: no cover
-    pif = basics.GetPageInfo('editor', dbedit='')
-    Main(pif)
+    pif = basics.get_page_info('editor', dbedit='')
+    main(pif)

@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import lineup
-lineup.MakesMain('makes')
+lineup.makes_main('makes')

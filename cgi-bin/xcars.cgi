@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import cars
-cars.CarsMain('cars')
+cars.cars_main('cars')

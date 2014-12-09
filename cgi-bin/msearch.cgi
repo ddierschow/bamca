@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import search
-search.RunSearch('search')
+search.run_search('search')

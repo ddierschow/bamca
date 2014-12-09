@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import busers
-busers.RegisterMain('user', dbedit='')
+busers.register_main('user', dbedit='')

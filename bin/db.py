@@ -4,28 +4,29 @@ import MySQLdb, datetime, os, sys, traceback
 import config
 import useful
 
-dbcs = {}
 
 desc_cols = ['field', 'type', 'null', 'key', 'default', 'extra']
 
-class db:
+
+class DB:
+    dbcs = {}
+
     def __init__(self, cfg=None, user_id=0, verbose=False):
         self.verbose = verbose
         self.user_id = user_id
         self.nowrites = False
-        global dbcs
-        if cfg['dbuser'] in dbcs:
-            self.db = dbcs[cfg['dbuser']]
+        if cfg['dbuser'] in DB.dbcs:
+            self.db = DB.dbcs[cfg['dbuser']]
         else:
-            dbcs[cfg['dbuser']] = self.db = MySQLdb.connect(user=cfg['dbuser'], passwd=cfg['dbpass'], db=cfg['dbname'])
+            DB.dbcs[cfg['dbuser']] = self.db = MySQLdb.connect(user=cfg['dbuser'], passwd=cfg['dbpass'], db=cfg['dbname'])
         self.lastrowid = None
         self.lastdescription = None
 
     def __repr__(self):
-        return "'<db.db instance>'"
+        return "'<db.DB instance>'"
 
     def __str__(self):
-        return "'<db.db instance>'"
+        return "'<db.DB instance>'"
 
     def escape_string(self, s):
         return self.db.escape_string(s)
@@ -36,20 +37,17 @@ class db:
         if tag:
             query = query.split(None, 1)
             query = query[0] + ' /* ' + tag + ' */ ' + query[1]
-        #sys.stderr.write('db.execute q : "%s"\n' % query)
         if verbose:
-            useful.WriteComment('db.execute q : "%s"' % query)
+            useful.write_comment('DB.execute q : "%s"' % query)
             if args:
-                useful.WriteComment('     args :', args)
-                #sys.stderr.write('        args : %s\n' % args)
+                useful.write_comment('     args :', args)
             sys.stdout.flush()
         if 1:
-            log_name = os.path.join(config.logroot, config.env + datetime.datetime.now().strftime('.dbq%Y%m.log'))
+            log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.dbq%Y%m.log'))
             try:
-                if self.nowrites:
-                    open(log_name, 'a').write('%s /*mock*/ %s %s %s\n' % (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
-                else:
-                    open(log_name, 'a').write('%s %s %s %s\n' % (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
+                open(log_name, 'a').write('%s %s%s %s %s\n' %
+                                          (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/' if self.nowrites else '',
+                                           self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
             except:
                 pass
         cu = self.db.cursor()
@@ -64,8 +62,7 @@ class db:
             return ([], cu.description, -1)
         resp = cu.fetchall()
         if verbose:
-            useful.WriteComment("db.execute a :", nrows, cu.lastrowid, resp)
-            #sys.stderr.write("db.execute a : %d %s\n" % (nrows, str(resp)))
+            useful.write_comment("DB.execute a :", nrows, cu.lastrowid, resp)
             sys.stdout.flush()
         self.lastrowid = cu.lastrowid
         self.lastdescription = cu.description
@@ -80,17 +77,20 @@ class db:
 
     def login(self, name, passwd):
         if self.db:
-            res, desc, lid = self.execute('''select id, privs from user where name = '%s' and passwd = PASSWORD('%s')''' % (name, passwd))
+            res, desc, lid = self.execute('''select id, privs from user where name = '%s' and passwd = PASSWORD('%s')''' %
+                                          (name, passwd))
             if res:
                 return res[0][0], res[0][1]
         return None, None
 
     def createuser(self, name, passwd, email, vkey):
         if self.db:
+            query = '''insert user (name, passwd, privs, email, state, vkey) values ('%s', PASSWORD('%s'), '', '%s', 0, '%s')''' % \
+                    (name, passwd, email, vkey)
             if self.nowrites:
-                res, desc, lid = self.mockexecute('''insert user (name, passwd, privs, email, state, vkey) values ('%s', PASSWORD('%s'), '', '%s', 0, '%s')''' % (name, passwd, email, vkey))
+                res, desc, lid = self.mockexecute(query)
             else:
-                res, desc, lid = self.execute('''insert user (name, passwd, privs, email, state, vkey) values ('%s', PASSWORD('%s'), '', '%s', 0, '%s')''' % (name, passwd, email, vkey))
+                res, desc, lid = self.execute(query)
             self.execute('commit')
         return self.login(name, passwd)
 
@@ -106,7 +106,8 @@ class db:
         else:
             res, desc, lid = self.execute("""insert counter (id, value) values ('%s', 0)""" % countid, verbose=False)
             self.execute('commit')
-        res, desc, lid = self.execute("""update counter set value=%s, timestamp=now() where id='%s'""" % (cnt + 1, countid), verbose=False)
+        res, desc, lid = self.execute("""update counter set value=%s, timestamp=now() where id='%s'""" %
+                                      (cnt + 1, countid), verbose=False)
         self.execute('commit')
         return res
 
@@ -114,8 +115,9 @@ class db:
 
     def page_info(self, table):
         res = self.select("page_info,style",
-            ["page_info.format_type", "page_info.title", "page_info.pic_dir", "page_info.tail", "style.style_type", "style.style_setting"],
-            "page_info.id='" + table + "' and page_info.id=style.page_id")
+                          ["page_info.format_type", "page_info.title", "page_info.pic_dir", "page_info.tail", "style.style_type",
+                           "style.style_setting"],
+                          "page_info.id='" + table + "' and page_info.id=style.page_id")
         if not res:
             return {}
         ret = {

@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import nontoy
-nontoy.ActivityMain('editor', dbedit='am')
+nontoy.activity_main('editor', dbedit='am')

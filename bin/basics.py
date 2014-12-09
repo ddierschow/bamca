@@ -3,65 +3,70 @@
 import os, sys
 import useful
 
-#---- Web Pages ---------------------------------------------------------
 
-def GetPageInfo(page_id, form_key='', defval='', args='', dbedit=None):
+# --- Web Pages ---------------------------------------------------------
+
+
+def get_page_info(page_id, form_key='', defval='', args='', dbedit=None):
     import pifile
     pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
     return pif
 
 
-def WriteTracebackFile(pif):
+def write_traceback_file(pif):
     import datetime, traceback
     import config
     str_tb = traceback.format_exc()
     if pif and pif.unittest:
         return str_tb  # unit testing should not leave tb files sitting around.
-    tb_file_name = os.path.join(config.logroot, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.') + config.env + '.')
+    tb_file_name = os.path.join(config.LOG_ROOT, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.') + config.ENV + '.')
     if pif:
         tb_file_name += pif.page_id
     else:
         tb_file_name += 'unknown'
     erf = open(tb_file_name, 'w')
-    erf.write("headline = '''%s'''\n" % ' '.join([x.strip() for x in traceback.format_exception_only(sys.exc_type, sys.exc_value)]))
+    erf.write("headline = '''%s'''\n" %
+              ' '.join([x.strip() for x in traceback.format_exception_only(sys.exc_type, sys.exc_value)]))
     erf.write("uri = '''%s'''\n" % os.environ.get('REQUEST_URI', ''))
     erf.write("tb = '''\n" + str_tb + "\n'''\n")
     erf.write("env = '''" + str(os.environ) + "'''\n")
     if pif:
-        erf.write(pif.ErrorReport())
+        erf.write(pif.error_report())
     erf.close()
     return str_tb
 
 
-def HandleException(pif):
-    str_tb = WriteTracebackFile(pif)
+def handle_exception(pif):
+    str_tb = write_traceback_file(pif)
     if not pif or not pif.render or not pif.dbh:
         print 'Content-Type: text/html\n\n'
         print '<!--\n' + str_tb + '-->'
-        FinalExit()
-    pif.dbh.SetHealth(pif.page_id)
+        final_exit()
+    pif.dbh.set_health(pif.page_id)
     import useful
-    if not useful.header_done:
+    if not useful.is_header_done():
         print 'Content-Type: text/html\n\n'
         print '<!--\n' + str_tb + '-->'
     while pif.render.table_count > 0:
-        print pif.render.FormatTableEnd()
-    if not pif.IsAllowed('a'):
+        print pif.render.format_table_end()
+    if not pif.is_allowed('a'):
         print '<!--\n' + str_tb + '-->'
-        FinalExit()
+        final_exit()
 
 
-def FinalExit():
+def final_exit():
     print "<p><h3>An error has occurred that prevents this page from displaying.  Our apologies.<br>"
     print "An alert has been sent and the problem will be fixed as soon as possible.</h3>"
-    #print "<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>"
-    #print "We'll get things going as soon as possible."
+#    print "<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>"
+#    print "We'll get things going as soon as possible."
     sys.exit()
 
-#---- Command Lines -----------------------------------------------------
+
+# --- Command Lines -----------------------------------------------------
+
 
 '''
-GetCommandLine front-ends getopt, to make it do stuff I want it to do.
+get_command_line front-ends getopt, to make it do stuff I want it to do.
 Uses unix-style options, not Gnu-style.
 
 switches - binary switches, like -v for verbose
@@ -86,7 +91,8 @@ All arguments are optional.
 -DD, developed over several years
 '''
 
-def Req(sw, reqs=[]):
+
+def get_req(sw, reqs=[]):
     if isinstance(sw, dict):
         osw = []
         for opt in sw.keys():
@@ -106,12 +112,13 @@ def Req(sw, reqs=[]):
     return sw, reqs
 
 
-def GetCommandLine(switches="", options="", long_options={}, version="", short_help="", long_help="", envar=None, noerror=False, defaults={}, doglob=False):
+def get_command_line(switches="", options="", long_options={}, version="", short_help="",
+                     long_help="", envar=None, noerror=False, defaults={}, doglob=False):
     import getopt, glob
 
-    switches, reqs = Req(switches)
-    options, reqs = Req(options, reqs)
-    loptions, reqs = Req(long_options, reqs)
+    switches, reqs = get_req(switches)
+    options, reqs = get_req(options, reqs)
+    loptions, reqs = get_req(long_options, reqs)
     switch = dict()
     opts = list()
     files = list()
@@ -186,72 +193,82 @@ def GetCommandLine(switches="", options="", long_options={}, version="", short_h
             switch[key] = [defaults[key]]
 
     if doglob:
-        files = reduce(lambda x, y: x+y, [glob.glob(x) for x in files], [])
+        files = reduce(lambda x, y: x + y, [glob.glob(x) for x in files], [])
 
     return (switch, files)
 
-#---- -------------------------------------------------------------------
+
+# --- -------------------------------------------------------------------
+
 
 # Decorator that wraps web page mains.
-def WebPage(main_fn):
-    def CallMain(page_id, form_key='', defval='', args='', dbedit=None):
+def web_page(main_fn):
+    def call_main(page_id, form_key='', defval='', args='', dbedit=None):
         pif = None
         try:
             import pifile
             if isinstance(page_id, pifile.PageInfoFile):
                 pif = page_id
             else:
-                pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
+                pif = get_page_info(page_id, form_key, defval, args, dbedit)
             ret = main_fn(pif)
-            useful.WriteComment()
+            useful.write_comment()
             if ret:
                 print ret
         except SystemExit:
             pass
         except:
-            HandleException(pif)
+            handle_exception(pif)
             raise
-    return CallMain
+    return call_main
 
-#---- -------------------------------------------------------------------
+
+# --- -------------------------------------------------------------------
+
 
 # Decorator that command line mains.
-def CommandLine(main_fn):
-    def CallMain(page_id, form_key='', defval='', args='', dbedit=None, switches='', options=''):
+def command_line(main_fn):
+    def call_main(page_id, form_key='', defval='', args='', dbedit=None, switches='', options=''):
         pif = None
         try:
             import pifile
             if isinstance(page_id, pifile.PageInfoFile):
                 pif = page_id
             else:
-                pif = GetPageInfo(page_id, form_key, defval, args, dbedit)
-            pif.switch, pif.filelist = GetCommandLine(switches, options)
+                pif = get_page_info(page_id, form_key, defval, args, dbedit)
+            pif.switch, pif.filelist = get_command_line(switches, options)
             ret = main_fn(pif)
-            useful.WriteComment()
+            useful.write_comment()
             if ret:
                 print ret
         except SystemExit:
             pass
-    return CallMain
+    return call_main
 
-#---- -------------------------------------------------------------------
+
+# --- -------------------------------------------------------------------
+
 
 # Decorator for standalone (PIFless) command line mains.
-def Standalone(main_fn):
-    def CallMain(switches="", options="", long_options={}, version="", short_help="", long_help="", envar=None, noerror=False, defaults={}, doglob=False):
+def standalone(main_fn):
+    def call_main(switches="", options="", long_options={}, version="", short_help="", long_help="",
+                  envar=None, noerror=False, defaults={}, doglob=False):
         try:
-            switch, filelist = GetCommandLine(switches=switches, options=options, long_options=long_options,
-                version=version, short_help=short_help, long_help=long_help, envar=envar, noerror=noerror,
-                defaults=defaults, doglob=doglob)
+            switch, filelist = get_command_line(switches=switches, options=options, long_options=long_options,
+                                                version=version, short_help=short_help, long_help=long_help,
+                                                envar=envar, noerror=noerror,
+                                                defaults=defaults, doglob=doglob)
             ret = main_fn(switch, filelist)
-            useful.WriteComment()
+            useful.write_comment()
             if ret:
                 print ret
         except SystemExit:
             pass
-    return CallMain
+    return call_main
 
-#---- -------------------------------------------------------------------
+
+# --- -------------------------------------------------------------------
+
 
 if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

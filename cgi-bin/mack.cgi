@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import lineup
-lineup.MackLineup('mack')
+lineup.mack_lineup('mack')

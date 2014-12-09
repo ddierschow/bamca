@@ -2,34 +2,38 @@
 # -*- coding: utf8 -*-
 
 import os, re, sys
+import basics
 import config
 import useful
 
 '''
 VariationImportData
-GetFileList
-GetModelIDs
-GetHtmlTables
-ShowFileSettings
+get_file_list
+get_model_ids
+get_html_tables
+show_file_settings
 
-TransformHeader
-HeaderColumnChange
-TransformRow
-RowColumnChange
+transform_header
+header_column_change
+transform_row
+row_column_change
 '''
 
-#------- initialize data -------------------------------------
+
+# ------ initialize data -------------------------------------
+
 
 # Decorator for reading data files
-def ReadDataFile(main_fn):
-    def ReadDat(fn):
-        dat = open(os.path.join(config.srcdir, fn + '.dat')).readlines()
+def read_data_file(main_fn):
+    def read_dat(fn):
+        dat = open(os.path.join(config.SRC_DIR, fn + '.dat')).readlines()
         dat = filter(lambda x: x and not x.startswith('#'), [ln.strip() for ln in dat])
         return main_fn(dat)
-    return ReadDat
+    return read_dat
 
-@ReadDataFile
-def ReadColumnChange(fil):
+
+@read_data_file
+def read_column_change(fil):
     changes = dict()
     for ln in fil:
         mnl, col, colto = ln.split('|')
@@ -38,8 +42,9 @@ def ReadColumnChange(fil):
             changes[mn].append([col.split(';'), colto.split(';')])
     return changes
 
-@ReadDataFile
-def ReadCellChange(fil):
+
+@read_data_file
+def read_cell_change(fil):
     changes = dict()
     for ln in fil:
         mnl, col, replfrom, replto = ln.split('|')[0:4]
@@ -51,12 +56,14 @@ def ReadCellChange(fil):
                 changes[mn].append([col, replfrom, replto])
     return changes
 
-@ReadDataFile
-def ReadPlants(fil):
+
+@read_data_file
+def read_plants(fil):
     return [re.compile(ln) for ln in fil]
 
-@ReadDataFile
-def ReadTrans(fil):
+
+@read_data_file
+def read_trans(fil):
     changes = list()
     for ln in fil:
         transfrom, transto = ln.split('|')[:2]
@@ -64,17 +71,19 @@ def ReadTrans(fil):
         changes.append([re.compile(transfrom), transto])
     return changes
 
-@ReadDataFile
-def ReadFilenames(fil):
+
+@read_data_file
+def read_filenames(fil):
     changes = list()
     for ln in fil:
         transfrom, transto = ln.split('|')[:2]
         changes.append([re.compile('^%s$' % transfrom) if '?' in transfrom else transfrom, transto.split(';') if transto else []])
     return changes
 
+
 class VariationImportData:
 
-    #------- html ------------------------------------------------
+    # ------ html ------------------------------------------------
 
     cmt_re = re.compile(r'<!--.*?-->', re.S)
     hln_re = re.compile(r'\\hline')
@@ -101,18 +110,18 @@ class VariationImportData:
     def __init__(self, verbose=False):
         self.verbose = verbose
 
-        self.fnam_change = ReadFilenames('vfilename')
-        self.manu_change = ReadPlants('vplants')
-        self.cell_change = ReadTrans('vtrans')
-        self.head_change = ReadTrans('vheads')
-        self.base_change = ReadColumnChange('vbases')
-        self.clmn_change = ReadColumnChange('vcolumns')
-        self.prep_change = ReadCellChange('vpre')
-        self.post_change = ReadCellChange('vpost')
+        self.fnam_change = read_filenames('vfilename')
+        self.manu_change = read_plants('vplants')
+        self.cell_change = read_trans('vtrans')
+        self.head_change = read_trans('vheads')
+        self.base_change = read_column_change('vbases')
+        self.clmn_change = read_column_change('vcolumns')
+        self.prep_change = read_cell_change('vpre')
+        self.post_change = read_cell_change('vpost')
 
-    #------- data ------------------------------------------------
+    # ------ data ------------------------------------------------
 
-    def GetHtmlTables(self, fn):
+    def get_html_tables(self, fn):
         f = open(fn).read()
         f = self.cmt_re.sub('', f)
         f = self.hln_re.sub('', f)
@@ -154,9 +163,9 @@ class VariationImportData:
             tables.append(['', list(), rest])
         return tables
 
-    #------- support ---------------------------------------------
+    # ------ support ---------------------------------------------
 
-    def InterpretBase(self, obase, omanuf):
+    def interpret_base(self, obase, omanuf):
         plant = other = ''
         if '/' in obase:
             obase, other = obase.split('/', 1)
@@ -166,7 +175,7 @@ class VariationImportData:
             m = plant_re.search(obase)
             if m:
                 plant = obase[m.start():m.end()].strip()
-                nbase = self.TransformCell(plant_re.sub(' ', obase, 1).strip())
+                nbase = self.transform_cell(plant_re.sub(' ', obase, 1).strip())
                 #self.debug('IB', plant_re.pattern, obase[m.start():m.end()])
                 break
         if omanuf:
@@ -175,20 +184,20 @@ class VariationImportData:
 
     def debug(self, *arg, **kwargs):
         if self.verbose:
-            useful.WriteComment(*arg, **kwargs)
+            useful.write_comment(*arg, **kwargs)
 
-    #------- api -------------------------------------------------
+    # ------ api -------------------------------------------------
 
     # 1. prep_change
     # 2. base_change
-    # 3. InterpretBase
+    # 3. interpret_base
     # 4. clmn_change
     # 5. strip column name from value
     # 6. post_change
     # 7. last_change
-    def RowColumnChange(self, file_id, row):
+    def row_column_change(self, file_id, row):
         #self.debug('RCC 1', row['var'], row)
-        self.RowChange(row, self.prep_change.get(file_id, []) + self.prep_change.get('', []))
+        self.row_change(row, self.prep_change.get(file_id, []) + self.prep_change.get('', []))
 
         #self.debug('RCC 2', row)
         row['imported_from'] = file_id
@@ -197,9 +206,9 @@ class VariationImportData:
             del row[hdr[0]]
 
         #self.debug('RCC 3', row)
-        row['base'], row['manufacture'] = self.InterpretBase(row.get('base', ''), row.get('manufacture'))
+        row['base'], row['manufacture'] = self.interpret_base(row.get('base', ''), row.get('manufacture'))
         if 'base_insert' in row and not row['manufacture']:
-            row['base_insert'], row['manufacture'] = self.InterpretBase(row.get('base_insert', ''), row.get('manufacture'))
+            row['base_insert'], row['manufacture'] = self.interpret_base(row.get('base_insert', ''), row.get('manufacture'))
 
         #self.debug('RCC 4', row)
         for hdrs, nhdrs in self.clmn_change.get('', []) + self.clmn_change.get(file_id, []):
@@ -256,7 +265,7 @@ class VariationImportData:
                 row[key] = row[key][:-len(key)].strip()
 
         #self.debug('RCC 6', row)
-        self.RowChange(row, self.post_change.get(file_id, []) + self.post_change.get('', []))
+        self.row_change(row, self.post_change.get(file_id, []) + self.post_change.get('', []))
 
         #self.debug('RCC 7', row)
         for hdr in row:
@@ -267,14 +276,12 @@ class VariationImportData:
         row['is_valid'] = True
         return row
 
-
-    def RowChange(self, row, changes):
+    def row_change(self, row, changes):
         for hdr, pat, repl in changes:
             if hdr in row:
                 row[hdr] = (row[hdr].replace(pat, repl) if isinstance(pat, str) else pat.sub(repl, row[hdr])).strip()
 
-
-    def HeaderColumnChange(self, file_id, hdrs):
+    def header_column_change(self, file_id, hdrs):
         #self.debug('HCC0', self.clmn_change.get(file_id, []))
         #self.debug('HCC1', hdrs)
         nhdrs = list()
@@ -315,24 +322,20 @@ class VariationImportData:
         #self.debug('HCC9', nhdrs)
         return nhdrs
 
-
-    def TransformRow(self, row):
-        row = [self.TransformCell(x) for x in row]
+    def transform_row(self, row):
+        row = [self.transform_cell(x) for x in row]
         return row
 
-
-    def TransformCell(self, txt):
+    def transform_cell(self, txt):
         txt = reduce(lambda y, x: x[0].sub(x[1], y), self.cell_change, txt)
         return txt.strip()
 
-
-    def TransformHeader(self, txt):
+    def transform_header(self, txt):
         txt = txt.replace('\xa0', ' ').strip()
         txt = reduce(lambda y, x: x[0].sub(x[1], y), self.head_change, txt)
         return txt
 
-
-    def GetModelIDs(self, omn):
+    def get_model_ids(self, omn):
         mn = omn
         for transfrom, transto in self.fnam_change:
             if transfrom == omn:
@@ -345,8 +348,7 @@ class VariationImportData:
                     return transto
         return [mn]
 
-
-    def ShowSettings(self, sets, cols):
+    def show_settings(self, sets, cols):
         if sets:
             print '<table border=1 width=100%>'
             for row in sets:
@@ -361,31 +363,28 @@ class VariationImportData:
                 print '</tr>'
             print '</table>'
 
-
-    def ShowFileSettings(self, fn):
+    def show_file_settings(self, fn):
         print '<table border=1 width=100%><tr><th width=33%>Bases</th><th width=33%>Columns</th><th width=33%>Cells</th></tr>'
         print '<tr><td valign=top>'
-        self.ShowSettings(self.base_change.get(fn), 2)
+        self.show_settings(self.base_change.get(fn), 2)
         print '</td><td valign=top>'
-        self.ShowSettings(self.clmn_change.get(fn), 2)
+        self.show_settings(self.clmn_change.get(fn), 2)
         print '</td><td valign=top>'
-        self.ShowSettings(self.prep_change.get(fn), 3)
+        self.show_settings(self.prep_change.get(fn), 3)
         print '</td><td valign=top>'
-        self.ShowSettings(self.post_change.get(fn), 3)
+        self.show_settings(self.post_change.get(fn), 3)
         print '</td></tr>'
         print '</table>'
 
-#------- whew ------------------------------------------------
 
-#if __name__ == '__main__':  # pragma: no cover
-#    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+# ------ whew ------------------------------------------------
 
-import basics
-@basics.CommandLine
-def Commands(pif):
+
+@basics.command_line
+def commands(pif):
     vid = VariationImportData()
-    print vid.TransformHeader("base no.")
+    print vid.transform_header("base no.")
 
 
 if __name__ == '__main__':  # pragma: no cover
-    Commands('vars')
+    commands('vars')

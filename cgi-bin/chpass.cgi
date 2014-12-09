@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import busers
-busers.ChangePasswordMain('user', dbedit='')
+busers.change_password_main('user', dbedit='')

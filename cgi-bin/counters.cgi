@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import editor
-editor.ShowCounters('counter')
+editor.show_counters('counter')

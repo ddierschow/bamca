@@ -7,13 +7,14 @@ import mbdata
 
 verbose = False
 
-def RunModels(pif, mods):
-    upics = spics = sfound = cpics = cfound = mpics = mfound = apics = afound = 0
+
+def run_models(pif, mods):
+    upics = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
     mods = [x[0] for x in mods]
     mods.sort()
 
     for mod in mods:
-        uf, af, mf, cf, sf = ShowListVarPics(pif, mod)
+        uf, af, mf, cf, sf = show_list_var_pics(pif, mod)
         if (not pif.switch['q']) and \
            (not pif.switch['s'] or sf[2] < 100) and \
            (not pif.switch['c'] or cf[2] < 100) and \
@@ -21,72 +22,72 @@ def RunModels(pif, mods):
            (not pif.switch['a'] or af[2] < 100):
             print '%-8s%5d | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%%' % ((mod, uf) + af + mf + cf + sf)
 
-        upics  += uf
-        spics  += sf[1]
-        sfound += sf[0]
-        cpics  += cf[1]
-        cfound += cf[0]
-        mpics  += mf[1]
-        mfound += mf[0]
-        apics  += af[1]
-        afound += af[0]
+        upics += uf
+        spics += sf[1]
+        spfnd += sf[0]
+        cpics += cf[1]
+        cpfnd += cf[0]
+        mpics += mf[1]
+        mpfnd += mf[0]
+        apics += af[1]
+        apfnd += af[0]
 
-    return upics, spics, sfound, cpics, cfound, mpics, mfound, apics, afound
+    return upics, spics, spfnd, cpics, cpfnd, mpics, mpfnd, apics, apfnd
 
 
-def ShowListVarPics(pif, mod_id):
-    upics = spics = sfound = cpics = cfound = mpics = mfound = apics = afound = 0
-    varsels = pif.dbh.FetchVariationSelects(mod_id)
+def show_list_var_pics(pif, mod_id):
+    upics = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
+    varsels = pif.dbh.fetch_variation_selects(mod_id)
     varsel = {}
     for vs in varsels:
         varsel.setdefault(vs['variation_select.ref_id'], [])
         varsel[vs['variation_select.ref_id']].append(vs['variation_select.var_id'])
     spics = len(varsel.keys())
 
-    vars = pif.dbh.FetchVariations(mod_id)
+    vars = pif.dbh.fetch_variations(mod_id)
     for var in vars:
         isorig = 1
         fn = mod_id + '-' + var['variation.var']
         if var['variation.picture_id']:
             fn = mod_id + '-' + var['variation.picture_id']
             isorig = 0
-        fn = config.imgdir175 + '/var/s_' + fn.lower() + '.jpg'
+        fn = config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'
         apics += 1
         if not var['variation.var'].startswith('f'):
             if not mbdata.categories.get(var['variation.category'], '').startswith('['):
                 mpics += 1
             if not var['variation.category']:
                 cpics += 1
-        #print '<!--', config.imgdir175 + '/var/' + fn + '.jpg', '-->'
+#        print '<!--', config.IMG_DIR_MAN + '/var/' + fn + '.jpg', '-->'
         if os.path.exists(fn):
-            afound += 1
+            apfnd += 1
             upics += isorig
             if not var['variation.var'].startswith('f'):
                 if not mbdata.categories.get(var['variation.category'], '').startswith('['):
-                    mfound += 1
+                    mpfnd += 1
                 if not var['variation.category']:
-                    cfound += 1
+                    cpfnd += 1
             for vs in varsel:
                 if var['variation.var'] in varsel[vs]:
-                    sfound += 1
+                    spfnd += 1
                     varsel[vs] = []
     if verbose:
         print ' '.join(filter(lambda x: varsel[x], varsel))
-    return upics, FormatCalc(afound, apics), FormatCalc(mfound, mpics), FormatCalc(cfound, cpics), FormatCalc(sfound, spics)
+    return upics, format_calc(apfnd, apics), format_calc(mpfnd, mpics), format_calc(cpfnd, cpics), format_calc(spfnd, spics)
 
 
-def FormatCalc(found, pics):
-#    if found == pics:
-#       return (found, pics, '--')
+def format_calc(found, pics):
+    if 0:  # found == pics:
+        return (found, pics, '--')
     if pics:
-        return (found, pics, 100 * found/pics)
+        return (found, pics, 100 * found / pics)
     return (0, 0, 100)
 
 
-@basics.CommandLine
-def Main(pif):
+@basics.command_line
+def main(pif):
 
-    upics = nmods = spics = sfound = cpics = cfound = mpics = mfound = apics = afound = 0
+    upics = nmods = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
 
     if pif.switch['v']:
         verbose = True
@@ -94,36 +95,37 @@ def Main(pif):
         for spec in pif.filelist:
             mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
             nmods += len(mods)
-            uf, sp, sf, cp, cf, mp, mf, ap, af = RunModels(pif, mods)
+            uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
 
-            upics  += uf
-            spics  += sp
-            sfound += sf
-            cpics  += cp
-            cfound += cf
-            mpics  += mp
-            mfound += mf
-            apics  += ap
-            afound += af
+            upics += uf
+            spics += sp
+            spfnd += sf
+            cpics += cp
+            cpfnd += cf
+            mpics += mp
+            mpfnd += mf
+            apics += ap
+            apfnd += af
 
     else:
         mods = pif.dbh.dbi.execute("select distinct id from casting")[0]
         nmods += len(mods)
-        uf, sp, sf, cp, cf, mp, mf, ap, af = RunModels(pif, mods)
+        uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
 
-        upics  += uf
-        spics  += sp
-        sfound += sf
-        cpics  += cp
-        cfound += cf
-        mpics  += mp
-        mfound += mf
-        apics  += ap
-        afound += af
+        upics += uf
+        spics += sp
+        spfnd += sf
+        cpics += cp
+        cpfnd += cf
+        mpics += mp
+        mpfnd += mf
+        apics += ap
+        apfnd += af
 
     print
-    print '%7d %5d  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%' % ((nmods, upics) +
-        FormatCalc(afound, apics) + FormatCalc(mfound, mpics) + FormatCalc(cfound, cpics) + FormatCalc(sfound, spics))
+    print '%7d %5d  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%' % \
+          ((nmods, upics) +
+           format_calc(apfnd, apics) + format_calc(mpfnd, mpics) + format_calc(cpfnd, cpics) + format_calc(spfnd, spics))
 
 if __name__ == '__main__':  # pragma: no cover
-    Main('vars', switches='qvscma')
+    main('vars', switches='qvscma')

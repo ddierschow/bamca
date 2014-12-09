@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import busers
-busers.LoginMain('user')
+busers.login_main('user')

@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import single
-single.ShowSingle('single', dbedit='am')
+single.show_single('single', dbedit='am')

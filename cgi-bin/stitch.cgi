@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import images
-images.StitchMain('editor')
+images.stitch_main('editor')

@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import package
-package.Blister('package', 'page', 'blister')
+package.blister('package', 'page', 'blister')

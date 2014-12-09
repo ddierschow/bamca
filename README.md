@@ -11,9 +11,7 @@ site could be recreated.
 
 Please note that this was written by one person, and was never
 intended to be shared or passed on, so the documentation is rare
-to nonexistant.  I will be fixing that as I can.  Most of the
-stylistic elements were set long before I ever heard of PEP8, and
-I haven't gotten around to updating the codebase.  Maybe someday.
+to nonexistant.  I will be fixing that as I can.
 
 Milestones:
 
@@ -44,6 +42,16 @@ There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
 projects are to fill in more variation and product pictures, and
 to add more models and products to the database.
+
+PEP8:
+
+Most of the stylistic elements were set long before I ever heard
+of PEP8, and I am only now updating the codebase.  Since there are
+some things I'm not in agreement with for my own programming, you'll
+find that there are lines up to 132 characters long, and I do
+multiple imports of system libraries on one line.  I've made two
+passes so far converting this codebase to PEP8 compliance, but I
+still have quite a ways to go.
 
 Dean Dierschow
 BAMCA Webmaster

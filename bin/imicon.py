@@ -3,17 +3,17 @@
 import os, sys
 import Image
 
-#==========================
+# =========================
 
-# The icon class!
+# The Icon class!
 
-class icon:
+
+class Icon:
     def __init__(self, w, h):
         self.width = w
         self.height = h
-        self.image = [0] * (w*h)
-        self.chars = font("5x6.font")
-        #self.charset("5x6.font")
+        self.image = [0] * (w * h)
+        self.chars = Font("5x6.font")
         self.palette = {0: (255, 255, 255), 1: (0, 0, 0)}
         self.fgcolor = 1
         self.bgcolor = 0
@@ -72,16 +72,16 @@ class icon:
                 self.tog(x + iX, y + iY)
 
     def merge(self, x, y, w, h, lImage):
-        for iY in range(h-1, -1, -1):
-            for iX in range(w-1, -1, -1):
+        for iY in range(h - 1, -1, -1):
+            for iX in range(w - 1, -1, -1):
                 self.set(x + iX, y + iY, lImage & 1)
                 lImage >>= 1
 
     def box(self, x, y, w, h):
-        for iCh in range(y, y+h):
+        for iCh in range(y, y + h):
             self.set(x, iCh)
             self.set(x + w, iCh)
-        for iCh in range(x, x+w):
+        for iCh in range(x, x + w):
             self.set(iCh, y)
             self.set(iCh, y + h)
 
@@ -142,11 +142,12 @@ class icon:
         return c + 1
 
 
-#==========================
+# =========================
 
-# The font class!
+# The Font class!
 
-class font:
+
+class Font:
     def __init__(self, fname):
         f = None
         for path in sys.path:

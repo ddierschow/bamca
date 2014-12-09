@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import traverse
-traverse.Main('editor')
+traverse.main('editor')

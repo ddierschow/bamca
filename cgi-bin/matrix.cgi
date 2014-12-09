@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import matrix
-matrix.Main('matrix', 'page')
+matrix.main('matrix', 'page')

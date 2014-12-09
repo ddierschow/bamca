@@ -4,6 +4,7 @@ import glob, os, sys
 import basics
 import config
 
+
 def ren(cas, ov, nv):
     fl = glob.glob(os.path.join(pth, '?_' + cas + '-' + ov + '.jpg'))
     for fn in fl:
@@ -13,7 +14,7 @@ def ren(cas, ov, nv):
             os.rename(fn, nn)
 
 
-def Main(pif):
+def main(pif):
     pth = 'pic/man/var'
     piclist = []
     casvar = {}
@@ -29,7 +30,7 @@ def Main(pif):
         casvar[cas].append(var)
 
     for cas in casvar:
-        dbvars = pif.dbh.FetchVariations(cas)
+        dbvars = pif.dbh.fetch_variations(cas)
         #print cas, [x['variation.var'].lower() for x in dbvars]
         for var in casvar[cas]:
             #print ' ', var
@@ -48,14 +49,14 @@ def Main(pif):
                     found = True
                     break
             if not found:
-                if os.path.exists(os.path.join(config.libmandir, cas)):
+                if os.path.exists(os.path.join(config.LIB_MAN_DIR, cas)):
                     for src in glob.glob(os.path.join(pth, '?_' + cas + '-' + var + '.jpg')):
-                        if not os.path.exists(os.path.join(config.libmandir, cas + src[src.rfind('/'):])):
-                            os.rename(src, os.path.join(config.libmandir, cas + src[src.rfind('/'):]))
+                        if not os.path.exists(os.path.join(config.LIB_MAN_DIR, cas + src[src.rfind('/'):])):
+                            os.rename(src, os.path.join(config.LIB_MAN_DIR, cas + src[src.rfind('/'):]))
                 else:
                     print '    Bad var:', cas, var, [x['variation.var'] for x in dbvars]
 
 
 if __name__ == '__main__':
-    pif = basics.GetPageInfo('vars')
-    Main(pif)
+    pif = basics.get_page_info('vars')
+    main(pif)

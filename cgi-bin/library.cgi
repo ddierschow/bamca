@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import images
-images.LibraryMain('editor')
+images.library_main('editor')

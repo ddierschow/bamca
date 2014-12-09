@@ -489,7 +489,7 @@ packsize = {'2': '2', '3': '3', '4': '4', '5': '5', '8': '8', 't': '10', 'w': '2
 
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
-def GetMackNumber(cid):
+def get_mack_number(cid):
     id_m = id_re.match(cid)
     if id_m:
         mack_prefix = ''
@@ -499,7 +499,7 @@ def GetMackNumber(cid):
     return None
 
 
-def GetRegionTree(region):
+def get_region_tree(region):
     line_regions = list()
     lreg = region.upper()
     while lreg:
@@ -508,15 +508,15 @@ def GetRegionTree(region):
     return line_regions
 
 
-def GetCountries():
+def get_countries():
     global countries, countries_dict
     if not countries_dict:
         countries_dict = dict(countries)
     return countries_dict
 
 
-def GetCountry(cc2):
-    return GetCountries().get(cc2, '')
+def get_country(cc2):
+    return get_countries().get(cc2, '')
 
 
 if __name__ == '__main__':  # pragma: no cover

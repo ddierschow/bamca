@@ -24,58 +24,58 @@ class PageInfoFile():
         self.args = args  # this is for unittest only!
         self.argv = []  # this is for command line only!
         self.unittest = bool(args)
-        self.form = self.GetForm()
-        self.page_id = self.GetPageID(page_id, form_key, defval)
+        self.form = self.get_form()
+        self.page_id = self.get_page_id(page_id, form_key, defval)
         self.page_name = self.page_id[self.page_id.rfind('.') + 1:]
         self.time_start = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
         self.request_uri = os.environ.get('REQUEST_URI', 'unknown')
         self.remote_host = os.environ.get('REMOTE_HOST', 'host_unset')
         self.remote_addr = os.environ.get('REMOTE_ADDR', '127.0.0.1')
-        self.SetServerEnv()
+        self.set_server_env()
         self.secure = secure.Security()
         self.htdocs = self.secure.docroot
         self.format_type = 'python'
-        self.render = render.Presentation(self.page_id, self.FormInt('verbose'))
+        self.render = render.Presentation(self.page_id, self.form_int('verbose'))
         self.render.secure = self.secure
-        self.render.Comment('form', self.form)
-        self.rawcookies = self.secure.GetCookies()
+        self.render.comment('form', self.form)
+        self.rawcookies = self.secure.get_cookies()
         self.id = int(self.rawcookies.get('id', '0'))
         self.privs = self.rawcookies.get('pr', '')
         self.secure.cookies = self.rawcookies.get('co')
-        if self.IsAllowed(dbedit):
-            self.secure.SetConfig('edit')
+        if self.is_allowed(dbedit):
+            self.secure.set_config('edit')
 
         os.chdir(self.secure.docroot)
         self.cwd = os.getcwd()
         self.render.isbeta = self.secure.isbeta
         self.cgibin = '../cgi-bin'
-        self.render.simple = int(self.FormInt("simple"))
+        self.render.simple = int(self.form_int("simple"))
 
-        self.dbh = dbhand.dbhandler(self.secure.config, self.id, self.render.verbose)
+        self.dbh = dbhand.DBHandler(self.secure.config, self.id, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
-        self.render.SetPageInfo(self.dbh.FetchPage(self.page_id))
+        self.render.set_page_info(self.dbh.fetch_page(self.page_id))
         self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_NOT_RELEASED) != 0
         self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
-        self.LogStart()
+        self.log_start()
 
-    def SetServerEnv(self):
+    def set_server_env(self):
         self.server_name = os.environ.get('SERVER_NAME', 'unset.server.name')
         parts = self.server_name.split('.')
         if len(parts) > 2:
-            config.env = parts[-3]
+            config.ENV = parts[-3]
         elif len(parts) == 2:
-            config.env = 'www'
+            config.ENV = 'www'
 
-    def LogStart(self):
-        if not self.IsAllowed('m') and not self.args:
-            self.dbh.IncrementCounter(self.page_id)
-            log_name = os.path.join(config.logroot, config.env + datetime.datetime.now().strftime('.url%Y%m.log'))
+    def log_start(self):
+        if not self.is_allowed('m') and not self.args:
+            self.dbh.increment_counter(self.page_id)
+            log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.url%Y%m.log'))
             try:
                 open(log_name, 'a').write('%s %s %s\n' % (self.time_start, self.remote_addr, self.request_uri))
             except:
                 pass
 
-    def GetPageID(self, page_id, form_key, defval):
+    def get_page_id(self, page_id, form_key, defval):
         if form_key:
             if self.form.get(form_key):
                 if self.form[form_key].startswith(page_id + '.'):
@@ -90,7 +90,7 @@ class PageInfoFile():
 
     # -- form stuff -----------------------------------------------------
 
-    def GetForm(self):
+    def get_form(self):
         '''Reads the cgi form and puts it into this object.'''
         form = dict()
         if 'REQUEST_METHOD' in os.environ:  # is this apache?
@@ -128,38 +128,38 @@ class PageInfoFile():
 
         return form
 
-    def FormSet(self, key, val):
+    def form_set(self, key, val):
         self.form[key] = val
 
-    def FormDef(self, key, val):
+    def form_def(self, key, val):
         self.form.setdefault(key, val)
 
-    def FormDel(self, key):
+    def form_del(self, key):
         if key in self.form:
             del self.form[key]
 
-    def FormHas(self, key):
+    def form_has(self, key):
         return key in self.form
 
-    def FormInt(self, key, defval=0):
+    def form_int(self, key, defval=0):
         try:
             return int(self.form[key])
         except:
             return int(defval)
 
-    def FormBool(self, key, defval=False):
+    def form_bool(self, key, defval=False):
         try:
             return bool(self.form[key])
         except:
             return bool(defval)
 
-    def FormStr(self, key, defval=''):
+    def form_str(self, key, defval=''):
         try:
             return str(self.form[key])
         except:
             return str(defval)
 
-    def FormList(self, key, defval=None):
+    def form_list(self, key, defval=None):
         val = self.form.get(key, defval)
         if val is None:
             return list()
@@ -167,29 +167,29 @@ class PageInfoFile():
             return [val]
         return val
 
-    def FormKeys(self, start='', end='', has=''):
+    def form_keys(self, start='', end='', has=''):
         return filter(lambda x: x.startswith(start) and x.endswith(end) and has in x, self.form.keys())
 
-    def FormFind(self, field):
+    def form_find(self, field):
         keys = list()
         for key in self.form.keys():
             if key == field or key.startswith(field + '.'):
                 keys.append(key)
         return keys
 
-    def FormReformat(self, fields):
-        return '&'.join(['%s=%s' % (x, self.FormStr(x)) for x in fields])
+    def form_reformat(self, fields):
+        return '&'.join(['%s=%s' % (x, self.form_str(x)) for x in fields])
 
-    def FormWhere(self, cols=None, prefix=""):
+    def form_where(self, cols=None, prefix=""):
         if not cols:
             cols = self.form.keys()
         wheres = list()
         for col in cols:
             if prefix + col in self.form:
-                wheres.append(col + "='" + str(self.FormStr(prefix + col)) + "'")
+                wheres.append(col + "='" + str(self.form_str(prefix + col)) + "'")
         return ' and '.join(wheres)
 
-    def FormSearch(self, key):
+    def form_search(self, key):
         obj = self.form.get(key, "").split()
         nob = []
         col = ''
@@ -209,36 +209,36 @@ class PageInfoFile():
 
     # -- access control -------------------------------------------------
 
-    def IsAllowed(self, priv):
+    def is_allowed(self, priv):
         if priv is None:  # None = never allowed
             return False
         if priv == '':  # '' = always allowed
             return True
         if set(priv) & set(self.privs):
-            self.render.Comment('IsAllowed', priv, self.privs, 'YES')
+            self.render.comment('is_allowed', priv, self.privs, 'YES')
             return True
         return False
 
-    def Restrict(self, priv):  # pragma: no cover
-        if not self.IsAllowed(priv):
+    def restrict(self, priv):  # pragma: no cover
+        if not self.is_allowed(priv):
             print '<meta http-equiv="refresh" content="0;url=..">'
             sys.exit(0)
 
     # -- debugging and error handling -----------------------------------
 
-    def Dump(self, verbose=False):
+    def dump(self, verbose=False):
         if self.render.verbose or verbose:
-            useful.DumpDictComment('pifile', self.__dict__)
-            useful.DumpDictComment('pifile.render', self.render.__dict__)
-            useful.DumpDictComment('pifile.dbh', self.dbh.__dict__)
+            useful.dump_dict_comment('pifile', self.__dict__)
+            useful.dump_dict_comment('pifile.render', self.render.__dict__)
+            useful.dump_dict_comment('pifile.dbh', self.dbh.__dict__)
 
-    def ErrorReport(self):
+    def error_report(self):
         ostr = 'pifile = ' + str(self.__dict__) + '\n'
-        ostr += 'render = ' + self.render.ErrorReport() + '\n'
-        ostr += 'dbh = ' + self.dbh.ErrorReport() + '\n'
+        ostr += 'render = ' + self.render.error_report() + '\n'
+        ostr += 'dbh = ' + self.dbh.error_report() + '\n'
         return ostr
 
-    def ShowError(self):
+    def show_error(self):
         import traceback
         print traceback.format_exc()
 

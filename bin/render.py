@@ -14,7 +14,7 @@ opt_checked = {True: ' CHECKED', False: ''}
 graphic_types = ['jpg', 'gif', 'bmp', 'ico', 'png']
 
 
-# FormatTable({'also': {}, 'id': '', 'style_id': '', 'rows': []})
+# format_table({'also': {}, 'id': '', 'style_id': '', 'rows': []})
 # rows=[{'ids': [], 'also': {}, 'cells': []}, ...]
 # cells=[{'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''}, ...]
 class TableClass():
@@ -44,9 +44,9 @@ class TableClass():
 
     def render(self):
         ostr = ''
-        ostr += self.pif_render.FormatTableStart(also=self.also, id=self.id, style_id=self.style_id)
-        ostr += self.pif_render.FormatRows(self.rows)
-        ostr += self.pif_render.FormatTableEnd()
+        ostr += self.pif_render.format_table_start(also=self.also, id=self.id, style_id=self.style_id)
+        ostr += self.pif_render.format_rows(self.rows)
+        ostr += self.pif_render.format_table_end()
         return ostr
 
 
@@ -58,7 +58,7 @@ class Presentation():
     increment_select_js = javascript.def_increment_select_js
     def __init__(self, page_id, verbose):
         self.page_id = page_id
-        self.art_dir = config.imgdirArt
+        self.art_dir = config.IMG_DIR_ART
         self.isbeta = False
         self.title = 'BAMCA'
         self.description = ''
@@ -79,7 +79,7 @@ class Presentation():
         self.secure = None
 #       if self.verbose:
 #           import datetime
-#           self.dump_file = open(os.path.join(config.logroot, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
+#           self.dump_file = open(os.path.join(config.LOG_ROOT, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
 
 #    def __str__(self):
 #       return str(self.__dict__)
@@ -90,20 +90,20 @@ class Presentation():
     def __str__(self):
         return "'<render.Presentation instance>'"
 
-    def ErrorReport(self):
+    def error_report(self):
         return str(self.__dict__)
 
-    def SetPageInfo(self, res):
+    def set_page_info(self, res):
         for row in res:
             self.flags = row['page_info.flags']
             self.format_type = row['page_info.format_type']
             self.title = row['page_info.title']
             self.pic_dir = row['page_info.pic_dir']
             self.description = row['page_info.description']
-            self.note = self.FmtPseudo(row['page_info.note'])
+            self.note = self.fmt_pseudo(row['page_info.note'])
             self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
 
-    def StyleName(self, previous, prefix, col=None, id=None):
+    def style_name(self, previous, prefix, col=None, id=None):
         class_ids = list()
         if previous:
             class_ids.append(previous)
@@ -116,36 +116,39 @@ class Presentation():
         class_ids.append(prefix)
         return ' '.join(class_ids)
 
-    def ShowLocation(self):
+    def show_location(self):
         ostr = ''
         for lvl in self.hierarchy:
             ostr += '<a href="%s">%s</a> &gt; ' % lvl
         ostr += '<br>'
         return ostr
 
-    def GetFlags(self):
+    def hierarchy_append(self, link, txt):
+        self.hierarchy.append((link, txt))
+
+    def get_flags(self):
         if not self.flag_info:
-            self.flag_info = {x[0]: (x[1], config.flagdir + '/' + x[0].lower() + '.gif') for x in mbdata.countries}
+            self.flag_info = {x[0]: (x[1], config.FLAG_DIR + '/' + x[0].lower() + '.gif') for x in mbdata.countries}
         return self.flag_info
 
-    def ShowFlag(self, country):
-        flag = self.GetFlags().get(country)
+    def show_flag(self, country):
+        flag = self.get_flags().get(country)
         if flag:
             self.shown_flags.add(country)
         return flag
 
-#    def ArtLoc(self, img):
+#    def art_loc(self, img):
 #       return self.art_dir + '/' + img
 
-#    def ArtURL(self, img):
-#       return '../' + self.ArtLoc(img)
+#    def art_url(self, img):
+#       return '../' + self.art_loc(img)
 
-    def FindArt(self, fnames, suffix="gif"):
-        return self.FindImageFile(fnames, suffix=suffix, art=True)
+    def find_art(self, fnames, suffix="gif"):
+        return self.find_image_file(fnames, suffix=suffix, art=True)
 
-    def FindImageFile(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
+    def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
         if not fnames:
-            self.Comment('FindImageFile ret', '')
+            self.comment('find_image_file ret', '')
             return ''
         elif isinstance(fnames, str):
             fnames = [fnames]
@@ -180,10 +183,10 @@ class Presentation():
         else:
             vars = vars + base
 
-        self.Comment("FindImageFile", fnames, vars, prefix, suffix, pdir)
+        self.comment("find_image_file", fnames, vars, prefix, suffix, pdir)
         for var in vars:
             for fname in fnames:
-                fname = useful.CleanName(fname.replace('/', '_'))
+                fname = useful.clean_name(fname.replace('/', '_'))
 #               if not fname:
 #                   continue
                 if fname.find('.') >= 0:
@@ -198,27 +201,27 @@ class Presentation():
                     for suf in csuffix:
                         suf = '.' + suf
                         if var:
-                            img = self.FmtImgCheck(pdir + '/var/' + pfx + fname + '-' + var + suf)
+                            img = self.fmt_img_check(pdir + '/var/' + pfx + fname + '-' + var + suf)
                             if img:
-                                self.Comment('FindImageFile ret', img)
+                                self.comment('find_image_file ret', img)
                                 return img
-                            img = self.FmtImgCheck(pdir + '/var/' + (pfx + fname + '-' + var + suf).lower())
+                            img = self.fmt_img_check(pdir + '/var/' + (pfx + fname + '-' + var + suf).lower())
                             if img:
-                                self.Comment('FindImageFile ret', img)
+                                self.comment('find_image_file ret', img)
                                 return img
                         else:
-                            img = self.FmtImgCheck(pdir + '/' + pfx + fname + suf)
+                            img = self.fmt_img_check(pdir + '/' + pfx + fname + suf)
                             if img:
-                                self.Comment('FindImageFile ret', img)
+                                self.comment('find_image_file ret', img)
                                 return img
-                            img = self.FmtImgCheck(pdir + '/' + (pfx + fname + suf).lower())
+                            img = self.fmt_img_check(pdir + '/' + (pfx + fname + suf).lower())
                             if img:
-                                self.Comment('FindImageFile ret', img)
+                                self.comment('find_image_file ret', img)
                                 return img
-        self.Comment('FindImageFile ret', '')
+        self.comment('find_image_file ret', '')
         return ''
 
-    def FindButtonImages(self, name, image='', hover='', pdir=None):
+    def find_button_images(self, name, image='', hover='', pdir=None):
         name = name.replace('_', ' ').upper()
         if not image:
             image = name.replace(' ', '_').lower()
@@ -230,31 +233,31 @@ class Presentation():
             hover = 'hov_' + hover
         if not pdir:
             pdir = self.art_dir
-        but_image = self.FindImageFile(image, suffix='gif', pdir=pdir, art=True)
-        hov_image = self.FindImageFile(hover, suffix='gif', pdir=pdir, art=True)
+        but_image = self.find_image_file(image, suffix='gif', pdir=pdir, art=True)
+        hov_image = self.find_image_file(hover, suffix='gif', pdir=pdir, art=True)
         return name, but_image, hov_image
 
     # immediate effect functions.
 
-    def Comment(self, *args):
+    def comment(self, *args):
         if self.dump_file:  # pragma: no cover
             self.dump_file.write(' '.join([str(x) for x in args]) + '\n')
         elif self.verbose:
-            useful.WriteComment(*args)
+            useful.write_comment(*args)
 
-    def CommentDict(self, name, arg):
+    def comment_dict(self, name, arg):
         if self.verbose:
-            useful.DumpDictComment(name, arg)
+            useful.dump_dict_comment(name, arg)
 
-    def PrintHtml(self, cookie=None):
+    def print_html(self, cookie=None):
         print 'Content-Type: text/html'
-        self.PrintCookie(cookie)
+        self.print_cookie(cookie)
         print
         print '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'
-        useful.HeaderDone()
+        useful.header_done()
         print
 
-    def PrintCookie(self, cookie):  # pragma: no cover
+    def print_cookie(self, cookie):  # pragma: no cover
         if cookie:
             print cookie.output()
             os.environ['HTTP_COOKIE'] = cookie.output()
@@ -262,7 +265,7 @@ class Presentation():
             if self.secure.cookies:
                 incookie = self.secure.cookies
             else:
-                incookie = self.secure.GetCookies()
+                incookie = self.secure.get_cookies()
             if not incookie:
                 pass
             elif 'id' not in incookie:
@@ -278,7 +281,7 @@ class Presentation():
 
     #---- upper level rendering blocks
 
-    def FormatHead(self, extra=''):
+    def format_head(self, extra=''):
         pagetitle = self.title
         if self.isbeta:
             pagetitle = 'BETA: ' + pagetitle
@@ -298,11 +301,11 @@ class Presentation():
         ostr += '</head>\n<body>\n'
         if self.isbeta:
             ostr += '<table width=100%><tr><td height=24 class="beta">&nbsp;</td></tr><tr><td>\n'
-        ostr += self.ShowLocation()
+        ostr += self.show_location()
         if not self.hide_title:
             if self.title:
-                ostr += '\n<div class="title">' + self.FmtPseudo(self.title) + '</div>'
-            ostr += self.FmtImg(self.page_id.split('.'), also={'class': 'centered'})
+                ostr += '\n<div class="title">' + self.fmt_pseudo(self.title) + '</div>'
+            ostr += self.fmt_img(self.page_id.split('.'), also={'class': 'centered'})
             if self.description:
                 ostr += '\n<div class="description">' + self.description + '</div>'
         if self.note:
@@ -310,7 +313,7 @@ class Presentation():
         ostr += '\n'
         return ostr
 
-    def FormatTail(self):
+    def format_tail(self):
         ostr = "<p>\n"
 #       if not self.simple and self.tail.get('printable'):
 #           ostr += '''<a href="%s&simple=1">This list is also available in a more printable form.</a><p>\n''' % (os.environ['REQUEST_URI'])
@@ -331,11 +334,11 @@ of Matchbox International Ltd. and are used with permission.
 <hr><p>
 '''
         if self.tail.get('flags'):
-            ball = '%s\n' % self.FmtArt('ball.gif', desc='o')
+            ball = '%s\n' % self.fmt_art('ball.gif', desc='o')
             ostr += '<center>\n'
             listFlag = list(self.shown_flags)
             listFlag.sort(key=lambda x: self.flag_info[x][0])
-            ostr += ball.join(['<nobr>%s %s</nobr> ' % (self.FormatImageFlag(x), self.flag_info[x][0]) for x in listFlag])
+            ostr += ball.join(['<nobr>%s %s</nobr> ' % (self.format_image_flag(x), self.flag_info[x][0]) for x in listFlag])
             ostr += '</center><p>\n'
 
         st = self.tail.get('stat')
@@ -348,166 +351,166 @@ of Matchbox International Ltd. and are used with permission.
 
     #---- tables
 
-    def CreateTable(self, also={}, id='', style_id=''):
+    def create_table(self, also={}, id='', style_id=''):
         return TableClass(self, also, id, style_id)
 
-    def FormatTableSingleCell(self, col, content='', talso={}, ralso={}, calso={}, id='', hdr=False):
-        ostr = self.FormatTableStart(also=talso, id=id)
-        ostr += self.FormatRowStart(also=ralso)
-        ostr += self.FormatCell(col, content, hdr, also=calso)
-        ostr += self.FormatRowEnd()
-        ostr += self.FormatTableEnd()
+    def format_table_single_cell(self, col, content='', talso={}, ralso={}, calso={}, id='', hdr=False):
+        ostr = self.format_table_start(also=talso, id=id)
+        ostr += self.format_row_start(also=ralso)
+        ostr += self.format_cell(col, content, hdr, also=calso)
+        ostr += self.format_row_end()
+        ostr += self.format_table_end()
         return ostr
 
-    def FormatTableStart(self, also={}, id='', style_id=''):
+    def format_table_start(self, also={}, id='', style_id=''):
         also = copy.deepcopy(also)
         self.table_count += 1
-        also['class'] = self.StyleName(also.get('class'), 'tb', style_id)
+        also['class'] = self.style_name(also.get('class'), 'tb', style_id)
         if id:
             also['id'] = id
-        return '<table%s>\n' % useful.Also(also)
+        return '<table%s>\n' % useful.fmt_also(also)
 
-    def FormatTableEnd(self):
+    def format_table_end(self):
         self.table_count -= 1
         return "</table>\n"
 
-    def FormatRowStart(self, ids=[], also={}):
-        ostr = " <tr%s>\n" % useful.Also(also)
+    def format_row_start(self, ids=[], also={}):
+        ostr = " <tr%s>\n" % useful.fmt_also(also)
         for id in ids:
-            ostr += self.FmtAnchor(id)
+            ostr += self.fmt_anchor(id)
         return ostr
 
-    def FormatRowEnd(self):
+    def format_row_end(self):
         return " </tr>\n"
 
-    def FormatCell(self, col=None, content="&nbsp;", hdr=False, also={}, large=False, id=''):
-        #self.Comment('FormatCell', col, hdr, also)
+    def format_cell(self, col=None, content="&nbsp;", hdr=False, also={}, large=False, id=''):
+        #self.comment('format_cell', col, hdr, also)
         if not content:
             content = '&nbsp;'
-        ostr = self.FormatCellStart(col, hdr, also, large, id)
+        ostr = self.format_cell_start(col, hdr, also, large, id)
         ostr += str(content)
-        ostr += self.FormatCellEnd(col, hdr, large)
+        ostr += self.format_cell_end(col, hdr, large)
         return ostr
 
-    def FormatCellStart(self, col=None, hdr=False, also={}, large=False, id=''):
+    def format_cell_start(self, col=None, hdr=False, also={}, large=False, id=''):
         cellstyle = {False: 'eb', True: 'eh'}[hdr]
         celltype = {False: "td", True: "th"}
-        also = useful.DictMerge(also, {'class': self.StyleName(also.get('class'), cellstyle, col, id)})
-        self.Comment('FormatCellStart', col, hdr, also)
+        also = useful.dict_merge(also, {'class': self.style_name(also.get('class'), cellstyle, col, id)})
+        self.comment('format_cell_start', col, hdr, also)
 #       if 'class' not in also:
-#           also = useful.DictMerge(also, self.style.FindName(' '.join(class_ids), self.simple, self.verbose))
-        return '  <%s%s>' % (celltype[hdr], useful.Also(also))
+#           also = useful.dict_merge(also, self.style.FindName(' '.join(class_ids), self.simple, self.verbose))
+        return '  <%s%s>' % (celltype[hdr], useful.fmt_also(also))
 
-    def FormatCellEnd(self, col=0, hdr=False, large=False):
+    def format_cell_end(self, col=0, hdr=False, large=False):
         celltype = {False: "td", True: "th"}
         ostr = '  </' + celltype[hdr] + '>\n'
         if large:
             ostr += " </tr>\n"
         return ostr
 
-    #FormatTable({'also': {}, 'id': '', 'style_id': '', 'rows': []})
+    #format_table({'also': {}, 'id': '', 'style_id': '', 'rows': []})
     #rows=[{'ids': [], 'also': {}, 'cells': []}, ...]
     #cells=[{'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''}, ...]
 
-    def FormatTable(self, table):
+    def format_table(self, table):
         ostr = ''
-        ostr += self.FormatTableStart(also=table.get('also', {}), id=table.get('ids', []), style_id=table.get('style_id', ''))
-        ostr += self.FormatRows(table.get('rows', []))
-        ostr += self.FormatTableEnd()
+        ostr += self.format_table_start(also=table.get('also', {}), id=table.get('ids', []), style_id=table.get('style_id', ''))
+        ostr += self.format_rows(table.get('rows', []))
+        ostr += self.format_table_end()
         return ostr
 
-    def FormatRows(self, rows):
+    def format_rows(self, rows):
         ostr = ''
         for row in rows:
-            ostr += self.FormatRowStart(ids=row.get('ids', []), also=row.get('also', {}))
-            ostr += self.FormatCells(row.get('cells', []))
-            ostr += self.FormatRowEnd()
+            ostr += self.format_row_start(ids=row.get('ids', []), also=row.get('also', {}))
+            ostr += self.format_cells(row.get('cells', []))
+            ostr += self.format_row_end()
         return ostr
 
-    def FormatCells(self, cells):
+    def format_cells(self, cells):
         ostr = ''
         for cell in cells:
-            ostr += self.FormatCell(**cell)
+            ostr += self.format_cell(**cell)
         return ostr
 
     #----
 
-    def FormatWarning(self, *message):
+    def format_warning(self, *message):
         return '<div class="warning">%s</div>\n' % ' '.join(message)
 
-    def FormatSection(self, content, fn=None, also=None, cols=0, id=''):
+    def format_section(self, content, fn=None, also=None, cols=0, id=''):
         if not fn:
             fn = list()
         if not also:
             also = dict()
         nalso = copy.deepcopy(also)
-        nalso['class'] = self.StyleName(also.get('class'), 'sh', id)
+        nalso['class'] = self.style_name(also.get('class'), 'sh', id)
         if cols:
             nalso['colspan'] = cols
         ostr = ''
         if not self.simple and fn:
-            strimg = self.FmtOptImg(fn)
+            strimg = self.fmt_opt_img(fn)
             if len(strimg) > 6:
                 ostr += strimg + '<br>'
         if not self.simple:
 #           nalso.update(self.style.FindClassID('sh', simple=self.simple))
-            ostr = self.FormatRowStart()
-        ostr += '  <th%s>%s</th>\n' % (useful.Also(nalso), self.FmtPseudo(content))
+            ostr = self.format_row_start()
+        ostr += '  <th%s>%s</th>\n' % (useful.fmt_also(nalso), self.fmt_pseudo(content))
         if not self.simple:
-            ostr += self.FormatRowEnd()
+            ostr += self.format_row_end()
         return ostr
 
-    def FormatSectionFreestanding(self, content, fn=[], also={}, cols=0, id=''):
+    def format_section_freestanding(self, content, fn=[], also={}, cols=0, id=''):
         nalso = copy.deepcopy(also)
-        nalso['class'] = self.StyleName(also.get('class'), 'sh', id)
+        nalso['class'] = self.style_name(also.get('class'), 'sh', id)
         ostr = strimg = ''
         if not self.simple and fn:
-            strimg = self.FmtOptImg(fn)
+            strimg = self.fmt_opt_img(fn)
             if len(strimg) > 6:
                 strimg += '<br>'
             else:
                 strimg = ''
 #       if not self.simple:
 #           nalso.update(self.style.FindClassID('sh', simple=self.simple))
-        ostr += '  <div%s>%s%s</div>\n' % (useful.Also(nalso), strimg, self.FmtPseudo(content))
+        ostr += '  <div%s>%s%s</div>\n' % (useful.fmt_also(nalso), strimg, self.fmt_pseudo(content))
         return ostr
 
 
-    def FormatRange(self, content, col, fn=[], also={}, large=False, nstyle=None, cols=3, id=''):
+    def format_range(self, content, col, fn=[], also={}, large=False, nstyle=None, cols=3, id=''):
         nalso = copy.deepcopy(also)
-        nalso['class'] = self.StyleName(also.get('class'), 'rh', col, id)
-        ostr = self.FormatRowStart() + '  <th' + useful.Also(nalso) + '>'
-        self.Comment(large, cols)
+        nalso['class'] = self.style_name(also.get('class'), 'rh', col, id)
+        ostr = self.format_row_start() + '  <th' + useful.fmt_also(nalso) + '>'
+        self.comment(large, cols)
         if large:
-            ostr += self.FmtOptImg(fn) + content + '</th>\n'
+            ostr += self.fmt_opt_img(fn) + content + '</th>\n'
         elif cols == 1:
-            ostr += self.FmtOptImg(fn) + '\n'
+            ostr += self.fmt_opt_img(fn) + '\n'
             ostr += '%s</th>\n' % content
         elif cols == 2:
-            ostr += self.FmtOptImg(fn) + '</th>\n'
-            ostr += '  <th' + useful.Also({'colspan': cols - 2}, nalso) + '>%s</th>\n' % content
+            ostr += self.fmt_opt_img(fn) + '</th>\n'
+            ostr += '  <th' + useful.fmt_also({'colspan': cols - 2}, nalso) + '>%s</th>\n' % content
         else:
-            ostr += self.FmtOptImg(fn) + '</th>\n'
-            ostr += '  <th' + useful.Also({'colspan': cols - 2}, nalso) + '>%s</th>\n' % content
-            ostr += '  <th' + useful.Also(nalso) + '>&nbsp;</th>\n'
-        ostr += self.FormatRowEnd()
-        #self.Comment('nalso', nalso)
+            ostr += self.fmt_opt_img(fn) + '</th>\n'
+            ostr += '  <th' + useful.fmt_also({'colspan': cols - 2}, nalso) + '>%s</th>\n' % content
+            ostr += '  <th' + useful.fmt_also(nalso) + '>&nbsp;</th>\n'
+        ostr += self.format_row_end()
+        #self.comment('nalso', nalso)
         return ostr
 
 
-    def FormatLink(self, url, txt, args={}, nstyle=None, also={}):
-        txt = self.FmtPseudo(txt)
+    def format_link(self, url, txt, args={}, nstyle=None, also={}):
+        txt = self.fmt_pseudo(txt)
         ostr = ''
         if nstyle:
-            ostr += '<span' + useful.Also(nstyle) + '>'
+            ostr += '<span' + useful.fmt_also(nstyle) + '>'
         if not url and not also:
             ostr += txt
         elif not url:
-            ostr += '<a%s>%s</a>' % (useful.Also(also), txt)
+            ostr += '<a%s>%s</a>' % (useful.fmt_also(also), txt)
         elif not txt:
-            ostr += '<a href="%s"%s>%s</a>' % (url, useful.Also(also), url)
+            ostr += '<a href="%s"%s>%s</a>' % (url, useful.fmt_also(also), url)
         else:
-            ostr += '<a href="%s"%s>%s</a>' % (url, useful.Also(also), txt)
+            ostr += '<a href="%s"%s>%s</a>' % (url, useful.fmt_also(also), txt)
         if args:
             args = "&".join([x + '=' + args[x] for x in args.keys()])
             if '?' in url:
@@ -520,23 +523,23 @@ of Matchbox International Ltd. and are used with permission.
 
     #---- forms
 
-    def FormatCheckbox(self, name, options, checked=[]):
-        #self.Comment('FormatCheckbox', name, options, checked)
+    def format_checkbox(self, name, options, checked=[]):
+        #self.comment('format_checkbox', name, options, checked)
         ostr = ''
         for option in options:
             ostr += '<nobr><input type="checkbox" name="%s" value="%s"%s> %s</nobr>\n' % (name, option[0], opt_checked[option[0] in checked], option[1])
         return ostr
 
-    def FormatRadio(self, name, options, checked='', sep=''):
+    def format_radio(self, name, options, checked='', sep=''):
         ostr = ''
         for option in options:
             ostr += '<input type="radio" name="%s" value="%s"%s> %s\n' % (name, option[0], opt_checked[option[0] == checked], option[1]) + sep
         return ostr
 
-    def FormatSelectCountry(self, name, selected='', id=None):
-        return self.FormatSelect(name, [('', '')] + mbdata.countries, selected='', id=None)
+    def format_select_country(self, name, selected='', id=None):
+        return self.format_select(name, [('', '')] + mbdata.countries, selected='', id=None)
 
-    def FormatSelect(self, name, options, selected='', id=None):
+    def format_select(self, name, options, selected='', id=None):
         ostr = '<select name="%s"' % name
         if id:
             ostr += ' id="%s"' % id
@@ -548,32 +551,32 @@ of Matchbox International Ltd. and are used with permission.
         ostr += '</select>'
         return ostr
 
-    def FormatTextInput(self, name, maxlength, showlength=24, value=''):
+    def format_text_input(self, name, maxlength, showlength=24, value=''):
         if not value:
             value = ''
         return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True))
 
-    def FormatPasswordInput(self, name, maxlength=80, showlength=24, value=''):
+    def format_password_input(self, name, maxlength=80, showlength=24, value=''):
         return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (name, min(showlength, maxlength), maxlength, value)
 
-    def FormatHiddenInput(self, values):
+    def format_hidden_input(self, values):
         return reduce(lambda x, y: x + '<input type="hidden" name="%s" value="%s">\n' % (y, values[y]), values.keys(), '')
 
     #---- buttons
 
-    def FormatButtonUpDown(self, field):
+    def format_button_up_down(self, field):
         ostr = ''
-        #up_image = self.FormatImageButton('up', 'inc')
-        #dn_image = self.FormatImageButton('down', 'dec')
-        ostr += '''<a onclick="incrfield(%s, 1);">%s</a>''' % (field, self.FormatImageButton('up', 'inc'))
-        ostr += '''<a onclick="incrfield(%s,-1);">%s</a>''' % (field, self.FormatImageButton('down', 'dec'))
+        #up_image = self.format_image_button('up', 'inc')
+        #dn_image = self.format_image_button('down', 'dec')
+        ostr += '''<a onclick="incrfield(%s, 1);">%s</a>''' % (field, self.format_image_button('up', 'inc'))
+        ostr += '''<a onclick="incrfield(%s,-1);">%s</a>''' % (field, self.format_image_button('down', 'dec'))
         return ostr
 
-    def FormatButtonUpDownSelect(self, id, vl=1):
-        but_max = self.FormatImageButton("top", 'max')
-        but_inc = self.FormatImageButton("up", 'inc')
-        but_dec = self.FormatImageButton("down", 'dec')
-        but_min = self.FormatImageButton("bottom", 'min')
+    def format_button_up_down_select(self, id, vl=1):
+        but_max = self.format_image_button("top", 'max')
+        but_inc = self.format_image_button("up", 'inc')
+        but_dec = self.format_image_button("down", 'dec')
+        but_min = self.format_image_button("bottom", 'min')
         ostr = ''
         if vl > 0:
             ostr += "<a onclick=\"settsel('%s');\">%s</a>\n" % (id, but_max)
@@ -587,15 +590,15 @@ of Matchbox International Ltd. and are used with permission.
             ostr += "<a onclick=\"settsel('%s');\">%s</a>\n" % (id, but_min)
         return ostr
 
-    def FormatButtonInputVisibility(self, id, collapsed=False):
+    def format_button_input_visibility(self, id, collapsed=False):
         if collapsed:
             fname = 'expand'
         else:
             fname = 'collapse'
-        #image = self.ArtLoc('but_' + fname + '.gif')
-        #hover = self.ArtLoc('hov_' + fname + '.gif')
-        but_image = self.FindImageFile('but_' + fname, suffix='gif', art=True)
-        hov_image = self.FindImageFile('hov_' + fname, suffix='gif', art=True)
+        #image = self.art_loc('but_' + fname + '.gif')
+        #hover = self.art_loc('hov_' + fname + '.gif')
+        but_image = self.find_image_file('but_' + fname, suffix='gif', art=True)
+        hov_image = self.find_image_file('hov_' + fname, suffix='gif', art=True)
         also = {'src': '../' + but_image,
                 'id': id + '_l',
                 'value': fname,
@@ -603,86 +606,86 @@ of Matchbox International Ltd. and are used with permission.
                 'class': 'button',
                 'onmouseover': "this.src='../%s';" % hov_image,
                 'onmouseout': "this.src='../%s';" % but_image}
-        return '<input type="image"%s>\n' % useful.Also(also)
+        return '<input type="image"%s>\n' % useful.fmt_also(also)
 
-    def FormatButtonInput(self, bname="submit", name=None, also={}):
-        bname, but_image, hov_image = self.FindButtonImages(bname, pdir=self.art_dir)
+    def format_button_input(self, bname="submit", name=None, also={}):
+        bname, but_image, hov_image = self.find_button_images(bname, pdir=self.art_dir)
         if not name:
             name = bname
 
         inputname = name.replace(' ', '_').lower()
         altname = bname.replace('_', ' ').upper()
         imalso = {'class': 'button', 'alt': altname}
-        self.Comment('FormatButtonImage', bname, name, also, but_image, hov_image)
-        if not but_image or not useful.IsGood(but_image, v=self.verbose):
+        self.comment('FormatButtonImage', bname, name, also, but_image, hov_image)
+        if not but_image or not useful.is_good(but_image, v=self.verbose):
             imalso = {'class': 'textbutton', 'onmouseover': "this.class='textbuttonh';", 'onmouseout': "this.class='textbutton';"}
-            return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, altname, useful.Also(imalso, also))
-        elif not hov_image or not useful.IsGood(hov_image, v=self.verbose):
-            return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.Also(imalso, also))
+            return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, altname, useful.fmt_also(imalso, also))
+        elif not hov_image or not useful.is_good(hov_image, v=self.verbose):
+            return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.fmt_also(imalso, also))
         else:
             imalso.update({'onmouseover': "this.src='../%s';" % hov_image, 'onmouseout': "this.src='../%s';" % but_image})
-            return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.Also(imalso, also))
+            return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.fmt_also(imalso, also))
 
-    def FormatImageButton(self, name, image='', hover='', pdir=None, also={}):
-        name, but_image, hov_image = self.FindButtonImages(name, image, hover, pdir)
+    def format_image_button(self, name, image='', hover='', pdir=None, also={}):
+        name, but_image, hov_image = self.find_button_images(name, image, hover, pdir)
 
-        imalso = useful.DictMerge({'class': 'button'}, also)
+        imalso = useful.dict_merge({'class': 'button'}, also)
         btn = ''
         if not but_image:
             btn = '<span class="textbutton">%s</span>' % name
         elif not hov_image:
-            btn = self.FmtImgSrc(but_image, alt=name, also=imalso)
+            btn = self.fmt_img_src(but_image, alt=name, also=imalso)
         else:
             imalso.update({'onmouseover': "this.src='../%s';" % hov_image, 'onmouseout': "this.src='../%s';" % but_image})
-            btn = self.FmtImgSrc(but_image, alt=name, also=imalso)
+            btn = self.fmt_img_src(but_image, alt=name, also=imalso)
         return btn
 
-    def FormatButton(self, bname, link='', image='', args={}, also={}, lalso={}):
-        #self.Comment('FormatButton', bname, link)
+    def format_button(self, bname, link='', image='', args={}, also={}, lalso={}):
+        #self.comment('format_button', bname, link)
         #return self.FormatImageLink(bname.replace('_', ' ').upper(), 'but_' + bname.replace(' ', '_').lower(), 'hov_' + bname.replace(' ', '_').lower(), link, args, self.art_dir, also, lalso)
-        btn = self.FormatImageButton(bname, image=image, pdir=self.art_dir, also=also)
-        #self.Comment('Button image:', btn)
+        btn = self.format_image_button(bname, image=image, pdir=self.art_dir, also=also)
+        #self.comment('Button image:', btn)
         if link:
-            btn = self.FormatLink(link, btn, args=args, also=lalso)
+            btn = self.format_link(link, btn, args=args, also=lalso)
         return btn + '\n'
 
-    def FormatButtonReset(self, name):
+    def format_button_reset(self, name):
         return '<img ' + \
                 'src="../' + self.art_dir + '/but_reset.gif" ' + \
                 'onmouseover="this.src=\'../' + self.art_dir + '/hov_reset.gif\';" ' + \
                 'onmouseout="this.src=\'../' + self.art_dir + '/but_reset.gif\';" ' + \
                 'border="0" onClick="ResetForm(document.%s)" alt="RESET" class="button">' % name
 
-    def FormatButtonComment(self, pif, args=None):
+    def format_button_comment(self, pif, args=None):
         if args:
             args = 'page=%s&%s' % (pif.page_id, args)
         else:
             args = 'page=%s' % pif.page_id
-        ostr = self.FormatButton("comment_on_this_page", link='../pages/comment.php?%s' % args, also={'class': 'comment'}, lalso=dict())
-        if pif.IsAllowed('a'):  # pragma: no cover
-            ostr += self.FormatButton("pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class': 'comment'}, lalso=dict())
-            ostr += self.FormatButton("edit_this_page", link=pif.dbh.GetEditorLink('page_info', {'id': pif.page_id}), also={'class': 'comment'}, lalso=dict())
+        ostr = self.format_button("comment_on_this_page", link='../pages/comment.php?%s' % args, also={'class': 'comment'}, lalso=dict())
+        if pif.is_allowed('a'):  # pragma: no cover
+            ostr += self.format_button("pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class': 'comment'}, lalso=dict())
+            ostr += self.format_button("edit_this_page", link=pif.dbh.get_editor_link('page_info', {'id': pif.page_id}), also={'class': 'comment'}, lalso=dict())
         return ostr
 
     #---- images
 
-    def FormatImageArt(self, fname, desc='', hspace=0, also={}):
-        return self.FmtArt(fname, desc, hspace, also)
+    def format_image_art(self, fname, desc='', hspace=0, also={}):
+        return self.fmt_art(fname, desc, hspace, also)
 
-    def FormatImageFlag(self, code2, name='', hspace=0, also={}):
-        return self.FmtOptImg(code2, alt=name, pdir=config.flagdir, also=useful.DictMerge({'hspace': hspace}, also))
+    def format_image_flag(self, code2, name='', hspace=0, also={}):
+        return self.fmt_opt_img(code2, alt=name, pdir=config.FLAG_DIR, also=useful.dict_merge({'hspace': hspace}, also))
 
-    def FormatImageAsLink(self, fnames, txt, pdir=None, also={}):
-        return self.FormatLink('../' + self.FindImageFile(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
+    def format_image_as_link(self, fnames, txt, pdir=None, also={}):
+        return self.format_link('../' + self.find_image_file(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
 
-    def FormatImageOptional(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
-        return self.FmtImg(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
+    def format_image_optional(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
+        return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
 
-    def FormatImageRequired(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True):
-        return self.FmtImg(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True)
+    def format_image_required(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True):
+        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True)
 
-    def FormatImageList(self, fn, alt=None, wc='', prefix='', suffix='jpg', pdir=None):
-        self.Comment('FormatImageList', fn, alt, wc, prefix, suffix, pdir)
+    def format_image_list(self, fn, alt=None, wc='', prefix='', suffix='jpg', pdir=None):
+        self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
         if not pdir:
             pdir = self.pic_dir
         if isinstance(suffix, str):
@@ -696,18 +699,18 @@ of Matchbox International Ltd. and are used with permission.
                 orig = (pref + fn + '.' + suf)
                 patt = (pref + fn + wc + '.' + suf)
 
-                for fname in [orig] + useful.ReadDir(patt, pdir):
-                    img = self.FmtImgSrc(pdir + '/' + fname, alt)
+                for fname in [orig] + useful.read_dir(patt, pdir):
+                    img = self.fmt_img_src(pdir + '/' + fname, alt)
                     if img:
                         imgs.append(img)
         return imgs
 
-    def FormatImageSized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None, required=False):
-        return self.FmtImg(fnames, alt='', vars=vars, nobase=nobase, suffix=suffix, largest=largest, pdir=pdir, required=required)
+    def format_image_sized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None, required=False):
+        return self.fmt_img(fnames, alt='', vars=vars, nobase=nobase, suffix=suffix, largest=largest, pdir=pdir, required=required)
 
     #---- lower level rendering blocks
 
-    def FmtPseudo(self, istr):
+    def fmt_pseudo(self, istr):
         if not istr:
             return ''
         while 1:
@@ -715,63 +718,63 @@ of Matchbox International Ltd. and are used with permission.
             if not mat:
                 break
             if mat.group('cmd') == 'img':
-                istr = istr[:mat.start()] + self.FmtOptImg(mat.group('arg')) + istr[mat.end():]
+                istr = istr[:mat.start()] + self.fmt_opt_img(mat.group('arg')) + istr[mat.end():]
             elif mat.group('cmd') == 'art':
-                istr = istr[:mat.start()] + self.FmtArt(mat.group('arg'), also={'align': 'absmiddle'}) + istr[mat.end():]
+                istr = istr[:mat.start()] + self.fmt_art(mat.group('arg'), also={'align': 'absmiddle'}) + istr[mat.end():]
             elif mat.group('cmd') == 'button':
-                istr = istr[:mat.start()] + self.FormatButton(mat.group('arg')) + istr[mat.end():]
+                istr = istr[:mat.start()] + self.format_button(mat.group('arg')) + istr[mat.end():]
         return istr
 
-    def FmtMarkup(self, cmd, args):
+    def fmt_markup(self, cmd, args):
         carg = dict()
         for arg in reversed(args):
             carg.update(arg)
-        return '<' + cmd + useful.Also(args) + '>'
+        return '<' + cmd + useful.fmt_also(args) + '>'
 
-    def FmtArt(self, fname, desc='', hspace=0, also={}):
-        return self.FmtImg(fname, alt=desc, pdir=self.art_dir, also=useful.DictMerge(also, {'hspace': hspace}))
+    def fmt_art(self, fname, desc='', hspace=0, also={}):
+        return self.fmt_img(fname, alt=desc, pdir=self.art_dir, also=useful.dict_merge(also, {'hspace': hspace}))
 
-    def FmtImgSrc(self, pth, alt=None, also={}):
-        if useful.IsGood(pth, v=self.verbose):
-            return '<img src="../' + pth + '"' + useful.Also({'alt': alt}, also) + '>'
+    def fmt_img_src(self, pth, alt=None, also={}):
+        if useful.is_good(pth, v=self.verbose):
+            return '<img src="../' + pth + '"' + useful.fmt_also({'alt': alt}, also) + '>'
         return ''
 
-    def FmtImgCheck(self, pth):
-        self.Comment("FmtImgCheck", pth)
-        if useful.IsGood(pth, v=self.verbose):
+    def fmt_img_check(self, pth):
+        self.comment("fmt_img_check", pth)
+        if useful.is_good(pth, v=self.verbose):
             return pth
         return ''
 
-    def FmtImg(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, also={}, made=True, required=False, pad=False):
-        img = self.FindImageFile(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir)
+    def fmt_img(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, also={}, made=True, required=False, pad=False):
+        img = self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir)
         if img:
-            return self.FmtImgSrc(img, alt=alt, also=also)
+            return self.fmt_img_src(img, alt=alt, also=also)
         if required:
-            return self.FmtNoPic(made, prefix)
+            return self.fmt_no_pic(made, prefix)
         if pad:
             return '&nbsp;'
         return ''
 
-    def FmtNoPic(self, made=True, prefix=''):
+    def fmt_no_pic(self, made=True, prefix=''):
         # prefix not implemented yet!
         pic = {False: 'nopic.gif', True: 'notmade.gif'}[not made]
-        return self.FmtArt(pic)
+        return self.fmt_art(pic)
 
-    def FmtOptImg(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
-        return self.FmtImg(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
+    def fmt_opt_img(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
+        return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
 
-    def FmtAnchor(self, name):
+    def fmt_anchor(self, name):
         if name:
             return '<a name="%s"></a>\n' % name
         return ''
 
-#    def FmtGraphics(self, graphics):
+#    def fmt_graphics(self, graphics):
 #       ostr = ''
 #       for graf in graphics:
-#           ostr += self.FmtOptImg(graf['file'], alt=graf.get('name', ''), pdir=graf.get('pic_dir'), also=graf.get('also', {})) + '\n'
+#           ostr += self.fmt_opt_img(graf['file'], alt=graf.get('name', ''), pdir=graf.get('pic_dir'), also=graf.get('also', {})) + '\n'
 #       return ostr
 
-    def FormatBulletList(self, descs):
+    def format_bullet_list(self, descs):
         ostr = ''
         descs = filter(None, descs)
         if descs:
@@ -790,13 +793,13 @@ of Matchbox International Ltd. and are used with permission.
     # an entry contains the contents of a cell plus cell controls
     #     display_id, text, rowspan, colspan, class, st_suff, style, also,
 
-    def FormatLineup(self, llineup):
-        ostr = '<!-- Starting FormatLineup -->\n'
+    def format_lineup(self, llineup):
+        ostr = '<!-- Starting format_lineup -->\n'
         maxes = {'s': 0, 'r': 0, 'e': 0}
-        self.CommentDict('lineup', llineup)
+        self.comment_dict('lineup', llineup)
         if llineup.get('graphics'):
             for graf in llineup['graphics']:
-                ostr += self.FmtOptImg(graf, suffix='gif')
+                ostr += self.fmt_opt_img(graf, suffix='gif')
         lin_id = llineup.get('id', '')
         if llineup.get('note'):
             ostr += llineup['note'] + '<br>'
@@ -804,45 +807,45 @@ of Matchbox International Ltd. and are used with permission.
         for sec in llineup.get('section', []):
             sc += 1
             sec_id = sec.get('id', '')
-            ostr += self.FmtAnchor(sec.get('anchor'))
+            ostr += self.fmt_anchor(sec.get('anchor'))
             ncols = sec.get('columns', llineup.get('columns', 4))
             if 'switch' in sec:
                 #exval = {False: 'expand', True: 'collapse'}[sec['switch']]
                 #ostr += '''<input id="%s_l" type="button" value="%s" onclick="toggle_visibility('%s','%s_l');">\n''' % (sec_id, exval, sec_id, sec_id)
-                ostr += self.FormatButtonInputVisibility(sec_id, sec['switch'])
+                ostr += self.format_button_input_visibility(sec_id, sec['switch'])
                 ostr += sec.get('count', '')
-            ostr += self.FormatTableStart(style_id=lin_id)
+            ostr += self.format_table_start(style_id=lin_id)
             if sec.get('name'):
-                ostr += self.FormatSection(sec.get('name', ''), cols=ncols, id=sec['id'])
+                ostr += self.format_section(sec.get('name', ''), cols=ncols, id=sec['id'])
             if sec.get('note'):
-                ostr += self.FormatRowStart()
+                ostr += self.format_row_start()
                 also = {'colspan': ncols}
-                also['class'] = self.StyleName(also.get('class'), 'sb', sec_id)
-                ostr += self.FormatCell(0, sec['note'], also=also)
-                ostr += self.FormatRowEnd()
-            ostr += self.FormatRowStart()
+                also['class'] = self.style_name(also.get('class'), 'sb', sec_id)
+                ostr += self.format_cell(0, sec['note'], also=also)
+                ostr += self.format_row_end()
+            ostr += self.format_row_start()
             ostr += '<td>\n'
-            #ostr += self.FormatTableStart(id=sec_id, style_id=lin_id, also={'style': "border-width: 0; padding: 0;"})
+            #ostr += self.format_table_start(id=sec_id, style_id=lin_id, also={'style': "border-width: 0; padding: 0;"})
             rc = 0
             for ran in sec.get('range', []):
                 rc += 1
                 ran_id = ran.get('id', '')
-                ostr += self.FmtAnchor(ran.get('anchor'))
+                ostr += self.fmt_anchor(ran.get('anchor'))
                 if ran.get('name') or ran.get('graphics'):
-                    ostr += self.FormatRange(ran.get('name', ''), None, ran.get('graphics', list()), cols=sec['columns'], id=ran.get('id', ''))
+                    ostr += self.format_range(ran.get('name', ''), None, ran.get('graphics', list()), cols=sec['columns'], id=ran.get('id', ''))
                 if ran.get('note'):
-                    ostr += self.FormatRowStart()
+                    ostr += self.format_row_start()
                     also = {'colspan': ncols}
-                    also['class'] = self.StyleName(also.get('class'), 'rb', ran_id)
-                    ostr += self.FormatCell(0, ran['note'], also=also)
-                    ostr += self.FormatRowEnd()
+                    also['class'] = self.style_name(also.get('class'), 'rb', ran_id)
+                    ostr += self.format_cell(0, ran['note'], also=also)
+                    ostr += self.format_row_end()
                 icol = 0
                 spans = [[0, 0]] * ncols
                 ec = 0
                 for ent in ran.get('entry', []):
                     ec += 1
                     if icol == 0:
-                        ostr += self.FormatRowStart(also={'class': 'er'})
+                        ostr += self.format_row_start(also={'class': 'er'})
                     disp_id = ent.get('display_id')
                     if not disp_id:
                         disp_id = ran_id
@@ -857,9 +860,9 @@ of Matchbox International Ltd. and are used with permission.
                         spans[icol] = [thisspan[0], thisspan[1] - 1]
                         icol += thisspan[0]
                         if icol >= ncols:
-                            ostr += self.FormatRowEnd()
+                            ostr += self.format_row_end()
                             icol = 0
-                            ostr += self.FormatRowStart(also={'class': 'er'})
+                            ostr += self.format_row_start(also={'class': 'er'})
                     if ent.get('rowspan') or ent.get('colspan'):
                         spans[icol] = [ent.get('colspan', 1), ent.get('rowspan', 1) - 1]
                         also.update({'rowspan': ent.get('rowspan', 1), 'colspan': ent.get('colspan', 1)})
@@ -868,102 +871,102 @@ of Matchbox International Ltd. and are used with permission.
                         also.update(ent['also'])
                     if 'width' not in also:
                         also['width'] = '%d%%' % (100/ncols)
-                    ostr += self.FormatCell(disp_id, ent['text'], also=also)
+                    ostr += self.format_cell(disp_id, ent['text'], also=also)
                     icol += ent.get('colspan', 1)
                     if icol >= ncols:
-                        ostr += self.FormatRowEnd()
+                        ostr += self.format_row_end()
                         icol = 0
                     maxes['e'] = max(maxes['e'], ec)
                 if icol:
-                    ostr += self.FormatRowEnd()
+                    ostr += self.format_row_end()
                 maxes['r'] = max(maxes['r'], rc)
-            #ostr += self.FormatTableEnd()
-            ostr += self.FormatCellEnd()
-            ostr += self.FormatRowEnd()
-            ostr += self.FormatTableEnd()
+            #ostr += self.format_table_end()
+            ostr += self.format_cell_end()
+            ostr += self.format_row_end()
+            ostr += self.format_table_end()
             maxes['s'] = max(maxes['s'], sc)
         #print 'sec %(s)d ran %(r)d ent %(e)d<br>' % maxes
-        ostr += self.FormatBoxTail(llineup.get('tail'))
+        ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
-    def FormatULLineup(self, llineup):
-        ostr = '<!-- Starting FormatULLineup -->\n'
+    def format_ul_lineup(self, llineup):
+        ostr = '<!-- Starting format_ul_lineup -->\n'
         if llineup.get('graphics'):
             for graf in llineup['graphics']:
-                ostr += self.FmtOptImg(graf, suffix='gif')
+                ostr += self.fmt_opt_img(graf, suffix='gif')
         lin_id = llineup.get('id', '')
         if llineup.get('note'):
             ostr += llineup['note'] + '<br>'
         for sec in llineup.get('section', []):
             salso = dict()
             sec_id = sec.get('id', '')
-            ostr += self.FmtAnchor(sec.get('anchor'))
+            ostr += self.fmt_anchor(sec.get('anchor'))
             ncols = sec.get('columns', llineup.get('columns', 4))
             if 'switch' in sec:
-                ostr += self.FormatButtonInputVisibility(sec_id, sec['switch'])
+                ostr += self.format_button_input_visibility(sec_id, sec['switch'])
                 ostr += sec.get('count', '')
             if sec.get('name'):
-                ostr += self.FormatSectionFreestanding(sec.get('name', ''), cols=ncols, id=sec['id'])
+                ostr += self.format_section_freestanding(sec.get('name', ''), cols=ncols, id=sec['id'])
             if sec.get('note'):
-                salso['class'] = self.StyleName(salso.get('class'), 'sb', sec_id)
-                ostr += '<div%s>%s</div>' % (useful.Also(salso), sec['note'])
+                salso['class'] = self.style_name(salso.get('class'), 'sb', sec_id)
+                ostr += '<div%s>%s</div>' % (useful.fmt_also(salso), sec['note'])
             for ran in sec.get('range', []):
                 ralso = dict()
                 ran_id = ran.get('id', '')
-                ostr += self.FmtAnchor(ran.get('anchor'))
+                ostr += self.fmt_anchor(ran.get('anchor'))
 #               if ran.get('name') or ran.get('graphics'):
-#                   ostr += self.FormatRange(ran.get('name', ''), None, ran.get('graphics', list()), cols=sec['columns'], id=ran.get('id', ''))
+#                   ostr += self.format_range(ran.get('name', ''), None, ran.get('graphics', list()), cols=sec['columns'], id=ran.get('id', ''))
                 if ran.get('name'):
-                    ralso['class'] = self.StyleName(ralso.get('class'), 'rh', ran_id)
-                    ostr += '<div%s>%s</div>\n' % (useful.Also(ralso), ran['name'])
+                    ralso['class'] = self.style_name(ralso.get('class'), 'rh', ran_id)
+                    ostr += '<div%s>%s</div>\n' % (useful.fmt_also(ralso), ran['name'])
                 if ran.get('note'):
-                    #ralso['class'] = self.StyleName(ralso.get('class'), 'rb', ran_id)
-                    ostr += '<div%s>%s</div>\n' % (useful.Also({'class': 'rb ' + ran_id}), ran['note'])
-                ostr += '<ul%s>\n' % useful.Also(ralso)
+                    #ralso['class'] = self.style_name(ralso.get('class'), 'rb', ran_id)
+                    ostr += '<div%s>%s</div>\n' % (useful.fmt_also({'class': 'rb ' + ran_id}), ran['note'])
+                ostr += '<ul%s>\n' % useful.fmt_also(ralso)
                 for ent in ran.get('entry', []):
                     disp_id = ent.get('display_id')
                     if not disp_id:
                         disp_id = ran_id
-                    ealso = {'class': self.StyleName(ent.get('class'), 'eb')}
+                    ealso = {'class': self.style_name(ent.get('class'), 'eb')}
                     if ent.get('style'):
                         ealso['style'] = ent['style']
                     if ent.get('also'):
                         ealso.update(ent['also'])
                     if 'width' not in ealso:
                         ealso['width'] = '%d%%' % (100/ncols)
-                    ostr += '<li%s>%s</li>\n' % (useful.Also(ealso), ent['text'])
+                    ostr += '<li%s>%s</li>\n' % (useful.fmt_also(ealso), ent['text'])
                 ostr += '</ul>\n'
-        ostr += self.FormatBoxTail(llineup.get('tail'))
+        ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
-    def FormatBoxTail(self, tail):
+    def format_box_tail(self, tail):
         if not tail:
             return ''
-        ostr = self.FormatTableStart(style_id="tail")
-        ostr += self.FormatRowStart()
+        ostr = self.format_table_start(style_id="tail")
+        ostr += self.format_row_start()
         if not isinstance(tail, list):
             tail = [tail]
         ntail = 1
         for tent in tail:
-            ostr += self.FormatCell("tail_%s" % ntail, tent)
+            ostr += self.format_cell("tail_%s" % ntail, tent)
             ntail += 1
-        ostr += self.FormatRowEnd()
-        ostr += self.FormatTableEnd()
+        ostr += self.format_row_end()
+        ostr += self.format_table_end()
         return ostr
 
-    def FormatLinks(self, llineup):
+    def format_links(self, llineup):
         ostr = llineup.get('name', '') + '\n'
         lin_id = llineup.get('id', '')
         for sec in llineup.get('section', []):
             sec_id = sec.get('id', '')
-            self.FmtAnchor(sec.get('anchor'))
+            self.fmt_anchor(sec.get('anchor'))
             if sec.get('name'):
                 ostr += '<h3>' + sec.get('name', '') + '</h3><p>'
             if sec.get('note'):
                 ostr += sec['note'] + '<br>'
             for ran in sec.get('range', []):
                 ran_id = ran.get('id', '')
-                self.FmtAnchor(ran.get('anchor'))
+                self.fmt_anchor(ran.get('anchor'))
                 if ran.get('name') or ran.get('graphics'):
                     ostr += ran.get('name', '') + '<br>'
                 if ran.get('note'):
@@ -974,9 +977,9 @@ of Matchbox International Ltd. and are used with permission.
                     else:
                         ostr += '<div class="link">'
                     if ent.get('comment'):
-                        ostr += self.FormatLink('?id=%d' % ent['id'], self.FormatImageArt('comment'))
+                        ostr += self.format_link('?id=%d' % ent['id'], self.format_image_art('comment'))
                     if ent.get('linktype'):
-                        ostr += self.FormatImageArt(ent['linktype'], also={'class': 'bullet'})
+                        ostr += self.format_image_art(ent['linktype'], also={'class': 'bullet'})
                     ostr += ent['text']
                     if ent['large']:
                         ostr += '</div>\n'

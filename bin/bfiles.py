@@ -5,7 +5,9 @@ import os, re, sys, time
 import mbdata
 import useful
 
-#---- barparse ----------------------------------------------------------
+
+# --- barparse ----------------------------------------------------------
+
 
 class ArgList:
     def __init__(self, line):
@@ -15,42 +17,42 @@ class ArgList:
             self.llist = [x.strip() for x in line.split('|')]
         self.curarg = 0
 
-    def Clean(self):
+    def clean(self):
         self.llist = [x.strip() for x in self.llist]
 
-    def Args(self):
+    def args(self):
         return len(self.llist)
 
-    def GetArg(self, defval=None, start=-1):
+    def get_arg(self, defval=None, start=-1):
         ret = defval
         if start >= 0:
             self.curarg = start
-        if self.curarg < self.Args():
+        if self.curarg < self.args():
             nval = self.llist[self.curarg].strip()
             if nval:
                 ret = nval
             self.curarg += 1
         return ret
 
-    def GetArgs(self, defvals, start=-1):
+    def get_args(self, defvals, start=-1):
         ret = ()
         if start >= 0:
             self.curarg = start
         for val in defvals:
-            ret = ret + (self.GetArg(val),)
+            ret = ret + (self.get_arg(val),)
         return ret
 
     def __len__(self):
         return len(self.llist)
 
-    def Rewind(self):
+    def rewind(self):
         self.curarg = 0
 
     def __getitem__(self, s):
         return self.llist.__getitem__(s)
 
     def __str__(self):
-        return str(self.llist)
+        return str(self.llist) + ' (+%d)' % self.curarg
 
 
 class BarFile:
@@ -65,7 +67,7 @@ class BarFile:
         self.srcstat = os.fstat(self.handle.fileno())
         self.ignoreoverride = False
         self.dats = {}
-        self.Parse()
+        self.parse()
 
     def __getitem__(self, arg):
         return self.__dict__[arg]
@@ -73,165 +75,168 @@ class BarFile:
     def get(self, arg, val=None):
         return self.__dict__.get(arg, val)
 
-    def Read(self):
-        return self.ReadFile(self.handle)
+    def read(self):
+        return self.read_file(self.handle)
 
-    def ReadLine(self, line):
+    def read_line(self, line):
         llist = ArgList(line)
-        llist.Clean()
+        llist.clean()
         return llist
 
-    def ReadFile(self, dbh):
+    def read_file(self, dbh):
         db = dbh.readlines()
         dblist = []
         ignoreflag = False
         for line in db:
             if line[0] == '#':
                 continue
-            llist = self.ReadLine(line)
+            llist = self.read_line(line)
             if not llist:
                 continue
-            cmd = llist.GetArg()
+            cmd = llist.get_arg()
             if cmd == 'ignore':
-                ignoreflag = not self.ignoreoverride and int(llist.GetArg())
+                ignoreflag = not self.ignoreoverride and int(llist.get_arg())
             elif cmd == 'if':
-                ignoreflag = not eval(llist.GetArg())
+                ignoreflag = not eval(llist.get_arg())
             elif cmd == 'endif':
                 ignoreflag = False
             elif ignoreflag:
                 continue
             elif cmd == 'include':
-                dblist.extend(self.ReadInclude(llist.GetArg()))
+                dblist.extend(self.read_include(llist.get_arg()))
             else:
-                llist.Rewind()
+                llist.rewind()
                 dblist.append(llist)
         return dblist
 
-    def ReadInclude(self, datname):
+    def read_include(self, datname):
         try:
             dbf = open(datname)
         except IOError:
             return []
-        return self.ReadFile(dbf)
+        return self.read_file(dbf)
         fst = os.fstat(dbf.fileno())
         db = dbf.readlines()
         dblist = []
         for line in db:
             if line[0] == '#':
                 continue
-            llist = self.ReadLine(line)
+            llist = self.read_line(line)
             if not llist:
                 continue
-            cmd = llist.GetArg()
+            cmd = llist.get_arg()
             if cmd == 'include':
-                dblist.extend(self.ReadInclude(llist.GetArg()))
+                dblist.extend(self.read_include(llist.get_arg()))
             else:
-                llist.Rewind()
+                llist.rewind()
                 dblist.append(llist)
         return dblist
 
-    def Peek(self, datname):
+    def peek(self, datname):
         line = self.handle.readline()
-        llist = self.ReadLine(line)
+        llist = self.read_line(line)
         return llist
 
-    def Parse(self):
+    def parse(self):
         self.dblist = []
-        rawlist = self.Read()
+        rawlist = self.read()
         for e in rawlist:
-            ent = self.ParseCommand(e)
+            ent = self.parse_command(e)
             if ent:
                 self.dblist.append(ent)
-        self.ParseEnd()
+        self.parse_end()
         return self.dblist
 
-    def ParseCommand(self, llist):
-        cmd = llist.GetArg()
-        ent = self.ParseField(self.__class__, str(cmd), llist)
+    def parse_command(self, llist):
+        cmd = llist.get_arg()
+        ent = self.parse_field_line(self.__class__, str(cmd), llist)
         if ent is None:
-            ent = self.ParseByData(llist)
+            ent = self.parse_by_data(llist)
         if ent is None:
-            ent = self.ParseElse(llist)
+            ent = self.parse_else(llist)
         return ent
 
-    def ParseData(self, llist, cmdname="cmd"):
+    def parse_data_line(self, llist, cmdname="cmd"):
         if llist[0] in self.dats:
             return dict(zip([cmdname] + self.dats[llist[0]][0], llist.llist))
         return None
 
-    def ParseByData(self, llist):
-        return self.ParseData(llist)
+    def parse_by_data(self, llist):
+        return self.parse_data_line(llist)
 
-    def ParseElse(self, llist):
+    def parse_else(self, llist):
         return None
 
-    def ParseField(self, pclass, cmd, llist):
-        if "Parse_"+cmd in pclass.__dict__:
-            ret = pclass.__dict__['Parse_' + cmd](self, llist)
+    def parse_field_line(self, pclass, cmd, llist):
+        if "parse_" + cmd in pclass.__dict__:
+            ret = pclass.__dict__['parse_' + cmd](self, llist)
             if ret is not None:
                 return ret
             return False
         if pclass.__bases__:
-            return pclass.__bases__[0].ParseField(self, pclass.__bases__[0], cmd, llist)
+            return pclass.__bases__[0].parse_field_line(self, pclass.__bases__[0], cmd, llist)
         return None
 
-    def Parse_data(self, llist):
-        key = llist.GetArg()
-        fld = llist.GetArg()
-        typ = llist.GetArg('')
+    def parse_data(self, llist):
+        llist.rewind()
+        key = llist.get_arg()
+        fld = llist.get_arg()
+        typ = llist.get_arg('')
         self.dats[key] = (fld.split(','), typ)
 
-    def ParseEnd(self):
+    def parse_end(self):
         pass
 
-#---- unfinished file classes -------------------------------------------
+
+# --- unfinished file classes -------------------------------------------
+
 
 # in use
-class ArgFile (BarFile):
+class ArgFile(BarFile):
     def __init__(self, fname):
-        self.SetGlobals()
+        self.set_globals()
         BarFile.__init__(self, fname)
 
-    def SetGlobals(self):
+    def set_globals(self):
         self.fmttype = 'main'
         self.pagetitle = self.title = ''
         self.picdir = ''
         self.tail = {}
 
-    def Read(self):
+    def read(self):
         self.tail['stat'] = time.strftime('Last updated %A, %d %B %Y at %I:%M:%S %p %Z.', time.localtime(self.srcstat.st_mtime))
         try:
-            return BarFile.Read(self)
+            return BarFile.read(self)
         except IOError:
-            print FormatHead()
+            print format_head()
             print "<!--", form, "-->"
             print "<!--", datname, "is on crack. -->"
             print """I'm sorry, that page was not found.  Please use your "BACK" button or try something else."""
-            print FormatTail()
+            print format_tail()
             sys.exit(1)
 
-    def Parse_formatter(self, llist):
-        self.picdir = llist.GetArg()
-        self.fmttype = llist.GetArg()
-        self.pagetitle = llist.GetArg()
+    def parse_formatter(self, llist):
+        self.picdir = llist.get_arg()
+        self.fmttype = llist.get_arg()
+        self.pagetitle = llist.get_arg()
 
-    def Parse_style(self, llist):
+    def parse_style(self, llist):
         pass
 
-    def Parse_page(self, llist):
+    def parse_page(self, llist):
         pass
 
-    def Parse_title(self, llist):
-        self.title = llist.GetArg('')
+    def parse_title(self, llist):
+        self.title = llist.get_arg('')
 
-    def Parse_tail(self, llist):
-        arg = llist.GetArg()
+    def parse_tail(self, llist):
+        arg = llist.get_arg()
         while arg:
             self.tail[arg] = 1
-            arg = llist.GetArg()
+            arg = llist.get_arg()
 
-    def Parse_restrict(self, llist):
-        Restrict(llist[1])
+    def parse_restrict(self, llist):
+        restrict(llist[1])
 
 
 # in use
@@ -243,20 +248,22 @@ class SimpleFile(ArgFile):
     def __iter__(self):
         return self.dblist.__iter__()
 
-    def ParseElse(self, llist):
-        llist.Rewind()
+    def parse_else(self, llist):
+        llist.rewind()
         self.dblist.append(llist)
 
     def __len__(self):
         return len(self.dblist)
 
 
-#---- finished file classes ---------------------------------------------
+# --- finished file classes ---------------------------------------------
 
-tablecols = ['prefix', 'cols', 'title', 'digits', 'label', 'style']
-notcols = ['fulldesc', 'insetdesc', 'fullpic']
+
 # in use
 class SetFile(ArgFile):
+    tablecols = ['prefix', 'cols', 'title', 'digits', 'label', 'style']
+    notcols = ['fulldesc', 'insetdesc', 'fullpic']
+
     def __init__(self, fname='src/diffs.dat'):
         self.tables = []
         self.found = False
@@ -267,50 +274,49 @@ class SetFile(ArgFile):
         self.dirs = {}
         ArgFile.__init__(self, fname)
 
-    def Parse_cells(self, llist):
+    def parse_cells(self, llist):
         self.header = llist[1:]
         self.ncols = 0
         for col in self.header:
-            if not(col in notcols):
+            if not(col in self.notcols):
                 self.ncols += 1
         self.db['ncols'] = self.ncols
 
-    def Parse_dir(self, llist):
+    def parse_dir(self, llist):
         self.dirs[llist[1]] = llist[2]
 
-    def Parse_field(self, llist):
+    def parse_field(self, llist):
         self.colheads[llist[1]] = llist[2]
 
-    def Parse_table(self, llist):
+    def parse_table(self, llist):
         if self.found:
             self.tables.append(self.db)
             self.db = {'model': []}
-        self.db.update(dict(map(None, tablecols, llist[1:])))
+        self.db.update(dict(map(None, self.tablecols, llist[1:])))
         self.db['cols'] = cols = self.db['cols'].split(',')
         self.db['header'] = self.header
         self.db['ncols'] = self.ncols
 
-    def Parse_t(self, llist):
-        self.model = {'text': llist.GetArg('')}
+    def parse_t(self, llist):
+        self.model = {'text': llist.get_arg('')}
         self.db['model'].append(self.model)
 
-    def Parse_s(self, llist):
-        self.model = {'section': llist.GetArg('')}
+    def parse_s(self, llist):
+        self.model = {'section': llist.get_arg('')}
         self.db['model'].append(self.model)
 
-    def Parse_m(self, llist):
+    def parse_m(self, llist):
         self.found = True
         self.model = dict(map(None, self.db['cols'], llist[1:]))
         self.model['desc'] = []
         self.db['model'].append(self.model)
 
-    def Parse_d(self, llist):
+    def parse_d(self, llist):
         self.model['desc'].append(llist[1])
 
-    def ParseEnd(self):
+    def parse_end(self):
         if self.found:
             self.tables.append(self.db)
-
 
 
 if __name__ == '__main__':  # pragma: no cover

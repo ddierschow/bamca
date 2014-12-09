@@ -11,16 +11,16 @@ class Security:
     def __init__(self, siteid=None):
         self.cgibin = '../cgi-bin'
         self.isbeta = False
-        self.ReadVersion()
-        self.SetEnv(siteid)
-        self.ReadConfig(siteid)
+        self.read_version()
+        self.set_env(siteid)
+        self.read_config(siteid)
         self.cipher = Crypto.Cipher.DES.new(self.crypkey, Crypto.Cipher.DES.MODE_ECB)
         self.cookies = None
 
     def __str__(self):
         return "'<secure.Security>'"
 
-    def ReadVersion(self):
+    def read_version(self):
 #       if os.path.exists('version.txt'):
 #           self.htdocs_path = '.'
 #       elif os.path.exists('../version.txt'):
@@ -44,7 +44,7 @@ class Security:
         if self.root == 'beta':
             self.isbeta = True
 
-    def SetEnv(self, siteid):
+    def set_env(self, siteid):
         self.host = os.getenv('SERVER_NAME')
         if not self.host:
             self.host = self.root + '.bamca.org'
@@ -56,11 +56,11 @@ class Security:
             self.docroot = '/usr/local/www/bamca/' + self.root + '/htdocs'
             os.putenv('DOCUMENT_ROOT', self.docroot)
 
-    def ReadConfig(self, siteid):
+    def read_config(self, siteid):
         self.cfgfile = open(os.path.join(self.htdocs_path, self.cgibin, '.config')).readlines()
-        self.SetConfig(siteid)
+        self.set_config(siteid)
 
-    def SetConfig(self, siteid):
+    def set_config(self, siteid):
         cfgkey = '.'.join(self.host.split('.')[-2:])
         if siteid:
             cfgkey = siteid + '.' + cfgkey
@@ -71,36 +71,36 @@ class Security:
 
     #---- cookieish code
 
-    def ClearCookie(self, keys=[]):
+    def clear_cookie(self, keys=[]):
         cookie = Cookie.SimpleCookie()
         for key in keys:
             cookie[key] = ''
             cookie[key]['expires'] = -1
-            cookie[key]['domain'] = self.CookieDomain()
+            cookie[key]['domain'] = self.cookie_domain()
             cookie[key]['path'] = '/'
         return cookie
 
-    def CookieDomain(self):
+    def cookie_domain(self):
         return '.'.join(os.environ['SERVER_NAME'].split('.')[-2:])
 
-    def MakeCookie(self, id, privs, expires=6000):
+    def make_cookie(self, id, privs, expires=6000):
         cookie = Cookie.SimpleCookie()
-        cryp_str = self.CookieEncode(str(id) + '/' + os.environ['REMOTE_ADDR'] + '/' + privs)
+        cryp_str = self.cookie_encode(str(id) + '/' + os.environ['REMOTE_ADDR'] + '/' + privs)
         cookie['id'] = cryp_str
         cookie['id']['expires'] = expires
-        cookie['id']['domain'] = self.CookieDomain()
+        cookie['id']['domain'] = self.cookie_domain()
         cookie['id']['path'] = '/'
         return cookie
 
-    def CookieDecode(self, val):
+    def cookie_decode(self, val):
         return self.cipher.decrypt(Cookie._unquote(val)).strip()
 
-    def CookieEncode(self, val):
+    def cookie_encode(self, val):
         strval = str(val)
         strval += ' ' * (8 - len(strval) % 8)
         return Cookie._quote(self.cipher.encrypt(strval))
 
-    def GetCookies(self):
+    def get_cookies(self):
         cookie = None
         if os.environ.get('HTTP_COOKIE'):
             rawcookie = os.environ['HTTP_COOKIE']
@@ -116,15 +116,15 @@ class Security:
         if not cookie.get('id'):
             #sys.stderr.write("cookie empty error\n")
             return {}
-        cookieval = self.CookieDecode(cookie['id'].value)
+        cookieval = self.cookie_decode(cookie['id'].value)
         if '/' not in cookieval:
             #sys.stderr.write("cookie format error\n")
             return {}
         try:
-            ret = dict(zip(['id', 'ip', 'pr'], self.CookieDecode(cookie['id'].value).split('/')))
+            ret = dict(zip(['id', 'ip', 'pr'], self.cookie_decode(cookie['id'].value).split('/')))
         except:
             #sys.stderr.write("cookie split error\n")
-            #sys.stderr.write("  '%s' -> '%s'\n" % (cookie['id'].value, self.CookieDecode(cookie['id'].value)))
+            #sys.stderr.write("  '%s' -> '%s'\n" % (cookie['id'].value, self.cookie_decode(cookie['id'].value)))
             return {}
         ret['co'] = cookie
         return ret
@@ -133,7 +133,7 @@ class Security:
 
 if __name__ == '__main__':  # pragma: no cover
     sec = Security()
-    cook = sec.GetCookies()
+    cook = sec.get_cookies()
     if sys.argv:
         if sys.argv[1] == 'id':
             sys.exit(int(cook.get('id', 0)))

@@ -8,30 +8,33 @@ import lineup
 import mbdata
 import package
 
+
 # Start here
 
-def Report(area, im_count, pr_count=0):
+href_re = re.compile('''<a href=".*?">''')
+
+
+def report(area, im_count, pr_count=0):
     print "%-23s %6d / %6d" % (area, im_count, pr_count)
 
 
-href_re = re.compile('''<a href=".*?">''')
-def CountHtml(fpath):
+def count_html(fpath):
     fim = open(fpath).read()
     count = 0
     for href in href_re.findall(fim):
         if '/' not in href:
             count += 1
-    Report(fpath, count, count)
+    report(fpath, count, count)
     return count
 
 
-def CountDirectory(pdir):
+def count_directory(pdir):
     count = len(glob.glob(pdir + '/*.jpg'))
-    Report(pdir, count, count)
+    report(pdir, count, count)
     return count
 
 
-def CountComboOneOnly(pdir, prefs, roots, suffs):
+def count_combo_one_only(pdir, prefs, roots, suffs):
     count = 0
     for root in roots:
         found = False
@@ -53,11 +56,11 @@ def CountComboOneOnly(pdir, prefs, roots, suffs):
             if found:
                 found = True
                 break
-    Report(pdir, count, len(roots))
+    report(pdir, count, len(roots))
     return count
 
 
-def CountCombo(pdir, prefs, roots, suffs):
+def count_combo(pdir, prefs, roots, suffs):
     count = 0
     for root in roots:
         for pref in prefs:
@@ -67,75 +70,79 @@ def CountCombo(pdir, prefs, roots, suffs):
                     for fn in fl:
                         if os.path.exists(fn):
                             count += 1
-    Report(pdir, count, len(roots))
+    report(pdir, count, len(roots))
     return count
 
 
-def GetYear(pif, region, year):
-    if year < 1982:
-        pif.render.pic_dir = config.imgdirLesney
+def get_year(pif, region, year):
+    if year < 1970:
+        pif.render.pic_dir = config.IMG_DIR_LRW
+    elif year < 1982:
+        pif.render.pic_dir = config.IMG_DIR_LSF
     elif year < 1993:
-        pif.render.pic_dir = config.imgdirUniv
+        pif.render.pic_dir = config.IMG_DIR_UNIV
     elif year < 1998:
-        pif.render.pic_dir = config.imgdirTyco
+        pif.render.pic_dir = config.IMG_DIR_TYCO
+    elif year < 2005:
+        pif.render.pic_dir = config.IMG_DIR_MT_LAUREL
     else:
-        pif.render.pic_dir = config.imgdirMattel
-    return lineup.PictureCount(pif, region, str(year))
+        pif.render.pic_dir = config.IMG_DIR_MATTEL
+    return lineup.picture_count(pif, region, str(year))
 
 
-def GetYears(pif, region, ystart, yend, pr_count, im_count):
+def get_years(pif, region, ystart, yend, pr_count, im_count):
     for year in range(ystart, yend + 1):
-        count = GetYear(pif, region, year)
+        count = get_year(pif, region, year)
         pr_count += count[0]
         im_count += count[1]
         print "    %s  %s  %-4d / %-4d" % (year, region, count[1], count[0])
     return pr_count, im_count
 
 
-def CountLineups(pif):
+def count_lineups(pif):
     pr_count = im_count = 0
     answer = pif.dbh.dbi.rawquery("select min(year), max(year) from lineup_model")[0]
     ystart = int(answer['min(year)'])
     yend = int(answer['max(year)'])
     dircheck = {}
-    pr_count, im_count = GetYears(pif, 'U', ystart, yend, pr_count, im_count)
-    pr_count, im_count = GetYears(pif, 'R', 1982, yend, pr_count, im_count)
-    pr_count, im_count = GetYears(pif, 'L', 2008, yend, pr_count, im_count)
-    pr_count, im_count = GetYears(pif, 'D', 1999, 2001, pr_count, im_count)
-    pr_count, im_count = GetYears(pif, 'B', 2000, 2001, pr_count, im_count)
-    pr_count, im_count = GetYears(pif, 'A', 2000, 2001, pr_count, im_count)
-    Report("lineups", im_count, pr_count)
+    pr_count, im_count = get_years(pif, 'U', ystart, yend, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'R', 1982, yend, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'L', 2008, yend, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'D', 1999, 2001, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'B', 2000, 2001, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'A', 2000, 2001, pr_count, im_count)
+    report("lineups", im_count, pr_count)
     return count
 
 
-def CountPub(pif):
-    recs = pif.dbh.FetchPublications()
+def count_pub(pif):
+    recs = pif.dbh.fetch_publications()
     count = 0
-    count += CountCombo(config.imgdirCat, ['s_', ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
-    count += CountCombo(config.imgdir175, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_CAT, ['s_', ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
+    count += count_combo(config.IMG_DIR_MAN, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 
-def CountPack(pif):
-    recs = pif.dbh.FetchPacks()
+def count_pack(pif):
+    recs = pif.dbh.fetch_packs()
     count = 0
-    count += CountComboOneOnly(config.imgdirPack, ['t_', 's_', 'c_', 'm_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += CountCombo(config.imgdirPack, ['l_', 'h_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += CountCombo(config.imgdir175, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo_one_only(config.IMG_DIR_PACK, ['t_', 's_', 'c_', 'm_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_PACK, ['l_', 'h_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 
-def CountMan(pif):
-    recs = pif.dbh.FetchCastingList()
+def count_man(pif):
+    recs = pif.dbh.fetch_casting_list()
     count = 0
-    count += CountCombo(config.imgdir175, ['s_', 'm_', 'l_', 'z_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += CountCombo(config.imgdirAdd, ['a_', 'b_', 'e_', 'i_', 'p_', 'r_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += CountCombo(config.imgdir175 + '/icon', ['i_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN, ['s_', 'm_', 'l_', 'z_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_ADD, ['a_', 'b_', 'e_', 'i_', 'p_', 'r_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN + '/icon', ['i_'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 
-def CountVar(pif):
-    varrecs = pif.dbh.FetchVariationsBare()
+def count_var(pif):
+    varrecs = pif.dbh.fetch_variations_bare()
     recs = []
     for var in varrecs:
         var_id = var['variation.var']
@@ -143,17 +150,17 @@ def CountVar(pif):
             var_id = var['variation.picture_id']
         recs.append('%s-%s' % (var['variation.mod_id'].lower(), var_id.lower()))
     count = 0
-    count += CountCombo(config.imgdir175 + '/var', ['s_', 'm_'], recs, [''])
+    count += count_combo(config.IMG_DIR_MAN + '/var', ['s_', 'm_'], recs, [''])
     return count
 
 
-def CountBox(pif):
-    pr_count, im_count = package.CountBoxes(pif)
-    Report("box", im_count, pr_count)
+def count_box(pif):
+    pr_count, im_count = package.count_boxes(pif)
+    report("box", im_count, pr_count)
     return im_count
 
 
-def CountFromFile(fpath, tag, fld, pdir):
+def count_from_file(fpath, tag, fld, pdir):
     pr_count = im_count = 0
     for ln in open(fpath).readlines():
         lns = ln.strip().split('|')
@@ -161,30 +168,30 @@ def CountFromFile(fpath, tag, fld, pdir):
             pr_count += 1
             if os.path.exists('%s/%s.jpg' % (pdir, lns[fld])):
                 im_count += 1
-    Report(fpath, im_count, pr_count)
+    report(fpath, im_count, pr_count)
     return im_count
 
 
 if __name__ == '__main__':  # pragma: no cover
-    pif = basics.GetPageInfo('editor')
+    pif = basics.get_page_info('editor')
 
     count = 0
-    count += CountFromFile('src/coll43.dat', 'm', 2, config.imgdirColl43)
-    count += CountFromFile('src/coll72.dat', 'm', 2, config.imgdirColl43)
-    count += CountFromFile('src/coll18.dat', 'm', 2, config.imgdirColl43)
-    count += CountBox(pif)
-    count += CountDirectory(config.imgdirSeries)
-    count += CountDirectory(config.imgdirAcc)
-    count += CountDirectory(config.imgdirBlister)
-    count += CountDirectory(config.imgdirCode2)
-    count += CountDirectory(config.imgdirColl64)
-    count += CountHtml(config.imgdirAds + '/index.php')
-    count += CountHtml(config.imgdirErrors + '/index.html')
-    count += CountLineups(pif)
-    count += CountMan(pif)
-    count += CountVar(pif)
-    count += CountPack(pif)
-    count += CountPub(pif)
+    count += count_from_file('src/coll43.dat', 'm', 2, config.IMG_DIR_COLL_43)
+    count += count_from_file('src/coll72.dat', 'm', 2, config.IMG_DIR_COLL_43)
+    count += count_from_file('src/coll18.dat', 'm', 2, config.IMG_DIR_COLL_43)
+    count += count_box(pif)
+    count += count_directory(config.IMG_DIR_SERIES)
+    count += count_directory(config.IMG_DIR_ACC)
+    count += count_directory(config.IMG_DIR_BLISTER)
+    count += count_directory(config.IMG_DIR_CODE_2)
+    count += count_directory(config.IMG_DIR_COLL_64)
+    count += count_html(config.IMG_DIR_ADS + '/index.php')
+    count += count_html(config.IMG_DIR_ERRORS + '/index.html')
+    count += count_lineups(pif)
+    count += count_man(pif)
+    count += count_var(pif)
+    count += count_pack(pif)
+    count += count_pub(pif)
 
     print
-    Report('total', count)
+    report('total', count)
