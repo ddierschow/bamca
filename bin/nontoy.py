@@ -28,7 +28,7 @@ def biblio(pif):
     #global pagename
     #pagename = pif.form_str('page', 'biblio')
 
-    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_id + '.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
     print pif.render.format_head()
 
     shown = False
@@ -75,7 +75,7 @@ def biblio(pif):
                     arg = llist.get_arg('&nbsp;')
                     if arg[0] == '*':
                         arg = arg[1:]
-                        ostr += pif.render.format_cell(0, '<a href="biblio.cgi?page=%s&sort=%d">%s' % (pif.page_id, iarg, arg), hdr=True)
+                        ostr += pif.render.format_cell(0, '<a href="biblio.cgi?page=%s&sort=%d">%s' % (pif.page_name, iarg, arg), hdr=True)
                     elif arg[0] == '-':
                         pass
                     else:
@@ -139,7 +139,7 @@ def biblio(pif):
     if not pif.render.simple:
         if shown:
             ostr += pif.render.format_table_end()
-        ostr += 'There is also a <a href="biblio.cgi?page=%s&simple=1">cheezy, non-tables version of this page.</a><p>\n' % pif.page_id
+        ostr += 'There is also a <a href="biblio.cgi?page=%s&simple=1">cheezy, non-tables version of this page.</a><p>\n' % pif.page_name
 
     print ostr
     print pif.render.format_tail()
@@ -156,7 +156,7 @@ def calendar(pif):
     pif.render.print_html()
     #global pagename
     #pagename = pif.form_str('page', 'calendar')
-    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_id + '.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
     print pif.render.format_head()
     shown = False
     ostr = ''

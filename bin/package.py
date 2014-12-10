@@ -80,7 +80,7 @@ def blister(pif):
     #global pagename
     #pagename = pif.form_str('page', 'blister')
 
-    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_id + '.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
 
     print pif.render.format_head()
     do_tree_page(pif, dblist)
