@@ -158,8 +158,8 @@ def upload_pic(pif, infile, pdir, fn, overwrite=False, desc=''):
 
 def upload_file(pif, infile, pdir, fn, overwrite=False, desc=''):
     fn = safe_save(pif, pdir, fn, infile, overwrite)
-    if fn.endswith('.') or '.' not in fn:
-        fn = fix_file_type(pif, pdir, fn)
+#    if fn.endswith('.') or '.' not in fn:
+#        fn = fix_file_type(pif, pdir, fn)
 
 
 def scrape_url_mod(pif, url, man, var, overwrite=False, desc=''):
