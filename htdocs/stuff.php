@@ -126,16 +126,16 @@ else
 <td colspan=5 bgcolor="#DDFFDD"><center><b>
 <?php
 if ($pif['isbeta'])
-    DoButtonLink('release', $imgdirArt, "http://www.bamca.org/stuff.php");
+    DoButtonLink('release', $IMG_DIR_ART, "http://www.bamca.org/stuff.php");
 else
-    DoButtonLink('beta', $imgdirArt, "http://beta.bamca.org/stuff.php");
-DoButtonLink('log_in', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/login.cgi?dest=http://" . $pif['host'] . "/stuff.php");
-DoButtonLink('log_out', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
-DoButtonLink('change_password', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/chpass.cgi?dest=http://" . $pif['host'] . "/stuff.php");
-DoButtonLink('register', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/signup.cgi?dest=http://" . $pif['host'] . "/stuff.php");
-DoButtonLink('user_list', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/user.cgi");
-DoButtonLink('test', $imgdirArt, "cgi-bin/xtest.cgi");
-DoButtonLink('counters', $imgdirArt, "http://" . $pif['host'] . "/cgi-bin/counters.cgi");
+    DoButtonLink('beta', $IMG_DIR_ART, "http://beta.bamca.org/stuff.php");
+DoButtonLink('log_in', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/login.cgi?dest=http://" . $pif['host'] . "/stuff.php");
+DoButtonLink('log_out', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
+DoButtonLink('change_password', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/chpass.cgi?dest=http://" . $pif['host'] . "/stuff.php");
+DoButtonLink('register', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/signup.cgi?dest=http://" . $pif['host'] . "/stuff.php");
+DoButtonLink('user_list', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/user.cgi");
+DoButtonLink('test', $IMG_DIR_ART, "cgi-bin/xtest.cgi");
+DoButtonLink('counters', $IMG_DIR_ART, "http://" . $pif['host'] . "/cgi-bin/counters.cgi");
 ?>
 
 </b></center></td>
@@ -186,8 +186,8 @@ if (count($result) > 0)
 }
 echo "</span></td>";
 echo '<td><span class="warning">';
-DoButtonLink('see', $imgdirArt, "cgi-bin/editor.cgi");
-DoButtonLink('clear', $imgdirArt, "cgi-bin/editor.cgi?clear=1");
+DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/editor.cgi");
+DoButtonLink('clear', $IMG_DIR_ART, "cgi-bin/editor.cgi?clear=1");
 if (count($result) > 0)
 {
     foreach ($result as $ent)
@@ -205,7 +205,7 @@ if (count($result) > 0)
 	echo $ent[0] . ' ';
 }
 echo "</span></td><td>";
-DoButtonLink('see', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/user.cgi");
+DoButtonLink('see', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/user.cgi");
 echo "</td></tr><tr><td>\n";
 
 $result = Fetch("select count(*) from link_line where ((flags&1)=1)", $pif);
@@ -213,7 +213,7 @@ echo 'New links:</td><td><span class="warning">';
 if ($result[0][0])
     echo $result[0][0];
 echo "</span></td><td>";
-DoButtonLink('see', $imgdirArt, "cgi-bin/edlinks.cgi?sec=new");
+DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/edlinks.cgi?sec=new");
 echo "</td></tr><tr><td>\n";
 
 $pf = glob("../inc/*");
@@ -221,7 +221,7 @@ echo 'New images:</td><td><span class="warning">';
 if (count($pf) - 1)
     echo (count($pf) - 1);
 echo "</span></td><td>";
-DoButtonLink('see', $imgdirArt, "cgi-bin/traverse.cgi?d=../inc");
+DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/traverse.cgi?d=../inc");
 echo "</td></tr><tr><td>\n";
 
 $pf = glob("../../logs/comment.*");
@@ -229,7 +229,7 @@ echo 'New comments:</td><td><span class="warning">';
 if (count($pf))
     echo count($pf);
 echo "</span></td><td>";
-DoButtonLink('see', $imgdirArt, "cgi-bin/traverse.cgi?d=../../logs");
+DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/traverse.cgi?d=../../logs");
 echo "</td></tr>\n";
 
 ?>

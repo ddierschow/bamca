@@ -128,7 +128,7 @@ function DoHead($pif)
 
 function DoPageHeader($pif)
 {
-    $imgdirArt = 'pic/gfx';
+    $IMG_DIR_ART = 'pic/gfx';
     if (!$pif['isbeta'])
 	echo "<script type=\"text/javascript\">
 
@@ -154,16 +154,16 @@ function DoPageHeader($pif)
 	$username = Fetch('select name from user where id=' . $id, $pif);
 	$username = $username[0][0];
 	echo '<tr><td class="loginbar">Welcome back, ' . $username . '! ('.$id.')';
-	DoButtonLink('log_out', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
-	DoButtonLink('change_password', $imgdirArt, "https://" . $pif['host'] . "/cgi-bin/chpass.cgi?dest=http://" . $pif['host'] . "/stuff.php");
+	DoButtonLink('log_out', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
+	DoButtonLink('change_password', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/chpass.cgi?dest=http://" . $pif['host'] . "/stuff.php");
 	$retval = CheckPerm('u');
 	if ($retval)
 	{
-	    DoButtonLink('upload', $imgdirArt, "http://" . $pif['host'] . "/cgi-bin/upload.cgi");
+	    DoButtonLink('upload', $IMG_DIR_ART, "http://" . $pif['host'] . "/cgi-bin/upload.cgi");
 	}
 	if (CheckPerm('a'))
 	{
-	    DoButtonLink('control_panel', $imgdirArt, "http://" . $pif['host'] . "/stuff.php");
+	    DoButtonLink('control_panel', $IMG_DIR_ART, "http://" . $pif['host'] . "/stuff.php");
 	}
 	echo "</td></tr>\n";
     }

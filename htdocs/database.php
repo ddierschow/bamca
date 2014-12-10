@@ -9,8 +9,8 @@ $isadmin = CheckPerm('a');
 $pif['hier'][0] = array('/', 'Home');
 $pif['hier'][1] = array('/database.php', 'Database');
 $answer = Fetch("select min(year), max(year) from lineup_model", $pif);
-$yearstart = $answer[0][0];
-$yearend = $answer[0][1];
+$YEAR_START = $answer[0][0];
+$YEAR_END = $answer[0][1];
 
 $sections = array();
 $sections[] = array("tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi");
@@ -45,7 +45,7 @@ foreach ($sections as $sec)
 
 echo "</table>\n<hr>\n";
 
-DoButtonLink("back", $imgdirArt, '/');
+DoButtonLink("back", $IMG_DIR_ART, '/');
 ?>
 to the index.
 <a href="comment.php?page=database"><img src="../pic/gfx/but_comment_on_this_page.gif" alt="COMMENT" onmouseover="this.src='../pic/gfx/hov_comment_on_this_page.gif';" onmouseout="this.src='../pic/gfx/but_comment_on_this_page.gif';" class="comment"></a>
@@ -124,12 +124,12 @@ function SectionID()
 
 function SectionYear()
 {
-    global $yearstart, $yearend, $isadmin;
+    global $YEAR_START, $YEAR_END, $isadmin;
 ?>
 <table><tr>
 <td valign=top>Year: </td>
 <td valign=top class="updown">
-<?php SelectYear('year', 'yearYear', $yearend, $yearstart, $yearend); ?>
+<?php SelectYear('year', 'yearYear', $YEAR_END, $YEAR_START, $YEAR_END); ?>
 </td>
 <td width=20></td>
 <?php
@@ -150,7 +150,7 @@ if ($isadmin)
 
 function SectionRank()
 {
-    global $yearstart, $yearend, $isadmin;
+    global $YEAR_START, $YEAR_END, $isadmin;
 ?>
 <input type="hidden" name="n" value="1">
 <table><tr>
@@ -167,7 +167,7 @@ Lineup number:<br>
 Start year:
 </td>
 <td valign=top class="updown">
-<?php SelectYear('syear', 'rankSyear', $yearstart, $yearstart, $yearend); ?>
+<?php SelectYear('syear', 'rankSyear', $YEAR_START, $YEAR_START, $YEAR_END); ?>
 </td>
 <td width=16 rowspan=2></td>
 <?php
@@ -205,7 +205,7 @@ else
 <td style="text-align: right;" valign=top>
 End year:
 </td><td class="updown">
-<?php SelectYear('eyear', 'rankEyear', $yearend, $yearstart, $yearend); ?>
+<?php SelectYear('eyear', 'rankEyear', $YEAR_END, $YEAR_START, $YEAR_END); ?>
 </td>
 </table>
 <?php
@@ -213,7 +213,7 @@ End year:
 
 function SectionManno()
 {
-    global $yearstart, $yearend, $isadmin, $pif;
+    global $YEAR_START, $YEAR_END, $isadmin, $pif;
 ?>
 <table>
 <tr><td colspan=7>
@@ -272,7 +272,7 @@ if ($isadmin)
 Start year:
 </td>
 <td valign=top class="updown">
-<?php SelectYear('syear', 'manSyear', $yearstart, $yearstart, $yearend + 1); ?>
+<?php SelectYear('syear', 'manSyear', $YEAR_START, $YEAR_START, $YEAR_END + 1); ?>
 </td>
 <?php
 }
@@ -290,7 +290,7 @@ if ($isadmin)
 End year:
 </td>
 <td valign=top class="updown">
-<?php SelectYear('eyear', 'manEyear', $yearend + 1, $yearstart, $yearend + 1); ?>
+<?php SelectYear('eyear', 'manEyear', $YEAR_END + 1, $YEAR_START, $YEAR_END + 1); ?>
 </td>
 <?php
 }

@@ -54,7 +54,7 @@ DoPageHeader($pif);
 <td width="200" valign="top">
 
 <?php
-$pf = array_merge(glob($imgdir175 . "/s_*.jpg"), glob($imgdir175 . "/var/s_*.jpg"), glob($imgdirBox . "/s_*.jpg"));
+$pf = array_merge(glob($IMG_DIR_MAN . "/s_*.jpg"), glob($IMG_DIR_MAN . "/var/s_*.jpg"), glob($IMG_DIR_BOX . "/s_*.jpg"));
 $pics = array_rand($pf, 3);
 foreach ($pics as $r)
     echo '<img src="' . $pf[$r] . '" vspace="8">
