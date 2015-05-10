@@ -38,21 +38,16 @@ almost everything that has to do with 3-inch models is in the DB.
     5.5 published -- date not recorded
     5.6 published Sunday, 22 June 2014 at 12:01 AM PDT
 
+2015 - V6 - This revision implements the Jinja2 rendering engine.
+Most of the pages that are grids or lists have been switched over
+to these new templates, and more will follow as I have time.
+
+    6.0 published Sunday, 10 May 2015 at 12:01 AM PDT
+
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
 projects are to fill in more variation and product pictures, and
 to add more models and products to the database.
-
-PEP8:
-
-Most of the stylistic elements were set long before I ever heard
-of PEP8, and I am only now updating the codebase.  Since there are
-some things I'm not in agreement with for my own programming, you'll
-find that there are lines up to 132 characters long, and I do
-multiple imports of system libraries on one line.  I've made two
-passes so far converting this codebase to PEP8 compliance, but I
-still have quite a ways to go, and there are several stylistic
-standards that I don't like so it will never get all the way there.
 
 Current and planned projects:
 
@@ -67,7 +62,7 @@ Current and planned projects:
 
 ...BIG things:
 
-   * Convert rendering code to Jinja2
+   * Convert more rendering code to Jinja2
    * Add an API
    * Create a mobile-frendly site
    * Redesign the database schema
