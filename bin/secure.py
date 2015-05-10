@@ -10,7 +10,7 @@ class Security:
     cfgfile = None
     def __init__(self, siteid=None):
         self.cgibin = '../cgi-bin'
-        self.isbeta = False
+        self.is_beta = False
         self.read_version()
         self.set_env(siteid)
         self.read_config(siteid)
@@ -42,7 +42,7 @@ class Security:
         self.root = os.environ['SERVER_NAME'].split('.')[0]
         self.version = os.environ['BAMCA_VERSION']
         if self.root == 'beta':
-            self.isbeta = True
+            self.is_beta = True
 
     def set_env(self, siteid):
         self.host = os.getenv('SERVER_NAME')

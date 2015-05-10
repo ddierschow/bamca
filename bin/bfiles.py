@@ -61,9 +61,7 @@ class BarFile:
         try:
             self.handle = open(fname)
         except IOError:
-            print "<!--", fname, "is on crack. -->"
-            print """I'm sorry, that page was not found.  Please use your "BACK" button or try something else."""
-            sys.exit(1)
+	    raise useful.SimpleError("""I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
         self.srcstat = os.fstat(self.handle.fileno())
         self.ignoreoverride = False
         self.dats = {}
@@ -208,12 +206,7 @@ class ArgFile(BarFile):
         try:
             return BarFile.read(self)
         except IOError:
-            print format_head()
-            print "<!--", form, "-->"
-            print "<!--", datname, "is on crack. -->"
-            print """I'm sorry, that page was not found.  Please use your "BACK" button or try something else."""
-            print format_tail()
-            sys.exit(1)
+	    raise useful.SimpleError("""I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
 
     def parse_formatter(self, llist):
         self.picdir = llist.get_arg()

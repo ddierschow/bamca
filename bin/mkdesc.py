@@ -30,8 +30,9 @@ def main(pif):
     for field in fields:
         pif.dbh.dbi.execute("update variation set %s='' where %s is NULL" % (field, field))
     count = 0
-    verbose = False
+    showtexts = verbose = False
     #verbose = True
+    #showtexts = True
     if not pif.filelist:
         castings = [x['id'] for x in pif.dbh.dbi.select('casting', verbose=False)]
     elif pif.filelist[0][0] >= 'a':
@@ -40,17 +41,21 @@ def main(pif):
         castings = pif.filelist
         verbose = True
     for casting in castings:
-        sys.stdout.write(casting + ' ')
+        #sys.stdout.write(casting + ' ')
         sys.stdout.flush()
-        if vars.check_formatting(pif, casting, verbose=verbose):
+	print casting,
+        fmt_valid, messages = pif.dbh.check_description_formatting(casting)
+        if fmt_valid:
             print '*'
+	    if verbose:
+		print messages
             count += 1
         else:
             print
-        vars.recalc_description(pif, casting, verbose)
+        pif.dbh.recalc_description(casting, showtexts, verbose)
     print
     print count, "to go *"
 
 
 if __name__ == '__main__':  # pragma: no cover
-    main('vars')
+    main(dbedit='')

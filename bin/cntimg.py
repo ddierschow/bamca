@@ -81,4 +81,4 @@ def count(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    count('vars')
+    count()

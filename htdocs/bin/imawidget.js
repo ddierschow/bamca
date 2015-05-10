@@ -1,684 +1,312 @@
-/**
- * @file script.js - Drag and resize example for Dean. <br>
- * Created: 02/17/2013<br>
- * Modified: 02/17/2014
- * @version 1.0.0
-*/
-
-/**
- * DEAN
- * @namespace
- * @type {object}
- * @global
- * @public
-*/
-var DEAN = window.DEAN || {},
-    offset_data; //Global variable as Chrome doesn't allow access to event.dataTransfer in dragover.
-
-
-/**
- * Immediately-Invoked Function Expression.
- *
- * @function
- * @param {object} w - Global window object.
- * @param {object} d - Global document object.
-*/
-(function (w, d) {
-
-    // This is strict mode js. There is no safety net!
-    'use strict';
-
-    /**
-     * Creates an instance of FocusConstructor.<br>
-     * Modified: 02/17/2013
-     *
-     * @constructor
-     * @param {string} target - Class name of ad container element.
-     * @author Richard Dillman <rdillman@gmail.com>
-    */
-    DEAN.FocusConstructor = function () {};
-
-    /**
-     * Inheritable methods.
-     *
-     * @type {object}
-    */
-    DEAN.FocusConstructor.prototype = {
-
-        /**
-         * Initialization methods.<br>
-         * Modified: 02/17/2013
-         *
-         * @method init
-         * @param {object} data - The body attributes data array.
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @public
-        */
-        init: function () {
-
-            // Get all the elements we will be using.
-            this.form       = d.getElementById('imageSizer');
-            this.imgSrc     = d.getElementById('imgSrc');
-            this.imgDisplay = d.getElementById('imgDisplay');
-            this.box        = d.getElementById('box');
-            this.top        = d.getElementById('top');
-            this.right      = d.getElementById('right');
-            this.bottom     = d.getElementById('bottom');
-            this.left       = d.getElementById('left');
-            this.send       = d.getElementById('send');
-            this.attach();
-
-        },
-
-        /**
-         * All functions attached to dom elements.<br>
-         * Modified: 02/17/2013
-         *
-         * @method attach
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @public
-        */
-        attach: function () {
-
-            // Varialbes
-            var p = DEAN.Focus;
-
-            p.box.addEventListener('dragstart', DEAN.Focus.drag_start, false);
-            d.body.addEventListener('dragover', DEAN.Focus.drag_over, false);
-            d.body.addEventListener('drop', DEAN.Focus.drop, false);
-
-            // When the image source changed update the image and reset the box.
-            p.imgSrc.onchange = function (e) {
-
-                e.preventDefault();
-
-                // We only want to update the image if we hve a valid url.
-                if (p.validate()) {
-                    p.updateImage(p.imgDisplay, p.imgSrc.value);
-                }
-            };
-
-            // If we have valid data submit the form.
-            p.send.onclick = function (e) {
-
-                e.preventDefault();
-
-                if (p.validate()) {
-                    p.sendData();
-                }
-            };
-
-        },
-
-        /**
-         * Validate the form.<br>
-         * Modified: 02/17/2013
-         *
-         * @method validate
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @public
-        */
-        validate: function () {
-            return this.imgSrc.value.match(/(^|\s)((https?:\/\/)?[\w-]+(\.[\w-]+)+\.?(:\d+)?(\/\S*)?)/gi) ? true : false;
-        },
-
-        /**
-         * Update the images source, and reset the position of the box.<br>
-         * Modified: 02/17/2013
-         *
-         * @method updateImage
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @param {object} target - The element to alter.
-         * @param {string} source - The url for the new image source.
-         * @public
-        */
-        updateImage: function (target, source) {
-            target.src = source;
-            DEAN.Focus.box.style.left = '10px';
-            DEAN.Focus.box.style.top = '10px';
-        },
-
-        /**
-         * Events to fire when begining the drag.
-         * Modified: 02/17/2013
-         *
-         * @method drag_start
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @public
-        */
-        drag_start: function (event) {
-
-            // Variables
-            var style = window.getComputedStyle(event.target, null);
-
-            offset_data = (parseInt(style.getPropertyValue("left"), 10) - event.clientX) + ',' + (parseInt(style.getPropertyValue("top"), 10) - event.clientY);
-            event.dataTransfer.setData("text/plain", offset_data);
-
-        },
-
-        /**
-         * Events to fire when dragging over the target.
-         * Modified: 02/17/2013
-         *
-         * @method drag_over
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @public
-        */
-        drag_over: function (event) {
-
-            // Variables
-            var offset;
-
-            try {
-                offset = event.dataTransfer.getData("text/plain").split(',');
-            } catch (e) {
-                offset = offset_data.split(',');
-            }
-
-            DEAN.Focus.box.style.left = (event.clientX + parseInt(offset[0], 10)) + 'px';
-            DEAN.Focus.box.style.top = (event.clientY + parseInt(offset[1], 10)) + 'px';
-            event.preventDefault();
-
-            return false;
-
-        },
-
-        /**
-         * Events to fire when dropping.
-         * Modified: 02/17/2013
-         *
-         * @method drop
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @public
-        */
-        drop: function (event) {
-
-            // Variables
-            var offset;
-
-            try {
-                offset = event.dataTransfer.getData("text/plain").split(',');
-            } catch (e) {
-                offset = offset_data.split(',');
-            }
-
-            DEAN.Focus.box.style.left = (event.clientX + parseInt(offset[0], 10)) + 'px';
-            DEAN.Focus.box.style.top = (event.clientY + parseInt(offset[1], 10)) + 'px';
-            event.preventDefault();
-
-            return false;
-
-        },
-
-        /**
-         * Send the form data.
-         * Modified: 02/17/2013
-         *
-         * @method sendData
-         * @author Richard Dillman <rdillman@gmail.com>
-         * @public
-        */
-        sendData: function () {
-
-            var p = DEAN.Focus;
-
-            p.top.value = p.box.offsetTop;
-            p.left.value = p.box.offsetLeft;
-            p.bottom.value = p.box.offsetTop + p.box.offsetHeight;
-            p.right.value = p.box.offsetLeft + p.box.offsetWidth;
-            p.form.submit();
-        }
-
-    };
-
-}(window, document));
-
-// Create a new instance of DEAN.
-DEAN.Focus = new DEAN.FocusConstructor();
-
-// Initialize the new DEAN Focus object.
-DEAN.Focus.init();
-
-
-
-/*
-
-// ImaWidget - Simple Image Bounding Widget
-// Written by Dean Dierschow sometime in 200X.
-
-// This applet is started with a url for an image.  That image is
-// displayed, and a bounding rectangle can be specified with the mouse.
-// Any side can be grabbed and moved.  The coordinates can be sent back
-// to the browser for form submission.
-
-// Known bugs:
-//  * Grabbing anywhere on the line that any side is on grabs that
-//    side -- even if it's outside the limits of the rectangle.
-//  * There is no way to clear the rectagle once it is set.
-
-// Features that would be nice to add:
-//  * Single click not on the rectangle should clear the rectangle.
-//  * Grabbing a corner should allow you to move two sides at once.
-//  * Since the rectangle is black, this thing is damn near unusable
-//    with a dark image.  Some way to fix that would be nice.
-
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
-import java.applet.*;
-import java.applet.Applet;
-import java.lang.*;
-import java.net.*;
-import java.net.URL;
-import javax.swing.*;
-import javax.swing.event.*;
-
-
-public class ImaWidget extends JApplet implements MouseListener, MouseMotionListener, Runnable
-{
-
-    Image img;
-    MediaTracker trk;
-    boolean whoa = false;
-    Color colorBg = Color.black;
-
-    static final int ERROR_PAGE = -1;
-    static final int LOADING = 0;
-    static final int EDITING = 1;
-
-    int screen = LOADING;
-
-    // the two points that define the rectangle
-    Point pntStart = new Point();
-    Point pntEnd = new Point();
-    boolean showrect = false;
-    boolean editrectx = false;
-    boolean editrecty = false;
-
-    int curcur = Cursor.DEFAULT_CURSOR;
-    Cursor curdefault = getCursor();
-    Cursor curw = new Cursor(Cursor.W_RESIZE_CURSOR);
-    Cursor curn = new Cursor(Cursor.N_RESIZE_CURSOR);
-    Cursor cure = new Cursor(Cursor.E_RESIZE_CURSOR);
-    Cursor curs = new Cursor(Cursor.S_RESIZE_CURSOR);
-
-    // -- JApplet interface
-
-    public void init ()
-    {
-	super.init();
-	System.out.println("imawidget in init.");
-	System.out.println(getCodeBase());
-	System.out.println(getDocumentBase());
-	System.out.println(getParameter("file"));
-	trk = new MediaTracker(this);
-
-	Container Panel = getContentPane();
-	Panel.setBackground(Color.black);
-
-	addMouseListener(this);
-	addMouseMotionListener(this);
-
-	repaint();
-
-	Thread th = new Thread(this);
-	th.start();
-    }
-
-    public int LoadImage(String name)
-    {
-	img = getImage(getDocumentBase(), name);
-
-	img.flush();
-        trk.addImage(img,0);
-        try
-	{
-            trk.waitForID(0);
-        }
-	catch (InterruptedException e) { }
-
-        // check for errors
-        if (trk.isErrorAny())
-	{
-            return 2;
-	}
-        else if (trk.checkAll())
-	{
-            return 0;
-        }
-	return 1;
-    } // load Images
-
-    public void start()
-    {
-	System.out.println("imawidget in start.");
-    }
-
-    public void stop()
-    {
-	System.out.println("imawidget in stop.");
-	whoa = true;
-    }
-
-    public void destroy()
-    {
-	System.out.println("imawidget in destroy.");
-    }
-
-    // override update so it doesn't erase screen
-    public void update(Graphics g)
-    {
-	System.out.println("imawidget in update.");
-	paint(g);
-    } // update
-
-    public void paint(Graphics g)
-    {
-	//super.paint(g);
-		System.out.println("imawidget in paint."+screen);
-        switch (screen)
-	{
-        case EDITING:
-	    g.drawImage(img, 0, 0, this);
-	    if (showrect)
-	    {
-		int [] carr = coords();
-		g.drawRect(carr[0], carr[1], carr[2] - carr[0], carr[3] - carr[1]);
-	    }
-	    break;
-	}
-
-    } // paint
-
-    // ----- Runnable interface
-
-    public void run()
-    {
-	System.out.println("imawidget in run.");
-	int tickValue = -1;
-        while (! whoa)
-	{
-	    if (screen == LOADING)
-	    {
-		int err = LoadImage(getParameter("file"));
-		if (err > 0)
-		{
-		    screen = ERROR_PAGE;
-		    System.out.println("screen"+screen);
-		}
-		else
-		{
-		    screen++;
-		    System.out.println("screen"+screen);
-		}
-		resize(img.getWidth(this), img.getHeight(this));
-		repaint();
-	    }
-	    else if (screen != ERROR_PAGE)
-		tickValue = tick();
-
-            try
-	    {
-		if (tickValue >= 0)
-		{
-		    System.out.println("imawidget tick sleep.");
-		    Thread.currentThread().sleep(tickValue);
-		}
-		else
-		{
-		    //System.out.println("imawidget tick yield.");
-		    Thread.currentThread().yield();
-		}
-            }
-	    catch (Exception exc) { };
-        }
-	Thread.currentThread().interrupt();
-	System.out.println("imawidget run whoa.");
-    }  // run
-
-    // ----- MouseListener interface
-
-    public void mouseDragged(MouseEvent evt)
-    {
-	if (drag(evt.getPoint()))
-	{
-	    repaint();
-	}
-    }
-    public void mouseMoved(MouseEvent evt)
-    {
-	Point pnt = evt.getPoint();
-	if (move(pnt))
-	{
-	    //repaint();
-	}
-	cursorSet(pnt);
-    }
-
-    public void cursorSet(Point pnt)
-    {
-	if (abs(pnt.x - pntStart.x) < 2)
-	{
-	    if (curcur != Cursor.W_RESIZE_CURSOR)
-	    {
-		setCursor(curw);
-		curcur = Cursor.W_RESIZE_CURSOR;
-	    }
-	}
-	else if (abs(pnt.y - pntStart.y) < 2)
-	{
-	    if (curcur != Cursor.N_RESIZE_CURSOR)
-	    {
-		setCursor(curn);
-		curcur = Cursor.N_RESIZE_CURSOR;
-	    }
-	}
-	else if (abs(pnt.x - pntEnd.x) < 2)
-	{
-	    if (curcur != Cursor.E_RESIZE_CURSOR)
-	    {
-		setCursor(cure);
-		curcur = Cursor.E_RESIZE_CURSOR;
-	    }
-	}
-	else if (abs(pnt.y - pntEnd.y) < 2)
-	{
-	    if (curcur != Cursor.S_RESIZE_CURSOR)
-	    {
-		setCursor(curs);
-		curcur = Cursor.S_RESIZE_CURSOR;
-	    }
-	}
-	else
-	{
-	    if (curcur != Cursor.DEFAULT_CURSOR)
-	    {
-		setCursor(curdefault);
-		curcur = Cursor.DEFAULT_CURSOR;
-	    }
-	}
-    }
-    public void mouseEntered(MouseEvent evt) { }
-    public void mouseExited(MouseEvent evt) { }
-    public void mousePressed(MouseEvent evt)
-    {
-	//setCursor(curdefault);
-	curcur = Cursor.DEFAULT_CURSOR;
-	if (press(evt.getPoint()))
-	{
-	    repaint();
-	}
-    }
-    public void mouseReleased(MouseEvent evt)
-    {
-	setCursor(curdefault);
-	curcur = Cursor.DEFAULT_CURSOR;
-	if (release(evt.getPoint()))
-	{
-	    repaint();
-	}
-    }
-    public void mouseClicked(MouseEvent evt)
-    {
-	if (click(evt.getPoint(), evt.getClickCount()))
-	{
-	    repaint();
-	}
-    }
-
-    // -- Higher level mouse thingies
-
-    public boolean drag(Point pnt)
-    {
-	pnt.x = Math.max(Math.min(pnt.x, img.getWidth(this)), 0);
-	pnt.y = Math.max(Math.min(pnt.y, img.getHeight(this)), 0);
-	System.out.println("imawidget in drag: "+pnt+"/"+editrectx+"/"+editrecty);
-	if (editrectx)
-	{
-	    pntStart.x = pnt.x;
-	}
-	else if (editrecty)
-	{
-	    pntStart.y = pnt.y;
-	}
-	else
-	{
-	    pntEnd.setLocation(pnt);
-	}
-	System.out.println("" + pntStart + pntEnd);
-	cursorSet(pnt);
-	return true;
-    }
-
-    public boolean press(Point pnt)
-    {
-	System.out.println("imawidget in press."+pnt);
-	if (showrect)
-	{
-	    if (abs(pnt.x - pntStart.x) < 2)
-	    {
-		editrectx = true;
-		System.out.println("editing x" + pntStart + ", " + pntEnd);
-	    }
-	    else if (abs(pnt.y - pntStart.y) < 2)
-	    {
-		editrecty = true;
-		System.out.println("editing y" + pntStart + ", " + pntEnd);
-	    }
-	    else if (abs(pnt.x - pntEnd.x) < 2)
-	    {
-		editrectx = true;
-		Point hold = pntEnd;
-		pntEnd = pntStart;
-		pntStart = hold;
-		System.out.println("editing x" + pntStart + ", " + pntEnd);
-	    }
-	    else if (abs(pnt.y - pntEnd.y) < 2)
-	    {
-		editrecty = true;
-		Point hold = pntEnd;
-		pntEnd = pntStart;
-		pntStart = hold;
-		System.out.println("editing y" + pntStart + ", " + pntEnd);
-	    }
-	    else
-	    {
-		editrectx = editrecty = false;
-		pntStart.setLocation(pnt);
-		pntEnd.setLocation(pnt);
-		System.out.println("restarting");
-	    }
-	}
-	else
-	{
-	    editrectx = editrecty = false;
-	    pntStart.setLocation(pnt);
-	    pntEnd.setLocation(pnt);
-	    System.out.println("starting");
-	}
-	showrect = true;
-
-	return true;
-    }
-
-    public boolean release(Point pnt)
-    {
-	System.out.println("imawidget in release."+pnt);
-	editrectx = editrecty = false;
-	return true;
-    }
-
-    public boolean click(Point pnt, int count)
-    {
-	System.out.println("imawidget in click."+pnt);
-	switch (screen)
-	{
-	case LOADING:
-	    break;
-	case EDITING:
-	    break;
-	}
-	return true;
-    }
-
-    public boolean move(Point pnt) { return false; }
-
-    public int tick()
-    {
-	switch (screen)
-	{
-	case EDITING:
-	    return -1;
-	default:
-	    break;
-	}
-	return -1;
-    }  // tick
-
-    // -- invoked by the web page to extract information
-
-    public String getCoords()
-    {
-	int [] carr = coords();
-	//String s = ""+x1+","+y1+","+x2+","+y2;
-	String s = ""+carr[0]+","+carr[1]+","+carr[2]+","+carr[3];
-	System.out.println("imawidget in getCoords." + s);
-	return s;
-    }
-
-    public int [] coords()
-    {
-	if (!showrect)
-	{
-	    int [] carr = {0, 0, img.getWidth(this), img.getHeight(this)};
-	    return carr;
-	}
-	int x1 = pntStart.x;
-	int y1 = pntStart.y;
-	int x2 = pntEnd.x;
-	int y2 = pntEnd.y;
-	if (x1 > x2)
-	{
-	    int x = x2;
-	    x2 = x1;
-	    x1 = x;
-	}
-	if (y1 > y2)
-	{
-	    int y = y2;
-	    y2 = y1;
-	    y1 = y;
-	}
-	int [] carr = {x1, y1, x2, y2};
-	return carr;
-    }
-
-    public int abs(int v)
-    {
-	if (v < 0)
-	    return -v;
-	return v;
-    }
-
+// imawidget is the thing that allows me to choose the bounding rectangle
+// for images.
+
+// It gets the image from an img element with the id "ima_source".
+// The bounds are stuffed into a forn element with the id gotten from
+// a div element with the id "ima_query", thus allowing the original
+// page to decide where to put the bounds.  These can both be hidden.
+// It uses a canvas element with the id "ima_widget".  Elements with
+// these three ids should be defined in the html.  A div can be added
+// with the id "ima_debug" to get some debug information or "ima_info"
+// for useful bounding information.
+
+// To use: click and hold to set one corner, then drag to the other
+// corner and release.  Grab any side or corner to move it.  Double
+// click to switch between black and white bounds.  Click outside the
+// bounds to clear the setting.  Click within the bounds to drag the
+// box.  Keypresses:  r (red), g (green), b (blue), c (cyan), c (cyan),
+// y (yellow), p (pink), w (white), or B to reset to black.  Use the
+// VI-style cursor keys to move the bounds by one pixel, h for left,
+// j for top, k for bottom, l for right.  Unshifted expands the box,
+// shifted contracts the box.  ESC clears the box, z restores the last
+// cleared box.  Note that the cursor must be inside the picture area
+// to use the keys.
+
+var slop = 1;
+var p1_x = p1_y = p2_x = p2_y = -(slop + 3); // rectangle corners
+var ms_x = ms_y = 0; // mouse (x,y)
+var cr_x = cr_y = 0; // client recangle upper left (x,y)
+var sz_x = sz_y = 0; // client recangle size (x,y)
+var mv_x = mv_y = 0; // are we moving? (x,y)
+var l1_x = l1_y = l2_x = l2_y = -(slop + 3); // for undoing
+var d1_x = d1_y = d2_x = d2_y = 0; // for dragging
+var ms_actv = 0; // mouse is over canvas
+var clr = '#000000';
+
+var qyf; // query field
+var img; // original image
+var can; // canvas element
+
+function ima_start() {
+    qid = document.getElementById("ima_query").innerHTML;
+    qyf = document.getElementById(qid);
+    dbg = document.getElementById('ima_debug');
+    inf = document.getElementById('ima_info');
+    img = document.getElementById("ima_source");
+    can = document.getElementById("ima_widget");
+    set_bounds(0);
+    draw_bounds();
+    can.addEventListener("mousedown", ima_buttondown);
+    can.addEventListener("mouseup", ima_buttonup);
+    can.addEventListener("mouseenter", ima_mouse);
+    can.addEventListener("mouseleave", ima_mouse);
+    can.addEventListener("mousemove", ima_mouse);
+    can.addEventListener("dblclick", ima_doubleclick);
+    document.addEventListener("keypress", ima_key);
 }
-*/
+
+function between_x(v1, v2) {
+    return between(ms_x, v1, v2);
+}
+
+function between_y(v1, v2) {
+    return between(ms_y, v1, v2);
+}
+
+function between(v, v1, v2) {
+    return (!((v < Math.min(v1, v2) - slop) || (v > Math.max(v1, v2) + slop)));
+}
+
+function cursor_over_x(v1){
+    return point_over(ms_x, v1);
+}
+
+function cursor_over_y(v1){
+    return point_over(ms_y, v1);
+}
+
+function point_over(v, v1) {
+    return (Math.abs(v - v1) <= slop);
+}
+
+function set_bounds(event) {
+    var cbr = can.getBoundingClientRect()
+    cr_x = Math.round(cbr.left);
+    cr_y = Math.round(cbr.top);
+    sz_x = Math.round(cbr.right - cbr.left);
+    sz_y = Math.round(cbr.bottom - cbr.top);
+    if (event) {
+	ms_x = event.clientX - cr_x;
+	ms_y = event.clientY - cr_y;
+    }
+    if (inf) {
+	if (p1_x >= 0) {
+	    x = Math.abs(p2_x - p1_x);
+	    y = Math.abs(p2_y - p1_y);
+	    if (y)
+		ar = x / y;
+	    else
+		ar = 'lots';
+	    inf.innerHTML = 'Size: '.concat(x, ',', y, ' a/r ', ar);
+	}
+	else
+	    inf.innerHTML = '';
+    }
+}
+
+function clear_bounds() {
+    if (p1_x >= 0 && !point_over(p1_x, p2_x) && p1_x >= 0 && !point_over(p1_y, p2_y)) {
+	l1_x = p1_x;
+	l1_y = p1_y;
+	l2_x = p2_x;
+	l2_y = p2_y;
+    }
+    p1_x = p1_y = p2_x = p2_y = -(slop + 3);
+}
+
+function draw_bounds() {
+    if (dbg)
+	dbg.innerHTML = 'draw_bounds: '.concat(p1_x, ',', p1_y, ',', p2_x, ',', p2_y,
+		'|mouse ', ms_x, ',', ms_y,
+		'|client ', cr_x, ',', cr_y,
+		'|size ', sz_x, ',', sz_y,
+		'|moving ', mv_x, ',', mv_y,
+		'|drag ', d1_x, ',', d1_y, ',', d2_x, ',', d2_y,
+		'|last ', l1_x, ',', l1_y, ',', l2_x, ',', l2_y);
+    var ctx = can.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    ctx.beginPath();
+    if (p1_x >= 0) {
+	ctx.moveTo(p1_x, p1_y);
+	ctx.lineTo(p1_x, p2_y);
+	ctx.lineTo(p2_x, p2_y);
+	ctx.lineTo(p2_x, p1_y);
+	ctx.lineTo(p1_x, p1_y);
+	qyf.value = ''.concat(p1_x, ',', p1_y, ',', p2_x, ',', p2_y);
+    }
+    else if (ms_actv) {
+	if (dbg)
+	    dbg.innerHTML += ' should';
+	ctx.moveTo(ms_x, 0);
+	ctx.lineTo(ms_x, sz_y);
+	ctx.moveTo(0,    ms_y);
+	ctx.lineTo(sz_x, ms_y);
+	qyf.value = '';
+    }
+    ctx.strokeStyle = clr;
+    ctx.stroke();
+
+    if (p1_x < 0)
+	can.style.cursor = "auto";
+    else if (mv_x || mv_y)
+	can.style.cursor = "crosshair";
+    else if ((cursor_over_x(p1_x) && cursor_over_y(p1_y)) || (cursor_over_x(p2_x) && cursor_over_y(p2_y)))
+	can.style.cursor = "nwse-resize";
+    else if ((cursor_over_x(p2_x) && cursor_over_y(p1_y)) || (cursor_over_x(p1_x) && cursor_over_y(p2_y)))
+	can.style.cursor = "nesw-resize";
+    else if ((cursor_over_x(p1_x) || cursor_over_x(p2_x)) && between_y(p1_y, p2_y))
+	can.style.cursor = "ew-resize";
+    else if ((cursor_over_y(p1_y) || cursor_over_y(p2_y)) && between_x(p1_x, p2_x))
+	can.style.cursor = "ns-resize";
+    else
+	can.style.cursor = "auto";
+}
+
+function ima_buttondown(event) {
+    set_bounds(event);
+    if (cursor_over_x(p1_x) && between_y(p1_y, p2_y)) {
+	mv_x = 1;
+	p1_x = ms_x;
+    }
+    else if (cursor_over_x(p2_x) && between_y(p1_y, p2_y)) {
+	p2_x = p1_x;
+	mv_x = 1;
+	p1_x = ms_x;
+    }
+    if (cursor_over_y(p1_y) && between_x(p1_x, p2_x)) {
+	mv_y = 1;
+	p1_y = ms_y;
+    }
+    else if (cursor_over_y(p2_y) && between_x(p1_x, p2_x)) {
+	p2_y = p1_y;
+	mv_y = 1;
+	p1_y = ms_y;
+    }
+    if (!mv_x && !mv_y) {
+	if (between_x(p1_x, p2_x) && between_y(p1_y, p2_y)) {
+	    d1_x = p1_x - ms_x;
+	    d1_y = p1_y - ms_y;
+	    d2_x = p2_x - ms_x;
+	    d2_y = p2_y - ms_y;
+	}
+	else {
+	    clear_bounds();
+	    p1_x = p2_x = ms_x;
+	    p1_y = p2_y = ms_y;
+	    mv_x = mv_y = 1;
+	}
+    }
+    draw_bounds();
+}
+
+function ima_doubleclick(event) {
+    set_bounds(event);
+    if (clr == '#000000')
+	clr = '#FFFFFF';
+    else
+	clr = '#000000';
+    draw_bounds();
+}
+
+function ima_buttonup(event) {
+    d1_x = d1_y = d2_x = d2_y = 0;
+    set_bounds(event);
+    var tmp = 0;
+    if (mv_x)
+	p1_x = Math.min(sz_x, Math.max(0, ms_x));
+    if (mv_y)
+	p1_y = Math.min(sz_y, Math.max(0, ms_y));
+    mv_x = mv_y = 0;
+    if (point_over(p1_x, p2_x) && point_over(p1_y, p2_y))
+	clear_bounds();
+    if (p1_x > p2_x) {
+	tmp = p1_x;
+	p1_x = p2_x;
+	p2_x = tmp;
+    }
+    if (p1_y > p2_y) {
+	tmp = p1_y;
+	p1_y = p2_y;
+	p2_y = tmp;
+    }
+    if (p2_x > sz_x)
+	p2_x = sz_x - 1;
+    if (p2_y > sz_y)
+	p2_y = sz_y - 1;
+    draw_bounds();
+}
+
+function ima_mouse(event) {
+    set_bounds(event);
+    if (d1_x != d2_x) {
+	p1_x = Math.max(0, d1_x + ms_x);
+	p1_y = Math.max(0, d1_y + ms_y);
+	p2_x = Math.min(sz_x, d2_x + ms_x);
+	p2_y = Math.min(sz_y, d2_y + ms_y);
+    }
+    if (event.type == 'mouseleave') {
+	ms_actv = 0;
+	ima_buttonup(event);
+	d1_x = d1_y = d2_x = d2_y = 0;
+    }
+    else
+	ms_actv = 1;
+    if (mv_x)
+	p1_x = ms_x;
+    if (mv_y)
+	p1_y = ms_y;
+    draw_bounds();
+}
+
+function ima_key(event) {
+    set_bounds(0);
+    if (!mv_x && !mv_y && ms_actv) {
+	if (p1_x >= 0 && event.which == 27)
+	    clear_bounds();
+	else if (p1_x >= 0 && event.which == 104)
+	    p1_x = Math.max(0, p1_x - 1);
+	else if (p2_y >= 0 && event.which == 106)
+	    p2_y = Math.min(sz_y, p2_y + 1);
+	else if (p1_y >= 0 && event.which == 107)
+	    p1_y = Math.max(0, p1_y - 1);
+	else if (p2_x >= 0 && event.which == 108)
+	    p2_x = Math.min(sz_x, p2_x + 1);
+	else if (p1_x >= 0 && event.which == 72)
+	    p1_x = Math.min(p2_x, p1_x + 1);
+	else if (p2_y >= 0 && event.which == 74)
+	    p2_y = Math.max(p1_y, p2_y - 1);
+	else if (p1_y >= 0 && event.which == 75)
+	    p1_y = Math.min(p2_y, p1_y + 1);
+	else if (p2_x >= 0 && event.which == 76)
+	    p2_x = Math.max(p1_x, p2_x - 1);
+	else if (event.which == 66)
+	    clr = '#000000';
+	else if (event.which == 119)
+	    clr = '#FFFFFF';
+	else if (event.which == 114)
+	    clr = '#FF0000';
+	else if (event.which == 103)
+	    clr = '#00FF00';
+	else if (event.which == 98)
+	    clr = '#0000FF';
+	else if (event.which == 121)
+	    clr = '#FFFF00';
+	else if (event.which == 112)
+	    clr = '#FF00FF';
+	else if (event.which == 99)
+	    clr = '#00FFFF';
+	else if (event.which == 122) {
+	    p1_x = l1_x;
+	    p1_y = l1_y;
+	    p2_x = l2_x;
+	    p2_y = l2_y;
+	}
+	draw_bounds();
+	if (dbg)
+	    dbg.innerHTML += ' key: ' + event.which;
+    }
+    else if (dbg)
+	dbg.innerHTML += ' key ignored';
+}
+
+window.addEventListener("load", ima_start) // whew!

@@ -3,7 +3,7 @@
 import glob, os, re, sys
 import basics
 import config
-import images
+import imglib
 import mbdata
 import models
 
@@ -32,47 +32,6 @@ layouts = {
     'wh': [4, 4, 1],
 }
 
-# ---- actions --------------------------------------------------------
-
-def add_model(pif, id, num=1):
-    print pif.form
-    while num:
-        pif.dbh.insert_pack_model(id)
-        num -= 1
-
-
-def delete_pack(pif, id):
-    print "deleting", id
-    pif.dbh.delete_pack(id)
-    pif.dbh.delete_pack_models(pif.page_id, id)
-
-
-def save_form(pif):
-    print pif.form, '<br>'
-    mods = [x[6:] for x in pif.form_keys(start='pm.id.')]
-    pm_table_info = pif.dbh.table_info['pack_model']
-    pm_table_info['name'] = 'pack_model'
-    pms = []
-    for mod in mods:
-        pms.append({
-            'id': mod,
-            'pack_id': pif.form_str('id'),
-            'mod_id': pif.form_str('pm.mod_id.' + mod),
-            'var_id': pif.form_str('pm.var_id.' + mod),
-            'display_order': pif.form_int('pm.display_order.' + mod),
-        })
-    pif.dbh.update_pack_models(pms, pif.page_id, pif.form_str('o_id'))
-    p_table_info = pif.dbh.table_info['pack']
-    p_table_info['name'] = 'pack'
-    if pif.form_str('o_id') != pif.form_str('id'):  # change id of pack
-        pif.dbh.update_variation_select_subid(pif.form_str('id'), pif.form_str('page_id'), pif.form_str('o_id'))
-        if os.path.exists(pif.render.pic_dir + '/' + pif.form_str('o_id') + '.jpg'):
-            os.rename(pif.render.pic_dir + '/' + pif.form_str('o_id') + '.jpg', pif.render.pic_dir + '/' + pif.form_str('id') + '.jpg')
-    pif.dbh.update_pack(pif.form_str('o_id'), {x: pif.form_str(x) for x in p_table_info['columns']})
-    p_table_info = pif.dbh.table_info['base_id']
-    p_table_info['name'] = 'base_id'
-    pif.dbh.update_base_id(pif.form_str('o_id'), {x: pif.form_str(x) for x in p_table_info['columns']})
-
 # ---- page list ------------------------------------------------------
 
 def make_page_list(pif):
@@ -87,7 +46,7 @@ def make_page_list(pif):
         if not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED):
             txt = models.add_icons(pif, page['id'][6:], '', '') + '<br>' + page['title']
             entries.append({'text': pif.render.format_link('?page=' + page['id'][page['id'].find('.') + 1:], txt)})
-    ostr = '<center>\n' + pif.render.format_lineup(llineup) + '<center>\n'
+    ostr = '<center>\n' + pif.render.format_matrix(llineup) + '<center>\n'
     ostr += pif.render.format_button_comment(pif)
     print ostr
 
@@ -99,11 +58,11 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
         pif.dbh.depref('base_id', pack)
         pif.dbh.depref('pack', pack)
         pack['name'] = pack['rawname'].replace(';', ' ')
-    packs.sort(key=lambda x: (x[pif.form_str('order', 'name')], x['name'], x['first_year']))
+    packs.sort(key=lambda x: (x[pif.form.get_str('order', 'name')], x['name'], x['first_year']))
     years = []
     regions = []
 
-    print '<table class="packs" width="100%"><tr>'
+    print '<table class="packs fullpage"><tr>'
     if pif.is_allowed('m'):  # pragma: no cover
         print '<td valign="top">\n'
     else:
@@ -126,8 +85,7 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
             continue
         pack['thumb'] = pack['pic'] = pack['stars'] = ''
         if pif.is_allowed('m'):  # pragma: no cover
-            model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=pif.page_id)
-            pmodels = distill_models(pif, pack, model_list)
+            pmodels = distill_models(pif, pack, pif.page_id)
 
             stars = ''
             keys = pmodels.keys()
@@ -144,16 +102,17 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
                     stars += pif.render.format_image_art('star.gif') + ' '
 
             pack['stars'] = stars
+	    pack['edlink'] = 'mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=' % (pack['section_id'], pack['id'])
 
         relateds = []  #pif.dbh.fetch_packs_related(pack['id'])
         pack['rel'] = [x['pack.id'] for x in relateds]
         pack['rel'].sort()
         pack['rel'] = ' '.join(pack['rel'])
 
-        pack['page'] = pif.form_str('page')
+        pack['page'] = pif.form.get_str('page')
         pack['regionname'] = mbdata.regions[pack['region']]
         if pif.is_allowed('m'):  # pragma: no cover
-            print '<tr><td>%(id)s</td><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(region)s</td><td>%(country)s</td><td>%(thumb)s</td><td>%(pic)s</td><td>%(material)s</td><td>%(stars)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
+            print '<tr><td><a href="%(edlink)s">%(id)s</a></td><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(region)s</td><td>%(country)s</td><td>%(thumb)s</td><td>%(pic)s</td><td>%(material)s</td><td>%(stars)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
         else:
             print '<tr><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(regionname)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
         sys.stdout.flush()
@@ -167,47 +126,19 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
     years.sort()
     regions.sort()
     print 'Filter by Year<br>'
-    print pif.render.format_radio('year', zip([''] + years, ['all'] + years), checked='', sep='<br>')
+    print ''.join(pif.render.format_radio('year', zip([''] + years, ['all'] + years), checked='', sep='<br>'))
     print '<p>'
     print 'Filter by Region<br>'
-    print pif.render.format_radio('region', zip([''] + regions, ['all'] + [mbdata.regions[x] for x in regions]), checked='', sep='<br>')
+    print ''.join(pif.render.format_radio('region', zip([''] + regions, ['all'] + [mbdata.regions[x] for x in regions]), checked='', sep='<br>'))
     print '<p>'
 #    print pif.render.format_select('lid', calc_pack_select(pif, packs))
     print '<p>'
     print pif.render.format_button_input()
-    print pif.render.format_button("add", '?add_pack=unset&page=%s' % pif.form_str('page', '5packs'))
-    print '<input type="hidden" name="page" value="%s">' % pif.form_str('page')
+    print pif.render.format_button("add", 'mass.cgi?type=pack&id=%s' % pif.form.get_str('page', '5packs'))
+    print '<input type="hidden" name="page" value="%s">' % pif.form.get_str('page')
     print '</form>'
     print '</td></tr></table>\n'
     print pif.render.format_button_comment(pif)
-
-
-'''
-def calc_pack_select(pif, packs):
-    cats = {}
-    for pack in packs:
-        cats.setdefault(pack['id'][0:3], [])
-        if pack['name'] not in cats[pack['id'][0:3]]:
-            cats[pack['id'][0:3]].append(pack['name'])
-    sels = [('', '')]
-    keys = cats.keys()
-    keys.sort()
-    for key in keys:
-        if pif.is_allowed('a'):  # pragma: no cover
-            sels.append((key, key + ' ' + ' / '.join(cats[key])))
-        else:
-            sels.append((key, ' / '.join(cats[key])))
-    return sels
-'''
-
-
-'''
-def dump(name, recs):
-    print '<h3>', name, '</h3>'
-    for rec in recs:
-        print rec, '<br>'
-    print '<p>'
-'''
 
 # ---- single pack ----------------------------------------------------
 
@@ -215,14 +146,12 @@ def do_single_pack(pif, pack):
     if not pack:
         return "That pack doesn't seem to exist.", ""
     id = pack['pack.id']
-    packmodels = pif.dbh.fetch_pack_models(pack_id=id, page_id=pif.page_id)
     relateds = pif.dbh.fetch_packs_related(id)
     #dump('relateds', relateds)
     #dump('packs', packs)
-    #dump('packmodels', packmodels)
 
     # editor
-    pstr = pif.render.format_table_start()
+    #pstr = pif.render.format_table_start()
     tcomments = set()
     #pif.render.comment('section:', section[0])
     for key in pack.keys():
@@ -236,7 +165,7 @@ def do_single_pack(pif, pack):
     pif.render.comment('pack:', pack)
     entries = [{'text': show_pack(pif, pack), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
 
-    pmodels = distill_models(pif, pack, packmodels)
+    pmodels = distill_models(pif, pack, pif.page_id)
     keys = pmodels.keys()
     keys.sort()
     for mod in keys:
@@ -253,14 +182,14 @@ def do_single_pack(pif, pack):
                 tcomments.add('v')
 
         entries.append({'text': show_pack_model(pif, pmodels[mod]), 'display_id': 1})
-        pstr += edit_model(pif, pmodels[mod])
+        #pstr += edit_model(pif, pmodels[mod])
     lsec['range'] = [{'entry': entries}]
 
     lsec['id'] = ''
 
     llineup = {}
     llineup['section'] = []
-    llineup['tail'] = ''
+    llineup['tail'] = ['']
     llineup['section'].append(lsec)
     llineup['id'] = ''
 
@@ -269,12 +198,16 @@ def do_single_pack(pif, pack):
     # left bar
     content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        content += str(pack['page_id']) + '/' + str(pack['id']) + '<br>'
+        #content += str(pack['page_id']) + '/' + str(pack['id'])
+	content += '<br><center>'
         content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': id})
         content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': id})
-        content += '<b><a href="traverse.cgi?d=./pic/packs">Library</a></b>\n'
+        content += '<b><a href="traverse.cgi?d=%s">Library</a></b><br>\n' % config.IMG_DIR_PACK
+        content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (pack['section_id'], pack['id'])
+        content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack['id'])
+        content += '</center>\n'
 
-    ostr = '<table width="100%"><tr>\n'
+    ostr = '<table class="fullpage"><tr>\n'
     ostr += models.add_left_bar(pif, pif.page_name, id, '', 4, content)
 
     # top bar
@@ -282,7 +215,7 @@ def do_single_pack(pif, pack):
 
     # our feature presentation
     ostr += '<tr><td>\n'
-    ostr += pif.render.format_lineup(llineup)
+    ostr += pif.render.format_matrix(llineup)
     ostr += '</td></tr>\n'
 
     # oh, just one more thing
@@ -291,7 +224,7 @@ def do_single_pack(pif, pack):
         ostr += '<h3>Related Packs</h3>\n<ul>\n'
         for related in relateds:
             ostr += '<li>'
-            ostr += pif.render.format_link("?page=" + pif.form_str('page') + "&id=" + related['pack.id'], related['base_id.rawname'])
+            ostr += pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + related['pack.id'], related['base_id.rawname'])
             if related['pack.product_code']:
                 ostr += ' - (' + related['pack.product_code'] + ')'
             if related['pack.region']:
@@ -307,24 +240,26 @@ def do_single_pack(pif, pack):
 
     # bottom bar
     ostr += '<tr><td class="bottombar">\n'
-    ostr += pif.render.format_button_comment(pif, 'd=%s' % pif.form_str('id'))
+    ostr += pif.render.format_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
     for comment in tcomments:
         ostr += mbdata.comment_designation[comment] + '<br>'
     ostr += '</td></tr></table>\n'
-    pstr += pif.render.format_table_end()
-    return ostr, pstr
+    #pstr += pif.render.format_table_end()
+    return ostr#, pstr
 
 
-def distill_models(pif, pack, model_list):
+def distill_models(pif, pack, page_id):
+    model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=page_id)
     pack['pic'] = ''
-    for pic in glob.glob('pic/packs/' + pack['id'] + '.jpg'):
-        pack['pic'] += images.image_star(pif, pic)
-    if glob.glob('pic/man/s_' + pack['id'] + '.jpg'):
-        pack['thumb'] = pif.render.format_image_art('starblack.gif')
+    for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, pack['id'] + '.jpg')):
+        pack['pic'] += pif.render.format_image_art(imglib.image_star(pic))
+    linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
+    pack['thumb'] = pif.render.format_image_art('box-sm-x.gif' if linmod else 'box-sm.gif')
+    if glob.glob(os.path.join(config.IMG_DIR_MAN, 's_' + pack['id'] + '.jpg')):
+        pack['thumb'] += pif.render.format_image_art('starblack.gif')
     pmodels = {}
-    #['pack_model.pack_id', 'pack_model.mod_id', 'pack.layout', 'vs.ref_id', 'pack_model.id', 'casting.rawname', 'base_id.id', 'pack.year', 'v.text_description', 'casting.vehicle_type', 'casting.model_type', 'vs.sub_id', 'pack.name', 'pack.material', 'base_id.description', 'pack.country', 'casting.scale', 'pack_model.var_id', 'pack.id', 'pack.section_id', 'casting.country', 'casting.section_id', 'pack.product_code', 'vs.var_id', 'v.picture_id', 'base_id.model_type', 'pack_model.display_order', 'casting.make', 'pack.page_id', 'base_id.flags', 'vs.mod_id', 'casting.first_year', 'casting.description', 'base_id.rawname', 'base_id.first_year', 'casting.id', 'pack.region']
 
-    for mod in filter(lambda x: x['pack.id'] == pack['id'], model_list):
+    for mod in [x for x in model_list if x['pack.id'] == pack['id']]:
         #print mod, '<br>'
         mod = pif.dbh.modify_man_item(mod)
         sub_ids = [None, '', pack['id'], pack['id'] + '.' + str(mod['pack_model.display_order'])]
@@ -368,7 +303,7 @@ materials = {
 def show_pack(pif, pack):
     ostr = pif.render.format_image_required(pack['id'])
     if pif.is_allowed('a'):  # pragma: no cover
-        ostr = '<a href="upload.cgi?d=./%s&r=%s">%s</a>' % (pif.render.pic_dir, pack['id'], ostr)
+        ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % (pif.render.pic_dir, pack['id'], ostr)
     else:
         ostr = '<a href="upload.cgi">%s</a>' % (ostr)
     pack['country'] = mbdata.get_country(pack['country'])
@@ -395,6 +330,18 @@ def show_pack_model(pif, mdict):
     mdict['product'] = ''
     if mdict['imgstr'].find('-') < 0:
         mdict['no_specific_image'] = 1
+
+    desclist = list()
+    for var in mdict.get('descriptions', []):
+	if var and var not in desclist:
+	    desclist.append(var)
+    mdict['descriptions'] = desclist
+
+    if not mdict.get('disp_format') or not mdict.get('shown_id'):
+        mdict['displayed_id'] = '&nbsp;'
+    else:
+        mdict['displayed_id'] = mdict['disp_format'] % (mdict['shown_id'])
+
     return models.add_model_table_product_link(pif, mdict)
 
 
@@ -416,89 +363,29 @@ def do_page(pif):
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('packs.cgi', 'Multi-Model Packs')
-    #pif.form_set('id', pif.form_list('id')[0])  # with no id this blows
+    #pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
 #    if isinstance(pif.form.get('id'), list):
-#       pif.form['id'] = pif.form_str('id')[0]
-    if pif.form_has('id'):
-        pif.form_set('id', pif.form_list('id')[0])  # with no id this blows
-    year = pif.form_str('year')
-    reg = pif.form_str('region')
-    var = pif.form_str('ver')
-    id = pif.form_str('id')
-    lid = pif.form_str('lid')
-    if pif.form_has('add_pack'):
-        pif.dbh.insert_pack(pif.form_str('add_pack'), pif.page_id)
-        id = pif.form_str('add_pack')
-        if pif.form_str('page') == '5packs':
-            add_model(pif, id, 5)
-        elif pif.form_str('page') == '10packs':
-            add_model(pif, id, 10)
-    elif pif.form_has('delete'):
-        delete_pack(pif, id)
-        return
+#       pif.form['id'] = pif.form.get_str('id')[0]
+    if pif.form.has('id'):
+        pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
+    year = pif.form.get_str('year')
+    reg = pif.form.get_str('region')
+    pid = pif.form.get_str('id')
+    lid = pif.form.get_str('lid')
     pack = dict()
-    if id:
-        packs = pif.dbh.fetch_pack(id)
+    if pid:
+        packs = pif.dbh.fetch_pack(pid)
         if packs:
             pack = packs[0]
             pif.render.hierarchy_append('', pack['base_id.rawname'])
     print pif.render.format_head()
-    if id:
-        if pif.form_has('add'):
-            add_model(pif, pif.form_str('o_id', 'unset'), pif.form_int('n', 1))
-        elif pif.form_has('save'):
-            save_form(pif)
-        pack_l, mod_form = do_single_pack(pif, pack)
-        print pack_l
-        if pif.is_allowed('m'):  # pragma: no cover
-            print '<form>'
-            pack_form(pif, id)
-            print mod_form
-            print pif.render.format_button_input("save")
-            print pif.render.format_button_input("delete")
-            print pif.render.format_text_input('n', 2, 2, '1')
-            print pif.render.format_button_input("add")
-            print '</form>'
-    elif pif.form_has('page'):
+    if pid:
+        print do_single_pack(pif, pack)
+    elif pif.form.has('page'):
         make_pack_list(pif, year, reg, lid)
     else:
         make_page_list(pif)
     print pif.render.format_tail()
-
-
-def pack_form(pif, id):
-    ostr = ''
-    tabinf = pif.dbh.table_info
-    tabinf['pack']['name'] = 'pack'
-    tabinf['base_id']['name'] = 'base_id'
-    dat = pif.dbh.fetch_pack(id=id)
-    if dat:
-        dat = dat[0]
-        print '<input type="hidden" name="verbose" value="1">'
-        print '<input type="hidden" name="page" value="%s">' % pif.page_name
-        #print '<input type="hidden" name="save" value="1">'
-        print '<input type="hidden" name="table" value="%s">' % tabinf['pack']['name']
-        for f in tabinf['pack']['id']:
-            print '<input type="hidden" name="o_%s" value="%s">' % (f, dat['pack.' + f])
-        print pif.render.format_table_start()
-        tab_form(pif, tabinf, 'pack', dat)
-        tab_form(pif, tabinf, 'base_id', dat)
-    print pif.render.format_table_end()
-
-
-paren_re = re.compile('''\((?P<n>\d*)\)''')
-def tab_form(pif, tabinf, tab, dat):
-    descs = pif.dbh.describe_dict(tabinf[tab]['name'])
-    for col in tabinf[tab]['columns']:
-        print pif.render.format_row_start()
-        print pif.render.format_cell(0, col)
-        coltype = descs.get(col).get('type')
-        print pif.render.format_cell(0, coltype)
-        print pif.render.format_cell(1, str(dat[tab + '.' + col]))
-        colwidth = int(paren_re.search(coltype).group('n'))
-        print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=dat[tab + '.' + col]))
-        print pif.render.format_row_end()
-        sys.stdout.flush()
 
 # ---------------------------------------------------------------------
 

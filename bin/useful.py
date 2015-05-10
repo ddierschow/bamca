@@ -3,17 +3,35 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-import copy, filecmp, glob, os, pprint, stat
+import copy, filecmp, glob, itertools, os, pprint, stat
 import config  # bleagh
 
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
 
-#def form_int(val, defval=0):
-#    try:
-#       return int(val)
-#    except:
-#       return int(defval)
+
+class DelayedRedirect(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class Redirect(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class SimpleError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
 
 
 def read_dir(patt, tdir):
@@ -39,7 +57,7 @@ def root_ext(fn):
     ('', '')
     '''
     root, ext = os.path.splitext(fn)
-    if ext:
+    if ext.startswith('.'):
         ext = ext[1:]
     return root, ext
 
@@ -49,7 +67,7 @@ def clean_name(f, morebad=''):
 
     n = f.strip()
     for b in badlist + list(morebad):
-        n = n.replace(b[0], '_')
+        n = n.replace(b, '_')
 #    c = n.count('.')
 #    if c > 0:
 #       n = n.replace('.', '_', c - 1)
@@ -82,29 +100,23 @@ def render(fname):
 
 
 def img_src(pth, alt=None, also={}):
-    if 1:  #is_good(pth):
-        return '<img src="../' + pth + '"' + fmt_also({'alt': alt}, also) + '>'
-    return ''
+    return '<img src="../' + pth + '"' + fmt_also({'alt': alt}, also) + '>'
 
 
 def plural(thing):
-    if len(thing) != 1:
-        return 's'
-    return ''
+    return 's' if len(thing) != 1 else ''
 
 
 def dump_dict_comment(t, d, keys=None):
     print "<!-- dump", t, ":"
-#    if not keys:
-#       keys = d.keys()
-#    keys.sort()
-#    for k in keys:
-#       print '   ', k, ':', d[k]
     pprint.pprint(d, indent=1, width=132)
     print '-->'
 
 
 def dump_dict(t, d, keys=None):
+    print t,'<br>'
+    pprint.pprint(d, indent=1, width=132)
+    return
     print "<p><h3>", t, "</h3><p>"
     print '<dl>'
     if not keys:
@@ -116,7 +128,8 @@ def dump_dict(t, d, keys=None):
 
 
 def fmt_also(also={}, style={}):
-    nalso = dict_merge(style, also)
+    nalso = dict(style)
+    nalso.update(also)
     ostr = ''
     for tag in nalso:
         if nalso.get(tag):
@@ -137,10 +150,7 @@ def set_and_add_list(d, k, l):
 
 
 def any_char_match(t1, t2):
-    for c in t2:
-        if c in t1:
-            return True
-    return False
+    return bool(set(list(t1)) & set(list(t2)))
 
 
 def bit_list(val, format="%02x"):
@@ -152,6 +162,16 @@ def bit_list(val, format="%02x"):
         val >>= 1
         bit *= 2
     return olst
+
+
+def reflect(in_iter, columns, pad=None):
+    '''Reflects an interator carved up into chunks, padding with None.
+
+    >>> reflect([0,1,2,3], 3)
+    [0, 2, 1, 3, None, None]
+    '''
+    colsize = (len(in_iter) - 1) / columns + 1
+    return itertools.chain(*itertools.izip_longest(*[in_iter[x:x + colsize] for x in range(0, len(in_iter), colsize)], fillvalue=pad))
 
 
 # sobj is a list of word-like things, targ is a string
@@ -172,7 +192,7 @@ def warn(*message):
 
 
 def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma: no cover
-    #print "file_mover", src, dst, mv, ov, inc, '<br>'
+    print "file_mover", src, dst, "mv=", mv, "ov=", ov, "inc=", inc, "trash=", trash, '<br>'
     addon = 0
     if dst and inc:
         root, ext = dst.rsplit('.', 1)  # for inc
@@ -207,7 +227,7 @@ def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma:
         elif ov:
             #os.remove(dst)
             path, filename = dst.rsplit('/', 1)
-            file_mover(dst, os.path.join(config.LIB_DIR, 'trash', filename), mv=True, inc=True, trash=True)
+            file_mover(dst, os.path.join(config.TRASH_DIR, filename), mv=True, inc=True, trash=True)
             if not trash:
                 warn(dst, "- old file overwritten")
             if mv:
@@ -261,22 +281,91 @@ def file_copy(src, dst, trash=False):  # pragma: no cover
     return False
 
 
-# File-level globals.  Not to be imported by any other file.
-pending_comments = list()
-header_done_flag = False
-def is_header_done():
-    global header_done_flag
-    return header_done_flag
+def fix_file_type(pif, pdir, fn):
+    types = [
+        ('JPEG', 'jpg'),
+        ('GIF', 'gif'),
+        ('PC bitmap', 'bmp'),
+        ('PNG', 'png'),
+    ]
+    if '.' in fn:
+        root, ext = fn.rsplit('.', 1)
+    else:
+        root = fn
+        ext = ''
 
-def header_done():
-    global header_done_flag, pending_comments
-    header_done_flag = True
-    map(lambda x: write_comment(*x), pending_comments)
-    pending_comments = list()
+    c = ["/usr/bin/file", "-b", pdir + '/' + fn]
+    p = subprocess.Popen(c, stdout=subprocess.PIPE, stderr=None, close_fds=True)
+    l = p.stdout.readlines()
+    if not l:
+        return fn
+    l = l[0].strip()
+
+    for typ in types:
+        if l.startswith(typ[0]):
+            ext = typ[1]
+
+    nfn = root + '.' + ext
+    if nfn == fn:
+        return fn
+    if os.path.exists(pdir + '/' + nfn):
+        addon = 1
+        while os.path.exists(pdir + '/' + root + '_' + str(addon) + '.' + ext):
+            addon += 1
+        root += '_' + str(addon)
+    nfn = root + '.' + ext
+    os.rename(pdir + '/' + fn, pdir + '/' + nfn)
+    return nfn
+
+
+def file_save(pdir, fn, contents, overwrite=False):
+    if not os.path.exists(pdir):
+        os.mkdir(pdir, 0775)
+    if '.' in fn:
+        root, ext = fn.rsplit('.', 1)
+    else:
+        root = fn
+        ext = ''
+    ext = ext.lower()
+    root = clean_name(root, '!@$%^&*()[]{}~`<>"+/')
+    ext = clean_name(ext, '!@$%^&*()[]{}~`<>"+/')
+    fn = root + '.' + ext
+    if os.path.exists(pdir + '/' + fn):
+        if overwrite:
+            file_mover(pdir + '/' + fn, os.path.join(config.TRASH_DIR, fn), mv=True, inc=True, trash=True)
+        else:
+            addon = 1
+            while os.path.exists(pdir + '/' + root + '_' + str(addon) + '.' + ext):
+                addon += 1
+            root += '_' + str(addon)
+    fn = root + '.' + ext
+    open(pdir + '/' + fn, 'w').write(contents)
+    return fn
+
+
+def show_error():
+    import traceback
+    print traceback.format_exc()
+
+
+# File-level globals.  Not to be imported by any other file.
+_format_web = True
+_pending_comments = list()
+_header_done_flag = False
+def is_header_done():
+    global _header_done_flag
+    return _header_done_flag
+
+def header_done(is_web=True):
+    global _format_web, _header_done_flag, _pending_comments
+    _format_web = is_web
+    _header_done_flag = True
+    map(lambda x: write_comment(*x), _pending_comments)
+    _pending_comments = list()
 
 partial_comment = None
 def write_comment(*args, **kwargs):
-    global header_done_flag, pending_comments, partial_comment
+    global _header_done_flag, _pending_comments, partial_comment, _format_web
     partial = kwargs.get('nonl')
     if partial:
         if partial_comment is None:  # separate from empty list
@@ -287,10 +376,27 @@ def write_comment(*args, **kwargs):
         args = partial_comment + list(args)
         partial_comment = None
     if args:
-        if header_done_flag:
+        if not _header_done_flag:
+            _pending_comments.append(args)
+	elif _format_web:
             print '<!--', ' '.join([str(x) for x in args]), '-->'
         else:
-            pending_comments.append(args)
+            print ' '.join([str(x) for x in args])
+
+def read_comments():
+    global _pending_comments, _header_done_flag
+    comments = '\n'.join([' '.join([str(arg) for arg in args]) for args in _pending_comments])
+    _pending_comments = list()
+    _header_done_flag = False
+    return comments
+
+def write_message(*args):
+    global _format_web
+    if args:
+	if _format_web:
+            print ' '.join([str(x) for x in args]), '<br>'
+        else:
+            print ' '.join([str(x) for x in args])
 
 #---- -------------------------------------------------------------------
 

@@ -26,7 +26,7 @@ class TestPIF(unittest.TestCase):
 	self.assertTrue(len(self.pif.dbh.fetch('page_info', where='not health=0', tag='unittest')) == 0)
 
     def test_form_int(self):
-	self.assertTrue(self.pif.form_int('a', defval=0) == 0)
+	self.assertTrue(self.pif.form.get_int('a', defval=0) == 0)
 
 #    def test_Update(self):
 #	pass#self.assertTrue(self.pif.Update(argfile)
@@ -44,13 +44,13 @@ class TestPIF(unittest.TestCase):
 	self.assertTrue(self.pif.error_report() != '')
 
     def test_form_find(self):
-	self.assertTrue(self.pif.form_find('b') == [])
+	self.assertTrue(self.pif.form.find('b') == [])
 
     def test_get_form(self):
-	self.assertTrue(self.pif.get_form() == {})
+	self.assertTrue(self.pif.form.get_form() == {})
 
     def test_form_search(self):
-	self.assertTrue(self.pif.form_search('a') == [])
+	self.assertTrue(self.pif.form.search('a') == [])
 
     def test_show_error(self):
 	self.assertTrue(self.pif.show_error() == None)

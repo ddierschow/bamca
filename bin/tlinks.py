@@ -16,8 +16,8 @@ def links(pif):
     ostr = ''
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/cgi-bin/links.cgi', 'Toy Links')
-    if pif.form_int('id'):
-        link = pif.dbh.fetch_link_line(pif.form_int('id'))
+    if pif.form.get_int('id'):
+        link = pif.dbh.fetch_link_line(pif.form.get_int('id'))
         if link['page_id'] != 'links.toylinks':
             pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
         pif.render.hierarchy_append('', 'Specific Link')
@@ -48,13 +48,13 @@ def single_link(pif, link):
     ostr += pif.render.format_button_reset('comment') + '\n'
     ostr += '</form>\n'
     if pif.is_allowed('a'):  # pragma: no cover
-        ostr += pif.render.format_button("edit_this_page", link=pif.dbh.get_editor_link('link_line', {'id': pif.form_str('id', '')}), also={'class': 'comment'}, lalso={})
+        ostr += pif.render.format_button("edit_this_page", link=pif.dbh.get_editor_link('link_line', {'id': pif.form.get_str('id', '')}), also={'class': 'comment'}, lalso={})
     ostr += '<br>' + str(link) + '<br>'
     return ostr
 
 
 def link_page(pif):
-    section_id = pif.form_str('section')
+    section_id = pif.form.get_str('section')
     if section_id:
         sections = pif.dbh.fetch_sections({'page_id': pif.page_id, 'id': section_id})
     else:
@@ -125,7 +125,7 @@ def format_entry(pif, ent):
     if ent['flags'] & pif.dbh.FLAG_LINK_LINE_PAYPAL:
         dlms.append('PayPal')
 
-    ostr = pif.render.format_link(url, tag, nstyle={'class': 'link'}) + ' '
+    ostr = pif.render.format_link(url, tag) + ' '
 
     if not dlms and not cmt:
         pass
@@ -177,7 +177,7 @@ def read_config(pif, showall=False):
     listRejectCats = []
     dictCats = {}
     allpages = pif.dbh.fetch_pages("id like 'links.%'")
-    if pif.is_allowed('a'):  # and pif.render.isbeta:  # pragma: no cover
+    if pif.is_allowed('a'):  # and pif.render.is_beta:  # pragma: no cover
         showpage = {x['page_info.id']: 1 for x in allpages}
     else:
         showpage = {x['page_info.id']: not (x['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED) for x in allpages}
@@ -281,8 +281,8 @@ def add_new_link(pif, dictCats, listRejects):
     all_links, highest_disp_order = read_all_links(pif)
     link = {}
     try:
-        link['url'] = url = pif.form_str('url', '')
-        link['section_id'] = pif.form_str('cat', '')
+        link['url'] = url = pif.form.get_str('url', '')
+        link['section_id'] = pif.form.get_str('cat', '')
         link['page_id'] = 'links.' + dictCats[link['section_id']]
         link['display_order'] = highest_disp_order[(link.get('page_id', 'unknown'), link.get('section_id', 'unknown'))] + 1
     except:
@@ -295,10 +295,10 @@ def add_new_link(pif, dictCats, listRejects):
     if pif.is_allowed('a'):  # pragma: no cover
         link['flags'] = 0
     link['link_type'] = 'l'
-    link['name'] = pif.form_str('name', '')
-    link['country'] = pif.form_str('country', '')
-    link['description'] = pif.form_str('desc', '')
-    link['note'] = pif.remote_addr + '/' + pif.remote_host + '. ' + pif.form_str('note', '')
+    link['name'] = pif.form.get_str('name', '')
+    link['country'] = pif.form.get_str('country', '')
+    link['description'] = pif.form.get_str('desc', '')
+    link['note'] = pif.remote_addr + '/' + pif.remote_host + '. ' + pif.form.get_str('note', '')
 
     url = fix_url(url)
     for reject in listRejects:
@@ -335,6 +335,7 @@ def add_new_link(pif, dictCats, listRejects):
         ostr += ent[0] + ' '
         ostr += '<br>' .join(ent[1])
         ostr += '\n</ul>\n'
+	# TODO: Add auto-verification
     return ostr
 
 
@@ -361,7 +362,7 @@ Please submit only links that have something to do with toys or toy collecting. 
 If you submit a site that has nothing to do with the subject material of this website, it will be summarily deleted.
 Note that if your submission includes just gibberish in the name or description, it will be rejected without being checked.
 '''
-    if pif.form_str('url'):
+    if pif.form.get_str('url'):
         ostr += add_new_link(pif, dictCats, rejected)
     print ostr
     print pif.render.format_tail()
@@ -396,41 +397,45 @@ def edit_single(pif):
     listCats, listIndices, dictCats, listRejectCats = read_config(pif, True)
     listCats.append(('single', 'single'))
     table_info = pif.dbh.table_info['link_line']
-    id = pif.form_str('id')
-    if pif.form_bool('save'):
+    id = pif.form.get_str('id')
+    if pif.form.get_bool('save'):
         all_links, highest_disp_order = read_all_links(pif)
-        nlink = {x: pif.form_str(x) for x in table_info['columns']}
+        nlink = {x: pif.form.get_str(x) for x in table_info['columns']}
         nlink['flags'] = 0
-        if pif.form_str('section_id') == 'single':
+        if pif.form.get_str('section_id') == 'single':
             pass
         else:
-            nlink['page_id'] = 'links.' + dictCats.get(pif.form_str('section_id', ''), pif.form_str('section_id', ''))
+            nlink['page_id'] = 'links.' + dictCats.get(pif.form.get_str('section_id', ''), pif.form.get_str('section_id', ''))
         nlink['display_order'] = highest_disp_order.get((nlink['page_id'], nlink['section_id']), 0) + 1
-        formflags = pif.form_list('flags')
+        formflags = pif.form.get_list('flags')
         for flag in formflags:
             nlink['flags'] += int(flag, 16)
         if nlink['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
             nlink['last_status'] = 'NoVer'
         pif.dbh.update_link_line(nlink)
         print '<br>record saved<br>'
-    elif pif.form_bool('test'):
+    elif pif.form.get_bool('test'):
         link = pif.dbh.fetch_link_line(id)
         check_link(pif, link)  # don't care about blacklist here, just actual check
-    elif pif.form_bool('delete'):
+    elif pif.form.get_bool('delete'):
         pif.dbh.delete_link_line(id)
         return "<br>deleted<br>"
-    elif pif.form_bool('reject'):
-        nlink = {x: pif.form_str(x, '') for x in table_info['columns']}
+    elif pif.form.get_bool('reject'):
+        nlink = {x: pif.form.get_str(x, '') for x in table_info['columns']}
         nlink['page_id'] = 'links.rejects'
         nlink['display_order'] = 1
-        nlink['section_id'] = pif.form_str('rejects_sec')
+        nlink['section_id'] = pif.form.get_str('rejects_sec')
         nlink['flags'] = 0
         pif.dbh.update_link_line(nlink)
         print '<br>record rejected<br>'
-    elif pif.form_bool('add'):
-        id = pif.dbh.insert_link_line({'page_id': pif.form_str('page_id', ''), 'section_id': pif.form_str('sec')})
+    elif pif.form.get_bool('add'):
+        id = (#pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id', ''), 'section_id': pif.form.get_str('sec')})
+#        pif.form.set_val('id',
+	    pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
 
     links = pif.dbh.fetch_link_lines(where="id='%s'" % id)
+    if not links:
+	raise useful.SimpleError("That ID wasn't found.")
     link = links[0]
     asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.fetch_link_lines(where="flags & %s" % pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)]
     ostr = pif.render.format_table_start()
@@ -490,8 +495,8 @@ def edit_single(pif):
 def edit_multiple(pif):
     table_info = pif.dbh.table_info['link_line']
     page_id = ''
-    sec_id = pif.form_str('sec', '')
-    if pif.form_bool('as'):
+    sec_id = pif.form.get_str('sec', '')
+    if pif.form.get_bool('as'):
         linklines = pif.dbh.fetch_link_lines(where="flags&%d" % pif.dbh.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
     elif sec_id == 'new':
         linklines = pif.dbh.fetch_link_lines(where="flags&%d" % pif.dbh.FLAG_LINK_LINE_NEW)
@@ -501,7 +506,7 @@ def edit_multiple(pif):
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
         page_id = pif.dbh.fetch_section(sec_id)['section.page_id']
     else:
-        linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form_str('page'), order="display_order")
+        linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page'), order="display_order")
     ostr = pif.render.format_table_start()
     ostr += pif.render.format_row_start()
     for col in table_info['columns']:
@@ -545,16 +550,17 @@ def edit_choose(pif):
 def edit_links(pif):
     pif.render.print_html()
     print pif.render.format_head()
-    if pif.form_bool('add'):
-        pif.form_set('id', pif.dbh.insert_link_line({'page_id': pif.form_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
+#    if pif.form.get_bool('add'):
+#        pif.form.set_val('id', pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
+#	pif.form.delete('add')
     ostr = ''
-    if pif.form_str('id'):
+    if pif.form.get_str('id'):
         ostr += edit_single(pif)
-    elif pif.form_bool('as'):
+    elif pif.form.get_bool('as'):
         ostr += edit_multiple(pif)
-    elif pif.form_str('sec'):
+    elif pif.form.get_str('sec'):
         ostr += edit_multiple(pif)
-    elif pif.form_str('page'):
+    elif pif.form.get_str('page'):
         ostr += edit_multiple(pif)
     else:
         ostr += edit_choose(pif)
@@ -610,5 +616,21 @@ def check_blacklisted_links(pif, sections=None):
                     #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
 
 
+@basics.command_line
+def commands(pif):
+    links = pif.dbh.fetch_link_lines()
+    good_ids = [x for x in range(100, 3000)]
+    bad_ids = []
+    for lnk in links:
+	id = lnk['link_line.id']
+	if id in good_ids:
+	    good_ids.remove(id)
+	elif id < 100 and not lnk['link_line.flags'] & 64:
+	    bad_ids.append(id)
+    bad_ids.sort()
+    for ids in zip(good_ids, bad_ids):
+	print "update link_line set id=%d where id=%d;" % ids
+
+
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    commands(dbedit='')

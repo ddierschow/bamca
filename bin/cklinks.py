@@ -9,4 +9,4 @@ def main(pif):
     tlinks.check_links(pif.filelist)
 
 if __name__ == '__main__':  # pragma: no cover
-    main('editor')
+    main()

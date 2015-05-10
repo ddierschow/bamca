@@ -1,18 +1,7 @@
 body {background-color: #EEEEEE;}
-img    {margin-left: auto; margin-right: auto; display: block;}
-
-.titlebar {text-align: center;}
-.leftbar {background-color: #006600; vertical-align: top; width: 132px; height: 100%;}
-.leftbarcontent {vertical-align: top; height: 100%; padding: 0 0 20px 0;}
+#img    {margin-left: auto; margin-right: auto; display: block;}
 
 .eb {text-align: center;}
-
-.leftbar a:link       {color: #FFFFFF; background-color: transparent; text-decoration: none;}
-.leftbar a:visited    {color: #CCCCCC; background-color: transparent; text-decoration: none;}
-.leftbar a:active     {color: #FFFFFF; background-color: transparent; text-decoration: none;}
-.leftbar a:hover      {color: #FFFFFF; background-color: transparent; text-decoration: underline;}
-
-.titlebar {height: 66px; font-size: xx-large; background-color: #000066; color: #FFFFFF;}
 
 .ok {color: #FFFFFF;}
 .no {color: #FFFF99;}
@@ -21,3 +10,5 @@ img    {margin-left: auto; margin-right: auto; display: block;}
 .sh_box       {border-width: 0; border-style: solid; background-color: transparent; text-align: center; font-size: large;}
 .tb_boxes .eb {border-width: 0; border-style: solid; background-color: transparent; text-align: center; padding: 0px 4px;}
 .tb_boxes .er {border-width: 0; border-style: solid; background-color: transparent; text-align: center;}
+
+.notes {background-color: #DDFFDD; border-style: solid; border-collapse: collapse; width: 400px;}

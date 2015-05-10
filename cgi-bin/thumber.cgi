@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import images
-images.thumber('editor')
+images.thumber_main('editor')

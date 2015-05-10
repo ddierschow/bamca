@@ -29,6 +29,17 @@ regionparents = {
     'L': 'W',
 }
 
+lineup_types = [
+    ("man", "Main line models"),
+    ("series", "Series"),
+    ("ks", "Larger Scale Models"),
+    ("acc", "Accessories"),
+    ("yy", "Yesteryears and Matchbox Collectibles"),
+    ("pack", "Packs and Gift Sets"),
+    ("bld", "Buildings"),
+    ("pub", "Publications"),
+]
+
 ''' unidentified
 HP - heroes?
 MNS
@@ -42,6 +53,7 @@ categories = {
     '3P'    : '3-Pack',
     '50P'   : '50th Anniversary Collection',
     '5P'    : '5-Pack',
+    '60'    : '60th Anniversary',
     '75C'   : '75 Challenge',
     'A'     : 'Accessories',
     'AA'    : 'Across America',
@@ -87,7 +99,7 @@ categories = {
     'DVD'   : 'DVD',
     'DY'    : 'Dinky',
     'EE'    : 'European Edition',
-    'EL'    : 'Elvis Presley Collection',
+    'ELC'   : 'Early Learning Center',
     'ELV'   : 'Elvis Presley Collection',
     'EM'    : 'Emergency',
     'F1'    : 'Formula 1',
@@ -195,6 +207,7 @@ casting_types = {
     'YY': 'Casting',           # YesterYear
     'PS': 'Assembly',          # Playset
     'CC': 'Case',              # Carrying Case
+    'PK': 'Publication',       # Packaging
     'PC': 'Publication',       # Pocket Catalog
     'DC': 'Publication',       # Dealer Catalog
     'RY': 'Publication',       # Roadway
@@ -492,10 +505,9 @@ id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_number(cid):
     id_m = id_re.match(cid)
     if id_m:
-        mack_prefix = ''
         if id_m.group('p') == 'SF':
-            mack_prefix = 'MB'
-        return (mack_prefix,) + id_m.groups()[1:]
+	    return ('MB', int(id_m.group('n')), id_m.group('l'))
+	return ('', int(id_m.group('n')), id_m.group('l'))
     return None
 
 

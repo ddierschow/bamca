@@ -1,4 +1,12 @@
-MI001|wheels|,| / 
+|wheels|maltese cross (12x6.5mm front, 10x5.5mm rear)|maltese cross 12x6.5mm front / maltese cross 10x5.5mm rear|
+|wheels|maltese cross (10x5.5mm front, 12x6.5mm rear)|maltese cross 10x5.5mm front / maltese cross 12x6.5mm rear|
+|wheels|front and rear|
+|wheels|,| / 
+
+LS01a|wheels_hubs|,|/
+LS01a|body_casting|A|no gap between door and fender / no year on base / with recesses front bumper / no infill above gas tank
+LS01a|body_casting|B|with gap between door and fender / 1978 year on base / with raised ribs front bumper / no infill above gas tank
+LS01a|body_casting|C|with gap between door and fender / 1978 year on base / with raised ribs front bumper / with infill above gas tank
 LS02b|base_type|A|with number and full name
 LS02b|base_type|B|with JEEP only
 LS04a|base|(A)|/ short
@@ -12,10 +20,13 @@ LS18b|seat|(A)|wide at rear
 LS18b|seat|(B)|narrow at rear
 LS18b|frame_casting|A|short front end, open triangle on right side in front of rear wheel
 LS18b|frame_casting|B|long front end, closed triangle on right side in front of rear wheel
+MI025|base|(A)|/ no
+MI025|base|(B)|/ with
 LS27b|base|(A)|/ with
 LS27b|base|(B)|/ no
-LS32c|diorama|(A)|/ A 
-LS32c|diorama|(B)|/ B 
+LS28b|wheels_hubs|,|/
+LS32c|diorama|(A)|/ on right side 
+LS32c|diorama|(B)|/ on left side 
 LS35a|base|(A)|/ A
 LS35a|base|(B)|/ B
 LS35a|base|(C)|/ C
@@ -33,10 +44,52 @@ LS35a|body|(A)|/ no additional panel / no ridge
 LS35a|body|(B)|/ with additional panel / partial thin ridge
 LS35a|body|(C)|/ with additional panel / full length thin ridge
 LS35a|body|(D)|/ with additional panel / thick ridge
+LS38e|base|r/^|LESNEY PRODUCTS, 3 base rivets, |
+LS38e|base|r/$| text
+MI038|base_type|r/^A$|England / LESNEY PRODUCTS, 3 base rivets, small text
+MI038|base_type|r/^B$|England / LESNEY PRODUCTS, 3 base rivets, large text
+MI038|base_type|r/^C$|Macau / with Superfast, MATCHBOX TOYS, raised panel, 3 base rivets
+MI038|base_type|r/^D$|Macau / with Superfast, MATCHBOX TOYS, raised panel, 2 base rivets
+MI038|base_type|r/^E$|Macau / without Superfast, MATCHBOX INT'L, flat surface
+MI038|base_type|r/^F$|Macau / without Superfast, MATCHBOX INT'L, raised panel
+MI038|base_type|r/^G$|Macau / without Superfast, MATCHBOX INT'L, (c) 1990 MLB
+MI038|base_type|r/^H$|Macau / without Superfast, MATCHBOX INT'L, (c) 1990 NFL
+MI038|base_type|r/^I$|Thailand / MATCHBOX INT'L, raised panel
+MI038|base_type|r/^J$|Thailand / MATCHBOX INT'L, flat surface
+MI038|base_type|r/^K$|China / MATCHBOX INT'L, raised panel
+MI038|base_type|r/^L$|China / Mattel Inc., raised panel, old logo (italic with frame)
+MI038|base_type|r/^M$|China / MATCHBOX INT'L, flat surface
+MI038|base_type|r/^N$|China / Mattel Inc., raised panel, new logo (oval)
+MI038|base_type|r/^O$|Thailand / Mattel Inc.
+MI038|base_type|r/^A |England / LESNEY PRODUCTS, 3 base rivets, small text |
+MI038|base_type|r/^B |England / LESNEY PRODUCTS, 3 base rivets, large text |
+MI038|base_type|r/^C |Macau / with Superfast, MATCHBOX TOYS, raised panel, 3 base rivets |
+MI038|base_type|r/^D |Macau / with Superfast, MATCHBOX TOYS, raised panel, 2 base rivets |
+MI038|base_type|r/^E |Macau / without Superfast, MATCHBOX INT'L, flat surface |
+MI038|base_type|r/^F |Macau / without Superfast, MATCHBOX INT'L, raised panel |
+MI038|base_type|r/^G |Macau / without Superfast, MATCHBOX INT'L, (c) 1990 MLB |
+MI038|base_type|r/^H |Macau / without Superfast, MATCHBOX INT'L, (c) 1990 NFL |
+MI038|base_type|r/^I |Thailand / MATCHBOX INT'L, raised panel |
+MI038|base_type|r/^J |Thailand / MATCHBOX INT'L, flat surface |
+MI038|base_type|r/^K |China / MATCHBOX INT'L, raised panel |
+MI038|base_type|r/^L |China / Mattel Inc., raised panel, old logo (italic with frame) |
+MI038|base_type|r/^M |China / MATCHBOX INT'L, flat surface |
+MI038|base_type|r/^N |China / Mattel Inc., raised panel, new logo (oval) |
+MI038|base_type|r/^O |Thailand / Mattel Inc. |
+MW038|base|r/^L$|China / Mattel Inc., raised panel, old logo (italic with frame)
+MW038|base|r/^M$|China / MATCHBOX INT'L, flat surface
+MW038|base|r/^N$|China / Mattel Inc., raised panel, new logo (oval)
+MW038|base|r/^O$|Thailand / Mattel Inc. |
 LS42c|container|r/\sA| / A
 LS42c|container|r/\sB| / B
 LS42c|container|r/\sC| / C
 LS42c|container|r/\sD| / D
+LS49c|wheels_hubs|,|/
+EA49d|wheels_hubs|5 crown 11.5x6.5mm silver front, dot dash 14x7mm silver rear|5 crown 11.5x6.5mm silver / dot dash 14x7mm / silver
+EA49d|wheels_hubs|4 dot 15x7mm gold|4 dot 15x7mm / 4 dot 15x7mm / gold
+EA49d|wheels_hubs|5 arch 15x9mm silver|5 arch 15x9mm / 5 arch 15x9mm / silver
+EA49d|wheels_hubs|dot dash 14x7mm silver|dot dash 14x7mm / dot dash 14x7mm / silver
+EA49d|wheels_hubs|maltese cross 15x8mm silver|maltese cross 15x8mm / maltese cross 15x8mm / silver
 LS50b|cab_base|(A)|/ flush
 LS50b|cab_base|(B)|/ with raised ridge
 EA53c|interior|(A)|interior / with dashboard / with steering wheel / with tow hook
@@ -52,12 +105,20 @@ LS62c|base|(A)|, backslash marks
 LS62c|base|(B)|, slash and backslash marks
 LS71c|grille|A|separate headlights
 LS71c|grille|B|connected headlights
+LS72e|wheels_hubs|,| / 
+LS73b|wheels_hubs|,|/
+MI1773|wheels_hubs|,|/
+MI072|wheels_hubs|,| / 
 MI095|body|(A)|/ raised
 MI095|body|(B)|/ flat
 MI129|roof_light|A|with metal center
 MI129|roof_light|B|
 MI205|grille|A|Mercedes logo
 MI205|grille|B|dot
+MI210|base_type|A|blank center
+MI210|base_type|B|straight lettering
+MI210|base_type|C|slant lettering
+MI212|wheels|9 spoke GY rear / GY slicks front|GY slicks front / 9 sp GY rear
 MI229|base|(A)|, straight "MADE IN CHINA"
 MI229|base|(B)|, italic "MADE IN CHINA"
 MI268|base_type|A|1993 (narrow)
@@ -72,6 +133,7 @@ MW295|base|(A)|, classic logo
 MW295|base|(B)|, oval logo
 MW325|base|(A)|, classic logo
 MW325|base|(B)|, oval logo
+MI327|wheels|PC 5 spoke directional GY (rear GY slicks)|PC 5 spoke directional GY, GY slicks
 MW358|base|(A)|, classic logo
 MW358|base|(B)|, oval logo
 MW359|base|(A)|, classic logo
@@ -107,9 +169,9 @@ MW416|base|(A)|, classic logo
 MW416|base|(B)|, oval logo
 MW417|base|(A)|, classic logo
 MW417|base|(B)|, oval logo
-MW420|base|(A)|, 1999, classic logo
-MW420|base|(B)|, 1999, oval logo
-MW420|base|(C)|, 1998, 2000, oval logo
+MW420|base_type|r/^A$|1999 / CHEVROLET IMPALA / old
+MW420|base_type|r/^B$|1999 / CHEVROLET IMPALA / new
+MW420|base_type|r/^C$|1998, 2000 / CHEVROLET IMPALA / new
 MW423|base|(A)|, classic logo
 MW423|base|(B)|, oval logo
 MW427|base|(A)|, classic logo
@@ -121,8 +183,19 @@ MW436|base|(A)|, classic logo
 MW436|base|(B)|, oval logo
 MW437|base|(A)|, classic logo
 MW437|base|(B)|, oval logo
+MW443|base_type|r/^A$|CHINA imprinted; FLATBED TRUCK cast
+MW443|base_type|r/^B$|CHINA and DELIVERY TRUCK imprinted; FLATBED TRUCK cast
+MW443|base_type|r/^C$|CHINA and FLATBEDTRUCK cast
+MW445|base_type|r/^A$|DELIVERY TRUCK cast / old logo
+MW445|base_type|r/^B$|DELIVERY TRUCK imprinted, FLATBED TRUCK cast / old logo
+MW445|base_type|r/^C$|FLATBEDTRUCK cast / old logo
+MW445|base_type|r/^D$|DELIVERY TRUCK cast / new logo
+MW445|base_type|r/^E$|DELIVERY TRUCK cast / new logo
 MW446|base|(A)|, classic logo
 MW446|base|(B)|, oval logo
+MW450|base_type|r/^A$|1999 / FORD DUMP + UTILITY TRUCK / old
+MW450|base_type|r/^B$|2000 / FORD F-SERIES TRUCK / new
+MW450|base_type|r/^C$|1999 / FORD DUMP + UTILITY TRUCK / new
 MW463|base|(A)|, classic logo
 MW463|base|(B)|, oval logo
 MW522|base|(A)|, classic logo
@@ -140,66 +213,13 @@ MW722|base|(A)|, no base name
 MW722|base|(B)|, with base name
 MW724|base|(A)|, no base name
 MW724|base|(B)|, with base name
+MW754|base|(A)|/ Aeromax
+MW754|base|(B)|/ AeroMax
+MW754|base|(C)|, revised text/ AeroMax
 
 |airplane_windows|r/\bclear\b|colorless
-|area|r/^A / CH$|AT;CH
-|area|r/^A$|AT
-|area|r/^AUSROW$|R;A
-|area|r/^AUSUSA$|U;A
-|area|r/^B$|BE
-|area|r/^CDN$|CA
-|area|r/^CNCDN$|CA;CN
-|area|r/^CNGB$|GB;CN
-|area|r/^CNH$|CN;H
-|area|r/^CNNL$|CN;NL
-|area|r/^CNZW$|CN;ZW
-|area|r/^D / A$|DE;AT
-|area|r/^DCN$|DE;CN
-|area|r/^DGB$|DE;GB
-|area|r/^DJ$|DE;JP
-|area|r/^E$|ES
-|area|r/^F$|FR
-|area|r/^FNL$|FR;NL
-|area|r/^GBD / A$|GB;DE;AT
-|area|r/^GBD$|GB;DE
-|area|r/^H$|HU
-|area|r/^I$|IT
-|area|r/^IRL$|IE
-|area|r/^J$|JP
-|area|r/^KSA$|SA
-|area|r/^M$|MT
-|area|r/^MAL$|MY
-|area|r/^MEX$|MX
-|area|r/^ROWD$|R;D
-|area|r/^ROWGB$|R;B
-|area|r/^S$|SE
-|area|r/^SA$|SE;AT
-|area|r/^SDK$|SE;DK
-|area|r/^SLO$|SK
-|area|r/^USAAUS$|U;A
-|area|r/^USACDN$|U;CA
-|area|r/^USAD$|U;D
-|area|r/^USANZ$|U;NZ
-|area|r/^USAUSA$|U
-|area|r/^USA$|U
-|area|r/^AUS$|A
-|area|r/^CORE$|W
-|area|r/^GB$|B
-|area|r/^LA$|L
-|area|r/^ROW$|R
 |base|r/\bcasting\b|
 |canopy|r/\bclear\b|colorless
-|category|r/^5PCK$|5P
-|category|r/^AM$|AA
-|category|r/^ANV$|50P
-|category|r/^BB$|BOB
-|category|r/^EL$|ELV
-|category|r/^ELP$|ELV
-|category|r/^FP$|FOR
-|category|r/^H$|HR
-|category|r/^LA$|LP
-|category|r/^SG$|SOG
-|category|r/^\(IC\)$|IC
 |date|.| / |
 |dome_lights|r/\bclear\b|colorless
 |dome_light|r/\bclear\b|colorless
@@ -312,3 +332,64 @@ MW724|base|(B)|, with base name
 |labels|r/\bLS 74-A|SF74a
 |wheels|r/\bLS 75-B|SF75b
 |wheels|r/\bLS75-B|SF75b
+
+|area|Rest of World|R
+|area|United States|U
+|area|Germany|D
+|area|Britain|B
+|area|r/^A / CH$|AT;CH
+|area|r/^A$|AT
+|area|r/^AUSROW$|R;A
+|area|r/^AUSUSA$|U;A
+|area|r/^B$|BE
+|area|r/^CDN$|CA
+|area|r/^CNCDN$|CA;CN
+|area|r/^CNGB$|GB;CN
+|area|r/^CNH$|CN;H
+|area|r/^CNNL$|CN;NL
+|area|r/^CNZW$|CN;ZW
+|area|r/^D / A$|DE;AT
+|area|r/^DCN$|DE;CN
+|area|r/^DGB$|DE;GB
+|area|r/^DJ$|DE;JP
+|area|r/^E$|ES
+|area|r/^F$|FR
+|area|r/^FNL$|FR;NL
+|area|r/^GBD / A$|GB;DE;AT
+|area|r/^GBD$|GB;DE
+|area|r/^H$|HU
+|area|r/^I$|IT
+|area|r/^IRL$|IE
+|area|r/^J$|JP
+|area|r/^KSA$|SA
+|area|r/^M$|MT
+|area|r/^MAL$|MY
+|area|r/^MEX$|MX
+|area|r/^ROWD$|R;D
+|area|r/^ROWGB$|R;B
+|area|r/^S$|SE
+|area|r/^SA$|SE;AT
+|area|r/^SDK$|SE;DK
+|area|r/^SLO$|SK
+|area|r/^USAAUS$|U;A
+|area|r/^USACDN$|U;CA
+|area|r/^USAD$|U;D
+|area|r/^USANZ$|U;NZ
+|area|r/^USAUSA$|U
+|area|r/^USA$|U
+|area|r/^AUS$|A
+|area|r/^CORE$|W
+|area|r/^GB$|B
+|area|r/^LA$|L
+|area|r/^ROW$|R
+|category|r/^5PCK$|5P
+|category|r/^AM$|AA
+|category|r/^ANV$|50P
+|category|r/^BB$|BOB
+|category|r/^EL$|ELV
+|category|r/^ELP$|ELV
+|category|r/^FP$|FOR
+|category|r/^H$|HR
+|category|r/^LA$|LP
+|category|r/^SG$|SOG
+|category|r/^\(IC\)$|IC

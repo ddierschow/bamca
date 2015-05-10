@@ -78,7 +78,7 @@ def do_tree_page(pif, dblist):
 def blister(pif):
     pif.render.print_html()
     #global pagename
-    #pagename = pif.form_str('page', 'blister')
+    #pagename = pif.form.get_str('page', 'blister')
 
     dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
 
@@ -121,8 +121,8 @@ def show_model(pif, mod):
 def show_boxes(pif):
     pif.render.print_html()
     print pif.render.format_head()
-    series = pif.form_str('series')
-    style = pif.form_str('style')
+    series = pif.form.get_str('series')
+    style = pif.form.get_str('style')
     boxes = pif.dbh.fetch_castings_by_box(series, style)
     for box in boxes:
         if box.get('alias.id'):

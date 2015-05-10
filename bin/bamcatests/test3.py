@@ -25,29 +25,29 @@ class TestRender(unittest.TestCase):
 
     def test_Lineup(self):
 	import lineup
-        self.assertTrue(lineup.main('year', 'year', args='verbose=0') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=1960 region=U hidden=1 submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=1971 region=U nyears=2 submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=1984 region=B submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=1988 region=D submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=1991 region=A submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=1997 region=L unroll=1 submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=1999 region=D large=1 submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=2000 region=A submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=2006 region=A unroll=1 hidden=1 submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='year=2013 region=U submit=1 verbose=1') != '')
+        self.assertTrue(lineup.main('year', 'year', args='verbose=0') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=1960 region=U hidden=1 submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=1971 region=U nyears=2 submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=1984 region=B submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=1988 region=D submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=1991 region=A submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=1997 region=L unroll=1 submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=1999 region=D large=1 submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=2000 region=A submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=2006 region=A unroll=1 hidden=1 submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='year=2013 region=U submit=1 verbose=1') is None)
 	pif = basics.get_page_info('editor', args="verbose=0")
 	#self.assertTrue(lineup.text_main(pif) != '')
 	self.assertTrue(lineup.picture_count(pif, 'U', 2012) != None)
-        self.assertTrue(lineup.makes_main('makes', args='verbose=1') != '')
-        self.assertTrue(lineup.makes_main('makes', args='make=text text=austin submit=1') != '')
-        self.assertTrue(lineup.makes_main('makes', args='make=unk text=austin submit=1') != '')
-        self.assertTrue(lineup.makes_main('makes', args='make=unl text=austin submit=1') != '')
-        self.assertTrue(lineup.makes_main('makes', args='make=isu see_the_models=1') != '')
-        self.assertTrue(lineup.mack_lineup('mack', args='see_the_models=1 verbose=1') != '')
-        self.assertTrue(lineup.full_lineup('mline', args='year=1960 CAT=1 E=1 RW=1 A=1 M=1 K=1 Y=1 MF=1 MG=1 PS=1 G=1 R=1 CC=1 PZL=1 GW=0 submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U enum= eyear=1980 submit=1') != '')
-        self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U prodpic=1 enum=15 eyear=1980 submit=1') != '')
+        self.assertTrue(lineup.makes_main('makes', args='verbose=1') is None)
+        self.assertTrue(lineup.makes_main('makes', args='make=text text=austin submit=1') is None)
+        self.assertTrue(lineup.makes_main('makes', args='make=unk text=austin submit=1') is None)
+        self.assertTrue(lineup.makes_main('makes', args='make=unl text=austin submit=1') is None)
+        self.assertTrue(lineup.makes_main('makes', args='make=isu see_the_models=1') is None)
+        self.assertTrue(lineup.mack_lineup('mack', args='see_the_models=1 verbose=1') is None)
+        self.assertTrue(lineup.full_lineup('mline', args='year=1960 CAT=1 E=1 RW=1 A=1 M=1 K=1 Y=1 MF=1 MG=1 PS=1 G=1 R=1 CC=1 PZL=1 GW=0 submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U enum= eyear=1980 submit=1') is None)
+        self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U prodpic=1 enum=15 eyear=1980 submit=1') is None)
 
     def test_Links(self):
 	import tlinks
@@ -75,12 +75,24 @@ class TestRender(unittest.TestCase):
         self.assertTrue(mannum.main('manno', args='section=wr listtype=ckl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
         self.assertTrue(mannum.main('manno', args='section=wr listtype=vtl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
 
-    def test_Matrix(self):
+    def test_Matrix1(self):
 	import matrix
 	self.assertTrue(matrix.main('matrix', 'page', args='page=character verbose=1') != '')
+
+    def test_Matrix2(self):
+	import matrix
 	self.assertTrue(matrix.main('matrix', 'page', args='page=coll64') != '')
+
+    def test_Matrix3(self):
+	import matrix
 	self.assertTrue(matrix.main('matrix', 'page', args='page=mbhc verbose=1') != '')
+
+    def test_Matrix4(self):
+	import matrix
 	self.assertTrue(matrix.main('matrix', 'page', args='page=premiere') != '')
+
+    def test_Matrix5(self):
+	import matrix
 	self.assertTrue(matrix.main('matrix', 'page', args='verbose=1') != '')
 
     def test_Multipack(self):
@@ -98,7 +110,7 @@ class TestRender(unittest.TestCase):
 
     def test_Package(self):
 	import package
-	self.assertTrue(package.blister('package', 'page', 'blister', args="verbose=1") != '')
+	#self.assertTrue(package.blister('package', 'page', 'blister', args="verbose=1") != '')
 #    package.blister('package', 'page', 'blister')
 #    package.show_boxes('boxart')
 

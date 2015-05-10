@@ -9,7 +9,7 @@ import useful
 # this version doesn't do subdivisions
 class FlagList():
     # interprets "175.dat"
-    def __init__(self, pif):
+    def __init__(self):
         self.isolist = mbdata.countries
         self.lookup = {x[0]: x[1] for x in self.isolist}
         self.isolist.sort(key=lambda x: x[1])

@@ -98,7 +98,9 @@ table_info = {
     #casting
     'casting': {
         'id': ['id'],
-        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'box_styles', 'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels'],
+        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'box_styles'],
+	'extra_columns': ['notes',
+	    'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels'],
         'clinks': {
                 'id': {'tab': 'casting', 'id': ['id/id']},
                 'country': {'tab': 'country', 'id': ['id/country']},
@@ -296,7 +298,7 @@ table_info = {
         'add': {
                 'matrix_model': ['page_id/page_id', 'section_id/section_id'],
         },
-        'ask': ['page_id', 'mod_id'],
+        'ask': ['id', 'page_id', 'mod_id'],
     },
     #region
     'region': {
@@ -328,7 +330,7 @@ table_info = {
         'add': {
                 'lineup_model': [],
         },
-        'ask': ['year', 'region', 'number', 'mod_id'],
+        'ask': ['id', 'year', 'region', 'number', 'mod_id'],
     },
     #link_line
     'link_line': {
@@ -481,10 +483,12 @@ table_info = {
     #site_activity
     'site_activity': {
         'id': ['id'],
-        'columns': ['id', 'name', 'description', 'url', 'image', 'user_id', 'timestamp'],
+        'columns': ['id', 'name', 'description', 'url', 'image', 'by_user_id', 'timestamp'],
     }
 
 }
+for key in table_info:
+    table_info[key]['name'] = key
 
 #-
 
@@ -498,9 +502,11 @@ FLAG_MODEL_HIDE_IMAGE                   = 32
 FLAG_SECTION_NO_FIRSTS                  =  1
 FLAG_SECTION_DEFAULT_IDS                =  2
 FLAG_SECTION_HIDDEN                     = 16
+
 FLAG_PAGE_INFO_NOT_RELEASED             =  1
 FLAG_PAGE_INFO_HIDE_TITLE               =  2
 FLAG_PAGE_INFO_UNROLL_MODELS            =  4
+
 FLAG_LINK_LINE_NEW                      =  1
 FLAG_LINK_LINE_RECIPROCAL               =  2
 FLAG_LINK_LINE_PAYPAL                   =  4
@@ -518,7 +524,7 @@ site_activity
     name                    varchar(128)    NO
     description             varchar(256)    NO
     url                     varchar(256)    NO
-    user_id                 int(11)         NO              NULL
+    by_user_id              int(11)         NO              NULL
     timestamp               timestamp       NO              CURRENT_TIMESTAMP     on update CURRENT_TIMESTAMP
 alias
     id                      varchar(12)     NO      PRI

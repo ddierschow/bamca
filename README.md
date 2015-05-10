@@ -51,7 +51,35 @@ some things I'm not in agreement with for my own programming, you'll
 find that there are lines up to 132 characters long, and I do
 multiple imports of system libraries on one line.  I've made two
 passes so far converting this codebase to PEP8 compliance, but I
-still have quite a ways to go.
+still have quite a ways to go, and there are several stylistic
+standards that I don't like so it will never get all the way there.
+
+Current and planned projects:
+
+   * Add more entries to the annual lineup pages
+   * Allow multiple pictures per variation
+   * Link related variations
+   * Rearrange MAN pictures into directories for vehicle type
+   * Add support for publications, playsets, etc.
+   * Comparisons are a pain to work with and need fixing
+   * Tables casting_compare and casting_related are too similar
+   * Need to add support for packs limited to region
+
+...BIG things:
+
+   * Convert rendering code to Jinja2
+   * Add an API
+   * Create a mobile-frendly site
+   * Redesign the database schema
+
+Projects independent of software version:
+
+   * Incorporate the missing variations from Charlie
+   * Build out data for related castings
+   * Add larger-scale castings
+   * Document the BAMCA library
+   * Add more pictures!
+
 
 Dean Dierschow
 BAMCA Webmaster

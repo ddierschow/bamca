@@ -3,7 +3,7 @@
 import copy, glob, os, re, sys, urllib2
 import basics
 import config
-import images
+import imglib
 import lineup
 import mbdata
 import package
@@ -40,7 +40,7 @@ def count_combo_one_only(pdir, prefs, roots, suffs):
         found = False
         for pref in prefs:
             for suff in suffs:
-                for ext in images.otypes:
+                for ext in imglib.otypes:
                     fl = glob.glob('%s/%s%s%s.%s' % (pdir, pref, root, suff, ext))
                     for fn in fl:
                         if os.path.exists(fn):
@@ -65,7 +65,7 @@ def count_combo(pdir, prefs, roots, suffs):
     for root in roots:
         for pref in prefs:
             for suff in suffs:
-                for ext in images.otypes:
+                for ext in imglib.otypes:
                     fl = glob.glob('%s/%s%s%s.%s' % (pdir, pref, root, suff, ext))
                     for fn in fl:
                         if os.path.exists(fn):
@@ -137,7 +137,7 @@ def count_man(pif):
     count = 0
     count += count_combo(config.IMG_DIR_MAN, ['s_', 'm_', 'l_', 'z_'], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_ADD, ['a_', 'b_', 'e_', 'i_', 'p_', 'r_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_MAN + '/icon', ['i_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_ICON, ['i_'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 

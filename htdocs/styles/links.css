@@ -1,6 +1,6 @@
 body {background-color: #FFEEDD;}
-.link {text-indent: 20px;}
-.link-indent {text-indent: 40px;}
+.link {padding-left: 60px; text-indent: -40px;}
+.link-indent {padding-left: 80px; text-indent: -40px;}
 
 .star {list-style-image: url('pic/gfx/star.gif');}
 .folder {list-style-image: url('pic/gfx/folder.gif');}

@@ -1,7 +1,13 @@
 body {background-color: #FF8800;}
 
 .tb {background-color: #CCCCCC;}
-.sh {color: #FFFFFF; background-color: #000000;}
+.sh {background-color: #000000; color: #FFFFFF;}
 .rh {background-color: #FFFFFF; color: #000000;}
 .eb {background-color: #DDDDAA;}
+
+.rh_ml {background-color: transparent;}
+.tb_ml {background-color: #DDDDAA; list-style-type: disc; list-style-position: inside; display: block;
+	margin-before: 1em; margin-after: 1em; margin-start: 0; margin-end: 0; padding-start: 40px;}
+.eb_ml {background-color: transparent; #DDDDAA; list-style-type: disc; list-style-position: inside; border-width: 0;
+	display: list-item; text-align: -webkit-match-parent;}
 

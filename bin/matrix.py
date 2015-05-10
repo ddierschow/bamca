@@ -4,7 +4,6 @@ import copy, re
 import basics
 import config
 import mbdata
-import models
 import tables
 import useful
 
@@ -38,8 +37,8 @@ class MatrixFile:
                     ent['shown_id']        = ent['matrix_model.shown_id']
                     ent['name']            = ent['matrix_model.name']
                     ent['subname']         = ent['matrix_model.subname']
+                    ent['subnames']        = ent['matrix_model.subname'].split(';')
                     ent['sub_id']          = mbdata.reverse_regions.get(ent['matrix_model.subname'], '')
-                    #ent['subname'] += ' (%s, %s)' % (ent['sub_id'], ent.get('vs.sub_id', ''))
                     ent['description']     = []
                     if ent.get('sub_id') and ent.get('vs.sub_id') and ent['sub_id'] != ent['vs.sub_id']:
                         continue
@@ -47,8 +46,6 @@ class MatrixFile:
                         ent['description'].append(ent['v.text_description'])
                     if ent.get('matrix_model.description'):
                         ent['description'].extend(ent['matrix_model.description'].split(';'))
-#                   if pif.render.verbose:
-#                       ent['description'].append('(' + ent['matrix_model.description'] + ')')
                     ent['description'] = filter(None, ent['description'])
                     ent['disp_id'] = ''
                     ent['image'] = ''
@@ -66,10 +63,10 @@ class MatrixFile:
                                 pif.render.format_image_required([useful.clean_name(ffmt['img'] % ent['range_id'], '/')])
                     elif ent.get('v.picture_id'):
                         ent['image'] = \
-                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.picture_id'], prefix='s_', pdir=config.IMG_DIR_VAR)
+                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.picture_id'], prefix='s_', pdir=config.IMG_DIR_VAR, nopad=True)
                     elif ent.get('v.var'):
                         ent['image'] = \
-                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.var'], prefix='s_', pdir=config.IMG_DIR_VAR)
+                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.var'], prefix='s_', pdir=config.IMG_DIR_VAR, nopad=True)
                     if ent['range_id'] and ffmt['disp']:
                         ent['disp_id'] = ent['range_id']
                     if ent['range_id'] and ffmt['link']:
@@ -77,8 +74,6 @@ class MatrixFile:
                             ent['link'] = useful.clean_name(ffmt['link'] % ent['range_id'], '/')
                         else:
                             ent['link'] = useful.clean_name(ffmt['link'], '/')
-#                   if ent['image']:
-#                       ent['image'] = '<center><table><tr><td class="spicture">%s</td></tr></table></center>' % ent['image']
                     mat['ents'].setdefault(ent['range_id'], list())
                     mat['ents'][ent['range_id']].append(ent)
                     ent['disp_format'] = mat['disp_format']
@@ -87,25 +82,24 @@ class MatrixFile:
         self.tables.sort(key=lambda x: x['display_order'])
 
     def matrix(self, pif):
-        if not pif.render.simple:
-            pif.render.tail['printable'] = 1
+#        if not pif.render.simple:
+#            pif.render.tail['printable'] = 1
         llineup = {'id': pif.page_name, 'section': [], 'note': '\n'.join(self.text), 'columns': 4, 'tail': ''}
         comments = set()
 
         for table in self.tables:
             section_name = table['name']
             if not (table['flags'] & pif.dbh.FLAG_MODEL_HIDE_IMAGE) and (table['id'] not in pif.page_id.split('.')):
-                img = pif.render.format_image_optional(table['id'], pdir=table['pic_dir'])
+                img = pif.render.format_image_optional(table['id'], pdir=table['pic_dir'], nopad=True)
                 if img:
                     section_name += '<br>' + img
             section = {'id': table['id'], 'name': section_name, 'range': [], 'anchor': table['id'], 'columns': table['columns'], 'anchor': table['id']}
             if pif.is_allowed('a'):  # pragma: no cover
                 section['name'] += " (%s/%s)" % (pif.page_id, section['id'])
-                if pif.form_has('large'):
+                if pif.form.has('large'):
                     section['columns'] = 1
             ran = {'entry': []}
             range_ids = table['ents'].keys()
-            #range_ids.sort()
             range_ids.sort(key=lambda x: table['ents'][x][0]['display_order'])
             for range_id in range_ids:
                 if pif.render.flags & pif.dbh.FLAG_PAGE_INFO_UNROLL_MODELS:
@@ -114,18 +108,14 @@ class MatrixFile:
                             mods = self.find_matrix_variations([ent], pif.page_id, [ent['sub_id']])
                         else:
                             mods = self.find_matrix_variations([ent], pif.page_id, [table['id'], str(range_id)])
-                        ostr = self.add_cell(pif, mods, table, comments)
-                        ran['entry'].append({'text': ostr, 'display_id': pif.page_name})
+                        ran['entry'].append(self.add_cell(pif, mods, table, comments))
                 else:
                     mods = self.find_matrix_variations(table['ents'][range_id], pif.page_id, [table['id'], str(range_id)])
-                    ostr = self.add_cell(pif, mods, table, comments)
-                    ran['entry'].append({'text': ostr, 'display_id': pif.page_name})
+                    ran['entry'].append(self.add_cell(pif, mods, table, comments))
             section['range'].append(ran)
             llineup['section'].append(section)
-        pif.render.comment('Calculating tail.')
         llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
-        #llineup['tail'][1] = pif.render.format_button("comment_on_this_page", link='../pages/comment.php?page=%s' % (pif.page_id), also={'class': 'comment'}, lalso={})
-        llineup['tail'][1] = pif.render.format_button_comment(pif, '')
+	pif.render.format_button_comment(pif, '')
         for comment in comments:
             llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
         return llineup
@@ -197,7 +187,7 @@ class MatrixFile:
         if pif.render.find_image_file(ent['product'], suffix='jpg'):
             comments.add('c')
             ent['is_product_picture'] = 1
-            if pif.is_allowed('a') and pif.form_has('large'):  # pragma: no cover
+            if pif.is_allowed('a') and pif.form.has('large'):  # pragma: no cover
                 pass
         if ent['flags'] & tables.FLAG_MODEL_NOT_MADE:
             comments.add('n')
@@ -211,7 +201,6 @@ class MatrixFile:
             img = pif.render.find_image_file(ent['link'])
             if img:
                 ent['href'] = '/' + img
-            #format_image_optional([ent['link']])
         vstr = ''
         ent['descriptions'] = filter(None, ent['description'])
         if ent['descriptions'] and (not ent['flags'] & tables.FLAG_MODEL_NO_VARIATION):
@@ -221,57 +210,57 @@ class MatrixFile:
 
         ent['anchor'] = '%s' % ent['number']
 
-        #mdict: descriptions imgstr name no_casting not_made number pdir product
-        ostr = models.add_model_table_product_link(pif, ent)
+	desclist = list()
+	for var in ent.get('descriptions', []):
+	    if var and var not in desclist:
+		desclist.append(var)
+	ent['descriptions'] = desclist
+
+	ent['additional'] = ''
         if pif.is_allowed('a'):  # pragma: no cover
-            ostr += pif.render.format_button("edit", pif.dbh.get_editor_link('matrix_model', {'id': ent['id']}))
-            ostr += pif.render.format_button("upload", "upload.cgi?d=%s&r=%s" % (pif.render.pic_dir, ent['link'] + '.jpg'))
-        return ostr
+            ent['additional'] += pif.render.format_button("edit", pif.dbh.get_editor_link('matrix_model', {'id': ent['id']}))
+            ent['additional'] += pif.render.format_button("upload", "upload.cgi?d=%s&r=%s" % (pif.render.pic_dir, ent['link'] + '.jpg'))
+
+	if not ent.get('disp_format') or not ent.get('shown_id'):
+	    ent['displayed_id'] = '&nbsp;'
+	else:
+	    ent['displayed_id'] = ent['disp_format'] % (ent['shown_id'])
+	ent['display_id'] = pif.page_name
+
+        return ent
 
 
-def scmp(a, b):
-    r = cmp(a['page_info.description'], b['page_info.description'])
-    if r == 0:
-        r = cmp(a['page_info.title'], b['page_info.title'])
-    return r
-
-#'columns': ['id', 'flags', 'format_type', 'title', 'pic_dir', 'tail', 'description', 'note'],
 def select_matrix(pif):
-    ostr = "A few of the special sets produced by Matchbox in recent years:\n<ul>\n"
-    ser = pif.dbh.fetch_pages("id like 'matrix.%'")
-    ser.sort(scmp)
+    lsec = dict(id='ml')
+    lran = dict(id='ml', entry=list())
+    lran['name'] = "A few of the special sets produced by Matchbox in recent years:"
+    ser = pif.dbh.fetch_pages("id like 'matrix.%'", order='description, title')
     for ent in ser:
         ent['page_info.id'] = ent['page_info.id'].split('.', 1)[-1]
         link = '<b><a href="?page=%(page_info.id)s">%(page_info.title)s</a></b> - %(page_info.description)s' % ent
         if not (ent['page_info.flags'] & 1):
-            ostr += '<li>' + link + '\n'
+	    lran['entry'].append(link)
         elif pif.is_allowed('a'):  # pragma: no cover
-            ostr += '<li><i>' + link + '</i>\n'
-    ostr += "</ul>\n"
-    ostr = pif.render.format_table_single_cell(0, ostr) + '\n'
-    ostr += pif.render.format_button("back", link="..")
-    ostr += " to the main index.\n"
-    return ostr
+	    lran['entry'].append('<i>' + link + '</i>')
+    lsec['range'] = [lran]
+    return dict(section=[lsec])
 
 
 @basics.web_page
 def main(pif):
     pif.render.print_html()
     matf = None
-    if pif.form_has('page'):
+    if pif.form.has('page'):
         matf = MatrixFile(pif)
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/matrix.cgi', 'Series')
-    pif.render.hierarchy_append('/cgi-bin/matrix.cgi?page=%s' % pif.form_str('page'), pif.render.title)
-    print pif.render.format_head()
+    pif.render.hierarchy_append('/cgi-bin/matrix.cgi?page=%s' % pif.form.get_str('page'), pif.render.title)
     if matf:
-        #print pif.render.format_image_optional(pif.form_str('page', 'default').split('.'), also={'class':'centered'})
         llineup = matf.matrix(pif)
-        print pif.render.format_lineup(llineup)
+	print pif.render.format_template('matrix.html', llineup=llineup)
     else:
-        print select_matrix(pif)
-    print pif.render.format_tail()
+        print pif.render.format_template('matrixsel.html', llineup=select_matrix(pif))
 
 if __name__ == '__main__':  # pragma: no cover
     pass

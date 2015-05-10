@@ -26,7 +26,7 @@ else
 {
 ?>
 
-<table width=100% cellpadding=0 cellspacing=0>
+<table width=1024px cellpadding=0 cellspacing=0>
 
 <tr><td colspan=7 background="pic/gfx/red4x4.gif"><img src="pic/gfx/red4x4.gif"></td></tr>
 
@@ -58,8 +58,8 @@ else
 <li><a href="cgi-bin/links.cgi?page=clubs">clubs</a>
 <li><a href="cgi-bin/addlink.cgi">addlink</a>
 <li><a href="cgi-bin/links.cgi?page=rejects">rejects</a>
-<li><a href="ads/">ads</a>
-<li><a href="errors/">errors</a>
+<li><a href="pic/ads/">ads</a>
+<li><a href="pic/errors/">errors</a>
 <li><a href="pages/">pages</a>
 <li><a href="pages/glossary.html">glossary</a>
 </ul></h3>
@@ -81,9 +81,9 @@ else
 
 <td width=19% valign=top>
 <h3><ul>
-<li><a href="lesney/">lesney</a>
-<li><a href="man/">175</a>
-<li><a href="cat/">cat</a>
+<li><a href="pic/lesney/">lesney</a>
+<li><a href="pic/man/">175</a>
+<li><a href="pic/cat/">cat</a>
 <br>&nbsp;
 <li><a href="cgi-bin/manno.cgi">manno</a>
     <a href="cgi-bin/manno.cgi?page=manls">ls</a>
@@ -146,8 +146,7 @@ DoButtonLink('counters', $IMG_DIR_ART, "http://" . $pif['host'] . "/cgi-bin/coun
 <tr>
 <td background="pic/gfx/red4x4.gif"><img src="pic/gfx/red4x4.gif"></td>
 <td colspan=5><center><i>
-<a href="http://vzone.virgin.net/sizzling.jalfrezi/">HTML</a> -
-<a href="http://www.python.org/">python</a> -
+<a href="http://www.mbx-u.com/">MU</a> -
 <a href="http://www.areh.de/">AREH</a> -
 <a href="http://www.mboxcommunity.com/cfalkens/">CF</a> -
 <a href="http://matchbox.zsebehazy.com/">Dan</a> -
@@ -216,13 +215,15 @@ echo "</span></td><td>";
 DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/edlinks.cgi?sec=new");
 echo "</td></tr><tr><td>\n";
 
-$pf = glob("../inc/*");
-echo 'New images:</td><td><span class="warning">';
-if (count($pf) - 1)
-    echo (count($pf) - 1);
-echo "</span></td><td>";
-DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/traverse.cgi?d=../inc");
-echo "</td></tr><tr><td>\n";
+$m = $l = '';
+$sf = fopen('/home/bamca/logs/descr.txt', "rt");
+while (!feof($sf)) {
+    $l = fgets($sf);
+    if (strlen($l) > 8)
+	$m = $l;
+}
+fclose($sf);
+echo 'Latest image:</td><td>' . substr($m, 0, 9) . "</td></tr><tr><td>\n";
 
 $pf = glob("../../logs/comment.*");
 echo 'New comments:</td><td><span class="warning">';
@@ -241,12 +242,16 @@ echo "</td></tr>\n";
 
 </table>
 
+<a href="http://vzone.virgin.net/sizzling.jalfrezi/">html</a> -
+<a href="http://www.python.org/">python</a> -
+<a href="http://www.diffnow.com/">diffnow</a> -
+<a href="http://jinja.pocoo.org/">jinja2</a>
 <?php
 }
 
 DoPageFooter($pif);
 ?>
-<img src="pic/gfx/hruler.gif">
+<img src="pic/gfx/hruler1024.gif">
 
 </body>
 </html>

@@ -22,4 +22,4 @@ def main(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    main('vars')
+    main()

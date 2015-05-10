@@ -3,6 +3,7 @@
 import os, random, string, subprocess, sys, urllib
 
 import basics
+import useful
 
 # ------ user
 
@@ -68,12 +69,12 @@ def print_user_form(pif, id):
 
 
 def delete_user(pif):
-    pif.dbh.delete_user(pif.form_str('id'))
+    pif.dbh.delete_user(pif.form.get_str('id'))
 
 
 def update_user(pif):
-    pif.dbh.update_user(pif.form_str('id'), email=pif.form_str('email'), state=pif.form_str('state'), name=pif.form_str('name'),
-                        privs=pif.form_str('privs'))
+    pif.dbh.update_user(pif.form.get_str('id'), email=pif.form.get_str('email'), state=pif.form.get_str('state'), name=pif.form.get_str('name'),
+                        privs=pif.form.get_str('privs'))
 
 
 @basics.web_page
@@ -81,14 +82,14 @@ def user_main(pif):
     pif.render.print_html()
     pif.restrict('a')
     print pif.render.format_head(extra=pif.render.reset_button_js)
-    if pif.form_has('name'):
+    if pif.form.has('name'):
         update_user(pif)
         print_users(pif)
-    elif pif.form_has('delete'):
+    elif pif.form.has('delete'):
         delete_user(pif)
         print_users(pif)
-    elif pif.form_has('id'):
-        print_user_form(pif, pif.form_str('id'))
+    elif pif.form.has('id'):
+        print_user_form(pif, pif.form.get_str('id'))
     else:
         print_users(pif)
     print pif.render.format_tail()
@@ -100,8 +101,8 @@ def user_main(pif):
 def print_login_form(pif):
     print 'Please log in.'
     print '<form method="post" action="login.cgi">'
-    if pif.form_has('dest'):
-        print '<input type="hidden" name="dest" value="%s">' % pif.form_str('dest')
+    if pif.form.has('dest'):
+        print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest')
     print '<table><tr><td>'
     print 'Name:</td><td>'
     print '<input type="text" name="n"></td></tr>'
@@ -111,20 +112,21 @@ def print_login_form(pif):
     print '<tr><td></td><td>'
 #    print '<input type="image" name="submit" src="../pic/gfx/but_log_in.gif" class="img">'
     print pif.render.format_button_input("log in", "submit")
-#    print '<input type="hidden" name="dest" value="%s">' % pif.form_str('dest', '/index.php')
+#    print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest', '/index.php')
     print '</form>'
     print '</td></tr><tr><td></td><td>'
-    print '<p><a href="signup.cgi?dest=%s">%s</a>' % (pif.form_str('dest', '/index.php'), pif.render.format_button('register'))
+    print '<p><a href="signup.cgi?dest=%s">%s</a>' % (pif.form.get_str('dest', '/index.php'), pif.render.format_button('register'))
     print '</td></tr></table>'
 
 
 def login(pif):
     id = None
-    id, privs = pif.dbh.login(pif.form_str('n'), pif.form_str('p'))
+    id, privs = pif.dbh.login(pif.form.get_str('n'), pif.form.get_str('p'))
     if id:
         cookie = pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60)
-        pif.render.print_html(cookie)
-        print '<meta http-equiv="refresh" content="1;url=%s">' % pif.form_str('dest', '/index.php')
+        pif.render.print_html(cookie=cookie)
+        #print '<meta http-equiv="refresh" content="1;url=%s">' % pif.form.get_str('dest', '/index.php')
+	raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
     else:
         pif.render.print_html()
         print pif.render.format_head()
@@ -134,7 +136,7 @@ def login(pif):
 
 @basics.web_page
 def login_main(pif):
-    if pif.form_has('n'):
+    if pif.form.has('n'):
         login(pif)
     else:
         pif.render.print_html()
@@ -150,8 +152,9 @@ def login_main(pif):
 @basics.web_page
 def logout_main(pif):
     cookie = pif.render.secure.clear_cookie(['id'])
-    pif.render.print_html(cookie)
-    print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form_str('dest', '../')
+    pif.render.print_html(cookie=cookie)
+    #print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get_str('dest', '../')
+    raise useful.Redirect(pif.form.get_str('dest', '../'))
 #    print '<meta http-equiv="refresh" content="0;url=%s>' % '/index.php'
 
 
@@ -183,17 +186,17 @@ def print_signup_form(pif):
     print pif.render.format_cell(0, pif.render.format_button_input("register", "submit"))
     print pif.render.format_row_end()
     print pif.render.format_table_end()
-    print '<input type="hidden" name="dest" value="%s">' % pif.form_str('dest', '/index.php')
+    print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest', '/index.php')
     print '</form>'
     print pif.render.format_tail()
 
 
 def create(pif):
     os.environ['PYTHON_EGG_CACHE'] = '/var/tmp'
-    n = pif.form_str('n')
-    p = pif.form_str('p')
-    p2 = pif.form_str('p2')
-    e = pif.form_str('e')
+    n = pif.form.get_str('n')
+    p = pif.form.get_str('p')
+    p2 = pif.form.get_str('p2')
+    e = pif.form.get_str('e')
     if not n or not p or p != p2 or not e:
         pif.render.print_html()
         print_signup_form(pif)
@@ -204,7 +207,7 @@ def create(pif):
     if id:
         gen_email(n, e, vkey)
         cookie = pif.render.secure.make_cookie(id, '', expires=15 * 12 * 60 * 60)
-        pif.render.print_html(cookie)
+        pif.render.print_html(cookie=cookie)
         print pif.render.format_head()
         print "Your account has been created.  Please check your email for the verification."
     else:
@@ -242,7 +245,7 @@ def verify(pif, name, vkey):
     userrec = pif.dbh.fetch_user(vkey=vkey, name=name)
     if userrec:
         userrec = userrec[0]
-        id = userrec['id']
+        id = userrec['user.id']
         pif.dbh.update_user(id, state=1)
         print "Your account has been verified!  Now please log in.<br><hr>"
         print_login_form(pif)
@@ -256,11 +259,11 @@ def verify(pif, name, vkey):
 
 @basics.web_page
 def register_main(pif):
-    if pif.form_str('n'):
+    if pif.form.get_str('n'):
         create(pif)
-    elif pif.form_str('k'):
-        u = pif.form_str('u')
-        k = pif.form_str('k')
+    elif pif.form.get_str('k'):
+        u = pif.form.get_str('u')
+        k = pif.form.get_str('k')
         verify(pif, u, k)
     else:
         pif.render.print_html()
@@ -293,23 +296,24 @@ def print_change_password_form(pif):
 #    print '<input type="image" name="submit" src="../pic/gfx/but_save_changes.gif" class="img">'
     print pif.render.format_button_input("save changes", "submit")
     print '</td></tr></table>'
-    print '<input type="hidden" name="dest" value="%s">' % pif.form_str('dest', '/index.php')
+    print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest', '/index.php')
     print '</form>'
     print pif.render.format_tail()
 
 
 def change_pass(pif):
-    if not pif.form_str('p1') or pif.form_str('p1') != pif.form_str('p2'):
+    if not pif.form.get_str('p1') or pif.form.get_str('p1') != pif.form.get_str('p2'):
         pif.render.print_html()
         print_change_password_form(pif)
         return
 
-    id, privs = pif.dbh.login(pif.form_str('n'), pif.form_str('op'))
-    if id and pif.form_str('p1') == pif.form_str('p2', -1):
-        pif.dbh.update_user(id, email=pif.form_str('em'), passwd=pif.form_str('p1'))
+    id, privs = pif.dbh.login(pif.form.get_str('n'), pif.form.get_str('op'))
+    if id and pif.form.get_str('p1') == pif.form.get_str('p2', -1):
+        pif.dbh.update_user(id, email=pif.form.get_str('em'), passwd=pif.form.get_str('p1'))
         cookie = pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60)
-        pif.render.print_html(cookie)
-        print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form_str('dest', '/index.php')
+        pif.render.print_html(cookie=cookie)
+        #print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get_str('dest', '/index.php')
+	raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
     else:
         cookie = pif.render.secure.clear_cookie(['id'])
         pif.render.print_html()
@@ -319,7 +323,7 @@ def change_pass(pif):
 @basics.web_page
 def change_password_main():
     pif = basics.get_page_info('user')
-    if pif.form_str('n'):
+    if pif.form.get_str('n'):
         change_pass(pif)
     else:
         pif.render.print_html()

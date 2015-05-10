@@ -11,4 +11,4 @@ def main(pif):
             print lineup.text_main(pif, y, r)
 
 if __name__ == '__main__':  # pragma: no cover
-    main('editor', options='ry')
+    main(options='ry')

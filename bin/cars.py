@@ -66,7 +66,7 @@ def render_cars(pif, cf):
 def cars_main(pif):
     pif.render.print_html()
 
-    db = CarsFile(os.path.join(config.SRC_DIR, pif.form_str('page', 'cars') + '.dat'))
+    db = CarsFile(os.path.join(config.SRC_DIR, pif.form.get_str('page', 'cars') + '.dat'))
 
     print pif.render.format_head()
     render_cars(pif, db)

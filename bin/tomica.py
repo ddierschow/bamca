@@ -215,14 +215,14 @@ def main(pif):
     '''
     manf = MannoFile(os.path.join(config.SRC_DIR, 'tomica.dat'))
     mans = manf.dictlist
-    if pif.form_has('num'):
-        print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form_str('num')
+    if pif.form.has('num'):
+        print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form.get_str('num')
         return
     else:
         print pif.render.format_head()
-        run_file(pif, manf, year=pif.form_str('year'))
-        #print pif.render.format_lineup(llineup)
-        #print pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (pif.form_str('selection'), pif.form_str('range'), pif.form_str('start'), pif.form_str('end')))
+        run_file(pif, manf, year=pif.form.get_str('year'))
+        #print pif.render.format_matrix(llineup)
+        #print pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
     '''
     print pif.render.format_tail()
 

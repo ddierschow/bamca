@@ -1,5 +1,10 @@
-.eh_0 {background-color: #CCCCCC;}
-.eb_0 {background-color: #EEEEEE;}
-.eh_1 {background-color: #DDDDAA;}
-.eb_1 {background-color: #FFFFCC;}
-.sh {font-size: x-large;}
+.rh_a {background-color: #CCCCCC;}
+.eb_a {background-color: #EEEEEE;}
+.rh_b {background-color: #DDDDAA;}
+.eb_b {background-color: #FFFFCC;}
+.eb_0 {width: 200px;}
+.eb_2 {width: 400px;}
+.sh {font-size: x-large; background-color: #BBEEBB;}
+.sb {background-color: #DDFFDD;}
+.rh {border-width: 1px; border-style: solid; font-size: large;}
+body {background-color: #BBEEBB;}

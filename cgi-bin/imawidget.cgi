@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import images
-images.imawidget('editor')
+images.imawidget_main('editor', dbedit='ma')

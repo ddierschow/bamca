@@ -17,16 +17,20 @@ import mannum
 
 def main(pif):
     act = get_last_activity(pif)
-    dat = read_commits(act['site_activity.timestamp'])
-    write_commits(pif, dat)
-    write_config_file()
+    if act:
+	dat = read_commits(act['site_activity.timestamp'])
+	write_commits(pif, dat)
+    write_php_config_file()
+    write_jinja2_config_file()
     write_man_csv(pif)
 
 
 def get_last_activity(pif):
     acts = filter(lambda x: x['site_activity.name'] == 'commit', pif.dbh.fetch_activities())
     acts.sort(key=lambda x: x['site_activity.id'])
-    return acts[-1]
+    if acts:
+	return acts[-1]
+    return None
 
 
 def read_commits(endtime):
@@ -43,7 +47,7 @@ def read_commits(endtime):
             continue
         s = m.group('d')
         commit = dict()
-        commit['user_id'] = 1
+        commit['by_user_id'] = 1
         commit['name'] = 'commit'
         commit['description'] = log_msg.split('\n', 4)[4].strip()
         commit['timestamp'] = datetime.datetime.strptime(s, '%a %b %d %X %Y')
@@ -62,8 +66,8 @@ def write_commits(pif, commits):
     print
 
 
-def write_config_file():
-    print "Writing config file."
+def write_php_config_file():
+    print "Writing PHP config file."
     cfg = open('../bin/config.py').readlines()
     cfg[0] = '<?php\n// Generated file.  Do not modify.\n'
     for idx in range(1, len(cfg)):
@@ -73,6 +77,19 @@ def write_config_file():
             cfg[idx] = '$' + cfg[idx].replace('\n', ';\n')
     cfg.append('?>\n')
     open('config.php', 'w').writelines(cfg)
+    print
+
+
+def write_jinja2_config_file():
+    print "Writing Jinja2 config file."
+    cfg = open('../bin/config.py').readlines()
+    cfg[0] = '{# Generated file.  Do not modify. #}\n'
+    for idx in range(1, len(cfg)):
+        if cfg[idx][0] == '#':
+            cfg[idx] = '{# ' + cg[idx][1:] + cfg[idx].replace('\n', ' #}\n')
+        elif cfg[idx].find('=') >= 0:
+            cfg[idx] = '{% set ' + cfg[idx].replace('\n', ' %}\n')
+    open('../templates/config.html', 'w').writelines(cfg)
     print
 
 

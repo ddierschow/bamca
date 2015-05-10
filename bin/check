@@ -21,4 +21,4 @@ if __name__ == '__main__':
 
     import unittest
     print "Running unittests."
-    ret = unittest.TextTestRunner(verbosity=0, buffer=1).run(unittest.TestLoader().discover('.'))
+    ret = unittest.TextTestRunner(verbosity=1, buffer=1).run(unittest.TestLoader().discover('.'))

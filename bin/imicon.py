@@ -18,6 +18,9 @@ class Icon:
         self.fgcolor = 1
         self.bgcolor = 0
 
+    def charset(self, fn):
+	self.chars = Font(fn)
+
     def set(self, x, y, v=1):
         if v:
             v = self.fgcolor
@@ -149,6 +152,7 @@ class Icon:
 
 class Font:
     def __init__(self, fname):
+	sys.path.append('./bin')
         f = None
         for path in sys.path:
             try:

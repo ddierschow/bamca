@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import os, sys
+import MySQLdb
 import useful
 
 
@@ -40,12 +41,14 @@ def handle_exception(pif):
     str_tb = write_traceback_file(pif)
     if not pif or not pif.render or not pif.dbh:
         print 'Content-Type: text/html\n\n'
+        print '<!--\n' + str(os.environ) + '-->'
         print '<!--\n' + str_tb + '-->'
         final_exit()
     pif.dbh.set_health(pif.page_id)
     import useful
     if not useful.is_header_done():
         print 'Content-Type: text/html\n\n'
+        print '<!--\n' + str(os.environ) + '-->'
         print '<!--\n' + str_tb + '-->'
     while pif.render.table_count > 0:
         print pif.render.format_table_end()
@@ -217,6 +220,23 @@ def web_page(main_fn):
                 print ret
         except SystemExit:
             pass
+	except useful.SimpleError as e:
+	    if not useful.is_header_done():
+		pif.render.print_html()
+	    print pif.render.format_template('error.html', error=[e.value])
+	except useful.Redirect as e:
+	    if not useful.is_header_done():
+		pif.render.print_html()
+	    print pif.render.format_template('forward.html', url=e.value)
+	except useful.DelayedRedirect as e:
+	    if not useful.is_header_done():
+		pif.render.print_html()
+	    print pif.render.format_template('forward.html', url=e.value, delay=10)
+        except MySQLdb.OperationalError:
+	    if not useful.is_header_done():
+		pif.render.print_html()
+            print 'The database is currently done, and thus, this page is unable to be shown.<p>'
+	    str_tb = write_traceback_file(pif)
         except:
             handle_exception(pif)
             raise
@@ -228,21 +248,27 @@ def web_page(main_fn):
 
 # Decorator that command line mains.
 def command_line(main_fn):
-    def call_main(page_id, form_key='', defval='', args='', dbedit=None, switches='', options=''):
+    def call_main(page_id='cli', form_key='', defval='', args='', dbedit=None, switches='', options=''):
         pif = None
         try:
             import pifile
+            switch, filelist = get_command_line(switches, options)
+	    for f in filelist:
+		if f.startswith('page_id='):
+		    page_id = f[8:]
             if isinstance(page_id, pifile.PageInfoFile):
                 pif = page_id
             else:
                 pif = get_page_info(page_id, form_key, defval, args, dbedit)
-            pif.switch, pif.filelist = get_command_line(switches, options)
+            pif.switch, pif.filelist = switch, filelist
             ret = main_fn(pif)
             useful.write_comment()
             if ret:
                 print ret
         except SystemExit:
             pass
+	except useful.SimpleError as e:
+	    print '***', e.value
     return call_main
 
 

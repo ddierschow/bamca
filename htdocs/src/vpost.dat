@@ -1,3 +1,8 @@
+|front_wheels|front|
+|rear_wheels|rear|
+|logo|new|elliptical
+|logo|old|rectangular
+
 MI005|shovel_cast|(A)|on raised plate
 MI005|shovel_cast|(B)|flush
 MI005|shovel_cast|gold plated|
@@ -39,6 +44,7 @@ LS38c|rear_seat_casting|B|plastic without holes
 LS38c|rear_seat_casting|C|plastic with holes
 LS38c|rear_seat_casting|D|plastic with holes
 LS38c|rear_seat_casting|E|metal with holes
+LS38e|license_plate||KG
 LS42c|container_type|A|base without lettering is part of body, ribs top and bottom, smooth center, opening doors
 LS42c|container_type|B|base without lettering is part of body, ribs on bottom only, upper smooth section, opening doors
 LS42c|container_type|C|black separate base with "P.S.1 CONTAINER" lettering, doors do not open
@@ -72,4 +78,24 @@ LS51b|base|(A)|, high text
 LS51b|base|(B)|, low text 
 EA51b|base|(A)|, high text
 EA51b|base|(B)|, low text 
+EA56c|roof_mount||black beacon
 LS66d|roof_tampo|DET. DIES.|DETROIT DIESEL
+MW450|name|+|/
+
+|manufacture|r/^Br$|Brazil|
+|manufacture|r/^Br |Brazil |
+|manufacture|r/^Bu$|Bulgaria|
+|manufacture|r/^C$|China|
+|manufacture|r/^C |China |
+|manufacture|r/^C#$|China #|
+|manufacture|r/^E$|England|
+|manufacture|r/^Ho$|Hong Kong|
+|manufacture|r/^Hu$|Hungary|
+|manufacture|r/^J$|Japan|
+|manufacture|r/^L$|L ?|
+|manufacture|r/^M$|Macau|
+|manufacture|r/^M |Macau |
+|manufacture|r/^N$|N ?|
+|manufacture|r/^O$|O ?|
+|manufacture|r/^T$|Thailand|
+|manufacture|r/^T |Thailand |

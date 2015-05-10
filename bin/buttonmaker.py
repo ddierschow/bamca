@@ -27,6 +27,7 @@ def create_final_image(fn, orig, width, height, palette):
 
 
 def write(im, fn):
+    fn += '.gif'
     im.save(fn, transparency=2)
 
 

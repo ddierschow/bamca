@@ -56,6 +56,13 @@ echo "</body>\n</html>\n";
 
 //---- support functions -----------------------------------------
 
+function HorzSpacer($rowspan) {
+    if ($rowspan > 1)
+	echo '<td rowspan="' . $rowspan . '" class="hspacer"></td>';
+    else
+	echo '<td class="hspacer"></td>';
+    echo "\n";
+}
 function SelectYear($name, $id, $defval, $min, $max)
 {
     echo '<select name="' . $name . '" id="' . $id . '">' . "\n";
@@ -77,8 +84,8 @@ function Section($args)
 {
     echo "
 <tr><td><br></td></tr>
-<tr><td class=\"" . $args['tag'] . "_head sel_head\">
 <a name=\"" . $args['tag'] . "\"></a>
+<tr><td class=\"" . $args['tag'] . "_head sel_head\">
 <center><h2>" . $args['name'] . "</h2></center>
 </td></tr>
 <tr><td class=\"spacer\"></td></tr>
@@ -106,7 +113,7 @@ function ChooseRegion($nrows)
 <input type="radio" name="region" value="B"> UK (2000, 2001)<br>
 <input type="radio" name="region" value="D"> Germany (1999-2001)<br>
 <input type="radio" name="region" value="A"> Australia (2000, 2001)<br>
-Note that Australian dealers might carry either USA or International assortments after 2001.</td>
+Note that Australian dealers might carry either<br>USA or International assortments after 2001.</td>
 <?php
 }
 
@@ -131,12 +138,26 @@ function SectionYear()
 <td valign=top class="updown">
 <?php SelectYear('year', 'yearYear', $YEAR_END, $YEAR_START, $YEAR_END); ?>
 </td>
-<td width=20></td>
 <?php
+HorzSpacer(1);
 ChooseRegion(1);
+?>
+</td>
+<td class="hspacer"></td>
+<td valign="top">
+<input type="checkbox" name="lty" value="man" checked>Main line models<br>
+<input type="checkbox" name="lty" value="series" checked>Series<br>
+<input type="checkbox" name="lty" value="ks" checked>Larger Scale Models<br>
+<input type="checkbox" name="lty" value="acc" checked>Accessories<br>
+<input type="checkbox" name="lty" value="yy" checked>Yesteryears and Matchbox Collectibles<br>
+<input type="checkbox" name="lty" value="pack" checked>Packs and Gift Sets<br>
+<input type="checkbox" name="lty" value="bld" checked>Buildings<br>
+<input type="checkbox" name="lty" value="pub" checked>Publications<br>
+</td>
+<?php
 if ($isadmin)
 {
-    echo '<td width=20></td><td>';
+    echo '<td class="hspacer"></td><td valign="top">';
     echo '<i>Number of years: <input type="text" name="nyears" value="" size="2">' . "\n";
     echo '<p><input type="checkbox" name="unroll" value="1"> Unroll' . "\n";
     echo '<p><input type="checkbox" name="large" value="1"> Large' . "\n";
@@ -162,19 +183,19 @@ Lineup number:<br>
 <input type="text" name="num" size="3" id="rankNum"><br>
 <?php incrnum('rankNum', 1, 120, ''); ?>
 </td>
-<td width=16></td>
+<?php HorzSpacer(1); ?>
 <td style="text-align: right;" valign=top>
 Start year:
 </td>
 <td valign=top class="updown">
 <?php SelectYear('syear', 'rankSyear', $YEAR_START, $YEAR_START, $YEAR_END); ?>
 </td>
-<td width=16 rowspan=2></td>
 <?php
+HorzSpacer(2);
 ChooseRegion(2);
 if ($isadmin)
 {
-    echo '<td width=16 rowspan=2></td>';
+    HorzSpacer(2);
     echo '<td valign="top" rowspan=2><i>';
     echo '<input type="checkbox" name="large" value="1"> Large<p>' . "\n";
     echo '<input type="checkbox" name="verbose" value="1"> Verbose<p>' . "\n";
@@ -194,8 +215,8 @@ if ($isadmin)
 <input type="text" name="enum" size="3" id="rankNum"><br>
 <?php incrnum('rankNum', 1, 120, ''); ?>
 </td>
-<td width=16></td>
 <?php
+HorzSpacer(1);
 }
 else
 {
@@ -242,15 +263,6 @@ if ($isadmin)
 {
 ?>
 <i>
-List type:
-<select name="listtype">
-<option value="" selected>Normal
-<option value="ckl">Checklist
-<option value="thm">Thumbnails
-<option value="adl">Admin List
-<option value="pxl">Picture List
-<option value="vtl">Vehicle Type
-</select><br>
 <nobr><input type="checkbox" name="verbose" value="1"> Verbose</nobr><br>
 <input type="checkbox" name="nodesc" value="1"> No Notes<br>
 </i>
@@ -266,8 +278,8 @@ List type:
 <?php
 if ($isadmin)
 {
+HorzSpacer(1);
 ?>
-<td width=16 style="text-align: right;"></td>
 <td valign=top>
 Start year:
 </td>
@@ -278,14 +290,33 @@ Start year:
 }
 ?>
 </tr>
-<tr><td></td><td></td><td valign="top">ending at:</td><td valign="top"><input type="text" name="end" id="manEnd" value="999" size="4" onFocus="document.manno.range[1].checked=true;">
+<tr><td>
+List type:
+<select name="listtype">
+<option value="" selected>Normal
+<option value="ckl">Checklist
+<option value="thm">Thumbnails
+<option value="csv">CSV
+<option value="jsn">JSON
+<?php
+if ($isadmin)
+{
+?>
+<option value="adl">Admin List
+<option value="pxl">Picture List
+<option value="vtl">Vehicle Type
+<?php
+}
+?>
+</select><br>
+</td><td></td><td valign="top">ending at:</td><td valign="top"><input type="text" name="end" id="manEnd" value="999" size="4" onFocus="document.manno.range[1].checked=true;">
 <?php incrnum('manEnd', "document.getElementById('manStart').value", 999, 'document.manno.range[1].checked=true;'); ?>
 </td>
 <?php
 if ($isadmin)
 {
+HorzSpacer(1);
 ?>
-<td width=16 style="text-align: right;"></td>
 <td valign=top>
 End year:
 </td>
@@ -412,7 +443,8 @@ function SectionVSearch()
     global $isadmin;
 ?>
 Search the variation information for models containing the following.<p>
-<table><tr><td width=50 rowspan=6></td>
+<table><tr>
+<?php HorzSpacer(6); ?>
 <td>Casting name:</td><td><input type="text" name="casting"></td><td width="16">
 <td>Code 1 models</td><td><input type="checkbox" name="codes" value="1" checked></td></tr>
 <tr><td>Base:</td><td><input type="text" name="base"></td><td></td>

@@ -84,8 +84,7 @@ def format_calc(found, pics):
     return (0, 0, 100)
 
 
-@basics.command_line
-def main(pif):
+def oldmain(pif):
 
     upics = nmods = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
 
@@ -127,5 +126,32 @@ def main(pif):
           ((nmods, upics) +
            format_calc(apfnd, apics) + format_calc(mpfnd, mpics) + format_calc(cpfnd, cpics) + format_calc(spfnd, spics))
 
+@basics.command_line
+def main(pif):
+    #pif.form.set_val('section', 'all')
+    sec_ids = [x['section.id'] for x in  pif.dbh.fetch_sections(where={'page_id': pif.page_id})]
+    totals = {}
+    tags = []
+    import mannum
+    for sec in sec_ids:
+	pif.form.set_val('section', sec)
+	manf = mannum.MannoFile(pif, withaliases=True)
+	llineup = manf.run_picture_list(pif)
+	for ent in  llineup['section'][0]['range'][0]['entry']:
+	    pass
+	disp = ['%-8s' % sec]
+	for tot in llineup['totals']:
+	    if tot['tag'] not in tags:
+		tags.append(tot['tag'])
+		totals[tot['tag']] = [0, 0]
+	    totals[tot['tag']][0] += tot['have']
+	    totals[tot['tag']][1] += tot['total']
+	    disp.extend(['%7d ' % tot['have'], '%7d ' % tot['total']])
+	print ''.join(disp)
+    disp = ['totals  ']
+    for tag in tags:
+	disp.extend(['%7d ' % totals[tag][0], '%7d ' % totals[tag][1]])
+    print ''.join(disp)
+
 if __name__ == '__main__':  # pragma: no cover
-    main('vars', switches='qvscma')
+    main(page_id='manno', switches='qvscma')

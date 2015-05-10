@@ -4,6 +4,7 @@ import glob, os
 import basics
 import config
 import models
+import useful
 
 
 # -- pub
@@ -12,12 +13,11 @@ import models
 def publication(pif):
     pif.render.print_html()
     ostr = pif.render.format_head()
-    pub_id = pif.form_str('id')
+    pub_id = pif.form.get_str('id')
 
     man = pif.dbh.fetch_publication(pub_id)
     if not man:
-        ostr += '<meta http-equiv="refresh" content="0;url=/database.php">\n'
-        return
+	raise useful.SimpleError("That publication was not found.")
     man = man[0]
     man['casting_type'] = 'Publication'
     man['name'] = man['base_id.rawname'].replace(';', ' ')
@@ -65,7 +65,7 @@ def publication(pif):
             lnk = pif.render.find_image_file(img, largest='g')
             lran['entry'].append({'text': pif.render.format_link('../' + lnk, txt)})
         llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran]}], 'columns': 4}
-        ostr += pif.render.format_lineup(llineup)
+        ostr += pif.render.format_matrix(llineup)
     else:
         img = pub_id + '.jpg'
         txt = pif.render.format_image_sized(img, largest='s')

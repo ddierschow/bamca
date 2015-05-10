@@ -11,10 +11,11 @@ desc_cols = ['field', 'type', 'null', 'key', 'default', 'extra']
 class DB:
     dbcs = {}
 
-    def __init__(self, cfg=None, user_id=0, verbose=False):
+    def __init__(self, cfg=None, user_id=0, db_logger=None, verbose=False):
         self.verbose = verbose
         self.user_id = user_id
         self.nowrites = False
+	self.logger = db_logger
         if cfg['dbuser'] in DB.dbcs:
             self.db = DB.dbcs[cfg['dbuser']]
         else:
@@ -42,15 +43,20 @@ class DB:
             if args:
                 useful.write_comment('     args :', args)
             sys.stdout.flush()
-        if 1:
-            log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.dbq%Y%m.log'))
-            try:
-                open(log_name, 'a').write('%s %s%s %s %s\n' %
-                                          (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/' if self.nowrites else '',
-                                           self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
-            except:
-                pass
+        if self.logger:
+#            log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.dbq%Y%m.log'))
+#            try:
+#                open(log_name, 'a').write('%s %s%s %s %s\n' %
+#                                          (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/' if self.nowrites else '',
+#                                           self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
+#            except:
+#                pass
+	    self.logger.info('%s %s%s %s %s' %
+			      (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/ ' if self.nowrites else '',
+			       self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
         cu = self.db.cursor()
+	if tag == 'UpdateLineupModel':
+	    print query, '<br>'
         try:
             if args:
                 nrows = cu.execute(query, args)
@@ -92,7 +98,8 @@ class DB:
             else:
                 res, desc, lid = self.execute(query)
             self.execute('commit')
-        return self.login(name, passwd)
+	    return lid
+        return None
 
     # counter function
 
@@ -113,13 +120,13 @@ class DB:
 
     # page info functions
 
-    def page_info(self, table):
+    def old_page_info(self, table):
         res = self.select("page_info,style",
                           ["page_info.format_type", "page_info.title", "page_info.pic_dir", "page_info.tail", "style.style_type",
                            "style.style_setting"],
                           "page_info.id='" + table + "' and page_info.id=style.page_id")
         if not res:
-            return {}
+            return dict()
         ret = {
             "format_type": res[0]["page_info.format_type"],
             "title": res[0]["page_info.title"],
@@ -143,7 +150,7 @@ class DB:
             res, desc, lid = self.execute('desc %s' % table, verbose=verbose)
             if res:
                 return [dict(zip(desc_cols, x)) for x in res]
-        return []
+        return list()
 
     def select(self, table, cols=None, where=None, group=None, order=None, args=None, tag='', verbose=None):
         if self.db:
@@ -160,12 +167,13 @@ class DB:
                 query += ''' group by %s''' % group
             if order:
                 query += ''' order by %s''' % order
+	    #useful.write_comment(query)
             res, desc, lid = self.execute(query, args, verbose=verbose)
             if not cols:
                 cols = [x[0] for x in desc]
             if res:
                 return [dict(zip(cols, x)) for x in res]
-        return []
+        return list()
 
     def rawquery(self, query, tag='', verbose=None):
         if self.db:
@@ -173,11 +181,11 @@ class DB:
                 query.insert(1, '/* %s */' % tag)
             res, desc, lid = self.execute(query, verbose=verbose)
             if not desc:
-                return []
+                return list()
             cols = [x[0] for x in desc]
             if res:
                 return [dict(zip(cols, x)) for x in res]
-        return []
+        return list()
 
     def insert_or_update(self, table, values, tag='', verbose=None):
         if self.db:
@@ -193,33 +201,33 @@ class DB:
             cols = ','.join(cols)
             vals = ','.join(vals)
             query = 'insert '
-            if tag:
-                query += "/* %s */ " % tag
+#            if tag:
+#                query += "/* %s */ " % tag
             query += '''into %s (%s) values (%s) on duplicate key update %s''' % (table, cols, vals, setlist)
             if self.nowrites:
-                res, desc, lid = self.mockexecute(query, verbose=verbose)
+                res, desc, lid = self.mockexecute(query, verbose=verbose, tag=tag)
             else:
-                res, desc, lid = self.execute(query, verbose=verbose)
+                res, desc, lid = self.execute(query, verbose=verbose, tag=tag)
                 self.execute('commit')
             return res
-        return []
+        return list()
 
     def update(self, table, values, where=None, tag='', verbose=None):
         if self.db:
             query = 'update '
-            if tag:
-                query += "/* %s */ " % tag
+#            if tag:
+#                query += "/* %s */ " % tag
             setlist = ','.join([x + "=" + self.db.literal(str(values[x])) for x in values])
             query += '''%s set %s''' % (table, setlist)
             if where:
                 query += ''' where %s;''' % where
             if self.nowrites:
-                res, desc, lid = self.mockexecute(query, verbose=verbose)
+                res, desc, lid = self.mockexecute(query, verbose=verbose, tag=tag)
             else:
-                res, desc, lid = self.execute(query, verbose=verbose)
+                res, desc, lid = self.execute(query, verbose=verbose, tag=tag)
                 self.execute('commit')
             return res
-        return []
+        return list()
 
     def updateraw(self, table, values, where=None, tag='', verbose=None):
         if self.db:
@@ -236,7 +244,7 @@ class DB:
                 res, desc, lid = self.execute(query, verbose=verbose)
                 self.execute('commit')
             return res
-        return []
+        return list()
 
     def updateflag(self, table, values, where=None, tag='', verbose=None):
         if self.db:
@@ -253,7 +261,7 @@ class DB:
                 res, desc, lid = self.execute(query, verbose=verbose)
                 self.execute('commit')
             return res
-        return []
+        return list()
 
     def insert(self, table, inits={}, tag='', verbose=None):
         if self.db:
@@ -288,7 +296,7 @@ class DB:
                 res, desc, lid = self.execute(query, verbose=verbose)
                 self.execute('commit')
             return res
-        return []
+        return list()
 
 
 if __name__ == '__main__':  # pragma: no cover

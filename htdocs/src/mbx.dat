@@ -1,11 +1,11 @@
-formatter|lesney|mline|Matchbox Lineup
+formatter|pic/lesney|mline|Matchbox Lineup
 page|b:bgc,#FFFFFF|b:c,#000000|l:c,#0000CC|v:c,#CC0000
-dir|CAT|man
-dir|RW|man
-dir|SF|man
-dir|K|king
-dir|M|king
-dir|Y|mcoll
+dir|CAT|pic/man
+dir|RW|pic/man
+dir|SF|pic/man
+dir|K|pic/king
+dir|M|pic/king
+dir|Y|pic/mcoll
 CAT|1957|1957|57||
 CAT|1959|1959|59|1|
 CAT|1960|1960|60||

@@ -5,7 +5,6 @@ HTDOCS              = '../htdocs'
 LOG_ROOT            = '/home/bamca/logs'
 ENV                 = 'unset'
 
-IMG_DIR_MAN         = 'pic/man'
 IMG_DIR_ACC         = 'pic/acc'
 IMG_DIR_ADD         = 'pic/add'
 IMG_DIR_ADS         = 'pic/ads'
@@ -17,10 +16,12 @@ IMG_DIR_CODE_2      = 'pic/code2'
 IMG_DIR_COLL_43     = 'pic/mcoll'
 IMG_DIR_COLL_64     = 'pic/prem'
 IMG_DIR_ERRORS      = 'pic/errors'
+IMG_DIR_ICON        = 'pic/man/icon'
 IMG_DIR_KING        = 'pic/king'
 IMG_DIR_LESNEY      = 'pic/lesney'
 IMG_DIR_LRW         = 'pic/lrw'
 IMG_DIR_LSF         = 'pic/lsf'
+IMG_DIR_MAN         = 'pic/man'
 IMG_DIR_MATTEL      = 'pic/mattel'
 IMG_DIR_MT_LAUREL   = 'pic/mtlaurel'
 IMG_DIR_PACK        = 'pic/packs'
@@ -35,10 +36,22 @@ SRC_DIR             = 'src'
 BIN_DIR             = 'bin'
 LIB_DIR             = 'lib'
 LIB_MAN_DIR         = 'lib/man'
+TRASH_DIR           = 'lib/trash'
 FLAG_DIR            = 'pic/flags'
+INC_DIR             = '/home/bamca/inc'
 PAGE_DIR            = 'pages'
 
+CSS_DIR             = 'styles'
 CSS_FILE            = 'styles/main.css'
 
 YEAR_START          = 1953
 YEAR_END            = 2014
+DEFAULT_X_SIZE      = 200
+DEFAULT_Y_SIZE      = 120
+MAX_MACK_NUMBER     = 120
+
+LOG_PATH            = '../logs'
+LOGGING_CONFIG_FILE = 'src/logging.conf'
+
+USER_ID = 0  # just puttin' this out here for future use
+IS_BETA = False

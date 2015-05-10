@@ -8,39 +8,24 @@ import bfiles
 import config
 
 modnumlist = []
-dups = 0
 
 
-def do_set(pif, setfile, set_id=None):
+def do_set(pif, setfile, set_id=None, dups=False):
     tables = setfile.tables
 
     ostr = '<center>'
-
-    '''
-    if len(tables) > 1:
-        bar = False
-        for table in tables:
-            if bar:
-                ostr += "|",
-            else:
-                bar = True
-            ostr += '<a href="#%(label)s">%(title)s</a>' % table,
-        ostr += '\n'
-    '''
-
     for db in tables:
         if len(tables) == 1 or not db['title'] or set_id == db['label'] or set_id == 'all':  # or not set_id
-            ostr += print_table(pif, db, setfile)
+            ostr += print_table(pif, db, setfile, dups)
         else:
             ostr += print_no_table(pif, db)
-
     ostr += '</center>\n'
     ostr += pif.render.format_button_comment(pif, '')
-    return ostr
+    return pif.render.format_head() + ostr + pif.render.format_tail()
 
 
-def print_table(pif, db, setfile):
-    global modnumlist, dups
+def print_table(pif, db, setfile, dups=False):
+    global modnumlist
     ostr = '<a name="%(label)s"></a>\n' % db
     if db['title']:
         ostr += '<h3>%s</h3>\n' % db['title']
@@ -59,8 +44,8 @@ def print_table(pif, db, setfile):
     for model in db['model']:
         showme = True
         for field in db['header']:
-            if pif.form_has(field):
-                if model[field] != pif.form_str(field) or (not model[field] and not pif.form_str(field)):
+            if pif.form.has(field):
+                if model[field] != pif.form.get_str(field) or (not model[field] and not pif.form.get_str(field)):
                     showme = False
         if not showme:
             continue
@@ -130,9 +115,8 @@ def print_table(pif, db, setfile):
 
 
 def print_no_table(pif, db):
-    global modnumlist, dups
     ostr = '<a name="%(label)s">\n' % db
-    ostr += '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.form_str('page') + '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db
+    ostr += '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.form.get_str('page') + '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db
     return ostr
 
 
@@ -178,40 +162,28 @@ def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
     return '<center>' + ostr + '</center>'
 
 
-def scmp(a, b):
-    r = cmp(a['page_info.description'], b['page_info.description'])
-    if r == 0:
-        r = cmp(a['page_info.title'], b['page_info.title'])
-    return r
-
 def select_set(pif):
-    ostr = "A few of the special sets produced by Matchbox in recent years:\n<ul>\n"
-    ser = pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0;")
-    ser.sort(scmp)
-    for ent in ser:
-        ostr += '<li><b><a href="../' + pif.cgibin + '/' + ent['page_info.format_type'] + '.cgi?page=' + ent['page_info.id'][5:] + '">' + ent['page_info.title'] + '</a></b> - ' + ent['page_info.description'] + "\n"
-    ostr += "</ul>\n"
-    ostr += pif.render.format_button("back", link="..")
-    ostr += " to the main index.\n"
-    return ostr
+    lran = {'name': "A few of the special sets produced by Matchbox in recent years:", 'entry':
+	['<b><a href="?page=%s">%s</a></b> - %s' %
+	    (ent['page_info.id'][5:], ent['page_info.title'], ent['page_info.description'])
+	    for ent in pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0", order='description,title')]}
+    llineup = {'section': [{'id': 'i', 'range': [lran]}],
+	       'tail': [pif.render.format_button("back", link="..") + " to the main index."]}
+    return pif.render.format_template('setsel.html', llineup=llineup)
 
 
 @basics.web_page
 def sets_main(pif):
     pif.render.print_html()
 
-    if pif.form_has('page'):
-        set_id = pif.form_str('set')
-        global dups
-        dups = pif.form_int('dups')
-        setfile = bfiles.SetFile(os.path.join(config.SRC_DIR, pif.form_str('page') + '.dat'))
-        print pif.render.format_head()
-        print do_set(pif, setfile, set_id)
+    if pif.form.has('page'):
+        set_id = pif.form.get_str('set')
+        dups = pif.form.get_int('dups')
+        setfile = bfiles.SetFile(os.path.join(config.SRC_DIR, pif.form.get_str('page') + '.dat'))
+        print do_set(pif, setfile, set_id, dups=dups)
     else:
-        print pif.render.format_head()
         print select_set(pif)
 
-    print pif.render.format_tail()
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -5,12 +5,15 @@ body {background-color: #CCFFCC; text-align: left;}
 
 .eb {text-align: center;}
 .eb_det {text-align: left;}
-.eb_0 {text-align: left; padding-left: 4px; padding-right: 4px;}
-.eb_1 {text-align: left;}
-.eb_2 {width: 200px;}
-.eb_3 {text-align: left;}
+.eb_0 {text-align: left; padding-left: 4px; padding-right: 4px; font-weight: bold;}
+.eb_1 {text-align: left; padding-left: 4px; padding-right: 4px; font-weight: normal;}
+.eb_2 {width: 200px; font-weight: normal}
+.eb_3 {text-align: left; font-weight: normal}
+.tb {width: auto;}
+.tb_single {width: 600px;}
 
-
+.diff {font-weight: bold;}
+.same {}
 .good_attr {background-color: #FFFFFF;}
 .bad_attr {background-color: #FFCCCC;}
 .changed {color: #FF0000;}
