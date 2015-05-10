@@ -53,5 +53,6 @@ MAX_MACK_NUMBER     = 120
 LOG_PATH            = '../logs'
 LOGGING_CONFIG_FILE = 'src/logging.conf'
 
-USER_ID = 0  # just puttin' this out here for future use
+# just puttin' this out here for future use
+USER_ID = 0
 IS_BETA = False

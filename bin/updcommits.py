@@ -22,7 +22,7 @@ def main(pif):
 	write_commits(pif, dat)
     write_php_config_file()
     write_jinja2_config_file()
-    write_man_csv(pif)
+    #write_man_csv(pif)
 
 
 def get_last_activity(pif):
@@ -72,7 +72,7 @@ def write_php_config_file():
     cfg[0] = '<?php\n// Generated file.  Do not modify.\n'
     for idx in range(1, len(cfg)):
         if cfg[idx][0] == '#':
-            cfg[idx] = '//' + cg[idx][1:]
+            cfg[idx] = '//' + cfg[idx][1:]
         elif cfg[idx].find('=') >= 0:
             cfg[idx] = '$' + cfg[idx].replace('\n', ';\n')
     cfg.append('?>\n')
@@ -86,7 +86,7 @@ def write_jinja2_config_file():
     cfg[0] = '{# Generated file.  Do not modify. #}\n'
     for idx in range(1, len(cfg)):
         if cfg[idx][0] == '#':
-            cfg[idx] = '{# ' + cg[idx][1:] + cfg[idx].replace('\n', ' #}\n')
+            cfg[idx] = '{# ' + cfg[idx][1:] + cfg[idx].replace('\n', ' #}\n')
         elif cfg[idx].find('=') >= 0:
             cfg[idx] = '{% set ' + cfg[idx].replace('\n', ' %}\n')
     open('../templates/config.html', 'w').writelines(cfg)
