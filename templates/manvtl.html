@@ -1,0 +1,53 @@
+{#
+<tr><th>pic</th><th>name</th><th>sel</th></tr>
+<tr><td><img src="../pic/man/s_rn01.jpg"></td><td>RN01<br>Silver Streak</td><td><nobr><input type="checkbox" name="vt_RN01" value="a"> aircraft</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="o"> boat</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="b"> bus</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="2" CHECKED> coupe</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="e"> equipment</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="1"> motorcycle</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="r"> railroad</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="4"> sedan</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="u"> sport/utility</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="z"> trailer</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="t"> truck</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="v"> van</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="5"> wagon</nobr>
+<br><nobr><input type="checkbox" name="vt_RN01" value="9"> ambulance</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="c"> commercial</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="i"> construction</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="d"> convertible</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="j"> fantasy</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="g"> farm</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="f"> fire</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="m"> military</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="p"> pick-up</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="l"> police</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="8"> racer</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="h"> recreation</nobr>
+<nobr><input type="checkbox" name="vt_RN01" value="x"> taxi</nobr>
+<br>make: <input name="vm_RN01" type="text" size="3" maxlength="3" value="">
+country: <input name="co_RN01" type="text" size="2" maxlength="2" value="">
+
+#}
+
+{% extends "base.html" %}
+{% block page_body %}
+<form method="post">
+<input type="hidden" name="vtset" value="1">
+<table class="tb">
+{%- for section in llineup.section %}
+<tr><th colspan={{ llineup.num_cols }}><a name="{{ section.id }}">{{ section.name }}</a></th></tr>
+<tr>
+{%- for col in llineup.cols %}<th>{{ col[1] }}</th>{%- endfor -%}
+{%- for entry in section.entry %}
+</tr>
+<tr>
+{%- for col in llineup.cols %}<td>{{ entry[col[0]] }}</td>{%- endfor -%}
+</tr>
+{%- endfor %}
+{%- endfor %}
+</table>
+<input type="image" name="submit" src="../pic/gfx/but_submit.gif" alt="SUBMIT" class="button" onmouseout="this.src='../pic/gfx/but_submit.gif';" onmouseover="this.src='../pic/gfx/hov_submit.gif';"></form>
+
+{% endblock page_body %}

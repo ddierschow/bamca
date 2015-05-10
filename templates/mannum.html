@@ -1,0 +1,18 @@
+{%- extends "base.html" -%}
+
+{%- macro man_entry(entry) -%}
+  <center>
+   <table class="entry">
+    <tr><td></td><td width="32"><i><font size="-1">{{ entry.first_year }}</font></i></td>
+    <td width="136"><center><font face="Courier">{{ entry.id }}</font></center></td>
+    <td width="32">{{ entry.flag }}</td><td></td></tr>
+    <tr><td colspan="5"><center>
+     {{ entry.lname }}
+     {{ entry.desclist }}    </center></td></tr>
+   </table>
+  </center>
+{%- endmacro -%}
+
+{%- block page_body -%}
+{{ render.format_matrix(llineup, man_entry) }}
+{%- endblock page_body -%}

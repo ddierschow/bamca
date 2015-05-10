@@ -1,0 +1,196 @@
+{%- import "config.html" as config %}
+
+{% macro fmt_also(also) -%}
+{%- for tag in also %} {{ tag }}="{{ also[tag] }}"{%- endfor -%}
+{%- endmacro %}
+
+
+{% macro format_warning(message) %}
+<div class="warning">{% for word in message %}{{ word }} {% endfor %}</div>
+{% endmacro %}
+
+
+{%- macro format_image_art(fname, desc, also) -%}
+{%- if fname -%}<img src="../{{ config.IMG_DIR_ART }}/{{ fname }}.gif" alt="{{ desc }}"{{ fmt_also(also) }}>{%- endif -%}
+{%- endmacro -%}
+
+
+{% macro fmt_anchor(fname, desc, hspace, also) %}{% if fname %}<a name="{{ fname }}"></a>
+{% endif %}{% endmacro %}
+
+
+{% macro format_button_input_visibility_expanded(id) %}
+<input type="image" src "../pic/gfx/but_collapse.gif" id="{{ id }}_l" value="collapse" onclick="toggle_visibility('{{ id }}','{{ id }}_l'); return false;" class="button" onmouseover="this.src='../pic/gfx/but_collapse.gif';" onmouseout="this.src='../pic/gfx/hov_collapse.gif';">
+{% endmacro %}
+
+
+{% macro format_button_input_visibility_expanded(id) %}
+<input type="image" src "../pic/gfx/but_expand.gif" id="{{ id }}_l" value="expand" onclick="toggle_visibility('{{ id }}','{{ id }}_l'); return false;" class="button" onmouseover="this.src='../pic/gfx/but_expand.gif';" onmouseout="this.src='../pic/gfx/hov_expand.gif';">
+{% endmacro %}
+
+
+{%- macro class_id(pfx) -%}
+{%- for cid in varargs -%}{% if cid %}{% if pfx %}{{ pfx }}_{% endif %}{{ cid }} {% endif %}{% endfor %}{{ pfx }}
+{%- endmacro -%}
+
+
+{% macro format_ulist(llist) %}
+{% for section in llist.section %}
+{{ fmt_anchor(section.anchor) }}
+{% if section.name %}
+<div class="{{ class_id('sh', section.id) }}">{{ section.name }}</div>
+{% endif %}
+{%- for range in section.range %}
+{{ fmt_anchor(range.anchor) }}
+{% if range.name %}
+  <div class="{{ class_id('rh', range.id) }}">{{ range.name }}</div>
+{% endif %}
+<ul class="{{ class_id('tb', section.id) }}">
+{%- for entry in range.entry %}
+  <li class="{{ class_id('eb', range.id) }}">{{ entry }}</li>
+{%- endfor -%}
+{%- if range.note -%}
+  <div class="et">{{ range.note }}</div>
+{%- endif -%}
+{%- endfor -%}
+</ul>
+{%- if section.note -%}
+  <div class="st">{{ section.note }}</div>
+{%- endif -%}
+{% endfor %}
+{% if llist.tail %}
+<ul class="tb_tail tb">
+{% for tail in llist.tail %}
+  <li class="eb_tail_{{ loop.index }} eb_tail eb">{{ tail }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endmacro %}
+
+
+{% macro format_listix(llistix) %}
+{% for section in llistix.section %}
+{{ fmt_anchor(section.anchor) }}
+<table class="tb">
+{% if section.name %}
+ <tr>
+  <th colspan="{{ section.columns|length }}" class="{{ class_id('sh', section.id) }}">{{ section.name }}</th>
+ </tr>
+{% endif %}
+<tr class="er">
+{%- for col in section.columns %}
+{#  <th class="{{ class_id('eh', section.id) }}{{ class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
+  <th class="{{ class_id('eh', section.id, range.id) }}">{{ section.headers[col] }}</th>
+{%- endfor -%}
+</tr>
+{%- for range in section.range %}
+{{ fmt_anchor(range.anchor) }}
+{% if range.name %}
+ <tr>
+  <th colspan="{{ range.columns|length }}" class="{{ class_id('sh', range.id) }}">{{ range.name }}</th>
+ </tr>
+{% endif %}
+{%- for entry in range.entry %}
+<tr class="er">
+{%- for col in section.columns %}
+  <td class="eb">{{ entry[col] or '&nbsp;' }}</td>
+{%- endfor %}
+</tr>
+{%- endfor -%}
+{%- if range.note -%}
+<tr class="er">
+  <td colspan="{{ section.columns|length }}" class="eb">{{ range.note }}</td>
+</tr>
+{%- endif -%}
+{%- endfor -%}
+{%- if section.note -%}
+<tr class="er">
+  <td colspan="{{ section.columns|length }}" class="eb">{{ section.note }}</td>
+</tr>
+{%- endif -%}
+</table>
+{% endfor %}
+{% if llistix.tail %}
+<table class="tb_tail tb">
+ <tr>
+{% for tail in llistix.tail %}
+  <td class="eb_tail_{{ loop.index }} eb">{{ tail }}</td>
+{% endfor %}
+ </tr>
+</table>
+{% endif %}
+{% endmacro %}
+
+
+{% macro format_matrix(lmatrix, entry_formatter) %}
+{%- if lmatrix.header -%}{{ lmatrix.header }}{%- endif -%}
+{% for section in lmatrix.section %}
+{{ fmt_anchor(section.anchor) }}
+<table class="{{ class_id('tb', lmatrix.id) }}">
+{%- if section.name %}
+ <tr>
+  <th colspan="{{ section.columns }}" class="{{ class_id('sh', section.id) }}">{{ section.name }}</th>
+ </tr>
+{% endif -%}
+{%- for range in section.range -%}
+{%- if range.name or range.graphics %}
+ <tr>
+{% if section.columns == 1 %}
+  <th class="{{ class_id('rh', range.class, range.id) }}">{{ range.graphics }}&nbsp;{{ range.name }}&nbsp;</th>
+{% elif section.columns == 2 %}
+  <th class="{{ class_id('rh', range.class, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
+  <th class="{{ class_id('rh', range.class, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
+{% else %}
+  <th class="{{ class_id('rh', range.class, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
+  <th colspan="{{ section.columns - 2 }}" class="{{ class_id('rh', range.class, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
+  <th class="{{ class_id('rh', range.class, range.id) }}">&nbsp;</th>
+{% endif %}
+ </tr>
+{% endif -%}
+{%- for entry in range.entry %}
+{% if (loop.index0 % section.columns) == 0 %} <tr class="er">{% endif %}
+  <td width="{{ (100 / section.columns) | int }}%" class="{{ class_id('', entry.class) }}{{ class_id('eb', range.id, entry.display_id) }}">
+{{ entry_formatter(entry) }}
+  </td>
+{% if (loop.index0 % section.columns) == section.columns - 1 or loop.last %} </tr>{% endif %}
+{%- endfor -%}
+{%- endfor %}
+</table>
+{% endfor %}
+{% if lmatrix.tail %}
+<table class="tb_tail tb">
+ <tr>
+{% for tail in lmatrix.tail %}
+  <td class="eb_tail_{{ loop.index }} eb">{{ tail }}</td>
+{% endfor %}
+ </tr>
+</table>
+{% endif %}
+{%- if lmatrix.footer -%}{{ lmatrix.footer }}{%- endif -%}
+{% endmacro %}
+
+
+{% macro add_icons(type_id, base_id, vehicle_type) %}
+{% if type_id %}{{ type_id }}<p>{% endif %}
+{% if base_id %}{{ base_id }}<p>{% endif %}
+{#    {% for vtype in vehicle_type %}
+        if vtype in mbdata.model_icons:
+            {{ format_image_art(mbdata.model_icons[vtype])) }}<p> #}
+{% endmacro %}
+
+
+{% macro add_left_bar(type_id=None, base_id=None, vehicle_type='', rowspan=4, content='') %}
+<td rowspan="{{ rowspan }}%" class="leftbar bamcamark"><div class="leftbarcontent">
+{% if base_id %}{{ add_icons(type_id, base_id, vehicle_type) }}<p>{% endif %}
+{{ content }}
+</div></td>
+{% endmacro %}
+
+
+{% macro add_banner(title, note='') %}
+<td class="titlebar">{{ title }}
+{% if note %}<br><span style="font-size: smaller;">{{ note }}</span>{% endif %}
+</td></tr>
+{% endmacro %}
+
+

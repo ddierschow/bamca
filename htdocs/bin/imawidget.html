@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head><meta charset="UTF-8"><title>Bounds Example</title>
+<link rel="icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
+<link rel="stylesheet" href="/styles/main.css" type="text/css">
+<link rel="stylesheet" href="/styles/editor.css" type="text/css">
+
+</head>
+<body>
+
+<pre>
+// imawidget is the thing that allows me to choose the bounding rectangle
+// for images.
+
+// It gets the image from an img element with the id "ima_source".
+// The bounds are stuffed into a forn element with the id gotten from
+// a div element with the id "ima_query", thus allowing the original
+// page to decide where to put the bounds.  These can both be hidden.
+// It uses a canvas element with the id "ima_widget".  Elements with
+// these three ids should be defined in the html.  A div can be added
+// with the id "ima_debug" to get some debug information or "ima_info"
+// for useful bounding information.
+
+// To use: click and hold to set one corner, then drag to the other
+// corner and release.  Grab any side or corner to move it.  Double
+// click to switch between black and white bounds.  Click outside the
+// bounds to clear the setting.  Click within the bounds to drag the
+// box.  Keypresses:  r (red), g (green), b (blue), c (cyan), c (cyan),
+// y (yellow), p (pink), w (white), or B to reset to black.  Use the
+// VI-style cursor keys to move the bounds by one pixel, h for left,
+// j for top, k for bottom, l for right.  Unshifted expands the box,
+// shifted contracts the box.  ESC clears the box, z restores the last
+// cleared box.  Note that the cursor must be inside the picture area
+// to use the keys.
+</pre>
+
+
+<form name="myForm">
+Bounds: <input type="text" value="" name="q" id="q"> <span id="ima_info"></span><br>
+Debug: <span id="ima_debug">Debug output here.</span><br>
+
+<table><tr><td></td><td><img src="/pic/gfx/hruler.gif"></td></tr>
+<tr><td valign="top"><img src="/pic/gfx/vruler.gif"></td><td valign="top">
+
+<div style="display:none" id="ima_query">q</div>
+<img id="ima_source" src="http://beta.bamca.org/lib/man/mb713/0120071to7531a.jpg" style="display:none">
+<canvas id="ima_widget" width="626" height="352" style="border:0px;">
+</canvas><br>
+<script type="text/javascript" src="/bin/imawidget.js"></script>
+
+</td></tr></table>
+
+</form>
+
+</body>
+</html>

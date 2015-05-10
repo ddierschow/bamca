@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block page_body %}
+
+<table class="smallprint" width="100%">
+{% for section in llineup.section %}
+{{ render.fmt_anchor(section.anchor) }}
+<tr><td colspan="{{ 4 * section.columns }}" style="text-align: center; font-weight: bold;">{{ section.name }}</td></tr>
+{%- for entry in section.entry %}
+{% if (loop.index0 % section.columns) == 0 %} <tr class="er">{% endif %}
+{% if entry %}
+  <td><img src="../pic/gfx/box-sm.gif"></td>
+  <td><center>{{ entry.id }}</center></td>
+  <td>{{ entry.first_year }}</td>
+  <td>{% if entry.notmade %}<i>{% endif %}{{ entry.lname }}{% if entry.notmade %}</i>{% endif %}</td>
+{% endif %}
+{% if (loop.index0 % section.columns) == section.columns - 1 or loop.last %} </tr>{% endif %}
+{%- endfor %}
+
+{% endfor %}
+</table>
+{% endblock page_body %}

@@ -1,0 +1,76 @@
+{%- extends "base.html" -%}
+
+{% macro format_ul(ulist) %}
+{%- if ulist %}
+   <ul>
+{%- for ln in ulist %}
+    <li>{{ ln }}</li>
+{%- endfor %}
+   </ul>
+{%- endif -%}
+{% endmacro %}
+
+{%- block page_body -%}
+
+{%- for section in lcompare.section -%}
+{{ render.fmt_anchor(section.anchor) }}
+<table class="tb">
+{%- if section.name %}
+ <tr>
+  <th colspan="3" class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
+ </tr>
+{%- endif -%}
+{%- if section.note %}
+ <tr>
+  <td colspan="3" class="{{ render.class_id('sb', section.id) }}">{{ section.note }}</td>
+ </tr>
+{%- endif -%}
+{%- for range in section.range %}
+{%- set ranid = loop.cycle('a', 'b') -%}
+{{ render.fmt_anchor(range.anchor) }}
+{%- if range.name %}
+ <tr>
+  <th colspan="3" class="{{ render.class_id('rh', ranid, range.id) }}">{{ range.name }}</th>
+ </tr>
+{%- endif -%}
+{%- for entry in range.entry %}
+ <tr class="er">
+  <td class="{{ render.class_id('eb', ranid, '0') }}">{{ entry[0] or '&nbsp;' }}</td>
+{%- if loop.first -%}
+{%- if entry[2] -%}
+{%- set is_graphic = 1 -%}
+{%- if entry[1] %}
+  <td class="{{ render.class_id('eb', ranid, '1') }}">{{ format_ul(entry[1]) }}</td>
+  <td class="{{ render.class_id('eb', ranid, '2') }}" rowspan="{{ range.entry|length }}">{{ entry[2] }}</td>
+{%- else %}
+  <td class="{{ render.class_id('eb', ranid, '1') }}" colspan="2" rowspan="{{ range.entry|length }}">{{ entry[2] }}</td>
+{%- endif %}
+{%- else %}
+{%- set is_graphic = 0 %}
+{%- if entry[1] %}
+  <td class="{{ render.class_id('eb', ranid, '1') }}" colspan="2">{{ format_ul(entry[1]) }}</td>
+{%- endif %}
+{%- endif %}
+{%- elif entry[1] %}
+{%- if is_graphic %}
+  <td class="{{ render.class_id('eb', ranid, '1') }}">{{ format_ul(entry[1]) }}</td>
+{%- else %}
+  <td class="{{ render.class_id('eb', ranid, '1') }}" colspan="2">{{ format_ul(entry[1]) }}</td>
+{%- endif %}
+{%- endif %}
+ </tr>
+{%- endfor -%}
+{%- endfor -%}
+</table>
+{%- endfor %}
+{% if lcompare.tail %}
+<table class="tb_tail tb">
+ <tr>
+{% for tail in lcompare.tail %}
+  <td class="eb_tail_{{ loop.index }} eb">{{ tail }}</td>
+{% endfor %}
+ </tr>
+</table>
+{% endif %}
+
+{%- endblock page_body -%}

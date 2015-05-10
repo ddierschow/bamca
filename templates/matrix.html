@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block page_body %}
+
+{% macro matrix_formatter(mdict) %}
+{{ render.fmt_anchor(mdict.anchor) }}
+<center>
+<table width="100%"><tr>
+<td width="40%">
+{%- if mdict.no_casting -%}{{ render.format_image_art('stargreen', also={'align': 'left'}) }}
+{%- elif not mdict.picture_only -%}
+    {%- if mdict.no_specific_image -%}{{ render.format_image_art('star', also={'align': 'left'}) }}{%- endif -%}
+    {%- if mdict.no_variation -%}{{ render.format_image_art('starred', also={'align': 'left'}) }}{%- endif -%}
+{%- endif -%}
+</td>
+<td width="20%" style="text-align: center;">{{ mdict.displayed_id }}</td>
+<td width="40%">
+{% if mdict.not_made %}{{ render.format_image_art('no', also={'align': 'right'}) }}{% endif %}
+{% if mdict.is_reused_product_picture %}{{ render.format_image_art('staryellow', also={'align': 'right'}) }}{% endif %}
+{% if mdict.is_product_picture %}{{ render.format_image_art('camera', also={'align': 'right'}) }}{% endif %}
+</td></tr></table>
+{% if mdict.href %}<a href="{{ mdict.href }}">{% endif %}
+<table><tr><td class="spicture"><center>{{ mdict.imgstr }}</center></td></tr></table>
+<span class="modelname">{{ mdict.name }}</span>
+{% if mdict.href %}</a>{% endif %}
+{% if mdict.subnames %}{% for subname in mdict.subnames %}<br>{{ subname }}{% endfor %}{% endif %}
+
+{% if mdict.descriptions %}<table class="vartable">
+{% for var in mdict['descriptions'] %}<tr><td class="varentry">{{ var }}</td></tr>{% endfor %}
+</table>
+{% endif %}
+</center>
+{{ mdict.additional }}
+{% endmacro %}
+
+{{ render.format_matrix(llineup, matrix_formatter) }}
+
+{% endblock page_body %}

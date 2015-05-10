@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block page_body %}
+
+{% for section in llineup.section %}
+{{ render.fmt_anchor(section.anchor) }}
+<table class="tb">
+ <tr>
+  <th colspan="{{ llineup.columns }}" class="sh">{{ section.name }}</th>
+ </tr>
+
+{%- for range in section.range -%}
+{%- for entry in range.entry %}
+{% if (loop.index0 % section.columns) == 0 %} <tr class="er">{% endif %}
+  <td width="{{ (100 / section.columns) | int }}%" class="eb">
+  <center>
+   <table class="entry">
+    <tr>
+    <td ><center><font face="Courier">{{ entry.id }}</font></center></td>
+    </tr>
+    <tr><td><center>
+     {{ entry.lname }}
+     {{ entry.desclist }}    </center></td></tr>
+   </table>
+  </center>
+  </td>
+{% if (loop.index0 % section.columns) == section.columns - 1 or loop.last %} </tr>{% endif %}
+{%- endfor -%}
+{%- endfor %}
+
+</table>
+{% endfor %}
+{% endblock page_body %}

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+{{ render.format_listix(llineup) }}
+
+Totals:
+{% for tot in llineup.totals %}
+{{ tot.tag }}: {{ tot.have }} / {{ tot.total }}
+{% endfor %}
+{% endblock page_body %}

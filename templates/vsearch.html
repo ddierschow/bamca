@@ -1,0 +1,21 @@
+{%- extends "base.html" -%}
+
+{%- macro vs_entry(entry) -%}
+  <center>
+   <table class="entry">
+    <tr><td><center><font face="Courier">{{ entry.id }}</font></td></tr>
+    <tr><td><center>
+     {{ entry.lname }}
+     {{ entry.desclist }}    </center></td></tr>
+   </table>
+  </center>
+{%- endmacro -%}
+
+{%- macro vs_entry(entry) -%}
+{{ entry }}
+{%- endmacro -%}
+
+{%- block page_body -%}
+body
+{{ render.format_matrix(llineup, vs_entry) }}
+{%- endblock page_body -%}
