@@ -370,7 +370,7 @@ def show_single(pif):
 	raise useful.SimpleError("That ID wasn't found.")
     id = man['id']
     pif.render.comment('id=', id, 'man=', man)
-    relateds = pif.dbh.fetch_casting_related(id)
+    relateds = pif.dbh.fetch_casting_related(id, section_id='single')
     raw_variations = variations = []
     if ref:
         sub = mbdata.get_region_tree(sub) + ['']

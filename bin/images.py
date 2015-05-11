@@ -1384,6 +1384,9 @@ def library_main(pif):
 
 @basics.web_page
 def image_main(pif):
+    fpath = os.path.join(pif.form.get_str('d', '.'), pif.form.get_str('f', ''))
+    if not os.path.exists(fpath):
+	raise useless.SimpleError(fpath + ' does not exist')
     print 'Content-Type: image/jpeg\n'
     print open(os.path.join(pif.form.get_str('d', '.'), pif.form.get_str('f', '')), "rb").read()
 

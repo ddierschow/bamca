@@ -588,10 +588,11 @@ def play_main(pif):
 def compare_main(pif):
     pif.render.print_html()
     csecs = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    cmods = pif.dbh.fetch_casting_compares()
     llineup = {'section': []}
     for sec in csecs:
 
+	#cmods = pif.dbh.fetch_casting_relateds(section_id=sec['section.id'])
+	cmods = pif.dbh.fetch_casting_compares(section_id=sec['section.id'])
 	lsec = {'name': sec['section.name'], 'note': sec['section.note'], 'range': []}
 	llineup['section'].append(lsec)
         modsets = {}

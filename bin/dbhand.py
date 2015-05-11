@@ -378,18 +378,23 @@ class DBHandler:
 
     #- casting_related
 
-    def fetch_casting_related(self, mod_id, rel_id=None):
+    def fetch_casting_related(self, mod_id, rel_id=None, section_id=None):
         wheres = ["casting_related.related_id=base_id.id"]
         wheres.append("casting_related.model_id='%s'" % mod_id)
+	if section_id:
+	    wheres.append("casting_related.section_id='%s'" % section_id)
 	if rel_id:
 	    wheres.append("casting_related.related_id='%s'" % rel_id)
         return self.fetch('casting_related,base_id', where=' and '.join(wheres), tag='CastingRelated', verbose=True)
 
-    def fetch_casting_relateds(self):
+    def fetch_casting_relateds(self, section_id=None):
 	#select * from casting_related left join base_id as m on (casting_related.model_id=m.id) left join base_id as r on (casting_related.related_id=r.id) where casting_related.model_id='MB952';
+	wheres = []
+	if section_id:
+	    wheres.append("casting_related.section_id='%s'" % section_id)
         left_joins = [("base_id as m", "casting_related.model_id=m.id")]
         left_joins += [("base_id as r", "casting_related.related_id=r.id")]
-	return self.fetch('casting_related', left_joins=left_joins, tag='CastingRelateds', verbose=True)
+	return self.fetch('casting_related', where=' and '.join(wheres), left_joins=left_joins, tag='CastingRelateds', verbose=True)
         return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
 
     def update_casting_related(self, val):

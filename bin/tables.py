@@ -137,7 +137,7 @@ table_info = {
     #casting_related
     'casting_related': {
         'id': ['id'],
-        'columns': ['id', 'model_id', 'related_id', 'description'],
+        'columns': ['id', 'model_id', 'related_id', 'section_id', 'description'],
         'clinks': {
                 'id': {'tab': 'casting_related', 'id': ['id/id']},
                 'model_id': {'tab': 'base_id', 'id': ['id/model_id']},
@@ -147,6 +147,28 @@ table_info = {
                 'model_id': 'unset',
                 'related_id': 'unset',
         },
+        'ask': ['model_id', 'related_id'],
+    },
+    #casting_compare
+    'casting_compare': {
+        'id': ['id'],
+        'columns': ['id', 'mod_id', 'compare_id', 'section_id', 'description'],
+        'create': {
+                'mod_id': 'unset',
+                'compare_id': 'unset',
+                'description': '',
+        },
+        'clinks': {
+                'id': {'tab': 'casting_compare', 'id': ['id/id']},
+                'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},
+                'compare_id': {'tab': 'base_id', 'id': ['id/compare_id']},
+        },
+        'tlinks': {
+        },
+        'add': {
+                'casting_compare': ['section_id/section_id'],
+        },
+        'ask': ['mod_id', 'compare_id'],
     },
     #attribute
     'attribute': {
@@ -443,27 +465,6 @@ table_info = {
         'add': {
         },
         'ask': ['ref_id'],
-    },
-    #casting_compare
-    'casting_compare': {
-        'id': ['id'],
-        'columns': ['id', 'mod_id', 'compare_id', 'section_id', 'description'],
-        'create': {
-                'mod_id': 'unset',
-                'compare_id': 'unset',
-                'description': '',
-        },
-        'clinks': {
-                'id': {'tab': 'casting_compare', 'id': ['id/id']},
-                'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},
-                'compare_id': {'tab': 'base_id', 'id': ['id/compare_id']},
-        },
-        'tlinks': {
-        },
-        'add': {
-                'casting_compare': ['section_id/section_id'],
-        },
-        'ask': ['mod_id', 'compare_id'],
     },
     #box_style
     'box_style': {
