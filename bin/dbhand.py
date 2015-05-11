@@ -205,8 +205,6 @@ class DBHandler:
         self.write('alias', {'ref_id': new_mod_id}, where="ref_id='%s'" % old_mod_id, modonly=True)
         self.write('attribute', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('attribute_picture', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('casting_compare', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('casting_compare', {'compare_id': new_mod_id}, where="compare_id='%s'" % old_mod_id, modonly=True)
         self.write('casting_related', {'model_id': new_mod_id}, where="model_id='%s'" % old_mod_id, modonly=True)
         self.write('casting_related', {'related_id': new_mod_id}, where="related_id='%s'" % old_mod_id, modonly=True)
         self.write('detail', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
@@ -395,7 +393,19 @@ class DBHandler:
         left_joins = [("base_id as m", "casting_related.model_id=m.id")]
         left_joins += [("base_id as r", "casting_related.related_id=r.id")]
 	return self.fetch('casting_related', where=' and '.join(wheres), left_joins=left_joins, tag='CastingRelateds', verbose=True)
-        return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
+        #return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
+
+    def fetch_casting_related_compares(self, section_id=None):
+        columns = ['cr.id', 'cr.model_id', 'cr.related_id', 'cr.section_id', 'cr.description', 'c1.rawname', 'c2.rawname']
+        where = 'cr.model_id=c1.id'
+        if section_id:
+            where += " and cr.section_id='%s'" % section_id
+        table = 'casting_related cr left join base_id c1 on (cr.model_id=c1.id) left join base_id c2 on (cr.related_id=c2.id)'
+        return self.fetch(table, columns=columns, where=where, tag='CastingRelatedCompares')
+
+    def fetch_casting_related_exists(self, mod_id, section_id):
+        where = "(model_id='%s' or related_id='%s') and section_id='%s'" % (mod_id, mod_id, section_id)
+        return len(self.fetch('casting_related', where=where, tag='CastingRelatedExists')) > 0
 
     def update_casting_related(self, val):
 	if val['id']:
@@ -951,21 +961,6 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
     def delete_pack_models(self, ref_id, pack_id):
         self.delete('pack_model', "pack_id='%s'" % pack_id)
         self.delete('variation_select', where="ref_id='%s' and sub_id='%s'" % (ref_id, pack_id))
-
-    #- casting_compare
-
-    def fetch_casting_compare(self, mod_id):
-        where = "mod_id='%s' or compare_id='%s'" % (mod_id, mod_id)
-        return len(self.fetch('casting_compare', where=where, tag='CastingCompare')) > 0
-
-#select cc.id,cc.mod_id,cc.compare_id,cc.section_id,cc.description,c1.id,c1.rawname,c2.id,c2.rawname from casting_compare cc left join casting c1 on (cc.mod_id=c1.id) left join casting c2 on (cc.compare_id=c2.id) ;
-    def fetch_casting_compares(self, section_id=None):
-        columns = ['cc.id', 'cc.mod_id', 'cc.compare_id', 'cc.section_id', 'cc.description', 'c1.rawname', 'c2.rawname']
-        where = 'cc.mod_id=c1.id'
-        if section_id:
-            where += " and cc.section_id='%s'" % section_id
-        table = 'casting_compare cc left join base_id c1 on (cc.mod_id=c1.id) left join base_id c2 on (cc.compare_id=c2.id)'
-        return self.fetch(table, columns=columns, where=where, tag='CastingCompares')
 
     #- user
 

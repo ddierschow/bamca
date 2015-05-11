@@ -53,14 +53,12 @@ table_info = {
                 {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/id'], 'if': "dats and dats[0]['page_id'].startswith('year.')"},
                 {'tab': 'link_line', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('links.')"},
                 {'tab': 'pack', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('packs.')"},
-                {'tab': 'casting_compare', 'id': ['section_id/id'], 'if': "dats and dats[0]['page_id'] == 'compare'"},
         ],
         'add': {
                 'section': ['page_id/page_id'],
                 'matrix_model': ['page_id/page_id', 'section_id/id'],
                 'pack': ['page_id/page_id', 'section_id/id'],
                 'link_line': ['page_id/page_id', 'section_id/id'],
-                'casting_compare': ['section_id/id'],
         },
         'create': {
                 'id': 'newsection',
@@ -148,27 +146,6 @@ table_info = {
                 'related_id': 'unset',
         },
         'ask': ['model_id', 'related_id'],
-    },
-    #casting_compare
-    'casting_compare': {
-        'id': ['id'],
-        'columns': ['id', 'mod_id', 'compare_id', 'section_id', 'description'],
-        'create': {
-                'mod_id': 'unset',
-                'compare_id': 'unset',
-                'description': '',
-        },
-        'clinks': {
-                'id': {'tab': 'casting_compare', 'id': ['id/id']},
-                'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},
-                'compare_id': {'tab': 'base_id', 'id': ['id/compare_id']},
-        },
-        'tlinks': {
-        },
-        'add': {
-                'casting_compare': ['section_id/section_id'],
-        },
-        'ask': ['mod_id', 'compare_id'],
     },
     #attribute
     'attribute': {
@@ -579,12 +556,6 @@ casting
     format_windows          varchar(128)    YES             @windows
     format_base             varchar(128)    YES             @base|&manufacture
     format_wheels           varchar(128)    YES             &wheels
-casting_compare
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    mod_id                  varchar(12)     YES             NULL
-    compare_id              varchar(12)     YES             NULL
-    section_id              varchar(20)     YES
-    description             varchar(256)    YES
 casting_related
     model_id                varchar(12)     NO      PRI
     related_id              varchar(12)     NO      PRI

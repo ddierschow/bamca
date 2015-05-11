@@ -591,20 +591,19 @@ def compare_main(pif):
     llineup = {'section': []}
     for sec in csecs:
 
-	#cmods = pif.dbh.fetch_casting_relateds(section_id=sec['section.id'])
-	cmods = pif.dbh.fetch_casting_compares(section_id=sec['section.id'])
+	cmods = pif.dbh.fetch_casting_related_compares(section_id=sec['section.id'])
 	lsec = {'name': sec['section.name'], 'note': sec['section.note'], 'range': []}
 	llineup['section'].append(lsec)
         modsets = {}
-        for mod in [m for m in cmods if m['cc.section_id'] == sec['section.id']]:
+        for mod in [m for m in cmods if m['cr.section_id'] == sec['section.id']]:
             if mod['c2.rawname']:
                 mod['name'] = mod['c2.rawname'].replace(';', ' ')
-                mod['mod_id'] = mod['cc.compare_id']
+                mod['model_id'] = mod['cr.related_id']
             else:
                 mod['name'] = mod['c1.rawname'].replace(';', ' ')
-                mod['mod_id'] = mod['cc.mod_id']
-            modsets.setdefault(mod['cc.mod_id'], [])
-            modsets[mod['cc.mod_id']].append((mod['mod_id'], mod['name'], mod['cc.description'].split(';')))
+                mod['model_id'] = mod['cr.model_id']
+            modsets.setdefault(mod['cr.model_id'], [])
+            modsets[mod['cr.model_id']].append((mod['model_id'], mod['name'], mod['cr.description'].split(';')))
         keys = modsets.keys()
         keys.sort()
 

@@ -57,7 +57,6 @@ Current and planned projects:
    * Rearrange MAN pictures into directories for vehicle type
    * Add support for publications, playsets, etc.
    * Comparisons are a pain to work with and need fixing
-   * Tables casting_compare and casting_related are too similar
    * Need to add support for packs limited to region
 
 ...BIG things:

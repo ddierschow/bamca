@@ -404,7 +404,7 @@ def show_single(pif):
             sections[section['page_id'][5:]].append(section)
 
     external_links = filter(lambda x: not (x['l1.flags'] & pif.dbh.FLAG_LINK_LINE_HIDDEN), pif.dbh.fetch_links_single('single.' + id))
-    show_comparison_link = pif.dbh.fetch_casting_compare(id)
+    show_comparison_link = pif.dbh.fetch_casting_related_exists(id, man['model_type'].lower())
 
     baseplates = []
     product_box = boxstyles = ''
