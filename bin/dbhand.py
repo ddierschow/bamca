@@ -396,7 +396,7 @@ class DBHandler:
         #return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
 
     def fetch_casting_related_compares(self, section_id=None):
-        columns = ['cr.id', 'cr.model_id', 'cr.related_id', 'cr.section_id', 'cr.description', 'c1.rawname', 'c2.rawname']
+        columns = ['cr.id', 'cr.model_id', 'cr.related_id', 'cr.section_id', 'cr.picture_id', 'cr.description', 'c1.rawname', 'c2.rawname']
         where = 'cr.model_id=c1.id'
         if section_id:
             where += " and cr.section_id='%s'" % section_id

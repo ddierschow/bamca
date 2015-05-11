@@ -603,21 +603,23 @@ def compare_main(pif):
                 mod['name'] = mod['c1.rawname'].replace(';', ' ')
                 mod['model_id'] = mod['cr.model_id']
             modsets.setdefault(mod['cr.model_id'], [])
-            modsets[mod['cr.model_id']].append((mod['model_id'], mod['name'], mod['cr.description'].split(';')))
+	    img = pif.render.format_image_optional(mod['cr.model_id'] + ('-%s' % mod['cr.picture_id'] if mod['cr.picture_id'] else ''),
+			prefix='z_', nopad=True)
+            modsets[mod['cr.model_id']].append((mod['model_id'], mod['name'], mod['cr.description'].split(';'), img))
         keys = modsets.keys()
         keys.sort()
 
         for main_id in keys:
             modset = modsets[main_id]
             names = list()
-            for id, name, descs in modset:
+            for id, name, descs, img in modset:
                 if name not in names:
                     names.append(name)
 	    lran = {'name': ', '.join(names), 'entry': []}
 	    lsec['range'].append(lran)
-            for id, name, descs in modset:
+            for id, name, descs, img in modset:
 		lent = [models.add_model_pic_link_short(pif, id),
-			filter(None, descs), pif.render.format_image_optional(main_id, prefix='z_', nopad=True)]
+			filter(None, descs), img]
 		lran['entry'].append(lent)
 
     return pif.render.format_template('compare.html', lcompare=llineup)

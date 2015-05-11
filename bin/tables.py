@@ -135,7 +135,7 @@ table_info = {
     #casting_related
     'casting_related': {
         'id': ['id'],
-        'columns': ['id', 'model_id', 'related_id', 'section_id', 'description'],
+        'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
         'clinks': {
                 'id': {'tab': 'casting_related', 'id': ['id/id']},
                 'model_id': {'tab': 'base_id', 'id': ['id/model_id']},
