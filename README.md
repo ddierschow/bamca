@@ -54,7 +54,8 @@ Current and planned projects:
    * Add more entries to the annual lineup pages
    * Allow multiple pictures per variation
    * Link related variations
-   * Rearrange MAN pictures into directories for vehicle type
+   * Link related multipacks
+   * Rearrange MAN pictures into directories for model type
    * Add support for publications, playsets, etc.
    * Comparisons are a pain to work with and need fixing
    * Need to add support for packs limited to region

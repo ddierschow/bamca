@@ -173,7 +173,7 @@ def show_lineup_model_var(pif, mdict, comments, show_var=None):
         imgname = mdict['lineup_model.mod_id'].replace('.', '_')
         imglist.append(imgname)
         comments.add('n')
-    elif mdict['page_info.id']:
+    elif mdict.get('page_info.id'):
         imgname = mdict['lineup_model.mod_id'].replace('.', '_')
         imglist.append(imgname)
 	if mdict['lineup_model.picture_id']:
@@ -1295,74 +1295,7 @@ def show_makes(pif, makedict, makes):
         llineup['section'].append(lsec)
     return llineup
 
-
-# -------- mline -----------------------------------
-
-
-# Kill it with a stick!
-@basics.web_page
-def full_lineup(pif):
-    pif.render.print_html()
-    #pif.ReadForm({'year': '1966'})
-    year = pif.form.get_int('year')
-
-    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, 'mbx.dat'))
-    dirs = dict()
-    llineup = {'id': pif.page_id, 'name': "Matchbox Lineup for %d" % year, 'graphics': [], 'section': []}
-
-    for llist in dblist:
-        cmd = llist.get_arg('', 0)
-        if cmd == 'dir':
-            dirs[llist.get_arg(start=1)] = llist.get_arg(start=2)
-            continue
-
-        startyear = int(llist.get_arg('0', 1))
-        endyear = int(llist.get_arg('0', 2))
-        modno = llist.get_arg('0', 3)
-        rank = int(llist.get_arg('0', 4))
-        title = llist.get_arg('', 5)
-        desc = llist.get_arg('', 6)
-
-        if year < startyear or year > endyear:
-            continue
-
-        if cmd == 'H':
-	    lsec = dict()
-	    llineup['section'].append(lsec)
-            if rank and pif.form.get_int(modno):
-		lsec['name'] = title
-		lsec['columns'] = int(rank)
-		lran = {'entry': list()}
-		lsec['range'] = [lran]
-                cols = int(rank)
-        elif pif.form.get_str(cmd, '0') != '1':
-            pass
-        elif cmd == 'CAT':
-            llineup['graphics'].append({'file': cmd + modno})
-        else:
-            modelid = ''
-            if cmd == 'MB' or cmd == 'RW':
-                modelid = "%d" % int(modno)
-            elif not (cmd == 'E' or cmd == 'PZL'):
-                modelid = "%s-%d" % (cmd, int(modno))
-
-            ent = "<center><b>%s</b><br>" % modelid
-            if cmd == 'RW':
-                ent += '<a href="single.cgi?dir=%s&pic=%sw%s&id=%s">%s</a><br>' %\
-                    (pif.render.pic_dir, str(year)[2:], modno, cmd + modno + ver_no(int(rank)), pif.render.format_image_required(['s_' + cmd + modno + ver_no(int(rank))], pdir=dirs.get(cmd)))
-            else:
-                ent += '%s<br>' %\
-                    (pif.render.format_image_required([cmd + modno + ver_no(int(rank)), 's_' + cmd + modno + ver_no(int(rank))], pdir=dirs.get(cmd)))
-            if year == startyear:
-                ent += pif.render.format_image_art('new') + ' '
-            ent += title + "</center>"
-	    lran['entry'].append({'text': ent})
-
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
-
-
 # --- -------------------------------------------------------------------
-
 
 if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

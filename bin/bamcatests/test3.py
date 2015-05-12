@@ -45,7 +45,6 @@ class TestRender(unittest.TestCase):
         self.assertTrue(lineup.makes_main('makes', args='make=unl text=austin submit=1') is None)
         self.assertTrue(lineup.makes_main('makes', args='make=isu see_the_models=1') is None)
         self.assertTrue(lineup.mack_lineup('mack', args='see_the_models=1 verbose=1') is None)
-        self.assertTrue(lineup.full_lineup('mline', args='year=1960 CAT=1 E=1 RW=1 A=1 M=1 K=1 Y=1 MF=1 MG=1 PS=1 G=1 R=1 CC=1 PZL=1 GW=0 submit=1') is None)
         self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U enum= eyear=1980 submit=1') is None)
         self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U prodpic=1 enum=15 eyear=1980 submit=1') is None)
 
