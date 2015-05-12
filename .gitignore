@@ -56,3 +56,15 @@ docs/_build/
 
 #
 .crcs
+notes/
+templates/config.html
+bin/environ.py
+htdocs/version.txt
+htdocs/announce.php
+htdocs/config.php
+htdocs/lib
+htdocs/pic
+htdocs/robot.txt
+htdocs/robots.txt
+htdocs/src/mbxf
+cgi-bin/.config
