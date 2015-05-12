@@ -771,7 +771,9 @@ def add_pack_form(pif):
     pack_id = pif.form.get_str('pack')
     print pif.render.format_button("edit", "imawidget.cgi?d=%s&f=%s.jpg" % (config.IMG_DIR_PACK, pack_id))
     print pif.render.format_button("upload", "upload.cgi?d=%s&n=%s" % (config.IMG_DIR_PACK, pack_id)), '<br>'
-    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a>\n' % (config.IMG_DIR_PACK, pack_id, pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK)), '<br>'
+    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a>\n' % (config.IMG_DIR_PACK, pack_id, pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK))
+    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a>\n' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
+    print '<br>'
     #print pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK), '<br>'
     section_id = pif.form.get_str('section_id')
     if section_id not in pack_sec:

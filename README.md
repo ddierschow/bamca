@@ -58,6 +58,7 @@ Current and planned projects:
    * Add support for publications, playsets, etc.
    * Comparisons are a pain to work with and need fixing
    * Need to add support for packs limited to region
+   * Matrix items with no ID aren't well supported
 
 ...BIG things:
 

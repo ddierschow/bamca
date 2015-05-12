@@ -134,6 +134,7 @@ def calc_lineup_model(pif, mdict, comments):
         mdict['href'] = "matrix.cgi?page=" + mdict['mod_id'][7:]
 	if mdict['lineup_model.picture_id']:
 	    mdict['href'] += "#" + mdict['lineup_model.picture_id']
+	    #mdict['product'] += "-" + mdict['lineup_model.picture_id']
 
     mdict['large_img'] = pif.render.format_image_required(mdict['product'], suffix='jpg', pdir=mdict['pdir'], also={'class': 'largepic'})
 
@@ -172,6 +173,12 @@ def show_lineup_model_var(pif, mdict, comments, show_var=None):
         imgname = mdict['lineup_model.mod_id'].replace('.', '_')
         imglist.append(imgname)
         comments.add('n')
+    elif mdict['page_info.id']:
+        imgname = mdict['lineup_model.mod_id'].replace('.', '_')
+        imglist.append(imgname)
+	if mdict['lineup_model.picture_id']:
+	    imgname += "-" + mdict['lineup_model.picture_id']
+        imglist.insert(0, imgname)
     elif mdict.get('lineup_model.mod_id'):
         imgname = mdict['lineup_model.mod_id'].replace('.', '_')
         imglist.append(imgname)
@@ -697,7 +704,7 @@ def picture_count(pif, region, year):
 
     region, lsec, secs, xsecs = get_man_sections(pif, year, region)
     if not region:
-        return 0
+        return 0, 0
 
     modlist = list(generate_man_lineup(pif, year, region))
 
