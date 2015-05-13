@@ -10,6 +10,7 @@ import models
 # ---------------------------------------------------------------------
 
 # columns, colspan, rowspan
+# columns MUST NOT exceed 4!
 layouts = {
     '2h': [2, 2, 1],
     '2v': [2, 1, 2],
@@ -58,6 +59,7 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
         pif.dbh.depref('base_id', pack)
         pif.dbh.depref('pack', pack)
         pack['name'] = pack['rawname'].replace(';', ' ')
+    # order: product_code, id, rawname, layout, first_year, note, page_id, description, material, section_id, name, country, region, flags, model_type
     packs.sort(key=lambda x: (x[pif.form.get_str('order', 'name')], x['name'], x['first_year']))
     years = []
     regions = []
@@ -147,13 +149,9 @@ def do_single_pack(pif, pack):
         return "That pack doesn't seem to exist.", ""
     id = pack['pack.id']
     relateds = pif.dbh.fetch_packs_related(id)
-    #dump('relateds', relateds)
-    #dump('packs', packs)
 
     # editor
-    #pstr = pif.render.format_table_start()
     tcomments = set()
-    #pif.render.comment('section:', section[0])
     for key in pack.keys():
         pack[key[key.find('.') + 1:]] = pack[key]
     pack['name'] = pack['rawname'].replace(';', ' ')
@@ -312,8 +310,11 @@ def show_pack(pif, pack):
         ostr += '<br>' + pack['product_code']
     if pack['region']:
         ostr += '<br>' + mbdata.regions[pack['region']]
+    ostr += '<p>'
     if pack['first_year']:
-        ostr += '<p><b>%(first_year)s</b><br>%(country)s - %(material)s' % pack
+        ostr += '<b>%(first_year)s</b><br>' % pack
+    dets = filter(None, [pack['country'], pack['material']])
+    ostr += ' - '.join(dets)
     return ostr
 
 

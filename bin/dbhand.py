@@ -84,12 +84,14 @@ class DBHandler:
             tag = tab
         columns = list()
         if tab in self.table_info:
-            columns.extend([tag + '.' + x for x in self.table_info[tab]['columns'] + (self.table_info[tab].get('extra_columns', []) if extras else [])])
+            columns.extend([tag + '.' + x for x in self.table_info[tab]['columns'] +
+			    (self.table_info[tab].get('extra_columns', []) if extras else [])])
         else:
             columns.append(tag + '.*')
         return columns
 
-    def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None, tag='', verbose=False):
+    def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None,
+	      tag='', verbose=False):
         if not columns:
             if isinstance(table_name, str):
                 table_name = table_name.split(',')
@@ -104,6 +106,8 @@ class DBHandler:
             where = ' and '.join(where)
         elif isinstance(where, dict):
             where = self.make_where(where)
+	if isinstance(table_name, list):
+	    table_name = ','.join(table_name)
         if left_joins:
             table_name = '(%s)' % table_name
             for lj in left_joins:
@@ -164,10 +168,8 @@ class DBHandler:
                 columns=self.make_columns('page_info') + ['max(lineup_model.number)'],
                 where=['page_info.id=lineup_model.page_id', "page_info.id like 'year.%'"],
                 group="page_info.id", tag='PageYears')
-# select page_info.id, max(lineup_model.number) from page_info, lineup_model where page_info.id=lineup_model.page_id and page_info.id like 'year.%' group by page_info.id;
 
     def set_health(self, page_id, verbose=False):
-        #return self.write('page_info', {'health': 1}, "id='%s'" % page_id, modonly=True, verbose=verbose)
         return self.increment('page_info', ['health'], "id='%s'" % page_id, tag='Health', verbose=verbose)
 
     def clear_health(self):
@@ -580,7 +582,7 @@ class DBHandler:
             self.delete('variation_select', where="ref_id='%s' and sub_id='%s'" % (page_id, sub_id))
         for pm in pms:
             if page_id and sub_id:
-                for var_id in [x for x in pm['var_id'].split('/') if x]:
+                for var_id in list(set([x for x in pm['var_id'].split('/') if x])):
                     self.write('variation_select', {'mod_id': pm['mod_id'], 'var_id': var_id, 'ref_id': page_id, 'sub_id': pm['pack_id']}, newonly=True)
 
     def delete_variation_select(self, where):
@@ -855,11 +857,10 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         self.delete('pack', "id='%s'" % id)
 
     def fetch_packs_related(self, id):
-        cols = [
-            'base_id.id', 'base_id.first_year', 'base_id.model_type', 'base_id.rawname', 'base_id.description', 'base_id.flags',
-            'pack.id', 'pack.page_id', 'pack.section_id', 'pack.name', 'pack.year', 'pack.region', 'pack.layout', 'pack.product_code', 'pack.material', 'pack.country', 'pack.note']
+        cols = self.table_cols('base_id') + self.table_cols('pack')
         tables = ['casting_related', 'base_id', 'pack']
-        wheres = ["casting_related.model_id='%s'" % id, "casting_related.related_id=base_id.id", "casting_related.related_id=pack.id"]
+        wheres = ["casting_related.model_id='%s'" % id, "casting_related.related_id=base_id.id",
+		  "casting_related.related_id=pack.id", "casting_related.section_id='packs'"]
         return self.fetch(tables, columns=cols, where=wheres, tag='PacksRelated')
 
     def update_pack(self, id, values):
@@ -876,7 +877,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     def update_pack_models(self, pms):
         for pm in pms:
-            self.write('pack_model', pm, where="id=%s" % pm['id'], modonly=True)
+            self.write('pack_model', pm, where="id=%s" % pm['id'])
 
     def fetch_pack_model(self, id):
         return self.fetch('pack_model', where='id=%s' % id, tag='PackModel')

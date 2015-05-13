@@ -680,7 +680,7 @@ def edit_casting_related(pif):
 	crd_r = {}
 	for cr in crl:
 	    if mod_id in (None, cr['casting_related.model_id'], cr['casting_related.related_id']):
-		if cr['m.model_type'] in ('SF', 'RW') or cr['r.model_type'] in ('SF', 'RW'):
+		if mod_id or cr['m.model_type'] in ('SF', 'RW') or cr['r.model_type'] in ('SF', 'RW'):
 		    m_id = cr['casting_related.model_id']
 		    r_id = cr['casting_related.related_id']
 		    if m_id < r_id:
@@ -689,8 +689,11 @@ def edit_casting_related(pif):
 		    else:
 			crd_m.setdefault((r_id, m_id), {})
 			crd_r[(r_id, m_id)] = cr
-	print crd_m, '<br>'
-	print crd_r, '<hr>'
+	#print crd_m, '<br>'
+	#print crd_r, '<hr>'
+#	for cr in crd_m:
+#	    print cr, crd_m[cr], '<br>'
+#	    print '...', crd_r[cr], '<br>'
 	print '<form method="post"><table border=1>'
 	cnt = 0
 	for cr in crd_m:
@@ -709,9 +712,11 @@ def edit_casting_related(pif):
 	    print '<td>', crd_m[cr].get('r.rawname', ''), '' if cr in crd_r else '(missing)', '</td>'
 	    if cr in crd_r:
 		print '<input type="hidden" name="ir.%s" value="%s">' % (cnt, crd_r[cr].get('casting_related.id', ''))
+	    print '<td>', crd_m[cr].get('casting_related.section_id', ''), '</td>'
 	    print '</tr><tr>'
 	    print '<td colspan=3>%s</td>' % crd_m[cr].get('m.description', '')
 	    print '<td colspan=3>%s</td>' % crd_m[cr].get('r.description', '')
+	    print '<td></td>'
 	    print '</tr><tr>'
 	    rd = crd_r[cr].get('casting_related.description', '') if cr in crd_r else ''
 	    print '<td colspan=3><input type="text" name="dr.%s" value="%s"></td>' % (cnt, rd)
@@ -752,7 +757,10 @@ def add_pack(pif):
 
 def add_pack_ask(pif):
     # make into select
-    print "Section ID:", pif.render.format_text_input("section_id", 12, 12, value=pif.form.get_str('id')), '<br>'
+    pid = pif.form.get_str('id')
+    if '.' in pid:
+	pid = pid[pid.find('.') + 1:]
+    print "Section ID:", pif.render.format_text_input("section_id", 12, 12, value=pid), '<br>'
     print "Pack ID:", pif.render.format_text_input("pack", 12, 12), '<br>'
     print 'Numer of Models:', pif.render.format_text_input("num", 8, 8, value=''), '<br>'
     print pif.render.format_button_input('submit')
@@ -769,12 +777,7 @@ pack_sec = {
 }
 def add_pack_form(pif):
     pack_id = pif.form.get_str('pack')
-    print pif.render.format_button("edit", "imawidget.cgi?d=%s&f=%s.jpg" % (config.IMG_DIR_PACK, pack_id))
-    print pif.render.format_button("upload", "upload.cgi?d=%s&n=%s" % (config.IMG_DIR_PACK, pack_id)), '<br>'
-    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a>\n' % (config.IMG_DIR_PACK, pack_id, pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK))
-    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a>\n' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
-    print '<br>'
-    #print pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK), '<br>'
+
     section_id = pif.form.get_str('section_id')
     if section_id not in pack_sec:
 	raise useful.SimpleError('Unrecognized section id.')
@@ -805,6 +808,13 @@ def add_pack_form(pif):
 	    'pack.note': '',
 	}
 
+    print pif.render.format_button("edit", "imawidget.cgi?d=%s&f=%s.jpg" % (config.IMG_DIR_PACK, pack_id))
+    print pif.render.format_button("upload", "upload.cgi?d=%s&n=%s" % (config.IMG_DIR_PACK, pack_id))
+    print '%(pack.page_id)s/%(pack.id)s<br>' % pack
+    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a>' % (config.IMG_DIR_PACK, pack_id, pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK))
+    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a><br>' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
+    #print pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK), '<br>'
+
     pack_num = int(pack['pack.note'][2:-1]) if pack['pack.note'].startswith('(#') else 0
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
     linmod = linmod[0] if linmod else {
@@ -824,12 +834,21 @@ def add_pack_form(pif):
 		    if x.get('lineup_model.region') == pack_sec[section_id]]
     x_linmods.sort()
     table_entry_form(pif, 'base_id', pack)
-    table_entry_form(pif, 'pack', pack, note='%(pack.page_id)s/%(pack.id)s' % pack)
+    table_entry_form(pif, 'pack', pack)
     print 'in use:', ', '.join(x_linmods), '<br>'
-    table_entry_form(pif, 'lineup_model', linmod)
+    table_entry_form(pif, 'lineup_model', linmod,
+	note=pif.render.format_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['lineup_model.id'] else []))
 
     # editor
     add_pack_model(pif, pack)
+
+    # related
+    relateds = pif.dbh.fetch_packs_related(pack_id)
+    print 'related'
+    print pif.render.format_button('edit', link='?type=related&mod_id=%s' % pack_id)
+    print '<br>'
+    for rel in relateds:
+	print rel['pack.id'], '<br>'
 
     print pif.render.format_button_input("save")
     print pif.render.format_button_input("delete")
@@ -859,7 +878,7 @@ def add_pack_model(pif, pack):
 	print '<input type="hidden" name="pm.pack_id.%s" value="%s">\n' % (mod, pmodels[mod].get('pack_model.pack_id', ''))
 	print pif.render.format_cell(0, pif.render.format_link("single.cgi?id=%s" % pmodels[mod].get('pack_model.mod_id', ''), 'mod')
 	    + ' ' + pif.render.format_text_input("pm.mod_id.%s" % mod, 8, 8, value=pmodels[mod].get('pack_model.mod_id', '')))
-	print pif.render.format_cell(0, 'var ' + pif.render.format_text_input("pm.var_id.%s" % mod, 20, 20, value='/'.join(pmodels[mod].get('vars', ''))) + ' (' + str(pmodels[mod].get('pack_model.var_id', '')) + ')')
+	print pif.render.format_cell(0, 'var ' + pif.render.format_text_input("pm.var_id.%s" % mod, 20, 20, value='/'.join(list(set(pmodels[mod].get('vars', ''))))) + ' (' + str(pmodels[mod].get('pack_model.var_id', '')) + ')')
 	print pif.render.format_cell(0, 'disp ' + pif.render.format_text_input("pm.display_order.%s" % mod, 2, 2, value=pmodels[mod].get('pack_model.display_order', '')))
 	print pif.render.format_cell(0, pif.render.format_button('edit', link=pif.dbh.get_editor_link('pack_model', 
 	    pif.dbh.make_id('pack_model', pmodels[mod], 'pack_model' + '.'))))
@@ -869,12 +888,12 @@ def add_pack_model(pif, pack):
 
 def add_pack_delete(pif):
     print 'delete base_id', pif.form.get_str('base_id.id'), '<br>'
-    pif.dbh.delete_base_id(pif.form.get_str('base_id.id'))
+    pif.dbh.delete_base_id({'id': pif.form.get_str('base_id.id')})
     print 'delete pack', pif.form.get_str('pack.id'), '<br>'
     pif.dbh.delete_pack(pif.form.get_str('pack.id'))
     pif.dbh.delete_pack_models(pif.form.get_str('pack.page_id'), pif.form.get_str('pack.id'))
     print 'delete lineup_model', pif.form.get_str('lineup_model.id'), '<br>'
-    pif.dbh.delete_lineup_model(pif.form.get_int('lineup_model.id'))
+    pif.dbh.delete_lineup_model({'id': pif.form.get_int('lineup_model.id')})
 
 
 def add_pack_save(pif):
@@ -929,17 +948,18 @@ def add_pack_save(pif):
 	pif.dbh.add_new_base_id(pif.dbh.make_values('base_id', pif.form, 'base_id.'))
 
     # now do lineup_model separately
-    values = pif.dbh.make_values('lineup_model', pif.form, 'lineup_model.')
-    if pif.form.get_int('lineup_model.id'):
-	#print 'update line_model', values, '<br>'
-	pif.dbh.update_lineup_model({'id': pif.form.get_int('lineup_model.id')}, values)
-    else:
-	#print 'new line_model', values, '<br>'
-	linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % values['mod_id'])
-	if not linmod:  # goddamn bounciness
-	    #print 'already<br>'
-	    del values['id']
-	    pif.dbh.insert_lineup_model(values)
+    if not pif.form.get_int('nope'):
+	values = pif.dbh.make_values('lineup_model', pif.form, 'lineup_model.')
+	if pif.form.get_int('lineup_model.id'):
+	    #print 'update line_model', values, '<br>'
+	    pif.dbh.update_lineup_model({'id': pif.form.get_int('lineup_model.id')}, values)
+	else:
+	    #print 'new line_model', values, '<br>'
+	    linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % values['mod_id'])
+	    if not linmod:  # goddamn bounciness
+		#print 'already<br>'
+		del values['id']
+		pif.dbh.insert_lineup_model(values)
 
     print pif.render.format_link("packs.cgi?page=%s&id=%s" % (pif.form.get_str('pack.section_id'), pif.form.get_str('pack.id')), "pack")
 

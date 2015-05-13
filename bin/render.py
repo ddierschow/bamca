@@ -972,7 +972,8 @@ of Matchbox International Ltd. and are used with permission.
             ostr += self.format_table_end()
             maxes['s'] = max(maxes['s'], sc)
         #print 'sec %(s)d ran %(r)d ent %(e)d<br>' % maxes
-        ostr += self.format_box_tail(llineup.get('tail'))
+	if any(llineup.get('tail', [])):
+	    ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
     def format_box_tail(self, tail):
