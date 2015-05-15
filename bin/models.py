@@ -297,8 +297,12 @@ def show_adds(pif, mod_id, var_id=''):
             for img in imgs:
                 ostr += img + '<br>'
                 for apic in attribute_pictures:
+		    # This is terrible and I'm a terrible person but I don't want to think too much right now.
                     if img.find(apic) >= 0 and attribute_pictures[apic]['attribute_picture.description']:
-                        ostr += attribute_pictures[apic]['attribute.title'] + ': ' + attribute_pictures[apic]['attribute_picture.description']
+			if attribute_pictures[apic]['attribute.title']:
+			    ostr += "%(attribute.title)s: %(attribute_picture.description)s" % attribute_pictures[apic]
+			else:
+			    ostr += "%(attribute_picture.description)s" % attribute_pictures[apic]
                 ostr += '<p>\n'
     return ostr
 
