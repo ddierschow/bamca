@@ -490,6 +490,7 @@ model_icons = {
 
 
 comment_designation = {
+        'd': '<img src="/pic/gfx/starblue.gif"> - specific model not determined',
         'm': '<img src="/pic/gfx/stargreen.gif"> - casting information not available',
         'i': '<img src="/pic/gfx/star.gif"> - actual picture not available',
         'v': '<img src="/pic/gfx/starred.gif"> - variation information not available',

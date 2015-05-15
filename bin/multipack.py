@@ -11,7 +11,7 @@ import models
 
 # columns, colspan, rowspan
 # columns MUST NOT exceed 4!
-layouts = {
+pack_layouts = {
     '2h': [2, 2, 1],
     '2v': [2, 1, 2],
     '3h': [3, 3, 1],
@@ -22,6 +22,7 @@ layouts = {
     '5l': [2, 1, 3],
     '5s': [3, 2, 2],
     '5v': [2, 1, 5],
+    '6h': [3, 3, 1],
     '6s': [3, 2, 3],
     '7s': [4, 3, 3],
     '8h': [4, 4, 1],
@@ -32,6 +33,7 @@ layouts = {
     'tv': [3, 2, 4],
     'wh': [4, 4, 1],
 }
+pack_pic_size = 'hlmct'  # columns-colspan indexes this
 
 # ---- page list ------------------------------------------------------
 
@@ -93,7 +95,6 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
             keys = pmodels.keys()
             keys.sort()
             for mod in keys:
-
                 if not pmodels[mod].get('id'):
                     stars += pif.render.format_image_art('stargreen.gif') + ' '
                 elif not pmodels[mod].get('vs.var_id'):
@@ -150,18 +151,20 @@ def do_single_pack(pif, pack):
     id = pack['pack.id']
     relateds = pif.dbh.fetch_packs_related(id)
 
-    # editor
     tcomments = set()
     for key in pack.keys():
         pack[key[key.find('.') + 1:]] = pack[key]
     pack['name'] = pack['rawname'].replace(';', ' ')
 
-    layout = layouts.get(pack['layout'], [4, 4, 1])
+    if pack['layout'].isdigit():
+	layout = [int(x) for x in pack['layout']]
+    else:
+	layout = pack_layouts.get(pack['layout'], [4, 4, 1])
     lsec = {}
     lsec['columns'] = layout[0]
     lsec['anchor'] = pack['id']
     pif.render.comment('pack:', pack)
-    entries = [{'text': show_pack(pif, pack), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
+    entries = [{'text': show_pack(pif, pack, layout), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
 
     pmodels = distill_models(pif, pack, pif.page_id)
     keys = pmodels.keys()
@@ -249,8 +252,9 @@ def do_single_pack(pif, pack):
 def distill_models(pif, pack, page_id):
     model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=page_id)
     pack['pic'] = ''
-    for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, pack['id'] + '.jpg')):
-        pack['pic'] += pif.render.format_image_art(imglib.image_star(pic))
+    #for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, '?_' + pack['id'] + '.jpg')):
+    pic = pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_PACK, largest='h')
+    pack['pic'] += pif.render.format_image_art(imglib.image_star(pic))
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
     pack['thumb'] = pif.render.format_image_art('box-sm-x.gif' if linmod else 'box-sm.gif')
     if glob.glob(os.path.join(config.IMG_DIR_MAN, 's_' + pack['id'] + '.jpg')):
@@ -298,8 +302,8 @@ materials = {
     '': 'unknown',
 }
 #'columns': ['id', 'page_id', 'section_id', 'name', 'first_year', 'region', 'layout', 'product_code', 'material', 'country'],
-def show_pack(pif, pack):
-    ostr = pif.render.format_image_required(pack['id'])
+def show_pack(pif, pack, layout):
+    ostr = pif.render.format_image_required(pack['id'], largest=pack_pic_size[layout[0] - layout[1]])
     if pif.is_allowed('a'):  # pragma: no cover
         ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % (pif.render.pic_dir, pack['id'], ostr)
     else:

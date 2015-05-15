@@ -708,8 +708,8 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_optional(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
 
-    def format_image_required(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True):
-        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True)
+    def format_image_required(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True, largest=None):
+        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True, largest=largest)
 
     def format_image_list(self, fn, alt=None, wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
@@ -758,8 +758,8 @@ of Matchbox International Ltd. and are used with permission.
             carg.update(arg)
         return '<' + cmd + useful.fmt_also(args) + '>'
 
-    def fmt_art(self, fname, desc='', prefix='', also={}):
-        return self.fmt_img(fname, alt=desc, prefix=prefix, pdir=self.art_dir, also=also)
+    def fmt_art(self, fname, desc='', prefix='', also={}, largest=None):
+        return self.fmt_img(fname, alt=desc, prefix=prefix, pdir=self.art_dir, also=also, largest=largest)
 
     def fmt_img_src(self, pth, alt=None, also={}):
         if useful.is_good(pth, v=self.verbose):
@@ -777,15 +777,15 @@ of Matchbox International Ltd. and are used with permission.
         if img:
             return self.fmt_img_src(img, alt=alt, also=also)
         if required:
-            return self.fmt_no_pic(made, prefix)
+            return self.fmt_no_pic(made, prefix, largest=largest)
         if pad:
             return '&nbsp;'
         return ''
 
-    def fmt_no_pic(self, made=True, prefix=''):
+    def fmt_no_pic(self, made=True, prefix='', largest=None):
         # prefix not implemented yet!
         pic = {False: 'nopic.gif', True: 'notmade.gif'}[not made]
-        return self.fmt_art(pic, prefix=prefix)
+        return self.fmt_art(pic, prefix=prefix, largest=largest)
 
     def fmt_opt_img(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)

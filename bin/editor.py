@@ -896,21 +896,27 @@ def add_pack_delete(pif):
     pif.dbh.delete_lineup_model({'id': pif.form.get_int('lineup_model.id')})
 
 
+def get_correct_model_id(pif, mod_id):
+    alias = pif.dbh.fetch_alias(mod_id)
+    return alias.get('base_id.id', mod_id)
+
+
 def add_pack_save(pif):
     print pif.form.get_form(), '<br>'
 
+    pm_table_info = pif.dbh.table_info['pack_model']
+    mods = [x[6:] for x in pif.form.keys(start='pm.id.')]
+    pms = [
+	{
+	    'id': pif.form.get_int('pm.id.' + mod),
+	    'pack_id': pif.form.get_str('pack.id'),
+	    'mod_id': get_correct_model_id(pif, pif.form.get_str('pm.mod_id.' + mod)),
+	    'var_id': pif.form.get_str('pm.var_id.' + mod),
+	    'display_order': pif.form.get_int('pm.display_order.' + mod),
+	}
+	for mod in mods]
+
     if pif.form.has('o_id'):  # update existing records
-	mods = [x[6:] for x in pif.form.keys(start='pm.id.')]
-	pm_table_info = pif.dbh.table_info['pack_model']
-	pms = [
-	    {
-		'id': pif.form.get_int('pm.id.' + mod),
-		'pack_id': pif.form.get_str('pack.id'),
-		'mod_id': pif.form.get_str('pm.mod_id.' + mod),
-		'var_id': pif.form.get_str('pm.var_id.' + mod),
-		'display_order': pif.form.get_int('pm.display_order.' + mod),
-	    }
-	    for mod in mods]
 	pif.dbh.update_pack_models(pms)
 	pif.dbh.update_variation_select_pack(pms, pif.form.get_str('pack.page_id'), pif.form.get_str('o_id'))
 
@@ -925,26 +931,9 @@ def add_pack_save(pif):
 	pif.dbh.update_base_id(pif.form.get_str('o_id'), {x: pif.form.get_str('base_id.' + x) for x in p_table_info['columns']})
 
     else:  # add new records
-	#print 'new'
-	mods = [x[6:] for x in pif.form.keys(start='pm.id.')]
-	pm_table_info = pif.dbh.table_info['pack_model']
-	pms = [
-	    {
-		'id': pif.form.get_int('pm.id.' + mod),
-		'pack_id': pif.form.get_str('pack.id'),
-		'mod_id': pif.form.get_str('pm.mod_id.' + mod),
-		'var_id': pif.form.get_str('pm.var_id.' + mod),
-		'display_order': pif.form.get_int('pm.display_order.' + mod),
-	    }
-	    for mod in mods]
-	#print 'pack_models', pms, '<br>'
 	pif.dbh.add_new_pack_models(pms)
 	pif.dbh.update_variation_select_pack(pms, pif.form.get_str('pack.page_id'), pif.form.get_str('o_id'))
-
-	#print 'pack', pif.dbh.make_values('pack', pif.form, 'pack.'), '<br>'
 	pif.dbh.add_new_pack(pif.dbh.make_values('pack', pif.form, 'pack.'))
-
-	#print 'base_id', pif.dbh.make_values('base_id', pif.form, 'base_id.'), '<br>'
 	pif.dbh.add_new_base_id(pif.dbh.make_values('base_id', pif.form, 'base_id.'))
 
     # now do lineup_model separately
