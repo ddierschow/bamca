@@ -54,12 +54,13 @@ Current and planned projects:
    * Add more entries to the annual lineup pages
    * Allow multiple pictures per variation
    * Link related variations
-   * Link related multipacks
    * Rearrange MAN pictures into directories for model type
-   * Add support for publications, playsets, etc.
+   * Add support for publications, playsets, packaging, etc.
    * Comparisons are a pain to work with and need fixing
    * Need to add support for packs limited to region
    * Matrix items with no ID aren't well supported
+   * Reimplement icons
+   * Add a blog link for posting textual updates (notes, minutes, etc)
 
 ...BIG things:
 

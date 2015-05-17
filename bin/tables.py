@@ -390,7 +390,7 @@ table_info = {
     #pack_model
     'pack_model': {
         'id': ['id'],
-        'columns': ['id', 'pack_id', 'mod_id', 'var_id', 'display_order'],
+        'columns': ['id', 'pack_id', 'mod_id', 'var_id', 'flags', 'display_order'],
         'clinks': {
                 'id': {'tab': 'pack_model', 'id': ['id/id']},
                 'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},
@@ -476,6 +476,7 @@ FLAG_MODEL_NO_VARIATION                 =  4
 FLAG_MODEL_NO_ID                        =  8
 FLAG_MODEL_SHOW_ALL_VARIATIONS          = 16
 FLAG_MODEL_HIDE_IMAGE                   = 32
+FLAG_MODEL_NO_SPECIFIC_MODEL            = 64
 
 FLAG_SECTION_NO_FIRSTS                  =  1
 FLAG_SECTION_DEFAULT_IDS                =  2

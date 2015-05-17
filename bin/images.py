@@ -659,6 +659,7 @@ class EditForm(imglib.ActionForm):
 	    open(os.path.join(self.tdir, '.ima'), 'w').write(str(presets))
 
     def shape_image(self):
+	print 'shape_image', self.pth, self.nname, self.q, self.target_size, self.original_size, self.rf, '<br>'
 	ofi = imglib.shaper(self.pth, self.nname, self.q, self.target_size, self.original_size, self.rf)
 	return self.save_file(ofi)
 
@@ -690,29 +691,38 @@ class EditForm(imglib.ActionForm):
     def mass_resize(self, desc=''):
 	var = self.var.lower()
 	man = self.man.lower()
-	print 'mass_resize', self.pth, man, var, self.original_size, '<hr>'
-	if not man:
-	    print 'Huh? (mass, no man)'
-	    return
+	print 'mass_resize', 'pth', self.pth, 'tdir', self.tdir, 'fn', self.fn, 'ot', self.ot, 'os', self.original_size, '|', man, var, '<hr>'
 
-	ddir = './' + (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
 	nname_root = self.fn
+	if len(nname_root) > 2 and nname_root[0] in mbdata.image_size_names and nname_root[1] == '_':
+	    nname_root = nname_root[2:]
 	if '.' in nname_root:
 	    nname_root = nname_root[:nname_root.rfind('.')]
 	xos, yos = self.original_size
-	for pref in ['t', 's', 'm', 'l']:
-	    if xos < mbdata.imagesizes[pref][0]:
-		break
-	    nname = nname_root + '_' + pref
-	    if self.ot:
-		nname += '.' + self.ot
-	    self.nname = nname
-	    self.set_target_size(mbdata.imagesizes[pref])
-	    nname = self.shape_image()
 
-	    dnam = pref + '_' + man + ('-' + var if var else '') + '.jpg'
+	ot = '.' + self.ot if self.ot else self.fn[self.fn.rfind('.') + 1:]
+	if self.tdir == config.IMG_DIR_PACK or self.tdir == './' + config.IMG_DIR_PACK:
+	    ddir = self.tdir
+	    prefs = 'scmlh'
+	    outnam = '_' + nname_root + ot
+	else:
+	    ddir = './' + (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
+	    prefs = 'tsml'
+	    outnam = '_' + man + ('-' + var if var else '') + ot
+
+	for pref in prefs:
+	    if xos <= mbdata.imagesizes[pref][0]:
+		break
+	    self.nname = nname_root + '_' + pref + ot
+	    self.set_target_size(mbdata.imagesizes[pref])
+	    if self.unlv and self.unlh:
+		nname = self.cropk_image()
+	    elif self.unlv or self.unlh:
+		nname = self.shrink_image()
+	    else:
+		nname = self.shape_image()
+	    dnam = pref + outnam
 	    useful.file_mover(os.path.join(self.tdir, nname), os.path.join(ddir, dnam), mv=True, ov=True)
-	    #print '<br>', pif.render.format_image_required([dnam], pdir=ddir, also={"border": "0"}), '<br>'
 	    print '<br><img src="/%s"><hr>' % os.path.join(ddir, dnam)
 
 

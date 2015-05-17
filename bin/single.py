@@ -33,15 +33,15 @@ def use_previous_product_pic(pif):  # pragma: no cover
     pif.dbh.update_lineup_model(where={'id': thismods['id']}, values=thismods)
 
 
-def show_model_table(pif, mdict, link=True, prefix=['']):
-    imgid = [mdict['id']]
+def show_model_table(pif, mdict, link=True, largest='s'):
+    mdict['imgid'] = [mdict['id']]
     for s in mdict['descs']:
         if s.startswith('same as '):
-            imgid.append(s[8:])
-    mdict['imgid'] = []
-    for pf in prefix:
-        mdict['imgid'].extend([pf + x for x in imgid])
-    mdict['img'] = pif.render.format_image_required(mdict['imgid'], None, made=mdict['made'], pdir=config.IMG_DIR_MAN)
+            mdict['imgid'].append(s[8:])
+#    mdict['imgid'] = []
+#    for pf in prefix:
+#        mdict['imgid'].extend([pf + x for x in imgid])
+    mdict['img'] = pif.render.format_image_required(mdict['imgid'], made=mdict['made'], pdir=config.IMG_DIR_MAN, largest=largest)
     ostr = '<center><font face="Courier">%(id)s</font><br>\n' % mdict
     if link and mdict['link']:
         ostr += '   <a href="%(link)s=%(linkid)s">%(img)s</a><br>\n' % mdict
@@ -65,6 +65,7 @@ def show_boxes(pif, box_styles, mack_nums):
     entries = list()
     for c in box_styles:
         fnames = [id.replace('-', '').lower() + '-' + c.lower() for id in mack_nums]
+	# rewrite this.  glob for alternate boxes.
         box = pif.render.format_image_sized(fnames, pdir=config.IMG_DIR_BOX, required=True)
         entries.append({'text': box_fmt % (c, box)})
     llineup = {'id': 'boxes', 'name': 'Boxes', 'columns': min(2, len(entries)),
@@ -190,7 +191,7 @@ def show_relateds(pif, relateds):
             related['id'] = related['casting_related.related_id']
             related = pif.dbh.modify_man_item(related)
             related['descs'] = related.get('casting_related.description', '').split(';')
-            ostr += show_model_table(pif, related, prefix=['s_'])
+            ostr += show_model_table(pif, related, largest='s')
             ostr += '<br>\n'
         ostr += '</center>\n'
     return ostr
@@ -412,11 +413,11 @@ def show_single(pif):
     boxid = man['id']
 
     pif.render.title = '%(casting_type)s %(id)s: %(name)s' % man
-    model_image_pfx = ['m_', 'c_', 's_']
+    largest = 'm'
     #mainimg = pif.render.format_image_optional(pic, pdir=pdir, nopad=True)
     mainimg = pif.render.format_image_sized(pic, pdir=pdir, largest='m')
     if not mainimg:
-        model_image_pfx = ['l_'] + model_image_pfx
+        largest = 'l'
     elif pif.is_allowed('a'):  # pragma: no cover
         img = img_re.search(mainimg).group('u')
         url = 'imawidget.cgi?d=%s&f=%s' % tuple(img[3:].rsplit('/', 1))
@@ -424,7 +425,7 @@ def show_single(pif):
     else:
         product_box = '<center>' + mainimg + '<br>' + prod_title +'</center>'
 
-    model_box = show_model_table(pif, man, False, model_image_pfx) + '\n' + show_model_info(pif, man, mack_nums) + '\n'
+    model_box = show_model_table(pif, man, False, largest=largest) + '\n' + show_model_info(pif, man, mack_nums) + '\n'
     notes_box = show_model_notes(pif, man)
     links_box = show_model_links(pif, id, pic, appearances, matrixes, packs, man, show_comparison_link, external_links)
     var_pics, var_texts = show_list_var_pics(pif, id)

@@ -24,6 +24,7 @@ pack_layouts = {
     '5v': [2, 1, 5],
     '6h': [3, 3, 1],
     '6s': [3, 2, 3],
+    '6v': [2, 1, 4],
     '7s': [4, 3, 3],
     '8h': [4, 4, 1],
     '8s': [3, 2, 2],
@@ -73,7 +74,7 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
         print '<td width="70%" valign="top">\n'
     print '<table>\n'
     if pif.is_allowed('m'):  # pragma: no cover
-        print '<tr><th>Pack ID</th><th>Name</th><th>Year</th><th>Product</th><th>Reg</th><th>Ctry</th><th>Th</th><th>Pic</th><th>Mat</th><th>Models</th><th>Note</th><th>Related</th></tr>\n'
+        print '<tr><th>Pack ID</th><th>Name</th><th>Year</th><th>Product</th><th>Rg</th><th>Cy</th><th>Ly</th><th>Th</th><th>Pic</th><th>Mat</th><th>Models</th><th>Note</th><th>Related</th></tr>\n'
     else:
         print '<tr><th>Name</th><th>Year</th><th>Product Code</th><th>Region</th><th>Note</th><th></th></tr>\n'
     for pack in packs:
@@ -112,10 +113,12 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
         pack['rel'].sort()
         pack['rel'] = ' '.join(pack['rel'])
 
+	if pack['layout'] not in pack_layouts:
+	    pack['layout'] = '<font color="red">%s</font>' % pack['layout']
         pack['page'] = pif.form.get_str('page')
         pack['regionname'] = mbdata.regions[pack['region']]
         if pif.is_allowed('m'):  # pragma: no cover
-            print '<tr><td><a href="%(edlink)s">%(id)s</a></td><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(region)s</td><td>%(country)s</td><td>%(thumb)s</td><td>%(pic)s</td><td>%(material)s</td><td>%(stars)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
+            print '<tr><td><a href="%(edlink)s">%(id)s</a></td><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(region)s</td><td>%(country)s</td><td>%(layout)s</td><td>%(thumb)s</td><td>%(pic)s</td><td>%(material)s</td><td>%(stars)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
         else:
             print '<tr><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(regionname)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
         sys.stdout.flush()
@@ -266,7 +269,7 @@ def distill_models(pif, pack, page_id):
         mod = pif.dbh.modify_man_item(mod)
         sub_ids = [None, '', pack['id'], pack['id'] + '.' + str(mod['pack_model.display_order'])]
         if mod['vs.sub_id'] in sub_ids:
-            mod['imgl'] = ['s_' + mod['id'], mod['id']]
+            mod['imgl'] = ['s_' + mod['id'], mod['id'], mod['pack_model.mod_id']]
             for s in mod['descs']:
                 if s.startswith('same as '):
                     mod['imgl'].extend(['s_' + s[8:], s[8:]])
@@ -275,7 +278,8 @@ def distill_models(pif, pack, page_id):
             if not mod.get('vs.sub_id'):
                 mod['vs.sub_id'] = ''
             mod['pdir'] = pif.render.pic_dir
-            mod['href'] = "single.cgi?id=%(pack_model.mod_id)s&dir=%(pdir)s&pic=%(pack_model.pack_id)s&ref=%(vs.ref_id)s&sub=%(vs.sub_id)s" % mod
+	    if mod['pack_model.mod_id'] != 'unknown':
+		mod['href'] = "single.cgi?id=%(pack_model.mod_id)s&dir=%(pdir)s&pic=%(pack_model.pack_id)s&ref=%(vs.ref_id)s&sub=%(vs.sub_id)s" % mod
             #'<a href="single.cgi?dir=%(dir)s&pic=%(link)s&ref=%(vs.ref_id)s&id=%(mod_id)s">' % ent
             #'pack_model.pack_id': 'car02',
         #    if mod['pack_model.var'] and mod['imgl']:  # still not perfect
@@ -291,7 +295,7 @@ def distill_models(pif, pack, page_id):
             if mod.get('vs.var_id'):
                 pmodels[mod['pack_model.display_order']]['vars'].append(mod['vs.var_id'])
     for dispo in pmodels:
-        pmodels[dispo]['imgstr'] = pif.render.format_image_required(pmodels[dispo]['imgl'], pdir=config.IMG_DIR_MAN, vars=pmodels[dispo].get('pics'))
+        pmodels[dispo]['imgstr'] = pif.render.format_image_required(pmodels[dispo]['imgl'], pdir=config.IMG_DIR_MAN, prefix='s_', vars=pmodels[dispo].get('pics'))
     return pmodels
 
 

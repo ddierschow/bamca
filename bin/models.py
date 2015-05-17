@@ -285,6 +285,7 @@ def show_adds(pif, mod_id, var_id=''):
     attribute_pictures = pif.dbh.fetch_attribute_pictures(mod_id)
     attribute_pictures = dict([
         (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
+    print attribute_pictures.keys(),'<br>'
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD
@@ -298,7 +299,7 @@ def show_adds(pif, mod_id, var_id=''):
                 ostr += img + '<br>'
                 for apic in attribute_pictures:
 		    # This is terrible and I'm a terrible person but I don't want to think too much right now.
-                    if img.find(apic) >= 0 and attribute_pictures[apic]['attribute_picture.description']:
+                    if img.startswith(apic) and attribute_pictures[apic]['attribute_picture.description']:
 			if attribute_pictures[apic]['attribute.title']:
 			    ostr += "%(attribute.title)s: %(attribute_picture.description)s" % attribute_pictures[apic]
 			else:

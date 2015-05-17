@@ -768,14 +768,14 @@ of Matchbox International Ltd. and are used with permission.
 
     def fmt_img_check(self, pth):
         self.comment("fmt_img_check", pth)
-        if useful.is_good(pth, v=self.verbose):
-            return pth
-        return ''
+	return pth if useful.is_good(pth, v=self.verbose) else ''
 
     def fmt_img(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, also={}, made=True, required=False, pad=False):
         img = self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir)
         if img:
             return self.fmt_img_src(img, alt=alt, also=also)
+	if 'unknown' in fnames:
+	    return self.fmt_art('nomod.gif', prefix=prefix, largest=largest)
         if required:
             return self.fmt_no_pic(made, prefix, largest=largest)
         if pad:
@@ -783,23 +783,13 @@ of Matchbox International Ltd. and are used with permission.
         return ''
 
     def fmt_no_pic(self, made=True, prefix='', largest=None):
-        # prefix not implemented yet!
-        pic = {False: 'nopic.gif', True: 'notmade.gif'}[not made]
-        return self.fmt_art(pic, prefix=prefix, largest=largest)
+        return self.fmt_art('nopic.gif' if made else 'notmade.gif', prefix=prefix, largest=largest)
 
     def fmt_opt_img(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
 
     def fmt_anchor(self, name):
-        if name:
-            return '<a name="%s"></a>\n' % name
-        return ''
-
-#    def fmt_graphics(self, graphics):
-#       ostr = ''
-#       for graf in graphics:
-#           ostr += self.fmt_opt_img(graf['file'], alt=graf.get('name', ''), pdir=graf.get('pic_dir'), also=graf.get('also', {})) + '\n'
-#       return ostr
+	return ('<a name="%s"></a>\n' % name) if name else ''
 
     def format_bullet_list(self, descs):
         ostr = ''

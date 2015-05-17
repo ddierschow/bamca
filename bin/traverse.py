@@ -83,8 +83,10 @@ def show_dir(pif, tform):
         print 'Pattern <input type="text" name="p">'
         print '<input type="hidden" name="d" value="%s">' % tform.tdir
         print '<input type="checkbox" name="du" value="1"> Dupes'
+        print '<input type="checkbox" name="co" value="1"> Compact'
 	if pif.render.is_admin:
 	    print '<input type="checkbox" name="sh" value="1"> Shelve'
+        print '<input type="checkbox" name="si" value="1"> Sized'
         print pif.render.format_button_input()
         print '</form>'
 
@@ -119,25 +121,37 @@ def img(pif, args, base='', shlv=False):
     print '</tr>'
 
 
+def flist_sort(flist, tform):
+    if tform.sizd:
+	flist.sort(key=lambda x: (x[2:], x[:2]))
+    else:
+	flist.sort()
+
 def show_imgs(pif, tform):
     print '<hr>'
     print '<form action="traverse.cgi" method="post">'
     plist = tform.patt.split(',')
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
-        flist.sort()
-        print '<table>'
-        for fn in flist:
-            if tform.dups:
-		root, ext = useful.root_ext(fn)
-		flist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
-		flist.sort()
-		if len(flist) > 1:
-		    img(pif, flist, fn, shlv=tform.shlv)
-            else:
-                img(pif, [fn], shlv=tform.shlv)
-        print '</table>'
-        print '<hr>'
+        flist_sort(flist, tform)
+	if tform.cpct:
+	    for fn in flist:
+		print pif.render.format_link(
+		    "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
+		    pif.render.fmt_img_src(os.path.join(tform.tdir, fn))) + '\n'
+	else:
+	    print '<table>'
+	    for fn in flist:
+		if tform.dups:
+		    root, ext = useful.root_ext(fn)
+		    flist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
+		    flist_sort(flist, tform)
+		    if len(flist) > 1:
+			img(pif, flist, fn, shlv=tform.shlv)
+		else:
+		    img(pif, [fn], shlv=tform.shlv)
+	    print '</table>'
+	    print '<hr>'
     print '<input type="hidden" name="d" value="%s">' % tform.tdir
     print '<input type="hidden" name="sc" value="1">'
     print '<input type="hidden" name="pre" value="man">'
@@ -303,7 +317,9 @@ class TraverseForm:
 	self.fnam = pif.form.get_str("f")
 	self.patt = pif.form.get_str("p")
 	self.dups = pif.form.get_int("du")
+	self.cpct = pif.form.get_int("co")
 	self.shlv = pif.form.get_int("sh")
+	self.sizd = pif.form.get_int("si")
 	self.scrt = pif.form.get_int('sc')
 	self.act = pif.form.get_int('act')
 	self.cycle = pif.form.get_int("cy")  # srsly?
