@@ -811,7 +811,9 @@ def add_pack_form(pif):
     print pif.render.format_button("edit", "imawidget.cgi?d=%s&f=%s.jpg" % (config.IMG_DIR_PACK, pack_id))
     print pif.render.format_button("upload", "upload.cgi?d=%s&n=%s" % (config.IMG_DIR_PACK, pack_id))
     print '%(pack.page_id)s/%(pack.id)s<br>' % pack
-    print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a>' % (config.IMG_DIR_PACK, pack_id, pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK))
+    pack_img = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PACK, largest='g')
+    print pack_img, '<br>'
+    print '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (pack_img + (pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK, largest='g'),))
     print '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a><br>' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
     #print pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK), '<br>'
 

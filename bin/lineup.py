@@ -109,7 +109,7 @@ def calc_lineup_model(pif, mdict, comments):
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
         elif mdict.get('image_format'):
             mdict['product'] = mdict['image_format'] % mdict['lineup_model.number']
-        if pif.render.find_image_file([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
+        if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
             mdict['is_product_picture'] = 1
             comments.add('c')
         mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sub=%(sub_id)s&id=%(mod_id)s" % mdict
@@ -677,7 +677,7 @@ def count_lineup_model(pif, mdict):
             elif mdict.get('image_format'):
                 mdict['product'] = mdict['image_format'] % mdict['lineup_model.number']
             #pif.render.verbose = 0
-            if pif.render.find_image_file([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
+            if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
                 #pif.render.verbose = 0
                 return 1
             #pif.render.verbose = 0
@@ -850,7 +850,7 @@ def show_text_lineup_main(pif, mdict, verbose=0):
                 mdict['product'] = mdict['lineup_model.picture_id']
             elif mdict.get('image_format'):
                 mdict['product'] = mdict['image_format'] % mdict['lineup_model.number']
-            if pif.render.find_image_file([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
+            if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
                 mdict['is_product_picture'] = 1
             mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sub=%(sub_id)s&id=%(mod_id)s" % mdict
             if mdict['imgstr'].find('-') < 0:
@@ -1127,10 +1127,10 @@ def run_product_pics(pif, region):
             lpic_id = pic_id = lmod.get('lineup_model.picture_id')
             if pic_id:
                 lpic_id = pic_id = pic_id.replace('W', region)
-                product_image = pif.render.find_image_file(pic_id, suffix='jpg', pdir=pdir)
+                product_image = pif.render.find_image_path(pic_id, suffix='jpg', pdir=pdir)
             else:
                 lpic_id = ifmt % mnum
-                product_image = pif.render.find_image_file([ifmt % mnum], suffix='jpg', pdir=pdir)
+                product_image = pif.render.find_image_path([ifmt % mnum], suffix='jpg', pdir=pdir)
             lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (pdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
 	    istar = pif.render.format_image_art(imglib.image_star(product_image, pic_id, mnum in halfstars.get(page[5:], [])))
             ent = {

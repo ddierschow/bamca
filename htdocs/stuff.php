@@ -45,7 +45,7 @@ else
 <li><a href="cgi-bin/biblio.cgi?page=biblio">biblio</a>
 <li><a href="cgi-bin/calendar.cgi">calendar</a>
 <li><a href="cgi-bin/package.cgi?page=blister">blister</a>
-<li><a href="pic/box/">box</a>
+<li><a href="cgi-bin/boxart.cgi">box</a>
 </ul></h3>
 </td>
 
@@ -101,6 +101,7 @@ else
 <li><a href="cgi-bin/edlinks.cgi">links</a>
     <a href="cgi-bin/links.cgi?page=others&section=private">other</a>
 <li><a href="cgi-bin/roam.cgi">roam</a>
+    <a href="cgi-bin/traverse.cgi?d=./lib/trash">trash</a>
 <li><a href="cgi-bin/vedit.cgi">vedit</a>
     <a href="cgi-bin/vedit.cgi?d=src/vdat">dat</a>
     <a href="http://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents/?C=M;O=D">docs</a>

@@ -1,0 +1,92 @@
+{%- extends "base.html" -%}
+
+{%- block page_body -%}
+
+From 1953 to 1982, Lesney used boxes for each 1-75 series model with a
+picture of the enclosed model.  These boxes have been categorized into
+several different styles.<p>
+
+Choose which boxes you would like to see:<p>
+
+<form action="/cgi-bin/boxart.cgi" method="get" name="box">
+
+<table>
+ <tr>
+  <td><h3>Series:</h3></td>
+  <td width="100"></td>
+  <td><h3>Model Numbers:</h3></td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="series" checked value=""> All</td>
+  <td></td>
+  <td>Starting at number:</td>
+  <td><input type="text" name="start" size="3" value="1" id="start"></td>
+<td valign=top class="updown">
+</td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="series" value="RW"> Regular Wheels</td>
+  <td></td>
+  <td>Ending at number:</td>
+  <td><input type="text" name="end" size="3" value="75" id="end"></td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="series" value="SF"> Superfast</td>
+{% if page.is_admin %}
+  <td></td>
+  <td>Verbose:</td>
+  <td><input type="checkbox" name="verbose" value="1"></td>
+{% endif %}
+ </tr>
+</table>
+
+<h3>Styles:</h3><p>
+<table>
+ <tr>
+  <td><input type="radio" name="style" checked value=""> All</td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="style" value="A"> A style</td>
+  <td><img src="../pic/box/s_rw01a-a.jpg"></td>
+  <td><input type="radio" name="style" value="G"> G style</td>
+  <td><img src="../pic/box/s_sf11a-g.jpg"></td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="style" value="B"> B style</td>
+  <td><img src="../pic/box/s_rw02a-b.jpg"></td>
+  <td><input type="radio" name="style" value="H"> H style</td>
+  <td><img src="../pic/box/s_sf13b-h.jpg"></td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="style" value="C"> C style</td>
+  <td><img src="../pic/box/s_rw03b-c.jpg"></td>
+  <td><input type="radio" name="style" value="I"> I style</td>
+  <td><img src="../pic/box/s_sf15b-i.jpg"></td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="style" value="D"> D style</td>
+  <td><img src="../pic/box/s_rw04c-d.jpg"></td>
+  <td><input type="radio" name="style" value="J"> J style</td>
+  <td><img src="../pic/box/s_sf16a-j.jpg"></td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="style" value="E"> E style</td>
+  <td><img src="../pic/box/s_rw05d-e.jpg"></td>
+  <td><input type="radio" name="style" value="K"> K style</td>
+  <td><img src="../pic/box/s_sf19c-k.jpg"></td>
+ </tr>
+ <tr>
+  <td><input type="radio" name="style" value="F"> F style</td>
+  <td><img src="../pic/box/s_rw06d-f.jpg"></td>
+  <td><input type="radio" name="style" value="L"> L style</td>
+  <td><img src="../pic/box/s_sf21c-l.jpg"></td>
+ </tr>
+</table>
+<input type="image" name="submit" src="../pic/gfx/but_see_the_boxes.gif" alt="SEE THE BOXES" onmouseover="this.src='../pic/gfx/hov_see_the_boxes.gif';" onmouseout="this.src='../pic/gfx/but_see_the_boxes.gif';" class="button"> -
+<img src="../pic/gfx/but_reset.gif" onmouseover="this.src='../pic/gfx/hov_reset.gif';" onmouseout="this.src='../pic/gfx/but_reset.gif';" border="0" onClick="ResetForm(document.box)" alt="RESET" class="button">
+</form>
+
+<p><hr><p>
+Please note that the resulting page will be very graphics intensive, and may take several minutes to load.
+
+{%- endblock page_body -%}

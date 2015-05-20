@@ -115,6 +115,9 @@ class Presentation():
             self.note = self.fmt_pseudo(row['page_info.note'])
             self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
 
+    def set_page_extra(self, extra):
+	self.extra += extra
+
     def style_name(self, previous, prefix, col=None, id=None):
         class_ids = list()
         if previous:
@@ -156,11 +159,87 @@ class Presentation():
 #       return '../' + self.art_loc(img)
 
     def find_art(self, fnames, suffix="gif"):
-        return self.find_image_file(fnames, suffix=suffix, art=True)
+        return self.find_image_path(fnames, suffix=suffix, art=True)
 
     def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
         if not fnames:
             self.comment('find_image_file ret', '')
+            return ('', '')
+        elif isinstance(fnames, str):
+            fnames = [fnames]
+
+        if suffix is None:
+            suffix = graphic_types
+        elif isinstance(suffix, str):
+            suffix = [suffix]
+
+        if largest:  # overrides previous setting of prefixes.
+            prefix = mbdata.image_size_names
+            if largest in prefix:
+                prefix = prefix[:prefix.index(largest) + 1]
+            prefix.reverse()
+        elif isinstance(prefix, str):
+            prefix = [prefix]
+
+        if not pdir:
+            if art:
+                pdir = self.art_dir
+            else:
+                pdir = self.pic_dir
+	pdirvar = os.path.join(pdir, 'var')
+
+        if nobase:
+            base = []
+        else:
+            base = ['']
+        if not vars:
+            vars = base
+        elif isinstance(vars, str):
+            vars = [vars] + base
+        else:
+            vars = vars + base
+
+        self.comment("find_image_file", fnames, vars, prefix, suffix, pdir)
+        for var in vars:
+            for fname in fnames:
+                fname = useful.clean_name(fname.replace('/', '_'))
+#               if not fname:
+#                   continue
+                if fname.find('.') >= 0:
+                    csuffix = [fname[fname.rfind('.') + 1:]]
+                    fname = fname[:fname.rfind('.')]
+                else:
+                    csuffix = suffix
+
+                for pfx in prefix + ['']:
+                    if pfx and not pfx.endswith('_'):
+                        pfx += '_'
+                    for suf in csuffix:
+                        suf = '.' + suf
+                        if var:
+                            img = self.fmt_img_file_check(pdirvar, pfx + fname + '-' + var + suf)
+                            if img:
+                                self.comment('find_image_file ret', img)
+                                return pdirvar, img
+                            img = self.fmt_img_file_check(pdirvar, (pfx + fname + '-' + var + suf).lower())
+                            if img:
+                                self.comment('find_image_file ret', img)
+                                return pdirvar, img
+                        else:
+                            img = self.fmt_img_file_check(pdir, pfx + fname + suf)
+                            if img:
+                                self.comment('find_image_file ret', img)
+                                return pdir, img
+                            img = self.fmt_img_file_check(pdir, (pfx + fname + suf).lower())
+                            if img:
+                                self.comment('find_image_file ret', img)
+                                return pdir, img
+        self.comment('find_image_file ret', '')
+        return ('', '')
+
+    def find_image_path(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
+        if not fnames:
+            self.comment('find_image_path ret', '')
             return ''
         elif isinstance(fnames, str):
             fnames = [fnames]
@@ -195,7 +274,7 @@ class Presentation():
         else:
             vars = vars + base
 
-        self.comment("find_image_file", fnames, vars, prefix, suffix, pdir)
+        self.comment("find_image_path", fnames, vars, prefix, suffix, pdir)
         for var in vars:
             for fname in fnames:
                 fname = useful.clean_name(fname.replace('/', '_'))
@@ -215,22 +294,22 @@ class Presentation():
                         if var:
                             img = self.fmt_img_check(pdir + '/var/' + pfx + fname + '-' + var + suf)
                             if img:
-                                self.comment('find_image_file ret', img)
+                                self.comment('find_image_path ret', img)
                                 return img
                             img = self.fmt_img_check(pdir + '/var/' + (pfx + fname + '-' + var + suf).lower())
                             if img:
-                                self.comment('find_image_file ret', img)
+                                self.comment('find_image_path ret', img)
                                 return img
                         else:
                             img = self.fmt_img_check(pdir + '/' + pfx + fname + suf)
                             if img:
-                                self.comment('find_image_file ret', img)
+                                self.comment('find_image_path ret', img)
                                 return img
                             img = self.fmt_img_check(pdir + '/' + (pfx + fname + suf).lower())
                             if img:
-                                self.comment('find_image_file ret', img)
+                                self.comment('find_image_path ret', img)
                                 return img
-        self.comment('find_image_file ret', '')
+        self.comment('find_image_path ret', '')
         return ''
 
     def find_button_images(self, name, image='', hover='', pdir=None):
@@ -245,8 +324,8 @@ class Presentation():
             hover = 'hov_' + hover
         if not pdir:
             pdir = self.art_dir
-        but_image = self.find_image_file(image, suffix='gif', pdir=pdir, art=True)
-        hov_image = self.find_image_file(hover, suffix='gif', pdir=pdir, art=True)
+        but_image = self.find_image_path(image, suffix='gif', pdir=pdir, art=True)
+        hov_image = self.find_image_path(hover, suffix='gif', pdir=pdir, art=True)
         return name, but_image, hov_image
 
     # immediate effect functions.
@@ -372,8 +451,8 @@ of Matchbox International Ltd. and are used with permission.
     def create_table(self, also={}, id='', style_id=''):
         return TableClass(self, also, id, style_id)
 
-    def format_table_single_cell(self, col, content='', talso={}, ralso={}, calso={}, id='', hdr=False):
-        ostr = self.format_table_start(also=talso, id=id)
+    def format_table_single_cell(self, col, content='', talso={}, ralso={}, calso={}, id='', hdr=False, style_id=''):
+        ostr = self.format_table_start(also=talso, id=id, style_id=style_id)
         ostr += self.format_row_start(also=ralso)
         ostr += self.format_cell(col, content, hdr, also=calso)
         ostr += self.format_row_end()
@@ -618,8 +697,8 @@ of Matchbox International Ltd. and are used with permission.
             fname = 'collapse'
         #image = self.art_loc('but_' + fname + '.gif')
         #hover = self.art_loc('hov_' + fname + '.gif')
-        but_image = self.find_image_file('but_' + fname, suffix='gif', art=True)
-        hov_image = self.find_image_file('hov_' + fname, suffix='gif', art=True)
+        but_image = self.find_image_path('but_' + fname, suffix='gif', art=True)
+        hov_image = self.find_image_path('hov_' + fname, suffix='gif', art=True)
         also = {'src': '../' + but_image,
                 'id': id + '_l',
                 'value': fname,
@@ -703,7 +782,7 @@ of Matchbox International Ltd. and are used with permission.
         return self.fmt_opt_img(code2, alt=name, pdir=config.FLAG_DIR, also=also)
 
     def format_image_as_link(self, fnames, txt, pdir=None, also={}):
-        return self.format_link('../' + self.find_image_file(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
+        return self.format_link('../' + self.find_image_path(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
 
     def format_image_optional(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
@@ -766,12 +845,16 @@ of Matchbox International Ltd. and are used with permission.
             return '<img src="../' + pth + '"' + useful.fmt_also({'alt': alt}, also) + '>'
         return ''
 
+    def fmt_img_file_check(self, pdir, fn):
+        self.comment("fmt_img_check", pdir, fn)
+	return fn if useful.is_good(os.path.join(pdir, fn), v=self.verbose) else ''
+
     def fmt_img_check(self, pth):
         self.comment("fmt_img_check", pth)
 	return pth if useful.is_good(pth, v=self.verbose) else ''
 
     def fmt_img(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, also={}, made=True, required=False, pad=False):
-        img = self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir)
+        img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir)
         if img:
             return self.fmt_img_src(img, alt=alt, also=also)
 	if 'unknown' in fnames:
@@ -783,7 +866,10 @@ of Matchbox International Ltd. and are used with permission.
         return ''
 
     def fmt_no_pic(self, made=True, prefix='', largest=None):
-        return self.fmt_art('nopic.gif' if made else 'notmade.gif', prefix=prefix, largest=largest)
+        img = self.fmt_art('nopic.gif' if made else 'notmade.gif', prefix=prefix, largest=largest)
+	if not img:
+	    img = self.fmt_art('nopic.gif' if made else 'notmade.gif', largest='s')
+	return img
 
     def fmt_opt_img(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
@@ -1113,7 +1199,7 @@ of Matchbox International Ltd. and are used with permission.
             self.flag_list.sort(key=lambda x: self.flag_info[x][0])
 	env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
 	tpl = env.get_template(template)
-	titleimage = self.find_image_file(self.page_id.split('.'))
+	titleimage = self.find_image_path(self.page_id.split('.'))
 	if titleimage:
 	    titleimage = '/' + titleimage
 	page_info = {

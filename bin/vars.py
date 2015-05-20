@@ -788,7 +788,7 @@ def show_model(pif, model):
 	cates.update(variation['_catlist'])
 	pic_id = variation['picture_id']
 
-        img = pif.render.find_image_file([variation['mod_id']], nobase=True, vars=pic_id if pic_id else variation['var'], prefix=['s_'])
+        img = pif.render.find_image_path([variation['mod_id']], nobase=True, vars=pic_id if pic_id else variation['var'], prefix=['s_'])
 	variation['_has_pic'] = bool(img)
         variation['_picture'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, 's_')
 

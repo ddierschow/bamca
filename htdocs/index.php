@@ -34,7 +34,7 @@ DoPageHeader($pif);
  <li><a href="models.html">Matchbox <b>Model</b> Pages for all ranges
  <li><a href="pic/ads/">Matchbox <b>Advertisements</b> from over the years</a>
  <li><a href="pic/errors/">Matchbox <b>Errors</b> in packaging and manufacturing</a>
- <li><a href="pic/box/">Matchbox <b>Box</b> Art</a>
+ <li><a href="cgi-bin/boxart.cgi">Matchbox <b>Box</b> Art</a>
  <li><a href="cgi-bin/package.cgi?page=blister">Matchbox <b>Blister</b> Packs</a>
  <li><a href="pages/mbhistory.html"><b>History</b> of Matchbox</a>
  </ul>

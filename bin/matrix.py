@@ -184,7 +184,7 @@ class MatrixFile:
             ent['shown_id'] = ''
 
         ent['product'] = [ent['link']]
-        if pif.render.find_image_file(ent['product'], suffix='jpg'):
+        if pif.render.find_image_path(ent['product'], suffix='jpg'):
             comments.add('c')
             ent['is_product_picture'] = 1
             if pif.is_allowed('a') and pif.form.has('large'):  # pragma: no cover
@@ -198,7 +198,7 @@ class MatrixFile:
         if ent['mod_id']:
             ent['href'] = "single.cgi?dir=%(pdir)s&pic=%(link)s&ref=%(vs.ref_id)s&sub=%(vs.sub_id)s&id=%(mod_id)s" % ent
         else:
-            img = pif.render.find_image_file(ent['link'])
+            img = pif.render.find_image_path(ent['link'])
             if img:
                 ent['href'] = '/' + img
         vstr = ''

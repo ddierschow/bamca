@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import package
-package.show_boxes('boxart')
+package.box_main('boxart')

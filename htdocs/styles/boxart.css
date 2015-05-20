@@ -1,0 +1,8 @@
+body {color: #000000; background-color: #EEEEFF;}
+a:link {color: #0000CC; background-color: transparent; text-decoration: none;}
+a:visited {color: #CC0000; background-color: transparent; text-decoration: none;}
+a:hover {color: #000066; background-color: transparent; text-decoration: underline;}
+a:active {color: #006600; background-color: transparent; text-decoration: none;}
+.button {vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
+.tb {background-color: #FFFFFF;}
+.tb_inner {border-style: solid; border-collapse: collapse; background-color: #FFFFFF;}

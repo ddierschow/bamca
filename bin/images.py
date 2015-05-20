@@ -476,7 +476,10 @@ class EditForm(imglib.ActionForm):
 	self.edit = edit or pif.form.get_bool('edit')
 	self.fn = pif.form.get_str("f", '')
 	self.ot =  pif.form.get_str('ot')
-	pif.render.pic_dir = self.tdir = pif.form.get_str("d", '.') if pif.is_allowed('avm') else '.'
+	self.tdir = pif.form.get_str("d", '.') if pif.is_allowed('avm') else '.'
+	if self.tdir.startswith('./'):
+	    self.tdir = self.tdir[2:]
+	pif.render.pic_dir = self.tdir
 	self.nvar = pif.form.get_str("newvar", '')
 	self.man = pif.form.get_str("man")
 	if not self.man:
@@ -519,10 +522,6 @@ class EditForm(imglib.ActionForm):
 	    self.tysz = 'w'
 	elif self.pad:
 	    self.tysz = 'p'
-	if self.unlv:
-	    self.yts = 0
-	if self.unlh:
-	    self.xts = 0
 	if not self.nname:
 	    self.nname = self.fn
 	if '.' in self.nname:
@@ -541,12 +540,17 @@ class EditForm(imglib.ActionForm):
 	return self
 
     def set_target_size(self, newts):
-	self.target_size = self.xts, self.yts = newts
+	xts, yts = newts
+	if self.unlv:
+	    yts = 0
+	if self.unlh:
+	    xts = 0
+	self.target_size = self.xts, self.yts = (xts, yts)
 
     def calc_man(self):
 	pdir = self.tdir
-	if pdir.startswith('./'):
-	    pdir = pdir[2:]
+#	if pdir.startswith('./'):
+#	    pdir = pdir[2:]
 	if pdir.endswith('/'):
 	    pdir = pdir[:-1]
 
@@ -691,7 +695,7 @@ class EditForm(imglib.ActionForm):
     def mass_resize(self, desc=''):
 	var = self.var.lower()
 	man = self.man.lower()
-	print 'mass_resize', 'pth', self.pth, 'tdir', self.tdir, 'fn', self.fn, 'ot', self.ot, 'os', self.original_size, '|', man, var, '<hr>'
+	print 'mass_resize', 'pth', self.pth, 'tdir "%s"' % self.tdir, 'fn', self.fn, 'ot', self.ot, 'os', self.original_size, '|', man, var, '<hr>'
 
 	nname_root = self.fn
 	if len(nname_root) > 2 and nname_root[0] in mbdata.image_size_names and nname_root[1] == '_':
@@ -701,12 +705,14 @@ class EditForm(imglib.ActionForm):
 	xos, yos = self.original_size
 
 	ot = '.' + self.ot if self.ot else self.fn[self.fn.rfind('.') + 1:]
-	if self.tdir == config.IMG_DIR_PACK or self.tdir == './' + config.IMG_DIR_PACK:
-	    ddir = self.tdir
+	ddir = self.tdir
+	outnam = '_' + nname_root + ot
+	if self.tdir == config.IMG_DIR_PACK: # or self.tdir == './' + config.IMG_DIR_PACK:
 	    prefs = 'scmlh'
-	    outnam = '_' + nname_root + ot
+	elif self.tdir == config.IMG_DIR_BOX:
+	    prefs = 'scm'
 	else:
-	    ddir = './' + (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
+	    ddir = (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
 	    prefs = 'tsml'
 	    outnam = '_' + man + ('-' + var if var else '') + ot
 
@@ -716,7 +722,7 @@ class EditForm(imglib.ActionForm):
 	    self.nname = nname_root + '_' + pref + ot
 	    self.set_target_size(mbdata.imagesizes[pref])
 	    if self.unlv and self.unlh:
-		nname = self.cropk_image()
+		nname = self.crop_image()
 	    elif self.unlv or self.unlh:
 		nname = self.shrink_image()
 	    else:

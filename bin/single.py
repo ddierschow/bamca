@@ -466,7 +466,7 @@ def show_single(pif):
         if pic:
             prodstar = 'starwhite.gif'
             content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (pdir, pic, pic)
-            prodpic = pif.render.find_image_file(pic, pdir=pdir)
+            prodpic = pif.render.find_image_path(pic, pdir=pdir)
             if prodpic:
                 x, y = imglib.get_size(prodpic)
                 if x > 400:

@@ -62,7 +62,7 @@ def publication(pif):
         for img in imgs:
             img = img[img.rfind('/') + 1:]
             txt = pif.render.format_image_sized(img, largest='s')
-            lnk = pif.render.find_image_file(img, largest='g')
+            lnk = pif.render.find_image_path(img, largest='g')
             lran['entry'].append({'text': pif.render.format_link('../' + lnk, txt)})
         llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran]}], 'columns': 4}
         ostr += pif.render.format_matrix(llineup)

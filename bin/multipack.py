@@ -9,32 +9,32 @@ import models
 
 # ---------------------------------------------------------------------
 
-# columns, colspan, rowspan
-# columns MUST NOT exceed 4!
+# columns, colspan, rowspan, picsize
+# columns and picsize MUST NOT exceed 4!
 pack_layouts = {
-    '2h': [2, 2, 1],
-    '2v': [2, 1, 2],
-    '3h': [3, 3, 1],
-    '3v': [2, 1, 3],
-    '4h': [4, 4, 1],
-    '4v': [2, 1, 4],
-    '5h': [4, 3, 1],
-    '5l': [2, 1, 3],
-    '5s': [3, 2, 2],
-    '5v': [2, 1, 5],
-    '6h': [3, 3, 1],
-    '6s': [3, 2, 3],
-    '6v': [2, 1, 4],
-    '7s': [4, 3, 3],
-    '8h': [4, 4, 1],
-    '8s': [3, 2, 2],
-    '8v': [4, 3, 4],
-    '9h': [3, 3, 1],
-    'th': [4, 3, 2],
-    'tv': [3, 2, 4],
-    'wh': [4, 4, 1],
+    '2h': [2, 2, 1, 4],
+    '2v': [2, 1, 2, 2],
+    '3h': [3, 3, 1, 4],
+    '3v': [2, 1, 3, 2],
+    '4h': [4, 4, 1, 4],
+    '4v': [2, 1, 4, 2],
+    '5h': [4, 3, 1, 3],
+    '5l': [2, 1, 3, 3],
+    '5s': [3, 2, 2, 3],
+    '5v': [2, 1, 5, 2],
+    '6h': [3, 3, 1, 4],
+    '6s': [3, 2, 3, 3],
+    '6v': [2, 1, 4, 2],
+    '7s': [4, 3, 3, 3],
+    '8h': [4, 4, 1, 4],
+    '8s': [3, 2, 2, 3],
+    '8v': [4, 3, 4, 2],
+    '9h': [3, 3, 1, 4],
+    'th': [4, 3, 2, 3],
+    'tv': [3, 2, 4, 2],
+    'wh': [4, 4, 1, 4],
 }
-pack_pic_size = 'hlmct'  # columns-colspan indexes this
+pack_pic_size = 'tcmlh'
 
 # ---- page list ------------------------------------------------------
 
@@ -162,12 +162,16 @@ def do_single_pack(pif, pack):
     if pack['layout'].isdigit():
 	layout = [int(x) for x in pack['layout']]
     else:
-	layout = pack_layouts.get(pack['layout'], [4, 4, 1])
+	layout = pack_layouts.get(pack['layout'], [4, 4, 1, 4])
+    if len(layout) == 2:
+	layout[3] = 1
+    if len(layout) == 3:
+	layout[4] = 4 - (layout[0] - layout[1])
     lsec = {}
     lsec['columns'] = layout[0]
     lsec['anchor'] = pack['id']
     pif.render.comment('pack:', pack)
-    entries = [{'text': show_pack(pif, pack, layout), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
+    entries = [{'text': show_pack(pif, pack, pack_pic_size[layout[3]]), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
 
     pmodels = distill_models(pif, pack, pif.page_id)
     keys = pmodels.keys()
@@ -256,7 +260,7 @@ def distill_models(pif, pack, page_id):
     model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=page_id)
     pack['pic'] = ''
     #for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, '?_' + pack['id'] + '.jpg')):
-    pic = pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_PACK, largest='h')
+    pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PACK, largest='h')
     pack['pic'] += pif.render.format_image_art(imglib.image_star(pic))
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
     pack['thumb'] = pif.render.format_image_art('box-sm-x.gif' if linmod else 'box-sm.gif')
@@ -306,8 +310,8 @@ materials = {
     '': 'unknown',
 }
 #'columns': ['id', 'page_id', 'section_id', 'name', 'first_year', 'region', 'layout', 'product_code', 'material', 'country'],
-def show_pack(pif, pack, layout):
-    ostr = pif.render.format_image_required(pack['id'], largest=pack_pic_size[layout[0] - layout[1]])
+def show_pack(pif, pack, picsize):
+    ostr = pif.render.format_image_required(pack['id'], largest=picsize)
     if pif.is_allowed('a'):  # pragma: no cover
         ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % (pif.render.pic_dir, pack['id'], ostr)
     else:
