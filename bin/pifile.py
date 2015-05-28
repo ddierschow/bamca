@@ -220,7 +220,9 @@ class PageInfoFile:
 	    self.log.count.info(self.page_id)
 	    self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
 	    refer = os.environ.get('HTTP_REFERER', '')
-	    if refer:
+	    if refer and not refer.startswith('http://www.bamca.org') and \
+			 not refer.startswith('http://bamca.org') and \
+			 not refer.startswith('http://beta.bamca.org'):
 		self.log.refer.info(refer)
 
     def get_page_id(self, page_id, form_key, defval):
