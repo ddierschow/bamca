@@ -731,6 +731,9 @@ class EditForm(imglib.ActionForm):
 	    useful.file_mover(os.path.join(self.tdir, nname), os.path.join(ddir, dnam), mv=True, ov=True)
 	    print '<br><img src="/%s"><hr>' % os.path.join(ddir, dnam)
 
+	if self.mv:
+	    useful.file_delete(self.pth, True)
+
 
 @basics.web_page
 def imawidget_main(pif):

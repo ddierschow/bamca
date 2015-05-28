@@ -64,6 +64,12 @@ class Logger:
             'class': 'logging.FileHandler',
             'filename': '/home/bamca/logs/' + env + '.count.log',
         },
+        'refer': {
+            'level': os.environ.get('LOG_LEVEL', 'INFO'),
+            'formatter': 'informational',
+            'class': 'logging.FileHandler',
+            'filename': '/home/bamca/logs/' + env + '.refer.log',
+        },
         'root': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'serious',
@@ -123,4 +129,5 @@ class Logger:
         self.dbq	= logging.getLogger('dbq')
         self.activity	= logging.getLogger('activity')
         self.count	= logging.getLogger('count')
+        self.refer	= logging.getLogger('refer')
 	self.root	= logging.getLogger('root')

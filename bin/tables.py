@@ -96,7 +96,7 @@ table_info = {
     #casting
     'casting': {
         'id': ['id'],
-        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'box_styles'],
+        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id'],
 	'extra_columns': ['notes',
 	    'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels'],
         'clinks': {

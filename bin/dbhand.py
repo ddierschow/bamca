@@ -217,6 +217,7 @@ class DBHandler:
         self.write('variation', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('variation_select', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('variation_select', {'sub_id': new_mod_id}, where="sub_id='%s'" % old_mod_id, modonly=True)
+        self.write('box_style', {'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
         self.write('link_line', {'page_id': 'single.' + new_mod_id}, where="page_id='single.%s'" % old_mod_id, modonly=True)
 
     def update_base_id(self, id, values):

@@ -1,7 +1,20 @@
 {%- extends "base.html" -%}
 
 {%- block page_body -%}
+{% if llistix %}
+{{ lister(llistix) }}
+{% else %}
+{{ asker() }}
+{% endif %}
+{%- endblock page_body -%}
 
+
+{% macro menubox(style, pic) %}
+  <td><input type="radio" name="style" value="{{ style }}"> {{ style }} style</td>
+  <td><img src="../pic/box/s_{{ pic }}-{{ style|lower }}.jpg"></td>
+{% endmacro %}
+
+{% macro asker() %}
 From 1953 to 1982, Lesney used boxes for each 1-75 series model with a
 picture of the enclosed model.  These boxes have been categorized into
 several different styles.<p>
@@ -34,8 +47,15 @@ Choose which boxes you would like to see:<p>
   <td><input type="radio" name="series" value="SF"> Superfast</td>
 {% if page.is_admin %}
   <td></td>
-  <td>Verbose:</td>
+  <td><i>Verbose:</i></td>
   <td><input type="checkbox" name="verbose" value="1"></td>
+ </tr>
+ <tr>
+  <td></td>
+  <td></td>
+  <td><i>Compact:</i></td>
+  <td><input type="checkbox" name="c" value="1"></td>
+  <td></td>
 {% endif %}
  </tr>
 </table>
@@ -45,42 +65,12 @@ Choose which boxes you would like to see:<p>
  <tr>
   <td><input type="radio" name="style" checked value=""> All</td>
  </tr>
- <tr>
-  <td><input type="radio" name="style" value="A"> A style</td>
-  <td><img src="../pic/box/s_rw01a-a.jpg"></td>
-  <td><input type="radio" name="style" value="G"> G style</td>
-  <td><img src="../pic/box/s_sf11a-g.jpg"></td>
- </tr>
- <tr>
-  <td><input type="radio" name="style" value="B"> B style</td>
-  <td><img src="../pic/box/s_rw02a-b.jpg"></td>
-  <td><input type="radio" name="style" value="H"> H style</td>
-  <td><img src="../pic/box/s_sf13b-h.jpg"></td>
- </tr>
- <tr>
-  <td><input type="radio" name="style" value="C"> C style</td>
-  <td><img src="../pic/box/s_rw03b-c.jpg"></td>
-  <td><input type="radio" name="style" value="I"> I style</td>
-  <td><img src="../pic/box/s_sf15b-i.jpg"></td>
- </tr>
- <tr>
-  <td><input type="radio" name="style" value="D"> D style</td>
-  <td><img src="../pic/box/s_rw04c-d.jpg"></td>
-  <td><input type="radio" name="style" value="J"> J style</td>
-  <td><img src="../pic/box/s_sf16a-j.jpg"></td>
- </tr>
- <tr>
-  <td><input type="radio" name="style" value="E"> E style</td>
-  <td><img src="../pic/box/s_rw05d-e.jpg"></td>
-  <td><input type="radio" name="style" value="K"> K style</td>
-  <td><img src="../pic/box/s_sf19c-k.jpg"></td>
- </tr>
- <tr>
-  <td><input type="radio" name="style" value="F"> F style</td>
-  <td><img src="../pic/box/s_rw06d-f.jpg"></td>
-  <td><input type="radio" name="style" value="L"> L style</td>
-  <td><img src="../pic/box/s_sf21c-l.jpg"></td>
- </tr>
+ <tr>{{ menubox('A', 'rw01a') }}{{ menubox('G', 'sf11a') }} </tr>
+ <tr>{{ menubox('B', 'rw02a') }}{{ menubox('H', 'sf13b') }} </tr>
+ <tr>{{ menubox('C', 'rw03b') }}{{ menubox('I', 'sf15b') }} </tr>
+ <tr>{{ menubox('D', 'rw04c') }}{{ menubox('J', 'sf16a') }} </tr>
+ <tr>{{ menubox('E', 'rw05d') }}{{ menubox('K', 'sf19c') }} </tr>
+ <tr>{{ menubox('F', 'rw06d') }}{{ menubox('L', 'sf21c') }} </tr>
 </table>
 <input type="image" name="submit" src="../pic/gfx/but_see_the_boxes.gif" alt="SEE THE BOXES" onmouseover="this.src='../pic/gfx/hov_see_the_boxes.gif';" onmouseout="this.src='../pic/gfx/but_see_the_boxes.gif';" class="button"> -
 <img src="../pic/gfx/but_reset.gif" onmouseover="this.src='../pic/gfx/hov_reset.gif';" onmouseout="this.src='../pic/gfx/but_reset.gif';" border="0" onClick="ResetForm(document.box)" alt="RESET" class="button">
@@ -89,4 +79,59 @@ Choose which boxes you would like to see:<p>
 <p><hr><p>
 Please note that the resulting page will be very graphics intensive, and may take several minutes to load.
 
-{%- endblock page_body -%}
+{%- endmacro -%}
+
+{% macro lister(llistix) %}
+{% for section in llistix.section %}
+{{ render.fmt_anchor(section.anchor) }}
+<table class="tb">
+{% if section.name %}
+ <tr>
+  <th colspan="{{ section.columns|length }}" class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
+ </tr>
+{% endif %}
+<tr class="er">
+{%- for col in section.columns %}
+{#  <th class="{{ render.class_id('eh', section.id) }}{{ render.class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
+  <th class="{{ render.class_id('eh', section.id, range.id) }}">{{ section.headers[col] }}</th>
+{%- endfor -%}
+</tr>
+{%- for range in section.range %}
+{{ render.fmt_anchor(range.anchor) }}
+{% if range.name %}
+ <tr>
+  <th colspan="{{ range.columns|length }}" class="{{ render.class_id('sh', range.id) }}">{{ range.name }}</th>
+ </tr>
+{% endif %}
+{%- for entry in range.entry %}
+<tr class="er">
+{%- for col in section.columns %}
+{% if entry[col] %}
+  <td class="eb"{% if entry[col].rows %} rowspan="{{ entry[col].rows }}"{% endif %}>{{ entry[col].txt or '&nbsp;' }}</td>
+{%- endif %}
+{%- endfor %}
+</tr>
+{%- endfor -%}
+{%- if range.note -%}
+<tr class="er">
+  <td colspan="{{ section.columns|length }}" class="eb">{{ range.note }}</td>
+</tr>
+{%- endif -%}
+{%- endfor -%}
+{%- if section.note -%}
+<tr class="er">
+  <td colspan="{{ section.columns|length }}" class="eb">{{ section.note }}</td>
+</tr>
+{%- endif -%}
+</table>
+{% endfor %}
+{% if llistix.tail %}
+<table class="tb_tail tb">
+ <tr>
+{% for tail in llistix.tail %}
+  <td class="eb_tail_{{ loop.index }} eb">{{ tail }}</td>
+{% endfor %}
+ </tr>
+</table>
+{% endif %}
+{% endmacro %}

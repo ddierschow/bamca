@@ -1,9 +1,10 @@
 #!/usr/local/bin/python
 
-import glob, os
+import copy, glob, os
 import basics
 import bfiles
 import config
+import imglib
 import mbdata
 import useful
 
@@ -91,49 +92,22 @@ def blister(pif):
 
 # need to add va, middle to eb_1 style
 
-def get_box_image(pif, picroot, picsize=None):
-    if picsize:
+def get_box_image(pif, picroot, picsize=None, compact=False):
+    if compact:
+	product_image = pif.render.find_image_path(picroot, prefix=picsize + '_')
+	pic = pif.render.format_image_art(imglib.image_star(product_image, target_x=mbdata.imagesizes[picsize][0]))
+    elif picsize:
 	pic = pif.render.format_image_required(picroot, prefix=picsize + '_')
     else:
 	pic = pif.render.format_image_required(picroot, largest='c')
     return pic
 
 
-def show_box(pif, mod, style, sized=False):
-    largest = 'c'
-    if style:
-        box_styles = [style]
-        largest = 'm'
-    else:
-        box_styles = mod['casting.box_styles'].replace('-', '')
-    ostr = ''
-    for style in box_styles:
-	picroots = list(set([(mod['id'] + '-' + style).lower()] +
-	    [x[x.rfind('/') + 3:-4] for x in glob.glob(os.path.join(config.IMG_DIR_BOX, ('?_' + mod['id'] + '-' + style + '?.jpg').lower()))]))
-	picroots.sort()
-	if sized:
-	    ostr += pif.render.format_table_start(style_id='inner')
-	    ostr += pif.render.format_row_start()
-	    for picsize in 'mcs':
-		imgs = '<br>'.join([get_box_image(pif, picroot, picsize) for picroot in picroots])
-		if pif.is_allowed('ma'):
-		    imgs = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, mod['id'].lower() + '-' + style.lower() + '.jpg', imgs)
-		ostr += pif.render.format_cell(1, "<center><b>%s style</b></center>%s" % (style, imgs), also={'width': mbdata.imagesizes[picsize][0]})
-	    ostr += pif.render.format_row_end()
-	    ostr += pif.render.format_table_end()
-	else:
-	    pic = ''.join([get_box_image(pif, picroot) for picroot in picroots])
-	    ostr += pif.render.format_table_single_cell(1, "<center><b>%s style</b></center>%s" % (style, pic), style_id='inner')
-    return ostr
-
-
-def show_model(pif, mod):
-    img = pif.render.format_image_required(mod['casting.id'], pdir=config.IMG_DIR_MAN, largest='s')
+def show_model(pif, mod, compact=False):
+    img = '' if compact else pif.render.format_image_required(mod['casting.id'], pdir=config.IMG_DIR_MAN, largest='s')
     url = "single.cgi?id=" + mod['casting.id']
-    ostr  = "<center>%s<br>" % mod['id']
-    ostr += '<a href="%s">%s</a><br>' % (url, img)
-    ostr += '<b>%s</b>' % mod['base_id.rawname'].replace(';', ' ')
-    ostr += "</center>"
+    ostr  = '<center><a href="%s">%s<br>%s<br>' % (url, mod['id'], img)
+    ostr += '<b>%s</b></a></center>' % mod['base_id.rawname'].replace(';', ' ')
     return ostr
 
 
@@ -142,27 +116,52 @@ def show_boxes(pif):
     series = pif.form.get_str('series')
     style = pif.form.get_str('style')
     verbose = pif.form.get_bool('verbose')
+    compact = pif.form.get_bool('c')
     start = pif.form.get_int('start', 1)
     end = pif.form.get_int('end', 99)
+    headers = {'mod': 'Model', 'm': 'M', 'c': 'C', 's': 'S', 'box': 'Box'}
+    if verbose:
+	columns = ['mod', 'm', 'c', 's']
+    else:
+	columns = ['mod', 'box']
     boxes = list()
     for box in pif.dbh.fetch_castings_by_box(series, style):
-        if series and box['base_id.model_type'] != series:
-            continue
-        if style and style not in box['casting.box_styles']:
-            continue
         box['id'] = box['alias.id'] if box.get('alias.id') else box['casting.id']
-	if int(box['id'][2:4]) < start:
-	    continue
-	if (end and int(box['id'][2:4]) > end) or (not end and int(box['id'][2:4]) != start):
+        if (series and box['base_id.model_type'] != series) or \
+		(style and (style not in box['box_style.styles'])) or \
+		(int(box['id'][2:4]) < start) or \
+		((end and int(box['id'][2:4]) > end) or (not end and int(box['id'][2:4]) != start)):
 	    continue
 	boxes.append(box)
-    boxes.sort(key=lambda x: x['id'])
+    boxes.sort(key=lambda x: x['id'][2:])
 
-    lrange = dict(note='')
-    lrange['entry'] = [{'mod': show_model(pif, box), 'box': show_box(pif, box, style, sized=verbose)} for box in boxes]
-    lsection = dict(columns=['mod', 'box'], headers={'mod': 'Model', 'box': 'Box'}, range=[lrange], note='')
+    lrange = dict(note='', entry=list())
+    for mod in boxes:
+	box_styles = style if style else mod['box_style.styles']
+	ent = {'mod': {'txt': show_model(pif, mod, compact=compact), 'rows': len(box_styles)}}
+	for box_style in box_styles:
+	    picroots = list(set([(mod['id'] + '-' + box_style).lower()] +
+		[x[x.rfind('/') + 3:-4] for x in glob.glob(os.path.join(config.IMG_DIR_BOX, ('?_' + mod['id'] + '-' + box_style + '?.jpg').lower()))]))
+	    picroots.sort()
+	    hdr = "<b>%s style</b>" % box_style
+	    if verbose:
+		for picsize in 'mcs':
+		    imgs = [get_box_image(pif, picroot, picsize, compact=compact) for picroot in picroots]
+		    if compact:
+			ostr = hdr + ''.join(imgs)
+		    else:
+			ostr = "<center>%s</center>" % hdr + '<br>'.join(imgs)
+		    if pif.is_allowed('ma'):
+			ostr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
+		    ent[picsize] = {'txt': ostr}
+	    else:
+		pic = ''.join([get_box_image(pif, picroot) for picroot in picroots])
+		ent['box'] = {'txt': "<center>%s<br>%s</center>" % (hdr, pic)}
+	    lrange['entry'].append(copy.deepcopy(ent))
+	    ent['mod'] = None
+    lsection = dict(columns=columns, headers=headers, range=[lrange], note='')
     llistix = dict(section=[lsection])
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.render.format_template('boxes.html', llistix=llistix)
 
 
 def box_ask(pif):
@@ -196,10 +195,10 @@ def count_boxes(pif):
             continue
         if series and box['base_id.model_type'] != series:
             continue
-        if style and style not in box['casting.box_styles']:
+        if style and style not in box['box_style.styles']:
             continue
 
-        for c in box['casting.box_styles'].replace('-', ''):
+        for c in box['box_style.styles'].replace('-', ''):
             if pif.render.find_image_path(['s_' + box['id'] + '-' + c], pdir=config.IMG_DIR_BOX):
                 im_count += 1
             if pif.render.find_image_path(['c_' + box['id'] + '-' + c], pdir=config.IMG_DIR_BOX):

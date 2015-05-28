@@ -219,6 +219,9 @@ class PageInfoFile:
             self.dbh.increment_counter(self.page_id)
 	    self.log.count.info(self.page_id)
 	    self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
+	    refer = os.environ.get('HTTP_REFERER', '')
+	    if refer:
+		self.log.refer.info(refer)
 
     def get_page_id(self, page_id, form_key, defval):
         if form_key:
