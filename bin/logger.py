@@ -113,6 +113,11 @@ class Logger:
             'handlers': ['count'],
             'propagate': False,
         },
+        'refer': {
+            'level': 'INFO',
+            'handlers': ['refer'],
+            'propagate': False,
+        },
     },
     'root': {
         'handlers': ['root'],
