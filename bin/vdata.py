@@ -83,17 +83,62 @@ def read_filenames(fil):
     return changes
 
 
+cmt_re = re.compile(r'<!--.*?-->', re.S)
+hln_re = re.compile(r'\\hline')
+div_re = re.compile('</?div.*?>', re.S | re.M)
+tab_re = re.compile(r'<table[^>]*>(?P<c>.*?)</table>', re.S)
+row_re = re.compile(r'<tr[^>]*>(?P<c>.*?)</tr>', re.S)
+cel_re = re.compile(r'<t(?P<t>[hd])[^>]*>(?P<c>.*?)</t[hd]>', re.S)
+mup_re = re.compile(r'<[^>]*>', re.S)
+def get_html_tables(fn, markups=True):
+    f = open(fn).read()
+    f = cmt_re.sub('', f)
+    f = hln_re.sub('', f)
+    f = div_re.sub('', f)
+
+    tables = list()
+    while 1:
+	fitab = tab_re.search(f)
+	if not fitab:
+	    rest = f
+	    break
+
+	pred = f[:fitab.start()]
+	tab_con = fitab.group('c')
+	rows = list()
+	while 1:
+	    row = row_re.search(tab_con)
+	    if not row:
+		break
+
+	    row_con = row.group('c')
+	    cels = list()
+	    while 1:
+		cel = cel_re.search(row_con)
+		if not cel:
+		    break
+
+		cel_con = cel.group('c')
+		if markups:
+		    cel_con = mup_re.sub('', cel_con)
+		cels.append(cel_con.strip())
+
+		row_con = row_con[cel.end():]
+	    tab_con = tab_con[row.end():]
+	    rows.append(cels)
+	f = f[fitab.end():]
+	tables.append([pred, rows, ''])
+    if tables:
+	tables[-1][-1] = rest
+    else:
+	tables.append(['', list(), rest])
+    return tables
+
+
 class VariationImportData:
 
     # ------ html ------------------------------------------------
 
-    cmt_re = re.compile(r'<!--.*?-->', re.S)
-    hln_re = re.compile(r'\\hline')
-    mup_re = re.compile(r'<[^>]*>', re.S)
-    tab_re = re.compile(r'<table[^>]*>(?P<c>.*?)</table>', re.S)
-    row_re = re.compile(r'<tr[^>]*>(?P<c>.*?)</tr>', re.S)
-    cel_re = re.compile(r'<t(?P<t>[hd])[^>]*>(?P<c>.*?)</t[hd]>', re.S)
-    div_re = re.compile('</?div.*?>', re.S | re.M)
 
     column_split_delim = {
         'body_license_plate': ' ',
@@ -122,48 +167,6 @@ class VariationImportData:
         self.post_change = read_cell_change('vpost')
 
     # ------ data ------------------------------------------------
-
-    def get_html_tables(self, fn):
-        f = open(fn).read()
-        f = self.cmt_re.sub('', f)
-        f = self.hln_re.sub('', f)
-        f = self.div_re.sub('', f)
-
-        tables = list()
-        while 1:
-            fitab = self.tab_re.search(f)
-            if not fitab:
-                rest = f
-                break
-
-            pred = f[:fitab.start()]
-            tab_con = fitab.group('c')
-            rows = list()
-            while 1:
-                row = self.row_re.search(tab_con)
-                if not row:
-                    break
-
-                row_con = row.group('c')
-                cels = list()
-                while 1:
-                    cel = self.cel_re.search(row_con)
-                    if not cel:
-                        break
-
-                    cel_con = self.mup_re.sub('', cel.group('c'))
-                    cels.append(cel_con)
-
-                    row_con = row_con[cel.end():]
-                tab_con = tab_con[row.end():]
-                rows.append(cels)
-            f = f[fitab.end():]
-            tables.append([pred, rows, ''])
-        if tables:
-            tables[-1][-1] = rest
-        else:
-            tables.append(['', list(), rest])
-        return tables
 
     # ------ support ---------------------------------------------
 

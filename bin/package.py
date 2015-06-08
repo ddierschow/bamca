@@ -111,19 +111,11 @@ def show_model(pif, mod, compact=False):
     return ostr
 
 
-def show_boxes(pif):
-    pif.render.print_html()
+def find_boxes(pif):
     series = pif.form.get_str('series')
     style = pif.form.get_str('style')
-    verbose = pif.form.get_bool('verbose')
-    compact = pif.form.get_bool('c')
     start = pif.form.get_int('start', 1)
     end = pif.form.get_int('end', 99)
-    headers = {'mod': 'Model', 'm': 'M', 'c': 'C', 's': 'S', 'box': 'Box'}
-    if verbose:
-	columns = ['mod', 'm', 'c', 's']
-    else:
-	columns = ['mod', 'box']
     boxes = list()
     for box in pif.dbh.fetch_castings_by_box(series, style):
         box['id'] = box['alias.id'] if box.get('alias.id') else box['casting.id']
@@ -133,16 +125,36 @@ def show_boxes(pif):
 		((end and int(box['id'][2:4]) > end) or (not end and int(box['id'][2:4]) != start)):
 	    continue
 	boxes.append(box)
-    boxes.sort(key=lambda x: x['id'][2:])
+    boxes.sort(key=lambda x: x['id'][2:4] + x['id'][0:2] + x['id'][4:])
+    return boxes
+
+
+def get_pic_roots(mod_id, box_style):
+    picroots = list(set([(mod_id + '-' + box_style).lower()] +
+	[x[x.rfind('/') + 3:-4] for x in glob.glob(os.path.join(config.IMG_DIR_BOX, ('?_' + mod_id + '-' + box_style + '?.jpg').lower()))]))
+    picroots.sort()
+    return picroots
+
+
+def show_boxes(pif):
+    pif.render.print_html()
+    verbose = pif.form.get_bool('verbose')
+    compact = pif.form.get_bool('c')
+    style = pif.form.get_str('style')
+    headers = {'mod': 'Model', 'm': 'M', 'c': 'C', 's': 'S', 'box': 'Box'}
+    columns = ['mod', 'm', 'c', 's'] if verbose else ['mod', 'box']
+
+    boxes = find_boxes(pif)
 
     lrange = dict(note='', entry=list())
     for mod in boxes:
 	box_styles = style if style else mod['box_style.styles']
 	ent = {'mod': {'txt': show_model(pif, mod, compact=compact), 'rows': len(box_styles)}}
+	ent1 = ent
 	for box_style in box_styles:
-	    picroots = list(set([(mod['id'] + '-' + box_style).lower()] +
-		[x[x.rfind('/') + 3:-4] for x in glob.glob(os.path.join(config.IMG_DIR_BOX, ('?_' + mod['id'] + '-' + box_style + '?.jpg').lower()))]))
-	    picroots.sort()
+	    picroots = get_pic_roots(mod['id'], box_style)
+	    if verbose:
+		ent1['mod']['txt'] += '<br>' + '<br>'.join(picroots)
 	    hdr = "<b>%s style</b>" % box_style
 	    if verbose:
 		for picsize in 'mcs':
@@ -157,8 +169,8 @@ def show_boxes(pif):
 	    else:
 		pic = ''.join([get_box_image(pif, picroot) for picroot in picroots])
 		ent['box'] = {'txt': "<center>%s<br>%s</center>" % (hdr, pic)}
-	    lrange['entry'].append(copy.deepcopy(ent))
-	    ent['mod'] = None
+	    lrange['entry'].append(ent)
+	    ent = dict(mod=None)
     lsection = dict(columns=columns, headers=headers, range=[lrange], note='')
     llistix = dict(section=[lsection])
     return pif.render.format_template('boxes.html', llistix=llistix)
@@ -210,5 +222,29 @@ def count_boxes(pif):
     return pr_count, im_count
 
 
+@basics.command_line
+def commands(pif):
+
+    boxes = find_boxes(pif)
+
+    for mod in boxes:
+	box_styles = mod['box_style.styles']
+	for box_style in box_styles:
+	    picroots = get_pic_roots(mod['id'], box_style)
+	    for picroot in picroots:
+		print '%-9s' % picroot,
+		for picsize in 'mcs':
+		    img = pif.render.find_image_path(picroot, prefix=picsize + '_', pdir=config.IMG_DIR_BOX)
+		    if not img:
+			print '.',
+		    else:
+			imginf = imglib.img_info(img)
+			if imginf[1] < mbdata.imagesizes[picsize][0]:
+			    print picsize,
+			else:
+			    print picsize.upper(),
+		print
+
+
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    commands(dbedit='')

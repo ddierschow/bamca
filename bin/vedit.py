@@ -181,9 +181,9 @@ def read_html_file(pif, vid, fdir, fn):
     if not modids:
         pass
     elif os.path.exists(fdir + '/' + fn + '.html'):
-        fitabs = vid.get_html_tables(fdir + '/' + fn + '.html')
+        fitabs = vdata.get_html_tables(fdir + '/' + fn + '.html')
     elif os.path.exists(fdir + '/' + fn + '.htm'):
-        fitabs = vid.get_html_tables(fdir + '/' + fn + '.htm')
+        fitabs = vdata.get_html_tables(fdir + '/' + fn + '.htm')
     return modids, fitabs
 
 

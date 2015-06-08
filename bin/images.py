@@ -697,7 +697,9 @@ class EditForm(imglib.ActionForm):
 	man = self.man.lower()
 	print 'mass_resize', 'pth', self.pth, 'tdir "%s"' % self.tdir, 'fn', self.fn, 'ot', self.ot, 'os', self.original_size, '|', man, var, '<hr>'
 
-	nname_root = self.fn
+	nname_root = self.man if self.man else self.fn
+	if self.suff:
+	    nname_root += '-' + self.suff
 	if len(nname_root) > 2 and nname_root[0] in mbdata.image_size_names and nname_root[1] == '_':
 	    nname_root = nname_root[2:]
 	if '.' in nname_root:
@@ -705,11 +707,11 @@ class EditForm(imglib.ActionForm):
 	xos, yos = self.original_size
 
 	ot = '.' + self.ot if self.ot else self.fn[self.fn.rfind('.') + 1:]
-	ddir = self.tdir
+	ddir = self.dest if self.dest else self.tdir
 	outnam = '_' + nname_root + ot
-	if self.tdir == config.IMG_DIR_PACK: # or self.tdir == './' + config.IMG_DIR_PACK:
+	if self.dest == config.IMG_DIR_PACK or self.tdir == config.IMG_DIR_PACK: # or self.tdir == './' + config.IMG_DIR_PACK:
 	    prefs = 'scmlh'
-	elif self.tdir == config.IMG_DIR_BOX:
+	elif self.dest == config.IMG_DIR_BOX or self.tdir == config.IMG_DIR_BOX:
 	    prefs = 'scm'
 	else:
 	    ddir = (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
@@ -721,15 +723,17 @@ class EditForm(imglib.ActionForm):
 		break
 	    self.nname = nname_root + '_' + pref + ot
 	    self.set_target_size(mbdata.imagesizes[pref])
+	    dnam = pref + outnam
+	    dpth = os.path.join(ddir, dnam)
+	    print 'resizing', self.tdir, self.nname, 'to', dpth, '<br>'
 	    if self.unlv and self.unlh:
 		nname = self.crop_image()
 	    elif self.unlv or self.unlh:
 		nname = self.shrink_image()
 	    else:
 		nname = self.shape_image()
-	    dnam = pref + outnam
-	    useful.file_mover(os.path.join(self.tdir, nname), os.path.join(ddir, dnam), mv=True, ov=True)
-	    print '<br><img src="/%s"><hr>' % os.path.join(ddir, dnam)
+	    useful.file_mover(os.path.join(self.tdir, nname), dpth, mv=True, ov=True)
+	    print '<br><img src="/%s"><hr>' % dpth
 
 	if self.mv:
 	    useful.file_delete(self.pth, True)
