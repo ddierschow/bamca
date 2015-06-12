@@ -218,6 +218,7 @@ class DBHandler:
         self.write('variation_select', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('variation_select', {'sub_id': new_mod_id}, where="sub_id='%s'" % old_mod_id, modonly=True)
         self.write('box_style', {'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
+        self.write('box_type', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('link_line', {'page_id': 'single.' + new_mod_id}, where="page_id='single.%s'" % old_mod_id, modonly=True)
 
     def update_base_id(self, id, values):
@@ -240,7 +241,7 @@ class DBHandler:
             return alist[0]
         return {}
 
-    def fetch_castings_by_box(self, series, style):
+    def fetch_castings_by_box_old(self, series, style):
         wheres = ['casting.id=base_id.id']
         if series:
             wheres.append("base_id.model_type='%s'" % series)
@@ -251,6 +252,19 @@ class DBHandler:
         #ljoins = [('alias', "base_id.id=alias.ref_id")]  # and alias.section_id != ''")]
         wheres = ['box_style.id=alias.id', 'alias.ref_id=casting.id'] + wheres
         fet2 = self.fetch('box_style,alias,casting,base_id', where=wheres, tag='CastingsByBox', verbose=0)
+        return fet1 + fet2
+
+    def fetch_castings_by_box(self, series, style):
+        wheres = ['casting.id=base_id.id']
+        if series:
+            wheres.append("base_id.model_type='%s'" % series)
+        if style:
+            wheres.append("box_type.box_type like '%s%%'" % style)
+        fet1 = self.fetch('box_type,casting,base_id', where=['box_type.mod_id=casting.id'] + wheres, tag='CastingsByBox', verbose=0)
+
+        #ljoins = [('alias', "base_id.id=alias.ref_id")]  # and alias.section_id != ''")]
+        wheres = ['box_type.mod_id=alias.id', 'alias.ref_id=casting.id'] + wheres
+        fet2 = self.fetch('box_type,alias,casting,base_id', where=wheres, tag='CastingsByBox', verbose=0)
         return fet1 + fet2
 
     def fetch_casting_by_alias(self, id):
@@ -298,6 +312,9 @@ class DBHandler:
 
     def fetch_casting_dict(self):
 	return {x['base_id.id'].lower(): self.modify_man_item(x) for x in self.fetch_casting_list()}
+
+    def fetch_casting_by_id_or_alias(self, id):
+        return self.fetch('base_id,casting', left_joins=[('alias', 'casting.id=alias.ref_id')], where="base_id.id=casting.id and (casting.id='%s' or alias.id='%s')" % (id, id), tag='CastingsByIdOrAlias')
 
     def write_casting(self, values, id):
         return self.write('casting', values=values, where='id="' + id + '"', modonly=True, tag='Casting', verbose=True)
@@ -963,6 +980,17 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
     def delete_pack_models(self, ref_id, pack_id):
         self.delete('pack_model', "pack_id='%s'" % pack_id)
         self.delete('variation_select', where="ref_id='%s' and sub_id='%s'" % (ref_id, pack_id))
+
+    #- box_type
+
+    def fetch_box_type(self, box_id):
+	return self.fetch('box_type', where={"id": box_id}, verbose=True)
+
+    def fetch_box_type_by_mod(self, mod_id, box_style=None):
+	where = 'mod_id="%s"' % mod_id
+	if box_style:
+	    where += ' and box_type like "%s%%"' % box_style
+	return self.fetch('box_type', where=where, verbose=True)
 
     #- user
 

@@ -889,6 +889,7 @@ class ActionForm(object):
 	['i', 'interior'],
 	['p', 'prototype'],
 	['r', 'real'],
+	['x', 'box'],
     ]
 
     sel_moveto = [

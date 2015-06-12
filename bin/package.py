@@ -90,6 +90,266 @@ def blister(pif):
 
 # -- boxart
 
+# id, mod_id, box_type, pic_id, box_size
+# n_x, additional_text, bottom, sides, end_flap, year, notes
+box_lookups = {
+    'box_type': {
+	'_title': 'Box Type',
+	'A': 'A: line drawing, A Moko LESNEY (script) in scroll, 1953-54',
+	'B1': 'B1: line drawing, A MOKO LESNEY (capitals) in scroll, 1955-56',
+	'B2': 'B2: line drawing, A MOKO LESNEY (capitals) in scroll, 1957-58',
+	'B3': 'B3: line drawing, A MOKO LESNEY (capitals) in scroll, 1958-59',
+	'B4': 'B4: line drawing, A MOKO LESNEY (capitals) in scroll, 1959',
+	'B5': 'B5: line drawing, A MOKO LESNEY (capitals) in scroll, 1960',
+	'C': 'C: line drawing, A LESNEY in scroll, 1961',
+	'D1': 'D1: colour picture, "MATCHBOX" Series in arch, 1962',
+	'D2': 'D2: colour picture, "MATCHBOX" Series in arch, 1963-66',
+	'E1': 'E1: colour picture, "MATCHBOX" in arch, 1964-66',
+	'E2': 'E2: colour picture, "MATCHBOX" in arch, 1964-66',
+	'E3': 'E3: colour picture, "MATCHBOX" in arch, 1966',
+	'E3R': 'E3R: colour picture, "MATCHBOX" in arch with "&reg;", 1968',
+	'E4': 'E4: colour picture, "MATCHBOX" in arch, 1967',
+	'E4R': 'E4R: colour picture, "MATCHBOX" in arch with "&reg;", 1968',
+	'F': 'F: colour picture, "MATCHBOX" straight, 1969',
+	'G': 'G: colour picture, "MATCHBOX" italic, 1970-75',
+	'H': '''H: colour picture, "MATCHBOX" bold italic with tyre, 1971-76''',
+	'I': 'I: colour picture, "MATCHBOX" bold italic, 1972-79',
+	'J': 'J: colour picture, "MATCHBOX" in oval, number/name in centre, 1975-82',
+	'K': 'K: colour picture, "MATCHBOX" in oval, number/name at bottom, 1976-82',
+	'L': 'L: colour picture, "MATCHBOX" in oval, colour picture on side, 1977-82',
+    },
+    'bottom': {
+	'_title': 'Bottom Line Text',
+	'NONE': 'no text at bottom',
+	'C1': 'MADE IN ENGLAND, bottom centre',
+	'C2': 'MADE IN ENGLAND, bottom right',
+	'AMS':  'A Moko LESNEY PRODUCT (Moko in script)',
+	'AML':  'A MOKO LESNEY PRODUCT (MOKO in block capitals)',
+	'ALS':  'A LESNEY PRODUCT (scroll)',
+	'ALP':  'A LESNEY PRODUCT (straight)',
+	'LPC':  'LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
+	'MIR1': '''"MATCHBOX" IS THE REG'D T.M. OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND''',
+	'MRT1': '''"MATCHBOX" REG'D T.M. LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND''',
+	'MRT2': '''&copy; 197x "MATCHBOX" REG'D T.M. LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND''',
+	'MRT3': '''&copy; 197x "MATCHBOX" REG'D T.M. MARCA REGISTRADA LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND''',
+	'MRM':  '''MARCA REGISTRADA &copy; 197x "MATCHBOX" REG'D T.M. LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND''',
+	'MIR2': '''"MATCHBOX" IS THE REG'D TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND''',
+	'MMR1': '"MATCHBOX", "MARCA REGISTRADA" REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
+	'MMR2': '"MATCHBOX", "MARCA REGISTRADA" REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON E.9 5PA ENGLAND',
+	'CNG':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.', #(combined with MRT3, MIR2, MMR1 or MMR2)',
+	'CNN':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS', #(combined with MRT3, MIR2, MMR1 or MMR2)',
+	'MMR3': '"MATCHBOX" (MARCA REGISTRADA) REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
+	'MIR3': '"MATCHBOX" IS THE REGISTERED TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
+	'MIR4': '"MATCHBOX" IS THE REGISTERED TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS P.L.C. LONDON ENGLAND',
+	'2':
+'''two lines inside top (English and French):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHSNE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS
+one line inside bottom:
+CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.''',
+	'4A':
+'''four lines inside top (English and French):
+CAUTION: CONTAINS SMALL PARTS.NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.ATTENTION! CONTIENT PETITES PIECES.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.
+one line inside bottom:
+CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.''',
+	'5A':
+'''five lines inside top (English, French and Italian):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NON ADATTO AD UN BAMBINO DI ETA MINORE AL 36MESI. CONFORME PRESCRIZIONE DM 31.7.79.''',
+	'8':
+'''eight lines inside top (English, French and Italian):
+CAUTION: CONTAINS SMALL PARTS.NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.ATTENTION! CONTIENT DES PETITES PIECES.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.AVVERTIMENTO: CONTIENE PICCOLI PEZZI. NON ADATTOAD UN BAMBINO DI ETA MINORE AL 36 MESI.CONFORME PRESCRIZIONE DM 31.7.79.''',
+	'4B':
+'''four lines inside top (English, French and Swedish):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHSNE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOISINNEH&Aring;LLER SM&Aring;DELAR EJ L&Auml;PLIGT F&Ouml;RBARN UNDER 3 &Aring;R.
+one line inside bottom:
+CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.''',
+	'5B':
+'''five lines inside top (English, French, Italian, German and Swedish, used in Australia only):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHSNE CONVIENT PAS A UN ENFANT DE MOINS DE 36 MOISNON ADATTO AD UN BAMBINO DI ET&Aacute; MINORE AI 36 MESIGEEIGNET F&Uuml;R KINDER AD DERI JAPHENINNEH&Aring;LLER SM&Aring;DELAR EI L&Auml;MPLIGT FOR BARN UNDER 3 &Aring;R''',
+	'6':
+'''six lines inside top (English, French, Italian and Swedish):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NON ADATTO AD UN BAMBINO DI ETA MINORE AL 36MESI. CONFORME PRESCRIZIONE DM 31.7.79.INNEH&Aring;LLER SM&Aring;DELAR EJ L&Auml;MPLIGT F&Ouml;R BARN UNDER 3 &Aring;R.''',
+	'1':
+'''one line inside top (English, used in USA only):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
+	'B3': 'black &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND on side',
+	'B4': 'black &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND on side',
+	'B5': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN on side',
+	'B6': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN on side',
+	'B7': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND on side',
+	'W3': 'white &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND on side',
+	'W4': 'white &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND on side',
+	'W5': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN on side',
+	'W6': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN on side',
+	'W7': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND on side',
+	'NRC': 'Not recommended for children under 3.',
+    },
+    'box_size': {
+	'_title': 'Box Size',
+	'1': 'short/very narrow (2.250 x 0.875 x 1.500 inches, 57 x 22 x 38 millimeters)',
+	'2': 'short/narrow (2.250 x 1.000 x 1.500 inches, 57 x 26 x 38 millimeters)',
+	'3': 'medium/narrow (2.625 x 1.000 x 1.500 inches, 67 x 26 x 38 millimeters)',
+	'4': 'medium/wide (2.625 x 1.500 x 1.500 inches, 67 x 38 x 38 millimeters)',
+	'5': 'long/narrow (3.063 x 1.000 x 1.500 inches, 78 x 26 x 38 millimeters)',
+	'6': 'long/medium (3.063 x 1.250 x 1.500 inches, 78 x 33 x 38 millimeters)',
+	'7': 'long/wide (3.063 x 1.500 x 1.500 inches, 78 x 38 x 38 millimeters)',
+    },
+    'end_flap': {
+	'_title': 'End Flap Design',
+	'P': 'plain blue',
+	'BN': 'black number',
+	'BNWC': 'black number in white circle',
+	'BMWP': 'black model name in white panel',
+	'WM': 'white model name',
+	'L': 'model name in lowercase letters',
+	'U': 'model name in uppercase letters',
+	'LWS': 'model name lettering with serifs',
+	'LNS': 'model name lettering without serifs',
+	'E1': 'model number and name',
+	'E2': 'model number, name and detail drawing',
+	'E3': 'colour picture',
+	'E3R': 'colour picture',
+	'E4': 'MATCHBOX" and colour picture',
+	'E4R': 'MATCHBOX" with "^reg;" and colour picture',
+	'SCC': 'SPECIFICATION AND COLOUR OF CONTENTS SUBJECT TO AMENDMENT',
+	'X': '',
+	'MK 2': "MARK 2",
+	'MK 3': "MARK 3",
+	'MK 4': "MARK 4",
+	'MK 5': "MARK 5",
+	'MK 6': "MARK 6",
+	'CTC': 'MADE BY LESNEY PRODUCTS &amp; CO. LTD., AND SOLD UNDER PERMISSION FROM CATERPILLAR TRACTOR COMPANY.',
+	'N': '"NEW"',
+	'NM': '"NEW MODEL"',
+    },
+    'n_x': {
+	'_title': 'Showing NEW Model',
+	'N': '"NEW"',
+	'NM': '"NEW MODEL"',
+	'NME': '"NEW MODEL" on end flap',
+	'X': 'no',
+	'RNF': 'red "NEW", red frame',
+	'BNF': 'black "NEW", red frame',
+	'XF': 'no "NEW", red frame',
+    },
+    'sides': {
+
+##|Box generations|Years|Lettering|Location|Combined w/ bottom types
+#3|--------IJKL|1973-81|&copy; 19xx LESNEY PRODUCTS &amp; CO. LTD.MADE IN ENGLAND|on sides|11 - 17
+#4|--------I---|1974|&copy; 1973 LESNEY PRODUCTS &amp; CO. LTD.PRINTED AND MADE IN ENGLAND|on sides|11, 14, 15
+#5|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD.MADE IN GREAT BRITAIN|on sides|11, 15
+#6|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD.PRINTED AND MADE IN GREAT BRITAIN|on sides|11, 15
+#7|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD.LONDON ENGLAND|on sides|11, 15
+#8|-----------L|1981|&copy; 198x LESNEY PRODUCTS &amp; CO. LTD.MADE IN HONG KONG|on sides|17
+#9|-----------L|1982|&copy; 1981 LESNEY PRODUCTS P.L.C.MADE IN ENGLAND|on sides|18
+	'_title': 'Box Sides',
+	'1BS': 'one blue side (other side is black)',
+	'2BS': 'two blue sides',
+	'LBS': 'two light blue sides',
+	'DR': 'drawings of the model',
+	'SF': '"Superfast" lettering',
+	'DRA': 'drawings of the model',
+	'SFP': '"Superfast" lettering parallel to edge',
+	'SFA': '"Superfast outraces them all" at an angle to edge',
+	'FCS': "'FAT-WHEEL' CUSHION SUSPENSION",
+	'HCS': "HI-SPEED 'CROSS COUNTRY' SUSPENSION",
+	'HFS': 'HI-SPEED FREIGHTLINE SUSPENSION',
+	'HHR': 'HI-SPEED HEAVY-DUTY ROLLERS',
+	'MRS': 'MAG-WHEELS-RACING SUSPENSION',
+	'MPT': 'METALLIZED PARTS AND TOWING HOOK',
+	'SAF': "SUPERFAST 'AUTOMATIC' FEATURES",
+	'STC': 'SUPER TRACTION CATERPILLAR TRACK',
+	'WRT': 'WIDE RACING-SLICKS TORSION SPRINGING',
+	'PTF': 'WITH PROP-STAND AND TURNING FRONT FORKS',
+	'4HS': "4-WHEEL 'HOVERSPRING' SUSPENSION",
+	'TST': '"TESTED" mark',
+	'RS': 'RACING SUSPENSION / HIGH SPEED MAG-WHEELS',
+    },
+    'additional_text': {
+	'_title': 'Additional Text',
+	# ABC
+	'NO': 'No. with model number',
+	# DE
+	'NUM': 'Model number',
+	# F
+	'AST': '"AUTOSTEER"',
+	'BSF': 'black "Superfast"',
+	'RLB': '"SERIES" in red left of blue number box',
+	'RSF': 'red "Superfast"',
+	'RUB': '"SERIES" in red under oblong blue number box',
+	'WIB': '"SERIES" in white in blue number box',
+	# G
+	'BLK': 'black "TM" on front, black "TM" on side',
+	'RED': 'red "TM" on front, black "TM" on side',
+	# GIJKL
+	'NON': 'no "TM", no additional lettering',
+	# H
+	'H1': '''black number inside a red frame, no "Superfast" lettering nor model name on front''',
+	'H2': '''black number without frame, "Superfast" lettering and model name on front''',
+	'N': '"NEW"',
+	# I
+	'CHO': '"Choppers" on fronts, "Superfast" on sides',
+	'Sup': '"Superfast" in script on sides',
+	# IJKL
+	'ROL': '"Rola-matics" on fronts and sides',
+	# J
+	'STR': 'Streakers',
+	# JKL
+	'SUP': '"SUPERFAST" in block capitals on sides',
+
+	'NM': '"NEW MODEL"',
+	'RNF': 'model number and red "NEW" in red frame',
+	'BNF': 'model number and black "NEW" in red frame',
+	'NF': 'model number in red frame',
+    },
+    'year': {
+	'_title': 'Year on Box',
+    },
+    'notes': {
+	'_title': 'Notes',
+    },
+}
+
+def single_box(pif, mod, box):
+    ign_cols = ['id', 'mod_id', 'pic_id']
+    pic_name = ('x_%s-%s%s' % (box['mod_id'], box['box_type'][0], box['pic_id'])).lower()
+    pics = pif.render.find_image_files(pic_name + '*')
+    if mod:
+	ostr = show_model(pif, mod)
+    else:
+	ostr = box['mod_id'] + '<br>'
+    ostr += pic_name + '<br>\n'
+    for col in pif.dbh.get_table_info('box_type')['columns']:
+	if col not in ign_cols:
+	    if box[col]:
+		ostr += '<b>%s</b><ul>\n' % box_lookups.get(col, {}).get('_title', col)
+		for spec in box[col].split('/'):
+		    ostr += '<li>%s\n' % box_lookups.get(col, {}).get(spec, spec).replace('\n', '<br>')
+		ostr += '</ul>\n'
+    ostr += '<center>' + pif.render.format_image_selector(pics, pic_name) + '</center>'
+    istr = pif.render.format_image_selectable(pics, pic_name)
+    if pif.is_allowed('ma'):
+	istr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, pic_name + '.jpg', istr)
+    ent = {'inf': ostr, 'pic': istr }
+    return ent
+
+def single_box_type(pif):
+    if pif.form.get_str('box'):
+	boxes = pif.dbh.fetch_box_type(pif.form.get_str('box'))
+    elif pif.form.get_str('mod'):
+	boxes = pif.dbh.fetch_box_type_by_mod(pif.form.get_str('mod'), pif.form.get_str('ty'))
+    if not boxes:
+	raise useful.SimpleError("No matching boxes found.")
+    boxes = pif.dbh.depref('box_type', boxes)
+    mod = pif.dbh.fetch_casting_by_id_or_alias(boxes[0]['mod_id'])
+    if mod:
+	mod = mod[0]
+	mod['id'] = mod['alias.id'] if mod['alias.ref_id'] else mod['casting.id']
+
+    lsection = dict(columns=['inf', 'pic'], headers={'inf': 'Box Information', 'pic': 'Box Picture'},
+	range=[dict(entry=[single_box(pif, mod, x) for x in boxes], note='')], note='')
+    llistix = dict(section=[lsection])
+    return llistix
+
 # need to add va, middle to eb_1 style
 
 def get_box_image(pif, picroot, picsize=None, compact=False):
@@ -116,28 +376,39 @@ def find_boxes(pif):
     style = pif.form.get_str('style')
     start = pif.form.get_int('start', 1)
     end = pif.form.get_int('end', 99)
-    boxes = list()
+    boxes = dict()
     for box in pif.dbh.fetch_castings_by_box(series, style):
         box['id'] = box['alias.id'] if box.get('alias.id') else box['casting.id']
+	pic_name = ('x_%s-%s%s' % (box['box_type.mod_id'], box['box_type.box_type'][0], box['box_type.pic_id'])).lower()
+	is_pic = int(os.path.exists(os.path.join(config.IMG_DIR_BOX, pic_name + '.jpg')))
+	sortid = box['id'][2:4] + box['id'][0:2] + box['id'][4:] + box['box_type.box_type'][0]
+	if sortid in boxes:
+	    boxes[sortid]['count'] += 1
+	    boxes[sortid]['pics'] += is_pic
+	    continue
         if (series and box['base_id.model_type'] != series) or \
-		(style and (style not in box['box_style.styles'])) or \
+		(style and (style != box['box_type.box_type'][0])) or \
 		(int(box['id'][2:4]) < start) or \
 		((end and int(box['id'][2:4]) > end) or (not end and int(box['id'][2:4]) != start)):
 	    continue
-	boxes.append(box)
-    boxes.sort(key=lambda x: x['id'][2:4] + x['id'][0:2] + x['id'][4:])
+	box['count'] = 1
+	box['pics'] = is_pic
+	boxes[sortid] = box
     return boxes
 
 
 def get_pic_roots(mod_id, box_style):
-    picroots = list(set([(mod_id + '-' + box_style).lower()] +
-	[x[x.rfind('/') + 3:-4] for x in glob.glob(os.path.join(config.IMG_DIR_BOX, ('?_' + mod_id + '-' + box_style + '?.jpg').lower()))]))
+    picroots = glob.glob(os.path.join(config.IMG_DIR_BOX, ('[scm]_' + mod_id + '-' + box_style + '?.jpg').lower()))
+    picroots = list(set([(mod_id + '-' + box_style).lower()] + [x[x.rfind('/') + 3:-4] for x in picroots]))
     picroots.sort()
     return picroots
 
 
 def show_boxes(pif):
     pif.render.print_html()
+    if pif.form.get_str('box') or pif.form.get_str('mod'):
+	return pif.render.format_template('simplelistix.html', llineup=single_box_type(pif))
+
     verbose = pif.form.get_bool('verbose')
     compact = pif.form.get_bool('c')
     style = pif.form.get_str('style')
@@ -147,11 +418,18 @@ def show_boxes(pif):
     boxes = find_boxes(pif)
 
     lrange = dict(note='', entry=list())
-    for mod in boxes:
-	box_styles = style if style else mod['box_style.styles']
-	ent = {'mod': {'txt': show_model(pif, mod, compact=compact), 'rows': len(box_styles)}}
+    boxids = boxes.keys()
+    boxids.sort()
+    modids = list(set([x[:5] for x in boxids]))
+    modids.sort()
+    for mod_id in modids:
+	mod_box_ids = [x for x in boxids if x.startswith(mod_id)]
+	mod_box_ids.sort()
+	ent = {'mod': {'txt': show_model(pif, boxes[mod_box_ids[0]], compact=compact), 'rows': len(mod_box_ids)}}
 	ent1 = ent
-	for box_style in box_styles:
+	for mod_box_id in mod_box_ids:
+	    mod = boxes[mod_box_id]
+	    box_style = mod['box_type.box_type'][0]
 	    picroots = get_pic_roots(mod['id'], box_style)
 	    if verbose:
 		ent1['mod']['txt'] += '<br>' + '<br>'.join(picroots)
@@ -166,9 +444,12 @@ def show_boxes(pif):
 		    if pif.is_allowed('ma'):
 			ostr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
 		    ent[picsize] = {'txt': ostr}
+		ent['s']['txt'] += '<br>' + pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)) + '%d/%d' % (mod['pics'], mod['count'])
 	    else:
 		pic = ''.join([get_box_image(pif, picroot) for picroot in picroots])
 		ent['box'] = {'txt': "<center>%s<br>%s</center>" % (hdr, pic)}
+		if pif.is_allowed('ma'):
+		    ent['box']['txt'] += '<br>' + pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)) + '%d/%d' % (mod['pics'], mod['count'])
 	    lrange['entry'].append(ent)
 	    ent = dict(mod=None)
     lsection = dict(columns=columns, headers=headers, range=[lrange], note='')

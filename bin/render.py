@@ -2,7 +2,7 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-import cgi, copy, os, re, sys
+import cgi, copy, glob, os, re, sys
 import jinja2
 import config
 import javascript
@@ -160,6 +160,24 @@ class Presentation():
 
     def find_art(self, fnames, suffix="gif"):
         return self.find_image_path(fnames, suffix=suffix, art=True)
+
+    def find_image_files(self, fnames, suffix=None, pdir=None, art=False):
+        if isinstance(fnames, str):
+            fnames = [fnames]
+        if suffix is None:
+            suffix = graphic_types
+        elif isinstance(suffix, str):
+            suffix = [suffix]
+        if not pdir:
+            if art:
+                pdir = self.art_dir
+            else:
+                pdir = self.pic_dir
+	retfiles = list()
+	for fname in fnames:
+	    for sfx in suffix:
+		retfiles.extend(glob.glob(os.path.join(pdir, fname + '.' + sfx))) # + glob.glob(os.path.join(pdir, fname.lower() + '.' + sfx)))
+	return retfiles
 
     def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
         if not fnames:
@@ -814,6 +832,21 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_sized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None, required=False, also={}):
         return self.fmt_img(fnames, alt='', vars=vars, nobase=nobase, suffix=suffix, largest=largest, pdir=pdir, required=required, also=also)
 
+    def format_image_selector(self, pics, style_id):
+	if len(pics) < 2:
+	    return ''
+	ostr = self.fmt_art('circle_full')
+	for num in range(1, len(pics)):
+	    ostr += self.fmt_art('circle_empty')
+	return ostr
+
+    def format_image_selectable(self, pics, style_id):
+	if not pics:
+            return self.fmt_no_pic()
+	if len(pics) == 1:
+            return self.fmt_img_src(pics[0])
+	return self.fmt_img_src(pics[0])
+	    
     #---- lower level rendering blocks
 
     def fmt_pseudo(self, istr):
@@ -858,17 +891,17 @@ of Matchbox International Ltd. and are used with permission.
         if img:
             return self.fmt_img_src(img, alt=alt, also=also)
 	if 'unknown' in fnames:
-	    return self.fmt_art('nomod.gif', prefix=prefix, largest=largest)
+	    return self.fmt_art('nomod.gif', prefix=prefix, largest=largest, also=also)
         if required:
-            return self.fmt_no_pic(made, prefix, largest=largest)
+            return self.fmt_no_pic(made, prefix, largest=largest, also=also)
         if pad:
             return '&nbsp;'
         return ''
 
-    def fmt_no_pic(self, made=True, prefix='', largest=None):
-        img = self.fmt_art('nopic.gif' if made else 'notmade.gif', prefix=prefix, largest=largest)
+    def fmt_no_pic(self, made=True, prefix='', largest=None, also={}):
+        img = self.fmt_art('nopic.gif' if made else 'notmade.gif', prefix=prefix, largest=largest, also=also)
 	if not img:
-	    img = self.fmt_art('nopic.gif' if made else 'notmade.gif', largest='s')
+	    img = self.fmt_art('nopic.gif' if made else 'notmade.gif', largest='s', also=also)
 	return img
 
     def fmt_opt_img(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):

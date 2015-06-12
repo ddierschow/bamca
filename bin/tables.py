@@ -443,6 +443,18 @@ table_info = {
         },
         'ask': ['ref_id'],
     },
+    #box_type
+    'box_type': {
+        'id': ['id'],
+        'columns': ['id', 'mod_id', 'box_type', 'pic_id', 'box_size', 'n_x', 'additional_text', 'bottom', 'sides', 'end_flap', 'year', 'notes'],
+        'clinks': {
+                'id': {'tab': 'box_type', 'id': ['id/id']},
+        },
+#        'tlinks': [
+#                {'tab': 'alias', 'id': ['id/mod_id']},
+#                {'tab': 'casting', 'id': ['id/mod_id']},
+#        ],
+    },
     #box_style
     'box_style': {
         'id': ['id'],
