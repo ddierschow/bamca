@@ -837,15 +837,10 @@ of Matchbox International Ltd. and are used with permission.
 	if len(pics) < 2:
 	    return ''
 	select_id = select_id.replace('-', '_')
-	ostr = '''<script>
-var sel_%s = new imageselector("%s", %s);
-</script>
-''' % (select_id, select_id, str(pics))
-	ostr += "<a onclick=\"sel_%s.select(0);\">%s</a>\n" % (select_id,
-		self.fmt_art('circle_full', also={'id': select_id + '_0'}))
-	for num in range(1, len(pics)):
+	ostr = '''<script>var sel_%s = new imageselector("%s", %s);</script>\n''' % (select_id, select_id, str(pics))
+	for num in range(len(pics)):
 	    ostr += "<a onclick=\"sel_%s.select(%d);\">%s</a>\n" % (select_id, num,
-		    self.fmt_art('circle_empty', also={'id': select_id + '_' + str(num)}))
+		    self.fmt_art('circle_empty' if num else 'circle_full', also={'id': select_id + '_' + str(num)}))
 	return ostr
 
     def format_image_selectable(self, pics, select_id):
@@ -854,7 +849,9 @@ var sel_%s = new imageselector("%s", %s);
 	if len(pics) == 1:
             return self.fmt_img_src(pics[0])
 	select_id = select_id.replace('-', '_')
-	return self.fmt_img_src(pics[0], also={'id': select_id})
+	return '\n'.join([self.fmt_img_src(pics[0], also={'id': select_id, 'class': 'shown'})] +
+			 [self.fmt_img_src(pics[n], also={'class': 'hidden'})
+			  for n in range(1, len(pics))])
 	    
     #---- lower level rendering blocks
 
