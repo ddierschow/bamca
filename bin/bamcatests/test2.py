@@ -74,34 +74,34 @@ class TestRender(unittest.TestCase):
 	self.assertTrue(self.pif.render.find_art('bamca') != '')
 
     def test_find_image_file01(self):
-	self.assertTrue(self.pif.render.find_image_file('', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN) == '')
+	self.assertTrue(self.pif.render.find_image_file('', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN) == ('', ''))
 
     def test_find_image_file02(self):
-	self.assertTrue(self.pif.render.find_image_file('mb001', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN) != '')
+	self.assertTrue(self.pif.render.find_image_file('mb001', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN) != ('', ''))
 
     def test_find_image_file03(self):
-	self.assertTrue(self.pif.render.find_image_file('bamca', vars=None, prefix='', art=True) != '')
+	self.assertTrue(self.pif.render.find_image_file('bamca', vars=None, prefix='', art=True) != ('', ''))
 
     def test_find_image_file04(self):
-	self.assertTrue(self.pif.render.find_image_file('BAMCA', vars=None, prefix='', art=True) != '')
+	self.assertTrue(self.pif.render.find_image_file('BAMCA', vars=None, prefix='', art=True) != ('', ''))
 
     def test_find_image_file05(self):
-	self.assertTrue(self.pif.render.find_image_file('bamca', vars=None, prefix='') == '')
+	self.assertTrue(self.pif.render.find_image_file('bamca', vars=None, prefix='') == ('', ''))
 
     def test_find_image_file06(self):
-	self.assertTrue(self.pif.render.find_image_file('bamca.gif', vars=None, prefix='') == '')
+	self.assertTrue(self.pif.render.find_image_file('bamca.gif', vars=None, prefix='') == ('', ''))
 
     def test_find_image_file07(self):
-	self.assertTrue(self.pif.render.find_image_file('MB001', vars='03', prefix='s', pdir=config.IMG_DIR_MAN) != '')
+	self.assertTrue(self.pif.render.find_image_file('MB001', vars='03', prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
 
     def test_find_image_file08(self):
-	self.assertTrue(self.pif.render.find_image_file('mb001', vars='03', nobase=True, prefix='s', pdir=config.IMG_DIR_MAN) != '')
+	self.assertTrue(self.pif.render.find_image_file('mb001', vars='03', nobase=True, prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
 
     def test_find_image_file09(self):
-	self.assertTrue(self.pif.render.find_image_file('mb001', vars=['03'], prefix='s', pdir=config.IMG_DIR_MAN) != '')
+	self.assertTrue(self.pif.render.find_image_file('mb001', vars=['03'], prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
 
     def test_find_image_file10(self):
-	self.assertTrue(self.pif.render.find_image_file('mb001', vars=['03'], nobase=True, prefix='s', pdir=config.IMG_DIR_MAN) != '')
+	self.assertTrue(self.pif.render.find_image_file('mb001', vars=['03'], nobase=True, prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
 
     def test_comment(self):
 	self.assertTrue(self.pif.render.comment('unittest') == None)

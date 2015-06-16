@@ -124,6 +124,9 @@ class UploadForm:
 	    pif.render.title += self.tdir
 	else:
 	    pif.render.title += 'to BAMCA'
+	presets = imglib.read_presets(self.tdir)
+	presets['cc'] = self.cc = pif.form.get_str('cc', presets.get('cc', ''))
+	imglib.write_presets(self.tdir, presets)
 	self.fimage = pif.form.get_str('fi')
 	self.fname = pif.form.get_str('fi.name')
 	self.url_list = filter(None, [x.strip() for x in pif.form.get_str('ul').split('\n')])
@@ -196,6 +199,8 @@ class UploadForm:
 	if not restrict:
 	    rows.append({'cells': [{'col': 0, 'content': 'Directory'},
 			{'col': 1, 'content': pif.render.format_text_input('d', 64, value=self.tdir)}]})
+	    rows.append({'cells': [{'col': 0, 'content': 'CC'},
+			{'col': 1, 'content': pif.render.format_text_input('cc', 64, value=self.cc) + " (optional)"}]})
 	    if not self.mass:
 		rows.append({'cells': [{'col': 0, 'content': 'Rename file to'},
 			    {'col': 1, 'content': pif.render.format_text_input('n', 64, value=self.nfn) + " (optional)"}]})
@@ -387,6 +392,9 @@ class UploadForm:
 	useful.warn('Thank you for submitting that file.')
 	print "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
 
+    def carbon_copy(self, fn):
+	if self.cc:
+	    useful.file_mover(os.path.join(self.tdir, fn), os.path.join(self.cc, fn), mv=False, ov=False)
 
 @basics.web_page
 def upload_main(pif):
@@ -401,9 +409,11 @@ def upload_main(pif):
 	if not pif.is_allowed('u'):
 	    return upform.restricted_upload(pif)
 	fn = upform.save_uploaded_file()
+	upform.carbon_copy(fn)
 	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id))
     elif upform.url:
 	fn = upform.grab_url_pic(pif)
+	upform.carbon_copy(fn)
 	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id))
 
     print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_js)
@@ -506,6 +516,7 @@ class EditForm(imglib.ActionForm):
 	self.mass = pif.form.get_bool('mass')
 	self.clean = pif.form.get_bool('clean')
 	self.repl = pif.form.get_bool('repl')
+	self.cc = pif.form.get_str('cc')
 	self.original_size = self.xos, self.yos = imglib.get_size(self.tdir + '/' + self.fn)
 	q = pif.form.get_str('q')
 	if not q:
@@ -590,10 +601,7 @@ class EditForm(imglib.ActionForm):
 	    print useful.warn('%s not found.<br>' % full_path)
 	    return 0, 0
 
-	if os.path.exists(os.path.join(pdir, '.ima')):
-	    presets = eval(open(os.path.join(pdir, '.ima')).read())
-	else:
-	    presets = dict()
+	presets = imglib.read_presets(pdir)
 
 	xs, ys = super(EditForm, self).write(pif, fn)
 	print pif.render.format_hidden_input({'c': urllib.quote_plus(pif.form.get_str('c', ''))})
@@ -626,6 +634,7 @@ class EditForm(imglib.ActionForm):
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
 	print '- Bounds: <input type="text" value="%s" name="q" id="q"> <span id="ima_info"></span>' % ','.join([str(x) for x in self.q])
+	print pif.render.format_hidden_input({'cc': presets.get('cc', '')})
 	return xs, ys
 
     def save_file(self, ofi):
@@ -659,8 +668,10 @@ class EditForm(imglib.ActionForm):
 		"fv": [int(self.fv)],
 		"repl": [int(self.repl)],
 		"tysz": self.tysz,
+		"cc": self.cc,
 	    }
-	    open(os.path.join(self.tdir, '.ima'), 'w').write(str(presets))
+	    imglib.write_presets(self.tdir, presets)
+	    #open(os.path.join(self.tdir, '.ima'), 'w').write(str(presets))
 
     def shape_image(self):
 	print 'shape_image', self.pth, self.nname, self.q, self.target_size, self.original_size, self.rf, '<br>'

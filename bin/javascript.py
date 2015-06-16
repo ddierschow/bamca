@@ -78,3 +78,5 @@ function maplink($arr)
     return $url;
 }
 '''
+
+def_image_selector_js = '''<script type="text/javascript" src="/bin/imageselector.js"></script>\n'''

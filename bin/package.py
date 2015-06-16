@@ -211,7 +211,10 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
 	'E4': 'MATCHBOX" and colour picture',
 	'E4R': 'MATCHBOX" with "^reg;" and colour picture',
 	'SCC': 'SPECIFICATION AND COLOUR OF CONTENTS SUBJECT TO AMENDMENT',
+	'PO': "PORTI&Egrave;RES OUVRANTES - LICENCE SOLIDO",
 	'X': '',
+	'TM': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd.',
+	'TME': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd.Printed in England. Made in England.',
 	'MK 2': "MARK 2",
 	'MK 3': "MARK 3",
 	'MK 4': "MARK 4",
@@ -333,6 +336,7 @@ def single_box(pif, mod, box):
     return ent
 
 def single_box_type(pif):
+    pif.render.set_page_extra(pif.render.image_selector_js)
     if pif.form.get_str('box'):
 	boxes = pif.dbh.fetch_box_type(pif.form.get_str('box'))
     elif pif.form.get_str('mod'):

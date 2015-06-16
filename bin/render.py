@@ -59,6 +59,7 @@ class Presentation():
     increment_js = javascript.def_increment_js
     increment_select_js = javascript.def_increment_select_js
     google_analytics_js = javascript.def_google_analytics_js
+    image_selector_js = javascript.def_image_selector_js
     def __init__(self, page_id, verbose):
         self.page_id = page_id
         self.art_dir = config.IMG_DIR_ART
@@ -832,20 +833,28 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_sized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None, required=False, also={}):
         return self.fmt_img(fnames, alt='', vars=vars, nobase=nobase, suffix=suffix, largest=largest, pdir=pdir, required=required, also=also)
 
-    def format_image_selector(self, pics, style_id):
+    def format_image_selector(self, pics, select_id):
 	if len(pics) < 2:
 	    return ''
-	ostr = self.fmt_art('circle_full')
+	select_id = select_id.replace('-', '_')
+	ostr = '''<script>
+var sel_%s = new imageselector("%s", %s);
+</script>
+''' % (select_id, select_id, str(pics))
+	ostr += "<a onclick=\"sel_%s.select(0);\">%s</a>\n" % (select_id,
+		self.fmt_art('circle_full', also={'id': select_id + '_0'}))
 	for num in range(1, len(pics)):
-	    ostr += self.fmt_art('circle_empty')
+	    ostr += "<a onclick=\"sel_%s.select(%d);\">%s</a>\n" % (select_id, num,
+		    self.fmt_art('circle_empty', also={'id': select_id + '_' + str(num)}))
 	return ostr
 
-    def format_image_selectable(self, pics, style_id):
+    def format_image_selectable(self, pics, select_id):
 	if not pics:
             return self.fmt_no_pic()
 	if len(pics) == 1:
             return self.fmt_img_src(pics[0])
-	return self.fmt_img_src(pics[0])
+	select_id = select_id.replace('-', '_')
+	return self.fmt_img_src(pics[0], also={'id': select_id})
 	    
     #---- lower level rendering blocks
 

@@ -1012,6 +1012,7 @@ def mass_ask(pif):
 
 
 def mass_select(pif):
+    # Get table descriptions and use widths.  Allow "*".
     columns = pif.form.get_str('select').split(',')
     table_info = pif.dbh.table_info[pif.form.get_str('from')]
     rows = pif.dbh.fetch(pif.form.get_str('from'), columns=columns + table_info['id'], where=pif.form.get_str('where'), order=pif.form.get_str('order'), tag='mass_select')
@@ -1034,7 +1035,7 @@ def mass_select(pif):
             else:
                 print pif.render.format_cell(1,
                     pif.render.format_text_input(col + "." + '.'.join([str(row[x]) for x in table_info['id']]),
-                    256, 80, row[col]))
+                    256, 20, row[col]))
         print pif.render.format_row_end()
 
     print pif.render.format_table_end()
