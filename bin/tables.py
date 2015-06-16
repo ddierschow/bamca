@@ -446,7 +446,7 @@ table_info = {
     #box_type
     'box_type': {
         'id': ['id'],
-        'columns': ['id', 'mod_id', 'box_type', 'pic_id', 'box_size', 'n_x', 'additional_text', 'bottom', 'sides', 'end_flap', 'year', 'notes'],
+        'columns': ['id', 'mod_id', 'box_type', 'pic_id', 'box_size', 'additional_text', 'bottom', 'sides', 'end_flap', 'year', 'notes'],
         'clinks': {
                 'id': {'tab': 'box_type', 'id': ['id/id']},
         },

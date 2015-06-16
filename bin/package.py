@@ -91,7 +91,7 @@ def blister(pif):
 # -- boxart
 
 # id, mod_id, box_type, pic_id, box_size
-# n_x, additional_text, bottom, sides, end_flap, year, notes
+# additional_text, bottom, sides, end_flap, year, notes
 box_lookups = {
     'box_type': {
 	'_title': 'Box Type',
@@ -171,16 +171,6 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.NE CONVIENT PAS &Agrave; UN ENFANT 
 	'1':
 '''one line inside top (English, used in USA only):
 NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
-	'B3': 'black &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND on side',
-	'B4': 'black &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND on side',
-	'B5': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN on side',
-	'B6': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN on side',
-	'B7': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND on side',
-	'W3': 'white &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND on side',
-	'W4': 'white &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND on side',
-	'W5': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN on side',
-	'W6': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN on side',
-	'W7': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND on side',
 	'NRC': 'Not recommended for children under 3.',
     },
     'box_size': {
@@ -224,16 +214,6 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
 	'N': '"NEW"',
 	'NM': '"NEW MODEL"',
     },
-    'n_x': {
-	'_title': 'Showing NEW Model',
-	'N': '"NEW"',
-	'NM': '"NEW MODEL"',
-	'NME': '"NEW MODEL" on end flap',
-	'X': 'no',
-	'RNF': 'red "NEW", red frame',
-	'BNF': 'black "NEW", red frame',
-	'XF': 'no "NEW", red frame',
-    },
     'sides': {
 
 ##|Box generations|Years|Lettering|Location|Combined w/ bottom types
@@ -266,6 +246,21 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
 	'4HS': "4-WHEEL 'HOVERSPRING' SUSPENSION",
 	'TST': '"TESTED" mark',
 	'RS': 'RACING SUSPENSION / HIGH SPEED MAG-WHEELS',
+	'B3': 'black &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND',
+	'B4': 'black &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND',
+	'B5': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN',
+	'B6': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN',
+	'B7': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
+	'W3': 'white &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND',
+	'W4': 'white &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND',
+	'W5': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN',
+	'W6': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN',
+	'W7': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
+	'BLK': 'black "TM"',
+	'RED': 'red "TM"',
+	'Sup': '"Superfast" in script',
+	'SUP': '"SUPERFAST" in block capitals',
+	'ROL': '"Rola-matics"',
     },
     'additional_text': {
 	'_title': 'Additional Text',
@@ -281,28 +276,34 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
 	'RUB': '"SERIES" in red under oblong blue number box',
 	'WIB': '"SERIES" in white in blue number box',
 	# G
-	'BLK': 'black "TM" on front, black "TM" on side',
-	'RED': 'red "TM" on front, black "TM" on side',
+	'BLK': 'black "TM"',
+	'RED': 'red "TM"',
 	# GIJKL
 	'NON': 'no "TM", no additional lettering',
 	# H
-	'H1': '''black number inside a red frame, no "Superfast" lettering nor model name on front''',
-	'H2': '''black number without frame, "Superfast" lettering and model name on front''',
+	'H1': '''black number inside a red frame, no "Superfast" lettering nor model name''',
+	'H2': '''black number without frame, "Superfast" lettering and model name''',
 	'N': '"NEW"',
 	# I
-	'CHO': '"Choppers" on fronts, "Superfast" on sides',
-	'Sup': '"Superfast" in script on sides',
+	'CHO': '"Choppers"',
 	# IJKL
-	'ROL': '"Rola-matics" on fronts and sides',
+	'ROL': '"Rola-matics"',
 	# J
 	'STR': 'Streakers',
 	# JKL
-	'SUP': '"SUPERFAST" in block capitals on sides',
 
 	'NM': '"NEW MODEL"',
 	'RNF': 'model number and red "NEW" in red frame',
 	'BNF': 'model number and black "NEW" in red frame',
-	'NF': 'model number in red frame',
+
+	'XF': 'model number in red frame',
+	'N': '"NEW"',
+#	'NM': '"NEW MODEL"',
+#	'NME': '"NEW MODEL" on end flap',
+#	'X': 'no',
+#	'RNF': 'red "NEW", red frame',
+#	'BNF': 'black "NEW", red frame',
+#	'XF': 'no "NEW", red frame',
     },
     'year': {
 	'_title': 'Year on Box',
