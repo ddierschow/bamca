@@ -158,28 +158,31 @@ box_lookups = {
 	'P': 'plain blue',
 	'BN': 'black number',
 	'BNWC': 'black number in white circle',
-	'BMWP': 'black model name in white panel',
+	'BNWP': 'black model name in white panel',
 	'WM': 'white model name',
-	'L': 'model name in lowercase letters',
-	'U': 'model name in uppercase letters',
+	'L': 'model name in upper- and lowercase letters',
+	'U': 'model name in uppercase letters only',
 	'LWS': 'model name lettering with serifs',
 	'LNS': 'model name lettering without serifs',
 	'E1': 'model number and name',
 	'E2': 'model number, name and detail drawing',
 	'E3': 'colour picture',
-	'E3R': 'colour picture',
 	'E4': 'MATCHBOX" and colour picture',
-	'E4R': 'MATCHBOX" with "^reg;" and colour picture',
+	'E4R': 'MATCHBOX" with "&reg;" and colour picture',
 	'SCC': 'SPECIFICATION AND COLOUR OF CONTENTS SUBJECT TO AMENDMENT',
 	'PO': "PORTI&Egrave;RES OUVRANTES - LICENCE SOLIDO",
 	'X': '',
 	'TM': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd.',
-	'TME': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd.Printed in England. Made in England.',
+	'TME': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd. Printed in England. Made in England.',
+	'MK': "MARK",
+	'MK I': "MARK I",
+	'MK 1': "MARK 1",
 	'MK 2': "MARK 2",
 	'MK 3': "MARK 3",
 	'MK 4': "MARK 4",
 	'MK 5': "MARK 5",
 	'MK 6': "MARK 6",
+	'MK 7': "MARK 7",
 	'CTC': 'MADE BY LESNEY PRODUCTS &amp; CO. LTD., AND SOLD UNDER PERMISSION FROM CATERPILLAR TRACTOR COMPANY.',
 	'N': '"NEW"',
 	'NM': '"NEW MODEL"',
@@ -187,13 +190,14 @@ box_lookups = {
     'sides': {
 
 ##|Box generations|Years|Lettering|Location|Combined w/ bottom types
-#3|--------IJKL|1973-81|&copy; 19xx LESNEY PRODUCTS &amp; CO. LTD.MADE IN ENGLAND|on sides|11 - 17
-#4|--------I---|1974|&copy; 1973 LESNEY PRODUCTS &amp; CO. LTD.PRINTED AND MADE IN ENGLAND|on sides|11, 14, 15
-#5|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD.MADE IN GREAT BRITAIN|on sides|11, 15
-#6|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD.PRINTED AND MADE IN GREAT BRITAIN|on sides|11, 15
-#7|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD.LONDON ENGLAND|on sides|11, 15
-#8|-----------L|1981|&copy; 198x LESNEY PRODUCTS &amp; CO. LTD.MADE IN HONG KONG|on sides|17
-#9|-----------L|1982|&copy; 1981 LESNEY PRODUCTS P.L.C.MADE IN ENGLAND|on sides|18
+#3|--------IJKL|1973-81|&copy; 19xx LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND|on sides|MIR2 MMR1 MMR2 CNG CNN MMR3 MIR3
+#4|--------I---|1974|&copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND|on sides|MIR2 CNG CNN
+#5|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN|on sides|MIR2 CNN
+#6|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN|on sides|MIR2 CNN
+#7|--------I---|1975|&copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND|on sides|MIR2 CNN
+#8|-----------L|1981|&copy; 198x LESNEY PRODUCTS &amp; CO. LTD. MADE IN HONG KONG|on sides|MIR3
+#9|-----------L|1982|&copy; 1981 LESNEY PRODUCTS P.L.C. MADE IN ENGLAND|on sides|MIR4
+
 	'_title': 'Box Sides',
 	'1BS': 'one blue side (other side is black)',
 	'2BS': 'two blue sides',
@@ -380,7 +384,7 @@ def find_boxes(pif):
     series = pif.form.get_str('series')
     style = pif.form.get_str('style')
     start = pif.form.get_int('start', 1)
-    end = pif.form.get_int('end', 99)
+    end = pif.form.get_int('end', start)
     boxes = dict()
     for box in pif.dbh.fetch_castings_by_box(series, style):
         box['id'] = box['alias.id'] if box.get('alias.id') else box['casting.id']
@@ -512,24 +516,33 @@ def count_boxes(pif):
 def commands(pif):
 
     boxes = find_boxes(pif)
+    keys = boxes.keys()
+    keys.sort()
 
-    for mod in boxes:
-	box_styles = mod['box_style.styles']
-	for box_style in box_styles:
-	    picroots = get_pic_roots(mod['id'], box_style)
-	    for picroot in picroots:
-		print '%-9s' % picroot,
-		for picsize in 'mcs':
-		    img = pif.render.find_image_path(picroot, prefix=picsize + '_', pdir=config.IMG_DIR_BOX)
-		    if not img:
-			print '.',
+    for key in keys:
+	for picroot in get_pic_roots(boxes[key]['id'], boxes[key]['box_type.box_type'][0]):
+	    print '%-9s' % picroot,
+	    for picsize in 'mcs':
+		img = pif.render.find_image_path(picroot, prefix=picsize + '_', pdir=config.IMG_DIR_BOX)
+		if not img:
+		    print '.',
+		else:
+		    imginf = imglib.img_info(img)
+		    if imginf[1] < mbdata.imagesizes[picsize][0]:
+			print picsize,
 		    else:
-			imginf = imglib.img_info(img)
-			if imginf[1] < mbdata.imagesizes[picsize][0]:
-			    print picsize,
-			else:
-			    print picsize.upper(),
-		print
+			print picsize.upper(),
+	    print
+
+
+# not in use, just here so I don't forget how I did it.
+def check_database(pif):
+    for e in pif.dbh.fetch('box_type'):
+	for f in e:
+	    if e[f] and f[9:] not in ('notes', 'year', 'id', 'pic_id', 'mod_id'):
+		for h in e[f].split('/'):
+		    if h not in package.box_lookups[f[9:]]:
+			print h, e[f], f, e['box_type.id']
 
 
 if __name__ == '__main__':  # pragma: no cover
