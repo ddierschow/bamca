@@ -6,3 +6,6 @@ a:active {color: #006600; background-color: transparent; text-decoration: none;}
 .button {vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
 .tb {background-color: #FFFFFF;}
 .tb_inner {border-style: solid; border-collapse: collapse; background-color: #FFFFFF;}
+.eh_pic {width: 800px;}
+ul {list-style: disc outside none; padding-left: 20px; margin: 0;}
+li {padding-left: 1px;}

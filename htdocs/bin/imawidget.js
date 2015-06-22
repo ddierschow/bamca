@@ -309,4 +309,4 @@ function ima_key(event) {
 	dbg.innerHTML += ' key ignored';
 }
 
-window.addEventListener("load", ima_start) // whew!
+window.addEventListener("load", ima_start); // whew!

@@ -281,140 +281,31 @@ function incrnum($id, $mn, $mx, $cl)
     echo "<a onclick=\"" . $cl . "settnum('" . $id . "'," . $mn . ");\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
 }
 
-function incrsel($id, $vl)
+function incrsel($id, $vl, $onchg="")
 {
     if ($vl > 0)
     {
-	echo "<a onclick=\"settsel('" . $id . "');\"><img src=\"../pic/gfx/but_max.gif\" alt=\"TOP\" onmouseover=\"this.src='../pic/gfx/hov_max.gif';\" onmouseout=\"this.src='../pic/gfx/but_max.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);\" onmouseup=\"toggleOff();\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);\" onmouseup=\"toggleOff();\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
+	echo "<a onclick=\"settsel('" . $id . "');" . $onchg ."\"><img src=\"../pic/gfx/but_max.gif\" alt=\"TOP\" onmouseover=\"this.src='../pic/gfx/hov_max.gif';\" onmouseout=\"this.src='../pic/gfx/but_max.gif';\" ></a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);" . $onchg ."\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);" . $onchg ."\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
 	//echo "<a onclick=\"incrsel('" . $id . "',1);\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
 	//echo "<a onclick=\"incrsel('" . $id . "',-1);\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
-	echo "<a onclick=\"setbsel('" . $id . "');\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
+	echo "<a onclick=\"setbsel('" . $id . "');" . $onchg ."\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
     }
     else
     {
-	echo "<a onclick=\"setbsel('" . $id . "');\"><img src=\"../pic/gfx/but_max.gif\" alt=\"TOP\" onmouseover=\"this.src='../pic/gfx/hov_max.gif';\" onmouseout=\"this.src='../pic/gfx/but_max.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);\" onmouseup=\"toggleOff();\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);\" onmouseup=\"toggleOff();\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
+	echo "<a onclick=\"setbsel('" . $id . "');" . $onchg . "\"><img src=\"../pic/gfx/but_max.gif\" alt=\"TOP\" onmouseover=\"this.src='../pic/gfx/hov_max.gif';\" onmouseout=\"this.src='../pic/gfx/but_max.gif';\" ></a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);" . $onchg . "\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);" . $onchg . "\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
 	//echo "<a onclick=\"incrsel('" . $id . "',-1);\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
 	//echo "<a onclick=\"incrsel('" . $id . "',1);\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
-	echo "<a onclick=\"settsel('" . $id . "');\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
+	echo "<a onclick=\"settsel('" . $id . "');" . $onchg . "\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
     }
 }
 
 function DoIncDecJavascript()
 {
-    echo "
-<script  language=\"Javascript\">
-
-var tid = 0;
-var speed = 200;
-var fld = '';
-var vec = 1;
-var nmn = 0;
-var nmx = 999;
-function toggleOnSel(f,v){
-    fld = f;
-    vec = v;
-    incrsel(fld,vec);
-    speed = 300;
-    if(tid==0){
-        tid=window.setInterval(\"autoincrsel();\",speed);
-    }
-}
-function autoincrsel() {
-    incrsel(fld,vec);
-    if(speed>100){
-	speed = speed - 20;
-	toggleOff();
-        tid=window.setInterval(\"autoincrsel();\",speed);
-    }
-}
-function toggleOnNum(f,v,mn,mx){
-    fld = f;
-    vec = v;
-    nmn = mn;
-    nmx = mx;
-    incrnum(fld,vec,nmn,nmx);
-    speed = 300;
-    if(tid==0){
-        tid=window.setInterval(\"autoincrnum();\",speed);
-    }
-}
-function autoincrnum() {
-    incrnum(fld,vec,nmn,nmx);
-    if(speed>100){
-	speed = speed - 20;
-	toggleOff();
-        tid=window.setInterval(\"autoincrnum();\",speed);
-    }
-}
-function toggleOff(){
-    if(tid!=0){
-        window.clearInterval(tid);
-        tid=0;
-    }
-}
-function incrsel(f,v){
- var elem = document.getElementById(f);
- if (v > 0)
- {
-  if (elem.selectedIndex < elem.length - 1)
-   document.getElementById(f).selectedIndex = elem.selectedIndex + 1;
- }
- else
- {
-  if (elem.selectedIndex > 0)
-   document.getElementById(f).selectedIndex = elem.selectedIndex - 1;
- }
-}
-
-function settsel(f){
- var elem = document.getElementById(f);
- document.getElementById(f).selectedIndex = elem.length - 1;
-}
-
-function setbsel(f){
- document.getElementById(f).selectedIndex = 0;
-}
-
-function incrnum(f,v,mn,mx){
- var elem = document.getElementById(f);
- var nf = parseInt(document.getElementById(f).value, 10);
- if (v > 0)
- {
-  if (nf < mx)
-   document.getElementById(f).value = nf + 1;
- }
- else
- {
-  if (nf > mn)
-   document.getElementById(f).value = nf - 1;
- }
-}
-
-function settnum(f,v){
- document.getElementById(f).value = v;
-}
-
-var tid = 0;
-var speed = 100;
-
-function toggleOn(fn){
-    if(tid==0){
-        tid=setInterval(fn,speed);
-    }
-}
-function toggleOff(){
-    if(tid!=0){
-        clearInterval(tid);
-        tid=0;
-    }
-}
-
-</script>
-";
+    echo '<script type="text/javascript" src="/bin/incrsel.js"></script>' . "\n";
 }
 
 ?>

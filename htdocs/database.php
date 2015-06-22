@@ -23,6 +23,7 @@ $sections[] = array("tag" => "search", "name" => "Text Search", "fn" => 'Section
 $sections[] = array("tag" => "vsearch", "name" => "Variation Text Search", "fn" => 'SectionVSearch', "scr" => "vsearch.cgi");
 $sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi");
 $sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
+$sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi");
 
 DoResetJavascript();
 DoIncDecJavascript();
@@ -63,6 +64,7 @@ function HorzSpacer($rowspan) {
 	echo '<td class="hspacer"></td>';
     echo "\n";
 }
+
 function SelectYear($name, $id, $defval, $min, $max)
 {
     echo '<select name="' . $name . '" id="' . $id . '">' . "\n";
@@ -123,8 +125,9 @@ function SectionID()
 {
 ?>
 <table>
-<tr>
-<td>See specific manufacturing ID:</td><td><input type="text" name="id" id="idId" value="" size="12"></td></tr>
+ <tr>
+  <td>See specific manufacturing ID:</td><td><input type="text" name="id" id="idId" value="" size="12"></td>
+ </tr>
 </table>
 <?php
 }
@@ -133,17 +136,18 @@ function SectionYear()
 {
     global $YEAR_START, $YEAR_END, $isadmin;
 ?>
-<table><tr>
-<td valign=top>Year: </td>
-<td valign=top class="updown">
+<table>
+ <tr>
+  <td valign=top>Year: </td>
+  <td valign=top class="updown">
 <?php SelectYear('year', 'yearYear', $YEAR_END, $YEAR_START, $YEAR_END); ?>
-</td>
+  </td>
 <?php
 HorzSpacer(1);
 ChooseRegion(1);
 ?>
-</td>
-<td class="hspacer"></td>
+  </td>
+<?php HorzSpacer(1); ?>
 <td valign="top">
 <input type="checkbox" name="lty" value="man" checked>Main line models<br>
 <input type="checkbox" name="lty" value="series" checked>Series<br>
@@ -157,7 +161,8 @@ ChooseRegion(1);
 <?php
 if ($isadmin)
 {
-    echo '<td class="hspacer"></td><td valign="top">';
+    HorzSpacer(1);
+    echo '<td valign="top">';
     echo '<i>Number of years: <input type="text" name="nyears" value="" size="2">' . "\n";
     echo '<p><input type="checkbox" name="unroll" value="1"> Unroll' . "\n";
     echo '<p><input type="checkbox" name="large" value="1"> Large' . "\n";
@@ -501,6 +506,94 @@ if ($isadmin)
 }
 ?>
 <br>
+<?php
+}
+
+function Quote($x) { return "'" . $x . "'"; }
+function SectionBoxes()
+{
+    global $isadmin, $pif;
+
+    $examples = array('A' => 'rw01a', 'B' => 'rw02a', 'C' => 'rw03b', 'D' => 'rw04c', 'E' => 'rw05d', 'F' => 'rw06d',
+		      'G' => 'sf11a', 'H' => 'sf13b', 'I' => 'sf15b', 'J' => 'sf16a', 'K' => 'sf19c', 'L' => 'sf21c');
+?>
+
+<script  language="Javascript">
+function boxExample() {
+    var sel = document.getElementById("boxStyle").value;
+    var examples = [<?php echo implode(', ', array_map("Quote", array_values($examples))); ?>];
+    if (sel == 'all') {
+	document.getElementById("boxImg").setAttribute('class', "hidden");
+    }
+    else {
+	document.getElementById("boxImg").src = "pic/box/s_" + examples[sel.charCodeAt(0) - 65] + '-' + sel.toLowerCase() +  '.jpg';
+	document.getElementById("boxImg").setAttribute('class', "shown");
+    }
+}
+document.addEventListener("DOMContentLoaded", boxExample, false);
+</script>
+
+<table>
+ <tr>
+  <td>Series:</td>
+  <td><input type="radio" name="series" checked value=""> All</td>
+<?php HorzSpacer(1); ?>
+  <td>Model Numbers:</td>
+  <td>Starting at number:</td>
+  <td><input type="text" name="start" size="3" value="1" id="boxStart">
+  <?php incrnum('boxStart', 1, 75, ''); ?>
+  </td>
+<?php HorzSpacer(1); ?>
+  <td rowspan="5" id="foo"><img src="pic/box/s_rw01a-a.jpg" class="hidden" id="boxImg"></td>
+ </tr>
+ <tr>
+  <td></td>
+  <td><input type="radio" name="series" value="RW"> Regular Wheels</td>
+  <td></td>
+  <td></td>
+  <td>Ending at number:</td>
+  <td><input type="text" name="end" size="3" value="75" id="boxEnd">
+  <?php incrnum('boxEnd', 1, 75, ''); ?>
+  </td>
+ </tr>
+ <tr>
+  <td></td>
+  <td><input type="radio" name="series" value="SF"> Superfast</td>
+ </tr>
+ <tr>
+  <td>&nbsp;</td>
+  <td></td>
+<?php if ($isadmin) { ?>
+  <td></td>
+  <td></td>
+  <td><i>Verbose:</i></td>
+  <td><input type="checkbox" name="verbose" value="1"></td>
+<?php } ?>
+ </tr>
+ <tr>
+  <td>Styles:</td>
+  <td>
+<select name="style" id="boxStyle" onkeyup="boxExample();" onchange="boxExample();" onmouseup="boxExample();" 
+>
+<option value="all" selected>All
+<?php
+foreach ($examples as $ty => $pic) {
+    echo '<option value="' . $ty . '">' . $ty . " type\n";
+}
+?>
+</select>
+<?php incrsel('boxStyle', -1, " boxExample();"); ?>
+  </td>
+<?php if ($isadmin) { ?>
+  <td></td>
+  <td></td>
+  <td><i>Compact:</i></td>
+  <td><input type="checkbox" name="c" value="1"></td>
+  <td></td>
+<?php } ?>
+ </tr>
+</table>
+
 <?php
 }
 

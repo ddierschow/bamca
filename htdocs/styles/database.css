@@ -32,13 +32,21 @@
 .mack_body     {background-color: #CCFFFF;}
 .makes_head    {background-color: #FF88FF;}
 .makes_body    {background-color: #FFCCFF;}
-.search_head   {background-color: #FFAAAA;}
-.search_body   {background-color: #FFE0E0;}
+.search_head   {background-color: #FFBBAA;}
+.search_body   {background-color: #FFE8E0;}
 .vsearch_head  {background-color: #FFC888;}
 .vsearch_body  {background-color: #FFEEDD;}
 .packs_head    {background-color: #CCFF66;}
 .packs_body    {background-color: #E0FFB0;}
 .sets_head     {background-color: #CC88FF;}
 .sets_body     {background-color: #EECCFF;}
+.boxes_head    {background-color: #88CCFF;}
+.boxes_body    {background-color: #CCD8FF;}
+.new2_head     {background-color: #88FFCC;}
+.new2_body     {background-color: #CCFFD8;}
+.new3_head     {background-color: #FF9999;}
+.new3_body     {background-color: #FFCCCC;}
+.new4_head     {background-color: #FF99CF;}
+.new4_body     {background-color: #FFCCE8;}
 
 .hspacer {width: 20px;}

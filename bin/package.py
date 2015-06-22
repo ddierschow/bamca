@@ -325,7 +325,7 @@ def single_box(pif, mod, box):
 	ostr = show_model(pif, mod)
     else:
 	ostr = box['mod_id'] + '<br>'
-    ostr += pic_name + '<br>\n'
+    #ostr += pic_name + '<br>\n'
     for col in pif.dbh.get_table_info('box_type')['columns']:
 	if col not in ign_cols:
 	    if box[col]:
@@ -361,14 +361,14 @@ def single_box_type(pif):
 
 # need to add va, middle to eb_1 style
 
-def get_box_image(pif, picroot, picsize=None, compact=False):
+def get_box_image(pif, picroot, picsize=None, largest='c', compact=False):
     if compact:
 	product_image = pif.render.find_image_path(picroot, prefix=picsize + '_')
 	pic = pif.render.format_image_art(imglib.image_star(product_image, target_x=mbdata.imagesizes[picsize][0]))
     elif picsize:
 	pic = pif.render.format_image_required(picroot, prefix=picsize + '_')
     else:
-	pic = pif.render.format_image_required(picroot, largest='c')
+	pic = pif.render.format_image_required(picroot, largest=largest)
     return pic
 
 
@@ -383,6 +383,8 @@ def show_model(pif, mod, compact=False):
 def find_boxes(pif):
     series = pif.form.get_str('series')
     style = pif.form.get_str('style')
+    if style == 'all':
+	style = ''
     start = pif.form.get_int('start', 1)
     end = pif.form.get_int('end', start)
     boxes = dict()
@@ -421,6 +423,8 @@ def show_boxes(pif):
     verbose = pif.form.get_bool('verbose')
     compact = pif.form.get_bool('c')
     style = pif.form.get_str('style')
+    if style == 'all':
+	style = ''
     headers = {'mod': 'Model', 'm': 'M', 'c': 'C', 's': 'S', 'box': 'Box'}
     columns = ['mod', 'm', 'c', 's'] if verbose else ['mod', 'box']
 
@@ -453,12 +457,16 @@ def show_boxes(pif):
 		    if pif.is_allowed('ma'):
 			ostr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
 		    ent[picsize] = {'txt': ostr}
-		ent['s']['txt'] += '<br>' + pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)) + '%d/%d' % (mod['pics'], mod['count'])
+		ent['s']['txt'] += '<br>%s box variations - %s' % (mod['count'], pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
+		ent['box']['txt'] += ' - %s pics' % mod['pics']
 	    else:
-		pic = ''.join([get_box_image(pif, picroot) for picroot in picroots])
-		ent['box'] = {'txt': "<center>%s<br>%s</center>" % (hdr, pic)}
+		largest = 'mmcss'[len(picroots)]
+		pic = ''.join([get_box_image(pif, picroot, largest=largest) for picroot in picroots])
+		ent['box'] = {'txt': "<center>%s<br>%s" % (hdr, pic)}
+		ent['box']['txt'] += '<br>%s box variation%s - %s' % (mod['count'], 's' if mod['count'] != 1 else '', pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
 		if pif.is_allowed('ma'):
-		    ent['box']['txt'] += '<br>' + pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)) + '%d/%d' % (mod['pics'], mod['count'])
+		    ent['box']['txt'] += ' - %s pics' % mod['pics']
+		ent['box']['txt'] += '</center>'
 	    lrange['entry'].append(ent)
 	    ent = dict(mod=None)
     lsection = dict(columns=columns, headers=headers, range=[lrange], note='')
@@ -475,6 +483,9 @@ def box_ask(pif):
 
 @basics.web_page
 def box_main(pif):
+    pif.render.hierarchy_append('/', 'Home')
+    pif.render.hierarchy_append('/database.php', 'Database')
+    pif.render.hierarchy_append('/cgi-bin/boxart.cgi', 'Lesney Era Boxes')
     if pif.form.form:
 	return show_boxes(pif)
     else:

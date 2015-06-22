@@ -80,7 +80,7 @@
 <tr class="er">
 {%- for col in section.columns %}
 {#  <th class="{{ class_id('eh', section.id) }}{{ class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
-  <th class="{{ class_id('eh', section.id, range.id) }}">{{ section.headers[col] }}</th>
+  <th class="{{ class_id('eh', section.id, range.id, col) }}">{{ section.headers[col] }}</th>
 {%- endfor -%}
 </tr>
 {%- for range in section.range %}

@@ -85,7 +85,8 @@ def show_dir(pif, tform):
         print '<input type="checkbox" name="du" value="1"> Dupes'
         print '<input type="checkbox" name="co" value="1"> Compact'
 	if pif.render.is_admin:
-	    print '<input type="checkbox" name="sh" value="1"> Shelve'
+	    print '<input type="checkbox" name="shc" value="1"> Categorize'
+	    print '<input type="checkbox" name="shm" value="1"> Shelve'
         print '<input type="checkbox" name="si" value="1"> Sized'
         print pif.render.format_button_input()
         print '</form>'
@@ -98,13 +99,16 @@ imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="ch
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False):
+def img(pif, args, base='', shlv=False, cate=False):
     print '<tr>'
     args.sort()
     for arg in args:
         root, ext = useful.root_ext(arg.strip())
         inp = ''
-        if shlv:
+        if shlv or cate:
+            inp += '''<input type="text" name="lib.%s"> lib''' % arg
+            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also={"border": 0}), arg, inp))
+            continue
             inp += '''<input type="text" name="lib.%s"> lib''' % arg
             print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also={"border": 0}), arg, inp))
             continue
@@ -147,14 +151,19 @@ def show_imgs(pif, tform):
 		    flist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
 		    flist_sort(flist, tform)
 		    if len(flist) > 1:
-			img(pif, flist, fn, shlv=tform.shlv)
+			img(pif, flist, fn, shlv=tform.shlv, cate=tform.cate)
 		else:
-		    img(pif, [fn], shlv=tform.shlv)
+		    img(pif, [fn], shlv=tform.shlv, cate=tform.cate)
 	    print '</table>'
 	    print '<hr>'
     print '<input type="hidden" name="d" value="%s">' % tform.tdir
     print '<input type="hidden" name="sc" value="1">'
-    print '<input type="hidden" name="pre" value="man">'
+    if tform.cate:
+	print '<input type="hidden" name="pre" value="">'
+	print '<input type="hidden" name="shc" value="1">'
+    elif tform.shlv:
+	print '<input type="hidden" name="pre" value="man">'
+	print '<input type="hidden" name="shm" value="1">'
     print pif.render.format_button_input()
     print '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
     print '</form>'
@@ -318,7 +327,8 @@ class TraverseForm:
 	self.patt = pif.form.get_str("p")
 	self.dups = pif.form.get_int("du")
 	self.cpct = pif.form.get_int("co")
-	self.shlv = pif.form.get_int("sh")
+	self.shlv = pif.form.get_int("shm")
+	self.cate = pif.form.get_int("shc")
 	self.sizd = pif.form.get_int("si")
 	self.scrt = pif.form.get_int('sc')
 	self.act = pif.form.get_int('act')
