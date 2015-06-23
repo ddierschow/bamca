@@ -199,9 +199,9 @@ function DoButtonLink($butname, $artdir, $linkloc)
     echo "</a>";
 }
 
-function DoButtonReset($artdir, $formid)
+function DoButtonReset($artdir, $formid, $addl='')
 {
-    echo '<img src="' . $artdir . '/but_reset.gif" onmouseover="this.src=\'' . $artdir . '/hov_reset.gif\';" onmouseout="this.src=\'' . $artdir . '/but_reset.gif\';" border="0" onClick="ResetForm(document.' . $formid . ')" alt="RESET" class="button">';
+    echo '<img src="' . $artdir . '/but_reset.gif" onmouseover="this.src=\'' . $artdir . '/hov_reset.gif\';" onmouseout="this.src=\'' . $artdir . '/but_reset.gif\';" border="0" onClick="ResetForm(document.' . $formid . ');' . $addl . '" alt="RESET" class="button">';
 }
 
 function DoButtonSubmit($butname, $artdir, $submit)
@@ -308,4 +308,7 @@ function DoIncDecJavascript()
     echo '<script type="text/javascript" src="/bin/incrsel.js"></script>' . "\n";
 }
 
+function arr_get($array, $key, $default = null) {
+    return isset($array[$key]) ? $array[$key] : $default;
+}
 ?>

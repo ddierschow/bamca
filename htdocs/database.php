@@ -23,7 +23,7 @@ $sections[] = array("tag" => "search", "name" => "Text Search", "fn" => 'Section
 $sections[] = array("tag" => "vsearch", "name" => "Variation Text Search", "fn" => 'SectionVSearch', "scr" => "vsearch.cgi");
 $sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi");
 $sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
-$sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi");
+$sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();');
 
 DoResetJavascript();
 DoIncDecJavascript();
@@ -77,11 +77,12 @@ function SelectYear($name, $id, $defval, $min, $max)
 	echo ' <option value="' . $yr . '"' . $sel . '>' . $yr . "</option>\n";
 	$yr = $yr - 1;
     }
-    echo "</select><br>\n";
+    echo "</select>\n";
     incrsel($id, -1);
     echo "<br>\n";
 }
 
+// required: fn tag scr name  optional: reset
 function Section($args)
 {
     echo "
@@ -95,12 +96,12 @@ function Section($args)
 <tr><td class=\"" . $args['tag'] . "_body sel_body\">
 Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".<p>
 
-<form action=\"/cgi-bin/" . $args['scr'] . "\" method=\"get\" name=\"" . $args['tag'] . "\">
+<form action=\"/cgi-bin/" . $args['scr'] . '" method="get" name="' . $args['tag'] . '"' . ">
 ";
     call_user_func($args['fn']);
     echo "<br>\n";
     DoButtonSubmit("see_the_models", "../pic/gfx", "submit");
-    DoButtonReset("../pic/gfx", $args['tag']);
+    DoButtonReset("../pic/gfx", $args['tag'], arr_get($args, 'reset', ''));
     echo "\n</form>\n\n</td></tr>\n";
 }
 
@@ -185,7 +186,7 @@ Lineup number:<br>
 (1-120)
 </td>
 <td valign=top class="updown">
-<input type="text" name="num" size="3" id="rankNum"><br>
+<input type="text" name="num" size="3" id="rankNum">
 <?php incrnum('rankNum', 1, 120, ''); ?>
 </td>
 <?php HorzSpacer(1); ?>
@@ -217,7 +218,7 @@ if ($isadmin)
 (1-120)</i>
 </td>
 <td valign=top class="updown">
-<input type="text" name="enum" size="3" id="rankNum"><br>
+<input type="text" name="enum" size="3" id="rankNum">
 <?php incrnum('rankNum', 1, 120, ''); ?>
 </td>
 <?php
@@ -277,7 +278,8 @@ if ($isadmin)
 </td></tr><tr>
 <td valign="top"><input type="radio" name="range" value="all" checked> All numbers</td>
 <td valign="top"><input type="radio" name="range" value="some"> Some numbers</td>
-<td valign="top">starting at:</td><td valign="top"><input type="text" name="start" id="manStart" value="1" size="4" onFocus="document.manno.range[1].checked=true;">
+<td valign="top">starting at:</td>
+<td valign="top" class="updown"><input type="text" name="start" id="manStart" value="1" size="4" onFocus="document.manno.range[1].checked=true;">
 <?php incrnum('manStart', 1, "document.getElementById('manEnd').value", 'document.manno.range[1].checked=true;'); ?>
 </td>
 <?php
@@ -295,7 +297,7 @@ Start year:
 }
 ?>
 </tr>
-<tr><td>
+<tr><td colspan="2">
 List type:
 <select name="listtype">
 <option value="" selected>Normal
@@ -314,7 +316,9 @@ if ($isadmin)
 }
 ?>
 </select><br>
-</td><td></td><td valign="top">ending at:</td><td valign="top"><input type="text" name="end" id="manEnd" value="999" size="4" onFocus="document.manno.range[1].checked=true;">
+</td>
+<td valign="top">ending at:</td>
+<td valign="top" class="updown"><input type="text" name="end" id="manEnd" value="999" size="4" onFocus="document.manno.range[1].checked=true;">
 <?php incrnum('manEnd', "document.getElementById('manStart').value", 999, 'document.manno.range[1].checked=true;'); ?>
 </td>
 <?php
@@ -346,7 +350,7 @@ function YNMCell($arr, $verb)
     echo('<td class="tdleft"><b>' . $arr[1] . "</b></td>");
     echo('<td class="tdmiddle">');
     if ($isadmin)
-	echo($arr[0][0]);
+	echo('<i>' . $arr[0][0] . '</i>');
     echo('</td>');
     echo('<td class="tdright">');
     echo('<input type="radio" name="type_' . $arr[0] . '" value="y">yes' . "\n");
@@ -409,12 +413,12 @@ if ($isadmin)
 <tr>
 <td><input type="radio" name="sect" value="rw"> Regular Wheels</td>
 <td><input type="radio" name="range" value="some"> Only numbers</td>
-<td>starting at:</td><td><input type="text" name="start" id="mackStart" value="1" size="3" onFocus="document.mack.range[1].checked=true;">
+<td>starting at:</td><td class="updown"><input type="text" name="start" id="mackStart" value="1" size="3" onFocus="document.mack.range[1].checked=true;">
 <?php incrnum('mackStart', 1, "document.getElementById('mackEnd').value", 'document.mack.range[1].checked=true;'); ?>
 </td></tr>
 <tr>
 <td><input type="radio" name="sect" value="sf"> SuperFast</td>
-<td></td><td>ending at:</td><td><input type="text" name="end" id="mackEnd" value="120" size="3" onFocus="document.mack.range[1].checked=true;">
+<td></td><td>ending at:</td><td class="updown"><input type="text" name="end" id="mackEnd" value="120" size="3" onFocus="document.mack.range[1].checked=true;">
 <?php incrnum('mackEnd', "document.getElementById('mackStart').value", 120, 'document.mack.range[1].checked=true;'); ?>
 </td></tr>
 </table>
@@ -540,7 +544,7 @@ document.addEventListener("DOMContentLoaded", boxExample, false);
 <?php HorzSpacer(1); ?>
   <td>Model Numbers:</td>
   <td>Starting at number:</td>
-  <td><input type="text" name="start" size="3" value="1" id="boxStart">
+  <td class="updown"><input type="text" name="start" size="3" value="1" id="boxStart">
   <?php incrnum('boxStart', 1, 75, ''); ?>
   </td>
 <?php HorzSpacer(1); ?>
@@ -552,7 +556,7 @@ document.addEventListener("DOMContentLoaded", boxExample, false);
   <td></td>
   <td></td>
   <td>Ending at number:</td>
-  <td><input type="text" name="end" size="3" value="75" id="boxEnd">
+  <td class="updown"><input type="text" name="end" size="3" value="75" id="boxEnd">
   <?php incrnum('boxEnd', 1, 75, ''); ?>
   </td>
  </tr>
