@@ -112,7 +112,7 @@ box_lookups = {
 	'E4R': 'E4R: colour picture, "MATCHBOX" in arch with "&reg;", 1968',
 	'F': 'F: colour picture, "MATCHBOX" straight, 1969',
 	'G': 'G: colour picture, "MATCHBOX" italic, 1970-75',
-	'H': '''H: colour picture, "MATCHBOX" bold italic with tyre, 1971-76''',
+	'H': 'H: colour picture, "MATCHBOX" bold italic with tyre, 1971-76',
 	'I': 'I: colour picture, "MATCHBOX" bold italic, 1972-79',
 	'J': 'J: colour picture, "MATCHBOX" in oval, number/name in centre, 1975-82',
 	'K': 'K: colour picture, "MATCHBOX" in oval, number/name at bottom, 1976-82',
@@ -136,8 +136,8 @@ box_lookups = {
 	'MIR2': '''"MATCHBOX" IS THE REG'D TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND''',
 	'MMR1': '"MATCHBOX", "MARCA REGISTRADA" REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'MMR2': '"MATCHBOX", "MARCA REGISTRADA" REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON E.9 5PA ENGLAND',
-	'CNG':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.', #(combined with MRT3, MIR2, MMR1 or MMR2)',
-	'CNN':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS', #(combined with MRT3, MIR2, MMR1 or MMR2)',
+	'CNG':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.',
+	'CNN':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS',
 	'MMR3': '"MATCHBOX" (MARCA REGISTRADA) REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'MIR3': '"MATCHBOX" IS THE REGISTERED TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'MIR4': '"MATCHBOX" IS THE REGISTERED TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS P.L.C. LONDON ENGLAND',
@@ -167,11 +167,10 @@ box_lookups = {
 	'E1': 'model number and name',
 	'E2': 'model number, name and detail drawing',
 	'E3': 'colour picture',
-	'E4': 'MATCHBOX" and colour picture',
-	'E4R': 'MATCHBOX" with "&reg;" and colour picture',
+	'E4': '"MATCHBOX" and colour picture',
+	'E4R': '"MATCHBOX" with "&reg;" and colour picture',
 	'SCC': 'SPECIFICATION AND COLOUR OF CONTENTS SUBJECT TO AMENDMENT',
 	'PO': "PORTI&Egrave;RES OUVRANTES - LICENCE SOLIDO",
-	'X': '',
 	'TM': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd.',
 	'TME': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd. Printed in England. Made in England.',
 	'MK': "MARK",
@@ -199,7 +198,7 @@ box_lookups = {
 #9|-----------L|1982|&copy; 1981 LESNEY PRODUCTS P.L.C. MADE IN ENGLAND|on sides|MIR4
 
 	'_title': 'Box Sides',
-	'1BS': 'one blue side (other side is black)',
+	'1BS': 'one blue side and one black side',
 	'2BS': 'two blue sides',
 	'LBS': 'two light blue sides',
 	'DR': 'drawings of the model',
@@ -235,35 +234,50 @@ box_lookups = {
 	'Sup': '"Superfast" in script',
 	'SUP': '"SUPERFAST" in block capitals',
 	'ROL': '"Rola-matics"',
-	'2':
-'''box containing two lines inside top (English and French):
-NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHSNE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS
-one line inside bottom:
+	'1B': '''box also contains one line inside bottom:
 CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.''',
-	'4A':
-'''box containing four lines inside top (English and French):
-CAUTION: CONTAINS SMALL PARTS.NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.ATTENTION! CONTIENT PETITES PIECES.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.
-one line inside bottom:
-CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.''',
-	'5A':
-'''box containing five lines inside top (English, French and Italian):
-NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NON ADATTO AD UN BAMBINO DI ETA MINORE AL 36MESI. CONFORME PRESCRIZIONE DM 31.7.79.''',
-	'8':
-'''box containing eight lines inside top (English, French and Italian):
-CAUTION: CONTAINS SMALL PARTS.NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.ATTENTION! CONTIENT DES PETITES PIECES.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.AVVERTIMENTO: CONTIENE PICCOLI PEZZI. NON ADATTOAD UN BAMBINO DI ETA MINORE AL 36 MESI.CONFORME PRESCRIZIONE DM 31.7.79.''',
-	'4B':
-'''box containing four lines inside top (English, French and Swedish):
-NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHSNE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOISINNEH&Aring;LLER SM&Aring;DELAR EJ L&Auml;PLIGT F&Ouml;RBARN UNDER 3 &Aring;R.
-one line inside bottom:
-CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.''',
-	'5B':
-'''box containing five lines inside top (English, French, Italian, German and Swedish, used in Australia only):
-NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHSNE CONVIENT PAS A UN ENFANT DE MOINS DE 36 MOISNON ADATTO AD UN BAMBINO DI ET&Aacute; MINORE AI 36 MESIGEEIGNET F&Uuml;R KINDER AD DERI JAPHENINNEH&Aring;LLER SM&Aring;DELAR EI L&Auml;MPLIGT FOR BARN UNDER 3 &Aring;R''',
-	'6':
-'''box containing six lines inside top (English, French, Italian and Swedish):
-NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NON ADATTO AD UN BAMBINO DI ETA MINORE AL 36MESI. CONFORME PRESCRIZIONE DM 31.7.79.INNEH&Aring;LLER SM&Aring;DELAR EJ L&Auml;MPLIGT F&Ouml;R BARN UNDER 3 &Aring;R.''',
-	'1':
-'''box containing one line inside top (English, used in USA only):
+	'2': '''box containing two lines inside top (English and French):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS
+NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS''',
+	'4A': '''box containing four lines inside top (English and French):
+CAUTION: CONTAINS SMALL PARTS.
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.
+ATTENTION! CONTIENT PETITES PIECES.
+NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.''',
+	'5A': '''box containing five lines inside top (English, French and Italian):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.
+NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.
+CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.
+NON ADATTO AD UN BAMBINO DI ETA MINORE AL 36
+MESI.  CONFORME PRESCRIZIONE DM 31.7.79.''',
+	'8': '''box containing eight lines inside top (English, French and Italian):
+CAUTION: CONTAINS SMALL PARTS.
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.
+ATTENTION! CONTIENT DES PETITES PIECES.
+NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.
+CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.
+AVVERTIMENTO: CONTIENE PICCOLI PEZZI.  NON ADATTO
+AD UN BAMBINO DI ETA MINORE AL 36 MESI.
+CONFORME PRESCRIZIONE DM 31.7.79.''',
+	'4B': '''box containing four lines inside top (English, French and Swedish):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS
+NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS
+INNEH&Aring;LLER SM&Aring;DELAR EJ L&Auml;PLIGT F&Ouml;R
+BARN UNDER 3 &Aring;R.''',
+	'5B': '''box containing five lines inside top (English, French, Italian, German and Swedish, used in Australia only):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS
+NE CONVIENT PAS A UN ENFANT DE MOINS DE 36 MOIS
+NON ADATTO AD UN BAMBINO DI ET&Aacute; MINORE AI 36 MESI
+GEEIGNET F&Uuml;R KINDER AD DERI JAPHEN
+INNEH&Aring;LLER SM&Aring;DELAR EI L&Auml;MPLIGT FOR BARN UNDER 3 &Aring;R''',
+	'6': '''box containing six lines inside top (English, French, Italian and Swedish):
+NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS.
+NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS.
+CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.
+NON ADATTO AD UN BAMBINO DI ETA MINORE AL 36
+MESI. CONFORME PRESCRIZIONE DM 31.7.79.
+INNEH&Aring;LLER SM&Aring;DELAR EJ L&Auml;MPLIGT F&Ouml;R BARN UNDER 3 &Aring;R.''',
+	'1': '''box containing one line inside top (English, used in USA only):
 NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
     },
     'additional_text': {
@@ -282,32 +296,22 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
 	# G
 	'BLK': 'black "TM"',
 	'RED': 'red "TM"',
-	# GIJKL
+	# GIKL
 	'NON': 'no "TM", no additional lettering',
 	# H
 	'H1': '''black number inside a red frame, no "Superfast" lettering nor model name''',
 	'H2': '''black number without frame, "Superfast" lettering and model name''',
+	# HJKL
 	'N': '"NEW"',
 	# I
+	'BNF': 'model number and black "NEW" in red frame',
 	'CHO': '"Choppers"',
+	'RNF': 'model number and red "NEW" in red frame',
+	'XF': 'model number in red frame',
 	# IJKL
 	'ROL': '"Rola-matics"',
 	# J
 	'STR': 'Streakers',
-	# JKL
-
-	'NM': '"NEW MODEL"',
-	'RNF': 'model number and red "NEW" in red frame',
-	'BNF': 'model number and black "NEW" in red frame',
-
-	'XF': 'model number in red frame',
-	'N': '"NEW"',
-#	'NM': '"NEW MODEL"',
-#	'NME': '"NEW MODEL" on end flap',
-#	'X': 'no',
-#	'RNF': 'red "NEW", red frame',
-#	'BNF': 'black "NEW", red frame',
-#	'XF': 'no "NEW", red frame',
     },
     'year': {
 	'_title': 'Year on Box',
@@ -458,7 +462,7 @@ def show_boxes(pif):
 			ostr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
 		    ent[picsize] = {'txt': ostr}
 		ent['s']['txt'] += '<br>%s box variations - %s' % (mod['count'], pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
-		ent['box']['txt'] += ' - %s pics' % mod['pics']
+		ent['s']['txt'] += ' - %s pics' % mod['pics']
 	    else:
 		largest = 'mmcss'[len(picroots)]
 		pic = ''.join([get_box_image(pif, picroot, largest=largest) for picroot in picroots])
@@ -545,15 +549,22 @@ def commands(pif):
 			print picsize.upper(),
 	    print
 
+    check_database(pif)
+
 
 # not in use, just here so I don't forget how I did it.
 def check_database(pif):
+    fields = {}
     for e in pif.dbh.fetch('box_type'):
 	for f in e:
 	    if e[f] and f[9:] not in ('notes', 'year', 'id', 'pic_id', 'mod_id'):
+		fields.setdefault(f[9:], set())
+		fields[f[9:]].update(e[f].split('/'))
 		for h in e[f].split('/'):
-		    if h not in package.box_lookups[f[9:]]:
+		    if h not in box_lookups[f[9:]]:
 			print h, e[f], f, e['box_type.id']
+    for f in fields:
+	print f, fields[f] - set(box_lookups[f].keys()), set(box_lookups[f].keys()) - fields[f] - {'_title'}
 
 
 if __name__ == '__main__':  # pragma: no cover
