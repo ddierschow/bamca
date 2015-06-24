@@ -157,40 +157,6 @@ class UploadForm:
 	#rows=[{'ids': [], 'also': {}, 'cells': []}, ...]
 	#cells=[{'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''}, ...]
 
-	'''
-	table = pif.render.create_table()
-	table.row()
-	if self.mod_id:
-	    rows.append({'cells': [{'col': 0, 'content': 'Model'}, {'col': 1, 'content': self.mod_id}]})
-	    print '<input type="hidden" name="m" value="%s">' % self.mod_id
-	    rows.append({'cells': [{'col': 0, 'content': 'Variation'}, {'col': 1, 'content': pif.render.format_text_input('v', 8, value=self.var_id)}]})
-	if not restrict:
-	    rows.append({'cells': [{'col': 0, 'content': 'Directory'},
-			{'col': 1, 'content': pif.render.format_text_input('d', 64, value=form.tdir)}]})
-	    rows.append({'cells': [{'col': 0, 'content': 'Rename file to'},
-			{'col': 1, 'content': pif.render.format_text_input('n', 64, value=self.nfn) + " (optional)"}]})
-	    rows.append({'cells': [{'col': 0},
-			{'col': 0, 'content': "Choose one of the following:"}]})
-	rows.append({'cells': [{'col': 0, 'content': 'File to Upload'},
-		    {'col': 1, 'content': '<input type="file" name="fi" size="40">'}]})
-	if not restrict:
-	    rows.append({'cells': [{'col': 0, 'content': 'URL to grab'},
-			{'col': 1, 'content': pif.render.format_text_input('u', 80, 80)}]})
-	    rows.append({'cells': [{'col': 0, 'content': 'URL to scrape'},
-			{'col': 1, 'content': pif.render.format_text_input('s', 80, 80)}]})
-	rows.append({'cells': [{'col': 0, 'content': 'Comment'},
-		    {'col': 1, 'content': pif.render.format_text_input('c', 80, 80, desc)}]})
-	if not restrict and self.mod_id:  # self.var_id:
-	    rows.append({'cells': [{'col': 0, 'content': 'Choose from library'},
-			{'col': 1, 'content': pif.render.format_button_input("select", name="l", also={})}]})
-	rows.append({'cells': [{'col': 0, 'content': '&nbsp;'},
-		    {'col': 0, 'content': pif.render.format_button_input() +
-			(pif.render.format_button_input("replace") if not restrict else '') +
-			pif.render.format_button_reset("upload") +
-			pif.render.format_button_input("mass")}]})
-	print pif.render.format_table({'rows': rows})
-	'''
-
 	rows = list()
 	if self.mod_id:
 	    rows.append({'cells': [{'col': 0, 'content': 'Model'}, {'col': 1, 'content': self.mod_id}]})
@@ -233,66 +199,6 @@ class UploadForm:
 			    pif.render.format_button_input("mass")}]})
 	print pif.render.format_table({'rows': rows})
 
-	'''
-	print pif.render.format_table_start()
-	if self.mod_id:
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0, 'Model')
-	    print pif.render.format_cell(1, self.mod_id)
-	    print '<input type="hidden" name="m" value="%s">' % self.mod_id
-	    print pif.render.format_row_end()
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0, 'Variation')
-	    print pif.render.format_cell(1, pif.render.format_text_input('v', 8, value=self.var_id))
-	    print pif.render.format_row_end()
-	if not restrict:
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0, 'Directory')
-	    print pif.render.format_cell(1, pif.render.format_text_input('d', 64, value=self.tdir))
-	    print pif.render.format_row_end()
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0, 'Rename file to')
-	    print pif.render.format_cell(1, pif.render.format_text_input('n', 64, value=self.nfn) + " (optional)")
-	    print pif.render.format_row_end()
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0)
-	    print pif.render.format_cell(0, "Choose one of the following:")
-	    print pif.render.format_row_end()
-	print pif.render.format_row_start()
-	print pif.render.format_cell(0, 'File to Upload')
-	print pif.render.format_cell(1, '<input type="file" name="fi" size="40">')
-	print pif.render.format_row_end()
-	if not restrict:
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0, 'URL to grab')
-	    print pif.render.format_cell(1, '<input type="text" name="u" size="80">')
-	    print pif.render.format_row_end()
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0, 'URL to scrape')
-	    print pif.render.format_cell(1, '<input type="text" name="s" size="80">')
-	    print pif.render.format_row_end()
-    #       print pif.render.format_row_start()
-    #       print pif.render.format_cell(0, 'Replace existing')
-    #       print pif.render.format_cell(1, '<input type="checkbox" name="o">')
-    #       print pif.render.format_row_end()
-	print pif.render.format_row_start()
-	print pif.render.format_cell(0, 'Comment')
-	print pif.render.format_cell(1, '<input type="text" name="c" size="80" value="%s">' % desc)
-	print pif.render.format_row_end()
-	if not restrict and self.mod_id:  # self.var_id:
-	    print pif.render.format_row_start()
-	    print pif.render.format_cell(0, 'Choose from library')
-	    print pif.render.format_cell(1, pif.render.format_button_input("select", name="l", also={}))
-	    print pif.render.format_row_end()
-	print pif.render.format_row_start()
-	print pif.render.format_cell(0, '&nbsp;')
-	print pif.render.format_cell(0, pif.render.format_button_input() +
-	    (pif.render.format_button_input("replace") if not restrict else '') +
-	    pif.render.format_button_reset("upload") +
-	    pif.render.format_button_input("mass"))
-	print pif.render.format_row_end()
-	print pif.render.format_table_end()
-	'''
 	print '</form>'
 
     def scrape_url_pic(self):
@@ -428,7 +334,7 @@ def upload_main(pif):
 	elif upform.scrape:
 	    upform.scrape_url_pic()
         else:
-	    upform.write(pif, desc=upform.comment)
+	    upform.write(pif, desc=upform.comment, restrict=not pif.is_allowed('uma'))
     except OSError:
         print useful.warn('fail:', traceback.format_exc(0))
     print pif.render.format_tail()

@@ -181,7 +181,7 @@ function SectionRank()
 ?>
 <input type="hidden" name="n" value="1">
 <table><tr>
-<td valign=top>
+<td valign="top" height="32">
 Lineup number:<br>
 (1-120)
 </td>
@@ -402,6 +402,7 @@ function SectionMack()
 ?>
 <table><tr>
 <td><input type="radio" name="sect" value="all" checked> Both sections</td>
+<?php HorzSpacer(3); ?>
 <td><input type="radio" name="range" value="all" checked> All numbers</td>
 <?php
 if ($isadmin)
