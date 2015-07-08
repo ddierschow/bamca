@@ -180,7 +180,9 @@ class UploadForm:
 			{'col': 1, 'content': '<input type="file" name="fi" size="40">'}]})
 	if not restrict and not self.mass:
 	    rows.append({'cells': [{'col': 0, 'content': 'URL to grab'},
-			{'col': 1, 'content': pif.render.format_text_input('u', 120, 80)}]})
+			{'col': 1, 'content': pif.render.format_text_input('u', 120, 80, id='urlgrab') +
+    pif.render.format_button_input_paste('urlgrab')
+}]})
 	    rows.append({'cells': [{'col': 0, 'content': 'URL to scrape'},
 			{'col': 1, 'content': pif.render.format_text_input('s', 120, 80)}]})
 	rows.append({'cells': [{'col': 0, 'content': 'Comment'},
@@ -322,7 +324,7 @@ def upload_main(pif):
 	upform.carbon_copy(fn)
 	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id))
 
-    print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_js)
+    print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
     print pif.form.get_form()
     print '<hr>'
 

@@ -137,11 +137,14 @@ box_lookups = {
 	'MMR1': '"MATCHBOX", "MARCA REGISTRADA" REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'MMR2': '"MATCHBOX", "MARCA REGISTRADA" REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON E.9 5PA ENGLAND',
 	'CNG':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.',
+	'CNGL':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A. (left)',
 	'CNN':  'CONFORMIT&Eacute; AUX NORMES GARANTIE PAR LESNEY S.A.NE CONVIENT PAS &Agrave; UN ENFANT DE MOINS DE 36 MOIS',
 	'MMR3': '"MATCHBOX" (MARCA REGISTRADA) REGISTERED TRADE MARK OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'MIR3': '"MATCHBOX" IS THE REGISTERED TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'MIR4': '"MATCHBOX" IS THE REGISTERED TRADE MARK (MARCA REGISTRADA) OF LESNEY PRODUCTS P.L.C. LONDON ENGLAND',
 	'NRC': 'Not recommended for children under 3.',
+	'NRCC': 'Not recommended for children under 3. (central)',
+	'3L': 'text on three lines',
     },
     'box_size': {
 	'_title': 'Box Size',
@@ -166,27 +169,30 @@ box_lookups = {
 	'LNS': 'model name lettering without serifs',
 	'E1': 'model number and name',
 	'E2': 'model number, name and detail drawing',
-	'E3': 'colour picture',
-	'E4': '"MATCHBOX" and colour picture',
-	'E4R': '"MATCHBOX" with "&reg;" and colour picture',
+	'E3': 'model number, name and colour picture',
+	'E4': 'model number, name, "MATCHBOX" and colour picture',
+	'E4R': 'model number, name, "MATCHBOX" with "&reg;" and colour picture',
 	'SCC': 'SPECIFICATION AND COLOUR OF CONTENTS SUBJECT TO AMENDMENT',
 	'PO': "PORTI&Egrave;RES OUVRANTES - LICENCE SOLIDO",
 	'TM': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd.',
 	'TME': 'Trademark "MATCHBOX"&reg; Owned By Lesney Products &amp; Co. Ltd. Printed in England. Made in England.',
 	'MK': "MARK",
-	'MK I': "MARK I",
-	'MK 1': "MARK 1",
-	'MK 2': "MARK 2",
-	'MK 3': "MARK 3",
-	'MK 4': "MARK 4",
-	'MK 5': "MARK 5",
-	'MK 6': "MARK 6",
-	'MK 7': "MARK 7",
+	'MKI': "MARK I",
+	'MK1': "MARK 1",
+	'MK2': "MARK 2",
+	'MK3': "MARK 3",
+	'MK4': "MARK 4",
+	'MK5': "MARK 5",
+	'MK6': "MARK 6",
+	'MK7': "MARK 7",
 	'CTC': 'MADE BY LESNEY PRODUCTS &amp; CO. LTD., AND SOLD UNDER PERMISSION FROM CATERPILLAR TRACTOR COMPANY.',
 	'N': '"NEW"',
 	'NM': '"NEW MODEL"',
+	'SD': 'small digits',
+	'LD': 'large digits',
     },
     'sides': {
+	'?': 'unknown',
 
 ##|Box generations|Years|Lettering|Location|Combined w/ bottom types
 #3|--------IJKL|1973-81|&copy; 19xx LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND|on sides|MIR2 MMR1 MMR2 CNG CNN MMR3 MIR3
@@ -222,11 +228,11 @@ box_lookups = {
 	'B3': 'black &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND',
 	'B4': 'black &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND',
 	'B5': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN',
-	'B6': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN',
-	'B7': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
+	#'B6': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN',
+	#'B7': 'black &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'W3': 'white &copy; 197x LESNEY PRODUCTS &amp; CO. LTD. MADE IN ENGLAND',
 	'W4': 'white &copy; 1973 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN ENGLAND',
-	'W5': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN',
+	#'W5': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. MADE IN GREAT BRITAIN',
 	'W6': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. PRINTED AND MADE IN GREAT BRITAIN',
 	'W7': 'white &copy; 1974 LESNEY PRODUCTS &amp; CO. LTD. LONDON ENGLAND',
 	'BLK': 'black "TM"',
@@ -281,14 +287,26 @@ INNEH&Aring;LLER SM&Aring;DELAR EJ L&Auml;MPLIGT F&Ouml;R BARN UNDER 3 &Aring;R.
 NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
     },
     'additional_text': {
-	'_title': 'Additional Text',
+	'_title': 'Additional Text on Front',
 	# ABC
-	'NO': 'No. with model number',
+	'NO': '"No." with model number',
+	'REGD': 'with "REG.D"',
+	'NOREGD': 'without "REG.D"',
 	# DE
-	'NUM': 'Model number',
+	'NUM': 'model number',
+	'WN': 'wider model number',
+	'NN': 'narrower model number',
+	'LNWS': 'large number with serifs',
+	'NFM': 'number far from model',
+	'NNM': 'number near by model',
+	'SNWS': 'small number with serifs',
+	'SNNS': 'small number without serifs',
+	'VSNWS': 'very small number with serifs',
 	# F
 	'AST': '"AUTOSTEER"',
 	'BSF': 'black "Superfast"',
+	'SBSF': 'small black "Superfast"',
+	'LBSF': 'large black "Superfast"',
 	'RLB': '"SERIES" in red left of blue number box',
 	'RSF': 'red "Superfast"',
 	'RUB': '"SERIES" in red under oblong blue number box',
@@ -296,6 +314,8 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
 	# G
 	'BLK': 'black "TM"',
 	'RED': 'red "TM"',
+	'RT.M.': 'red "T.M."',
+	'TM1': '"TM" on one front only',
 	# GIKL
 	'NON': 'no "TM", no additional lettering',
 	# H
@@ -312,14 +332,22 @@ NOT RECOMMENDED FOR CHILDREN UNDER 36 MONTHS''',
 	'ROL': '"Rola-matics"',
 	# J
 	'STR': 'Streakers',
+	# K
+	'SJ': '1952-1977 Silver Jubilee',
     },
     'year': {
 	'_title': 'Year on Box',
+    },
+    'model_name': {
+	'_title': 'Model Name',
     },
     'notes': {
 	'_title': 'Notes',
     },
 }
+
+def box_lookup(col, val):
+    return [box_lookups.get(col, {}).get(x, x) for x in val.split('/')]
 
 def single_box(pif, mod, box):
     ign_cols = ['id', 'mod_id', 'pic_id']
@@ -333,14 +361,15 @@ def single_box(pif, mod, box):
     for col in pif.dbh.get_table_info('box_type')['columns']:
 	if col not in ign_cols:
 	    if box[col]:
-		ostr += '<b>%s</b><ul>\n' % box_lookups.get(col, {}).get('_title', col)
-		for spec in box[col].split('/'):
-		    ostr += '<li>%s\n' % box_lookups.get(col, {}).get(spec, spec).replace('\n', '<br>')
+		ostr += '<b>%s</b><ul>\n' % box_lookup(col, '_title')[0]
+		for spec in box_lookup(col, box[col]):
+		    ostr += '<li>%s\n' % spec.replace('\n', '<br>')
 		ostr += '</ul>\n'
-    ostr += '<center>' + pif.render.format_image_selector(pics, pic_name) + '</center>'
     istr = pif.render.format_image_selectable(pics, pic_name)
     if pif.is_allowed('ma'):
 	istr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, pic_name + '.jpg', istr)
+	istr += '<br>' + pif.render.format_button("edit", link=pif.dbh.get_editor_link('box_type', {'id': box['id']}))
+    istr += '<center>' + pif.render.format_image_selector(pics, pic_name) + '</center>'
     ent = {'inf': ostr, 'pic': istr }
     return ent
 
@@ -394,20 +423,28 @@ def find_boxes(pif):
     boxes = dict()
     for box in pif.dbh.fetch_castings_by_box(series, style):
         box['id'] = box['alias.id'] if box.get('alias.id') else box['casting.id']
-	pic_name = ('x_%s-%s%s' % (box['box_type.mod_id'], box['box_type.box_type'][0], box['box_type.pic_id'])).lower()
-	is_pic = int(os.path.exists(os.path.join(config.IMG_DIR_BOX, pic_name + '.jpg')))
-	sortid = box['id'][2:4] + box['id'][0:2] + box['id'][4:] + box['box_type.box_type'][0]
-	if sortid in boxes:
-	    boxes[sortid]['count'] += 1
-	    boxes[sortid]['pics'] += is_pic
-	    continue
         if (series and box['base_id.model_type'] != series) or \
 		(style and (style != box['box_type.box_type'][0])) or \
 		(int(box['id'][2:4]) < start) or \
 		((end and int(box['id'][2:4]) > end) or (not end and int(box['id'][2:4]) != start)):
 	    continue
+	pic_name = ('x_%s-%s%s' % (box['box_type.mod_id'], box['box_type.box_type'][0], box['box_type.pic_id'])).lower()
+	is_pic = int(os.path.exists(os.path.join(config.IMG_DIR_BOX, pic_name + '.jpg')))
+	sortid = box['id'][2:4] + box['id'][0:2] + box['id'][4:] + box['box_type.box_type'][0]
+	front = ' / '.join(
+		box_lookup('box_type', box['box_type.box_type']) +
+		box_lookup('bottom', box['box_type.bottom']) +
+		box_lookup('additional_text', box['box_type.additional_text']) +
+		[box['box_type.notes']])
+	if sortid in boxes:
+	    boxes[sortid]['count'] += 1
+	    boxes[sortid]['pics'] += is_pic
+	    if front not in boxes[sortid]['fronts']:
+		boxes[sortid]['fronts'].append(front)
+	    continue
 	box['count'] = 1
 	box['pics'] = is_pic
+	box['fronts'] = [front]
 	boxes[sortid] = box
     return boxes
 
@@ -446,6 +483,8 @@ def show_boxes(pif):
 	ent1 = ent
 	for mod_box_id in mod_box_ids:
 	    mod = boxes[mod_box_id]
+	    if verbose and pif.is_allowed('ma'):
+		print '<br>'.join(mod['fronts']), '<hr>'
 	    box_style = mod['box_type.box_type'][0]
 	    picroots = get_pic_roots(mod['id'], box_style)
 	    if verbose:
@@ -529,43 +568,86 @@ def count_boxes(pif):
 
 @basics.command_line
 def commands(pif):
+    if pif.argv and pif.argv[0] == 'c':
+	boxes = find_boxes(pif)
+	keys = boxes.keys()
+	keys.sort()
 
-    boxes = find_boxes(pif)
-    keys = boxes.keys()
-    keys.sort()
-
-    for key in keys:
-	for picroot in get_pic_roots(boxes[key]['id'], boxes[key]['box_type.box_type'][0]):
-	    print '%-9s' % picroot,
-	    for picsize in 'mcs':
-		img = pif.render.find_image_path(picroot, prefix=picsize + '_', pdir=config.IMG_DIR_BOX)
-		if not img:
-		    print '.',
-		else:
-		    imginf = imglib.img_info(img)
-		    if imginf[1] < mbdata.imagesizes[picsize][0]:
-			print picsize,
+	for key in keys:
+	    for picroot in get_pic_roots(boxes[key]['id'], boxes[key]['box_type.box_type'][0]):
+		print '%-9s' % picroot,
+		for picsize in 'mcs':
+		    img = pif.render.find_image_path(picroot, prefix=picsize + '_', pdir=config.IMG_DIR_BOX)
+		    if not img:
+			print '.',
 		    else:
-			print picsize.upper(),
-	    print
+			imginf = imglib.img_info(img)
+			if imginf[1] < mbdata.imagesizes[picsize][0]:
+			    print picsize,
+			else:
+			    print picsize.upper(),
+		print
 
-    check_database(pif)
+	check_database(pif)
+
+    elif pif.argv and pif.argv[0] == 'd':
+	dump_database(pif)
 
 
-# not in use, just here so I don't forget how I did it.
 def check_database(pif):
+    count = 0
     fields = {}
-    for e in pif.dbh.fetch('box_type'):
+    d = pif.dbh.fetch('box_type')
+    for e in d:
+	x = config.IMG_DIR_BOX + '/x_' + e['box_type.mod_id'] + '-' + e['box_type.box_type'][0] + e['box_type.pic_id'] + '.jpg'
+	count += int(os.path.exists(x.lower()))
 	for f in e:
-	    if e[f] and f[9:] not in ('notes', 'year', 'id', 'pic_id', 'mod_id'):
+	    if e[f] and f[9:] not in ('notes', 'year', 'id', 'pic_id', 'mod_id', 'model_name'):
 		fields.setdefault(f[9:], set())
 		fields[f[9:]].update(e[f].split('/'))
 		for h in e[f].split('/'):
 		    if h not in box_lookups[f[9:]]:
 			print h, e[f], f, e['box_type.id']
     for f in fields:
-	print f, fields[f] - set(box_lookups[f].keys()), set(box_lookups[f].keys()) - fields[f] - {'_title'}
+	s1 = fields[f] - set(box_lookups[f].keys())
+        s2 = set(box_lookups[f].keys()) - fields[f] - {'_title'}
+	if s1 or s2:
+	    print f, s1, s2
+    print 'x-pics', count, 'of', len(d)
 
+
+def dump_database(pif):
+    cols = ['id', 'pic', 'box_size', 'year', 'additional_text', 'bottom', 'sides', 'end_flap', 'model_name', 'notes']
+    titles = {
+	'id': 'id',
+	'mod_id': 'mod_id',
+	'box_type': 'typ',
+	'pic_id': 'p',
+	'pic': 'pic',
+	'box_size': 'z',
+	'year': 'year',
+	'additional_text': 'addl_text',
+	'bottom': 'bottom',
+	'sides': 'sides',
+	'end_flap': 'end_flap',
+	'model_name': 'model_name',
+	'notes': 'notes',
+    }
+    db = pif.dbh.depref('box_type', pif.dbh.fetch('box_type'))
+    lens = {col: 0 for col in cols}
+    for row in db:
+	row['pic'] = '%s-%s%s' % (row['mod_id'], row['box_type'][0], row['pic_id'])
+	for col in cols[1:]:
+	    lens[col] = max(lens[col], len(row[col]))
+    lens['id'] = 4
+#id   | mod_id | typ | p | z | year | addl_text | bottom      | sides          | end_flap        | model_name                  | notes
+    print ' | '.join([('%%-%ds' % lens[col]) % titles[col] for col in cols])
+    for row in db:
+	print ' | '.join([('%%-%ds' % lens[col]) % row[col] for col in cols]).strip()
+
+
+# saving for later
+#select id, mod_id, box_type as typ, pic_id as p, box_size as z, year, additional_text as addl_text, bottom, sides, end_flap, model_name, notes from box_type;
 
 if __name__ == '__main__':  # pragma: no cover
     commands(dbedit='')

@@ -962,6 +962,7 @@ class ActionForm(object):
 	    print pif.render.format_button_input('select to casting', 'select')
 	    print 'Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest)
 	    print pif.render.format_button_input('select to category', 'selcat')
+	    print '<br>'
 
 	return x, y
 

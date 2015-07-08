@@ -60,6 +60,7 @@ class Presentation():
     increment_select_js = javascript.def_increment_select_js
     google_analytics_js = javascript.def_google_analytics_js
     image_selector_js = javascript.def_image_selector_js
+    paste_from_clippy_js = javascript.def_paste_from_clippy_js
     def __init__(self, page_id, verbose):
         self.page_id = page_id
         self.art_dir = config.IMG_DIR_ART
@@ -665,10 +666,10 @@ of Matchbox International Ltd. and are used with permission.
         ostr += '</select>'
         return ostr
 
-    def format_text_input(self, name, maxlength, showlength=24, value=''):
+    def format_text_input(self, name, maxlength, showlength=24, value='', id=None):
         if not value:
             value = ''
-        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True))
+        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s"%s>\n' % (name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True), (' id="%s"' % id) if id else '')
 
     def format_textarea_input(self, name, showlength=128, showheight=4, value=''):
         if not value:
@@ -708,6 +709,19 @@ of Matchbox International Ltd. and are used with permission.
             ostr += "<a onmousedown=\"toggleOnSel('%s', 1);\" onmouseup=\"toggleOff();\">%s</a>\n" % (id, but_dec)
             ostr += "<a onclick=\"settsel('%s');\">%s</a>\n" % (id, but_min)
         return ostr
+
+    def format_button_input_paste(self, id):
+        but_image = self.find_image_path('but_paste', suffix='gif', art=True)
+        hov_image = self.find_image_path('hov_paste', suffix='gif', art=True)
+        also = {'src': '../' + but_image,
+                #'id': id + '_l',
+                #'value': 'paste',
+                'onclick': "paste_from_clippy('%s'); return false;" % id,
+                'class': 'button',
+                'onmouseover': "this.src='../%s';" % hov_image,
+                'onmouseout': "this.src='../%s';" % but_image}
+        #return '<input type="image"%s>\n' % useful.fmt_also(also)
+        return '<img %s>\n' % useful.fmt_also(also)
 
     def format_button_input_visibility(self, id, collapsed=False):
         if collapsed:

@@ -80,3 +80,4 @@ function maplink($arr)
 '''
 
 def_image_selector_js = '''<script type="text/javascript" src="/bin/imageselector.js"></script>\n'''
+def_paste_from_clippy_js = '''<script type="text/javascript" src="/bin/clippypaste.js"></script>\n'''
