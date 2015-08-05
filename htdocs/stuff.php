@@ -107,8 +107,8 @@ else
     <a href="http://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents/?C=M;O=D">docs</a>
 <li><a href="cgi-bin/xbits.cgi">bits</a>
 <li><a href="cgi-bin/stitch.cgi">stitch</a>
-<li><a href="pic/flags/all.html">flags</a>
-    <a href="pic/flags/iso">iso</a>
+<li><a href="pic/flags/">flags</a>
+    <a href="pic/flags/all.php">all</a>
 <li><a href="cgi-bin/xcars.cgi">cars</a>
     <a href="cgi-bin/tomica.cgi">tomica</a>
 <li><a href="cgi-bin/sets.cgi?page=mine1&noignore=1">mine1</a>

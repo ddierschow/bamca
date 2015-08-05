@@ -1032,14 +1032,15 @@ def image_star(image_path, pic_id='', halfstar=False, target_x=400, target_y=0):
 def read_presets(pdir):
     if os.path.exists(os.path.join(pdir, '.ima')):
 	presets = eval(open(os.path.join(pdir, '.ima')).read())
-	#print 'read_presets:', presets, '<br>'
+	print 'read_presets:', presets, '<br>'
+	presets['save'] = [1]
 	return presets
     return dict()
 
 
 def write_presets(pdir, presets, force=False):
     if force or os.path.exists(os.path.join(pdir, '.ima')):
-	#print 'write_presets:', presets, '<br>'
+	print 'write_presets:', presets, '<br>'
 	open(os.path.join(pdir, '.ima'), 'w').write(str(presets))
 
 

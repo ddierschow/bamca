@@ -174,7 +174,7 @@ class UploadForm:
 			    {'col': 0, 'content': "Choose one of the following:"}]})
 	if self.mass:
 	    rows.append({'cells': [{'col': 0, 'content': 'URLs to grab'},
-			{'col': 1, 'content': '<input type="hidden" value="1" name="mass"><textarea name="ul" cols="80" rows="20" wrap="off">'}]})
+			{'col': 1, 'content': '<input type="hidden" value="1" name="mass"><textarea name="ul" cols="80" rows="20" wrap="off"></textarea>'}]})
 	else:
 	    rows.append({'cells': [{'col': 0, 'content': 'File to Upload'},
 			{'col': 1, 'content': '<input type="file" name="fi" size="40">'}]})
@@ -424,6 +424,7 @@ class EditForm(imglib.ActionForm):
 	self.mass = pif.form.get_bool('mass')
 	self.clean = pif.form.get_bool('clean')
 	self.repl = pif.form.get_bool('repl')
+	self.save = pif.form.get_bool('save')
 	self.cc = pif.form.get_str('cc')
 	self.original_size = self.xos, self.yos = imglib.get_size(self.tdir + '/' + self.fn)
 	q = pif.form.get_str('q')
@@ -539,6 +540,7 @@ class EditForm(imglib.ActionForm):
 	    #if pif.is_allowed('m'):  # pragma: no cover
 		#print 'Var: ' + pif.render.format_text_input('v', 8, value=pif.form.get_str('v', ''))
 	    print pif.render.format_checkbox("repl", [(1, "Replace")], presets.get("repl", []))
+	    print pif.render.format_checkbox("save", [(1, "Save")], presets.get("save", []))
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
 	print '- Bounds: <input type="text" value="%s" name="q" id="q"> <span id="ima_info"></span>' % ','.join([str(x) for x in self.q])
@@ -565,7 +567,7 @@ class EditForm(imglib.ActionForm):
 	return nname
 
     def save_presets(self):
-	if os.path.exists(os.path.join(self.tdir, '.ima')):
+	if self.save and os.path.exists(os.path.join(self.tdir, '.ima')):
 	    presets = {
 		"unlv": [int(self.unlv)],
 		"unlh": [int(self.unlh)],

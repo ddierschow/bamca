@@ -49,7 +49,7 @@ echo "</table>\n<hr>\n";
 DoButtonLink("back", $IMG_DIR_ART, '/');
 ?>
 to the index.
-<a href="comment.php?page=database"><img src="../pic/gfx/but_comment_on_this_page.gif" alt="COMMENT" onmouseover="this.src='../pic/gfx/hov_comment_on_this_page.gif';" onmouseout="this.src='../pic/gfx/but_comment_on_this_page.gif';" class="comment"></a>
+<a href="pages/comment.php?page=database"><img src="../pic/gfx/but_comment_on_this_page.gif" alt="COMMENT" onmouseover="this.src='../pic/gfx/hov_comment_on_this_page.gif';" onmouseout="this.src='../pic/gfx/but_comment_on_this_page.gif';" class="comment"></a>
 
 <?php
 DoPageFooter($pif);

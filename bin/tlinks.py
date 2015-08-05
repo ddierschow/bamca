@@ -35,7 +35,7 @@ def links(pif):
 
 def single_link(pif, link):
     ostr  = 'Do you have a comment about this link?  Please send it to us.\n'
-    ostr += '<form action="comment.php" method="post" name="comment">\n'
+    ostr += '<form action="../pages/comment.php" method="post" name="comment">\n'
     ostr += '''
 <table>
 <tr><td>My Subject</td><td><input type="text" name="mysubject" size=80 maxlength=80></td></tr>
