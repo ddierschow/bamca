@@ -198,7 +198,7 @@ class UploadForm:
 			{'col': 0, 'content': pif.render.format_button_input() +
 			    (pif.render.format_button_input("replace") if not restrict else '') +
 			    pif.render.format_button_reset("upload") +
-			    pif.render.format_button_input("mass")}]})
+			    (pif.render.format_button_input("mass") if not restrict else '')}]})
 	print pif.render.format_table({'rows': rows})
 
 	print '</form>'
