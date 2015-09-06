@@ -43,6 +43,7 @@ Most of the pages that are grids or lists have been switched over
 to these new templates, and more will follow as I have time.
 
     6.0 published Sunday, 10 May 2015 at 12:01 AM PDT
+    6.1 published Sunday, 6 September 2015 at 12:01 AM PDT
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
