@@ -52,6 +52,12 @@ class Logger:
             'class': 'logging.FileHandler',
             'filename': '/home/bamca/logs/' + env + '.dbq' + logdate + '.log',
         },
+        'bot': {
+            'level': os.environ.get('LOG_LEVEL', 'INFO'),
+            'formatter': 'serious',
+            'class': 'logging.FileHandler',
+            'filename': '/home/bamca/logs/' + env + '.bot' + logdate + '.log',
+        },
         'activity': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'serious',
@@ -69,6 +75,12 @@ class Logger:
             'formatter': 'informational',
             'class': 'logging.FileHandler',
             'filename': '/home/bamca/logs/' + env + '.refer.log',
+        },
+        'debug': {
+            'level': os.environ.get('LOG_LEVEL', 'INFO'),
+            'formatter': 'serious',
+            'class': 'logging.FileHandler',
+            'filename': '/home/bamca/logs/' + env + '.debug.log',
         },
         'root': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
@@ -103,6 +115,11 @@ class Logger:
             'handlers': ['dbq'],
             'propagate': False,
         },
+        'bot': {
+            'level': 'INFO',
+            'handlers': ['bot'],
+            'propagate': False,
+        },
         'activity': {
             'level': 'INFO',
             'handlers': ['activity'],
@@ -116,6 +133,11 @@ class Logger:
         'refer': {
             'level': 'INFO',
             'handlers': ['refer'],
+            'propagate': False,
+        },
+        'debug': {
+            'level': 'INFO',
+            'handlers': ['debug'],
             'propagate': False,
         },
     },
@@ -132,7 +154,9 @@ class Logger:
         self.upload	= logging.getLogger('upload')
         self.url	= logging.getLogger('url')
         self.dbq	= logging.getLogger('dbq')
+        self.bot	= logging.getLogger('bot')
         self.activity	= logging.getLogger('activity')
         self.count	= logging.getLogger('count')
         self.refer	= logging.getLogger('refer')
+        self.debug	= logging.getLogger('debug')
 	self.root	= logging.getLogger('root')

@@ -18,6 +18,18 @@ import useful
 # environ.py has not be checked into github.
 import environ
 
+crawlers = [  # precluded from normal url tracking
+    'Mozilla/5.0 (compatible; AhrefsBot/5.0; +http://ahrefs.com/robot/)',
+    'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
+    'Mozilla/5.0 (compatible; DotBot/1.1; http://www.opensiteexplorer.org/dotbot, help@moz.com)',
+    'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+    'Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)',
+    'Mozilla/5.0 (compatible; MegaIndex.ru/2.0; +http://megaindex.com/crawler)',
+    'Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)',
+    'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0;  http://www.bing.com/bingbot.htm)',
+    'tbot-nutch/Nutch-1.10',
+]
 
 class BaseForm:
     def __init__(self, cgi_form, args):
@@ -216,14 +228,18 @@ class PageInfoFile:
 
     def log_start(self):
         if not self.is_allowed('m') and not self.args:
-            self.dbh.increment_counter(self.page_id)
-	    self.log.count.info(self.page_id)
-	    self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
-	    refer = os.environ.get('HTTP_REFERER', '')
-	    if refer and not refer.startswith('http://www.bamca.org') and \
-			 not refer.startswith('http://bamca.org') and \
-			 not refer.startswith('http://beta.bamca.org'):
-		self.log.refer.info(refer)
+	    if os.getenv('HTTP_USER_AGENT', '') in crawlers:
+		self.log.bot.info('%s %s' % (self.remote_addr, self.request_uri))
+	    else:
+		self.dbh.increment_counter(self.page_id)
+		self.log.count.info(self.page_id)
+		self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
+		self.log.debug.info(os.getenv('HTTP_USER_AGENT'))
+		refer = os.environ.get('HTTP_REFERER', '')
+		if refer and not refer.startswith('http://www.bamca.org') and \
+			     not refer.startswith('http://bamca.org') and \
+			     not refer.startswith('http://beta.bamca.org'):
+		    self.log.refer.info(refer)
 
     def get_page_id(self, page_id, form_key, defval):
         if form_key:
