@@ -19,6 +19,7 @@ import useful
 import environ
 
 crawlers = [  # precluded from normal url tracking
+    'Java/1.8.0_40',
     'Mozilla/5.0 (compatible; AhrefsBot/5.0; +http://ahrefs.com/robot/)',
     'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
     'Mozilla/5.0 (compatible; DotBot/1.1; http://www.opensiteexplorer.org/dotbot, help@moz.com)',
