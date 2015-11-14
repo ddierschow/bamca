@@ -507,6 +507,7 @@ def edit_multiple(pif):
         page_id = pif.dbh.fetch_section(sec_id)['section.page_id']
     else:
         linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page'), order="display_order")
+    print len(linklines), '<br>'
     ostr = pif.render.format_table_start()
     ostr += pif.render.format_row_start()
     for col in table_info['columns']:
@@ -568,19 +569,21 @@ def edit_links(pif):
     print pif.render.format_tail()
 
 
-def check_links(pif, sections=None, reject=[]):
+def check_links(pif, sections=None, reject=[], retest=False, visible=False):
     pif.dbh.dbi.verbose = True
     for sec in sections if sections else [None]:
-        links = pif.dbh.fetch_link_lines(section=sec)
+        links = pif.dbh.fetch_link_lines(section=sec, where='last_status != "200"' if retest else '')
         for link in links:
-            check_link(pif, link, reject)
+            check_link(pif, link, reject, visible=visible)
 
 
-def check_link(pif, link, rejects=[]):
+def check_link(pif, link, rejects=[], visible=False):
     if link:
         link = pif.dbh.depref('link_line', link)
         lstatus = 'unset'
-        print link['url'],
+	if visible and (link['flags'] & pif.dbh.FLAG_LINK_LINE_HIDDEN or link['page_id'] == 'links.rejects'):
+	    return
+        print link['id'], link['url'],
         if link['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
             lstatus = 'NoVer'
         elif link['link_type'] in 'bglsx':
@@ -600,7 +603,8 @@ def check_link(pif, link, rejects=[]):
             except:
                 lstatus = 'exc'
         print lstatus
-        pif.dbh.update_link_line({'id': str(link['id']), 'last_status': lstatus})
+	if link['last_status'] != lstatus:
+	    pif.dbh.update_link_line({'id': str(link['id']), 'last_status': lstatus})
 
 
 def check_blacklisted_links(pif, sections=None):
