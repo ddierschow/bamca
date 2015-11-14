@@ -245,8 +245,13 @@ echo "</td></tr>\n";
 
 <a href="http://vzone.virgin.net/sizzling.jalfrezi/">html</a> -
 <a href="http://www.python.org/">python</a> -
-<a href="http://www.diffnow.com/">diffnow</a> -
-<a href="http://jinja.pocoo.org/">jinja2</a>
+<a href="http://www.php.net/manual/en/index.php">php</a> -
+<a href="http://jinja.pocoo.org/">jinja2</a> -
+<a href="http://www.w3schools.com/css/">css</a> -
+<a href="http://www.w3schools.com/jsref/default.asp">javascript</a> -
+<a href="http://www.mysql.org/">mysql</a> -
+<a href="http://www.kernel.org/pub/software/scm/git/docs/gittutorial.html">git</a> -
+<a href="http://www.diffnow.com/">diffnow</a>
 <?php
 }
 
