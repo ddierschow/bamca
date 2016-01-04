@@ -790,7 +790,7 @@ class ActionForm(object):
 #		else:
 #		    useful.file_mover(from_path, os.path.join(config.LIB_MAN_DIR, man2['ref_id'].lower(), fn), mv=self.mv, ov=self.ov)
 	    else:
-		to_dir = os.path.join(config.LIB_MAN_DIR, man)
+		to_dir = os.path.join(config.LIB_MAN_DIR, self.man)
 		to_name = self.nname
 	elif self.mvbin:
 	    if not os.path.exists(os.path.join('lib/new', self.cat)):

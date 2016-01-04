@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import mannum
-mannum.main('manno')
+mannum.main('manno', dbedit='ma')

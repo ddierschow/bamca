@@ -463,6 +463,8 @@ class MannoFile:
         return sect
 
     def run_vehicle_type_list_template(self, pif):
+	if pif.form.get('vtset'):
+	    write_vehicle_types(pif)
         llineup = dict()
 	llineup['cols'] = vt_cols
 	llineup['num_cols'] = len(vt_cols)

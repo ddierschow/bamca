@@ -20,8 +20,8 @@ if __name__ == '__main__':
     print pif.render.format_button('reset')
     print pif.render.format_button('yodel')
     cgi.print_environ()
-    if pif.cgiform:
-        cgi.print_form(pif.cgiform)
+#    if pif.cgiform:
+#        cgi.print_form(pif.cgiform)
     print "<h3>Processed form</h3>", pif.form
     cgi.print_directory()
     print "was", pwd

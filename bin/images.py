@@ -640,7 +640,7 @@ class EditForm(imglib.ActionForm):
 	    outnam = '_' + man + ('-' + var if var else '') + ot
 
 	for pref in prefs:
-	    if xos <= mbdata.imagesizes[pref][0]:
+	    if xos < mbdata.imagesizes[pref][0]:
 		break
 	    self.nname = nname_root + '_' + pref + ot
 	    self.set_target_size(mbdata.imagesizes[pref])

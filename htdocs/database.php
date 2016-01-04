@@ -318,8 +318,8 @@ if ($isadmin)
 </select><br>
 </td>
 <td valign="top">ending at:</td>
-<td valign="top" class="updown"><input type="text" name="end" id="manEnd" value="999" size="4" onFocus="document.manno.range[1].checked=true;">
-<?php incrnum('manEnd', "document.getElementById('manStart').value", 999, 'document.manno.range[1].checked=true;'); ?>
+<td valign="top" class="updown"><input type="text" name="end" id="manEnd" value="1499" size="4" onFocus="document.manno.range[1].checked=true;">
+<?php incrnum('manEnd', "document.getElementById('manStart').value", 1499, 'document.manno.range[1].checked=true;'); ?>
 </td>
 <?php
 if ($isadmin)
