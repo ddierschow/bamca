@@ -530,7 +530,7 @@ def run_file(pif, region, year, section_types):
 
     if secs:
         for lran in secs:
-	    if lran['category'] in section_types:
+	    if lran['category'] in section_types or 'all' in section_types:
 		lran.update({
 		    'id': lup_region + '_' + str(lran['display_order']),
 		    'graphics': pif.render.fmt_opt_img([(lran['img_format'][:4] + lup_region + 's%02d' % lran['display_order']).lower()])
@@ -538,7 +538,7 @@ def run_file(pif, region, year, section_types):
 		lsec['range'].append(show_section(pif, lran, modlist[lran['start']:lran['end']], lup_region, year, comments))
 		multivars.extend(lran['multivars'])
     else:
-	if lsec['category'] in section_types:
+	if lsec['category'] in section_types or 'all' in section_types:
 	    lran = copy.deepcopy(lsec)
 	    lran.update({'id': lup_region + '_1', 'name': '', 'note': '', 'graphics': ''})
 	    lsec['range'].append(show_section(pif, lran, modlist, lup_region, year, comments))
@@ -550,7 +550,7 @@ def run_file(pif, region, year, section_types):
     create_extra_lineup(pif, year, xsecs, verbose=pif.render.verbose)
 
     for lran in xsecs:
-	if lran['category'] in section_types:
+	if lran['category'] in section_types or 'all' in section_types:
 	    lran['anchor'] = 'S' + lran['id'].replace('.', '')
 	    lran.update({
 		'id': 'X_' + str(lran['display_order']),
@@ -757,7 +757,7 @@ def product_pic_lineup_main(pif):
 
 
 def rank_lineup_main(pif):
-    pif.render.hierarchy_append('/cgi-bin/lineup.cgi?n=1&num=%s&region=%s&syear=%s&eyear=%s' % (pif.form.get_str('num'), pif.form.get_str('region'), pif.form.get_str('syear'), pif.form.get_str('eyear')),
+    pif.render.hierarchy_append('/cgi-bin/lineup.cgi?n=1&num=%s&region=%s&syear=%s&eyear=%s&lty=all' % (pif.form.get_str('num'), pif.form.get_str('region'), pif.form.get_str('syear'), pif.form.get_str('eyear')),
         "%s #%d" % (mbdata.regions.get(pif.form.get_str('region'), ''), pif.form.get_int('num')))
     pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     llineup = run_ranks(pif, pif.form.get_int('num'), pif.form.get_str('region', 'U').upper(), pif.form.get_str('syear', '1953'), pif.form.get_str('eyear', '2014'))
@@ -765,7 +765,7 @@ def rank_lineup_main(pif):
 
 
 def multiyear_main(pif):
-    pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s' % (pif.form.get_str('year'), pif.form.get_str('region')),
+    pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (pif.form.get_str('year'), pif.form.get_str('region')),
         pif.form.get_str('year', '') + ' ' + mbdata.regions.get(pif.form.get_str('region'), ''))
     pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     llineup = run_multi_file(pif, pif.form.get_str('year'), pif.form.get_str('region').upper(), pif.form.get_int('nyears'))
@@ -773,7 +773,7 @@ def multiyear_main(pif):
 
 
 def lineup_main(pif):
-    pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s' % (pif.form.get_str('year'), pif.form.get_str('region')),
+    pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (pif.form.get_str('year'), pif.form.get_str('region')),
         pif.form.get_str('year', '') + ' ' + mbdata.regions.get(pif.form.get_str('region'), ''))
     pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     llineup = run_file(pif, pif.form.get_str('region').upper(), pif.form.get_str('year'), pif.form.get_list('lty'))

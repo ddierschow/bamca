@@ -198,7 +198,7 @@ def show_relateds(pif, relateds):
 
 
 def show_lineup(appear):
-    return 'lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s#%(lineup_model.number)s' % appear
+    return 'lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s&lty=all#%(lineup_model.number)s' % appear
 
 
 angle_re = re.compile(r'<.*?>')
@@ -315,7 +315,7 @@ def format_lineup_appearances(pif, appearances):
 		    astr += pif.render.format_cell(0, yr)
 		    if 'X' in yd[yr]:
 			appear = yd[yr]['X']
-			astr += pif.render.format_cell(0, '<a href="lineup.cgi?year=%s&region=U#X%s">%s</a>' % (appear['lineup_model.year'], appear['lineup_model.number'], 'X'))
+			astr += pif.render.format_cell(0, '<a href="lineup.cgi?year=%s&region=U&lty=all#X%s">%s</a>' % (appear['lineup_model.year'], appear['lineup_model.number'], 'X'))
 		    astr += '\n'
 		    astr += pif.render.format_row_end()
         else:

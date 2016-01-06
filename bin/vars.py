@@ -128,11 +128,11 @@ def appearances(pif, mod_id, var_id, pics=False):
                     vs['region'] = 'Worldwide'
                     vs['lineup_model.number'] = 'S' + vs['lineup_model.region'].replace('.', '')
                     vs['lineup_model.region'] = 'U'
-                    ostr += '<li>' + pif.render.format_link("lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s#%(lineup_model.number)s" % vs, "%(lineup_model.year)s %(region)s lineup" % vs) + '\n'
+                    ostr += '<li>' + pif.render.format_link("lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s&lty=all#%(lineup_model.number)s" % vs, "%(lineup_model.year)s %(region)s lineup" % vs) + '\n'
                 elif vs.get('lineup_model.region') in ['M', 'S']:
                     pass
                 elif not vs['variation_select.sub_id'] or vs['variation_select.sub_id'] == vs.get('lineup_model.region'):
-                    ostr += '<li>' + pif.render.format_link("lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s#%(lineup_model.number)s" % vs, "%(lineup_model.year)s %(region)s lineup number %(lineup_model.number)s" % vs) + '\n'
+                    ostr += '<li>' + pif.render.format_link("lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s&lty=all#%(lineup_model.number)s" % vs, "%(lineup_model.year)s %(region)s lineup number %(lineup_model.number)s" % vs) + '\n'
             elif pif.is_allowed('a'):  # pragma: no cover
                 ostr += '<li><i>ref_id = ' + str(vs['variation_select.ref_id'])
                 if vs['variation_select.sub_id']:
