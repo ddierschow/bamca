@@ -19,10 +19,11 @@
 // VI-style cursor keys to move the bounds by one pixel, h for left,
 // j for top, k for bottom, l for right.  Unshifted expands the box,
 // shifted contracts the box.  ESC clears the box, z restores the last
-// cleared box.  Note that the cursor must be inside the picture area
-// to use the keys.
+// cleared box.  0-9 make the movement keys move 2^N pixels.  Note
+// that the cursor must be inside the picture area to use the keys.
 
 var slop = 1;
+var step = 1;
 var p1_x = p1_y = p2_x = p2_y = -(slop + 3); // rectangle corners
 var ms_x = ms_y = 0; // mouse (x,y)
 var cr_x = cr_y = 0; // client recangle upper left (x,y)
@@ -264,21 +265,21 @@ function ima_key(event) {
 	if (p1_x >= 0 && event.which == 27)
 	    clear_bounds();
 	else if (p1_x >= 0 && event.which == 104)
-	    p1_x = Math.max(0, p1_x - 1);
+	    p1_x = Math.max(0, p1_x - step);
 	else if (p2_y >= 0 && event.which == 106)
-	    p2_y = Math.min(sz_y, p2_y + 1);
+	    p2_y = Math.min(sz_y, p2_y + step);
 	else if (p1_y >= 0 && event.which == 107)
-	    p1_y = Math.max(0, p1_y - 1);
+	    p1_y = Math.max(0, p1_y - step);
 	else if (p2_x >= 0 && event.which == 108)
-	    p2_x = Math.min(sz_x, p2_x + 1);
+	    p2_x = Math.min(sz_x, p2_x + step);
 	else if (p1_x >= 0 && event.which == 72)
-	    p1_x = Math.min(p2_x, p1_x + 1);
+	    p1_x = Math.min(p2_x, p1_x + step);
 	else if (p2_y >= 0 && event.which == 74)
-	    p2_y = Math.max(p1_y, p2_y - 1);
+	    p2_y = Math.max(p1_y, p2_y - step);
 	else if (p1_y >= 0 && event.which == 75)
-	    p1_y = Math.min(p2_y, p1_y + 1);
+	    p1_y = Math.min(p2_y, p1_y + step);
 	else if (p2_x >= 0 && event.which == 76)
-	    p2_x = Math.max(p1_x, p2_x - 1);
+	    p2_x = Math.max(p1_x, p2_x - step);
 	else if (event.which == 66)
 	    clr = '#000000';
 	else if (event.which == 119)
@@ -300,6 +301,9 @@ function ima_key(event) {
 	    p1_y = l1_y;
 	    p2_x = l2_x;
 	    p2_y = l2_y;
+	}
+	else if (event.which >= 48 && event.which <= 57) {
+	    step = Math.pow(2, event.which - 48);
 	}
 	draw_bounds();
 	if (dbg)
