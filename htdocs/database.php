@@ -186,8 +186,8 @@ Lineup number:<br>
 (1-120)
 </td>
 <td valign=top class="updown">
-<input type="text" name="num" size="3" id="rankNum">
-<?php incrnum('rankNum', 1, 120, ''); ?>
+<input type="text" name="num" size="3" id="rankSNum">
+<?php incrnum('rankSNum', 1, 120, ''); ?>
 </td>
 <?php HorzSpacer(1); ?>
 <td style="text-align: right;" valign=top>
@@ -218,8 +218,8 @@ if ($isadmin)
 (1-120)</i>
 </td>
 <td valign=top class="updown">
-<input type="text" name="enum" size="3" id="rankNum">
-<?php incrnum('rankNum', 1, 120, ''); ?>
+<input type="text" name="enum" size="3" id="rankENum">
+<?php incrnum('rankENum', 1, 120, ''); ?>
 </td>
 <?php
 HorzSpacer(1);
