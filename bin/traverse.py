@@ -77,6 +77,9 @@ def show_dir(pif, tform):
     show_list("Executable Files", tform.tdir, xl)
     show_list("Other Files", tform.tdir, ol)
 
+    if pif.render.is_admin:
+	print '<a href="upload.cgi?d=%s">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
+
     if gl:
         print '<form action="traverse.cgi">'
         print '<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tform.tdir, pif.render.format_button('show all pictures'))
@@ -86,20 +89,26 @@ def show_dir(pif, tform):
         print '<input type="checkbox" name="co" value="1"> Compact'
 	if pif.render.is_admin:
 	    print '<input type="checkbox" name="shc" value="1"> Categorize'
+	    print '<input type="checkbox" name="mss" value="1"> Mass'
 	    print '<input type="checkbox" name="shm" value="1"> Shelve'
         print '<input type="checkbox" name="si" value="1"> Sized'
         print pif.render.format_button_input()
+	print '<br>'
+        print 'Size X <input type="text" name="sx">'
+        print 'Size Y <input type="text" name="sy">'
         print '</form>'
-
-    if pif.render.is_admin:
-	print '<a href="upload.cgi?d=%s">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
 
 
 imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="checkbox" name="mv" value="%(f)s %(b)s"> mv'''
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False, cate=False):
+def img(pif, args, base='', shlv=False, cate=False, sx=0, sy=0, mss=False):
+    also = {'border': 0}
+    if sx:
+	also['width'] = sx
+    if sy:
+	also['height'] = sy
     print '<tr>'
     args.sort()
     for arg in args:
@@ -107,10 +116,11 @@ def img(pif, args, base='', shlv=False, cate=False):
         inp = ''
         if shlv or cate:
             inp += '''<input type="text" name="lib.%s"> lib''' % arg
-            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also={"border": 0}), arg, inp))
+            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
             continue
-            inp += '''<input type="text" name="lib.%s"> lib''' % arg
-            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also={"border": 0}), arg, inp))
+	elif mss:
+            inp += '''<input type="text" name="var.%s"> var''' % arg
+            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
             continue
         if arg == base:
             inp = imginputs % {'f': arg, 'b': root + 'z.' + ext}
@@ -121,7 +131,7 @@ def img(pif, args, base='', shlv=False, cate=False):
         #inp += ' <a href="imawidget.cgi?d=%s&f=%s&cy=0">' % (pif.render.pic_dir, arg) + pif.render.format_button('edit') + '</a>'
         inp += ' ' + pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
         inp += ' ' + pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (pif.render.pic_dir + '/' + arg))
-        print pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also={"border": 0}), arg, inp))
+        print pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
     print '</tr>'
 
 
@@ -151,9 +161,9 @@ def show_imgs(pif, tform):
 		    flist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
 		    flist_sort(flist, tform)
 		    if len(flist) > 1:
-			img(pif, flist, fn, shlv=tform.shlv, cate=tform.cate)
+			img(pif, flist, fn, shlv=tform.shlv, cate=tform.cate, sx=tform.szx, sy=tform.szy, mss=tform.mss)
 		else:
-		    img(pif, [fn], shlv=tform.shlv, cate=tform.cate)
+		    img(pif, [fn], shlv=tform.shlv, cate=tform.cate, sx=tform.szx, sy=tform.szy, mss=tform.mss)
 	    print '</table>'
 	    print '<hr>'
     print '<input type="hidden" name="d" value="%s">' % tform.tdir
@@ -164,12 +174,17 @@ def show_imgs(pif, tform):
     elif tform.shlv:
 	print '<input type="hidden" name="pre" value="man">'
 	print '<input type="hidden" name="shm" value="1">'
+    elif tform.mss:
+	print '<input type="hidden" name="mss" value="1">'
     print pif.render.format_button_input()
     print '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
     print '</form>'
 
 
 def show_script(pif, tform):
+    if tform.mss:
+	do_masses(pif, tform)
+	return
     rend = dict(tform.renl)
     print '<pre>'
     for ren in tform.renl:
@@ -195,6 +210,19 @@ def show_script(pif, tform):
         if os.path.exists(os.path.join(tform.tdir, fsp[0])):
             useful.file_mover(os.path.join(tform.tdir, fsp[0]), os.path.join(tform.tdir, fsp[1]), mv=True, inc=True)
     print '</pre>'
+
+
+def do_masses(pif, tform):
+    for fn, var in pif.form.get_list(start='var.'):
+	print '<hr>'
+	print fn, var, '<br>'
+	eform = images.EditForm(pif, tdir=pif.render.pic_dir, fn=fn)
+	eform.ot = 'jpg'
+	eform.tysz = 's'
+	eform.read_file('')
+	eform.man = eform.calc_man()
+	eform.var = eform.nvar = var
+	eform.mass_resize()
 
 
 def show_file(pif, tform):
@@ -301,7 +329,7 @@ def show_table(pif, tform):
 def do_action(pif, tform):
     print '<div class="warning">'
     #nfn = images.action(pif, tform.tdir, tform.fnam, tform.act)
-    nfn = imglib.ActionForm().read(pif.form).action(pif, tform.tdir, tform.fnam)['fn']
+    nfn = imglib.ActionForm(pif).read(pif.form).action(pif, tform.tdir, tform.fnam)['fn']
     print '</div><br>'
     if nfn:
         show_picture(pif, nfn)
@@ -327,6 +355,7 @@ class TraverseForm:
 	self.patt = pif.form.get_str("p")
 	self.dups = pif.form.get_int("du")
 	self.cpct = pif.form.get_int("co")
+	self.mss = pif.form.get_int("mss")
 	self.shlv = pif.form.get_int("shm")
 	self.cate = pif.form.get_int("shc")
 	self.sizd = pif.form.get_int("si")
@@ -338,6 +367,8 @@ class TraverseForm:
 	self.pre = pif.form.get_str('pre')
 	self.mod = pif.form.get_str('mod')
 	self.var = pif.form.get_str('var')
+	self.szx = pif.form.get_int("sx")
+	self.szy = pif.form.get_int("sy")
 
 	pif.render.title = self.tdir
 	if self.fnam:

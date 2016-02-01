@@ -165,7 +165,8 @@ rot_flip_transforms = [
     ['/usr/local/bin/pamflip', '-lr'],
     ['/usr/local/bin/pamflip', '-tb'],
 ]
-rot_flip_axes = [True, False, True, False, False]
+#rot_flip_axes = [True, False, True, False, False]
+rot_flip_axes = [False, False, False, False, False]
 def rot_flip(rf):
     return [rot_flip_transforms[x] for x in range(len(rf)) if rf[x]]
 
@@ -730,8 +731,27 @@ class Drawer:
 
 
 class ActionForm(object):
-    def __init__(self):
-	pass
+    def __init__(self, pif):
+	self.tdir = ''
+	self.fn = ''
+	self.nname = ''
+	self.man = ''
+	self.cat = ''
+	self.ov = False
+	self.cpmv = 'c'
+	self.mv = self.cpmv == 'm'
+	self.delete = False
+	self.selcat = False
+	self.dest = ''
+	self.rename = False
+	self.lib = False
+	self.mvbin = False
+	self.select = False
+	self.var = ''
+	self.suff = ''
+	self.pref = ''
+	self.inc = ''
+	self.cycle = False
 
     def read(self, form):
 	self.tdir = form.get_str('d')
@@ -793,10 +813,10 @@ class ActionForm(object):
 		to_dir = os.path.join(config.LIB_MAN_DIR, self.man)
 		to_name = self.nname
 	elif self.mvbin:
-	    if not os.path.exists(os.path.join('lib/new', self.cat)):
-		useful.war('bad destination')
+	    if not os.path.exists(os.path.join('lib', self.cat)):
+		useful.warn('bad destination')
 	    else:
-		to_dir = os.path.join('lib', 'new', self.cat)
+		to_dir = os.path.join('lib', self.cat)
 		to_name = self.nname
 	elif self.select:
 	    inc = self.inc

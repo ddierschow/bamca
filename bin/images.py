@@ -61,7 +61,7 @@ def picker(pif, fn):
     print '<hr>'
     print '<form action="upload.cgi">'
 
-    imglib.ActionForm().read(pif.form).write(pif, fn)
+    imglib.ActionForm(pif).read(pif.form).write(pif, fn)
 
     print '</form>'
     print '<hr>'
@@ -86,7 +86,12 @@ def show_var_info(pif, mod_id, var_id):
 
 # -- upload
 
+ebay_start = 'http://thumbs.ebaystatic.com/images/g/'
+ebay_end = '/s-l225.jpg'
 def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
+    if url.startswith(ebay_start) and url.endswith(ebay_end):
+	url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.jpg'
+    print url, '<br>'
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
     try:
@@ -180,7 +185,7 @@ class UploadForm:
 			{'col': 1, 'content': '<input type="file" name="fi" size="40">'}]})
 	if not restrict and not self.mass:
 	    rows.append({'cells': [{'col': 0, 'content': 'URL to grab'},
-			{'col': 1, 'content': pif.render.format_text_input('u', 120, 80, id='urlgrab') +
+			{'col': 1, 'content': pif.render.format_text_input('u', 255, 80, id='urlgrab') +
     pif.render.format_button_input_paste('urlgrab')
 }]})
 	    rows.append({'cells': [{'col': 0, 'content': 'URL to scrape'},
@@ -192,7 +197,8 @@ class UploadForm:
 			{'col': 1, 'content': pif.render.format_button_input("select", name="l", also={})}]})
 	if self.mass:
 	    rows.append({'cells': [{'col': 0, 'content': '&nbsp;'},
-			{'col': 0, 'content': pif.render.format_button_input()}]})
+			{'col': 0, 'content': pif.render.format_button_input() +
+			    pif.render.format_button_reset("upload")}]})
 	else:
 	    rows.append({'cells': [{'col': 0, 'content': '&nbsp;'},
 			{'col': 0, 'content': pif.render.format_button_input() +
@@ -259,7 +265,6 @@ class UploadForm:
 
     def grab_url_file_list(self):
 	for url in self.url_list:
-	    print url, '<br>'
 	    grab_url_file(url, self.tdir)
 	    sys.stdout.flush()
 	print '<hr>'
@@ -355,7 +360,7 @@ def show_editor(pif, eform, pdir=None, fn=None):
         return
 
     print '<hr><form action="imawidget.cgi" name="myForm">'
-    #imglib.ActionForm().read(pif.form).write(pif, fn)
+    #imglib.ActionForm(pif).read(pif.form).write(pif, fn)
     x, y = eform.write(pif, pdir, fn)
     full_path = os.path.join(pdir, fn)
     root, ext = useful.root_ext(fn.strip())
@@ -386,14 +391,54 @@ def show_redoer(pif, eform):
 
 
 class EditForm(imglib.ActionForm):
-    def __init__(self):
-	super(EditForm, self).__init__()
+    def __init__(self, pif, tdir='.', fn=''):
+	super(EditForm, self).__init__(pif)
+	self.edit = False
+	self.fn = fn
+	self.ot = ''
+	self.pr = False
+	self.tdir = tdir
+	self.nvar = ''
+	self.man = ''
+	#self.var = ''
+	#self.nname = ''
+	self.tysz = ''
+	self.xts = 0
+	self.yts = 0
+	self.unlv = False
+	self.unlh = False
+	self.rf = []
+	self.rl = False
+	self.rh = False
+	self.rr = False
+	self.fh = False
+	self.fv = False
+	self.keep = False
+	self.resize = False
+	self.crop = False
+	self.shrink = False
+	self.wipe = False
+	self.pad = False
+	self.mass = False
+	self.clean = False
+	self.repl = False
+	self.save = False
+	self.cc = ''
+	self.original_size = self.xos, self.yos = 0, 0
+	q = ''
+	self.x1, self.y1, self.x2, self.y2 = self.q = [0, 0, 0, 0]
+	self.root, self.ext = '', ''
+	self.nname = ''
+	self.is_edited = False
+	self.set_target_size((self.xts, self.yts))
+	self.pth = ''
 
     def read(self, pif, edit=False):
 	super(EditForm, self).read(pif.form)
 	self.edit = edit or pif.form.get_bool('edit')
 	self.fn = pif.form.get_str("f", '')
-	self.ot =  pif.form.get_str('ot')
+	self.ot = pif.form.get_str('ot')
+	self.pr = pif.form.get_bool('pr')
 	self.tdir = pif.form.get_str("d", '.') if pif.is_allowed('avm') else '.'
 	if self.tdir.startswith('./'):
 	    self.tdir = self.tdir[2:]
@@ -426,8 +471,13 @@ class EditForm(imglib.ActionForm):
 	self.repl = pif.form.get_bool('repl')
 	self.save = pif.form.get_bool('save')
 	self.cc = pif.form.get_str('cc')
+	self.read_file(pif.form.get_str('q'))
+	if not self.pref:
+	    self.pref = pif.form.get_str('tysz')
+	return self
+
+    def read_file(self, q):
 	self.original_size = self.xos, self.yos = imglib.get_size(self.tdir + '/' + self.fn)
-	q = pif.form.get_str('q')
 	if not q:
 	    q = '0,0,%d,%d' % self.original_size
 	self.x1, self.y1, self.x2, self.y2 = self.q = [int(x) for x in q.split(',')]
@@ -447,7 +497,7 @@ class EditForm(imglib.ActionForm):
 	if '.' in self.nname:
 	    self.nname = self.nname[:self.nname.rfind('.')]
 	if not self.repl and self.tysz and not self.selcat and not self.rename:
-	    self.nname = self.nname + '_' + self.tysz
+	    self.nname = (self.tysz + '_' + self.nname) if self.pr else (self.nname + '_' + self.tysz)
 	if self.ot:
 	    self.nname += '.' + self.ot
 	else:
@@ -455,9 +505,6 @@ class EditForm(imglib.ActionForm):
 	self.is_edited = self.nname != self.fn
 	self.set_target_size((self.xts, self.yts))
 	self.pth = os.path.join(self.tdir, self.fn)
-	if not self.pref:
-	    self.pref = pif.form.get_str('tysz')
-	return self
 
     def set_target_size(self, newts):
 	xts, yts = newts
@@ -519,7 +566,8 @@ class EditForm(imglib.ActionForm):
 	    print '<div class="lefty">'
 	    #print '(%d, %d)' % (xs, ys)
 	    print '<input type="radio" name="tysz" value="q"%s>' % (' checked' if presets.get('tysz') == 'q' else '')
-	    print 'x: <input name="x" type="text" size="4" value="%s"> y: <input name="y" type="text" size="4" value="%s">' % (config.DEFAULT_X_SIZE, config.DEFAULT_Y_SIZE)
+	    print 'x: <input name="x" type="text" size="4" value="%s">' % config.DEFAULT_X_SIZE
+	    print 'y: <input name="y" type="text" size="4" value="%s">' % config.DEFAULT_Y_SIZE
 	    print ''.join(pif.render.format_radio('tysz', [(siz, siz.upper()) for siz in mbdata.image_size_names], presets.get('tysz', 's')))
 	    print '-', pif.render.format_checkbox("unlv", [(1, "V")], presets.get("unlv", []))
 	    print pif.render.format_checkbox("unlh", [(1, "H")], presets.get("unlh", []))
@@ -530,6 +578,7 @@ class EditForm(imglib.ActionForm):
 	    print pif.render.format_checkbox("fh", [(1, "FH")], presets.get("fh", []))
 	    print pif.render.format_checkbox("fv", [(1, "FV")], presets.get("fv", []))
 	    print pif.render.format_select('ot', imglib.otypes, 'jpg')
+	    print pif.render.format_checkbox("pr", [(1, "pr")], presets.get("pr", []))
 	    print '<br>'
 	    #print 'Name:', pif.render.format_text_input('newname', 20, value=pif.form.get_str('newname', ''))
 	    print pif.render.format_button_input('resize')
@@ -576,6 +625,7 @@ class EditForm(imglib.ActionForm):
 		"rr": [int(self.rr)],
 		"fh": [int(self.fh)],
 		"fv": [int(self.fv)],
+		"pr": [int(self.pr)],
 		"repl": [int(self.repl)],
 		"tysz": self.tysz,
 		"cc": self.cc,
@@ -614,6 +664,7 @@ class EditForm(imglib.ActionForm):
 	    useful.file_delete(os.path.join(self.tdir, nname))
 
     def mass_resize(self, desc=''):
+	print self.__dict__, '<br>'
 	var = self.var.lower()
 	man = self.man.lower()
 	print 'mass_resize', 'pth', self.pth, 'tdir "%s"' % self.tdir, 'fn', self.fn, 'ot', self.ot, 'os', self.original_size, '|', man, var, '<hr>'
@@ -665,7 +716,7 @@ def imawidget_main(pif):
     pif.render.print_html()
     pif.restrict('v')
 
-    eform = EditForm().read(pif)
+    eform = EditForm(pif).read(pif)
 
     pif.render.title = pif.render.pagetitle = pif.render.pic_dir + '/' + eform.fn
     print pif.render.format_head(extra=pif.render.increment_js)
@@ -894,7 +945,7 @@ class StitchForm(object):
 	#print '<a href="../' + final + '">' + final + '<br>'
 	#print '<img src="../' + final + '"></a>'
 	d, f = os.path.split(final)
-	#eform = EditForm().read(pif) # bullshit
+	#eform = EditForm(pif).read(pif) # bullshit
 	show_picture(pif, f, d)
 	orig = input_files[0][input_files[0].rfind('/') + 1:]
 	print '<br><form>Final resting place:'
@@ -1161,6 +1212,8 @@ def show_library_dir(pif, tdir, grafs=0):
     show_library_list(pif, "Executable Files", tdir, xl)
     show_library_list(pif, "Other Files", tdir, ol)
 
+    print '<a href="upload.cgi?d=%s&m=%s">%s</a>' % (tdir, tdir[7:], pif.render.format_button('upload'))
+
     if gl:
         print '<form action="traverse.cgi">'
         print '<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tdir, pif.render.format_button('show all pictures'))
@@ -1168,8 +1221,6 @@ def show_library_dir(pif, tdir, grafs=0):
         print '<input type="hidden" name="d" value="%s">' % tdir
         print pif.render.format_button_input()
         print '</form>'
-
-    print '<a href="upload.cgi?d=%s&m=%s">%s</a>' % (tdir, tdir[7:], pif.render.format_button('upload'))
 
 
 
@@ -1288,7 +1339,7 @@ def show_library_table(pif, pagename):
 
 def do_library_action(pif, tdir, fn, act):
     print '<div class="warning">'
-    nfn = imglib.ActionForm().action(pif, tdir, fn)
+    nfn = imglib.ActionForm(pif).action(pif, tdir, fn)
     print '</div><br>'
     if nfn:
         ShowLibraryPicture(pif, nfn)
