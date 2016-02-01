@@ -436,7 +436,7 @@ def create_extra_lineup(pif, year, secs, verbose=0):  # currently unimplemented 
 def correct_region(region, year):
     if isinstance(year, str):
         year = int(''.join(filter(lambda x: x.isdigit(), year)))
-    if year < 1982:
+    if year < 1971:
         region = 'W'
     elif region == 'D':
         if year not in (1999, 2000, 2001):
@@ -1117,7 +1117,7 @@ def run_product_pics(pif, region):
         lsec['columns'] = max(lsec['columns'], max_num + 1)
         lran = {'id': pages[page]['page_info.id'], 'name': '', 'entry': [], 'note': '', 'graphics': []}
         ent = {
-            'text': page[5:],
+            'text': '<a href="?year=%s&region=%s&lty=all&submit=1">%s</a>' % (page[5:], region, page[5:]),
             'display_id': '1', 'style': ''
         }
         lran['entry'].append(ent)
@@ -1131,6 +1131,8 @@ def run_product_pics(pif, region):
             else:
                 lpic_id = ifmt % mnum
                 product_image = pif.render.find_image_path([ifmt % mnum], suffix='jpg', pdir=pdir)
+	    if not lmod or lmod.get('lineup_model.flags', 0) & pif.dbh.FLAG_MODEL_NOT_MADE:
+		pic_id = None
             lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (pdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
 	    istar = pif.render.format_image_art(imglib.image_star(product_image, pic_id, mnum in halfstars.get(page[5:], [])))
             ent = {
@@ -1297,5 +1299,30 @@ def show_makes(pif, makedict, makes):
 
 # --- -------------------------------------------------------------------
 
+def show_lineup(pif):
+    year = pif.argv[1]
+    reg = pif.argv[2].upper()
+    llineup = run_file(pif, reg, year, ["man", "series", "ks", "acc", "yy", "pack", "bld", "pub"])
+    for sec in llineup['section']:
+	print sec['name']
+	for ran in sec['range']:
+	    for ent in ran['entry']:
+		if len(pif.argv) == 3 or str(ent['mdict']['shown_id']) in pif.argv[3:]:
+		    print ent['mdict']['shown_id'], ent['mdict']['name']
+		    for var in ent['mdict']['vars']:
+			print '    ', var[1]
+	print
+
+
+@basics.command_line
+def commands(pif):
+    if pif.argv and pif.argv[0] == 's':
+	show_lineup(pif)
+    else:
+        print "./lineup.py s ..."
+        print "  s for show: year region [number]"
+
+# --- -------------------------------------------------------------------
+
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    commands()

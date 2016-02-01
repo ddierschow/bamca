@@ -707,6 +707,7 @@ def rename_base_id(pif, old_mod_id, new_mod_id, force=False):
         config.IMG_DIR_ICON + '/?_%s-*.*' % old_mod_id,
         config.IMG_DIR_ADD + '/?_%s.*' % old_mod_id,
         config.IMG_DIR_CAT + '/?_%s.*' % old_mod_id,
+        config.IMG_DIR_CAT + '/?_%s_*.*' % old_mod_id,
         config.IMG_DIR_CAT + '/%s.*' % old_mod_id,
         config.IMG_DIR_PACK + '/?_%s.*' % old_mod_id,
         config.IMG_DIR_PACK + '/%s.*' % old_mod_id,

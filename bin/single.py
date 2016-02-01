@@ -20,9 +20,9 @@ def use_previous_product_pic(pif):  # pragma: no cover
     thismods = pif.dbh.depref('lineup_model', thismods[0])
     #print thispic, thismods, '<br>'
     thatpic = str(int(thispic[:4]) - 1) + thispic[4:]
-    thatmods = pif.dbh.FetchSimpleLineupModels(base_id=thatpic)
+    thatmods = pif.dbh.fetch_simple_lineup_models(base_id=thatpic)
     if not thatmods:
-        thatmods = pif.dbh.FetchSimpleLineupModels(base_id=thatpic[:4] + 'W' + thatpic[5:])
+        thatmods = pif.dbh.fetch_simple_lineup_models(base_id=thatpic[:4] + 'W' + thatpic[5:])
     thatmods = pif.dbh.depref('lineup_model', thatmods[0])
     #print thatpic, thatmods, '<br>'
     if thatmods['picture_id']:
@@ -458,7 +458,7 @@ def show_single(pif):
         content += '<a href="edlinks.cgi?page=single.%s">Links</a><br>\n' % id
     if os.path.exists(os.path.join(config.LIB_MAN_DIR, id.lower())):
 	if pif.is_allowed('v'):  # pragma: no cover
-	    content += '<a href="traverse.cgi?g=1&d=%s">Library</a><br>\n' % os.path.join(config.LIB_MAN_DIR, id.lower())
+	    content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % os.path.join(config.LIB_MAN_DIR, id.lower())
 	if pif.is_allowed('a'):  # pragma: no cover
 	    content += '<a href="upload.cgi?d=%s&m=%s">Library Upload</a><br>\n' % (os.path.join(config.LIB_MAN_DIR, id.lower()), id.lower())
     if pif.is_allowed('a'):  # pragma: no cover

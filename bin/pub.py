@@ -30,9 +30,9 @@ def publication(pif):
     content = ''
     if pif.is_allowed('a'):  # pragma: no cover
         content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
-        content += '<a href="%s">Publication ID</a><br>\n' % pif.dbh.get_editor_link('publication', {'id': pub_id})
+        content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link('publication', {'id': pub_id})
         content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % config.IMG_DIR_CAT
-        content += '<a href="upload.cgi?d=%s">Library Upload</a><br>\n' % config.IMG_DIR_CAT
+	content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (config.IMG_DIR_CAT, pub_id, pub_id)
 
     ostr += models.add_left_bar(pif, '', pub_id, '', 4, content)
 
@@ -41,8 +41,8 @@ def publication(pif):
 
     # top box
     ostr += '<tr><td valign=top>\n'
-    if len(imgs) > 1:
-        ostr += pif.render.format_image_sized([pub_id, pub_id + '_01'], largest='l')
+#    if len(imgs) > 1:
+#        ostr += pif.render.format_image_sized([pub_id, pub_id + '_01'], largest='l')
     if not imgs:
         img = pub_id + '.jpg'
         txt = pif.render.format_image_sized(img, largest='s')

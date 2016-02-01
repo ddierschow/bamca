@@ -285,7 +285,7 @@ def show_adds(pif, mod_id, var_id=''):
     attribute_pictures = pif.dbh.fetch_attribute_pictures(mod_id)
     attribute_pictures = dict([
         (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
-    print attribute_pictures.keys(),'<br>'
+    #print attribute_pictures.keys(),'<br>'
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD

@@ -302,8 +302,8 @@ def show_none(pif, table_info, dat):
     dats = []
     print "No records found.<br>"
     adds = table_info.get('add', {})
+    cond = {'add': '1'}
     if table_info['name'] in adds:
-        cond = {'add': '1'}
         for id in adds[table_info['name']]:
             fr, to = id.split('/')
             cond[fr] = dat.get(to, '')
