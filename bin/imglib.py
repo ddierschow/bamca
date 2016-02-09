@@ -86,7 +86,7 @@ def pipe_convert(src, dst, verbose=False):
     if src == dst:
 	return inpf.read()
     ctypes = import_file(src) + export_file(dst)
-    return pipe_chain(open(src), ctypes, stderr=subprocess.PIPE, verbose=verbose)
+    return pipe_chain(open(src), ctypes, stderr=open('/dev/null', 'w'), verbose=verbose)
 
 
 def import_file(fn):
@@ -327,7 +327,8 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
                     resize(x=xts) +
-                    export_file(nname, pth))
+                    export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
         elif xcs < xts:
             dx = xts - xcs
             dy = yts - ycs
@@ -338,7 +339,8 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
-                    export_file(nname, pth))
+                    export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
         elif xos == xts and yos == yts and xos == xcs and yos == ycs:
             print "copying"
             ofi = open(pth).read()
@@ -349,7 +351,8 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
-                    export_file(nname, pth))
+                    export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
 
     else:
 
@@ -361,7 +364,8 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
                     resize(x=xts) +
-                    export_file(nname, pth))
+                    export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
         elif yts < y2 - y1:
             print "trim shrinking y"
 	    xts, yts = fix_axes(rf, xts, yts)
@@ -370,7 +374,8 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
                     resize(y=yts) +
-                    export_file(nname, pth))
+                    export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
         else:
             print "trim cutting"
 	    xts, yts = fix_axes(rf, xts, yts)
@@ -378,7 +383,8 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
-                    export_file(nname, pth))
+                    export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
 
     print '<br>'
     return ofi
@@ -402,7 +408,8 @@ def shrinker(pth, nname, bound, maxsize, rf):
                 import_file(pth) +
                 cut(x1, y1, x1 + xcs, y1 + ycs) +
                 rot_flip(rf) +
-                export_file(nname, pth))
+                export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
     elif xts/xcs < yts/ycs:
         print "shrinking x", '<br>'
 	xts, yts = fix_axes(rf, xts, yts)
@@ -411,7 +418,8 @@ def shrinker(pth, nname, bound, maxsize, rf):
                 cut(x1, y1, x1 + xcs, y1 + ycs) +
                 rot_flip(rf) +
                 resize(x=xts) +
-                export_file(nname, pth))
+                export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
     else:
         print "shrinking y", '<br>'
 	xts, yts = fix_axes(rf, xts, yts)
@@ -420,7 +428,8 @@ def shrinker(pth, nname, bound, maxsize, rf):
                 cut(x1, y1, x1 + xcs, y1 + ycs) +
                 rot_flip(rf) +
                 resize(y=yts) +
-                export_file(nname, pth))
+                export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
     return ofi
 
 
@@ -432,7 +441,8 @@ def cropper(pth, nname, bound, rf):
             import_file(pth) +
             cut(x1, y1, x2, y2) +
             rot_flip(rf) +
-            export_file(nname, pth))
+            export_file(nname, pth),
+		    stderr=open('/dev/null', 'w'))
     return ofi
 
 
@@ -610,12 +620,14 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 	pipes = import_file(f[0]) + \
 		cut(f[3], f[4], f[5], f[6]) + \
 		resize(x=resize_x, y=resize_y)
-	outf = pipe_chain(open(f[0]), pipes, verbose=verbose)
+	outf = pipe_chain(open(f[0]), pipes, verbose=verbose,
+		    stderr=open('/dev/null', 'w'))
 	if verbose:
 	    print '>', f[0] + '.pnm', '<br>'
 	open(f[0] + '.pnm', 'w').write(outf)
 	cat.append(f[0] + '.pnm')
-    outf = pipe_chain(open('/dev/null'), [cat] + export_file(ofn), verbose=verbose)
+    outf = pipe_chain(open('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
+		    stderr=open('/dev/null', 'w'))
 
     if verbose:
 	print '>', ofn, '<br>'
