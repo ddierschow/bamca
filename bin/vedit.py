@@ -79,7 +79,7 @@ def parse_file(pif, vid, fdir, fn, args=''):
 	return {
             'stat': set(),
             'is_valid': False,
-            'modid': None,
+            'modid': '',
             'preface': '',
             'filehead': [],
             'gridhead': [],
