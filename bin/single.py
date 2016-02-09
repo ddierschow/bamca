@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import os, re
+import copy, os, re
 import basics
 import config
 import imglib
@@ -10,27 +10,33 @@ import models
 import useful
 
 
-def use_previous_product_pic(pif):  # pragma: no cover
-    thispic = pif.form.get_str('pic')
-    if not thispic:
-        return
-    thismods = pif.dbh.fetch_simple_lineup_models(base_id=thispic)
+def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
     if not thismods:
-        thismods = pif.dbh.fetch_simple_lineup_models(base_id=thispic[:4] + 'W' + thispic[5:])
-    thismods = pif.dbh.depref('lineup_model', thismods[0])
+	return ''
+    #thismods = pif.dbh.fetch_simple_lineup_models(base_id=thispic)
+#    if not thismods:
+#	thismods = pif.dbh.fetch_simple_lineup_models(base_id=thispic[:4] + 'W' + thispic[5:])
+    thismods = pif.dbh.depref('lineup_model', copy.deepcopy(thismods))
+    thispic = thismods['base_id'].lower()
     #print thispic, thismods, '<br>'
-    thatpic = str(int(thispic[:4]) - 1) + thispic[4:]
-    thatmods = pif.dbh.fetch_simple_lineup_models(base_id=thatpic)
-    if not thatmods:
-        thatmods = pif.dbh.fetch_simple_lineup_models(base_id=thatpic[:4] + 'W' + thatpic[5:])
-    thatmods = pif.dbh.depref('lineup_model', thatmods[0])
-    #print thatpic, thatmods, '<br>'
-    if thatmods['picture_id']:
-        thismods['picture_id'] = thatmods['picture_id']
-    else:
-        thismods['picture_id'] = thatmods['base_id']
+#    region = thispic[4] # hack
+    region = thismods['region']
+    if cmd == 1:  # set
+	thatpic = str(int(thispic[:4]) - 1) + thispic[4:]
+	thatmods = pif.dbh.fetch_simple_lineup_models(base_id=thatpic)
+	if not thatmods:
+	    thatmods = pif.dbh.fetch_simple_lineup_models(base_id=thatpic[:4] + 'W' + thatpic[5:])
+	thatmods = pif.dbh.depref('lineup_model', thatmods[0])
+	#print thatpic, thatmods, '<br>'
+	if thatmods['picture_id']:
+	    thismods['picture_id'] = thatmods['picture_id']
+	else:
+	    thismods['picture_id'] = thatmods['base_id'].lower()
+    elif cmd == 2:  # clear
+	thismods['picture_id'] = ''
     #print thismods['id'], thismods
     pif.dbh.update_lineup_model(where={'id': thismods['id']}, values=thismods)
+    return thismods['picture_id'].replace('w', region)
 
 
 def show_model_table(pif, mdict, link=True, largest='s'):
@@ -79,7 +85,7 @@ def show_boxes(pif, box_styles, mack_nums):
 
 def show_model_info(pif, man, mack):
     flago = mflags.FlagList()
-    ostr = '<center><table cellspacing=8><tr>'
+    ostr = '<center><table cellspacing="8"><tr>'
     if man['scale']:
         ostr += '<th>Scale</th>\n'
     if man['country']:
@@ -90,15 +96,15 @@ def show_model_info(pif, man, mack):
         ostr += '<th>Mack Number</th>\n'
     ostr += '</tr><tr>\n'
     if man['scale']:
-        ostr += '<td valign=top><center>%(scale)s</center></td>\n' % man
+        ostr += '<td valign="top"><center>%(scale)s</center></td>\n' % man
     if man['country']:
-        ostr += '<td valign=top><center>' + pif.render.format_image_flag(man['country'])
+        ostr += '<td valign="top"><center>' + pif.render.format_image_flag(man['country'])
         ostr += '<br>' + flago[man['country']]
         ostr += '</center></td>\n'
     if man['first_year']:
-        ostr += '<td valign=top><center>%(first_year)s</center></td>\n' % man
+        ostr += '<td valign="top"><center>%(first_year)s</center></td>\n' % man
     if mack:
-        ostr += '<td valign=top><center>' + '<br>'.join(mack) + '</center></td>\n'
+        ostr += '<td valign="top"><center>' + '<br>'.join(mack) + '</center></td>\n'
     ostr += '</tr></table></center>\n'
     return ostr
 
@@ -160,10 +166,13 @@ def fmt_list_var_pics(found, needs):
     return [fmt_list_var_pic(*x) for x in zip(found, needs)]
 
 
-def show_variations(pif, variations):
+def show_variations(pif, variations, prod_title):
     ostr = ''
+    if prod_title:
+	ostr += '<center>' + prod_title + '</center>'
     if variations:
         ostr += '<center><h3>Variations for This Product</h3>\n'
+#'<br>' + prod_title +
         pif.render.comment("variations", variations)
         ostr += '<table class="vartable">'
         keys = variations.keys()
@@ -207,7 +216,7 @@ def show_link(href, names):
 
 
 def show_model_links(pif, id, pic, appearances, matrixes, packs, man, show_comparison, external_links, baseplates=[]):
-    ostr = '<div style="border-width: 1px; border-style: ridge; padding: 4px;">'
+    ostr = '<div class="inset">'
     ostr += '<center><h3>Model-Related Links</h3></center>'
 
     ostr += '<center><b><a href="vars.cgi?mod=%s">Variations</a></b></center>' % id
@@ -353,13 +362,12 @@ img_re = re.compile('src="(?P<u>[^"]*)"')
 @basics.web_page
 def show_single(pif):
     pif.render.print_html()
-    if pif.form.has('useprev'):  # pragma: no cover
-        use_previous_product_pic(pif)
-    man = pif.dbh.fetch_casting(pif.form.get_str('id'), extras=True)
     pic = pif.form.get_str('pic')
+    man = pif.dbh.fetch_casting(pif.form.get_str('id'), extras=True)
     pdir = pif.form.get_str('dir')
     ref = pif.form.get_str('ref')
     sub = pif.form.get_str('sub')
+    reg = sub if sub else pic[4] if pic and pic[:4].isdigit() else ''
     cid = man.get('id', '')
     prod_title = ''
     pif.render.hierarchy_append('/', 'Home')
@@ -374,17 +382,48 @@ def show_single(pif):
     relateds = pif.dbh.fetch_casting_related(id, section_id='single')
     raw_variations = variations = []
     if ref:
-        sub = mbdata.get_region_tree(sub) + ['']
+        sub = mbdata.get_region_tree(reg) + ['']
         raw_variations = pif.dbh.fetch_variation_by_select(id, ref, sub)
         variations = reduce_variations(pif, id, raw_variations)
-    variations_box = show_variations(pif, variations)
     related_box = show_relateds(pif, relateds)
-    appearances = pif.dbh.fetch_casting_lineups(id)
+    # years 1971 to 1981 needs to cleave W to U and R
+#{
+#'lineup_model.base_id': '1975W15',
+#'lineup_model.region': 'W',
+#'section.id': 'W',
+#'section.img_format': '1975w%02d',
+#'section.name': 'Matchbox 1975 Worldwide Lineup',
+#}
+    appearances = list()
+    for appear in pif.dbh.fetch_casting_lineups(id):
+	if (appear.get('lineup_model.region', '') == 'W' and
+		int(appear.get('lineup_model.year', 0)) >= 1971 and int(appear.get('lineup_model.year', 0)) <= 1981):
+	    nappear = copy.deepcopy(appear)
+	    nappear['lineup_model.region'] = 'U'
+	    #nappear['section.id'] = 'U'
+	    appear['lineup_model.region'] = 'R'
+	    #appear['section.id'] = 'R'
+	    appearances.append(nappear)
+	appearances.append(appear)
+    lm_pic_id = ''
+    # this is probably broken now
     if ref.startswith('year.'):
 	for appear in appearances:
-	    if appear.get('lineup_model.base_id', '-').lower() == pic:
+	    #print appear.get('lineup_model.page_id', '-') , ref , appear.get('lineup_model.region', '-') , sub,'<br>'
+# this is completely wrong.  needs to check page_id against ref and region against sub.
+	    #if appear.get('lineup_model.base_id', '-').lower() == pic:
+	    if appear.get('lineup_model.page_id', '-') == ref and (appear.get('lineup_model.region', '-') in sub or sub == ['']):
 		prod_title = appear['lineup_model.name']
+		lm_pic_id = appear['lineup_model.picture_id']
+		#print 'choosing', lm_pic_id, '<br>'
 		break
+	if pif.form.has('useprev'):  # pragma: no cover
+	    pic = use_previous_product_pic(pif, pif.form.get_int('useprev'), appear)
+#	print appear, '<br>'
+#	print pif.form, '<br>'
+#	print 'pic', pic, 'pdir', pdir, 'ref', ref, 'sub', sub, 'reg', reg, 'cid', cid, '<br>'
+
+    variations_box = show_variations(pif, variations, prod_title)
 
     appearances.sort(key=lambda x: x['lineup_model.year'])
     aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(cid, 'mack')]
@@ -421,9 +460,9 @@ def show_single(pif):
     elif pif.is_allowed('a'):  # pragma: no cover
         img = img_re.search(mainimg).group('u')
         url = 'imawidget.cgi?d=%s&f=%s' % tuple(img[3:].rsplit('/', 1))
-        product_box = '<center>' + pif.render.format_link(url, mainimg) + '<br>' + prod_title +'</center>'
+        product_box = '<center>' + pif.render.format_link(url, mainimg) + '</center>'
     else:
-        product_box = '<center>' + mainimg + '<br>' + prod_title +'</center>'
+        product_box = '<center>' + mainimg + '</center>'
 
     model_box = show_model_table(pif, man, False, largest=largest) + '\n' + show_model_info(pif, man, mack_nums) + '\n'
     notes_box = show_model_notes(pif, man)
@@ -467,7 +506,9 @@ def show_single(pif):
             prodstar = 'starwhite.gif'
             content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (pdir, pic, pic)
             prodpic = pif.render.find_image_path(pic, pdir=pdir)
-            if prodpic:
+            if lm_pic_id:
+                content += '<a href="%s&useprev=2">Clr Prev</a><br>\n' % pif.request_uri
+            elif prodpic:
                 x, y = imglib.get_size(prodpic)
                 if x > 400:
                     prodstar = 'staryellow.gif'
@@ -475,7 +516,7 @@ def show_single(pif):
                     prodstar = 'starblack.gif'
                 else:
                     prodstar = 'starred.gif'
-                content += '<a href="upload.cgi?d=./%s&f=%s&act=1&delete=1">Remove Prod Pic</a><br>\n' % (pdir, prodpic[prodpic.rfind('/') + 1:])
+                content += '<a href="imawidget.cgi?act=1&d=./%s&f=%s&delete=1">Remove Prod Pic</a><br>\n' % (pdir, prodpic[prodpic.rfind('/') + 1:])
             else:
                 #content += '<a href="single.cgi?pic=%s&useprev=1">Use Prev</a><br>\n' % str(pic)
                 content += '<a href="%s&useprev=1">Use Prev</a><br>\n' % pif.request_uri
@@ -502,66 +543,112 @@ def show_single(pif):
 
     print '<tr><td>'
     print '<center>'
-    print '<table cellspacing=8><tr>'
-    if product_box:
+    print '<table cellspacing="8"><tr>'
 
-        # top left box
-        print '<td valign=top>'
-        print product_box
+    if (variations_box or related_box) and product_box:
 
-        # lower left box
-        if variations_box:
-            print '<p>'
-            print variations_box
-        if related_box:
-            print '<p>'
-            print related_box
+	# top left box
+	print '<td valign="top">'
+	print '<table class="inset inset_m"><tr><td>'
+	print product_box
+	if variations_box:
+	    print '<p>'
+	    print variations_box
+	print '</td></tr></table>'
 
-        print '</td>'
+	# lower left box
+	if related_box:
+	    print '<p>'
+	    print related_box
 
-        # top right box
-        print '<td valign=top>'
-        print model_box
-        print notes_box
+	print '</td>'
 
-        # lower right box
+	# top right box
+	print '<td valign="top">'
+	print model_box
+	print notes_box
 
-        print '<p>'
-        print links_box
-        print '</td>'
+	# lower right box
+
+	print '<p>'
+	print links_box
+	print '</td>'
+
+    elif variations_box or related_box:
+
+	# top left box (missing)
+
+	# top right box
+	if related_box or variations_box:
+	    print '<td valign="top" colspan="2">'
+	else:
+	    print '<td valign="top">'
+	print model_box
+	print notes_box
+	print '</td>'
+
+	print '</tr>'
+
+	# lower left box
+	print '<tr>'
+	if related_box or variations_box:
+	    print '<td width="400" valign="top">'
+	    if variations_box:
+		print '<table class="inset inset_m"><tr><td>'
+		print variations_box
+		print '</td></tr></table>'
+	    if related_box:
+		print '<p>'
+		print related_box
+	    print '</td>'
+
+	# lower right box
+
+	print '<td valign="top">'
+	print links_box
+	print '</td>'
+
+    elif product_box:
+
+	# top left box
+	print '<td valign="top">'
+	print '<table class="inset inset_m"><tr><td>'
+	print product_box
+	print '</td></tr></table>'
+	print '</td>'
+
+	# top right box
+	print '<td valign="top">'
+	print model_box
+	print notes_box
+	print '</td></tr>'
+
+	# lower right box
+
+	print '<tr><td colspan="2">'
+	print links_box
+	print '</td>'
 
     else:
 
-        # top left box (missing)
+	# top left box (missing)
 
-        # top right box
-        if related_box or variations_box:
-            print '<td valign=top colspan=2>'
-        else:
-            print '<td valign=top>'
-        print model_box
-        print notes_box
-        print '</td>'
+	# top right box
+	print '<td valign="top">'
+	print model_box
+	print notes_box
+	print '</td>'
 
-        print '</tr>'
+	print '</tr>'
 
-        # lower left box
-        print '<tr>'
-        if related_box or variations_box:
-            print '<td width=300 valign=top>'
-            if variations_box:
-                print '<p>'
-                print variations_box
-            if related_box:
-                print '<p>'
-                print related_box
-            print '</td>'
+	# lower left box
+	print '<tr>'
 
-        # lower right box
+	# lower right box
 
-        print '<td valign=top>'
-        print links_box
-        print '</td>'
+	print '<td valign="top">'
+	print links_box
+	print '</td>'
 
     print '</tr></table>'
     print '</center>'

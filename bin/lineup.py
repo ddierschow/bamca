@@ -105,7 +105,8 @@ def calc_lineup_model(pif, mdict, comments):
     if mdict['casting.id']:
         # modify this if rank_id exists
         if mdict['lineup_model.picture_id']:
-            mdict['product'] = mdict['lineup_model.picture_id']
+            #mdict['product'] = mdict['lineup_model.picture_id']
+            mdict['product'] = mdict['lineup_model.picture_id'].replace('w', mdict['region'].lower())
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
         elif mdict.get('image_format'):
             mdict['product'] = mdict['image_format'] % mdict['lineup_model.number']
@@ -142,7 +143,7 @@ def calc_lineup_model(pif, mdict, comments):
         mdict['displayed_id'] = '&nbsp;'
     else:
         mdict['displayed_id'] = mdict['disp_format'] % (mdict['shown_id'])
-    mdict['upload_link'] =  pif.render.format_link('upload.cgi?d=%s&r=%s' % (mdict['pdir'], mdict['product']), mdict['large_img'])
+    mdict['upload_link'] =  pif.render.format_link('upload.cgi?d=%s&n=%s' % (mdict['pdir'], mdict['product']), mdict['large_img'])
     return mdict
 
 
@@ -400,7 +401,7 @@ def generate_man_lineup(pif, year, region):
         #pif.render.debug('keylist', keylist, '<br>')
         for key in keylist:
             #pif.render.debug('mod', moddict[key], '<br>')
-            moddict[key]['lineup_model.picture_id'] = moddict[key]['lineup_model.picture_id'].replace('W', region)
+            moddict[key]['lineup_model.picture_id'] = moddict[key]['lineup_model.picture_id'].replace('w', region.lower())
             yield moddict[key]
 
 
@@ -475,6 +476,7 @@ def show_section(pif, lran, mods, lup_region, year, comments):
         if lran.get('pic_dir'):
             pdir = lran['pic_dir']
         mdict['pdir'] = pdir
+        mdict['region'] = lup_region
         if lup_region == 'X':
             mdict['anchor'] = 'X%d' % mdict['number']
         else:
@@ -619,6 +621,7 @@ def run_multi_file(pif, year, region, nyears):
                 mdict['image_format'] = pages[iyr]['img_format']
                 mdict['pdir'] = pdir
                 mdict['anchor'] = '%d' % mdict['number']
+		mdict['region'] = region
 		mdict = calc_lineup_model(pif, mdict, comments)
 		mod_text = render_lineup_model(pif, mdict, comments)
                 ent['mdict'] = mdict
@@ -1056,6 +1059,7 @@ def run_ranks(pif, mnum, region, syear, eyear):
             mdict['image_format'] = ifmt
             mdict['pdir'] = pdir
             mdict['anchor'] = '%d' % mdict['number']
+	    mdict['region'] = region
 	    mdict = calc_lineup_model(pif, mdict, comments)
 	    mod_text = render_lineup_model(pif, mdict, comments)
             ent = {
@@ -1124,7 +1128,7 @@ def run_product_pics(pif, region):
         for mnum in range(min_num, max_num + 1):
             ifmt, pdir = get_product_image(pages[page], mnum)
             lmod = lmoddict.get(mnum, {})
-            lpic_id = pic_id = lmod.get('lineup_model.picture_id')
+            lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', region.lower())
             if pic_id:
                 lpic_id = pic_id = pic_id.replace('W', region)
                 product_image = pif.render.find_image_path(pic_id, suffix='jpg', pdir=pdir)

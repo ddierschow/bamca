@@ -10,5 +10,9 @@ body {background-color: #EEEEEE;}
 .sh_box       {border-width: 0; border-style: solid; background-color: transparent; text-align: center; font-size: large;}
 .tb_boxes .eb {border-width: 0; border-style: solid; background-color: transparent; text-align: center; padding: 0px 4px;}
 .tb_boxes .er {border-width: 0; border-style: solid; background-color: transparent; text-align: center;}
+.inset {border-width: 1px; border-style: ridge; padding: 4px;}
+.inset_s {width: 208px;}
+.inset_m {width: 408px;}
+.inset_l {width: 608px;}
 
 .notes {background-color: #DDFFDD; border-style: solid; border-collapse: collapse; width: 400px;}

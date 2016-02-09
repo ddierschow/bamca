@@ -660,7 +660,7 @@ class DBHandler:
 
     #- lineup_model
 
-    def fetch_simple_lineup_models(self, year='', region='', base_id=''):
+    def fetch_simple_lineup_models(self, year='', region='', base_id='', verbose=False):
         cols = list()
         cols.extend(['lineup_model.id', 'lineup_model.base_id', 'lineup_model.mod_id', 'lineup_model.number', 'lineup_model.style_id', 'lineup_model.region', 'lineup_model.year', 'lineup_model.name', 'lineup_model.picture_id', 'lineup_model.flags', 'lineup_model.page_id'])
         cols.extend(['base_id.id', 'base_id.first_year', 'base_id.rawname', 'base_id.description', 'base_id.flags', 'base_id.model_type'])
@@ -676,7 +676,7 @@ class DBHandler:
         if base_id:
             wheres.append("lineup_model.base_id='" + base_id + "'")
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=' and '.join(wheres))
+        return self.dbi.select(table, cols, where=' and '.join(wheres), verbose=verbose)
 
     def fetch_lineup_models(self, year='', region=''):
         cols = list()
@@ -742,7 +742,7 @@ class DBHandler:
 
     def update_lineup_model(self, where, values):
 	print where, values, '<br>'
-        self.write('lineup_model', self.make_values('lineup_model', values), self.make_where(where), modonly=True, verbose=True, tag='UpdateLineupModel')
+        self.write('lineup_model', self.make_values('lineup_model', values), self.make_where(where), modonly=True, tag='UpdateLineupModel')
 
     def delete_lineup_model(self, where):
         self.delete('lineup_model', self.make_where(where))
