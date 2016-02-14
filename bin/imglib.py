@@ -762,6 +762,7 @@ class ActionForm(object):
 	self.var = ''
 	self.suff = ''
 	self.pref = ''
+	self.ptype = ''
 	self.inc = ''
 	self.cycle = False
 
@@ -785,7 +786,8 @@ class ActionForm(object):
 	self.suff = form.get_str('suff')
 	if not self.var:
 	    self.var = form.get_str('v')
-	self.pref = form.get_str('pref')
+	self.pref = form.get_str('pref')[1] if form.get_str('pref') else ''
+	self.ptype = form.get_str('pref')[0] if form.get_str('pref') else ''
 	self.inc = form.get_str('inc')
 	self.cycle = form.get_bool('cy')
 	return self
@@ -843,14 +845,13 @@ class ActionForm(object):
 		    dnam = dnam + '-' + self.var
 		    if self.pref:
 			dnam = self.pref + '_' + dnam
-		elif self.pref and self.adds.find(self.pref) >= 0:
-		    ddir = './' + config.IMG_DIR_ADD
-		    dnam = self.pref + '_' + dnam
-		    if self.suff:
-			dnam += '-' + self.suff
-		    self.inc = True
 		elif self.pref:
 		    dnam = self.pref + '_' + dnam
+		    if self.ptype == 't':
+			ddir = './' + config.IMG_DIR_ADD
+			if self.suff:
+			    dnam += '-' + self.suff
+			self.inc = True
 		else:
 		    useful.warn("What?")
 		    dnam = ''
@@ -906,27 +907,26 @@ class ActionForm(object):
 	['zing',        'Zings'],
     ]
 
-    adds = 'abdefipr'
     sel_pref = [
 	['', ''],
-	['t', 'thumbnail'],
-	['s', 'small'],
-	['c', 'compact'],
-	['m', 'medium'],
-	['l', 'large'],
-	['h', 'huge'],
-	['g', 'gigantic'],
+	['st', 'thumbnail'],
+	['ss', 'small'],
+	['sc', 'compact'],
+	['sm', 'medium'],
+	['sl', 'large'],
+	['sh', 'huge'],
+	['sg', 'gigantic'],
 
-	['f', 'advertisement'],
-	['b', 'baseplate'],
-	['z', 'comparison'],
-	['a', 'custom'],
-	['d', 'detail'],
-	['e', 'error'],
-	['i', 'interior'],
-	['p', 'prototype'],
-	['r', 'real'],
-	['x', 'box'],
+	['tf', 'advertisement'],
+	['tb', 'baseplate'],
+	['tz', 'comparison'],
+	['ta', 'custom'],
+	['td', 'detail'],
+	['te', 'error'],
+	['ti', 'interior'],
+	['tp', 'prototype'],
+	['tr', 'real'],
+	['tx', 'box'],
     ]
 
     sel_moveto = [
@@ -963,7 +963,7 @@ class ActionForm(object):
 	if os.path.exists(self.tdir + '/' + fn):
 	    x, y = get_size(self.tdir + '/' + fn)
 	    print (x, y)
-	    for (szname, szxy) in zip(mbdata.image_size_names, mbdata.image_size_sizes):
+	    for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
 		if x <= szxy[0]:
 		    break
 	print '<input type=hidden name="act" value="1">'

@@ -123,6 +123,7 @@ def show_table(pif):
         pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}, pif.form.where(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
         #del pif.form.delete('id')
         print '<br>record cloned<br>'
+	pif.form.delete('clone')
     if not loaded:
 	where = pif.form.where(table_info['columns'] + table_info.get('extra_columns', []))
 	dats = pif.dbh.fetch(table_info['name'], where=where, tag='ShowTable')

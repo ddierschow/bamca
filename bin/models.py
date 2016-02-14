@@ -45,7 +45,7 @@ mod_tab_thumb_pat = '''
 '''
 def add_model_table_pic_link(pif, mdict, flago=flago):
     mdict = add_model_table_pic_link_dict(pif, mdict, flago)
-    if mdict.get('prefix') == 't':
+    if mdict.get('prefix') == mbdata.IMG_SIZ_TINY:
         return mod_tab_thumb_pat % mdict
     return mod_tab_pic_lnk_pat % mdict
 
@@ -61,16 +61,13 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     pif.render.comment('add_model_table_pic_link', mdict)
     if not flago:
         flago = {}
-    #img = ['s_' + mdict['id']]
     img = [mdict['id']]
     if mdict.get('picture_id'):
-        #img = ['s_' + mdict['picture_id']]
         img = [mdict['picture_id']]
     for s in mdict['descs']:
         if s.startswith('same as '):
-            #img.append('s_' + s[8:].lower())
             img.append(s[8:].lower())
-    mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'], prefix=mdict.get('prefix', 's'))
+    mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'], prefix=mdict.get('prefix', mbdata.IMG_SIZ_SMALL))
     mdict['flag'] = ''
     if mdict.get('country') in flago:
         mdict['flag'] = pif.render.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})
@@ -224,7 +221,7 @@ def add_model_table_list_entry(pif, mdict):
 def add_model_pic_link_short(pif, id):
     ostr = '<center><b>%s</b><br>' % id
     ostr += '<a href="single.cgi?id=%s">' % id
-    ostr += pif.render.format_image_required([id], prefix='s_', pdir=config.IMG_DIR_MAN) + '</a></center>'
+    ostr += pif.render.format_image_required([id], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN) + '</a></center>'
     return ostr
 
 

@@ -120,13 +120,13 @@ def calc_lineup_model(pif, mdict, comments):
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
         elif mdict.get('image_format'):
             mdict['product'] = mdict['image_format'] % mdict['pack.id']
-        if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest='g'):
+        if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
             mdict['is_product_picture'] = 1
             comments.add('c')
         mdict['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(pack.id)s" % mdict
     elif mdict['publication.id']:
         mdict['product'] = mdict['publication.id'] + '_01'
-        if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest='g'):
+        if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
             mdict['is_product_picture'] = 1
             comments.add('c')
         mdict['href'] = "pub.cgi?id=%(publication.id)s" % mdict
@@ -193,7 +193,7 @@ def show_lineup_model_var(pif, mdict, comments, show_var=None):
                     mdict['varlist'].append(var[2])
                 elif var[0]:
                     mdict['varlist'].append(var[0])
-    imgstr = pif.render.format_image_required(imglist, prefix='s_', vars=mdict['varlist'], pdir=config.IMG_DIR_MAN)
+    imgstr = pif.render.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=mdict['varlist'], pdir=config.IMG_DIR_MAN)
     mdict['imgstr'] = imgstr
 
     if show_var:
@@ -839,7 +839,7 @@ def show_text_lineup_main(pif, mdict, verbose=0):
                 elif var[0]:
                     mdict['varlist'].append(var[0])
         pif.render.comment('varlist', mdict['varlist'])
-        mdict['imgstr'] = pif.render.format_image_required(imglist, prefix='s_', vars=mdict['varlist'], pdir=config.IMG_DIR_MAN)
+        mdict['imgstr'] = pif.render.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=mdict['varlist'], pdir=config.IMG_DIR_MAN)
         mdict['product'] = ''
 
         mdict['name'] = mdict['lineup_model.name']
@@ -865,12 +865,12 @@ def show_text_lineup_main(pif, mdict, verbose=0):
                 mdict['product'] = mdict['lineup_model.picture_id']
             elif mdict.get('image_format'):
                 mdict['product'] = mdict['image_format'] % mdict['pack.id']
-            if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest='g'):
+            if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
                 mdict['is_product_picture'] = 1
             mdict['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(pack.id)s" % mdict
         elif mdict['publication.id']:
             mdict['product'] = mdict['publication.id'] + '_01'
-            if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest='g'):
+            if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
                 mdict['is_product_picture'] = 1
             mdict['href'] = "pub.cgi?id=%(publication.id)s" % mdict
         #mdict: imgstr name number pdir product vars
@@ -1170,7 +1170,7 @@ def mod_to_mack(pif, recs, start, end, series):
 		'id': '%s%02s-%s' % mack_id,
 		'name': rec['base_id.rawname'].replace(';', ' '),
 		'href': 'single.cgi?id=' + rec['base_id.id'],
-		'imgstr': pif.render.format_image_required('s_' + rec['base_id.id']),
+		'imgstr': pif.render.format_image_required(rec['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
 		'mack_id_unf': mack_id,  # for sorting
 	    }
 

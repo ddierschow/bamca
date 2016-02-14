@@ -62,16 +62,16 @@ admin_cols = [
 a_links = ['9', '13', '14', '10', '8', '6', '12', '1', '11', '4', '2', '7', '5', '3']
 
 var_pic_keys = ['pic_a', 'pic_c', 'pic_1', 'pic_2', 'pic_f', 'pic_p']
-var_pic_hdrs = ['All', 'Core', 'Code 1', 'Code 2', '"F" Vars', '2ndP']
+var_pic_hdrs = ['All', 'Core', 'C1', 'C2', 'F', '2P']
 picture_cols = [
         ['vid', 'ID'],
         ['unlicensed', ''],
         ['nl', 'Name'],
         ['first_year', 'Year'],
-        ['l_', 'L'],
-        ['m_', 'M'],
-        ['s_', 'S'],
-        ['t_', 'T'],
+        [mbdata.IMG_SIZ_LARGE + '_', 'L'],
+        [mbdata.IMG_SIZ_MEDIUM + '_', 'M'],
+        [mbdata.IMG_SIZ_SMALL + '_', 'S'],
+        [mbdata.IMG_SIZ_TINY + '_', 'T'],
         ['z_', 'I'],
         ['b_', 'B'],
         ['r_', 'R'],
@@ -79,10 +79,12 @@ picture_cols = [
         ['d_', 'D'],
         ['i_', 'I'],
         ['p_', 'P'],
+#	['bx', 'Bx'],
+#	['bx2', 'Bx'],
 ]
 picture_cols += zip(var_pic_keys, var_pic_hdrs) + [['description', 'Description']]
 mades = {False: '<i>%(name)s</i>', True: '%(name)s'}
-prefixes = [
+prefixes = [  # need to phase this out somehow
         ['a_', config.IMG_DIR_ADD],
         ['b_', config.IMG_DIR_ADD],
         ['d_', config.IMG_DIR_ADD],
@@ -265,7 +267,7 @@ class MannoFile:
         for mod_id in sect['model_ids']:
             mdict = self.mdict[mod_id]
             mdict['nodesc'] = 1
-            mdict['prefix'] = 't'
+            mdict['prefix'] = mbdata.IMG_SIZ_TINY
             ran['entry'].append(models.add_model_table_pic_link_dict(pif, mdict))
         sect['range'].append(ran)
         return sect
@@ -366,22 +368,32 @@ class MannoFile:
             return [prefix[0], pif.render.format_image_as_link([prefix[0]+id.lower()], txt.upper(), prefix[1])]
         return [prefix[0], '-']
 
+    def show_box_pics(self, box_types):
+	if box_types:
+	    mod_id = box_types[0]['box_type.mod_id']
+	    base_box_types = list(set([box['box_type.box_type'][0] for box in box_types]))
+	    base_box_count = sum([int(bool(len(glob.glob(os.path.join(config.IMG_DIR_BOX, mbdata.IMG_SIZ_SMALL + '_' + mod_id + '-' + ty + '*.jpg').lower())))) for ty in base_box_types])
+	    box_count = sum([int(bool(len(glob.glob(os.path.join(config.IMG_DIR_BOX, 'x_' + mod_id + '-' + ty['box_type.box_type'][0] + ty['box_type.pic_id'] + '*.jpg').lower())))) for ty in box_types])
+	    return {'bx': single.fmt_var_pic(base_box_count, len(base_box_types)),
+		    'bx2': single.fmt_var_pic(box_count, len(box_types))}
+	return {'bx': '-', 'bx2': '-'}
+
     def get_picture_model_entries(self, pif, model_ids):
 	for mod in model_ids:
 	    mdict = self.mdict[mod]
-	    mdict['first_year'] = '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (os.path.join(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year'])
-	    mdict['name'] = mades[int(mdict['made'])] % mdict
-	    mdict.update({'img': self.show_list_pic(pif, ['', config.IMG_DIR_MAN], mdict['id'], 's')[1],
+	    mdict.update({'img': self.show_list_pic(pif, ['', config.IMG_DIR_MAN], mdict['id'], mbdata.IMG_SIZ_SMALL)[1],
 		'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
-		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
+		'first_year': '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (os.path.join(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year']),
+		'name': mades[int(mdict['made'])] % mdict,
+		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
+		'icon': self.show_list_pic(pif, ['i_', config.IMG_DIR_ICON], mdict['id'], 'i')[1]})
 	    mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
-	    icon = self.show_list_pic(pif, ['i_', config.IMG_DIR_ICON], mdict['id'], 'i')
-	    mdict['z_'] = icon[1]
 	    founds, needs, cnts = single.count_list_var_pics(pif, mdict['id'])
+	    #mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
 	    for ipix in range(0, 6):
 		self.totals[ipix]['have'] += founds[ipix]
 		self.totals[ipix]['total'] += needs[ipix]
-	    mdict.update(dict(zip(var_pic_keys, single.fmt_list_var_pics(founds, needs))))
+	    mdict.update(dict(zip(var_pic_keys, single.fmt_var_pics(founds, needs))))
 	    yield mdict
 
     def get_section_picture(self, pif, sect):
@@ -429,12 +441,12 @@ class MannoFile:
     # ----- vehicle types ---------------------------------------
 
     def get_vt_model_table(self, pif, mdict):
-        img = ['s_' + mdict['id']]
+        img = [mbdata.IMG_SIZ_SMALL + '_' + mdict['id']]
         if mdict.get('picture_id'):
-            img = ['s_' + mdict['picture_id']]
+	    img = [mbdata.IMG_SIZ_SMALL + '_' + mdict['picture_id']]
         for s in mdict['descs']:
             if s.startswith('same as '):
-                img.append('s_' + s[8:])
+                img.append(mbdata.IMG_SIZ_SMALL + '_' + s[8:])
         mdict['name'] = mdict['id'] + '<br>' + mdict['rawname']
         mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'])
         mdict['sel'] = pif.render.format_checkbox('vt_' + mdict['id'],

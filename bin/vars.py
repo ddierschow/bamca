@@ -52,12 +52,8 @@ def single_variation(pif, man, var_id):
     variation = variation[0]
     print '<center>'
 
-    if variation['picture_id']:
-        pic_var = variation['picture_id']
-    else:
-        pic_var = variation['var']
-    fname = useful.clean_name(variation['mod_id'] + '-' + pic_var)
-    img = pif.render.format_image_required([fname], pdir=pif.render.pic_dir + '/var', prefix=['h_', 'l_', 'm_', 's_'])
+    pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
+    img = pif.render.format_image_required(variation['mod_id'], vars=pic_var, pdir=pif.render.pic_dir, largest=mbdata.IMG_SIZ_HUGE)
     if pif.is_allowed('u'):  # pragma: no cover
         print '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.LIB_MAN_DIR, id.lower()), id, pic_var) + img + '</a>'
     else:
@@ -174,18 +170,15 @@ def show_variation_editor(pif, id, var_id):
     variation = variation[0]
     print '<center>Variation %s<p>' % variation['var'].upper()
 
-    fname = useful.clean_name(variation['mod_id'])
-    if variation['picture_id']:
-        fname += '-' + useful.clean_name(variation['picture_id'])
-    else:
-        fname += '-' + useful.clean_name(variation['var'])
+    pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
+    img = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        img = pif.render.format_image_required([fname], pdir=pif.render.pic_dir + '/var', prefix=['t_'])
-        img += pif.render.format_image_required([fname], pdir=pif.render.pic_dir + '/var', prefix=['s_'])
-        img += pif.render.format_image_required([fname], pdir=pif.render.pic_dir + '/var', prefix=['m_'])
-        img += pif.render.format_image_required([fname], pdir=pif.render.pic_dir + '/var', prefix=['l_'])
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_TINY)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_SMALL)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_MEDIUM)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_LARGE)
     else:
-        img = pif.render.format_image_required([fname], pdir=pif.render.pic_dir + '/var', prefix=['h_', 'l_', 'm_', 's_'])
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, largest=mbdata.IMG_SIZ_HUGE)
     if pif.is_allowed('u'):  # pragma: no cover
         print '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.LIB_MAN_DIR, id.lower()), id, var_id) + img + '</a>'
     else:
@@ -456,7 +449,7 @@ def do_var(pif, model, attributes, prev):
         ostr += 'Show: ' + pif.render.format_text_input("picture_id." + model['var'], 8, value=pic_id)
 	if pic_id:
 	    print '<span class="warn">'
-        for sz in mbdata.image_size_names:
+        for sz in mbdata.image_size_types:
             if os.path.exists(os.path.join(config.IMG_DIR_VAR, sz + '_' + model['mod_id'] + '-' + model['var'] + '.jpg').lower()):
                 ostr += sz.upper() + ' '
 	if pic_id:
@@ -788,9 +781,9 @@ def show_model(pif, model):
 	cates.update(variation['_catlist'])
 	pic_id = variation['picture_id']
 
-        img = pif.render.find_image_path([variation['mod_id']], nobase=True, vars=pic_id if pic_id else variation['var'], prefix=['s_'])
+        img = pif.render.find_image_path([variation['mod_id']], nobase=True, vars=pic_id if pic_id else variation['var'], prefix=mbdata.IMG_SIZ_SMALL)
 	variation['_has_pic'] = bool(img)
-        variation['_picture'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, 's_')
+        variation['_picture'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
 
 	if pif.is_allowed('u'):  # pragma: no cover
 	    variation['_dir'] = os.path.join(config.LIB_MAN_DIR, variation['mod_id'].lower())
@@ -807,7 +800,7 @@ def show_model(pif, model):
     #print '<h2>' + model['name'] + '</h2>'
     #print '<h3>%s</h3>' % '-'.join(parse_model(id)).upper()
     print '<center>'
-    print pif.render.format_image_required([x + id.lower() for x in ['m_', 's_']], pdir=config.IMG_DIR_MAN)
+    print pif.render.format_image_required(id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
     print '</center><br>'
     vsform.show_search_object()
 
@@ -903,9 +896,9 @@ def main(pif):
 
 def add_model_var_table_pic_link(pif, mdict):
     if mdict.get('v.picture_id'):
-        mdict['img'] = pif.render.format_image_required(mdict['v.mod_id'], prefix='s_', nobase=True, vars=mdict['v.picture_id'])
+        mdict['img'] = pif.render.format_image_required(mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.picture_id'])
     else:
-        mdict['img'] = pif.render.format_image_required(mdict['v.mod_id'], prefix='s_', nobase=True, vars=mdict['v.var'])
+        mdict['img'] = pif.render.format_image_required(mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.var'])
     #mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
     mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
     ostr = '  <center><table class="entry"><tr><td><center><font face="Courier">%(v.mod_id)s-%(v.var)s</font></br>\n' % mdict

@@ -45,7 +45,7 @@ CSS_DIR             = 'styles'
 CSS_FILE            = 'styles/main.css'
 
 YEAR_START          = 1953
-YEAR_END            = 2014
+YEAR_END            = 2015
 DEFAULT_X_SIZE      = 200
 DEFAULT_Y_SIZE      = 120
 MAX_MACK_NUMBER     = 120

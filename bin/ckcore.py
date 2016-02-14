@@ -37,15 +37,19 @@ def show_list_var_pics(pif, mod_id):
             continue
         elif not var['picture_id']:
             fn = mod_id + '-' + var['var']
+            pid = var['var']
         elif var['picture_id'] == var['var']:
             fn = mod_id + '-' + var['picture_id']
+            pid = var['picture_id']
         else:
             continue
+	pic_path = pif.render.find_image_file(fnames=fn, vars=pid, prefix=mbdata.IMG_SIZ_SMALL)
         pics += 1
         if not var['category']:
             cpics += 1
 #        print '<!--', config.IMG_DIR_MAN + '/var/' + fn + '.jpg', '-->'
-        if os.path.exists(config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'):
+        #if os.path.exists(config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'):
+	if pic_path:
             found += 1
             if not var['category']:
                 cfound += 1

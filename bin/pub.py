@@ -3,6 +3,7 @@
 import glob, os
 import basics
 import config
+import mbdata
 import models
 import useful
 
@@ -42,10 +43,10 @@ def publication(pif):
     # top box
     ostr += '<tr><td valign=top>\n'
 #    if len(imgs) > 1:
-#        ostr += pif.render.format_image_sized([pub_id, pub_id + '_01'], largest='l')
+#        ostr += pif.render.format_image_sized([pub_id, pub_id + '_01'], largest=mbdata.IMG_SIZ_LARGE)
     if not imgs:
         img = pub_id + '.jpg'
-        txt = pif.render.format_image_sized(img, largest='s')
+        txt = pif.render.format_image_sized(img, largest=mbdata.IMG_SIZ_SMALL)
         txt = pif.render.format_link(os.path.join('..', pif.render.pic_dir, img), txt)
         ostr += txt
     if man['base_id.description']:
@@ -61,14 +62,14 @@ def publication(pif):
         imgs.sort()
         for img in imgs:
             img = img[img.rfind('/') + 1:]
-            txt = pif.render.format_image_sized(img, largest='s')
-            lnk = pif.render.find_image_path(img, largest='g')
+            txt = pif.render.format_image_sized(img, largest=mbdata.IMG_SIZ_SMALL)
+            lnk = pif.render.find_image_path(img, largest=mbdata.IMG_SIZ_GIGANTIC)
             lran['entry'].append({'text': pif.render.format_link('../' + lnk, txt)})
         llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran]}], 'columns': 4}
         ostr += pif.render.format_matrix(llineup)
     else:
         img = pub_id + '.jpg'
-        txt = pif.render.format_image_sized(img, largest='s')
+        txt = pif.render.format_image_sized(img, largest=mbdata.IMG_SIZ_SMALL)
         txt = pif.render.format_link(os.path.join('..', pif.render.pic_dir, img), txt)
         ostr += txt
     ostr += '</center>\n'

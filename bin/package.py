@@ -394,19 +394,19 @@ def single_box_type(pif):
 
 # need to add va, middle to eb_1 style
 
-def get_box_image(pif, picroot, picsize=None, largest='c', compact=False):
+def get_box_image(pif, picroot, picsize=None, largest=mbdata.IMG_SIZ_PETITE, compact=False):
     if compact:
-	product_image = pif.render.find_image_path(picroot, prefix=picsize + '_')
+	product_image = pif.render.find_image_path(picroot, prefix=picsize)
 	pic = pif.render.format_image_art(imglib.image_star(product_image, target_x=mbdata.imagesizes[picsize][0]))
     elif picsize:
-	pic = pif.render.format_image_required(picroot, prefix=picsize + '_')
+	pic = pif.render.format_image_required(picroot, prefix=picsize)
     else:
 	pic = pif.render.format_image_required(picroot, largest=largest)
     return pic
 
 
 def show_model(pif, mod, compact=False):
-    img = '' if compact else pif.render.format_image_required(mod['casting.id'], pdir=config.IMG_DIR_MAN, largest='s')
+    img = '' if compact else pif.render.format_image_required(mod['casting.id'], pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
     url = "single.cgi?id=" + mod['casting.id']
     ostr  = '<center><a href="%s">%s<br>%s<br>' % (url, mod['id'], img)
     ostr += '<b>%s</b></a></center>' % mod['base_id.rawname'].replace(';', ' ')
@@ -536,32 +536,31 @@ def box_main(pif):
 
 
 def count_boxes(pif):
-    series = ""
-    style = ""
-    boxes = pif.dbh.fetch_castings_by_box(series, style)
+    boxes = pif.dbh.fetch_castings_by_box('', '')
+    box_styles = set()
+    pr_count = im_count = 0
     for box in boxes:
         if 'alias.id' in box:
             box['id'] = box['alias.id']
         else:
             box['id'] = box['casting.id']
 
-    pr_count = im_count = 0
-    for box in boxes:
         if box['id'].startswith('M'):
-            continue
-        if series and box['base_id.model_type'] != series:
-            continue
-        if style and style not in box['box_style.styles']:
+	    print box
             continue
 
-        for c in box['box_style.styles'].replace('-', ''):
-            if pif.render.find_image_path(['s_' + box['id'] + '-' + c], pdir=config.IMG_DIR_BOX):
-                im_count += 1
-            if pif.render.find_image_path(['c_' + box['id'] + '-' + c], pdir=config.IMG_DIR_BOX):
-                im_count += 1
-            if pif.render.find_image_path(['m_' + box['id'] + '-' + c], pdir=config.IMG_DIR_BOX):
-                im_count += 1
-            pr_count += 1
+	box_styles.add(box['id'] + '-' + box['box_type.box_type'])
+	pr_count += 2
+	im_count += len(glob.glob(os.path.join(config.IMG_DIR_BOX, 'x_' + box['id'] + '-' + box['box_type.box_type'] + box['box_type.pic_id'] + '*.jpg')))
+
+    for box in box_styles:
+	if pif.render.find_image_path(box, pdir=config.IMG_DIR_BOX, prefix=mbdata.IMG_SIZ_SMALL):
+	    im_count += 1
+	if pif.render.find_image_path(box, pdir=config.IMG_DIR_BOX, prefix=mbdata.IMG_SIZ_PETITE):
+	    im_count += 1
+	if pif.render.find_image_path(box, pdir=config.IMG_DIR_BOX, prefix=mbdata.IMG_SIZ_MEDIUM):
+	    im_count += 1
+	pr_count += 1
 
     return pr_count, im_count
 

@@ -260,11 +260,11 @@ def distill_models(pif, pack, page_id):
     model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=page_id)
     pack['pic'] = ''
     #for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, '?_' + pack['id'] + '.jpg')):
-    pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PACK, largest='h')
+    pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PACK, largest=mbdata.IMG_SIZ_HUGE)
     pack['pic'] += pif.render.format_image_art(imglib.image_star(pic))
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
     pack['thumb'] = pif.render.format_image_art('box-sm-x.gif' if linmod else 'box-sm.gif')
-    if glob.glob(os.path.join(config.IMG_DIR_MAN, 's_' + pack['id'] + '.jpg')):
+    if pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL):
         pack['thumb'] += pif.render.format_image_art('starblack.gif')
     pmodels = {}
 
@@ -273,10 +273,10 @@ def distill_models(pif, pack, page_id):
         mod = pif.dbh.modify_man_item(mod)
         sub_ids = [None, '', pack['id'], pack['id'] + '.' + str(mod['pack_model.display_order'])]
         if mod['vs.sub_id'] in sub_ids:
-            mod['imgl'] = ['s_' + mod['id'], mod['id'], mod['pack_model.mod_id']]
+            mod['imgl'] = [mbdata.IMG_SIZ_SMALL + '_' + mod['id'], mod['id'], mod['pack_model.mod_id']]
             for s in mod['descs']:
                 if s.startswith('same as '):
-                    mod['imgl'].extend(['s_' + s[8:], s[8:]])
+                    mod['imgl'].extend([mbdata.IMG_SIZ_SMALL + '_' + s[8:], s[8:]])
             if not mod.get('vs.ref_id'):
                 mod['vs.ref_id'] = ''
             if not mod.get('vs.sub_id'):
@@ -299,7 +299,7 @@ def distill_models(pif, pack, page_id):
             if mod.get('vs.var_id'):
                 pmodels[mod['pack_model.display_order']]['vars'].append(mod['vs.var_id'])
     for dispo in pmodels:
-        pmodels[dispo]['imgstr'] = pif.render.format_image_required(pmodels[dispo]['imgl'], pdir=config.IMG_DIR_MAN, prefix='s_', vars=pmodels[dispo].get('pics'))
+        pmodels[dispo]['imgstr'] = pif.render.format_image_required(pmodels[dispo]['imgl'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL, vars=pmodels[dispo].get('pics'))
     return pmodels
 
 

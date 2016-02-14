@@ -194,7 +194,7 @@ class Presentation():
             suffix = [suffix]
 
         if largest:  # overrides previous setting of prefixes.
-            prefix = mbdata.image_size_names
+            prefix = mbdata.image_size_types
             if largest in prefix:
                 prefix = prefix[:prefix.index(largest) + 1]
             prefix.reverse()
@@ -270,7 +270,7 @@ class Presentation():
             suffix = [suffix]
 
         if largest:  # overrides previous setting of prefixes.
-            prefix = mbdata.image_size_names
+            prefix = mbdata.image_size_types
             if largest in prefix:
                 prefix = prefix[:prefix.index(largest) + 1]
             prefix.reverse()
@@ -618,6 +618,12 @@ of Matchbox International Ltd. and are used with permission.
         ostr = ''
         if nstyle:
             ostr += '<span' + useful.fmt_also(nstyle) + '>'
+        if args:
+            args = "&".join([x + '=' + args[x] for x in args.keys()])
+            if '?' in url:
+                url += '&' + args
+            else:
+                url += '?' + args
         if not url and not also:
             ostr += txt
         elif not url:
@@ -626,12 +632,6 @@ of Matchbox International Ltd. and are used with permission.
             ostr += '<a href="%s"%s>%s</a>' % (url, useful.fmt_also(also), url)
         else:
             ostr += '<a href="%s"%s>%s</a>' % (url, useful.fmt_also(also), txt)
-        if args:
-            args = "&".join([x + '=' + args[x] for x in args.keys()])
-            if '?' in url:
-                url += '&' + args
-            else:
-                url += '?' + args
         if nstyle:
             ostr += '</span>\n'
         return ostr
@@ -817,8 +817,8 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_as_link(self, fnames, txt, pdir=None, also={}):
         return self.format_link('../' + self.find_image_path(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
 
-    def format_image_optional(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
-        return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
+    def format_image_optional(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False, largest=None):
+        return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad, largest=largest)
 
     def format_image_required(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True, largest=None):
         return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True, largest=largest)

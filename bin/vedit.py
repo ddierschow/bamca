@@ -3,7 +3,7 @@
 
 """Variation Importer
 
-This modules (with vdata) imports variations from the Word files
+This module (with vdata) imports variations from the Word files
 that are kept on mbxforum.nl.
 
 This was grown over the course of several years, and at this point
@@ -21,6 +21,7 @@ import glob, itertools, os, re, sys, time
 
 import basics
 import config
+import mbdata
 import tables
 import useful
 import vars
@@ -283,7 +284,8 @@ def check_file(pif, vid, fdir, fn):
                     if col != 'var' and row.get(col, '') != dbvar.get(col, ''):
                         #pif.render.comment('changed', col, row.get(col, ''), dbvar.get(col, ''))
                         varfile['stat'].add(IS_CHANGED)
-                if dbvar['var'] != row['var'] and row['var'][0] != 'f':
+		if not vdata.compare_var_ids(dbvar['var'], row['var']) and row['var'][0] != 'f':
+                #if dbvar['var'] != row['var'] and row['var'][0] != 'f':
                     #pif.render.comment('diff#', dbvar['var'], row['var'])
                     varfile['stat'].add(IS_DIFFERENT_NUMBER)
             else:
@@ -510,6 +512,7 @@ def show_file(pif, vid, fdir, fn, args):
 
     print '<br>'
     print list(varfile['stat']), '-'
+    print list(varfile['modids']), '-'
 
     show_file_link(fn, 'html', 'HTML')
     show_file_link(fn, 'htm', 'HTM')
@@ -529,7 +532,8 @@ def show_file(pif, vid, fdir, fn, args):
 
 
 def show_no_model(pif, varfile, fitab):
-    print pif.render.format_image_optional(fitab['modid'], prefix=['m_', 's_'], pdir='pic/man', also={'align': 'right'})
+    print pif.render.format_image_optional(fitab['modid'], largest=mbdata.IMG_SIZ_MEDIUM,
+	pdir='pic/man', also={'align': 'right'})
     print fitab['preface'], "<br>"
     print "<table border=1>"
     for row in [fitab['gridhead']] + fitab['body']:
@@ -551,7 +555,8 @@ def show_model_table(pif, varfile, fitab):
     print '<center><h2><a href="single.cgi?id=%s">%s</a>' % (mod['id'], mod['id'])
     print "<h3>", mod.get('rawname', 'no rawname?'), "</h3></center>"
 
-    print pif.render.format_image_optional(fitab['modid'], prefix=['m_', 's_'], pdir='pic/man', also={'align': 'right'})
+    print pif.render.format_image_optional(fitab['modid'], largest=mbdata.IMG_SIZ_MEDIUM,
+	pdir='pic/man', also={'align': 'right'})
     print fitab['preface'], "<br>"
 
     # base id form
@@ -603,18 +608,21 @@ def show_variations(pif, varfile, fitab, mod_id):
         else:  # gray
             del dbvars[dbvar['var']]  # gray
         ids_used.append(dbvar['var'])
-        pic = config.IMG_DIR_VAR + '/s_' + mod_id.lower() + '-' + dbvar.get('var', '') + '.jpg'
+	pic = os.path.join(*pif.render.find_image_file(pdir=config.IMG_DIR_MAN, fnames=mod_id, vars=dbvar.get('var', ''), largest=mbdata.IMG_SIZ_LARGE, nobase=True))
         print '<tr><td style="font-weight: bold; color: %s">' % (text_color[rec['var'] == dbvar.get('var')])
         print '<input type="hidden" name="%s.orignum" value="%s">' % (rec['var'], dbvar.get('var'))
         if dbvar.get('var'):
             print '<a href="/cgi-bin/vars.cgi?mod=%s&edit=1&var=%s" style="color: %s">%s</a>' % \
-                  (mod_id, dbvar['var'], text_color[rec['var'] == dbvar.get('var')], rec['var'])
+                  (mod_id, dbvar['var'], text_color[vdata.compare_var_ids(rec['var'], dbvar.get('var'))], rec['var'])
         else:
             print rec['var']
-        if os.path.exists(pic):
+        #if os.path.exists(pic):
+        if pic:
             print '<br><a href="../%s">PIC</a>' % pic
         elif is_new:
             print '<br>new'
+	elif dbvar.get('picture_id'):
+	    print '<br><i>pic</i>'
         print '</td>'
         rec['var'] = dbvar.get('var', rec.get('var', ''))
         print '<input type="hidden" name="%s.imported_var" value="%s">' % (rec['var'], orignum)
@@ -637,7 +645,7 @@ def show_variations(pif, varfile, fitab, mod_id):
         dbvar = dbvars[varid]
         is_same_file = dbvar.get('imported_from') == varfile['filename']
         #pif.render.comment(str(dbvar))
-        pic = config.IMG_DIR_VAR + '/s_' + mod_id.lower() + '-' + dbvar.get('var', '') + '.jpg'
+	pic = os.path.join(*pif.render.find_image_file(pdir=config.IMG_DIR_MAN, fnames=mod_id, vars=dbvar.get('var', ''), largest=mbdata.IMG_SIZ_LARGE, nobase=True))
         #pif.render.comment("pic", pic)
         if is_same_file:
             print '<input type="hidden" name="orphan" value="%s">' % varid
@@ -647,7 +655,7 @@ def show_variations(pif, varfile, fitab, mod_id):
                   (mod_id, dbvar['var'], dbvar['var'])
         else:
             print '%s' % dbvar['var']
-        if os.path.exists(pic):
+        if pic:
             print '<br><a href="../%s">PIC</a>' % pic
         print '</th>'
         for hdr in fitab['gridhead']:
@@ -843,6 +851,7 @@ def do_action(pif, mod_id):
     elif pif.form.has("fix_numbers"):
         print "fix numbers<br>"
         for k in pif.form.keys(end='.orignum'):
+	    # somewhere right around here we want to use vdata.compare_var_ids
             if pif.form.get_str(k) != k[0:-8]:
                 retvar = -999
                 vars.rename_variation(pif, mod_id, pif.form.get_str(k), k[0:-8])

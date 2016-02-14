@@ -38,7 +38,11 @@ def read_data_file(main_fn):
 def read_column_change(fil):
     changes = dict()
     for ln in fil:
-        mnl, col, colto = ln.split('|')
+	try:
+	    mnl, col, colto = ln.split('|')
+	except ValueError:
+	    print 'ValueError:', ln, '<br>'
+	    continue
         for mn in mnl.split(';'):
             changes.setdefault(mn, list())
             changes[mn].append([col.split(';'), colto.split(';')])
@@ -133,6 +137,18 @@ def get_html_tables(fn, markups=True):
     else:
 	tables.append(['', list(), rest])
     return tables
+
+
+def compare_var_ids(v1, v2):
+    for iv1 in range(len(v1)):
+	for iv2 in range(len(v2)):
+	    if v1[iv1:] == v2[iv2:]:
+		return True
+	    if v2[iv2] != '0':
+		break
+	if v1[iv1] != '0':
+	    break
+    return False
 
 
 class VariationImportData:
@@ -252,13 +268,18 @@ class VariationImportData:
                 if len(flds) == len(nhdrs):
                     row[hdr] = ''
                     for nhdr in nhdrs:
+			if nhdr.startswith('*'):
+			    nhdr = nhdr[1:]
                         self.debug('RCC 4g', nhdr, ':', row.get(nhdr), nonl=True)
                         row[nhdr] = (row.get(nhdr, '') + ' ' + flds.pop(0).strip()).strip()
                         self.debug('to', row[nhdr], 'nhdr', nhdr)
                 else:
                     self.debug('RCC 4h')
                     for nhdr in nhdrs:
-                        row[nhdr] = row[hdr]
+			if nhdr.startswith('*'):
+			    row[nhdr[1:]] = ''
+			else:
+			    row[nhdr] = row[hdr]
             else:  # 1 to 1 with +
                 if hdrs[0] not in row:
                     self.debug('RCC 4i')
@@ -330,6 +351,8 @@ class VariationImportData:
                     for nhdr in newhdrs:
                         if nhdr.find('+') >= 0:
                             nhdr = nhdr[:nhdr.find('+')]
+			if nhdr.startswith('*'):
+			    nhdr = nhdr[1:]
                         if nhdr not in nhdrs:
                             nhdrs.append(nhdr)
                 else:

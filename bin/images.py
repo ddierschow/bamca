@@ -73,7 +73,7 @@ def show_var_info(pif, mod_id, var_id):
         var = pif.dbh.fetch_variation(mod_id, var_id)
         if var:
             var = pif.dbh.depref('variation', var[0])
-	    ostr += pif.render.format_image_sized(mod_id + '-' + var_id, pdir=config.IMG_DIR_VAR, largest='m', also={'class': 'righty'})
+	    ostr += pif.render.format_image_sized(mod_id + '-' + var_id, pdir=config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
             ostr += '<br>\n%s:<ul>\n' % var_id
             ostr += '<li>description: %s\n' % var['text_description']
             ostr += '<li>base: %s\n' % var['text_base']
@@ -568,7 +568,7 @@ class EditForm(imglib.ActionForm):
 	    print '<input type="radio" name="tysz" value="q"%s>' % (' checked' if presets.get('tysz') == 'q' else '')
 	    print 'x: <input name="x" type="text" size="4" value="%s">' % config.DEFAULT_X_SIZE
 	    print 'y: <input name="y" type="text" size="4" value="%s">' % config.DEFAULT_Y_SIZE
-	    print ''.join(pif.render.format_radio('tysz', [(siz, siz.upper()) for siz in mbdata.image_size_names], presets.get('tysz', 's')))
+	    print ''.join(pif.render.format_radio('tysz', [(siz, siz.upper()) for siz in mbdata.image_size_types], presets.get('tysz', mbdata.IMG_SIZ_SMALL)))
 	    print '-', pif.render.format_checkbox("unlv", [(1, "V")], presets.get("unlv", []))
 	    print pif.render.format_checkbox("unlh", [(1, "H")], presets.get("unlh", []))
 	    print pif.render.format_button_input('keep')
@@ -659,7 +659,7 @@ class EditForm(imglib.ActionForm):
 	nname_root = self.fn
 	if '.' in nname_root:
 	    nname_root = nname_root[:nname_root.rfind('.')]
-	for pref in ['t', 's', 'm', 'l']:
+	for pref in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]:
 	    nname = nname_root + '_' + pref + ('.' + self.ot) if self.ot else ''
 	    useful.file_delete(os.path.join(self.tdir, nname))
 
@@ -672,7 +672,7 @@ class EditForm(imglib.ActionForm):
 	nname_root = self.man if self.man else self.fn
 	if self.suff:
 	    nname_root += '-' + self.suff
-	if len(nname_root) > 2 and nname_root[0] in mbdata.image_size_names and nname_root[1] == '_':
+	if len(nname_root) > 2 and nname_root[0] in mbdata.image_size_types and nname_root[1] == '_':
 	    nname_root = nname_root[2:]
 	if '.' in nname_root:
 	    nname_root = nname_root[:nname_root.rfind('.')]
@@ -1174,7 +1174,7 @@ def show_library_graf(title, tdir, fl):
     fd = {}
     for f in fl:
         root, ext = useful.root_ext(f)
-        if root[-2] == '_' and root[-1] in mbdata.image_size_names:
+        if root[-2] == '_' and root[-1] in mbdata.image_size_types:
             root = root[:-2]
         fd.setdefault(root, [])
         fd[root].append(f)

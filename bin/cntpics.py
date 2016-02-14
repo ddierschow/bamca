@@ -66,7 +66,7 @@ def count_combo(pdir, prefs, roots, suffs):
         for pref in prefs:
             for suff in suffs:
                 for ext in imglib.otypes:
-                    fl = glob.glob('%s/%s%s%s.%s' % (pdir, pref, root, suff, ext))
+                    fl = glob.glob('%s/%s%s%s.%s' % (pdir, pref + '_' if pref else '', root, suff, ext))
                     for fn in fl:
                         if os.path.exists(fn):
                             count += 1
@@ -105,9 +105,10 @@ def count_lineups(pif):
     ystart = int(answer['min(year)'])
     yend = int(answer['max(year)'])
     dircheck = {}
-    pr_count, im_count = get_years(pif, 'U', ystart, yend, pr_count, im_count)
-    pr_count, im_count = get_years(pif, 'R', 1982, yend, pr_count, im_count)
-    pr_count, im_count = get_years(pif, 'L', 2008, yend, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'W', ystart, 1970, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'U', 1971, yend, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'R', 1971, yend, pr_count, im_count)
+    pr_count, im_count = get_years(pif, 'L', 2008, 2011, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'D', 1999, 2001, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'B', 2000, 2001, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'A', 2000, 2001, pr_count, im_count)
@@ -118,26 +119,26 @@ def count_lineups(pif):
 def count_pub(pif):
     recs = pif.dbh.fetch_publications()
     count = 0
-    count += count_combo(config.IMG_DIR_CAT, ['s_', ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
-    count += count_combo(config.IMG_DIR_MAN, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_CAT, [mbdata.IMG_SIZ_SMALL, ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
+    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 
 def count_pack(pif):
     recs = pif.dbh.fetch_packs()
     count = 0
-    count += count_combo_one_only(config.IMG_DIR_PACK, ['t_', 's_', 'c_', 'm_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_PACK, ['l_', 'h_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_MAN, ['s_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo_one_only(config.IMG_DIR_PACK, [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_PETITE, mbdata.IMG_SIZ_MEDIUM], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_PACK, [mbata.IMG_SIZ_LARGE, mbdata.IMG_SIZ_HUGE], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 
 def count_man(pif):
     recs = pif.dbh.fetch_casting_list()
     count = 0
-    count += count_combo(config.IMG_DIR_MAN, ['s_', 'm_', 'l_', 'z_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_ADD, ['a_', 'b_', 'e_', 'i_', 'p_', 'r_'], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_ICON, ['i_'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbata.IMG_SIZ_LARGE, 'z'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_ADD, ['a', 'b', 'e', 'i', 'p', 'r'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_ICON, ['i'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 
@@ -150,7 +151,7 @@ def count_var(pif):
             var_id = var['variation.picture_id']
         recs.append('%s-%s' % (var['variation.mod_id'].lower(), var_id.lower()))
     count = 0
-    count += count_combo(config.IMG_DIR_MAN + '/var', ['s_', 'm_'], recs, [''])
+    count += count_combo(config.IMG_DIR_MAN + '/var', [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM], recs, [''])
     return count
 
 

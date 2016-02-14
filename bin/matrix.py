@@ -63,10 +63,10 @@ class MatrixFile:
                                 pif.render.format_image_required([useful.clean_name(ffmt['img'] % ent['range_id'], '/')])
                     elif ent.get('v.picture_id'):
                         ent['image'] = \
-                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.picture_id'], prefix='s_', pdir=config.IMG_DIR_VAR, nopad=True)
+                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.picture_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
                     elif ent.get('v.var'):
                         ent['image'] = \
-                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.var'], prefix='s_', pdir=config.IMG_DIR_VAR, nopad=True)
+                                pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.var'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
                     if ent['range_id'] and ffmt['disp']:
                         ent['disp_id'] = ent['range_id']
                     if ent['range_id'] and ffmt['link']:

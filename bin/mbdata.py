@@ -204,6 +204,7 @@ casting_types = {
     'RW': 'Casting',           # Regular wheel
     'SB': 'Casting',           # Sky Buster
     'SF': 'Casting',           # Superfast
+    'BR': 'Casting',           # Budget Range
     'YY': 'Casting',           # YesterYear
     'PS': 'Assembly',          # Playset
     'CC': 'Case',              # Carrying Case
@@ -422,10 +423,18 @@ countries = [
     ('ZW', "Zimbabwe"),
 ]
 
-image_size_names = ["t", "s", "c", "m", "l", "h", "g"]
+IMG_SIZ_GIGANTIC = 'g'
+IMG_SIZ_HUGE = 'h'
+IMG_SIZ_LARGE = 'l'
+IMG_SIZ_MEDIUM = 'm'
+IMG_SIZ_PETITE = 'c'
+IMG_SIZ_SMALL = 's'
+IMG_SIZ_TINY = 't'
+image_size_names = ["tiny", "small", "compact", "medium", "large", "huge", "gigantic"]
+image_size_types = ["t", "s", "c", "m", "l", "h", "g"]
 image_size_sizes = [(100,  60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480), (1200, 720)]
 
-imagesizes = dict(zip(image_size_names, image_size_sizes))
+imagesizes = dict(zip(image_size_types, image_size_sizes))
 
 model_type_chars = "aob2e1r4uztv59cidjgfmpl8hx"
 model_types = {
