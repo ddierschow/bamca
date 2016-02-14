@@ -149,7 +149,7 @@ DoButtonLink('counters', $IMG_DIR_ART, "http://" . $pif['host'] . "/cgi-bin/coun
 <td colspan=5><center><i>
 <a href="http://www.mbx-u.com/">MU</a> -
 <a href="http://www.areh.de/">AREH</a> -
-<a href="http://www.mboxcommunity.com/cfalkens/">CF</a> -
+<a href="http://www.cfalkensteiner.com/">CF</a> -
 <a href="http://matchbox.zsebehazy.com/">Dan</a> -
 <a href="http://mb-db.co.uk/">MBDB</a> -
 <a href="http://www.midlandsdiecast.com/col_mbxno.asp">MD</a> -
