@@ -19,6 +19,8 @@ LS15b|labels|(A)|, pegasus at rear facing forward
 LS15b|labels|(B)|, pegasus at front facing backward
 LS15b|labels|(A and B mixed)|, pegasus at front facing backward or at rear facing forward
 LS15b|labels|(C)|, pegasus at front facing forward 
+LS16a|axle_cover_text|A|no
+LS16a|axle_cover_text|B|with
 MI019|base|(A)|with no circle around rivet
 MI019|base|(B)|with circle around rivet
 MI019|grille|(A)|
@@ -45,6 +47,8 @@ LS38c|rear_seat_casting|C|plastic with holes
 LS38c|rear_seat_casting|D|plastic with holes
 LS38c|rear_seat_casting|E|metal with holes
 LS38e|license_plate||KG
+LS38e|base_text|r/^|LESNEY PRODUCTS, |
+LS38e|base_text|r/$| text
 LS42c|container_type|A|base without lettering is part of body, ribs top and bottom, smooth center, opening doors
 LS42c|container_type|B|base without lettering is part of body, ribs on bottom only, upper smooth section, opening doors
 LS42c|container_type|C|black separate base with "P.S.1 CONTAINER" lettering, doors do not open
@@ -99,3 +103,4 @@ MW450|name|+|/
 |manufacture|r/^O$|O ?|
 |manufacture|r/^T$|Thailand|
 |manufacture|r/^T |Thailand |
+|wheels| / |, |

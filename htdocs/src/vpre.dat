@@ -14,6 +14,13 @@ LS04a|base|(B)|/ long
 MI005|body|(|/ (
 LS12a|interior| A| without transmission tunnel
 LS12a|interior| B| with transmission tunnel
+LS17b|base_type|A|metal / no axle braces / no holes / no tab
+LS17b|base_type|B|metal / with axle braces / no holes / no tab
+LS17b|base_type|C|metal / with axle braces / with holes / no tab
+LS17b|base_type|D|metal / with axle braces / with traces of holes / no tab
+LS17b|base_type|E|metal / no axle braces / no holes / with tab
+LS17b|base_type|F|smooth plastic / no axle braces / no holes / no tab
+LS17b|base_type|G|textured plastic / no axle braces / no holes / no tab
 MI017|body_casting|A|7 lines on rear grille, small tail lights
 MI017|body_casting|B|4 lines on rear grille, large tail lights
 LS18b|seat|(A)|wide at rear
@@ -22,6 +29,9 @@ LS18b|frame_casting|A|short front end, open triangle on right side in front of r
 LS18b|frame_casting|B|long front end, closed triangle on right side in front of rear wheel
 MI025|base|(A)|/ no
 MI025|base|(B)|/ with
+LS26c|base_type|r/^A$|black plastic base insert base type / with rear rivet / no reinforcement around insert rim / No. 26 under SUPERFAST, MATCHBOX at front
+LS26c|base_type|r/^B$|black plastic base insert base type / with rear rivet / heavy reinforcement around insert rim / No. 26 over front axle, MATCHBOX at front
+LS26c|base_type|r/^C$|metal, no base insert base type / no rear rivet / no insert rim / No. 26 over front axle, no Superfast cast, MATCHBOX at left
 LS27b|base|(A)|/ with
 LS27b|base|(B)|/ no
 LS28b|wheels_hubs|,|/
@@ -44,42 +54,41 @@ LS35a|body|(A)|/ no additional panel / no ridge
 LS35a|body|(B)|/ with additional panel / partial thin ridge
 LS35a|body|(C)|/ with additional panel / full length thin ridge
 LS35a|body|(D)|/ with additional panel / thick ridge
-LS38e|base|r/^|LESNEY PRODUCTS, 3 base rivets, |
-LS38e|base|r/$| text
-MI038|base_type|r/^A$|England / LESNEY PRODUCTS, 3 base rivets, small text
-MI038|base_type|r/^B$|England / LESNEY PRODUCTS, 3 base rivets, large text
-MI038|base_type|r/^C$|Macau / with Superfast, MATCHBOX TOYS, raised panel, 3 base rivets
-MI038|base_type|r/^D$|Macau / with Superfast, MATCHBOX TOYS, raised panel, 2 base rivets
-MI038|base_type|r/^E$|Macau / without Superfast, MATCHBOX INT'L, flat surface
-MI038|base_type|r/^F$|Macau / without Superfast, MATCHBOX INT'L, raised panel
-MI038|base_type|r/^G$|Macau / without Superfast, MATCHBOX INT'L, (c) 1990 MLB
-MI038|base_type|r/^H$|Macau / without Superfast, MATCHBOX INT'L, (c) 1990 NFL
-MI038|base_type|r/^I$|Thailand / MATCHBOX INT'L, raised panel
-MI038|base_type|r/^J$|Thailand / MATCHBOX INT'L, flat surface
-MI038|base_type|r/^K$|China / MATCHBOX INT'L, raised panel
-MI038|base_type|r/^L$|China / Mattel Inc., raised panel, old logo (italic with frame)
-MI038|base_type|r/^M$|China / MATCHBOX INT'L, flat surface
-MI038|base_type|r/^N$|China / Mattel Inc., raised panel, new logo (oval)
-MI038|base_type|r/^O$|Thailand / Mattel Inc.
-MI038|base_type|r/^A |England / LESNEY PRODUCTS, 3 base rivets, small text |
-MI038|base_type|r/^B |England / LESNEY PRODUCTS, 3 base rivets, large text |
-MI038|base_type|r/^C |Macau / with Superfast, MATCHBOX TOYS, raised panel, 3 base rivets |
-MI038|base_type|r/^D |Macau / with Superfast, MATCHBOX TOYS, raised panel, 2 base rivets |
-MI038|base_type|r/^E |Macau / without Superfast, MATCHBOX INT'L, flat surface |
-MI038|base_type|r/^F |Macau / without Superfast, MATCHBOX INT'L, raised panel |
-MI038|base_type|r/^G |Macau / without Superfast, MATCHBOX INT'L, (c) 1990 MLB |
-MI038|base_type|r/^H |Macau / without Superfast, MATCHBOX INT'L, (c) 1990 NFL |
-MI038|base_type|r/^I |Thailand / MATCHBOX INT'L, raised panel |
-MI038|base_type|r/^J |Thailand / MATCHBOX INT'L, flat surface |
-MI038|base_type|r/^K |China / MATCHBOX INT'L, raised panel |
-MI038|base_type|r/^L |China / Mattel Inc., raised panel, old logo (italic with frame) |
-MI038|base_type|r/^M |China / MATCHBOX INT'L, flat surface |
-MI038|base_type|r/^N |China / Mattel Inc., raised panel, new logo (oval) |
-MI038|base_type|r/^O |Thailand / Mattel Inc. |
-MW038|base|r/^L$|China / Mattel Inc., raised panel, old logo (italic with frame)
-MW038|base|r/^M$|China / MATCHBOX INT'L, flat surface
-MW038|base|r/^N$|China / Mattel Inc., raised panel, new logo (oval)
-MW038|base|r/^O$|Thailand / Mattel Inc. |
+LS38e|base|E|3 base rivets
+MI038|base_type|r/^A$|England / LESNEY PRODUCTS, small text / 3 base rivets
+MI038|base_type|r/^B$|England / LESNEY PRODUCTS, large text / 3 base rivets
+MI038|base_type|r/^C$|Macau / with Superfast, MATCHBOX TOYS, raised panel / 3 base rivets
+MI038|base_type|r/^D$|Macau / with Superfast, MATCHBOX TOYS, raised panel / 2 base rivets
+MI038|base_type|r/^E$|Macau / without Superfast, MATCHBOX INT'L / flat surface
+MI038|base_type|r/^F$|Macau / without Superfast, MATCHBOX INT'L / raised panel
+MI038|base_type|r/^G$|Macau / without Superfast, MATCHBOX INT'L, (c) 1990 MLB /
+MI038|base_type|r/^H$|Macau / without Superfast, MATCHBOX INT'L, (c) 1990 NFL /
+MI038|base_type|r/^I$|Thailand / MATCHBOX INT'L / raised panel
+MI038|base_type|r/^J$|Thailand / MATCHBOX INT'L / flat surface
+MI038|base_type|r/^K$|China / MATCHBOX INT'L / raised panel
+MI038|base_type|r/^L$|China / Mattel Inc., old logo (italic with frame) / raised panel
+MI038|base_type|r/^M$|China / MATCHBOX INT'L / flat surface
+MI038|base_type|r/^N$|China / Mattel Inc., new logo (oval) / raised panel
+MI038|base_type|r/^O$|Thailand / Mattel Inc. /
+MI038|base_type|r/^A |England / LESNEY PRODUCTS, small text / 3 base rivets, |
+MI038|base_type|r/^B |England / LESNEY PRODUCTS, large text / 3 base rivets, |
+MI038|base_type|r/^C |Macau / with Superfast, MATCHBOX TOYS / raised panel, 3 base rivets, |
+MI038|base_type|r/^D |Macau / with Superfast, MATCHBOX TOYS / raised panel, 2 base rivets, |
+MI038|base_type|r/^E |Macau / without Superfast, MATCHBOX INT'L / flat surface, |
+MI038|base_type|r/^F |Macau / without Superfast, MATCHBOX INT'L / raised panel, |
+MI038|base_type|r/^G |Macau / without Superfast, MATCHBOX INT'L, (c) 1990 MLB / |
+MI038|base_type|r/^H |Macau / without Superfast, MATCHBOX INT'L, (c) 1990 NFL / |
+MI038|base_type|r/^I |Thailand / MATCHBOX INT'L / raised panel, |
+MI038|base_type|r/^J |Thailand / MATCHBOX INT'L / flat surface, |
+MI038|base_type|r/^K |China / MATCHBOX INT'L / raised panel, |
+MI038|base_type|r/^L |China / Mattel Inc., old logo (italic with frame) / raised panel, |
+MI038|base_type|r/^M |China / MATCHBOX INT'L / flat surface, |
+MI038|base_type|r/^N |China / Mattel Inc., new logo (oval) / raised panel, |
+MI038|base_type|r/^O |Thailand / Mattel Inc. / |
+MW038|base|r/^L$|China / Mattel Inc., old logo (italic with frame) / raised panel
+MW038|base|r/^M$|China / MATCHBOX INT'L / flat surface
+MW038|base|r/^N$|China / Mattel Inc., new logo (oval) / raised panel
+MW038|base|r/^O$|Thailand / Mattel Inc. /
 LS42c|container|r/\sA| / A
 LS42c|container|r/\sB| / B
 LS42c|container|r/\sC| / C
@@ -118,6 +127,7 @@ MI205|grille|B|dot
 MI210|base_type|A|blank center
 MI210|base_type|B|straight lettering
 MI210|base_type|C|slant lettering
+MI210|body|dark purple and white|dark purple / dark purple / white
 MI212|wheels|9 spoke GY rear / GY slicks front|GY slicks front / 9 sp GY rear
 MI229|base|(A)|, straight "MADE IN CHINA"
 MI229|base|(B)|, italic "MADE IN CHINA"
