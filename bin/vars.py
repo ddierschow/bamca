@@ -173,12 +173,12 @@ def show_variation_editor(pif, id, var_id):
     pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
     img = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_TINY)
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_SMALL)
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_MEDIUM)
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, prefix=mbdata.IMG_SIZ_LARGE)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_TINY)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_SMALL)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_MEDIUM)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_LARGE)
     else:
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, largest=mbdata.IMG_SIZ_HUGE)
+        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
     if pif.is_allowed('u'):  # pragma: no cover
         print '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.LIB_MAN_DIR, id.lower()), id, var_id) + img + '</a>'
     else:
