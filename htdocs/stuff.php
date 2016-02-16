@@ -184,7 +184,8 @@ if (count($result) > 0)
 	$errcounter = $errcounter + $ent[1];
     echo $errcounter . ' ';
 }
-echo "</span></td>";
+echo "</span>";
+echo "</td>";
 echo '<td><span class="warning">';
 DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/editor.cgi");
 DoButtonLink('clear', $IMG_DIR_ART, "cgi-bin/editor.cgi?clear=1");
@@ -193,9 +194,10 @@ if (count($result) > 0)
     foreach ($result as $ent)
 	echo ' ' . $ent[0] . ' (' . $ent[1] . ')';
 }
-echo "</span></td>";
-echo "</tr><tr><td>\n";
+echo "</span>";
+echo "</td></tr>";
 
+echo "<tr><td>\n";
 $result = Fetch("select name from user where state=1 and privs=''", $pif);
 echo "New users:</td><td>";
 echo '<span class="warning">';
@@ -217,7 +219,7 @@ DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/edlinks.cgi?sec=new");
 echo "</td></tr><tr><td>\n";
 
 $m = $l = '';
-$sf = fopen('/home/bamca/logs/descr.txt', "rt");
+$sf = fopen('/home/bamca/logs/descr.log', "rt");
 while (!feof($sf)) {
     $l = fgets($sf);
     if (strlen($l) > 8)
@@ -232,9 +234,9 @@ if (count($pf))
     echo count($pf);
 echo "</span></td><td>";
 DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/traverse.cgi?d=../../logs");
-echo "</td></tr>\n";
 
 ?>
+</td></tr>
 </table>
 </td>
 <td background="pic/gfx/red4x4.gif"><img src="pic/gfx/red4x4.gif"></td>
