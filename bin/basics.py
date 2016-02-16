@@ -37,19 +37,27 @@ def write_traceback_file(pif):
     return str_tb
 
 
-def handle_exception(pif):
+def simple_html():
+    print 'Content-Type: text/html\n\n'
+    print '<!--\n' + str(os.environ) + '-->'
+    import useful
+    useful.header_done()
+    useful.write_comment()
+
+
+def handle_exception(pif, header_done=False):
     str_tb = write_traceback_file(pif)
     if not pif or not pif.render or not pif.dbh:
-        print 'Content-Type: text/html\n\n'
-        print '<!--\n' + str(os.environ) + '-->'
+	if not header_done:
+	    simple_html()
         print '<!--\n' + str_tb + '-->'
         final_exit()
     pif.dbh.set_health(pif.page_id)
     import useful
-    if not useful.is_header_done():
-        print 'Content-Type: text/html\n\n'
-        print '<!--\n' + str(os.environ) + '-->'
-        print '<!--\n' + str_tb + '-->'
+    if not useful.is_header_done() and not header_done:
+	simple_html()
+    useful.header_done()
+    useful.write_comment()
     while pif.render.table_count > 0:
         print pif.render.format_table_end()
     if not pif.is_allowed('a'):
@@ -214,6 +222,24 @@ def web_page(main_fn):
                 pif = page_id
             else:
                 pif = get_page_info(page_id, form_key, defval, args, dbedit)
+        except SystemExit:
+            pass
+	except useful.SimpleError as e:
+	    simple_html()
+	    print useful.render_template('error.html', error=[e.value], page={'tail':''})
+            handle_exception(pif, True)
+            return
+        except MySQLdb.OperationalError:
+	    simple_html()
+            print 'The database is currently down, and thus, this page is unable to be shown.<p>'
+	    str_tb = write_traceback_file(pif)
+            handle_exception(pif, True)
+            return
+        except:
+            handle_exception(pif)
+            return
+
+	try:
             ret = main_fn(pif)
             useful.write_comment()
             if ret:
@@ -240,6 +266,8 @@ def web_page(main_fn):
         except:
             handle_exception(pif)
             raise
+	useful.header_done(True)
+	useful.write_comment()
     return call_main
 
 

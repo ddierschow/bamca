@@ -69,14 +69,15 @@ def show_model_notes(pif, mdict):
 def show_boxes(pif, mod_id, box_types, mack_nums):
     mod_id = box_types[0]['box_type.mod_id']
     base_box_types = [box['box_type.box_type'][0] for box in box_types]
-    box_fmt = "<b>%s style box</b><br>%s<br>%s entries"
+    box_fmt = "<b>%s style box</b><br>%s" #<br>%s entries"
     # rewrite this.  glob for alternate boxes.  well, maybe.
     entries = [
 	{'text':
 	    pif.render.format_link('boxart.cgi',
 		txt=box_fmt % (box_type,
-		    pif.render.format_image_sized([mod_id + '-' + box_type], pdir=config.IMG_DIR_BOX, required=True),
-		    base_box_types.count(box_type)),
+		    pif.render.format_image_sized([mod_id + '-' + box_type], pdir=config.IMG_DIR_BOX, required=True)
+		    #, base_box_types.count(box_type)
+		),
 		args={'mod': mod_id, 'ty': box_type})
 	} for box_type in sorted(list(set(base_box_types)))]
     llineup = {'id': 'boxes', 'name': 'Boxes', 'columns': min(2, len(entries)),
@@ -373,9 +374,13 @@ def show_single(pif):
     pic = pif.form.get_str('pic')
     man = pif.dbh.fetch_casting(pif.form.get_str('id'), extras=True)
     pdir = pif.form.get_str('dir')
+    if pdir.startswith('./'):
+	pdir = pdir[2:]
+    if not pdir.startswith('pic/') or '/' in pic:
+	pdir = pic = ''
     ref = pif.form.get_str('ref')
     sub = pif.form.get_str('sub')
-    reg = sub if sub else pic[4] if pic and pic[:4].isdigit() else ''
+    reg = sub if sub else pic[4] if ref.startswith('year') and pic and pic[:4].isdigit() else ''
     cid = man.get('id', '')
     prod_title = ''
     pif.render.hierarchy_append('/', 'Home')

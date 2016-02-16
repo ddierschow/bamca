@@ -987,10 +987,11 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	return self.fetch('box_type', where={"id": box_id}, verbose=True)
 
     def fetch_box_type_by_mod(self, mod_id, box_style=None):
-	where = 'box_type.mod_id="%s" or box_type.mod_id=alias.id and alias.ref_id="%s"' % (mod_id, mod_id)
-	if box_style:
-	    where += ' and box_type.box_type like "%s%%"' % box_style
-	return self.fetch('box_type,alias', where=where, verbose=True)
+	# this sucks so hard
+	where1 = 'box_type.mod_id="%s"' % mod_id
+	where2 = '(box_type.mod_id=alias.id and alias.ref_id="%s")' % mod_id
+	where3 = ' and box_type.box_type like "%s%%"' % box_style if box_style else ''
+	return self.fetch('box_type', where=where1 + where3, verbose=True) + self.fetch('box_type,alias', where=where2 + where3, verbose=True)
 
     #- user
 

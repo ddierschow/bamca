@@ -972,7 +972,7 @@ def var_search(pif):
     castq = {cfields[x]: pif.form.search(x) for x in cfields}
     codes = get_codes(pif)
     if codes is None:
-        raise SimpleError("This submission was not created by the form provided.")
+        raise useful.SimpleError("This submission was not created by the form provided.")
 
     pif.render.comment('varsq', varsq, 'castq', castq, 'codes', codes)
     mods = pif.dbh.fetch_variation_query(varsq, castq, codes)

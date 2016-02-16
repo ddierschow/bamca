@@ -5,6 +5,7 @@
 
 import copy, filecmp, glob, itertools, os, pprint, stat
 import config  # bleagh
+import jinja2
 
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
@@ -170,6 +171,9 @@ def reflect(in_iter, columns, pad=None):
     >>> reflect([0,1,2,3], 3)
     [0, 2, 1, 3, None, None]
     '''
+    nents = len(in_iter)
+    if nents < columns:
+	return in_iter
     colsize = (len(in_iter) - 1) / columns + 1
     return itertools.chain(*itertools.izip_longest(*[in_iter[x:x + colsize] for x in range(0, len(in_iter), colsize)], fillvalue=pad))
 
@@ -397,6 +401,16 @@ def write_message(*args):
             print ' '.join([str(x) for x in args]), '<br>'
         else:
             print ' '.join([str(x) for x in args])
+
+
+def defang(msg):
+    return str(msg).replace('<', '&lt;').replace('>', '&gt;')
+
+
+def render_template(template, **kwargs):
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
+    tpl = env.get_template(template)
+    return tpl.render(comments=read_comments(), **kwargs)
 
 #---- -------------------------------------------------------------------
 

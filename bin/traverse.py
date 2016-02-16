@@ -227,6 +227,8 @@ def do_masses(pif, tform):
 
 def show_file(pif, tform):
     print pif.render.format_button('delete', link=pif.request_uri + '&delete=1&act=1')
+    if os.path.exists(os.path.join(tform.tdir, 'archive')):
+	print pif.render.format_button('archive', link=pif.request_uri + '&archive=1&act=1')
     root, ext = useful.root_ext(tform.fnam)
     if ext == 'dat':
         show_table(pif, tform)

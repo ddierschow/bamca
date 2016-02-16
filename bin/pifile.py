@@ -194,7 +194,7 @@ class PageInfoFile:
 	    user_id = eval(user_id)
 	if isinstance(user_id, (int, long)):
 	    self.id = user_id
-	elif isinsance(user_id, tuple):
+	elif isinstance(user_id, tuple):
 	    user_id = user_id[0]
 	config.USER_ID = self.user_id = user_id
         self.args = args  # this is for unittest only!
@@ -227,7 +227,11 @@ class PageInfoFile:
 
         self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, self.log.dbq, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
-        self.render.set_page_info(self.dbh.fetch_page(self.page_id))
+        page_info = self.dbh.fetch_page(self.page_id)
+	useful.write_comment('page_info: %s' % str(page_info))
+	if not page_info:
+	    raise useful.SimpleError('Your request is incorrect (bad page id).  Please try something else.')
+        self.render.set_page_info(page_info)
         self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_NOT_RELEASED) != 0
         self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
 	self.render.is_admin = self.is_allowed('a')
@@ -262,6 +266,11 @@ class PageInfoFile:
 		    self.log.refer.info(refer)
 
     def get_page_id(self, page_id, form_key, defval):
+	page_id = self.calc_page_id(page_id, form_key, defval)
+	page_id = ''.join([x for x in page_id if x in '.abcdefghijklmnopqrstuvwxyz0123456789'])[:20]
+	return page_id
+
+    def calc_page_id(self, page_id, form_key, defval):
         if form_key:
             if self.form.get_str(form_key):
                 if self.form.get_str(form_key).startswith(page_id + '.'):

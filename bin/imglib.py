@@ -752,6 +752,7 @@ class ActionForm(object):
 	self.ov = False
 	self.cpmv = 'c'
 	self.mv = self.cpmv == 'm'
+	self.archive = False
 	self.delete = False
 	self.selcat = False
 	self.dest = ''
@@ -775,6 +776,7 @@ class ActionForm(object):
 	self.ov = form.get_bool('ov', False)
 	self.cpmv = form.get_str('cpmv', 'c')
 	self.mv = self.cpmv == 'm'
+	self.archive = form.get_bool('archive')
 	self.delete = form.get_bool('delete')
 	self.selcat = form.get_bool('selcat')
 	self.dest = form.get_str('moveto')
@@ -802,6 +804,8 @@ class ActionForm(object):
 	to_dir = to_name = ''
 	if self.delete:
 	    useful.file_delete(from_path)
+	elif self.archive:
+	    useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
 	elif self.selcat:
 	    if not self.nname or not self.dest:
 		useful.warn('What?')

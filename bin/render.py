@@ -108,8 +108,9 @@ class Presentation():
         return str(self.__dict__)
 
     def set_page_info(self, res):
-        for row in res:
-            self.flags = row['page_info.flags']
+	if res:
+	    row = res[0]
+            self.flags = row['page_info.flags'] or 0
             self.format_type = row['page_info.format_type']
             self.title = self.fmt_pseudo(row['page_info.title'])
             self.pic_dir = row['page_info.pic_dir']
@@ -1250,8 +1251,6 @@ of Matchbox International Ltd. and are used with permission.
         if self.tail.get('flags'):
             self.flag_list = list(self.shown_flags)
             self.flag_list.sort(key=lambda x: self.flag_info[x][0])
-	env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
-	tpl = env.get_template(template)
 	titleimage = self.find_image_path(self.page_id.split('.'))
 	if titleimage:
 	    titleimage = '/' + titleimage
@@ -1282,6 +1281,9 @@ of Matchbox International Ltd. and are used with permission.
 	    'extra': self.extra,
 	    'footer': self.footer,
 	}
+	#return useful.render_template(page=page_info, comments=useful.read_comments(), **kwargs)
+	env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
+	tpl = env.get_template(template)
 	return tpl.render(page=page_info, comments=useful.read_comments(), **kwargs)
 
 #---- -------------------------------------------------------------------
