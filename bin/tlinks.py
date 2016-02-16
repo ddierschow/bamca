@@ -327,7 +327,7 @@ def add_new_link(pif, dictCats, listRejects):
         ostr += "</ul>If your submission has to do with sex, drugs, hotel reservations or ringtones, please go away and never come back.  Seriously.<p>\n"
         ostr += "Feel free to use your browser's BACK button to fix your entry, then resubmit; or,\n"
         ostr += "if you think this rejection was in error, you can send email.  Just don't hope for too much.\n"
-        open(os.path.join(config.LOG_ROOT, 'trash.dat'), 'a+').write(str(link) + '\n')
+        open(os.path.join(config.LOG_ROOT, 'trash.log'), 'a+').write(str(link) + '\n')
     else:
         pif.dbh.insert_link_line(link)
         ostr += "The following has been added to the list:<br><ul>\n"

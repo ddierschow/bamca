@@ -53,14 +53,15 @@ def show_dir(pif, tform):
     if not os.path.exists(tform.tdir):
         raise useful.SimpleError('Path does not exist.')
 
-    dl, gl, ol, sl, xl = imglib.get_dir(tform.tdir)
+    #dl, gl, ol, sl, xl = imglib.get_dir(tform.tdir)
+    files = imglib.get_dir(tform.tdir)
 
-    show_list("Directories", tform.tdir, dl)
+    show_list(files['titles']['dir'], tform.tdir, files['dir'])
 
-    if gl:
+    if files['graf']:
         if tform.graf:
-            print '<h4>Graphics (%d)</h4>' % len(gl)
-            for f in gl:
+            print '<h4>%s (%d)</h4>' % (files['titles']['graf'], len(files['graf']))
+            for f in files['graf']:
                 perms = os.stat(tform.tdir + '/' + f)[stat.ST_MODE]
                 if (perms & 4) == 0:
                     print '%s<br>' % f
@@ -71,16 +72,17 @@ def show_dir(pif, tform):
                     print '<a href="../%s">%s</a><br>' % (tform.tdir + '/' + f, f)
             print '<br><hr>'
         else:
-            show_list("Graphics", tform.tdir, gl)
+            show_list(files['titles']['graf'], tform.tdir, files['graf'])
 
-    show_list("Data Files", tform.tdir, sl)
-    show_list("Executable Files", tform.tdir, xl)
-    show_list("Other Files", tform.tdir, ol)
+    show_list(files['titles']['log'], tform.tdir, files['log'])
+    show_list(files['titles']['dat'], tform.tdir, files['dat'])
+    show_list(files['titles']['exe'], tform.tdir, files['exe'])
+    show_list(files['titles']['other'], tform.tdir, files['other'])
 
     if pif.render.is_admin:
 	print '<a href="upload.cgi?d=%s">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
 
-    if gl:
+    if files['graf']:
         print '<form action="traverse.cgi">'
         print '<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tform.tdir, pif.render.format_button('show all pictures'))
         print 'Pattern <input type="text" name="p">'

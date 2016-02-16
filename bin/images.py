@@ -25,7 +25,7 @@ images.upload_main
 images.bits_main
 '''
 
-descriptions_file = os.path.join(config.LOG_ROOT, 'descr.txt')
+descriptions_file = os.path.join(config.LOG_ROOT, 'descr.log')
 
 # -- common
 
@@ -725,9 +725,9 @@ def imawidget_main(pif):
 	print pif.render.format_image_required(eform.fn)
 	return
 
-    if eform.fn and os.path.exists(os.path.join(eform.tdir, 'descr.txt')):
+    if eform.fn and os.path.exists(os.path.join(eform.tdir, 'descr.log')):
 	# This is for /inc!  If I delete it again, I'll be pissed.
-        descs = open(os.path.join(eform.tdir, 'descr.txt')).readlines()
+        descs = open(os.path.join(eform.tdir, 'descr.log')).readlines()
         descs = dict([x.strip().split('\t', 1) for x in descs])
         # mod_id, var_id, year, comment
         print descs.get(os.path.splitext(eform.fn)[0], '').replace('\t', '<br>')
@@ -749,12 +749,13 @@ def imawidget_main(pif):
 	    if os.path.exists(nfn):
 		pass
 	    elif eform.cycle:
-		dl, gl, ol, sl, xl = imglib.get_dir(eform.tdir)
-		while gl:
-		    if gl[0] == nfn:
-			gl.pop()
+		#dl, gl, ol, sl, xl = imglib.get_dir(eform.tdir)
+		files = imglib.get_dir(tdir)
+		while files['graf']:
+		    if files['graf'][0] == nfn:
+			files['graf'].pop()
 		    else:
-			nfn = gl[0]
+			nfn = files['graf'][0]
 			break
 	    if nfn:
 		#show_picture(pif, nfn)
@@ -1201,20 +1202,21 @@ def show_library_graf(title, tdir, fl):
 def show_library_dir(pif, tdir, grafs=0):
     print '<hr>'
 
-    dl, gl, ol, sl, xl = imglib.get_dir(tdir)
+    #dl, gl, ol, sl, xl = imglib.get_dir(tdir)
+    files = imglib.get_dir(tdir)
 
-    show_library_list(pif, "Directories", tdir, dl)
+    show_library_list(pif, files['titles']['dat'], tdir, files['dat'])
     if grafs:
-        show_library_graf("Graphics", tdir, gl)
+        show_library_graf(files['titles']['graf'], tdir, files['graf'])
     else:
-        show_library_list(pif, "Graphics", tdir, gl)
-    show_library_list(pif, "Data Files", tdir, sl)
-    show_library_list(pif, "Executable Files", tdir, xl)
-    show_library_list(pif, "Other Files", tdir, ol)
+        show_library_list(pif, files['titles']['graf'], tdir, files['graf'])
+    show_library_list(pif, files['titles']['dat'], tdir, files['dat'])
+    show_library_list(pif, files['titles']['exe'], tdir, files['exe'])
+    show_library_list(pif, files['titles']['other'], tdir, files['other'])
 
     print '<a href="upload.cgi?d=%s&m=%s">%s</a>' % (tdir, tdir[7:], pif.render.format_button('upload'))
 
-    if gl:
+    if files['graf']:
         print '<form action="traverse.cgi">'
         print '<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tdir, pif.render.format_button('show all pictures'))
         print 'Pattern <input type="text" name="p">'

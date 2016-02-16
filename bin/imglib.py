@@ -1003,15 +1003,14 @@ class ActionForm(object):
 	return x, y
 
 
+titles = {'dir': 'Directories', 'graf': 'Graphics', 'dat': 'Data Files',
+	  'exe': 'Executable Files', 'other': 'Other Files', 'log': 'Log Files'}
 def get_dir(tdir):
     fl = os.listdir(tdir)
     fl.sort()
-    dl = list()  # directories
-    gl = list()  # graphics
-    ol = list()  # other files
-    sl = list()  # dat files
-    xl = list()  # executables
-
+    files = {'dir': list(), 'graf': list(), 'dat': list(),
+	     'exe': list(), 'other': list(), 'log': list(),
+	     'titles': titles}
     for f in fl:
         root, ext = useful.root_ext(f)
         if os.path.exists(tdir + '/' + f):
@@ -1020,16 +1019,18 @@ def get_dir(tdir):
             fstat = os.stat(tdir + '/' + f)
             perms = fstat.st_mode
             if os.path.isdir(tdir + '/' + f):
-                dl.append(f)
+                files['dir'].append(f)
             elif ext == 'dat':
-                sl.append(f)
+                files['dat'].append(f)
+            elif ext == 'log':
+                files['log'].append(f)
             elif ext in image_inputter:
-                gl.append(f)
+                files['graf'].append(f)
             elif stat.S_IMODE(perms) & stat.S_IXUSR:
-                xl.append(f)
+                files['exe'].append(f)
             else:
-                ol.append(f)
-    return dl, gl, ol, sl, xl
+                files['other'].append(f)
+    return files
 
 
 def image_star(image_path, pic_id='', halfstar=False, target_x=400, target_y=0):
