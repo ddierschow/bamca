@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 import copy, re, sys
-import db
+import dbintf
 import mbdata
 import tables
 import useful
@@ -12,7 +12,7 @@ id_re = re.compile('''(?P<a>[a-zA-Z]*)(?P<d>\d*)''')
 class DBHandler:
     table_info = tables.table_info
     def __init__(self, config, user_id, db_logger, verbose):
-        self.dbi = db.DB(config, user_id, db_logger, verbose)
+        self.dbi = dbintf.DB(config, user_id, db_logger, verbose)
         if not self.dbi:
             raise 'DB connect failed'
         #self.table_info = tables.table_info
@@ -307,7 +307,7 @@ class DBHandler:
             wheres.append(where)
         if section_id:
             wheres.append('section.id="%s"' % section_id)
-        return self.fetch('base_id,casting,section', where=wheres, tag='CastingList', verbose=verbose)
+        return self.fetch('base_id,casting,section', where=wheres, extras=['variation_digits'], tag='CastingList', verbose=verbose)
 
 
     def fetch_casting_dict(self):
@@ -485,9 +485,9 @@ class DBHandler:
     def fetch_variations_bare(self):
         return self.fetch('variation', tag='VariationsBare')
 
-    def fetch_variations(self, id, nodefaults=False):
-        varrecs = self.fetch('variation', where="mod_id='%s'" % id, tag='Variations')
-        detrecs = self.fetch_details(id, nodefaults=nodefaults)
+    def fetch_variations(self, mod_id, nodefaults=False):
+        varrecs = self.fetch('variation', where="mod_id='%s'" % mod_id, tag='Variations')
+        detrecs = self.fetch_details(mod_id, nodefaults=nodefaults)
         if detrecs:
             for varrec in varrecs:
                 detrec = detrecs.get(varrec['variation.var'], '')
@@ -497,9 +497,9 @@ class DBHandler:
                 #varrec.update(detrecs.get(varrec['variation.var'], {}))
         return varrecs
 
-    def fetch_variation(self, id, var):
-        varrecs = self.fetch('variation', where="mod_id='%s' and var='%s'" % (id, var), tag='Variation')
-        detrecs = self.fetch_details(id, var)
+    def fetch_variation(self, mod_id, var):
+        varrecs = self.fetch('variation', where="mod_id='%s' and var='%s'" % (mod_id, var), tag='Variation')
+        detrecs = self.fetch_details(mod_id, var)
         for var_id in detrecs:
             if var == var_id:
                 varrecs[0].update(detrecs[var_id])

@@ -296,7 +296,7 @@ def add_variation(pif, mod_id, var_id='unset', attributes={}):  # pragma: no cov
     pif.dbh.insert_variation(mod_id, var_id, attributes)
 
 
-def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id):  # pragma: no cover
+def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, **kwargs):  # pragma: no cover
     verbose = False
     if pif.argv:
         print 'move_variation', old_mod_id, old_var_id, new_mod_id, new_var_id
@@ -328,7 +328,7 @@ def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id):  # prag
     rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_id)
 
 
-def copy_variation(pif, mod_id, old_var_id, new_var_id):  # pragma: no cover
+def copy_variation(pif, mod_id, old_var_id, new_var_id, *args, **kwargs):  # pragma: no cover
     verbose = False
     if pif.argv:
         print 'copy_variation', mod_id, old_var_id, new_var_id
@@ -343,7 +343,9 @@ def copy_variation(pif, mod_id, old_var_id, new_var_id):  # pragma: no cover
 	pif.dbh.insert_variation(mod_id, new_var_id, var)
 
 
-def rename_variation(pif, mod_id, old_var_id, new_var_id):  # pragma: no cover
+def rename_variation(pif, mod_id=None, old_var_id=None, new_var_id=None, *args, **kwargs):  # pragma: no cover
+    if not mod_id or not old_var_id or not new_var_id:
+	return
     verbose = False
     if pif.argv:
         print 'rename_variation', mod_id, old_var_id, new_var_id
@@ -356,6 +358,14 @@ def rename_variation(pif, mod_id, old_var_id, new_var_id):  # pragma: no cover
     pif.dbh.write('variation_select', {'var_id': new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, mod_id), modonly=True, verbose=verbose)
     # If we're renaming, I'd like to also rename the pictures.
     rename_variation_pictures(pif, mod_id, old_var_id, mod_id, new_var_id)
+
+
+def swap_variations(pif, mod_id=None, var1=None, var2=None, *args, **kwargs):
+    if not mod_id or not var1 or not var2:
+	return
+    rename_variation(pif, mod_id, var1, var1 + 'x')
+    rename_variation(pif, mod_id, var2, var1)
+    rename_variation(pif, mod_id, var1 + 'x', var2)
 
 
 def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_id):  # pragma: no cover
@@ -388,10 +398,11 @@ def remove_picture(pif, mod_id, var_id):  # pragma: no cover
         os.unlink(pic)
 
 
-def delete_variation(pif, mod_id, var_id):  # pragma: no cover
-    pif.dbh.delete_variation({'mod_id': mod_id, 'var': var_id})
-    pif.dbh.delete_detail({'mod_id': mod_id, 'var_id': var_id})
-    pif.dbh.delete_variation_select({'mod_id': mod_id, 'var_id': var_id})
+def delete_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no cover
+    if mod_id and var_id:
+	pif.dbh.delete_variation({'mod_id': mod_id, 'var': var_id})
+	pif.dbh.delete_detail({'mod_id': mod_id, 'var_id': var_id})
+	pif.dbh.delete_variation_select({'mod_id': mod_id, 'var_id': var_id})
 
 # ----- multiple variation page ---------------------------
 
@@ -911,7 +922,7 @@ def add_model_var_table_pic_link(pif, mdict):
     return ostr
 
 
-vfields = {'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior', 'wheels': 'text_wheels', 'windows': 'text_windows', 'cat': 'category'}
+vfields = {'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior', 'wheels': 'text_wheels', 'windows': 'text_windows', 'cat': 'category', 'date': 'date'}
 cfields = {'casting': 'rawname'}
 
 
@@ -1014,29 +1025,51 @@ def run_search_command(pif, args):
         print '%(mod_id)-8s|%(var)-5s|%(imported_from)-8s|%(text_description)-s' % pif.dbh.depref('variation', mod)
 
 
+def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
+    if not mod_id:
+	return
+    fields = fields.split(',') if (fields and fields != '.') else []
+    if var_id:
+	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id)):
+	    if fields:
+		print '|'.join([str(variation[f]) for f in fields])
+	    else:
+		print '|'.join([str(variation[f]) for f in sorted(variation.keys())])
+    else:
+	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
+	    if fields:
+		print '|'.join([str(variation[f]) for f in fields])
+	    else:
+		print '|'.join([str(variation[f]) for f in sorted(variation.keys())])
+
+
+def command_help(pif, *args):
+    print "./vars.py [d|r|c|s|m|i] ..."
+    print "  d for delete: mod_id var_id"
+    print "  r for rename: mod_id old_var_id new_var_id"
+    print "  c for copy: mod_id old_var_id new_var_id"
+    print "  s for swap: mod_id var_id_1 var_id_2"
+    print "  m for move: old_mod_id old_var_id new_mod_id [new_var_id]"
+    print "  i for info: fields mod_id var_id"
+
+
+command_lookup = {
+    'd': delete_variation,
+    'r': rename_variation,
+    'c': copy_variation,
+    's': swap_variations,
+    'm': move_variation,
+    'f': run_search_command,
+    'i': info,
+}
+
+
 @basics.command_line
 def commands(pif):
-    if pif.filelist and pif.filelist[0] == 'd':
-        delete_variation(pif, pif.filelist[1], pif.filelist[2])
-    elif pif.filelist and pif.filelist[0] == 'r':
-        rename_variation(pif, pif.filelist[1], pif.filelist[2], pif.filelist[3])
-    elif pif.filelist and pif.filelist[0] == 'c':
-        copy_variation(pif, pif.filelist[1], pif.filelist[2], pif.filelist[3])
-    elif pif.filelist and pif.filelist[0] == 's':
-        rename_variation(pif, pif.filelist[1], pif.filelist[2], pif.filelist[2] + 'x')
-        rename_variation(pif, pif.filelist[1], pif.filelist[3], pif.filelist[2])
-        rename_variation(pif, pif.filelist[1], pif.filelist[2] + 'x', pif.filelist[3])
-    elif pif.filelist and pif.filelist[0] == 'm':
-        move_variation(pif, pif.filelist[1], pif.filelist[2], pif.filelist[3], pif.filelist[4])
-    elif pif.filelist and pif.filelist[0] == 'f':
-        run_search_command(pif, pif.argv[1:])
+    if pif.filelist:
+	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
     else:
-        print "./vars.py [d|r|c|s|m] ..."
-        print "  d for delete: mod_id var_id"
-        print "  r for rename: mod_id old_var_id new_var_id"
-        print "  c for copy: mod_id old_var_id new_var_id"
-        print "  s for swap: mod_id var_id_1 var_id_2"
-        print "  m for move: old_mod_id old_var_id new_mod_id [new_var_id]"
+	command_help()
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -228,8 +228,8 @@ class PageInfoFile:
         self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, self.log.dbq, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
         page_info = self.dbh.fetch_page(self.page_id)
-	useful.write_comment('page_id: %s' % str(self.page_id))
-	useful.write_comment('page_info: %s' % str(page_info))
+#	useful.write_comment('page_id: %s' % str(self.page_id))
+#	useful.write_comment('page_info: %s' % str(page_info))
 	if not page_info:
 	    raise useful.SimpleError('Your request is incorrect (bad page id).  Please try something else.')
         self.render.set_page_info(page_info)

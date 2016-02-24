@@ -5,7 +5,7 @@
 import cgi, copy, glob, os, re, sys
 import jinja2
 import config
-import javascript
+import javasc
 import mbdata
 import secure
 import useful
@@ -53,14 +53,14 @@ class TableClass():
 
 
 class Presentation():
-    incrsel_js = javascript.def_increment_select_js
-    toggle_display_js = javascript.def_toggle_display_js
-    reset_button_js = javascript.def_reset_button_js
-    increment_js = javascript.def_increment_js
-    increment_select_js = javascript.def_increment_select_js
-    google_analytics_js = javascript.def_google_analytics_js
-    image_selector_js = javascript.def_image_selector_js
-    paste_from_clippy_js = javascript.def_paste_from_clippy_js
+    incrsel_js = javasc.def_increment_select_js
+    toggle_display_js = javasc.def_toggle_display_js
+    reset_button_js = javasc.def_reset_button_js
+    increment_js = javasc.def_increment_js
+    increment_select_js = javasc.def_increment_select_js
+    google_analytics_js = javasc.def_google_analytics_js
+    image_selector_js = javasc.def_image_selector_js
+    paste_from_clippy_js = javasc.def_paste_from_clippy_js
     def __init__(self, page_id, verbose):
         self.page_id = page_id
         self.art_dir = config.IMG_DIR_ART
@@ -415,7 +415,7 @@ class Presentation():
         if extra:
             ostr += extra + '\n'
         if not self.is_beta:
-            ostr += javascript.def_google_analytics_js
+            ostr += javasc.def_google_analytics_js
         ostr += '</head>\n<body>\n'
         if self.is_beta:
             ostr += '<table width=100%><tr><td height=24 class="beta">&nbsp;</td></tr><tr><td>\n'

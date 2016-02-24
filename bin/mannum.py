@@ -640,26 +640,10 @@ def compare_main(pif):
 
 #---- commands ------------------------------
 
-@basics.command_line
-def commands(pif):
-    if pif.argv and pif.argv[0] == 'd':
+
+def delete_casting(pif, *args, **kwargs):
         print "delete not yet implemented"
         pass  # DeleteCasting(pif, pif.argv[1], pif.argv[2])
-    elif pif.argv and pif.argv[0] == 'r':
-        rename_base_id(pif, pif.argv[1], pif.argv[2], True)
-    elif pif.argv and pif.argv[0] == 'f':
-        run_search(pif, pif.argv[1:])
-    elif pif.argv and pif.argv[0] == 'c':
-        clone_attributes(pif, pif.argv[1], pif.argv[2])
-    elif pif.argv and pif.argv[0] == 'a':
-	add_attributes(pif, pif.argv[1], pif.argv[2:])
-    else:
-        print "./mannum.py [f|d|r|c] ..."
-        print "  f for find: search-criterion"
-        print "  d for delete: mod_id"
-        print "  r for rename: old_mod_id new_mod_id"
-        print "  a for add attributes: mod_id attribute_name ..."
-        print "  c for clone attributes: old_mod_id new_mod_id"
 
 
 def search_name(pif, targ):
@@ -672,19 +656,25 @@ def search_name(pif, targ):
     return ret
 
 
-def run_search(pif, args):
+def run_search(pif, *args):
+    if not args:
+	return
     mods = [pif.dbh.modify_man_item(x) for x in search_name(pif, args)]
     mods.sort(key=lambda x: x['id'])
     for mod in mods:
         print '%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod
 
 
-def add_attributes(pif, mod_id, attr_list):
+def add_attributes(pif, mod_id=None, attr_list=None, *args, **kwargs):
+    if not mod_id or not attr_list:
+	return
     for attr in attr_list:
 	pif.dbh.insert_attribute(mod_id, attr)
 
 
-def clone_attributes(pif, old_mod_id, new_mod_id):
+def clone_attributes(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
+    if not old_mod_id or not new_mod_id:
+	return
     pif.dbh.clone_attributes(old_mod_id, new_mod_id)
     vals = pif.dbh.fetch('casting', columns=format_attributes, where={'id': old_mod_id})
     if vals:
@@ -698,7 +688,9 @@ def clone_attributes(pif, old_mod_id, new_mod_id):
     #insert into detail (select 'MB880', '', attr_id, description from detail where mod_id='MB153' and var_id='');
 
 
-def rename_base_id(pif, old_mod_id, new_mod_id, force=False):
+def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **kwargs):
+    if not old_mod_id or not new_mod_id:
+	return
     rec = pif.dbh.fetch_base_id(new_mod_id)
     if rec:
         if not force:
@@ -729,6 +721,32 @@ def rename_base_id(pif, old_mod_id, new_mod_id, force=False):
         pic_new = pic.replace(old_mod_id.lower(), new_mod_id.lower())
         print "rename", pic, pic_new, "<br>"
         os.rename(pic, pic_new)
+
+
+def command_help(pif, *args):
+    print "./mannum.py [f|d|r|a|c] ..."
+    print "  f for find: search-criterion"
+    print "  d for delete: mod_id"
+    print "  r for rename: old_mod_id new_mod_id"
+    print "  a for add attributes: mod_id attribute_name ..."
+    print "  c for clone attributes: old_mod_id new_mod_id"
+
+
+command_lookup = {
+    'd': delete_casting,
+    'r': rename_base_id,
+    'f': run_search,
+    'c': clone_attributes,
+    'a': add_attributes,
+}
+
+
+@basics.command_line
+def commands(pif):
+    if pif.filelist:
+	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
+    else:
+	command_help()
 
 #---- ---------------------------------------
 

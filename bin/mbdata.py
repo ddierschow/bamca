@@ -541,5 +541,15 @@ def get_country(cc2):
     return get_countries().get(cc2, '')
 
 
+starting_digits_re = re.compile('\d*')
+def normalize_var_id(mod, var_id):
+    if var_id[0].isdigit():
+	while var_id and var_id[0] == '0':
+	    var_id = var_id[1:]
+	digs = starting_digits_re.match(var_id).end()
+	var_id = '0' * (mod.get('casting.variation_digits', mod.get('variation_digits', 2)) - digs) + var_id
+    return var_id
+
+
 if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

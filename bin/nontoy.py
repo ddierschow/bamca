@@ -4,13 +4,13 @@ import glob, os
 import basics
 import bfiles
 import config
-import javascript
+import javasc
 
 #pagename = 'biblio'
 
 # -- biblio
 
-def_map_link = javascript.def_map_link
+def_map_link = javasc.def_map_link
 fmt = '''http://maps.google.com/maps?f=q&source=s_q&hl=en&geocode=&q='''
 
 def map_link(bits):

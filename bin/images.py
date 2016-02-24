@@ -7,7 +7,7 @@ import bfiles
 import config
 import imglib
 import imicon
-import javascript
+import javasc
 import mbdata
 import useful
 
@@ -368,7 +368,7 @@ def show_editor(pif, eform, pdir=None, fn=None):
     print '<tr><td valign="top">' + pif.render.format_image_art('vruler.gif') + '</td><td valign="top">'
     #print '<a href="../' + full_path + '">' + pif.render.format_image_required([root], suffix=ext, also={"border": "0"}) + '</a>'
     dic = {'file': 'http://' + os.environ['SERVER_NAME'] + '/' + full_path, 'width': x, 'height': y}
-    print javascript.def_edit_app % dic
+    print javasc.def_edit_app % dic
     print '</td></tr></table>'
     print '<input type="hidden" value="%s" name="f">' % fn
     #print '<input type="hidden" value="%s" name="d">' % pdir
@@ -900,7 +900,7 @@ class StitchForm(object):
     def show_widget(self, filepath):
 	x, y = imglib.get_size(filepath)
 	dic = {'file': 'http://' + os.environ['SERVER_NAME'] + '/' + filepath, 'width': x, 'height': y}
-	return javascript.def_edit_app % dic
+	return javasc.def_edit_app % dic
 
     def finalize(self, pif):
 	final = self.fsl[-2].get('fn', '').strip()
