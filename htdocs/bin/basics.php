@@ -186,17 +186,17 @@ function DoPageFooter($pif)
     echo "</table>\n";
 }
 
-function DoButton($butname, $artdir)
+function DoButton($butname, $artdir, $classname="button")
 {
     $buttext = strtoupper(str_replace('_', ' ', $butname));
-    echo '<img src="/' . $artdir . '/but_' . $butname . '.gif" alt="' . $buttext . '" onmouseover="this.src=\'/' . $artdir . '/hov_' . $butname . '.gif\';" onmouseout="this.src=\'/' . $artdir . '/but_' . $butname . '.gif\';" class="button">';
+    echo '<img src="/' . $artdir . '/but_' . $butname . '.gif" alt="' . $buttext . '" onmouseover="this.src=\'/' . $artdir . '/hov_' . $butname . '.gif\';" onmouseout="this.src=\'/' . $artdir . '/but_' . $butname . '.gif\';" class="' . $classname . '">';
 }
 
-function DoButtonLink($butname, $artdir, $linkloc)
+function DoButtonLink($butname, $artdir, $linkloc, $classname="button")
 {
     echo '<a href="' . $linkloc . '">';
-    DoButton($butname, $artdir);
-    echo "</a>";
+    DoButton($butname, $artdir, $classname);
+    echo "</a>\n";
 }
 
 function DoButtonReset($artdir, $formid, $addl='')
@@ -245,28 +245,7 @@ function DoResetJavascript()
 {
     echo "<script  language=\"Javascript\">
 function ResetForm(which){
- for (i=0;i<which.length;i++){
-  var tempobj=which.elements[i];
-  if (tempobj.type==\"text\"||tempobj.type==\"textarea\"||tempobj.type==\"password\"||tempobj.type==\"file\")
-   tempobj.value=tempobj.defaultValue;
-  else if (tempobj.type==\"checkbox\"||tempobj.type==\"radio\")
-   tempobj.checked=tempobj.defaultChecked;
-  else if (tempobj.type==\"select-one\")
-   for (var i=0;i<tempobj.options.length;i++)
-    if (tempobj.options[i].defaultSelected)
-     tempobj.options[i].selected = true;
- }
- return false;
-}
-</script>
-";
-}
-
-function NewDoResetJavascript()
-{
-    echo "<script  language=\"Javascript\">
-function ResetForm(which){
- document.getElementById(which).reset();
+ which.reset();
  return false;
 }
 </script>
@@ -311,4 +290,11 @@ function DoIncDecJavascript()
 function arr_get($array, $key, $default = null) {
     return isset($array[$key]) ? $array[$key] : $default;
 }
+
+
+function Debug($something)
+{
+    echo '<pre>'; print_r($something); echo '</pre>';
+}
+
 ?>
