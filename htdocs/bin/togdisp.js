@@ -1,6 +1,8 @@
-function toggle_visibility(tbid,lnkid)
+/*jslint browser:true*/
+function toggle_visibility(tbid, lnkid)
 {
-  if (document.getElementById(lnkid).value == "collapse")
+  "use strict";
+  if (document.getElementById(lnkid).value === "collapse")
   {
     document.getElementById(tbid).style.display = "none";
     document.getElementById(lnkid).src = "../pic/gfx/but_expand.gif";
