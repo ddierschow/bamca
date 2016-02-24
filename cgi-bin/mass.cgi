@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import editor
-editor.mass('editor', dbedit='am')
+import masses
+masses.mass('editor', dbedit='am')
