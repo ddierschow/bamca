@@ -62,6 +62,7 @@ Current and planned projects:
    * Need to add support for packs limited to region
    * Matrix items with no ID aren't well supported
    * Reimplement icons
+   * Add support for multiple castings at a number in a year (the 1969SE problem)
    * Add a blog link for posting textual updates (notes, minutes, etc)
 
 ...BIG things:

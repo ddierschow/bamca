@@ -746,7 +746,7 @@ def commands(pif):
     if pif.filelist:
 	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
     else:
-	command_help()
+	command_help(pif)
 
 #---- ---------------------------------------
 

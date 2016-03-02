@@ -425,8 +425,8 @@ table_info = {
     },
     #variation_select
     'variation_select': {
-        'id': ['ref_id', 'mod_id', 'var_id', 'sub_id'],
-        'columns': ['ref_id', 'mod_id', 'var_id', 'sub_id'],
+        'id': ['id'],
+        'columns': ['id', 'ref_id', 'mod_id', 'var_id', 'sub_id'],
         'create': {
                 'ref_id': 'unset',
                 'mod_id': 'unset',
@@ -441,7 +441,7 @@ table_info = {
         },
         'add': {
         },
-        'ask': ['ref_id'],
+        'ask': ['id', 'ref_id'],
     },
     #box_type
     'box_type': {

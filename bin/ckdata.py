@@ -11,7 +11,7 @@ def main(pif):
     check_var_data(pif)
 
 modsets = [['MB213', 'MB293'], ['MB304', 'MB459', 'MB466'], ['MB254B', 'MB458', 'MB483'], ['MB103', 'MB310'],
-    ['MB029', 'MB312'], ['MB168', 'MB574'], ['MB045', 'MB309', ''], ['MB106', 'MB307'], ['MB125', 'MB331'],
+    ['MB029', 'MB312'], ['MB168', 'MB574'], ['MB045', 'MB309'], ['MB106', 'MB307'], ['MB125', 'MB331'],
     ['MB134', 'MB313'], ['MB140', 'MB314'], ['MB150', 'MB316'], ['MB153', 'MB330', 'MB880'], ['MB431', 'MB472', 'MB554'],
     ['MB183', 'MB340'], ['MB202', 'MB311'], ['MB203', 'MB228', 'MB247'], ['MB214', 'MB308'], ['MB222', 'MB652'],
     ['MB256', 'MB329'], ['MB300', 'MB437'], ['MB319', 'MB337'], ['MB464', 'MB473'], ['MB477', 'MB615'],
@@ -58,7 +58,7 @@ def get_vars(pif, mod_ids):
 
 def check_mod_data(pif):
     mods = pif.dbh.fetch_casting_list()
-    modd = {x['casting_id']: x for x in mods}
+    modd = {x['casting.id']: x for x in mods}
     for modset in modsets:
 	for mod in modset[1:]:
 	    if modd[mod]['casting.variation_digits'] != modd[modset[0]]['casting.variation_digits']:

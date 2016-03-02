@@ -370,9 +370,9 @@ def get_mack_numbers(pif, cid, mod_type, aliases):
 img_re = re.compile('src="(?P<u>[^"]*)"')
 @basics.web_page
 def show_single(pif):
-    pif.render.print_html()
-    pic = pif.form.get_str('pic')
     man = pif.dbh.fetch_casting(pif.form.get_str('id'), extras=True)
+    pif.render.print_html(status=404 if not man else 200)
+    pic = pif.form.get_str('pic')
     pdir = pif.form.get_str('dir')
     if pdir.startswith('./'):
 	pdir = pdir[2:]
@@ -519,7 +519,8 @@ def show_single(pif):
                 #content += '<a href="single.cgi?pic=%s&useprev=1">Use Prev</a><br>\n' % str(pic)
                 content += '<a href="%s&useprev=1">Use Prev</a><br>\n' % pif.request_uri
         content += '<br>\n'
-        for vf in pif.dbh.fetch_variation_files(mod_id):
+        vfl = pif.dbh.fetch_variation_files(mod_id)
+        for vf in vfl if vfl else [{'mod_id': mod_id, 'imported_from': 'importer'}]:
             content += '<a href="vedit.cgi?d=src/mbxf&m=%(mod_id)s&f=%(imported_from)s">%(imported_from)s</a><br>\n' % vf
         content += '<br>\n'
         content += '<br>\n'.join(var_pics) + '<p>'

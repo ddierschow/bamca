@@ -13,24 +13,27 @@ import useful
 
 '''
 A B D L R U W
-| X.01 | Packaging            | pub      |
-| X.02 | Catalogs             | pub      |
-| X.03 | Advertisements       | pub      |
-| X.11 | Series               | series   |
-| X.21 | Major Packs          | ks       |
-| X.22 | King Size            | ks       |
-| X.23 | Real Working Rigs    | ks       |
-| X.24 | Accessory Packs      | acc      |
-| X.31 | Models of Yesteryear | yy       |
-| X.41 | Buildings            | bld      |
-| X.61 | Presentation Sets    | pack     |
-| X.62 | Gift Sets            | pack     |
-| X.63 | 5-Packs              | pack     |
-| X.64 | Licensed 5-Packs     | pack     |
-| X.65 | 9- and 10-Packs      | pack     |
-| X.66 | Launchers            | pack     |
-| X.71 | Roadways             | pub      |
-| X.72 | Games and Puzzles    | pub      |
+| X.01 | Packaging             | pub      |
+| X.02 | Catalogs              | pub      |
+| X.03 | Advertisements        | pub      |
+| X.11 | Series                | series   |
+| X.21 | Early Lesney Toys     | ks       |
+| X.22 | Major Packs           | ks       |
+| X.23 | King Size             | ks       |
+| X.24 | Real Working Rigs     | ks       |
+| X.25 | Accessory Packs       | acc      |
+| X.31 | Models of Yesteryear  | yy       |
+| X.32 | Dinkys                | yy       |
+| X.33 | Matchbox Collectibles | yy       |
+| X.41 | Buildings             | bld      |
+| X.61 | Presentation Sets     | pack     |
+| X.62 | Gift Sets             | pack     |
+| X.63 | 5-Packs               | pack     |
+| X.64 | Licensed 5-Packs      | pack     |
+| X.65 | 9- and 10-Packs       | pack     |
+| X.66 | Launchers             | pack     |
+| X.71 | Roadways              | pub      |
+| X.72 | Games and Puzzles     | pub      |
 '''
 
 

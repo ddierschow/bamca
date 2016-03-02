@@ -53,11 +53,10 @@ var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'category', 'ar
 
 
 def parse_file(pif, vid, fdir, fn, args=''):
-    if fn in ('web', 'sql'):
+    print 'parse_file', vid, fdir, fn, args, pif.form, '<br>'
+    modids, fitabs = read_file(pif, vid, fdir, fn)
+    if not modids:
 	modids = [pif.form.get_str('m')]
-	fitabs = []
-    else:
-	modids, fitabs = read_file(pif, vid, fdir, fn)
     varfile = {
         'filename': fn,
         'stat': {IS_GOOD},
@@ -65,14 +64,6 @@ def parse_file(pif, vid, fdir, fn, args=''):
         'tabs': list(),
         'var_lup': dict(),
     }
-    if not modids:
-        varfile['stat'].add(IS_NO_MODEL)
-        return varfile
-
-    for arg in args.split(' '):
-        if '=' in arg:
-            ovar, nvar = arg.split('=')
-            varfile['var_lup'][ovar] = nvar
 
     mod = dict()
 
@@ -101,6 +92,15 @@ def parse_file(pif, vid, fdir, fn, args=''):
 	    if fitab['dbvars'][row]['imported_from'] == fn:
 		fitab['body'].append(fitab['dbvars'][row])
 	return varfile
+    if not modids:
+        varfile['stat'].add(IS_NO_MODEL)
+	print 'no model<br>'
+        return varfile
+
+    for arg in args.split(' '):
+        if '=' in arg:
+            ovar, nvar = arg.split('=')
+            varfile['var_lup'][ovar] = nvar
 
     for rawfitab in fitabs:
 	fitab = make_fitab()
@@ -142,6 +142,7 @@ def parse_file(pif, vid, fdir, fn, args=''):
                 continue
             rowd = dict(itertools.izip_longest(hdrs, row, fillvalue=""))
             nrow = vid.row_column_change(fn, rowd)
+	    nrow['var'] = mbdata.normalize_var_id(fitab['casting'], nrow['var'])
             if nrow.get('is_valid'):
                 fitab['body'].append(nrow)
 
@@ -796,8 +797,8 @@ def do_action(pif, mod_id):
     elif pif.form.has("save_casting"):
         print "save casting<br>"
         rec = dict()
-        for k in pif.form.keys(start='casting.'):
-            rec[k[8:]] = pif.form.get_str(k)
+	for k in tables.table_info['casting']['columns'] + tables.table_info['casting']['extra_columns']:
+            rec[k] = pif.form.get_str('casting.' + k)
         pif.dbh.write("casting", rec, {"id": pif.form.get_str("casting.id")})
 	pif.dbh.recalc_description(pif.form.get_str('casting.id'))
     elif pif.form.has("save"):

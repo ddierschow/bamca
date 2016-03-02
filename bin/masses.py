@@ -349,6 +349,7 @@ def add_var_ask(pif):
     print "Man ID:", pif.render.format_text_input("mod_id", 8, 8, value=pif.form.get_str('mod_id')), '<br>'
     print 'Var ID:', pif.render.format_text_input("var", 8, 8, value=''), '<br>'
     print 'Date:', pif.render.format_text_input("date", 8, 8, value=''), '<br>'
+    print 'Imported From:', pif.render.format_text_input("imported_from", 8, 8, value=''), '<br>'
     print pif.render.format_button_input('submit')
     print pif.render.format_hidden_input({'type': 'var'})
     print "</form>"
@@ -376,7 +377,14 @@ def add_var_info(pif):
 	print pif.render.format_hidden_input({'store': 'insert'})
 	var = {}
     print '<table class="tb">'
-    defs = {'mod_id': mod_id, 'var': var_id, 'flags': 0, 'manufacture': 'Thailand', 'imported_from': 'web', 'imported_var': var_id, 'date': pif.form.get_str('date')}
+    defs = {'mod_id': mod_id,
+	    'var': var_id,
+	    'flags': 0,
+	    'manufacture': 'Thailand',
+	    'imported_from': pif.form.get_str('imported_from'),
+	    'imported_var': var_id,
+	    'date': pif.form.get_str('date')
+    }
     for col in var_id_columns + [None] + var_attr_columns + attr_names + [None] + var_data_columns:
 	if col:
 	    val = var.get(col) if var.get(col) else defs.get(col, '')
