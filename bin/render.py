@@ -2,7 +2,7 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-import cgi, copy, glob, os, re, sys
+import cgi, copy, glob, httplib, os, re, sys
 import jinja2
 import config
 import javasc
@@ -365,8 +365,9 @@ class Presentation():
         if self.verbose:
             useful.dump_dict_comment(name, arg)
 
-    def print_html(self, content='text/html', cookie=None):
+    def print_html(self, content='text/html', cookie=None, status=200):
         print 'Content-Type:', content
+	print 'Status:', status, httplib.responses.get(status, '')
         self.print_cookie(cookie)
         print
 	if content == 'text/html':

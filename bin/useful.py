@@ -28,8 +28,9 @@ class Redirect(Exception):
 
 
 class SimpleError(Exception):
-    def __init__(self, value):
+    def __init__(self, value, status=404):
         self.value = value
+	self.status = status
 
     def __str__(self):
         return repr(self.value)

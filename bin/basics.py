@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import os, sys
+import httplib, os, sys
 import MySQLdb
 import useful
 
@@ -37,8 +37,9 @@ def write_traceback_file(pif):
     return str_tb
 
 
-def simple_html():
+def simple_html(status=404):
     print 'Content-Type: text/html\n\n'
+    print 'Status:', status, httplib.responses.get(status, '')
     print '<!--\n' + str(os.environ) + '-->'
     import useful
     useful.header_done()
@@ -225,7 +226,7 @@ def web_page(main_fn):
         except SystemExit:
             pass
 	except useful.SimpleError as e:
-	    simple_html()
+	    simple_html(status=e.status)
 	    print useful.render_template('error.html', error=[e.value], page={'tail':''})
             handle_exception(pif, True)
             return
@@ -248,7 +249,7 @@ def web_page(main_fn):
             pass
 	except useful.SimpleError as e:
 	    if not useful.is_header_done():
-		pif.render.print_html()
+		pif.render.print_html(status=e.status)
 	    print pif.render.format_template('error.html', error=[e.value])
 	except useful.Redirect as e:
 	    if not useful.is_header_done():
