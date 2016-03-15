@@ -128,7 +128,7 @@ def count_pack(pif):
     recs = pif.dbh.fetch_packs()
     count = 0
     count += count_combo_one_only(config.IMG_DIR_PACK, [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_PETITE, mbdata.IMG_SIZ_MEDIUM], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_PACK, [mbata.IMG_SIZ_LARGE, mbdata.IMG_SIZ_HUGE], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_PACK, [mbdata.IMG_SIZ_LARGE, mbdata.IMG_SIZ_HUGE], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
@@ -136,7 +136,7 @@ def count_pack(pif):
 def count_man(pif):
     recs = pif.dbh.fetch_casting_list()
     count = 0
-    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbata.IMG_SIZ_LARGE, 'z'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE, 'z'], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_ADD, ['a', 'b', 'e', 'i', 'p', 'r'], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_ICON, ['i'], [x['base_id.id'].lower() for x in recs], [''])
     return count
