@@ -240,7 +240,7 @@ def do_single_pack(pif, pack):
             if related['pack.country']:
                 ostr += ' - Made in ' + mbdata.get_country(related['pack.country'])
             if related['pack.material']:
-                ostr += ' - ' + materials.get(related['pack.material'], '')
+                ostr += ' - ' + mbdata.materials.get(related['pack.material'], '')
             if related['base_id.description']:
                 ostr += ' - ' + related['base_id.description']
         ostr += '</ul>\n'
@@ -303,12 +303,6 @@ def distill_models(pif, pack, page_id):
     return pmodels
 
 
-materials = {
-    'C': 'cardboard',
-    'T': 'plastic tube',
-    'S': 'square plastic tube',
-    '': 'unknown',
-}
 #'columns': ['id', 'page_id', 'section_id', 'name', 'first_year', 'region', 'layout', 'product_code', 'material', 'country'],
 def show_pack(pif, pack, picsize):
     ostr = pif.render.format_image_required(pack['id'], largest=picsize)
@@ -317,7 +311,7 @@ def show_pack(pif, pack, picsize):
     else:
         ostr = '<a href="upload.cgi">%s</a>' % (ostr)
     pack['country'] = mbdata.get_country(pack['country'])
-    pack['material'] = materials.get(pack['material'], '')
+    pack['material'] = mbdata.materials.get(pack['material'], '')
     if pack['product_code']:
         ostr += '<br>' + pack['product_code']
     if pack['region']:

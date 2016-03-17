@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import os, re, urllib2
+import os, re, urllib2, urlparse
 import basics
 import config
 import editor
@@ -17,7 +17,10 @@ def mass(pif):
     pif.render.print_html()
     pif.restrict('am')
     print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.toggle_display_js)
-    mass_mains.get(pif.form.get_str('type'), mass_main)(pif)
+    mass_type = pif.form.get_str('type')
+    print mass_type, '<br>'
+    #print pif.form, '<hr>'
+    dict(mass_mains_list).get(mass_type, mass_mains_hidden.get(mass_type, mass_main))(pif)
     print pif.render.format_tail()
 
 
@@ -58,11 +61,7 @@ def mass_ask(pif):
     print '<input type="hidden" name="verbose" value="1">'
     print pif.render.format_button_input()
     print "</form>"
-    print pif.render.format_button('lineup', link='?type=lineup')
-    print pif.render.format_button('manno', link='?type=manno')
-    print pif.render.format_button('var', link='?type=var')
-    print pif.render.format_button('related', link='?type=related')
-    print pif.render.format_button('pack', link='?type=pack')
+    mass_sections(pif)
 
 
 def mass_select(pif):
@@ -275,12 +274,12 @@ def add_lineup_list(pif):
     print "</form>"
 
 
-# ------- add manno -----------------------------------------------
+# ------- add casting ---------------------------------------------
 
 
-def add_manno_main(pif):
+def add_casting_main(pif):
     if pif.form.has('save'):
-        add_manno_final(pif)
+        add_casting_final(pif)
     print "<form>"
     print "ID:"
     print pif.render.format_text_input("id", 8, 8, value='')
@@ -302,12 +301,14 @@ def add_manno_main(pif):
     print pif.render.format_select('section_id', [(x['section.id'], x['section.name']) for x in pif.dbh.fetch_sections(where="page_id like 'man%'")], selected=pif.form.get_str('section_id'))
 
     print pif.render.format_button_input('save')
-    print pif.render.format_hidden_input({'type': 'manno'})
+    print pif.render.format_hidden_input({'type': 'casting'})
     print "</form>"
 
 
-def add_manno_final(pif):
+def add_casting_final(pif):
     print pif.form.get_form(), '<br>'
+    if pif.dbh.fetch_base_id(pif.form.get_str('id')):
+	raise useful.SimpleError("That ID is already in use.")
 # base_id: id, first_year, model_type, rawname, description, flags
 # casting: id, country, make, section_id
     print pif.dbh.add_new_base_id({
@@ -324,6 +325,58 @@ def add_manno_final(pif):
 	'make': pif.form.get_str('make'),
 	'section_id': pif.form.get_str('section_id'),
 	'notes': '',
+    })
+    print '<br>'
+
+
+# ------- add pub -------------------------------------------------
+
+
+def add_pub_main(pif):
+    if pif.form.has('save'):
+        add_pub_final(pif)
+    print "<form>"
+    print "ID:"
+    print pif.render.format_text_input("id", 8, 8, value='')
+    print '<br>Year:'
+    print pif.render.format_text_input("year", 4, 4, value=pif.form.get_str('year'))
+    print '<br>Model Type:'
+    #pif.dbh.fetch_base_id_model_types()
+    print pif.render.format_select('model_type', sorted(mbdata.model_type_names.items()), selected='BK')
+    print '<br>Name:'
+    print pif.render.format_text_input("rawname", 80, 80, value='')
+    print '<br>Description:'
+    print pif.render.format_text_input("description", 80, 80, value='')
+    print '<br>Made:' # flags = pif.dbh.FLAG_MODEL_NOT_MADE
+    print pif.render.format_checkbox('notmade', [('not', 'not')])
+    print '<br>Country:'
+    print pif.render.format_select_country('country')
+#    print '<br>Section:'
+#    print pif.render.format_select('section_id', [(x['section.id'], x['section.name']) for x in pif.dbh.fetch_sections(where="page_id like 'man%'")], selected=pif.form.get_str('section_id'))
+
+    print pif.render.format_button_input('save')
+    print pif.render.format_hidden_input({'type': 'pub'})
+    print "</form>"
+
+
+def add_pub_final(pif):
+    print pif.form.get_form(), '<br>'
+    if pif.dbh.fetch_base_id(pif.form.get_str('id')):
+	raise useful.SimpleError("That ID is already in use.")
+# base_id: id, first_year, model_type, rawname, description, flags
+# publication: id, country, section_id
+    print pif.dbh.add_new_base_id({
+	'id': pif.form.get_str('id'),
+	'first_year': pif.form.get_str('year'),
+	'model_type': pif.form.get_str('model_type'),
+	'rawname': pif.form.get_str('rawname'),
+	'description': pif.form.get_str('description'),
+	'flags': pif.dbh.FLAG_MODEL_NOT_MADE if pif.form.get_str('notmade') == 'not' else 0,
+    })
+    print pif.dbh.add_new_publication({
+	'id': pif.form.get_str('id'),
+	'country': pif.form.get_str('country'),
+	'section_id': pif.form.get_str('model_type').lower(),
     })
     print '<br>'
 
@@ -745,17 +798,195 @@ def add_pack_save(pif):
     print pif.render.format_link("packs.cgi?page=%s&id=%s" % (pif.form.get_str('pack.section_id'), pif.form.get_str('pack.id')), "pack")
 
 
+# ------- links ----------------------------------------------------
+
+def add_links(pif):
+    asslinks = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)
+    if pif.form.has('save'):
+        add_links_final(pif)
+    elif pif.form.has('url'):
+        add_links_scrape(pif)
+    else:
+        print "<form>"
+        print "URL to scrape:"
+        print pif.render.format_text_input("url", 256, 80, value='')
+        print '<br>'
+        print "Section ID:"
+        print pif.render.format_text_input("section_id", 256, 80, value='single')
+        print '<br>'
+        print "Associated Link:"
+	print pif.render.format_select('associated_link', [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in asslinks])
+        print '<br>'
+        print pif.render.format_button_input()
+        print pif.render.format_hidden_input({'type': 'links'})
+        print "</form><p>"
+	for lnk in asslinks:
+	    print lnk['link_line.id'], pif.render.format_link(lnk['link_line.url'], lnk['link_line.name']), '<br>'
+	    #print lnk, '<br>'
+
+	print pif.render.format_link('http://www.mbx-u.com/Search_Models_Process.php?UMID_1=LR001&UMID_2=LR999'), '<br>'
+	print pif.render.format_link('http://www.mbx-u.com/Search_Models_Process.php?UMID_1=SF0001&UMID_2=SF9999'), '<br>'
+
+#-----------------+--------------+------+-----+---------+----------------+
+# Field           | Type         | Null | Key | Default | Extra          |
+#-----------------+--------------+------+-----+---------+----------------+
+# id              | int(11)      | NO   | PRI | NULL    | auto_increment |
+# page_id         | varchar(20)  | NO   |     |         |                |
+# section_id      | varchar(20)  | YES  |     |         |                |
+# display_order   | int(3)       | YES  |     | 0       |                |
+# flags           | int(11)      | YES  |     | 0       |                |
+# associated_link | int(11)      | YES  |     | 0       |                |
+# last_status     | varchar(5)   | YES  |     | NULL    |                |
+# link_type       | varchar(1)   | YES  |     |         |                |
+# country         | varchar(2)   | YES  |     |         |                |
+# url             | varchar(256) | YES  |     |         |                |
+# name            | varchar(128) | YES  |     |         |                |
+# description     | varchar(512) | YES  |     |         |                |
+# note            | varchar(256) | YES  |     |         |                |
+#-----------------+--------------+------+-----+---------+----------------+
+# 8412 | single.MB897  | single     |             7 |     0 |               7 | 200         | l         |         | http://www.areh.de/HTML/Bas1142.html | Blaze Blaster(2013)                               |             |      |
+# 8413 | single.MB899  | single     |             7 |     0 |               7 | 200         | l         |         | http://www.areh.de/HTML/Bas1144.html | Questor(2013)                                     |             |      |
+
+
+def_re_str = '''<a\s+href=['"](?P<u>[^'"]*)['"].*?>(?P<t>.*?)</a>'''
+site_re_str = {
+    7: '''<option value="(?P<u>[^'"]*)">(?P<t>.*?)</option>'''
+}
+def add_links_parse(pif, site, url, data):
+    return re.compile(site_re_str.get(site, def_re_str), re.I | re.M | re.S).findall(useful.url_fetch(url, data))
+
+ml_re = re.compile('''<.*?>''', re.M|re.S)
+def add_links_scrape_site(pif, url, site, lnk, txt):
+    page_id = ''
+    if ((site == 14 and 'list.php' in lnk or 'index.php' in lnk) or
+	    lnk.startswith('mailto:') or
+	    0):
+	return '', {}
+
+    txt = txt.strip()
+    if site == 6:
+	txt = ml_re.sub('', txt)
+	if not txt:
+	    return '', {}
+    elif site == 8:
+	txt = ml_re.sub('', txt)
+    elif site == 10:
+	txt = ml_re.sub('', txt)
+	if not txt:
+	    return '', {}
+    elif site == 14:
+	txt = lnk[lnk.rfind('=') + 1:]
+    else:
+	txt = txt.replace('<', '[').replace('>', ']')
+
+    if site == 7:
+	lnk = lnk[5:] if lnk.startswith('Data_') else lnk
+
+    if site == 14 and 'showcar.php' in lnk:
+	page_id = 'single.MB' + txt
+
+    full_link = urlparse.urljoin(url, lnk)
+    dat = {
+	'page_id': page_id,
+	'section_id': pif.form.get_str('section_id'),
+	'flags': '0',
+	'associated_link': site,
+	'country': '',
+	'name': txt,
+	'description': '',
+	'note': '',
+    }
+    return full_link, dat
+
+link_fields = ['page_id', 'name']
+link_field_widths = {
+	    'page_id': 12,
+	    #'section_id': 6,
+	    #'flags': 2,
+	    #'associated_link': 2,
+	    #'country': 2,
+	    'name': 40,
+	    #'description': 20,
+	    #'note': 20
+}
+def add_links_scrape(pif):
+    print '<form method="post">'
+    #print pif.render.format_hidden_input({'type': 'links'})
+    url = pif.form.get_str('url')
+    site = pif.form.get_int('associated_link')
+
+    data = None
+    if site == 15:
+	urlp = urlparse.urlparse(url)
+	url = urlparse.urlunparse(urlp[:3] + ('', '', ''))
+	data = urlparse.parse_qs(urlp.query)
+    print site, url, data, '<br>'
+    print useful.url_fetch(url, data)
+    return
+
+    print pif.render.format_table_start()
+    print pif.render.format_row_start()
+    print pif.render.format_cell(0, 'url')
+    for field in link_fields:
+	print pif.render.format_cell(0, field)
+    print pif.render.format_row_end()
+    #print pif.render.format_hidden_input({'associated_link': site})
+    found = 0
+    cnt = 1
+
+    for lnk, txt in add_links_parse(pif, site, url, data):
+	full_link, dat = add_links_scrape_site(pif, url, site, lnk, txt)
+	if not full_link:
+	    continue
+	if pif.dbh.fetch_link_line_url(full_link):
+	    found += 1
+	    continue
+	cnts = str(cnt)
+	print pif.render.format_row_start()
+	print pif.render.format_cell(1, pif.render.format_link(full_link))
+	print pif.render.format_hidden_input({'url.' + cnts: full_link})
+	for field in link_fields:
+	    print pif.render.format_cell(0, pif.render.format_text_input(field + '.' + cnts, 256, link_field_widths[field], dat[field]))
+	print pif.render.format_row_end()
+	cnt += 1
+    print pif.render.format_table_end()
+    print pif.render.format_button_input('save')
+    print found, "found and dropped"
+    print "</form>"
+
+def add_links_final(pif):
+    #print pif.form, '<hr>'
+    site = pif.form.get_int('associated_link')
+    # cheating: leaving the dot off here removes it from the get_dict call.
+    for key in pif.form.roots(start='page_id'):
+	link_vals = pif.form.get_dict(end=key)
+	link_vals.update({'display_order': site,
+	    'section_id': 'single', 'flags': 0, 'country': '', 'description': '',
+	    'associated_link': site, 'page_id': 'single.' + link_vals['page_id'],
+	    'note': '', 'last_status': None, 'link_type': 'l'})
+	print link_vals
+	print pif.dbh.insert_link_line(link_vals)
+        print '<br>'
+
 # ------- ----------------------------------------------------------
 
+mass_mains_list = [
+    ('lineup', add_lineup_main),
+    ('casting', add_casting_main),
+    ('pub', add_pub_main),
+    ('var', add_var_main),
+    ('related', edit_casting_related),
+    ('pack', add_pack),
+    ('links', add_links),
+]
 
-mass_mains = {
-    'lineup': add_lineup_main,
+mass_mains_hidden = {
     'lineup_desc': lineup_desc_main,
-    'manno': add_manno_main,
-    'var': add_var_main,
-    'related': edit_casting_related,
-    'pack': add_pack,
 }
+
+def mass_sections(pif):
+    for section in mass_mains_list:
+	print pif.render.format_button(section[0], link='?type=' + section[0])
 
 
 if __name__ == '__main__':  # pragma: no cover

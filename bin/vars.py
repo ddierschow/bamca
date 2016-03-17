@@ -32,14 +32,14 @@ def single_variation(pif, man, var_id):
 
     content = pif.render.format_link('vars.cgi?mod=%s' % mod_id, "See All") + '<br>'
     if pif.is_allowed('a'):  # pragma: no cover
-        content += ' - ' + pif.render.format_link('vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id), "Delete") + '<br>'
+        #content += pif.render.format_link('vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id), "Delete") + '<br>'
         content += pif.render.format_link('vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var_id), "Edit") + '<br>'
         content += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1' % (os.path.join(config.LIB_MAN_DIR, mod_id.lower()), mod_id, var_id), "Pictures") + '<br>'
-        content += pif.render.format_link('?mod=%s&var=%s&rmpic=1' % (mod_id, var_id), "Remove Pictures") + '<br>'
+        #content += pif.render.format_link('?mod=%s&var=%s&rmpic=1' % (mod_id, var_id), "Remove Pictures") + '<br>'
         content += pif.render.format_link(pif.dbh.get_editor_link('casting', {'id': mod_id}), "Casting") + '<br>'
         content += pif.render.format_link('?recalc=1&mod=%s' % mod_id, "Recalc") + '<br>'
     if pif.is_allowed('u'):  # pragma: no cover
-        content += ' - ' + pif.render.format_link('upload.cgi?d=' + os.path.join(config.LIB_MAN_DIR, mod_id.lower()), "Upload") + '<br>'
+        content += pif.render.format_link('upload.cgi?d=' + os.path.join(config.LIB_MAN_DIR, mod_id.lower()), "Upload") + '<br>'
     #content += pif.render.format_link(pif, 'man=%s&var=%s' % (id, var_id))
     print models.add_left_bar(pif, '', man['id'], man['vehicle_type'], 4, content)
     print models.add_banner(pif, pif.render.title)

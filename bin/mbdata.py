@@ -197,7 +197,30 @@ categories = {
 code2_categories = ['ASAP', 'C2', 'CCI', 'CQ', 'NC', 'WR', 'YF']
 
 
-casting_types = {
+model_type_names = {
+    'AC': 'Accessory',
+    'ET': 'Early toy',
+    'KS': 'King size',
+    'RW': 'Regular wheel',
+    'SB': 'Sky Buster',
+    'SF': 'Superfast',
+    'BR': 'Budget Range',
+    'YY': 'YesterYear',
+    'PS': 'Playset',
+    'CC': 'Carrying Case',
+    'PK': 'Packaging',
+    'PC': 'Pocket Catalog',
+    'DC': 'Dealer Catalog',
+    'RY': 'Roadway',
+    'PZ': 'Puzzle',
+    'BK': 'Book',
+    'AD': 'Ad',
+    'MP': 'Multipack',
+    'SE': 'Series',
+    'LI': 'Lineup',
+}
+
+model_types = {
     'AC': 'Casting',           # Accessory
     'ET': 'Casting',           # Early toy
     'KS': 'Casting',           # King size
@@ -437,7 +460,7 @@ image_size_sizes = [(100,  60), (200, 120), (300, 180), (400, 240), (600, 360), 
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
 model_type_chars = "aob2e1r4uztv59cidjgfmpl8hx"
-model_types = {
+vehicle_types = {
         "a": "aircraft",
         "o": "boat",
         "b": "bus",
@@ -509,6 +532,17 @@ comment_designation = {
 
 
 packsize = {'2': '2', '3': '3', '4': '4', '5': '5', '8': '8', 't': '10', 'w': '20'}
+
+
+materials = {
+    'B': 'blisterpack',
+    'C': 'cardboard',
+    'S': 'square plastic tube',
+    'T': 'plastic tube',
+    'W': 'window box',
+    'X': 'box',
+    '': 'unknown',
+}
 
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')

@@ -450,10 +450,10 @@ class MannoFile:
         mdict['name'] = mdict['id'] + '<br>' + mdict['rawname']
         mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'])
         mdict['sel'] = pif.render.format_checkbox('vt_' + mdict['id'],
-                [[x, mbdata.model_types[x]] for x in list(mbdata.model_type_chars[:13])],
+                [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:13])],
                 checked=mdict['vehicle_type']) + '<br>'
         mdict['sel'] += pif.render.format_checkbox('vt_' + mdict['id'],
-                [[x, mbdata.model_types[x]] for x in list(mbdata.model_type_chars[13:])],
+                [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[13:])],
                 checked=mdict['vehicle_type']) + '<br>'
         mdict['sel'] += 'make: ' + pif.render.format_text_input('vm_' + mdict['id'], 3, 3, value=mdict['make'])
         mdict['sel'] += 'country: ' + pif.render.format_text_input('co_' + mdict['id'], 2, 2, value=mdict['country'])

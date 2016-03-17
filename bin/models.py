@@ -12,6 +12,7 @@ arts = {
         'Real Talkin': 'realtalkin-sm.gif',
         'D.A.R.E.': 'dare-sm.gif',
         'Caterpillar': 'caterpillar-sm.gif',
+        'Auto Steer': 'autosteer-sm.gif',
 }
 flago = mflags.FlagList()
 
@@ -97,27 +98,24 @@ def generate_model_table_pic_link_dict(pif, mdict, mlist):
 def add_model_table_product_link(pif, mdict):
     pif.render.comment('add_model_table_product_link', mdict)
 
-    ostr = ''
-    if mdict.get('anchor'):
-        ostr += '<a name="%s"></a>' % mdict['anchor']
-
-    ostr += '<center><table width="100%"><tr><td width="40%">'
+    ostr = pif.render.fmt_anchor(mdict.get('anchor'))
+    ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
     if mdict.get('no_casting'):
-        ostr += pif.render.format_image_art('stargreen.gif', also={'align': 'left'})
+        ostr += pif.render.format_image_art('stargreen.gif')
     elif not mdict.get('picture_only'):
         if mdict.get('no_specific_image'):
-            ostr += pif.render.format_image_art('star.gif', also={'align': 'left'})
+            ostr += pif.render.format_image_art('star.gif')
         if mdict.get('no_variation'):
-            ostr += pif.render.format_image_art('starred.gif', also={'align': 'left'})
-    ostr += '</td><td width="20%" style="text-align: center;">'
+            ostr += pif.render.format_image_art('starred.gif')
+    ostr += '</td><td class="modelnumber">'
     ostr += mdict['displayed_id']
-    ostr += '</td><td width="40%">'
+    ostr += '</td><td class="modelicons">'
     if mdict.get('not_made'):
-        ostr += pif.render.format_image_art('no.gif', also={'align': 'right'})
+        ostr += pif.render.format_image_art('no.gif')
     if mdict.get('is_reused_product_picture'):  # pragma: no cover
-        ostr += pif.render.format_image_art('staryellow.gif', also={'align': 'right'})
+        ostr += pif.render.format_image_art('staryellow.gif')
     if mdict.get('is_product_picture'):
-        ostr += pif.render.format_image_art('camera.gif', also={'align': 'right'})
+        ostr += pif.render.format_image_art('camera.gif')
     ostr += '</td></tr></table>\n'
 
     if mdict.get('show_vars'):

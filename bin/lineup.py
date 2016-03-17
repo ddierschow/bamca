@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, os, sys
+import copy, os, re, sys
 import basics
 import bfiles
 import config
@@ -11,30 +11,34 @@ import models
 import useful
 
 
-'''
-A B D L R U W
-| X.01 | Packaging             | pub      |
-| X.02 | Catalogs              | pub      |
-| X.03 | Advertisements        | pub      |
-| X.11 | Series                | series   |
-| X.21 | Early Lesney Toys     | ks       |
-| X.22 | Major Packs           | ks       |
-| X.23 | King Size             | ks       |
-| X.24 | Real Working Rigs     | ks       |
-| X.25 | Accessory Packs       | acc      |
-| X.31 | Models of Yesteryear  | yy       |
-| X.32 | Dinkys                | yy       |
-| X.33 | Matchbox Collectibles | yy       |
-| X.41 | Buildings             | bld      |
-| X.61 | Presentation Sets     | pack     |
-| X.62 | Gift Sets             | pack     |
-| X.63 | 5-Packs               | pack     |
-| X.64 | Licensed 5-Packs      | pack     |
-| X.65 | 9- and 10-Packs       | pack     |
-| X.66 | Launchers             | pack     |
-| X.71 | Roadways              | pub      |
-| X.72 | Games and Puzzles     | pub      |
-'''
+# A B D L R U W
+# X.01 | Packaging              | pub      |
+# X.02 | Catalogs               | pub      |
+# X.03 | Advertisements         | pub      |
+# X.11 | Series                 | series   |
+# X.21 | Early Lesney Toys      | ks       |
+# X.22 | Major Packs            | ks       |
+# X.23 | King Size              | ks       |
+# X.24 | Real Working Rigs      | ks       |
+# X.31 | Models of Yesteryear   | yy       |
+# X.32 | Dinkys                 | yy       |
+# X.33 | Matchbox Collectibles  | yy       |
+# X.34 | Giftware               | yy       |
+# X.41 | Accessory Packs        | acc      |
+# X.51 | Buildings              | ps       |
+# X.52 | Playsets               | ps       |
+# X.53 | Carrying Cases         | cc       |
+# X.61 | Presentation Sets      | pack     |
+# X.62 | Gift Sets              | pack     |
+# X.63 | 5-Packs                | pack     |
+# X.64 | Licensed 5-Packs       | pack     |
+# X.65 | 9- and 10-Packs        | pack     |
+# X.66 | Launchers              | pack     |
+# X.67 | 3-Packs                | pack     |
+# X.68 | 2-Packs and Twin Packs | pack     |
+# X.71 | Roadways               | pub      |
+# X.72 | Games and Puzzles      | pub      |
+# X.73 | Books                  | pub      |
 
 
 def ver_no(rank):
@@ -44,6 +48,7 @@ def ver_no(rank):
 # -------- lineup ----------------------------------
 
 
+id_re = re.compile('(?P<a>[a-zA-Z]+)(?P<n>\d+)')
 def calc_lineup_model(pif, mdict, comments):
 
     pif.render.comment('calc_lineup_model', mdict)
@@ -63,7 +68,7 @@ def calc_lineup_model(pif, mdict, comments):
         mdict['flags'] = 0
     mdict['made'] = not (mdict['flags'] & pif.dbh.FLAG_MODEL_NOT_MADE)
     mdict['notmade'] = {True: '', False: '*'}[mdict['made']]
-    mdict['casting_type'] = mbdata.casting_types.get(mdict.get('model_type', 'SF'), 'Casting')
+    mdict['casting_type'] = mbdata.model_types.get(mdict.get('model_type', 'SF'), 'Casting')
     mdict['name'] = mdict['lineup_model.name']
     mdict['mod_id'] = mdict['lineup_model.mod_id']
     mdict['ref_id'] = mdict['vs.ref_id']
@@ -107,6 +112,7 @@ def calc_lineup_model(pif, mdict, comments):
 
     if mdict['casting.id']:
         # modify this if rank_id exists
+	mdict['prod_id'] = mdict['casting.id']
         if mdict['lineup_model.picture_id']:
             #mdict['product'] = mdict['lineup_model.picture_id']
             mdict['product'] = mdict['lineup_model.picture_id'].replace('w', mdict['region'].lower())
@@ -118,6 +124,7 @@ def calc_lineup_model(pif, mdict, comments):
             comments.add('c')
         mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sub=%(sub_id)s&id=%(mod_id)s" % mdict
     elif mdict['pack.id']:
+	mdict['prod_id'] = mdict['pack.id']
         if mdict['lineup_model.picture_id']:
             mdict['product'] = mdict['lineup_model.picture_id']
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
@@ -128,12 +135,14 @@ def calc_lineup_model(pif, mdict, comments):
             comments.add('c')
         mdict['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(pack.id)s" % mdict
     elif mdict['publication.id']:
+	mdict['prod_id'] = mdict['publication.id']
         mdict['product'] = mdict['publication.id'] + '_01'
         if pif.render.format_image_sized([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
             mdict['is_product_picture'] = 1
             comments.add('c')
         mdict['href'] = "pub.cgi?id=%(publication.id)s" % mdict
     elif mdict['page_info.id']:
+	mdict['prod_id'] = mdict['page_info.id']
         mdict['product'] = mdict['page_info.id'].replace('.', '_')
         mdict['href'] = "matrix.cgi?page=" + mdict['mod_id'][7:]
 	if mdict['lineup_model.picture_id']:
@@ -142,9 +151,12 @@ def calc_lineup_model(pif, mdict, comments):
 
     mdict['large_img'] = pif.render.format_image_required(mdict['product'], suffix='jpg', pdir=mdict['pdir'], also={'class': 'largepic'})
 
-    if not mdict.get('disp_format') or not mdict.get('shown_id'):
-        mdict['displayed_id'] = '&nbsp;'
-    else:
+    mdict['displayed_id'] = '&nbsp;'
+    if 'ID' in mdict.get('disp_format'):
+	id_m = id_re.match(mdict['prod_id'])
+	if id_m:
+	    mdict['displayed_id'] = mdict['disp_format'].replace('ID', '%s-%d' % (id_m.group('a'), int(id_m.group('n'))))
+    elif mdict.get('disp_format') and mdict.get('shown_id'):
         mdict['displayed_id'] = mdict['disp_format'] % (mdict['shown_id'])
     mdict['upload_link'] =  pif.render.format_link('upload.cgi?d=%s&n=%s' % (mdict['pdir'], mdict['product']), mdict['large_img'])
     return mdict
@@ -505,7 +517,7 @@ def show_section(pif, lran, mods, lup_region, year, comments):
 def run_file(pif, region, year, section_types):
     pif.render.comment('lineup.run_file', region, year, section_types)
     lup_region, year = correct_region(region, year)
-    llineup = {'id': lup_region, 'section': [], 'name': '', 'tail': []}
+    llineup = {'id': 'year', 'section': [], 'name': '', 'tail': []}
 
     lup_region, lsec, secs, xsecs = get_man_sections(pif, year, lup_region)
     if not lup_region:
@@ -830,7 +842,7 @@ def show_text_lineup_main(pif, mdict, verbose=0):
             mdict['flags'] = 0
         mdict['made'] = not (mdict['flags'] & pif.dbh.FLAG_MODEL_NOT_MADE)
         mdict['notmade'] = {True: '', False: '*'}[mdict['made']]
-        mdict['casting_type'] = mbdata.casting_types.get(mdict.get('model_type', 'SF'), 'Casting')
+        mdict['casting_type'] = mbdata.model_types.get(mdict.get('model_type', 'SF'), 'Casting')
 
         imglist = []
         mdict['varlist'] = []

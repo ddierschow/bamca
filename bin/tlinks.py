@@ -437,7 +437,7 @@ def edit_single(pif):
     if not links:
 	raise useful.SimpleError("That ID wasn't found.")
     link = links[0]
-    asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.fetch_link_lines(where="flags & %s" % pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)]
+    asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)]
     ostr = pif.render.format_table_start()
     ostr += '<form>\n<input type="hidden" name="o_id" value="%s">\n' % link['link_line.id']
     descs = pif.dbh.describe_dict('link_line')
@@ -497,9 +497,9 @@ def edit_multiple(pif):
     page_id = ''
     sec_id = pif.form.get_str('sec', '')
     if pif.form.get_bool('as'):
-        linklines = pif.dbh.fetch_link_lines(where="flags&%d" % pif.dbh.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
+        linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
     elif sec_id == 'new':
-        linklines = pif.dbh.fetch_link_lines(where="flags&%d" % pif.dbh.FLAG_LINK_LINE_NEW)
+        linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_NEW)
     elif sec_id == 'nonf':
         linklines = pif.dbh.fetch_link_lines(where="last_status != '200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
     elif sec_id:

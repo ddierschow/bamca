@@ -391,7 +391,7 @@ class DBHandler:
         mod['descs'] = filter(lambda x: x, mod['description'].split(';'))
         mod['iconname'] = self.icon_name(mod.get('rawname', ''))
         mod['shortname'] = self.short_name(mod.get('rawname', ''))
-        mod['casting_type'] = mbdata.casting_types.get(mod.get('model_type', 'SF'), 'Casting')
+        mod['casting_type'] = mbdata.model_types.get(mod.get('model_type', 'SF'), 'Casting')
         return mod
 
     #- casting_related
@@ -815,7 +815,12 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         link = self.dbi.select('link_line', where="id='%s'" % id)
 	return link[0] if link else None
 
-    def fetch_link_lines(self, page_id=None, section=None, where=None, order=None):
+    def fetch_link_line_url(self, url):
+	# turn this into a fetch
+        link = self.dbi.select('link_line', where="url='%s'" % url)
+	return link[0] if link else None
+
+    def fetch_link_lines(self, page_id=None, section=None, where=None, flags=None, order=None):
         wheres = list()
         if where:
             wheres.append(where)
@@ -823,6 +828,8 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             wheres.append("page_id='" + page_id + "'")
         if section:
             wheres.append("section_id='" + section + "'")
+	if flags:
+	    wheres.append("flags & %s" % flags)
         return self.fetch('link_line', where=" and ".join(wheres), order=order, tag='LinkLines')
 
     def fetch_links_single(self, page_id=None):
@@ -845,6 +852,9 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     def fetch_publications(self):
         return self.fetch('publication,base_id', where="base_id.id=publication.id", tag='Publications')
+
+    def add_new_publication(self, values):
+        return self.write('publication', values=values, newonly=True, tag='AddNewPublication', verbose=True)
 
     #- pack
 
@@ -1064,6 +1074,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
     # *attr = value attr
     # =attr = attr value
     # &attr = value
+    # @attr1/attr2/attr3 = *attr1, *attr2 if different, else &attr1+attr3 -- not implemented
     # ^prepend = prepended text
     # +append = appended text
     # #default if value is blank
@@ -1105,6 +1116,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	    attr_name = None
 	return attr_name, fmt, default, fmt_prepend, fmt_append, is_opt
 
+    # TODO: make front wheels / rear wheels combine when they are the same.
     def recalc_description(self, mod_id, showtexts=False, verbose=False):
 	cols = ['description', 'body', 'base', 'wheels', 'interior', 'windows']
 

@@ -139,7 +139,16 @@ class BaseForm:
 	return ret
 
     def keys(self, start='', end='', has=''):
-        return filter(lambda x: x.startswith(start) and x.endswith(end) and has in x, self.form.keys())
+	return [x for x in self.form.keys() if (x.startswith(start) and x.endswith(end) and has in x)]
+        #return filter(lambda x: x.startswith(start) and x.endswith(end) and has in x, self.form.keys())
+
+    def roots(self, start='', end='', has=''):
+	if end:
+	    return [x[len(start):-len(end)] for x in self.keys(start, end, has)]
+	return [x[len(start):] for x in self.keys(start, end, has)]
+
+    def get_dict(self, start='', end=''):
+	return {key[len(start):-len(end)]: self.get_str(key) for key in self.keys(start=start, end=end)}
 
     def find(self, field):
         keys = list()
@@ -231,7 +240,7 @@ class PageInfoFile:
 #	useful.write_comment('page_id: %s' % str(self.page_id))
 #	useful.write_comment('page_info: %s' % str(page_info))
 	if not page_info:
-	    raise useful.SimpleError('Your request is incorrect (bad page id).  Please try something else.')
+	    raise useful.SimpleError('Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id)
         self.render.set_page_info(page_info)
         self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_NOT_RELEASED) != 0
         self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
@@ -259,7 +268,8 @@ class PageInfoFile:
 		self.dbh.increment_counter(self.page_id)
 		self.log.count.info(self.page_id)
 		self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
-		self.log.debug.info(os.getenv('HTTP_USER_AGENT'))
+		if os.getenv('HTTP_USER_AGENT'):
+		    self.log.debug.info(os.getenv('HTTP_USER_AGENT'))
 		refer = os.environ.get('HTTP_REFERER', '')
 		if refer and not refer.startswith('http://www.bamca.org') and \
 			     not refer.startswith('http://bamca.org') and \

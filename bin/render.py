@@ -2,7 +2,7 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-import cgi, copy, glob, httplib, os, re, sys
+import cgi, copy, glob, httplib, logging, os, re, sys, urllib
 import jinja2
 import config
 import javasc
@@ -347,6 +347,8 @@ class Presentation():
             pdir = self.art_dir
         but_image = self.find_image_path(image, suffix='gif', pdir=pdir, art=True)
         hov_image = self.find_image_path(hover, suffix='gif', pdir=pdir, art=True)
+	if not but_image and name != 'unittest':
+	    logging.getLogger('debug').info('no button image: %s' % image)
         return name, but_image, hov_image
 
     # immediate effect functions.
@@ -615,7 +617,9 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
 
-    def format_link(self, url, txt, args={}, nstyle=None, also={}):
+    def format_link(self, url, txt=None, args={}, nstyle=None, also={}):
+	if txt is None:
+	    txt = url
         txt = self.fmt_pseudo(txt)
         ostr = ''
         if nstyle:
@@ -626,6 +630,8 @@ of Matchbox International Ltd. and are used with permission.
                 url += '&' + args
             else:
                 url += '?' + args
+	#url = urllib.quote(url)
+	url = url.replace('"', '%22')
         if not url and not also:
             ostr += txt
         elif not url:
@@ -713,8 +719,7 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_button_input_paste(self, id):
-        but_image = self.find_image_path('but_paste', suffix='gif', art=True)
-        hov_image = self.find_image_path('hov_paste', suffix='gif', art=True)
+	name, but_image, hov_image = self.find_button_images('paste')
         also = {'src': '../' + but_image,
                 #'id': id + '_l',
                 #'value': 'paste',
@@ -732,8 +737,7 @@ of Matchbox International Ltd. and are used with permission.
             fname = 'collapse'
         #image = self.art_loc('but_' + fname + '.gif')
         #hover = self.art_loc('hov_' + fname + '.gif')
-        but_image = self.find_image_path('but_' + fname, suffix='gif', art=True)
-        hov_image = self.find_image_path('hov_' + fname, suffix='gif', art=True)
+	name, but_image, hov_image = self.find_button_images(fname)
         also = {'src': '../' + but_image,
                 'id': id + '_l',
                 'value': fname,
@@ -756,7 +760,7 @@ of Matchbox International Ltd. and are used with permission.
         imalso = {'class': 'button', 'alt': altname}
         self.comment('FormatButtonImage', bname, name, also, but_image, hov_image)
         if not but_image or not useful.is_good(but_image, v=self.verbose):
-            imalso = {'class': 'textbutton', 'onmouseover': "this.class='textbuttonh';", 'onmouseout': "this.class='textbutton';"}
+            imalso = {'class': 'textbuttonn textbutton', 'onmouseover': "this.class='textbuttonh textbutton';", 'onmouseout': "this.class='textbuttonn textbutton';"}
             return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, altname, useful.fmt_also(imalso, also))
         elif not hov_image or not useful.is_good(hov_image, v=self.verbose):
             return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.fmt_also(imalso, also))
@@ -771,7 +775,7 @@ of Matchbox International Ltd. and are used with permission.
 	imalso.update(also)
         btn = ''
         if not but_image:
-            imalso.update({'class': 'textbutton', 'onmouseover': "this.className='textbuttonh';", 'onmouseout': "this.className='textbutton';"})
+            imalso.update({'class': 'textbuttonn textbutton', 'onmouseover': "this.className='textbuttonh textbutton';", 'onmouseout': "this.className='textbuttonn textbutton';"})
             btn = '<span%s>%s</span>' % (useful.fmt_also(imalso), name)
         elif not hov_image:
             btn = self.fmt_img_src(but_image, alt=name, also=imalso)

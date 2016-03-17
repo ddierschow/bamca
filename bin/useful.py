@@ -3,7 +3,7 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-import copy, filecmp, glob, itertools, os, pprint, stat
+import copy, filecmp, glob, itertools, os, pprint, stat, urllib, urllib2
 import config  # bleagh
 import jinja2
 
@@ -412,6 +412,45 @@ def render_template(template, **kwargs):
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
     tpl = env.get_template(template)
     return tpl.render(comments=read_comments(), **kwargs)
+
+def url_fetch(url, data=None):
+    #fn = os.path.basename(url)
+    #url = urllib.quote(url, ':/')
+    img = ''
+    finished_len = 0
+    tries = 3
+    retry = 0
+    content_len = None
+    if data:
+	data = urllib.urlencode(data)
+    while retry < tries:
+	retry += 1
+	try:
+	    url_file = urllib2.urlopen(url, data, 90)
+	    img = ''
+	    if content_len == None and 'content-length' in url_file.info():
+		content_len = int(url_file.info()['content-length'])
+	    img_add = ''
+	    while 1:
+		buf = url_file.read()
+		if not buf:
+		    break
+		img_add += buf
+	    img += img_add
+	    finished_len = len(img)
+	    if not content_len or (finished_len >= content_len):
+		break
+	    else:
+		pass
+	except KeyboardInterrupt:
+	    raise
+	except urllib2.HTTPError:
+	    img = ''
+	    break
+	except:
+	    img = ''
+	time.sleep(2)
+    return img
 
 #---- -------------------------------------------------------------------
 

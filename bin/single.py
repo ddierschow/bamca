@@ -538,7 +538,7 @@ def show_single(pif):
     print models.add_left_bar(pif, '', man['id'], man['vehicle_type'], 4, content)
 
     # title banner
-    print models.add_banner(pif, '%s %s: %s' % (mbdata.casting_types[man['model_type']], mod_id, man['name']))
+    print models.add_banner(pif, '%s %s: %s' % (mbdata.model_types[man['model_type']], mod_id, man['name']))
 
     print '<tr><td>'
     print '<center>'
