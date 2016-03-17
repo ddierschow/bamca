@@ -10,9 +10,12 @@ $isadmin = CheckPerm('a');
 $pif['hier'][0] = ['/', 'Home'];
 $pif['hier'][1] = ['/database.php', 'Database'];
 $answer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
-$YEAR_START = $answer[0][0];
-$YEAR_END = $answer[0][1];
+$LINE_YEAR_START = $answer[0][0];
+$LINE_YEAR_END = $answer[0][1];
 $MAX_NUMBER = $answer[0][2];
+$answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
+$MAN_YEAR_START = $answer[0][0];
+$MAN_YEAR_END = $answer[0][1];
 
 $sections = array();
 $sections[] = array("tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi");
@@ -186,10 +189,10 @@ function SectionID()
 
 function SectionYear()
 {
-    global $YEAR_START, $YEAR_END, $isadmin;
+    global $LINE_YEAR_START, $LINE_YEAR_END, $isadmin;
 
     echo "\n<table>\n <tr>\n  <td>Year: </td>\n";
-    SelectYear('year', 'yearYear', $YEAR_END, $YEAR_START, $YEAR_END);
+    SelectYear('year', 'yearYear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
     HorzSpacer(3);
     ChooseRegion(2);
     echo "  </td>\n";
@@ -220,14 +223,14 @@ function SectionYear()
 
 function SectionRank()
 {
-    global $YEAR_START, $YEAR_END, $MAX_NUMBER, $isadmin;
+    global $LINE_YEAR_START, $LINE_YEAR_END, $MAX_NUMBER, $isadmin;
 
     echo "<input type=\"hidden\" name=\"n\" value=\"1\">";
     echo "<table>\n <tr>\n  <td height=\"32\">Lineup number:<br>(1-$MAX_NUMBER)\n  </td>";
     ChooseNum('num', 'rankSNum', 3, 1, $MAX_NUMBER);
     HorzSpacer(1);
     echo "  <td style=\"text-align: right;\">\nStart year:\n  </td>\n";
-    SelectYear('syear', 'rankSyear', $YEAR_START, $YEAR_START, $YEAR_END);
+    SelectYear('syear', 'rankSyear', $LINE_YEAR_START, $LINE_YEAR_START, $LINE_YEAR_END);
     HorzSpacer(2);
     ChooseRegion(3);
     echo "</tr><tr>\n<td>\n";
@@ -241,7 +244,7 @@ function SectionRank()
 	echo "  <td></td>\n";
     HorzSpacer(1);
     echo "  <td style=\"text-align: right;\">End year:</td>\n";
-    SelectYear('eyear', 'rankEyear', $YEAR_END, $YEAR_START, $YEAR_END);
+    SelectYear('eyear', 'rankEyear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
     echo " </tr>\n <tr>\n  <td colspan=\"6\" rowspan=\"2\">\n";
     if ($isadmin) {
 	echo "<br><i>\n";
@@ -256,7 +259,7 @@ function SectionRank()
 
 function SectionManno()
 {
-    global $YEAR_START, $YEAR_END, $isadmin;
+    global $MAN_YEAR_START, $MAN_YEAR_END, $isadmin;
 
     echo "<table>\n <tr>\n  <td colspan=\"7\">\n";
     if ($isadmin)
@@ -280,7 +283,7 @@ function SectionManno()
     if ($isadmin) {
 	HorzSpacer(1);
 	echo "   <td>Start year:</td>\n";
-	SelectYear('syear', 'manSyear', $YEAR_START, $YEAR_START, $YEAR_END + 1);
+	SelectYear('syear', 'manSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
     }
     echo " </tr>\n <tr><td colspan=\"2\"></td>\n  <td>ending at:</td>\n";
     ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 1499, 1499, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
@@ -288,7 +291,7 @@ function SectionManno()
     if ($isadmin) {
 	HorzSpacer(1);
 	echo "<td>End year:</td>\n";
-	SelectYear('eyear', 'manEyear', $YEAR_END + 1, $YEAR_START, $YEAR_END + 1);
+	SelectYear('eyear', 'manEyear', $MAN_YEAR_END + 1, $MAN_YEAR_START, $MAN_YEAR_END);
     }
     echo " </tr>\n <tr><td colspan=\"4\">List type:\n";
     $sl = [[64, '', 'Normal'], [0, 'ckl', 'Checklist'], [0, 'thm', 'Thumbnails'], [0, 'csv', 'CSV'], [0, 'jsn', 'JSON']];
@@ -459,11 +462,8 @@ EOT;
     echo "</td>\n";
     HorzSpacer(1);
     echo "  <td>Model Numbers:</td>\n  <td>Starting at number:</td>\n";
-
     ChooseNum('start', 'boxStart', 3, 1, 75, 1);
-
     HorzSpacer(1);
-
     echo "  <td rowspan=\"5\" id=\"foo\"><img src=\"pic/box/s_rw01a-a.jpg\" class=\"hidden\" id=\"boxImg\"></td>\n";
     echo " </tr>\n <tr>\n  <td></td>\n  <td>\n";
     Checks('radio', 'series', [['RW', 'Regular Wheels']], '');
@@ -471,6 +471,7 @@ EOT;
     ChooseNum('end', 'boxEnd', 3, 1, 75, 75);
     echo " </tr>\n <tr>\n  <td></td>\n  <td>\n";
     Checks('radio', 'series', [['SF', 'SuperFast']], '');
+    echo "  </td>\n </tr>\n <tr>\n  <td>&nbsp;\n";
     echo "  </td>\n </tr>\n <tr>\n  <td>Styles:</td>\n  <td colspan=\"4\">\n";
 
     $sl = [[64, '', 'Please select a box style.']];
