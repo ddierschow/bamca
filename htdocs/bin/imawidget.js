@@ -15,13 +15,15 @@
 // corner and release.  Grab any side or corner to move it.  Double
 // click to switch between black and white bounds.  Click outside the
 // bounds to clear the setting.  Click within the bounds to drag the
-// box.  Keypresses:  r (red), g (green), b (blue), c (cyan), c (cyan),
-// y (yellow), p (pink), w (white), or B to reset to black.  Use the
-// VI-style cursor keys to move the bounds by one pixel, h for left,
-// j for top, k for bottom, l for right.  Unshifted expands the box,
-// shifted contracts the box.  ESC clears the box, z restores the last
-// cleared box.  0-9 make the movement keys move 2^N pixels.  Note
-// that the cursor must be inside the picture area to use the keys.
+// box.  Shift-click outside box to expand it to that point.
+
+// Keypresses:  r (red), g (green), b (blue), c (cyan), y (yellow), p
+// (pink), w (white), or B to reset to black.  Use the VI-style cursor
+// keys to move the bounds by one pixel, h for left, j for top, k for
+// bottom, l for right.  Unshifted expands the box, shifted contracts
+// the box.  ESC clears the box, z restores the last cleared box.  0-9
+// make the movement keys move 2^N pixels.  Note that the cursor must
+// be inside the picture area to use the keys.
 
 "use strict";
 var slop = 1;
@@ -56,6 +58,7 @@ var qid = 0;
 var qyf = 0;
 var dbg = 0;
 var inf = 0;
+var msg = '';
 
 function between(v, v1, v2) {
     return (!((v < Math.min(v1, v2) - slop) || (v > Math.max(v1, v2) + slop)));
@@ -81,19 +84,10 @@ function cursor_over_y(v1) {
     return point_over(ms_y, v1);
 }
 
-function set_bounds(event) {
-    var cbr = can.getBoundingClientRect(),
-        x,
+function show_info() {
+    var x,
         y,
         ar;
-    cr_x = Math.round(cbr.left);
-    cr_y = Math.round(cbr.top);
-    sz_x = Math.round(cbr.right - cbr.left);
-    sz_y = Math.round(cbr.bottom - cbr.top);
-    if (event) {
-        ms_x = event.clientX - cr_x;
-        ms_y = event.clientY - cr_y;
-    }
     if (inf) {
         if (p1_x >= 0) {
             x = Math.abs(p2_x - p1_x);
@@ -112,6 +106,19 @@ function set_bounds(event) {
     }
 }
 
+function set_bounds(event) {
+    var cbr = can.getBoundingClientRect();
+    cr_x = Math.round(cbr.left);
+    cr_y = Math.round(cbr.top);
+    sz_x = Math.round(cbr.right - cbr.left);
+    sz_y = Math.round(cbr.bottom - cbr.top);
+    if (event) {
+        ms_x = event.clientX - cr_x;
+        ms_y = event.clientY - cr_y;
+    }
+    show_info();
+}
+
 function clear_bounds() {
     if (p1_x >= 0 && !point_over(p1_x, p2_x) && p1_x >= 0 && !point_over(p1_y, p2_y)) {
         l1_x = p1_x;
@@ -123,6 +130,7 @@ function clear_bounds() {
     p1_y = -(slop + 3);
     p2_x = -(slop + 3);
     p2_y = -(slop + 3);
+    show_info();
 }
 
 function draw_bounds() {
@@ -133,7 +141,7 @@ function draw_bounds() {
                 '|size ', sz_x, ',', sz_y,
                 '|moving ', mv_x, ',', mv_y,
                 '|drag ', d1_x, ',', d1_y, ',', d2_x, ',', d2_y,
-                '|last ', l1_x, ',', l1_y, ',', l2_x, ',', l2_y);
+                '|last ', l1_x, ',', l1_y, ',', l2_x, ',', l2_y, '|', msg);
     }
     var ctx = can.getContext("2d");
     ctx.drawImage(img, 0, 0);
@@ -180,44 +188,93 @@ function draw_bounds() {
     else {
         can.style.cursor = "auto";
     }
+    show_info();
 }
 
 function ima_buttondown(event) {
     set_bounds(event);
-    if (cursor_over_x(p1_x) && between_y(p1_y, p2_y)) {
-        mv_x = 1;
-        p1_x = ms_x;
+    if (event.shiftKey) {
+	if ((ms_x < p1_x) && between_y(p1_y, p2_y)) {
+	    mv_x = 1;
+	    p1_x = ms_x;
+	}
+	else if ((ms_x > p2_x) && between_y(p1_y, p2_y)) {
+	    mv_x = 1;
+	    p2_x = p1_x;
+	    p1_x = ms_x;
+	}
+	else if ((ms_y < p1_y) && between_x(p1_x, p2_x)) {
+	    mv_y = 1;
+	    p1_y = ms_y;
+	}
+	else if ((ms_y > p2_y) && between_x(p1_x, p2_x)) {
+	    mv_y = 1;
+	    p2_y = p1_y;
+	    p1_y = ms_y;
+	}
+	else if (between_x(p1_x, p2_x) && between_y(p1_y, p2_y)) {
+	    d1_x = p1_x - ms_x;
+	    d1_y = p1_y - ms_y;
+	    d2_x = p2_x - ms_x;
+	    d2_y = p2_y - ms_y;
+	}
+	else {
+	    if (ms_x < p1_x) {
+		mv_x = 1;
+		p1_x = ms_x;
+	    }
+	    else if (ms_x > p2_x) {
+		mv_x = 1;
+		p2_x = p1_x;
+		p1_x = ms_x;
+	    }
+	    if (ms_y < p1_y) {
+		mv_y = 1;
+		p1_y = ms_y;
+	    }
+	    else if (ms_y > p2_y) {
+		mv_y = 1;
+		p2_y = p1_y;
+		p1_y = ms_y;
+	    }
+	}
     }
-    else if (cursor_over_x(p2_x) && between_y(p1_y, p2_y)) {
-        p2_x = p1_x;
-        mv_x = 1;
-        p1_x = ms_x;
-    }
-    if (cursor_over_y(p1_y) && between_x(p1_x, p2_x)) {
-        mv_y = 1;
-        p1_y = ms_y;
-    }
-    else if (cursor_over_y(p2_y) && between_x(p1_x, p2_x)) {
-        p2_y = p1_y;
-        mv_y = 1;
-        p1_y = ms_y;
-    }
-    if (!mv_x && !mv_y) {
-        if (between_x(p1_x, p2_x) && between_y(p1_y, p2_y)) {
-            d1_x = p1_x - ms_x;
-            d1_y = p1_y - ms_y;
-            d2_x = p2_x - ms_x;
-            d2_y = p2_y - ms_y;
-        }
-        else {
-            clear_bounds();
-            p1_x = ms_x;
-            p2_x = ms_x;
-            p1_y = ms_y;
-            p2_y = ms_y;
-            mv_x = 1;
-            mv_y = 1;
-        }
+    else {
+	if (cursor_over_x(p1_x) && between_y(p1_y, p2_y)) {
+	    mv_x = 1;
+	    p1_x = ms_x;
+	}
+	else if (cursor_over_x(p2_x) && between_y(p1_y, p2_y)) {
+	    p2_x = p1_x;
+	    mv_x = 1;
+	    p1_x = ms_x;
+	}
+	if (cursor_over_y(p1_y) && between_x(p1_x, p2_x)) {
+	    mv_y = 1;
+	    p1_y = ms_y;
+	}
+	else if (cursor_over_y(p2_y) && between_x(p1_x, p2_x)) {
+	    p2_y = p1_y;
+	    mv_y = 1;
+	    p1_y = ms_y;
+	}
+	if (!mv_x && !mv_y) {
+	    if (between_x(p1_x, p2_x) && between_y(p1_y, p2_y)) {
+		d1_x = p1_x - ms_x;
+		d1_y = p1_y - ms_y;
+		d2_x = p2_x - ms_x;
+		d2_y = p2_y - ms_y;
+	    }
+	    else {
+		clear_bounds();
+		p1_x = ms_x;
+		p2_x = ms_x;
+		p1_y = ms_y;
+		p2_y = ms_y;
+		mv_x = 1;
+		mv_y = 1;
+	    }
+	}
     }
     draw_bounds();
 }
@@ -361,7 +418,6 @@ function ima_key(event) {
         else if (event.which >= 48 && event.which <= 57) {
             step = Math.pow(2, event.which - 48);
         }
-        draw_bounds();
         if (dbg) {
             dbg.innerHTML += ' key: ' + event.which;
         }
@@ -369,6 +425,7 @@ function ima_key(event) {
     else if (dbg) {
         dbg.innerHTML += ' key ignored';
     }
+    draw_bounds();
 }
 
 function ima_start() {
