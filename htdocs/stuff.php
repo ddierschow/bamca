@@ -72,7 +72,7 @@ else
 <li><a href="pages/other.html">other</a>
 <li><a href="cgi-bin/sets.cgi">sets</a>
 <li><a href="cgi-bin/lineup.cgi">lineups</a>
-<li><a href="cgi-bin/upload.cgi">upload</a>
+<li><a href="cgi-bin/pub.cgi">pub</a>
 <li><a href="cgi-bin/packs.cgi">packs</a>
 <br>&nbsp;
 <li><a href="database.php"><font size="+2">database</font></a>
@@ -106,7 +106,8 @@ else
     <a href="cgi-bin/vedit.cgi?d=src/vdat">dat</a>
     <a href="http://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents/?C=M;O=D">docs</a>
 <li><a href="cgi-bin/xbits.cgi">bits</a>
-<li><a href="cgi-bin/stitch.cgi">stitch</a>
+<li><a href="cgi-bin/upload.cgi">upload</a>
+    <a href="cgi-bin/stitch.cgi">stitch</a>
 <li><a href="pic/flags/">flags</a>
     <a href="pic/flags/all.php">all</a>
 <li><a href="cgi-bin/xcars.cgi">cars</a>

@@ -5,18 +5,18 @@
 {{ render.fmt_anchor(mdict.anchor) }}
 <center>
 <table width="100%"><tr>
-<td width="40%">
-{%- if mdict.no_casting -%}{{ render.format_image_art('stargreen', also={'align': 'left'}) }}
+<td width="40%" class="modelstars">
+{%- if mdict.no_casting -%}{{ render.format_image_art('stargreen') }}
 {%- elif not mdict.picture_only -%}
-    {%- if mdict.no_specific_image -%}{{ render.format_image_art('star', also={'align': 'left'}) }}{%- endif -%}
-    {%- if mdict.no_variation -%}{{ render.format_image_art('starred', also={'align': 'left'}) }}{%- endif -%}
+    {%- if mdict.no_specific_image -%}{{ render.format_image_art('star') }}{%- endif -%}
+    {%- if mdict.no_variation -%}{{ render.format_image_art('starred') }}{%- endif -%}
 {%- endif -%}
 </td>
-<td width="20%" style="text-align: center;">{{ mdict.displayed_id }}</td>
-<td width="40%">
-{% if mdict.not_made %}{{ render.format_image_art('no', also={'align': 'right'}) }}{% endif %}
-{% if mdict.is_reused_product_picture %}{{ render.format_image_art('staryellow', also={'align': 'right'}) }}{% endif %}
-{% if mdict.is_product_picture %}{{ render.format_image_art('camera', also={'align': 'right'}) }}{% endif %}
+<td width="20%" class="modelnumber">{{ mdict.displayed_id }}</td>
+<td width="40%" class="modelicons">
+{% if mdict.not_made %}{{ render.format_image_art('no') }}{% endif %}
+{% if mdict.is_reused_product_picture %}{{ render.format_image_art('staryellow') }}{% endif %}
+{% if mdict.is_product_picture %}{{ render.format_image_art('camera') }}{% endif %}
 </td></tr></table>
 {% if mdict.href %}<a href="{{ mdict.href }}">{% endif %}
 <table><tr><td class="spicture"><center>{{ mdict.imgstr }}</center></td></tr></table>

@@ -5,7 +5,7 @@ style|.cell|c,#000000|bw,1px
 style|.cell,3|bgc,#FFFF99|w,300px|c,#CC0000
 style|.cell,4|bgc,#FFFF99|va,top|c,#000000
 style|.hcell|c,#000000|ta,center|fw,bold
-cells|num|name|year|fullpic|fulldesc
+cells|num|name|year|year2|fullpic|fulldesc
 
 field|num|No.
 field|name|Model Name
@@ -19,7 +19,7 @@ data|d|desc
 
 table|E|year,year2,num,rank,name|Early Matchbox Toys|2|early
 
-m|1948|1953|48|A|Aveling Barford Road Roller
+m|1948|1952|48|A|Aveling Barford Road Roller
 d|dark-green body, red painted wheels, yellow flywheel cast
 d|dark-green body, unpainted wheels, no driver or flywheel cast
 d|dark-green body, unpainted wheels, with driver, no flywheel cast
@@ -27,7 +27,7 @@ d|light-green body, red wheels, no driver or flywheel cast
 d|gray-brown body, red wheels, no driver or flywheel cast
 d|red body, green wheels, no driver or flywheel cast
 
-m|1948|1953|48|B|Cement Mixer
+m|1948|1950|48|B|Cement Mixer
 d|pale-green body, red barrel and handle, red wheels
 d|dark-green body, red barrel and handle, red wheels
 d|dark-green body, red barrel and handle, yellow wheels
@@ -36,20 +36,20 @@ d|dark-green body, green barrel and handle, red wheels
 d|red body, dark-green barrel and handle, green wheels
 d|red body, dark-green barrel and handle, yellow wheels
 
-m|1948|1953|48|C|Caterpiller Tractor
+m|1948|1950|48|C|Caterpiller Tractor
 d|green body and rollers
 d|dark-yellow body and rollers
 d|orange body and rollers
 
-m|1948|1953|48|D|Caterpiller Bulldozer
+m|1948|1950|48|D|Caterpiller Bulldozer
 d|pale-green body, rollers and blade
 d|orange body, rollers and blade
 d|dark-yellow body, red rollers and blade
 
-m|1949|1949|49|D|Muir Hill Dumper
-d|model never made
+#m|1949|1949|49|D|Muir Hill Dumper
+#d|model never made
 
-m|1949|1954|49|A|Horse Drawn Milk Float
+m|1949|1953|49|A|Horse Drawn Milk Float
 d|orange body, black horse, white driver
 d|blue body, black horse, white driver
 
@@ -87,11 +87,12 @@ d|silver-plated body
 m|1954|1955|54|A|Massey Harris Tractor
 d|red body, beige wheels, black rubber tires
 
-m|1954|1954|54|B|Bread Bait Press
+m|1954|1957|54|B|Bread Bait Press
 d|red body, green wingnut and inner fixture, "Lesney Milbro"
 d|red body, unpainted wingnut, green inner fixture, "Lesney"
 d|red body, unpainted wingnut and inner fixture, "Lesney"
 
-m|1955|1955|55|A|Covered Wagon
+m|1955|1957|55|A|Covered Wagon
 d|dark-green body, white cover, brown horses, no barrels cast
 d|dark-green body, white cover, brown horses, red barrels
+
