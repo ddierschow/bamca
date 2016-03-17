@@ -55,7 +55,7 @@ class TestRender(unittest.TestCase):
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=dealers") != '')
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=mailorder") != '')
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=manuf") != '')
-        self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=other") != '')
+        #self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=other") != '')
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=rejects") != '')
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="id=3") != '')
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="id=286") != '')

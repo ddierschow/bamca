@@ -1,6 +1,6 @@
 import unittest
 import basics
-import db
+import dbintf
 import dbhand
 import pifile
 import render
@@ -20,7 +20,7 @@ class TestPIF(unittest.TestCase):
         self.assertIsInstance(self.pif.dbh, dbhand.DBHandler)
 
     def test_2b(self):
-        self.assertIsInstance(self.pif.dbh.dbi, db.DB)
+        self.assertIsInstance(self.pif.dbh.dbi, dbintf.DB)
 
     def test_3(self):
 	self.assertTrue(len(self.pif.dbh.fetch('page_info', where='not health=0', tag='unittest')) == 0)

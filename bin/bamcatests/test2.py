@@ -214,8 +214,8 @@ class TestRender(unittest.TestCase):
 
     def test_format_button_input(self):
 	self.assertTrue(self.pif.render.format_button_input(bname="submit", also={}) != '')
-	self.assertTrue(self.pif.render.format_button_input(bname="unittest", also={}) != '')
-	self.assertTrue(self.pif.render.format_button_input(bname="yodel", name="no really", also={}) != '')
+	self.assertTrue(self.pif.render.format_button_input(bname="see the models", also={}) != '')
+	self.assertTrue(self.pif.render.format_button_input(bname="unittest", name="no really", also={}) != '')
 
     def test_find_button_images(self):
 	self.assertTrue(self.pif.render.find_button_images('recalc', image='', hover='', pdir=None) != '')
