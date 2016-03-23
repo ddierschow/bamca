@@ -26,7 +26,7 @@ if ($pif['bad_ip'])
     echo "The comment capability has been disabled.  You can try sending email if you really want to get through,\n";
     echo "but don't hope for too much.";
 }
-else if (!(strpos($_POST['mycomment'], 'http://') === FALSE))
+else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE))
 {
     echo 'Whoa there.  This is not the correct place to submit links.  Please use the "Suggest a Link" page on the main index.' . "\n";
 }
