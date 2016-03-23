@@ -53,7 +53,6 @@ var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'category', 'ar
 
 
 def parse_file(pif, vid, fdir, fn, args=''):
-    print 'parse_file', vid, fdir, fn, args, pif.form, '<br>'
     modids, fitabs = read_file(pif, vid, fdir, fn)
     if not modids:
 	modids = [pif.form.get_str('m')]

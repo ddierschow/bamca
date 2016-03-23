@@ -233,6 +233,16 @@ def show_single(pif, table_info, dat):
             elif not val:
                 val = '0'
             print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=val), also=also)
+        elif coltype.startswith('smallint('):
+            if dat.get(col) is None:
+                dat[col] = 0
+            colwidth = int(coltype[9:-1])
+            val = dat[col]
+            if isinstance(val, str) and val.isdigit():
+                val = str(int(val))
+            elif not val:
+                val = '0'
+            print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=val), also=also)
         elif coltype.startswith('int('):
             if dat.get(col) is None:
                 dat[col] = 0
