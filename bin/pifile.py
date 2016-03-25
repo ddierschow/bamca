@@ -261,7 +261,7 @@ class PageInfoFile:
             config.ENV = 'www'
 
     def log_start(self):
-        if not self.is_allowed('m') and not self.args:
+        if not self.args and not self.is_allowed('m'):
 	    if os.getenv('HTTP_USER_AGENT', '') in crawlers:
 		self.log.bot.info('%s %s' % (self.remote_addr, self.request_uri))
 	    else:

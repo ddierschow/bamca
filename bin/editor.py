@@ -27,7 +27,7 @@ def editor_start(pif):
 
     print pif.render.format_button('mass', link='mass.cgi')
     print pif.render.format_button('lineup', link='mass.cgi?type=lineup')
-    print pif.render.format_button('manno', link='mass.cgi?type=manno')
+    print pif.render.format_button('casting', link='mass.cgi?type=casting')
     print pif.render.format_button('var', link='mass.cgi?type=var')
     print pif.render.format_button('related', link='mass.cgi?type=related')
     print pif.render.format_button('pack', link='mass.cgi?type=pack')

@@ -2,7 +2,6 @@
 
 import copy, os, re, sys
 import basics
-import bfiles
 import config
 import imglib
 import mbdata
