@@ -1117,31 +1117,49 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	return attr_name, fmt, default, fmt_prepend, fmt_append, is_opt
 
     # TODO: make front wheels / rear wheels combine when they are the same.
+    #&front_wheels+on front|&rear_wheels+on rear|*hubs
+    #&front_wheels+on front|&rear_wheels+on rear
+    # -> @&front_wheels+on front/&rear_wheels+on rear/&front_wheels
+    #*front_wheels|&front_hubs+hubs|*rear_wheels|&rear_hubs+hubs
+    #&front_wheels+on front
+    #&front_wheels_hubs+on front|&rear_wheels_hubs+on rear
     def recalc_description(self, mod_id, showtexts=False, verbose=False):
+	'''Main call to create text_* from format_* and attributes.'''
 	cols = ['description', 'body', 'base', 'wheels', 'interior', 'windows']
 
 	# I apologize in advance for this function.
 	def fmt_desc(var, casting, field, verbose):
 
-	    def fmt_detail(var, fmt, verbose):
+	    def fmt_subdetail(var, fmt, verbose):
 		attr_name, fmt, default, fmt_prepend, fmt_append, is_opt = self.parse_detail_format(fmt)
 		if attr_name:
 		    if attr_name not in var:
 			if verbose:
 			    print '!', attr_name
-			return ''
+			return attr_name, ''
 		    value = var.get(attr_name)
 		    if not value or (is_opt and (value == 'no' or value == '-')):
-			return default
+			return attr_name, default
 		fmt = fmt_prepend + ' ' + fmt + ' ' + fmt_append
-		return fmt.strip()
+		return attr_name, fmt.strip()
+
+	    def fmt_detail(var, fmt, verbose):
+		if fmt[0] == '@':
+		    return [fmt_subdetail(var, subformat, verbose) for subformat in fmt[1:].split('/')]
+		else:
+		    return fmt_subdetail(var, fmt, verbose)[1]
 
 	    fmts = [y for y in [fmt_detail(var, x, verbose) for x in casting[field].split('|')] if y]
 	    descs = []
 	    for fmt in fmts:
 		desc = ''
 		try:
-		    desc = fmt % var
+		    if isinstance(fmt, str):
+			desc = fmt % var
+		    elif var[fmt[0][0]] == var[fmt[1][0]]:
+			desc = fmt[2][1] % var
+		    else:
+			desc = ', '.join([fmt[0][1] % var, fmt[1][1] % var])
 		except:
 		    if verbose:
 			print '!', field, fmt
@@ -1152,8 +1170,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 
 	textcols = ['text_' + x for x in cols]
 	casting = self.fetch_casting(mod_id, extras=True)
-	vars = self.depref('variation', self.fetch_variations(mod_id))
-	for var in vars:
+	for var in self.depref('variation', self.fetch_variations(mod_id)):
 	    if verbose:
 		print var['var']
 	    ovar = {x: '' for x in textcols}
