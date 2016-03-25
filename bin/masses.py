@@ -4,6 +4,7 @@ import os, re, urllib2, urlparse
 import basics
 import config
 import editor
+import images
 import mbdata
 import useful
 
@@ -88,7 +89,7 @@ def mass_select(pif):
             else:
                 print pif.render.format_cell(1,
                     pif.render.format_text_input(col + "." + '.'.join([str(row[x]) for x in table_info['id']]),
-                    256, 20, row[col]))
+                    256, 40, row[col]))
         print pif.render.format_row_end()
 
     print pif.render.format_table_end()
@@ -968,6 +969,85 @@ def add_links_final(pif):
 	print pif.dbh.insert_link_line(link_vals)
         print '<br>'
 
+# ------- book -----------------------------------------------------
+
+def add_book(pif):
+#-----------+-------------+------+-----+---------+----------------+
+# Field     | Type        | Null | Key | Default | Extra          |
+#-----------+-------------+------+-----+---------+----------------+
+# id        | int(11)     | NO   | PRI | NULL    | auto_increment |
+# author    | varchar(64) | YES  |     |         |                |
+# title     | varchar(64) | YES  |     |         |                |
+# publisher | varchar(32) | YES  |     |         |                |
+# year      | varchar(4)  | YES  |     |         |                |
+# isbn      | varchar(16) | YES  |     |         |                |
+# flags     | int(11)     | YES  |     | 0       |                |
+# pic_id    | varchar(16) | YES  |     |         |                |
+#-----------+-------------+------+-----+---------+----------------+
+
+    if pif.form.has('save'):
+        add_book_final(pif)
+    else:
+        add_book_ask(pif)
+
+def add_book_ask(pif):
+    print '<form name="mass">'
+    print "Author:"
+    print pif.render.format_text_input("author", 64, 64, value='')
+    print '<br>'
+    print "Title:"
+    print pif.render.format_text_input("title", 64, 64, value='')
+    print '<br>'
+    print "Publisher:"
+    print pif.render.format_text_input("publisher", 32, 32, value='')
+    print '<br>'
+    print "Year:"
+    print pif.render.format_text_input("year", 4, 4, value='')
+    print '<br>'
+    print "ISBN:"
+    print pif.render.format_text_input("isbn", 16, 16, value='')
+    print '<br>'
+    print "Hidden:"
+    print pif.render.format_checkbox('hidden', [('1', 'yes')])
+    print '<br>'
+    print "Picture ID:"
+    print pif.render.format_text_input("pic_id", 16, 16, value='')
+    print '<br>'
+    print "Picture URL:"
+    print pif.render.format_text_input("pic_url", 256, 80, value='')
+    print '<br>'
+    print pif.render.format_button_input('save')
+    print pif.render.format_button_reset('mass')
+    print pif.render.format_button('book', 'biblio.cgi?edit=1')
+    print pif.render.format_button('edit', 'editor.cgi?table=book')
+    print pif.render.format_hidden_input({'type': 'book'})
+    print "</form><p>"
+
+def add_book_final(pif):
+    print pif.form, '<br>'
+    if pif.form.get_str('isbn'):
+	if pif.dbh.fetch('book', where="isbn='%s'" % pif.form.get_str('isbn'), tag='mass_book'):
+	    print 'That isbn is already in use.'
+	    return
+    if pif.form.get_str('pic_id') and pif.form.get_str('pic_url'):
+	if pif.dbh.fetch('book', where="pic_id='%s'" % pif.form.get_str('pic_id'), tag='mass_book'):
+	    print 'That pic_id is already in use.'
+	    return
+	images.grab_url_file(pif.form.get_str('pic_url'), config.IMG_DIR_BOOK, pif.form.get_str('pic_id'))
+    vals = {
+	'author': pif.form.get_str('author'),
+	'title': pif.form.get_str('title'),
+	'publisher': pif.form.get_str('publisher'),
+	'year': pif.form.get_str('year'),
+	'isbn': pif.form.get_str('isbn'),
+	'flags': pif.dbh.FLAG_ITEM_HIDDEN if pif.form.get_int('flags') else 0,
+	'pic_id': pif.form.get_str('pic_id'),
+    }
+    print vals
+    print pif.dbh.write('book', vals, newonly=True, tag='mass_book', verbose=True), '<br>'
+    if vals['pic_id']:
+	print pif.render.format_image_required(vals['pic_id'], pdir=config.IMG_DIR_BOOK)
+
 # ------- ----------------------------------------------------------
 
 mass_mains_list = [
@@ -978,6 +1058,7 @@ mass_mains_list = [
     ('related', edit_casting_related),
     ('pack', add_pack),
     ('links', add_links),
+    ('book', add_book),
 ]
 
 mass_mains_hidden = {

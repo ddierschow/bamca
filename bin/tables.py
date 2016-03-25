@@ -474,7 +474,30 @@ table_info = {
     'site_activity': {
         'id': ['id'],
         'columns': ['id', 'name', 'description', 'url', 'image', 'by_user_id', 'timestamp'],
-    }
+    },
+    #book
+    'book': {
+        'id': ['id'],
+	'columns': ['id', 'author', 'title', 'publisher', 'year', 'isbn', 'flags', 'pic_id'],
+        'ask': ['id'],
+        'add': {
+		'book': [],
+        },
+        'clinks': {
+                'id': {'tab': 'book', 'id': ['id/id']},
+        },
+    },
+    #bayarea
+    'bayarea': {
+        'id': ['id'],
+	'columns': ['id', 'name', 'address', 'city', 'state', 'phone', 'flags', 'url'],
+        'ask': ['id'],
+        'add': {
+        },
+        'clinks': {
+                'id': {'tab': 'bayarea', 'id': ['id/id']},
+        },
+    },
 
 }
 for key in table_info:
@@ -506,6 +529,8 @@ FLAG_LINK_LINE_FORMAT_LARGE             = 16
 FLAG_LINK_LINE_NOT_VERIFIABLE           = 32
 FLAG_LINK_LINE_ASSOCIABLE               = 64
 FLAG_LINK_LINE_HIDDEN                   = 128
+
+FLAG_ITEM_HIDDEN                        =  1
 
 #-
 
