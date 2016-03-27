@@ -19,7 +19,7 @@ graphic_types = ['jpg', 'gif', 'bmp', 'ico', 'png']
 # format_table({'also': {}, 'id': '', 'style_id': '', 'rows': []})
 # rows=[{'ids': [], 'also': {}, 'cells': []}, ...]
 # cells=[{'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''}, ...]
-class TableClass():
+class TableClass(object):
     def __init__(self, pif_render, also={}, id='', style_id=''):
         self.pif_render = pif_render
         self.also = also
@@ -52,7 +52,7 @@ class TableClass():
         return ostr
 
 
-class Presentation():
+class Presentation(object):
     incrsel_js = javasc.def_increment_select_js
     toggle_display_js = javasc.def_toggle_display_js
     reset_button_js = javasc.def_reset_button_js

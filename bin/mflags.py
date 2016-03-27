@@ -7,7 +7,7 @@ import useful
 #US|United States Minor Outlying Islands|UM|PA|us
 
 # this version doesn't do subdivisions
-class FlagList():
+class FlagList(object):
     # interprets "175.dat"
     def __init__(self):
         self.isolist = mbdata.countries

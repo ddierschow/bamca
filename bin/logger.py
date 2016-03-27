@@ -6,7 +6,7 @@ import logging.config
 import config
 
 # you were looking for pretty?  hah.
-class Logger:
+class Logger(object):
     def __init__(self):
 	logdate = datetime.datetime.now().strftime('%Y%m')
 

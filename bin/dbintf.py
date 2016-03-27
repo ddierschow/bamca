@@ -8,7 +8,7 @@ import useful
 desc_cols = ['field', 'type', 'null', 'key', 'default', 'extra']
 
 
-class DB:
+class DB(object):
     dbcs = {}
 
     def __init__(self, cfg=None, user_id=0, db_logger=None, verbose=False):

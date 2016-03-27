@@ -102,7 +102,7 @@ format_attributes = ['format_description', 'format_body', 'format_interior', 'fo
 
 #---- the manno object ----------------------
 
-class MannoFile:
+class MannoFile(object):
     def __init__(self, pif, withaliases=False):
         self.section = None
         self.start = 1
@@ -495,11 +495,6 @@ class MannoFile:
 	    #mack_nums = ','.join(single.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
             ret.append([mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])
         return ret
-
-    # called by man2csv and updcommits, both of which will be phased out
-    def run_man2csv(self, pif):
-	with open('pages/man.csv', 'w') as out_file:
-	    self.run_man2csv_out(pif, out_file)
 
     def run_man2csv_out(self, pif, out_file):
 	field_names = ["MAN #", "Mack #", "Year", "Scale", "Name", "Notes"]

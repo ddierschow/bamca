@@ -9,7 +9,7 @@ import useful
 id_re = re.compile('''(?P<a>[a-zA-Z]*)(?P<d>\d*)''')
 
 
-class DBHandler:
+class DBHandler(object):
     table_info = tables.table_info
     def __init__(self, config, user_id, db_logger, verbose):
         self.dbi = dbintf.DB(config, user_id, db_logger, verbose)

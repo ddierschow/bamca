@@ -640,7 +640,7 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 
 
 
-class Drawer:
+class Drawer(object):
 
     def __init__(self, fn, ofn=None):
 	self.cmdfile = fn

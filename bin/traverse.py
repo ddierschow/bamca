@@ -275,19 +275,9 @@ def show_picture(pif, fn, pdir=None):
 colors = ["#FFFFFF", "#CCCCCC"]
 
 
-class TableFile(bfiles.ArgFile):
-    def __init__(self, fname):
-        self.dblist = []
-        bfiles.ArgFile.__init__(self, fname)
-
-    def parse_else(self, llist):
-        self.dblist.append(llist)
-
-
-
 #print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
 def show_table(pif, tform):
-    tablefile = TableFile(tform.tdir + '/' + tform.fnam)
+    tablefile = bfiles.SimpleFile(tform.tdir + '/' + tform.fnam)
     cols = ''  # pif.form.get_str('cols')
     h = 0  # pif.form.get_int('h')
 
@@ -342,7 +332,7 @@ def do_action(pif, tform):
         show_dir(pif, tform)
 
 
-class TraverseForm:
+class TraverseForm(object):
     def __init__(self):
 	pass
 

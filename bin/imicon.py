@@ -8,7 +8,7 @@ import Image
 # The Icon class!
 
 
-class Icon:
+class Icon(object):
     def __init__(self, w, h):
         self.width = w
         self.height = h
@@ -150,7 +150,7 @@ class Icon:
 # The Font class!
 
 
-class Font:
+class Font(object):
     def __init__(self, fname):
 	sys.path.append('./bin')
         f = None

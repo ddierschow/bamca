@@ -108,7 +108,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     return fn
 
 
-class UploadForm:
+class UploadForm(object):
     def __init__(self):
 	pass
 
@@ -1281,19 +1281,9 @@ def show_library_file(pif, fn):
 colors = ["#FFFFFF", "#CCCCCC"]
 
 
-class LibraryTableFile(bfiles.ArgFile):
-    def __init__(self, fname):
-        self.dblist = []
-        bfiles.ArgFile.__init__(self, fname)
-
-    def parse_else(self, llist):
-        self.dblist.append(llist)
-
-
-
 #print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
 def show_library_table(pif, pagename):
-    tablefile = LibraryTableFile(pif.render.pic_dir + '/' + pagename)
+    tablefile = bfiles.SimpleFile(pif.render.pic_dir + '/' + pagename)
     cols = ''  # pif.form.get_str('cols', '')
     h = 0  # pif.form.get_int('h')
     sorty = pif.form.get_str('sort')

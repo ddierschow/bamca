@@ -151,7 +151,7 @@ def compare_var_ids(v1, v2):
     return False
 
 
-class VariationImportData:
+class VariationImportData(object):
 
     # ------ html ------------------------------------------------
 

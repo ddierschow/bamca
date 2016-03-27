@@ -51,7 +51,7 @@ crawlers = [  # precluded from normal url tracking
     'webcrawler101/Nutch-1.9',
 ]
 
-class BaseForm:
+class BaseForm(object):
     def __init__(self, cgi_form, args):
         '''Reads the cgi form and puts it into this object.'''
         form = dict()
@@ -191,7 +191,7 @@ class BaseForm:
 	return [self.get_bool(x) for x in args]
 
 
-class PageInfoFile:
+class PageInfoFile(object):
     def __init__(self, page_id, form_key='', defval='', args='', dbedit=None):
         self.render = self.dbh = None
         self.secure = secure.Security()

@@ -6,7 +6,7 @@ import Crypto.Cipher.DES
 import environ
 
 
-class Security:
+class Security(object):
     cfgfile = None
     def __init__(self, siteid=None):
         self.cgibin = '../cgi-bin'

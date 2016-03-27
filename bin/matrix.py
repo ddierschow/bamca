@@ -9,7 +9,7 @@ import useful
 
 d_re = re.compile(r'%\d*d')
 
-class MatrixFile:
+class MatrixFile(object):
     def __init__(self, pif):
         self.tables = []
         self.text = []

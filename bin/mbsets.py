@@ -10,6 +10,65 @@ import config
 modnumlist = []
 
 
+class SetFile(bfiles.ArgFile):
+    tablecols = ['prefix', 'cols', 'title', 'digits', 'label', 'style']
+    notcols = ['fulldesc', 'insetdesc', 'fullpic']
+
+    def __init__(self, fname):
+        self.tables = []
+        self.found = False
+        self.db = {'model': []}
+        self.ncols = 0
+        self.header = ''
+        self.colheads = {}
+        self.dirs = {}
+        super(SetFile, self).__init__(fname)
+
+    def parse_cells(self, llist):
+        self.header = llist[1:]
+        self.ncols = 0
+        for col in self.header:
+            if not(col in self.notcols):
+                self.ncols += 1
+        self.db['ncols'] = self.ncols
+
+    def parse_dir(self, llist):
+        self.dirs[llist[1]] = llist[2]
+
+    def parse_field(self, llist):
+        self.colheads[llist[1]] = llist[2]
+
+    def parse_table(self, llist):
+        if self.found:
+            self.tables.append(self.db)
+            self.db = {'model': []}
+        self.db.update(dict(map(None, self.tablecols, llist[1:])))
+        self.db['cols'] = cols = self.db['cols'].split(',')
+        self.db['header'] = self.header
+        self.db['ncols'] = self.ncols
+
+    def parse_t(self, llist):
+        self.model = {'text': llist.get_arg('')}
+        self.db['model'].append(self.model)
+
+    def parse_s(self, llist):
+        self.model = {'section': llist.get_arg('')}
+        self.db['model'].append(self.model)
+
+    def parse_m(self, llist):
+        self.found = True
+        self.model = dict(map(None, self.db['cols'], llist[1:]))
+        self.model['desc'] = []
+        self.db['model'].append(self.model)
+
+    def parse_d(self, llist):
+        self.model['desc'].append(llist[1])
+
+    def parse_end(self):
+        if self.found:
+            self.tables.append(self.db)
+
+
 def do_set(pif, setfile, set_id=None, dups=False):
     tables = setfile.tables
 
@@ -179,7 +238,7 @@ def sets_main(pif):
     if pif.form.has('page'):
         set_id = pif.form.get_str('set')
         dups = pif.form.get_int('dups')
-        setfile = bfiles.SetFile(os.path.join(config.SRC_DIR, pif.form.get_str('page') + '.dat'))
+        setfile = SetFile(os.path.join(config.SRC_DIR, pif.form.get_str('page') + '.dat'))
         print do_set(pif, setfile, set_id, dups=dups)
     else:
         print select_set(pif)

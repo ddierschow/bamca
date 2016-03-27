@@ -22,7 +22,6 @@ def main(pif):
 	write_commits(pif, dat)
     write_php_config_file()
     write_jinja2_config_file()
-    #write_man_csv(pif)
 
 
 def get_last_activity(pif):
@@ -90,13 +89,6 @@ def write_jinja2_config_file():
         elif cfg[idx].find('=') >= 0:
             cfg[idx] = '{% set ' + cfg[idx].replace('\n', ' %}\n')
     open('../templates/config.html', 'w').writelines(cfg)
-    print
-
-
-def write_man_csv(pif):
-    print "Writing Man CSV file."
-    manf = mannum.MannoFile(pif)
-    manf.run_man2csv(pif)
     print
 
 

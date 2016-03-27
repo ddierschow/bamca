@@ -9,7 +9,7 @@ import useful
 # --- barparse ----------------------------------------------------------
 
 
-class ArgList:
+class ArgList(object):
     def __init__(self, line):
         self.llist = []
         line = line.strip()
@@ -55,7 +55,7 @@ class ArgList:
         return str(self.llist) + ' (+%d)' % self.curarg
 
 
-class BarFile:
+class BarFile(object):
     def __init__(self, fname):
         self.filename = fname
         try:
@@ -189,7 +189,6 @@ class BarFile:
 # --- unfinished file classes -------------------------------------------
 
 
-# in use
 class ArgFile(BarFile):
     def __init__(self, fname):
         self.set_globals()
@@ -232,11 +231,10 @@ class ArgFile(BarFile):
         restrict(llist[1])
 
 
-# in use
 class SimpleFile(ArgFile):
     def __init__(self, fname):
         self.dblist = []
-        ArgFile.__init__(self, fname)
+        super(SimpleFile, self).__init__(fname)
 
     def __iter__(self):
         return self.dblist.__iter__()
@@ -247,69 +245,6 @@ class SimpleFile(ArgFile):
 
     def __len__(self):
         return len(self.dblist)
-
-
-# --- finished file classes ---------------------------------------------
-
-
-# in use
-class SetFile(ArgFile):
-    tablecols = ['prefix', 'cols', 'title', 'digits', 'label', 'style']
-    notcols = ['fulldesc', 'insetdesc', 'fullpic']
-
-    def __init__(self, fname='src/diffs.dat'):
-        self.tables = []
-        self.found = False
-        self.db = {'model': []}
-        self.ncols = 0
-        self.header = ''
-        self.colheads = {}
-        self.dirs = {}
-        ArgFile.__init__(self, fname)
-
-    def parse_cells(self, llist):
-        self.header = llist[1:]
-        self.ncols = 0
-        for col in self.header:
-            if not(col in self.notcols):
-                self.ncols += 1
-        self.db['ncols'] = self.ncols
-
-    def parse_dir(self, llist):
-        self.dirs[llist[1]] = llist[2]
-
-    def parse_field(self, llist):
-        self.colheads[llist[1]] = llist[2]
-
-    def parse_table(self, llist):
-        if self.found:
-            self.tables.append(self.db)
-            self.db = {'model': []}
-        self.db.update(dict(map(None, self.tablecols, llist[1:])))
-        self.db['cols'] = cols = self.db['cols'].split(',')
-        self.db['header'] = self.header
-        self.db['ncols'] = self.ncols
-
-    def parse_t(self, llist):
-        self.model = {'text': llist.get_arg('')}
-        self.db['model'].append(self.model)
-
-    def parse_s(self, llist):
-        self.model = {'section': llist.get_arg('')}
-        self.db['model'].append(self.model)
-
-    def parse_m(self, llist):
-        self.found = True
-        self.model = dict(map(None, self.db['cols'], llist[1:]))
-        self.model['desc'] = []
-        self.db['model'].append(self.model)
-
-    def parse_d(self, llist):
-        self.model['desc'].append(llist[1])
-
-    def parse_end(self):
-        if self.found:
-            self.tables.append(self.db)
 
 
 if __name__ == '__main__':  # pragma: no cover
