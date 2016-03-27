@@ -987,31 +987,41 @@ def add_book(pif):
 
     if pif.form.has('save'):
         add_book_final(pif)
+    elif pif.form.has('clone'):
+        add_book_ask(pif, pif.form.get_int('id'))
     else:
         add_book_ask(pif)
 
-def add_book_ask(pif):
+def add_book_ask(pif, book_id=None):
+    book = {}
+    if book_id:
+	book = pif.dbh.fetch('book', where="id=%s" % book_id, tag='mass_book')
+	book = book[0] if book else {}
     print '<form name="mass">'
+    print "ID:"
+    print pif.render.format_text_input("id", 64, 64, value='')
+    print pif.render.format_button_input('clone')
+    print '<hr>'
     print "Author:"
-    print pif.render.format_text_input("author", 64, 64, value='')
+    print pif.render.format_text_input("author", 64, 64, value=book.get('book.author', ''))
     print '<br>'
     print "Title:"
-    print pif.render.format_text_input("title", 64, 64, value='')
+    print pif.render.format_text_input("title", 64, 64, value=book.get('book.title', ''))
     print '<br>'
     print "Publisher:"
-    print pif.render.format_text_input("publisher", 32, 32, value='')
+    print pif.render.format_text_input("publisher", 32, 32, value=book.get('book.publisher', ''))
     print '<br>'
     print "Year:"
-    print pif.render.format_text_input("year", 4, 4, value='')
+    print pif.render.format_text_input("year", 4, 4, value=book.get('book.year', ''))
     print '<br>'
     print "ISBN:"
-    print pif.render.format_text_input("isbn", 16, 16, value='')
+    print pif.render.format_text_input("isbn", 16, 16, value=book.get('book.isbn', ''))
     print '<br>'
     print "Hidden:"
     print pif.render.format_checkbox('hidden', [('1', 'yes')])
     print '<br>'
     print "Picture ID:"
-    print pif.render.format_text_input("pic_id", 16, 16, value='')
+    print pif.render.format_text_input("pic_id", 16, 16, value=book.get('book.pic_id', ''))
     print '<br>'
     print "Picture URL:"
     print pif.render.format_text_input("pic_url", 256, 80, value='')
@@ -1025,6 +1035,9 @@ def add_book_ask(pif):
 
 def add_book_final(pif):
     print pif.form, '<br>'
+    if not pif.form.has('title'):
+	print 'No title supplied.'
+	return
     if pif.form.get_str('isbn'):
 	if pif.dbh.fetch('book', where="isbn='%s'" % pif.form.get_str('isbn'), tag='mass_book'):
 	    print 'That isbn is already in use.'

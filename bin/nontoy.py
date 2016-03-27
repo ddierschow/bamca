@@ -98,6 +98,7 @@ def biblio(pif):
 
     lrange['entry'] = [{field: bib_field(fdict, field) for field in lsection['columns']}
 		       for fdict in table]
+    pif.render.format_button_comment(pif)
     return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]))
 
 # -- calendar
