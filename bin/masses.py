@@ -955,6 +955,7 @@ def add_links_scrape(pif):
     print found, "found and dropped"
     print "</form>"
 
+
 def add_links_final(pif):
     #print pif.form, '<hr>'
     site = pif.form.get_int('associated_link')

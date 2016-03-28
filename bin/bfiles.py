@@ -9,7 +9,7 @@ import useful
 # --- barparse ----------------------------------------------------------
 
 
-class ArgList(object):
+class ArgList():
     def __init__(self, line):
         self.llist = []
         line = line.strip()
@@ -55,9 +55,10 @@ class ArgList(object):
         return str(self.llist) + ' (+%d)' % self.curarg
 
 
-class BarFile(object):
+class ArgFile():
     def __init__(self, fname):
         self.filename = fname
+        self.set_globals()
         try:
             self.handle = open(fname)
         except IOError:
@@ -67,14 +68,24 @@ class BarFile(object):
         self.dats = {}
         self.parse()
 
+    def set_globals(self):
+        self.fmttype = 'main'
+        self.pagetitle = self.title = ''
+        self.picdir = ''
+        self.tail = {}
+
+    def read(self):
+        self.tail['stat'] = time.strftime('Last updated %A, %d %B %Y at %I:%M:%S %p %Z.', time.localtime(self.srcstat.st_mtime))
+        try:
+	    return self.read_file(self.handle)
+        except IOError:
+	    raise useful.SimpleError("""I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
+
     def __getitem__(self, arg):
         return self.__dict__[arg]
 
     def get(self, arg, val=None):
         return self.__dict__.get(arg, val)
-
-    def read(self):
-        return self.read_file(self.handle)
 
     def read_line(self, line):
         llist = ArgList(line)
@@ -185,28 +196,6 @@ class BarFile(object):
     def parse_end(self):
         pass
 
-
-# --- unfinished file classes -------------------------------------------
-
-
-class ArgFile(BarFile):
-    def __init__(self, fname):
-        self.set_globals()
-        BarFile.__init__(self, fname)
-
-    def set_globals(self):
-        self.fmttype = 'main'
-        self.pagetitle = self.title = ''
-        self.picdir = ''
-        self.tail = {}
-
-    def read(self):
-        self.tail['stat'] = time.strftime('Last updated %A, %d %B %Y at %I:%M:%S %p %Z.', time.localtime(self.srcstat.st_mtime))
-        try:
-            return BarFile.read(self)
-        except IOError:
-	    raise useful.SimpleError("""I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
-
     def parse_formatter(self, llist):
         self.picdir = llist.get_arg()
         self.fmttype = llist.get_arg()
@@ -234,7 +223,7 @@ class ArgFile(BarFile):
 class SimpleFile(ArgFile):
     def __init__(self, fname):
         self.dblist = []
-        super(SimpleFile, self).__init__(fname)
+        ArgFile.__init__(self, fname)
 
     def __iter__(self):
         return self.dblist.__iter__()

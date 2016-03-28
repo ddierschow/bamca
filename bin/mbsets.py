@@ -22,7 +22,7 @@ class SetFile(bfiles.ArgFile):
         self.header = ''
         self.colheads = {}
         self.dirs = {}
-        super(SetFile, self).__init__(fname)
+        bfiles.ArgFile.__init__(self, fname)
 
     def parse_cells(self, llist):
         self.header = llist[1:]
