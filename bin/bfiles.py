@@ -87,6 +87,9 @@ class ArgFile():
     def get(self, arg, val=None):
         return self.__dict__.get(arg, val)
 
+    def __iter__(self):
+        return self.dblist.__iter__()
+
     def read_line(self, line):
         llist = ArgList(line)
         llist.clean()
@@ -219,21 +222,18 @@ class ArgFile():
     def parse_restrict(self, llist):
         restrict(llist[1])
 
+    def __len__(self):
+        return len(self.dblist)
+
 
 class SimpleFile(ArgFile):
     def __init__(self, fname):
         self.dblist = []
         ArgFile.__init__(self, fname)
 
-    def __iter__(self):
-        return self.dblist.__iter__()
-
     def parse_else(self, llist):
         llist.rewind()
         self.dblist.append(llist)
-
-    def __len__(self):
-        return len(self.dblist)
 
 
 if __name__ == '__main__':  # pragma: no cover
