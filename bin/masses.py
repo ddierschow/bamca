@@ -801,13 +801,202 @@ def add_pack_save(pif):
 
 # ------- links ----------------------------------------------------
 
+COBRA	= 1 # offline
+MBXFDOC	= 2
+COMPARE	= 3 # no scraper
+WIKIA	= 4
+TOYVAN	= 5
+PSDC	= 6
+AREH	= 7
+DAN	= 8
+MBXF	= 9
+CF	= 10
+KULIT	= 11
+DCPLUS	= 12
+MCCH	= 13 # offline
+MBDB	= 14
+MBXU	= 15
+LW	= 16
+
+ml_re = re.compile('''<.*?>''', re.M|re.S)
+def_re_str = '''<a\s+href=['"](?P<u>[^'"]*)['"].*?>(?P<t>.*?)</a>'''
+def_re = re.compile(def_re_str, re.I | re.M | re.S)
+
+class LinkScraper(object):
+    def __init__(self, pif):
+	self.pif = pif
+
+    def url_fetch(self, url):
+	return useful.url_fetch(url, None)
+
+    def links_parse(self, url):
+	data = self.url_fetch(url)
+	return def_re.findall(data)
+
+    def is_valid_link(self, url, lnk):
+	return not lnk.startswith('mailto:') and not lnk.startswith('javascript:')
+
+    def clean_link(self, lnk):
+	return lnk
+
+    def clean_name(self, lnk, txt):
+	return txt.replace('<', '[').replace('>', ']')
+
+    def calc_page_id(self, lnk, txt):
+	return ''
+
+    def clean_page_id(self, page_id):
+	if not page_id.startswith('single'):
+	    return ''
+	page_id = page_id[7:]
+	mod = self.pif.dbh.fetch_casting(page_id)
+	if mod:
+	    return 'single.' + mod['id']
+	mod = self.pif.dbh.fetch_casting_by_alias(page_id)
+	if mod:
+	    return 'single.' + mod['id']
+	return ''
+
+    def scrape_link(self, url, lnk, txt):
+	return {
+	    'page_id': self.calc_page_id(lnk, txt),
+	    'url': urlparse.urljoin(url, self.clean_link(lnk)),
+	    'name': self.clean_name(lnk, txt),
+	}
+
+class LinkScraperMBXFDOC(LinkScraper):
+    lid = MBXFDOC
+
+class LinkScraperWIKIA(LinkScraper):
+    lid = WIKIA
+
+class LinkScraperTOYVAN(LinkScraper):
+    lid = TOYVAN
+
+class LinkScraperPSDC(LinkScraper):
+    lid = PSDC
+
+    def is_valid_link(self, url, lnk):
+	return super(LinkScraperPSDC, self).is_valid_link(url, lnk) and (not 'index.htm' in lnk)
+
+    def links_parse(self, url):
+	lnks = []
+	for lnk in super(LinkScraperPSDC, self).links_parse(url):
+	    for olnk in lnks:
+		if olnk[0] == lnk[0]:
+		    olnk[1] = olnk[1].strip() + ' ' + lnk[1].strip()
+		    break
+	    else:
+		lnks.append([lnk[0], lnk[1].strip()])
+	return lnks
+
+    def calc_page_id(self, lnk, txt):
+	return 'single.' + txt[:txt.find(' ')]
+
+    def clean_name(self, lnk, txt):
+	return ml_re.sub('', txt).strip()
+
+class LinkScraperAREH(LinkScraper):
+    lid = AREH
+
+    site_re_str = '''<option value="(?P<u>[^'"]*)">(?P<t>.*?)</option>'''
+    def links_parse(self, url):
+	data = self.url_fetch(url)
+	return re.compile(self.site_re_str, re.I | re.M | re.S).findall(data)
+
+    def clean_link(self, lnk):
+	return lnk[5:] if lnk.startswith('Data_') else lnk
+
+class LinkScraperDAN(LinkScraper):
+    lid = DAN
+
+    def is_valid_link(self, url, lnk):
+	return lnk.startswith('../mb') or (super(LinkScraperDAN, self).is_valid_link(url, lnk) and
+					   not lnk.startswith('man') and not lnk.startswith('../') and
+					   not lnk.startswith('http://'))
+
+    def calc_page_id(self, lnk, txt):
+	txt = self.clean_name(lnk, txt)
+	return self.clean_page_id('single.' + txt[:txt.find(' ')]) if txt else ''
+
+    def clean_name(self, lnk, txt):
+	return ml_re.sub('', txt).strip()
+
+class LinkScraperMBXF(LinkScraper):
+    lid = MBXF
+
+class LinkScraperCF(LinkScraper):
+    lid = CF
+
+    def clean_name(self, lnk, txt):
+	return ml_re.sub('', txt)
+
+class LinkScraperKULIT(LinkScraper):
+    lid = KULIT
+
+class LinkScraperDCPLUS(LinkScraper):
+    lid = DCPLUS
+
+class LinkScraperMBDB(LinkScraper):
+    lid = MBDB
+
+    def links_parse(self, url):
+	if 'list.php' in url:
+	    return super(LinkScraperMBDB, self).links_parse(url)
+	topdata = self.url_fetch(url)
+	top_re_str = '''<a\s+href=['"](?P<u>list.php?[^'"]*)['"].*?>(?P<t>.*?)</a>'''
+	toplinks = re.compile(top_re_str, re.I | re.M | re.S).findall(topdata)
+	links = []
+	for lnk in toplinks:
+	    links.extend(super(LinkScraperMBDB, self).links_parse(urlparse.urljoin(url, lnk[0])))
+	return links
+
+    def is_valid_link(self, url, lnk):
+	return super(LinkScraperMBDB, self).is_valid_link(url, lnk) and not ('list.php' in lnk or 'index.php' in lnk)
+
+    def calc_page_id(self, lnk, txt):
+	return 'single.MB' + self.clean_name(lnk, txt) if 'showcar.php' in lnk else ''
+
+    def clean_name(self, lnk, txt):
+	return lnk[lnk.rfind('=') + 1:]
+
+class LinkScraperMBXU(LinkScraper):
+    lid = MBXU
+
+    def url_fetch(self, url):
+	urlp = urlparse.urlparse(url)
+	url = urlparse.urlunparse(urlp[:3] + ('', '', ''))
+	data = urlparse.parse_qs(urlp.query)
+	return useful.url_fetch(url, data)
+
+class LinkScraperLW(LinkScraper):
+    lid = LW
+
+
+link_scraper = {
+    MBXFDOC: LinkScraperMBXFDOC,
+    WIKIA: LinkScraperWIKIA,
+    TOYVAN: LinkScraperTOYVAN,
+    PSDC: LinkScraperPSDC,
+    AREH: LinkScraperAREH,
+    DAN: LinkScraperDAN,
+    MBXF: LinkScraperMBXF,
+    CF: LinkScraperCF,
+    KULIT: LinkScraperKULIT,
+    DCPLUS: LinkScraperDCPLUS,
+    MBDB: LinkScraperMBDB,
+    MBXU: LinkScraperMBXU,
+    LW: LinkScraperLW,
+}
+
+
 def add_links(pif):
     asslinks = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)
     if pif.form.has('save'):
         add_links_final(pif)
     elif pif.form.has('url'):
         add_links_scrape(pif)
-    else:
+    else:  # phase 1
         print "<form>"
         print "URL to scrape:"
         print pif.render.format_text_input("url", 256, 80, value='')
@@ -822,7 +1011,8 @@ def add_links(pif):
         print pif.render.format_hidden_input({'type': 'links'})
         print "</form><p>"
 	for lnk in asslinks:
-	    print lnk['link_line.id'], pif.render.format_link(lnk['link_line.url'], lnk['link_line.name']), '<br>'
+	    if lnk['link_line.id'] in link_scraper:
+		print lnk['link_line.id'], pif.render.format_link(lnk['link_line.url'], lnk['link_line.name']), '<br>'
 	    #print lnk, '<br>'
 
 	print pif.render.format_link('http://www.mbx-u.com/Search_Models_Process.php?UMID_1=LR001&UMID_2=LR999'), '<br>'
@@ -848,106 +1038,41 @@ def add_links(pif):
 # 8412 | single.MB897  | single     |             7 |     0 |               7 | 200         | l         |         | http://www.areh.de/HTML/Bas1142.html | Blaze Blaster(2013)                               |             |      |
 # 8413 | single.MB899  | single     |             7 |     0 |               7 | 200         | l         |         | http://www.areh.de/HTML/Bas1144.html | Questor(2013)                                     |             |      |
 
-
-def_re_str = '''<a\s+href=['"](?P<u>[^'"]*)['"].*?>(?P<t>.*?)</a>'''
-site_re_str = {
-    7: '''<option value="(?P<u>[^'"]*)">(?P<t>.*?)</option>'''
-}
-def add_links_parse(pif, site, url, data):
-    return re.compile(site_re_str.get(site, def_re_str), re.I | re.M | re.S).findall(useful.url_fetch(url, data))
-
-ml_re = re.compile('''<.*?>''', re.M|re.S)
-def add_links_scrape_site(pif, url, site, lnk, txt):
-    page_id = ''
-    if ((site == 14 and 'list.php' in lnk or 'index.php' in lnk) or
-	    lnk.startswith('mailto:') or
-	    0):
-	return '', {}
-
-    txt = txt.strip()
-    if site == 6:
-	txt = ml_re.sub('', txt)
-	if not txt:
-	    return '', {}
-    elif site == 8:
-	txt = ml_re.sub('', txt)
-    elif site == 10:
-	txt = ml_re.sub('', txt)
-	if not txt:
-	    return '', {}
-    elif site == 14:
-	txt = lnk[lnk.rfind('=') + 1:]
-    else:
-	txt = txt.replace('<', '[').replace('>', ']')
-
-    if site == 7:
-	lnk = lnk[5:] if lnk.startswith('Data_') else lnk
-
-    if site == 14 and 'showcar.php' in lnk:
-	page_id = 'single.MB' + txt
-
-    full_link = urlparse.urljoin(url, lnk)
-    dat = {
-	'page_id': page_id,
-	'section_id': pif.form.get_str('section_id'),
-	'flags': '0',
-	'associated_link': site,
-	'country': '',
-	'name': txt,
-	'description': '',
-	'note': '',
-    }
-    return full_link, dat
-
-link_fields = ['page_id', 'name']
-link_field_widths = {
-	    'page_id': 12,
-	    #'section_id': 6,
-	    #'flags': 2,
-	    #'associated_link': 2,
-	    #'country': 2,
-	    'name': 40,
-	    #'description': 20,
-	    #'note': 20
-}
 def add_links_scrape(pif):
-    print '<form method="post">'
-    #print pif.render.format_hidden_input({'type': 'links'})
+    '''Top level of phase 2.'''
     url = pif.form.get_str('url')
     site = pif.form.get_int('associated_link')
+    scraper = link_scraper.get(site)
+    if not scraper:
+	print "no scraper for", site
+	return
+    scraper = scraper(pif)
 
-    data = None
-    if site == 15:
-	urlp = urlparse.urlparse(url)
-	url = urlparse.urlunparse(urlp[:3] + ('', '', ''))
-	data = urlparse.parse_qs(urlp.query)
-    print site, url, data, '<br>'
-    print useful.url_fetch(url, data)
-    return
+    print '<form method="post">'
+    #print pif.render.format_hidden_input({'type': 'links'})
 
     print pif.render.format_table_start()
     print pif.render.format_row_start()
     print pif.render.format_cell(0, 'url')
-    for field in link_fields:
-	print pif.render.format_cell(0, field)
+    print pif.render.format_cell(0, 'page_id')
+    print pif.render.format_cell(0, 'name')
     print pif.render.format_row_end()
     #print pif.render.format_hidden_input({'associated_link': site})
     found = 0
     cnt = 1
 
-    for lnk, txt in add_links_parse(pif, site, url, data):
-	full_link, dat = add_links_scrape_site(pif, url, site, lnk, txt)
-	if not full_link:
+    for lnk, txt in scraper.links_parse(url):
+	if not scraper.is_valid_link(url, lnk):
 	    continue
-	if pif.dbh.fetch_link_line_url(full_link):
+	dat = scraper.scrape_link(url, lnk, txt.strip())
+	if pif.dbh.fetch_link_line_url(dat['url']):
 	    found += 1
 	    continue
-	cnts = str(cnt)
 	print pif.render.format_row_start()
-	print pif.render.format_cell(1, pif.render.format_link(full_link))
-	print pif.render.format_hidden_input({'url.' + cnts: full_link})
-	for field in link_fields:
-	    print pif.render.format_cell(0, pif.render.format_text_input(field + '.' + cnts, 256, link_field_widths[field], dat[field]))
+	print pif.render.format_cell(1, pif.render.format_link(dat['url']))
+	print pif.render.format_hidden_input({'url.' + str(cnt): dat['url']})
+	print pif.render.format_cell(0, pif.render.format_text_input('page_id.' + str(cnt), 256, 20, dat['page_id']))
+	print pif.render.format_cell(0, pif.render.format_text_input('name.' + str(cnt), 256, 40, dat['name']))
 	print pif.render.format_row_end()
 	cnt += 1
     print pif.render.format_table_end()
@@ -957,6 +1082,7 @@ def add_links_scrape(pif):
 
 
 def add_links_final(pif):
+    '''Top level of phase 3.'''
     #print pif.form, '<hr>'
     site = pif.form.get_int('associated_link')
     # cheating: leaving the dot off here removes it from the get_dict call.
@@ -964,7 +1090,7 @@ def add_links_final(pif):
 	link_vals = pif.form.get_dict(end=key)
 	link_vals.update({'display_order': site,
 	    'section_id': 'single', 'flags': 0, 'country': '', 'description': '',
-	    'associated_link': site, 'page_id': 'single.' + link_vals['page_id'],
+	    'associated_link': site, 'page_id': link_vals['page_id'],
 	    'note': '', 'last_status': None, 'link_type': 'l'})
 	print link_vals
 	print pif.dbh.insert_link_line(link_vals)

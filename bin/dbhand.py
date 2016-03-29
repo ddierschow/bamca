@@ -268,7 +268,7 @@ class DBHandler(object):
         return fet1 + fet2
 
     def fetch_casting_by_alias(self, id):
-        manlist = self.fetch('alias,casting', left_joins=[('vehicle_make', 'casting.make=vehicle_make.make')], where="casting.id=alias.ref_id and alias.id='%s'" % id, tag='CastingByAlias')
+        manlist = self.fetch('alias,casting,base_id', left_joins=[('vehicle_make', 'casting.make=vehicle_make.make')], where="casting.id=alias.ref_id and alias.id='%s'" % id, tag='CastingByAlias')
         if manlist:
             return self.modify_man_item(manlist[0])
         return {}
