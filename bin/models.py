@@ -302,5 +302,18 @@ def show_adds(pif, mod_id, var_id=''):
     return ostr
 
 
+def add_model_thumb_pic_link(pif, mdict):
+    ostr = '<table><tr><td class="image">'
+    ostr += pif.render.format_image_required([mdict['id']], prefix=mbdata.IMG_SIZ_TINY, pdir=config.IMG_DIR_MAN)
+    ostr += '</td>\n<td class="text">'
+    if mdict['id']:
+	ostr += '<span class="modelname">'
+	ostr += pif.render.format_link('single.cgi?id=%s' % mdict['id'], mdict['id'] + ': ' + mdict['name'])
+	ostr += '</span><br>\n'
+    ostr += '<span class="info">See: %s</span>' % mdict['img']
+    ostr += '</td></tr></table>\n'
+    return ostr
+
+
 if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''

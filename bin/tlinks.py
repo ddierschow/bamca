@@ -502,6 +502,8 @@ def edit_multiple(pif):
         linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_NEW)
     elif sec_id == 'nonf':
         linklines = pif.dbh.fetch_link_lines(where="last_status != '200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
+    elif pif.form.get_str('stat'):
+        linklines = pif.dbh.fetch_link_lines(where="last_status='%s'" % pif.form.get_str('stat'))
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
         page_id = pif.dbh.fetch_section(sec_id)['section.page_id']
@@ -533,16 +535,24 @@ def edit_multiple(pif):
 
 def edit_choose(pif):
     sections = pif.dbh.fetch_sections(where="page_id like 'links%'")
-    ostr = '<ul>\n'
+    sections.sort(key=lambda x: x['section.page_id'])
+    ostr = '<table width="100%"><tr><td width="65%" valign="top">\n'
+    ostr += '<ul>\n'
+    for sec in sections:
+        ostr += '<li><a href="edlinks.cgi?sec=%(section.id)s">%(section.page_id)s: %(section.name)s</a>\n' % sec
+    ostr += '</ul>\n'
+    ostr += '</td>\n'
+    ostr += '<td width="35%" valign="top">\n'
+    ostr += '<ul>\n'
     ostr += '<li><a href="edlinks.cgi?sec=new">New</a>\n'
     ostr += '<li><a href="edlinks.cgi?sec=nonf">Nonfunctional</a>\n'
     ostr += '<li><a href="edlinks.cgi?sec=single">Single</a>\n'
-    ostr += '<li><a href="edlinks.cgi?as=1">Associables</a>\n'
-    sections.sort(key=lambda x: x['section.page_id'])
-    for sec in sections:
-        ostr += '<li><a href="edlinks.cgi?sec=%(section.id)s">%(section.page_id)s: %(section.name)s</a>\n' % sec
-    ostr += '<li><a href="%s">Blacklist</a>' % pif.dbh.get_editor_link('blacklist', {})
+    ostr += '<li><a href="edlinks.cgi?as=1">Associables</a><p>\n'
+    ostr += '<li><a href="%s">Blacklist</a><p>' % pif.dbh.get_editor_link('blacklist', {})
+    for stat in sorted(pif.dbh.fetch_link_statuses()):
+        ostr += '<li><a href="edlinks.cgi?stat=%(last_status)s">%(last_status)s</a>\n' % stat
     ostr += '</ul>\n'
+    ostr += '</td></tr></table>\n'
     return ostr
 
 
@@ -560,6 +570,8 @@ def edit_links(pif):
     elif pif.form.get_bool('as'):
         ostr += edit_multiple(pif)
     elif pif.form.get_str('sec'):
+        ostr += edit_multiple(pif)
+    elif pif.form.get_str('stat'):
         ostr += edit_multiple(pif)
     elif pif.form.get_str('page'):
         ostr += edit_multiple(pif)
@@ -579,12 +591,13 @@ def check_links(pif, sections=None, reject=[], retest=False, visible=False):
 
 def check_link(pif, link, rejects=[], visible=False):
     if link:
+	print link, visible
         link = pif.dbh.depref('link_line', link)
         lstatus = 'unset'
 	if visible and (link['flags'] & pif.dbh.FLAG_LINK_LINE_HIDDEN or link['page_id'] == 'links.rejects'):
 	    return
         print link['id'], link['url'],
-        if link['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
+        if link['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE or link['link_type'] in 'tfp':
             lstatus = 'NoVer'
         elif link['link_type'] in 'bglsx':
 #            ret = is_blacklisted(link['url'], rejects)
@@ -592,8 +605,8 @@ def check_link(pif, link, rejects=[], visible=False):
 #                print link['id'], link['section_id'], link['url'], "BLACKLISTED", ret
                 #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
             try:
-                url = urllib2.urlopen(link['url'])
-                lstatus = str(url.code)
+		url = urllib2.urlopen(urllib2.Request(link['url'], headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
+                lstatus = 'H' + str(url.code)
             except urllib2.HTTPError as (c):
                 print 'http error:', c.code
                 lstatus = 'H' + str(c.code)

@@ -91,7 +91,7 @@ class DBHandler(object):
         return columns
 
     def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None,
-	      tag='', verbose=False):
+	      distinct=False, tag='', verbose=False):
         if not columns:
             if isinstance(table_name, str):
                 table_name = table_name.split(',')
@@ -115,7 +115,7 @@ class DBHandler(object):
 		j_tab = lj[0][:lj[0].find(' as ')] if ' as ' in lj[0] else lj[0]
 		j_name = lj[0][lj[0].find(' as ') + 4:] if ' as ' in lj[0] else lj[0]
                 columns.extend([j_name + '.' + x for x in self.table_info[j_tab]['columns']])
-        return self.dbi.select(table_name, columns, args=args, where=where, group=group, order=order, tag=tag, verbose=verbose)
+        return self.dbi.select(table_name, columns, args=args, where=where, group=group, order=order, distinct=distinct, tag=tag, verbose=verbose)
 
     def describe_dict(self, table):
         return {x['field']: x for x in self.describe(table)}
@@ -469,6 +469,15 @@ class DBHandler(object):
     def fetch_attribute_pictures(self, id):
         ret = self.fetch('attribute_picture', left_joins=[('attribute', 'attribute.id=attribute_picture.attr_id ')],
 			 where="attribute_picture.mod_id='%s'" % id, tag='AttributePictures')
+	return ret
+
+    def fetch_attribute_pictures_by_type(self, attr_type):
+        left_joins = [("base_id", "attribute_picture.mod_id=base_id.id")]
+        left_joins += [("casting", "attribute_picture.mod_id=casting.id")]
+        ret = self.fetch('attribute_picture',
+			 where="attribute_picture.attr_type='%s'" % attr_type,
+			 left_joins=left_joins,
+			 tag='AttributePicturesByType')
 	return ret
 
     def fetch_attribute_picture(self, id):
@@ -839,6 +848,9 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             wheres.append("l1.page_id='" + page_id + "'")
         wheres.append('l1.associated_link=l2.id')
         return self.fetch('link_line l1, link_line l2', columns=columns, where=" and ".join(wheres), tag='LinksSingle', order="l1.display_order")
+
+    def fetch_link_statuses(self):
+	return self.fetch('link_line', columns=['last_status'], distinct=True, tag='link_statuses', verbose=True)
 
     #- blacklist
 

@@ -152,11 +152,13 @@ class DB(object):
                 return [dict(zip(desc_cols, x)) for x in res]
         return list()
 
-    def select(self, table, cols=None, where=None, group=None, order=None, args=None, tag='', verbose=None):
+    def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, tag='', verbose=None):
         if self.db:
             query = 'select '
             if tag:
                 query += "/* %s */ " % tag
+	    if distinct:
+		query += 'distinct '
             if cols:
                 query += '''%s from %s''' % (','.join(cols), table)
             else:

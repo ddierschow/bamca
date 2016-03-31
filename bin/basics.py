@@ -325,5 +325,9 @@ def standalone(main_fn):
 # --- -------------------------------------------------------------------
 
 
-if __name__ == '__main__':  # pragma: no cover
+def goaway():
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+
+
+if __name__ == '__main__':  # pragma: no cover
+    goaway()

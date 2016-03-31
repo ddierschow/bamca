@@ -33,7 +33,7 @@ DoPageHeader($pif);
  <li><span style="border-width: 1px; border-style: solid; padding: 4px 8px 2px 8px;"><a href="database.php">Matchbox Model <span style="font-size: x-large; font-weight: bold;">Database</span></a></span>
  <li><a href="models.html">Matchbox <b>Model</b> Pages for all ranges
  <li><a href="pic/ads/">Matchbox <b>Advertisements</b> from over the years</a>
- <li><a href="pic/errors/">Matchbox <b>Errors</b> in packaging and manufacturing</a>
+ <li><a href="cgi-bin/errors.cgi">Matchbox <b>Errors</b> in packaging and manufacturing</a>
  <li><a href="cgi-bin/boxart.cgi">Matchbox <b>Box</b> Art</a>
  <li><a href="cgi-bin/package.cgi?page=blister">Matchbox <b>Blister</b> Packs</a>
  <li><a href="pages/mbhistory.html"><b>History</b> of Matchbox</a>
