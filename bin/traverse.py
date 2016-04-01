@@ -93,6 +93,7 @@ def show_dir(pif, tform):
 	    print '<input type="checkbox" name="shc" value="1"> Categorize'
 	    print '<input type="checkbox" name="mss" value="1"> Mass'
 	    print '<input type="checkbox" name="shm" value="1"> Shelve'
+	    print '<input type="checkbox" name="suf" value="1"> Resuffix'
         print '<input type="checkbox" name="si" value="1"> Sized'
         print pif.render.format_button_input()
 	print '<br>'
@@ -105,7 +106,7 @@ imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="ch
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False, cate=False, sx=0, sy=0, mss=False):
+def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False):
     also = {'border': 0}
     if sx:
 	also['width'] = sx
@@ -122,6 +123,10 @@ def img(pif, args, base='', shlv=False, cate=False, sx=0, sy=0, mss=False):
             continue
 	elif mss:
             inp += '''<input type="text" name="var.%s"> var''' % arg
+            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            continue
+	elif rsuf:
+            inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
             print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
             continue
         if arg == base:
@@ -165,7 +170,7 @@ def show_imgs(pif, tform):
 		    if len(flist) > 1:
 			img(pif, flist, fn, shlv=tform.shlv, cate=tform.cate, sx=tform.szx, sy=tform.szy, mss=tform.mss)
 		else:
-		    img(pif, [fn], shlv=tform.shlv, cate=tform.cate, sx=tform.szx, sy=tform.szy, mss=tform.mss)
+		    img(pif, [fn], shlv=tform.shlv, cate=tform.cate, rsuf=tform.rsuf, sx=tform.szx, sy=tform.szy, mss=tform.mss)
 	    print '</table>'
 	    print '<hr>'
     print '<input type="hidden" name="d" value="%s">' % tform.tdir
@@ -176,6 +181,8 @@ def show_imgs(pif, tform):
     elif tform.shlv:
 	print '<input type="hidden" name="pre" value="man">'
 	print '<input type="hidden" name="shm" value="1">'
+    elif tform.rsuf:
+	print '<input type="hidden" name="suf" value="1">'
     elif tform.mss:
 	print '<input type="hidden" name="mss" value="1">'
     print pif.render.format_button_input()
@@ -186,6 +193,15 @@ def show_imgs(pif, tform):
 def show_script(pif, tform):
     if tform.mss:
 	do_masses(pif, tform)
+	return
+    if tform.rsuf:
+	for fn, suf in tform.rsfx:
+	    root, ext = os.path.splitext(fn)
+	    if '-' in root:
+		root = root[:root.find('-')]
+	    nfn = root + '-' + suf + ext
+	    print fn, root + '-' + suf + ext, '<br>'
+	    useful.file_mover(os.path.join(tform.tdir, fn), os.path.join(tform.tdir, nfn), mv=True, inc=True)
 	return
     rend = dict(tform.renl)
     print '<pre>'
@@ -340,6 +356,7 @@ class TraverseForm(object):
 	pif.render.pic_dir = self.tdir = pif.form.get_str('d', '.')
 	self.libl = pif.form.get_list(start='lib.', defval='')
 	self.renl = pif.form.get_list(start='ren.', defval='')
+	self.rsfx = pif.form.get_list(start='rsfx.', defval='')
 	#cols = ''  # pif.form.get_str('cols')
 	#h = 0  # pif.form.get_int('h')
 	self.sorty = pif.form.get_int('sort')
@@ -351,6 +368,7 @@ class TraverseForm(object):
 	self.cpct = pif.form.get_int("co")
 	self.mss = pif.form.get_int("mss")
 	self.shlv = pif.form.get_int("shm")
+	self.rsuf = pif.form.get_int("suf")
 	self.cate = pif.form.get_int("shc")
 	self.sizd = pif.form.get_int("si")
 	self.scrt = pif.form.get_int('sc')
@@ -378,7 +396,7 @@ def main(pif):
     tform = TraverseForm().read(pif)
 
     print pif.render.format_head(extra=pif.render.increment_js)
-    print pif.form.get_form()
+    print pif.form.get_form(), '<br>'
     if tform.patt:
         show_imgs(pif, tform)
     elif tform.scrt:
@@ -393,4 +411,4 @@ def main(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    basics.goaway()
