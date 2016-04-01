@@ -60,6 +60,7 @@ else
 <li><a href="cgi-bin/links.cgi?page=rejects">rejects</a>
 <li><a href="pic/ads/">ads</a>
 <li><a href="cgi-bin/errors.cgi">errors</a>
+    <a href="cgi-bin/prepro.cgi">prepro</a>
 <li><a href="pages/">pages</a>
 <li><a href="pages/glossary.html">glossary</a>
 </ul></h3>

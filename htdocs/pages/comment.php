@@ -10,28 +10,21 @@ DoHead($pif);
 DoResetJavascript();
 
 DoPageHeader($pif);
-?> 
 
-<?php
-
-function reinput($arr)
-{
+function reinput($arr) {
     foreach ($arr as $key => $val)
 	echo '<input type="hidden" name="' . $key . '" value="' . $val . '">' . "\n";
 }
 
-if ($pif['bad_ip'])
-{
+if ($pif['bad_ip']) {
     echo "The IP address you're using has generated too much spam to our servers.\n";
     echo "The comment capability has been disabled.  You can try sending email if you really want to get through,\n";
     echo "but don't hope for too much.";
 }
-else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE))
-{
+else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE)) {
     echo 'Whoa there.  This is not the correct place to submit links.  Please use the "Suggest a Link" page on the main index.' . "\n";
 }
-else if (array_key_exists('submit_x', $_POST))
-{
+else if (array_key_exists('submit_x', $_POST)) {
     echo "I am sending this comment for you. ";
     $fn = "../../logs/comment." . strftime('%Y%m%d.%H%M%S');
     echo "<dl><dt>My Subject</dt><dd>" . $_POST['mysubject'] . "</dd>\n";
@@ -44,8 +37,7 @@ else if (array_key_exists('submit_x', $_POST))
     fclose($fh);
     echo "Thanks for sending that.  Now please use the BACK button on your browser to return to where you were.";
 }
-else
-{
+else {
     echo '<form action="comment.php" method="post" name="comment">' . "\n";
     reinput($_GET);
 ?>
@@ -64,9 +56,7 @@ an email address, we will try to respond.
 </form>
 <?php
 }
-?>
 
-<?php
 DoPageFooter($pif);
 ?>
 

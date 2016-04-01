@@ -89,7 +89,7 @@ def biblio(pif):
 	url = ''
 	if field in row_links:
 	    if field == 'edit':
-		cont = 'edit'
+		cont = str(fdict['id'])
 	    cmd, arg = row_links[field].split(':')
 	    arg = [str(fdict.get(x, lsection.get(x, ''))) for x in arg.split(',')]
 	    if ''.join(arg):
@@ -192,4 +192,4 @@ def activity_main(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pics/tested.gif"></body></html>'''
+    basics.goaway()
