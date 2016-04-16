@@ -240,7 +240,7 @@ def format_form(pif, listCats):
     ostr += pif.render.format_row_end()
     ostr += pif.render.format_row_start()
     ostr += pif.render.format_cell(0)
-    ostr += pif.render.format_cell(1, pif.render.format_text_input("note", 80))
+    ostr += pif.render.format_cell(1, pif.render.format_text_input("note", 80, 80))
     ostr += pif.render.format_row_end()
     ostr += pif.render.format_row_start()
     ostr += pif.render.format_cell(0, '&nbsp;')
@@ -335,6 +335,7 @@ def add_new_link(pif, dictCats, listRejects):
         ostr += ent[0] + ' '
         ostr += '<br>' .join(ent[1])
         ostr += '\n</ul>\n'
+	check_link(link)
 	# TODO: Add auto-verification
     return ostr
 
@@ -343,14 +344,13 @@ def add_new_link(pif, dictCats, listRejects):
 @basics.web_page
 def add_page(pif):
     pif.render.print_html()
-    print pif.render.format_head(extra=pif.render.reset_button_js)
 
     rejected, blacklist = read_blacklist(pif)
     for l in blacklist:
         if os.environ.get('REMOTE_ADDR') == l:
-            print "You have been banned from using this service because of previous abuses.  If you have a problem with this, contact us via email, but don't hope for much."
-            print pif.render.format_tail()
-            sys.exit(0)
+            raise useful.SimpleError("You have been banned from using this service because of previous abuses.  If you have a problem with this, contact us via email, but don't hope for much.")
+
+    print pif.render.format_head(extra=pif.render.reset_button_js)
     listCats, listIndices, dictCats, listRejectCats = read_config(pif)
     ostr = '''
 You can now suggest links to be added to the ToyLinks page.  I will review them and move them to the approprate place.
@@ -395,9 +395,9 @@ flag_check_names = [
 
 def edit_single(pif):
     listCats, listIndices, dictCats, listRejectCats = read_config(pif, True)
-    listCats.append(('single', 'single'))
+    #listCats.append(('single', 'single'))
     table_info = pif.dbh.table_info['link_line']
-    id = pif.form.get_str('id')
+    link_id = pif.form.get_str('id')
     if pif.form.get_bool('save'):
         all_links, highest_disp_order = read_all_links(pif)
         nlink = {x: pif.form.get_str(x) for x in table_info['columns']}
@@ -415,10 +415,10 @@ def edit_single(pif):
         pif.dbh.update_link_line(nlink)
         print '<br>record saved<br>'
     elif pif.form.get_bool('test'):
-        link = pif.dbh.fetch_link_line(id)
+        link = pif.dbh.fetch_link_line(link_id)
         check_link(pif, link)  # don't care about blacklist here, just actual check
     elif pif.form.get_bool('delete'):
-        pif.dbh.delete_link_line(id)
+        pif.dbh.delete_link_line(link_id)
         return "<br>deleted<br>"
     elif pif.form.get_bool('reject'):
         nlink = {x: pif.form.get_str(x, '') for x in table_info['columns']}
@@ -429,11 +429,11 @@ def edit_single(pif):
         pif.dbh.update_link_line(nlink)
         print '<br>record rejected<br>'
     elif pif.form.get_bool('add'):
-        id = (#pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id', ''), 'section_id': pif.form.get_str('sec')})
+        link_id = (#pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id', ''), 'section_id': pif.form.get_str('sec')})
 #        pif.form.set_val('id',
 	    pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
 
-    links = pif.dbh.fetch_link_lines(where="id='%s'" % id)
+    links = pif.dbh.fetch_link_lines(where="id='%s'" % link_id)
     if not links:
 	raise useful.SimpleError("That ID wasn't found.")
     link = links[0]
@@ -488,7 +488,8 @@ def edit_single(pif):
     ostr += pif.render.format_button_input("reject")
     ostr += pif.render.format_select('rejects_sec', [('', 'Please choose one from the list')] + listRejectCats)
     ostr += '</form>'
-    ostr += pif.render.format_table_end()
+    ostr += pif.render.format_button("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id}))
+    #ostr += pif.render.format_table_end()
     return ostr
 
 
@@ -501,7 +502,7 @@ def edit_multiple(pif):
     elif sec_id == 'new':
         linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_NEW)
     elif sec_id == 'nonf':
-        linklines = pif.dbh.fetch_link_lines(where="last_status != '200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
+        linklines = pif.dbh.fetch_link_lines(where="last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
     elif pif.form.get_str('stat'):
         linklines = pif.dbh.fetch_link_lines(where="last_status='%s'" % pif.form.get_str('stat'))
     elif sec_id:
