@@ -9,6 +9,7 @@ import models
 import useful
 
 
+id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic']
 note_attributes = ['manufacture', 'area', 'category', 'date', 'note', 'from_CY_number']
 desc_attributes = ['text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows']
 hidden_attributes = ['mod_id', 'var', 'picture_id', 'other', 'references', 'imported', 'imported_from', 'imported_var', 'flags']
@@ -23,86 +24,103 @@ fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
 
 # ----- display single variation --------------------------
 
-def single_variation(pif, man, var_id):
-    mod_id = id = man['id']
-    vsform = VarSearchForm(pif, mod_id)
-    #pif.render.title = mod_id + ': ' + man['name']
-    print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_select_js)
-    print '<table width="100%"><tr>'
-
-    content = pif.render.format_link('vars.cgi?mod=%s' % mod_id, "See All") + '<br>'
-    if pif.is_allowed('a'):  # pragma: no cover
-        #content += pif.render.format_link('vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id), "Delete") + '<br>'
-        content += pif.render.format_link('vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var_id), "Edit") + '<br>'
-        content += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1' % (os.path.join(config.LIB_MAN_DIR, mod_id.lower()), mod_id, var_id), "Pictures") + '<br>'
-        #content += pif.render.format_link('?mod=%s&var=%s&rmpic=1' % (mod_id, var_id), "Remove Pictures") + '<br>'
-        content += pif.render.format_link(pif.dbh.get_editor_link('casting', {'id': mod_id}), "Casting") + '<br>'
-        content += pif.render.format_link('?recalc=1&mod=%s' % mod_id, "Recalc") + '<br>'
-    if pif.is_allowed('u'):  # pragma: no cover
-        content += pif.render.format_link('upload.cgi?d=' + os.path.join(config.LIB_MAN_DIR, mod_id.lower()), "Upload") + '<br>'
-    #content += pif.render.format_link(pif, 'man=%s&var=%s' % (id, var_id))
-    print models.add_left_bar(pif, '', man['id'], man['vehicle_type'], 4, content)
-    print models.add_banner(pif, pif.render.title)
-    print '<tr><td>'
-    print '<center>'
+def show_variation_editor(pif, man, var_id, edit=False):
+    edit = edit and pif.is_allowed('a')
+    if not man:
+        raise useful.SimpleError("That casting was not found.")
+    mod_id = man['id']
 
     variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))
-    if not variation:  # pragma: no cover
-        return
+    if not variation:
+        raise useful.SimpleError("That variation was not found.")
     variation = variation[0]
-    print '<center>'
+    vsform = VarSearchForm(pif, mod_id)
+    pdir = pif.render.pic_dir
+
+    left_bar_content = ''
+    if pif.is_allowed('a'):  # pragma: no cover
+	left_bar_content += pif.render.format_link('vars.cgi?mod=%s' % mod_id, "See All") + '<br>'
+        #left_bar_content += pif.render.format_link('vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id), "Delete") + '<br>'
+	if edit:
+	    left_bar_content += pif.render.format_link('vars.cgi?mod=%s&var=%s' % (mod_id, var_id), "See") + '<br>'
+	else:
+	    left_bar_content += pif.render.format_link('vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var_id), "Edit") + '<br>'
+	left_bar_content += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (os.path.join(config.LIB_MAN_DIR, mod_id.lower()), mod_id, var_id, mod_id, var_id), 'Pictures') + '<br>'
+        #left_bar_content += pif.render.format_link('?mod=%s&var=%s&rmpic=1' % (mod_id, var_id), "Remove Pictures") + '<br>'
+        left_bar_content += pif.render.format_link(pif.dbh.get_editor_link('casting', {'id': mod_id}), "Casting") + '<br>'
+        left_bar_content += pif.render.format_link('?recalc=1&mod=%s' % mod_id, "Recalc") + '<br>'
+    if pif.is_allowed('u'):  # pragma: no cover
+        left_bar_content += pif.render.format_link('upload.cgi?d=' + os.path.join(config.LIB_MAN_DIR, mod_id.lower()), "Upload") + '<br>'
+
+    footer = ''
+    if edit:
+	footer += pif.render.format_button_input('save')
+	footer += pif.render.format_button_reset('vars')
+	footer += pif.render.format_button("delete", 'vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id))
+	footer += pif.render.format_button("remove_picture", 'vars.cgi?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
+	footer += pif.render.format_button("promote", '?mod=%s&var=%s&promote=1' % (mod_id, var_id))
 
     pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
-    img = pif.render.format_image_required(variation['mod_id'], vars=pic_var, pdir=pif.render.pic_dir, largest=mbdata.IMG_SIZ_HUGE)
-    if pif.is_allowed('u'):  # pragma: no cover
-        print '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.LIB_MAN_DIR, id.lower()), id, pic_var) + img + '</a>'
-    else:
-        print '<a href="upload.cgi?m=%s&v=%s">%s</a>' % (id, var_id, img)
-    print '<p>'
-    print '<table class="vartable" style="width: auto;">'
-    print '<tr><td class="varentry"><i>%s</i></td></tr>' % variation['text_description']
-    print "</table>"
-    print '<p></center>'
+    img = ''.join([
+        pif.render.format_image_required(mod_id, pdir=pdir, vars=pic_var, nobase=True, prefix=s)
+	for s in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]
+    ]) if edit else pif.render.format_image_required(mod_id, pdir=pdir, vars=pic_var, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
 
+    variation['references'] = ' '.join(list(set(vsform.selects.get(var_id, []))))
     variation['area'] = ', '.join([mbdata.regions.get(x, x) for x in variation.get('area', '').split(';')])
-    data = variation.keys() + filter(lambda d: d not in variation, vsform.attributes)
-    hdrs = {x: x for x in variation}
-    data.sort()
+    data = sorted(variation.keys() + [d for d in vsform.attributes if d not in variation])
 
-    print '<center>'
-
-    llistix = dict(id='single')
-    lsec = {'columns': ['title', 'value'],
-	'headers': {'title': 'Title', 'value': 'Value'},
-	'range': list(),
-    }
-    ranges = [
-	{'name': 'Description Texts', 'id': 'det', '_attrs': desc_attributes[1:]},
-	{'name': 'Individual Attributes', 'id': 'det', '_attrs': [d for d in data if not (d in desc_attributes or d in note_attributes or d in hidden_attributes)]},
-	{'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
-    ]
-
+    lsec = {'columns': ['title', 'value'], 'id': 'single'}
+    if edit:
+	lsec['headers'] = {'title': 'Title', 'value': 'Value', 'field': 'Field', 'new': 'New'}
+	lsec['columns'] = ['field', 'title', 'value', 'new']
+	ranges = [{'name': 'Identification Attributes', 'id': 'det', '_attrs': id_attributes}]
+    else:
+	lsec['headers'] = {'title': 'Title', 'value': 'Value'}
+	lsec['columns'] = ['title', 'value']
+	ranges = [{'name': 'Description Texts', 'id': 'det', '_attrs': desc_attributes[1:]}]
+    ranges.extend([
+	    {'name': 'Individual Attributes', 'id': 'det', '_attrs': [d for d in data if not (d in desc_attributes or d in note_attributes or d in hidden_attributes)]},
+	    {'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
+	])
     for lran in ranges:
-	lran['entry'] = show_details(pif, lran['_attrs'], vsform.attributes, variation, id=lran['id'])
-	lsec['range'].append(lran)
+	lran['entry'] = show_details(pif, lran['_attrs'], vsform.attributes, variation, ran_id=lran['id'])
+    lsec['range'] = ranges
+    llistix = {'id': 'single', 'section': [lsec]}
 
-    llistix['section'] = [lsec]
-    print pif.render.format_listix(llistix)
+    appearances = show_appearances(pif, mod_id, var_id, pics=True)
+    adds = models.show_adds(pif, mod_id, var_id)
+    upload = 'upload.cgi?m=%s&v=%s' % (mod_id, var_id) + (
+	'd=%s' % os.path.join(config.LIB_MAN_DIR, mod_id.lower())
+	if pif.is_allowed('u') else '')
 
-    print '<p><center><b><a href="upload.cgi?m=%s&v=%s">Upload a Picture</a></b></center>' % (mod_id, var_id)
+    # ------- render ------------------------------------
 
-    print '<p>'
-    print appearances(pif, mod_id, var_id, pics=True)
+    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js)
+    pif.render.format_button_comment(pif, 'man=%s&var_id=%s' % (mod_id, var_id))
+    context = {
+	'title': pif.render.title,
+	'note': '',
+	'type_id': '',
+	'base_id': man['id'],
+	'vehicle_type': man['vehicle_type'],
+	'rowspan': '4',
+	'left_bar_content': left_bar_content,
+	'description': variation['text_description'],
+	'image': img,
+	'llistix': llistix,
+	#'formatted_listix': pif.render.format_listix(llistix),
+	'appearances': appearances,
+	'adds': adds,
+	'upload': upload,
+	'edit': edit,
+	'variation': variation,
+	'footer': footer,
+    }
+    return pif.render.format_template('var.html', **context)
 
-    print '<p>'
-    print models.show_adds(pif, mod_id, var_id)
 
-    print '<tr><td class="bottombar">'
-    print pif.render.format_button_comment(pif, 'man=%s&var_id=%s' % (mod_id, var_id))
-    print '</td></tr></table>'
-
-
-def appearances(pif, mod_id, var_id, pics=False):
+def show_appearances(pif, mod_id, var_id, pics=False):
     varsel = pif.dbh.fetch_variation_selects(mod_id, var_id)
     ostr = ''
     if varsel:
@@ -139,7 +157,10 @@ def appearances(pif, mod_id, var_id, pics=False):
 
 # ----- variation editor ----------------------------------
 
-def show_detail(pif, field, attributes, variation, edit=False, id=''):
+def show_detail(pif, field, attributes, variation, edit=False, ran_id=''):
+    if field == '_repic':
+	return {'field': '', 'title': 'Move pictures to', 'value': '',
+		'new': pif.render.format_text_input("repic." + variation['var'], 16, 16)}
     return {
 	'field': field,
 	'title': attributes[field]['title'],
@@ -151,98 +172,8 @@ def show_detail(pif, field, attributes, variation, edit=False, id=''):
     }
 
 
-def show_details(pif, data, attributes, variation, id=''):
-    return [show_detail(pif, d, attributes, variation, id=id) for d in data if d in variation]
-
-
-def show_variation_editor(pif, id, var_id):
-    vsform = VarSearchForm(pif, id)
-    man = pif.dbh.fetch_casting(id)
-    if not man:
-        raise useful.SimpleError("That casting was not found.")
-    pif.render.title = man['id'] + ': ' + man['name']
-    mod_id = man['id']
-
-    variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))
-    if not variation:
-        raise useful.SimpleError("That variation was not found.")
-    print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_select_js)
-    variation = variation[0]
-    print '<center>Variation %s<p>' % variation['var'].upper()
-
-    pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
-    img = ''
-    if pif.is_allowed('a'):  # pragma: no cover
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_TINY)
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_SMALL)
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_MEDIUM)
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, prefix=mbdata.IMG_SIZ_LARGE)
-    else:
-        img += pif.render.format_image_required(variation['mod_id'], pdir=pif.render.pic_dir, vars=pic_var, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
-    if pif.is_allowed('u'):  # pragma: no cover
-        print '<a href="upload.cgi?d=%s&m=%s&v=%s">' % (os.path.join(config.LIB_MAN_DIR, id.lower()), id, var_id) + img + '</a>'
-    else:
-        print '<a href="upload.cgi?m=%s&v=%s">%s</a>' % (id, var_id, img)
-    print '<p></center>'
-
-    print '<form action="vars.cgi" name="vars" method="post">'
-
-    variation['references'] = ' '.join(list(set(vsform.selects.get(var_id, []))))
-    variation['area'] = ', '.join([mbdata.regions.get(x, x) for x in variation.get('area', '').split(';')])
-    data = variation.keys()
-    for key in vsform.attributes:
-	variation.setdefault(key, '')
-        if key not in data:
-            data.append(key)
-    hdrs = {x: x for x in variation.keys()}
-    data.sort()
-
-    llistix = dict()
-    lsec = {'columns': ['title', 'value'],
-	'headers': {'title': 'Title', 'value': 'Value', 'field': 'Field', 'new': 'New'},
-	'range': list(),
-    }
-    id_attributes = ['mod_id', 'var']
-    if pif.is_allowed('a'):  # pragma: no cover
-	lsec['columns'] = ['field', 'title', 'value', 'new']
-        id_attributes.extend(['picture_id', 'imported_var', 'imported_from', 'references'])
-    ranges = [
-	{'name': 'Identification Attributes', 'id': 'det', '_attrs': id_attributes},
-	{'name': 'Individual Attributes', 'id': 'det', '_attrs': [d for d in data if not (d in desc_attributes or d in note_attributes or d in hidden_attributes)]},
-	{'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
-    ]
-
-    for lran in ranges:
-	lran['entry'] = show_details(pif, lran['_attrs'], vsform.attributes, variation, id=lran['id'])
-	lsec['range'].append(lran)
-    lsec['range'][0]['entry'].append({'field': '', 'title': 'Move pictures to', 'value': '',
-	    'new': pif.render.format_text_input("repic." + variation['var'], 16, 16)})
-
-    llistix['section'] = [lsec]
-    print pif.render.format_listix(llistix)
-
-    print appearances(pif, mod_id, var_id)
-
-    print '<p>'
-    print '<input type="hidden" name="page" value="%s">' % pif.page_id
-    print '<input type="hidden" name="mod" value="%s">' % mod_id
-    print '<input type="hidden" name="ovar" value="%s">' % var_id
-    if pif.is_allowed('a'):  # pragma: no cover
-        print pif.render.format_button_input('save')
-        print pif.render.format_button_reset('vars')
-        print pif.render.format_button("delete", 'vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id))
-        print pif.render.format_button("remove_picture", 'vars.cgi?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
-        print pif.render.format_button("promote", '?mod=%s&var=%s&promote=1' % (mod_id, var_id))
-        print pif.render.format_button("casting", pif.dbh.get_editor_link('casting', {'id': mod_id}))
-        print pif.render.format_button("recalc", '?recalc=1&mod=%s' % mod_id)
-    if pif.is_allowed('u'):  # pragma: no cover
-        print pif.render.format_button("upload", 'upload.cgi?d=' + os.path.join(config.LIB_MAN_DIR, mod_id.lower()))
-        #print pif.render.format_button("pictures", 'traverse.cgi?d=./lib/%s' % mod_id.lower())
-        print pif.render.format_button("pictures", 'upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (os.path.join(config.LIB_MAN_DIR, mod_id.lower()), mod_id, var_id, mod_id, var_id))
-    #print pif.render.format_button("comment_on_this_page", link='../pages/comment.php?page=%s&man=%s&var=%s' % (pif.page_id, id, var_id), also={'class': 'comment'}, lalso={})
-    print pif.render.format_button_comment(pif, 'man=%s&var=%s' % (id, var_id))
-    print '</form>'
-    print '<hr>'
+def show_details(pif, data, attributes, variation, ran_id=''):
+    return [show_detail(pif, d, attributes, variation, ran_id=ran_id) for d in data if d in variation]
 
 
 def save(pif, mod_id, var_id):
@@ -288,8 +219,6 @@ def save(pif, mod_id, var_id):
     else:
         save_model(pif, mod_id)
     pif.dbh.recalc_description(mod_id)
-    man = pif.dbh.fetch_casting(mod_id)
-    show_model(pif, man)
 
 
 def add_variation(pif, mod_id, var_id='unset', attributes={}):  # pragma: no cover
@@ -407,24 +336,37 @@ def delete_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma:
 # ----- multiple variation page ---------------------------
 
 def do_var(pif, model, attributes, prev):
-    keys = model.keys()
-    keys.sort()
+    keys = sorted(model.keys())
     pic_id = model['picture_id']
+    cats = [mbdata.categories.get(x, x) for x in model['_catlist']]
 
     descs = list()
     dets = list()
-    notes = list()
+    note_text = ''
     for d in keys:
 	if d.startswith('_') or d == 'text_description' or not model[d]:
 	    pass
 	elif d in desc_attributes:
 	    descs.append(d)
 	elif d in note_attributes:
-	    notes.append(d)
+	    if model[d]:
+		if d == 'category':
+		    note_text += attributes[d]['title'] + ': ' + ', '.join(cats) + '<br>'
+		else:
+		    note_text += attributes[d]['title'] + ': ' + model[d] + '<br>'
 	elif d not in hidden_attributes:
 	    dets.append(d)
-
-    row = dict()
+    if pif.is_allowed('a'):  # pragma: no cover
+        note_text += 'Import: %s, %s-%s<br>' % (model['imported'], model['imported_from'], model['imported_var'])
+        note_text += 'Show: ' + pif.render.format_text_input("picture_id." + model['var'], 8, value=pic_id)
+	if pic_id:
+	    note_text += '<span class="warn">'
+        for sz in mbdata.image_size_types:
+            if os.path.exists(os.path.join(config.IMG_DIR_VAR, sz + '_' + model['mod_id'] + '-' + model['var'] + '.jpg').lower()):
+                note_text += sz.upper() + ' '
+	if pic_id:
+	    note_text += '</span>'
+        note_text += "<br>References:<br>" + pif.render.format_text_input("var_sel." + model['var'], 256, 24, value=model['references'])
 
     ostr = '<center>'
     ostr += pif.render.format_link('?edit=1&mod=%s&var=%s' % (model['mod_id'], model['var']), model['var'].upper())
@@ -435,50 +377,21 @@ def do_var(pif, model, attributes, prev):
     ostr += pif.render.format_image_art(
 	    'stargreen.gif' if count_descs == len(desc_attributes) else ('starred.gif' if not count_descs else 'starorange.gif'))
     ostr += '</center>'
-    row['ID'] = ostr
-    row['Description'] = '<div class="varentry">' + model['text_description'] + '</div>\n' + '<br>'.join([
+    row = {
+        'ID': ostr,
+        'Description': '<div class="varentry">' + model['text_description'] + '</div>\n' + '<br>'.join([
 	    '<span class="%s">%s: %s</span>\n' % (
 	    ("diff" if pif.is_allowed('a') and model[d] != prev.get(d, model[d]) else "same"),
-	    attributes[d]['title'], model[d]) for d in descs])
-    row['Details'] = '<br>'.join([
+	    attributes[d]['title'], model[d]) for d in descs]),
+        'Details': '<br>'.join([
 	    '<span class="%s">%s: %s</span>\n' % (
 	    ("diff" if pif.is_allowed('a') and model[d] != prev.get(d, model[d]) else "same"),
-	    attributes[d]['title'], model[d]) for d in dets])
-    row['Picture'] = '<a href="%(_lnk)s">%(_picture)s</a>' % model
+	    attributes[d]['title'], model[d]) for d in dets if d in attributes]),
+        'Picture': '<a href="%(_lnk)s">%(_picture)s</a>' % model,
+        'Notes': note_text,
+    }
 
-    cats = [mbdata.categories.get(x, x) for x in model['_catlist']]
-    ostr = ''
-    for d in keys:
-        if d not in note_attributes or not model[d]:
-            pass
-        elif d == 'category':
-            ostr += attributes[d]['title'] + ': ' + ', '.join(cats) + '<br>'
-        else:
-            ostr += attributes[d]['title'] + ': ' + model[d] + '<br>'
-    if pif.is_allowed('a'):  # pragma: no cover
-        ostr += 'Import: %s, %s-%s<br>' % (model['imported'], model['imported_from'], model['imported_var'])
-        ostr += 'Show: ' + pif.render.format_text_input("picture_id." + model['var'], 8, value=pic_id)
-	if pic_id:
-	    print '<span class="warn">'
-        for sz in mbdata.image_size_types:
-            if os.path.exists(os.path.join(config.IMG_DIR_VAR, sz + '_' + model['mod_id'] + '-' + model['var'] + '.jpg').lower()):
-                ostr += sz.upper() + ' '
-	if pic_id:
-	    print '</span>'
-        ostr += "<br>References:<br>" + pif.render.format_text_input("var_sel." + model['var'], 256, 24, value=model['references'])
-    row['Notes'] = ostr
     return row
-
-
-def do_var_grid(pif, model):
-    ostr = pif.render.format_link('?mod=%s&var=%s' % (model['mod_id'], model['var']),
-        model['var'].upper() + '<br>' +
-        '<center><table><tr><td class="spicture">' + model['_picture'] + '</td></tr></table></center>')
-    ostr += '<table class="vartable">'
-    ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % model['text_description']
-    ostr += "</table>"
-    ostr += ', '.join([mbdata.categories.get(x, x) for x in model['_catlist']])
-    return {'text': ostr}
 
 
 class VarSearchForm(object):
@@ -658,16 +571,14 @@ class VarSearchForm(object):
                         self.field_match(model))
 
     def show_search_object(self):
-	if self.varl:
-	    print 'Selected models'
-	else:
-	    print 'All models'
+	ostr = 'Selected models' if self.varl else 'All models'
 	if self.cateq:
-	    print 'in', mbdata.categories.get(self.cateq, self.cateq)
+	    ostr +=  ' in ' +  mbdata.categories.get(self.cateq, self.cateq)
 	if self.wheelq:
-	    print 'with', self.wheelq, "wheels"
+	    ostr += ' with ' + self.wheelq + " wheels"
 	if self.attrq:
-	    print 'matching search'
+	    ostr += ' matching search'
+	return ostr
 
     def make_values(self, mvars):
 	values = dict()
@@ -709,58 +620,37 @@ class VarSearchForm(object):
 def do_model(pif, vsform, mvars, display_type):
     llineup = {'id': 'vars', 'section': []}
 
-    var_ids = mvars.keys()
-    var_ids.sort()
-    prev = dict()
+    prev = {}
     for code in vsform.codes:
-	lsec = {'id': 'code_%d' % code, 'name': 'Code %d Models' % code, 'range': list(), 'switch': code != 1}
+	lsec = {'id': 'code_%d' % code, 'name': 'Code %d Models' % code, 'range': list(), 'switch': code != 1,
+            'headers': dict(zip(list_columns, list_columns)),
+            'columns': list_columns if display_type == DISPLAY_TYPE_LIST else 4,
+	}
 	lran = {'id': 'ran', 'entry': []}
-        if display_type == DISPLAY_TYPE_GRID:
-            lsec.update({'columns': 4})
-        elif display_type == DISPLAY_TYPE_LIST:
-            lsec.update({'columns': list_columns, 'headers': dict(zip(list_columns, list_columns))})
-        for var_id in var_ids:
+        for var_id in sorted(mvars.keys()):
             model = mvars[var_id]
             pif.render.comment(model)
             #model['references'] = ' '.join(list(set(vsform.selects.get(var_id, []))))
             if vsform.model_match(model, code):
                 #model['area'] = ', '.join([mbdata.regions.get(x, x) for x in model.get('area', '').split(';')])
-                if display_type == DISPLAY_TYPE_GRID:
-                    ent = do_var_grid(pif, model)
-                elif display_type == DISPLAY_TYPE_LIST:
-                    ent = do_var(pif, model, vsform.attributes, prev)
-		    prev = model
-		if ent:
-		    lran['entry'].append(ent)
+		model['link'] = '?mod=%s&var=%s' % (model['mod_id'], model['var'])
+		model['categories'] =  ', '.join([mbdata.categories.get(x, x) for x in model['_catlist']])
+		lran['entry'].append(
+                    do_var(pif, model, vsform.attributes, prev) if display_type == DISPLAY_TYPE_LIST else model
+		)
+		prev = model
 
 	if len(lran['entry']):
+	    lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
 	    if display_type == DISPLAY_TYPE_GRID:
-		if len(lran['entry']) > 1:
-		    lsec['count'] = '%d entries' % len(lran['entry'])
-		else:
-		    lsec['count'] = '1 entry'
 		while len(lran['entry']) < 4:
 		    lran['entry'].append({'text': '', 'class': 'blank'})
 	    lsec['range'].append(lran)
 	    llineup['section'].append(lsec)
 
     if display_type == DISPLAY_TYPE_GRID:
-        print pif.render.format_matrix(llineup)
-    elif display_type == DISPLAY_TYPE_LIST:
-        print pif.render.format_listix(llineup)
-
-
-def update_values(var, values):
-    for key in var:
-        if key in desc_attributes:
-            continue
-        values.setdefault(key, [])
-        newvalue = var[key]
-        if not newvalue:
-            newvalue = ''
-        if newvalue not in values[key]:
-            values[key].append(newvalue)
-    return values
+	pif.render.format_matrix_for_template(llineup)
+    return llineup
 
 
 def save_model(pif, id):
@@ -777,17 +667,14 @@ def save_model(pif, id):
 def show_model(pif, model):
     if not model:
         raise useful.SimpleError("That is not a recognized model ID.")
-    id = model['id']
-    vsform = VarSearchForm(pif, id).read(pif.form)
+    mod_id = model['id']
+    vsform = VarSearchForm(pif, mod_id).read(pif.form)
     if vsform.recalc:
-        pif.dbh.recalc_description(id)
-    #pif.render.title = id + ': ' + model['name']
-    print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_select_js + pif.render.toggle_display_js)
-    #print model, '<br>'
+        pif.dbh.recalc_description(mod_id)
 
     cates = {'MB'}
     mvars = dict()
-    for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(id)):
+    for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
 	variation['_catlist'] = variation.get('category', '').split()
 	cates.update(variation['_catlist'])
 	pic_id = variation['picture_id']
@@ -804,104 +691,96 @@ def show_model(pif, model):
 	    variation['_lnk'] = 'upload.cgi?m=%(mod_id)s&v=%(var)s' % variation
 	mvars[variation['var']] = variation
 
-    vsform = VarSearchForm(pif, id).read(pif.form)
+    vsform = VarSearchForm(pif, mod_id).read(pif.form)
     values = vsform.make_values(mvars)
-
-    print '<table width=100%><tr><td class="title">' + pif.render.title + '</td></tr></table><p>'
-    #print '<h2>' + model['name'] + '</h2>'
-    #print '<h3>%s</h3>' % '-'.join(parse_model(id)).upper()
-    print '<center>'
-    print pif.render.format_image_required(id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
-    print '</center><br>'
-    vsform.show_search_object()
-
-    print '<form action="vars.cgi" name="vars" method="post">'
-    if vsform.verbose:
-        print '<input type="hidden" name="verbose" value="1">'
-
-    do_model(pif, vsform, mvars, DISPLAY_TYPE_LIST if vsform.is_list else DISPLAY_TYPE_GRID)
-
-    print '<p style="font-weight: bold; font-size: large;">'
-    print pif.render.format_button_input_visibility("varsearch", True)
-    print 'Search Variations</p>'
-    print '<div id="varsearch"><input type="hidden" name="page" value="%s">' % pif.page_id
-    print '<input type="hidden" name="mod" value="%s">' % id
-
     values['category'] = list(cates)
+    llineup = do_model(pif, vsform, mvars, DISPLAY_TYPE_LIST if vsform.is_list else DISPLAY_TYPE_GRID)
+    img = pif.render.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
 
-    print vsform.write(pif, values)
-    print '</div><hr>'
-    print pif.render.format_button_input('list')
+    footer = pif.render.format_button_input('list')
     if pif.is_allowed('a'):  # pragma: no cover
-        print pif.render.format_button_input('save')
-        print pif.render.format_button("add", 'vars.cgi?edit=1&mod=%s&add=1' % id)
-        print pif.render.format_button("casting", pif.dbh.get_editor_link('casting', {'id': id}))
-        print pif.render.format_button("recalc", '?recalc=1&mod=%s' % id)
+	footer += pif.render.format_button_input('save')
+	footer += pif.render.format_button("add", 'vars.cgi?edit=1&mod=%s&add=1' % mod_id)
+	footer += pif.render.format_button("casting", pif.dbh.get_editor_link('casting', {'id': mod_id}))
+	footer += pif.render.format_button("recalc", '?recalc=1&mod=%s' % mod_id)
     if pif.is_allowed('u'):  # pragma: no cover
-        print pif.render.format_button("upload", 'upload.cgi?d=' + os.path.join(config.LIB_MAN_DIR, id.lower()) + '&m=' + id)
-        print pif.render.format_button("pictures", 'traverse.cgi?d=%s' % os.path.join(config.LIB_MAN_DIR, id.lower()))
-    #print pif.render.format_button("comment_on_this_page", link='../pages/comment.php?page=%s&man=%s&var=%s' % (pif.page_id, id, varl), also={'class': 'comment'}, lalso={})
-    print pif.render.format_button_comment(pif, 'man=%s&var=%s' % (id, vsform.varl))
-    print '</form>'
-    print '<hr>'
+	footer += pif.render.format_button("upload", 'upload.cgi?d=' + os.path.join(config.LIB_MAN_DIR, mod_id.lower()) + '&m=' + mod_id)
+	footer += pif.render.format_button("pictures", 'traverse.cgi?d=%s' % os.path.join(config.LIB_MAN_DIR, mod_id.lower()))
+
+    # ------- render ------------------------------------
+
+    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js + pif.render.toggle_display_js)
+    pif.render.format_button_comment(pif, 'man=%s&var=%s' % (mod_id, vsform.varl))
+    context = {
+	'image': img,
+	'llineup': llineup,
+	'footer': footer,
+	'search_object': vsform.show_search_object(),
+	'verbose': vsform.verbose,
+	'show_as_list': vsform.is_list,
+	'mod_id': mod_id,
+	'var_search_form': vsform.write(pif, values),
+	'var_search_visible': pif.render.format_button_input_visibility("varsearch", True),
+    }
+    return pif.render.format_template('vars.html', **context)
 
 
 @basics.web_page
 def main(pif):
-    id = pif.form.get_str('mod')
+    man_id = pif.form.get_str('mod')
     var = pif.form.get_str('var')
 
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/single.cgi', 'By ID')
-    pif.render.hierarchy_append('/cgi-bin/single.cgi?id=%s' % id, id)
-    pif.render.hierarchy_append('/cgi-bin/vars.cgi?mod=%s' % id, 'Variations')
+    pif.render.hierarchy_append('/cgi-bin/single.cgi?id=%s' % man_id, man_id)
+    pif.render.hierarchy_append('/cgi-bin/vars.cgi?mod=%s' % man_id, 'Variations')
     if var:
-	pif.render.hierarchy_append('/cgi-bin/vars.cgi?mod=%s&var=%s' % (id, var), var)
+	pif.render.hierarchy_append('/cgi-bin/vars.cgi?mod=%s&var=%s' % (man_id, var), var)
     pif.render.print_html()
 
     regs = mbdata.get_countries()
     regs.update(mbdata.regions)
     man = dict()
-    if id:
-        man = pif.dbh.fetch_casting(id)
+    if man_id:
+        man = pif.dbh.fetch_casting(man_id)
         if not man:
-            man = pif.dbh.fetch_casting_by_alias(id)
+            man = pif.dbh.fetch_casting_by_alias(man_id)
     if not man:
-        id = var = ''
+        man_id = var = ''
     elif var:
         pif.render.title = '%(casting_type)s %(id)s: %(name)s' % man
         pif.render.title += ' - Variation ' + var
-    elif id:
+    elif man_id:
         pif.render.title = '%(casting_type)s %(id)s: %(name)s' % man
         pif.render.title += ' - Variations'
     else:
         pass
 
-    if pif.form.has("add"):
-        add_variation(pif, id, 'unset', {'imported_from': 'web'})
-        show_variation_editor(pif, id, 'unset')
-    elif pif.form.has('edit'):
-        show_variation_editor(pif, id, pif.form.get_str('var'))
-    elif pif.form.has("rmpic"):
-        remove_picture(pif, id, var)
-        single_variation(pif, man, var)
-    elif pif.form.has("promote"):
-        promote_picture(pif, id, var)
-        single_variation(pif, man, var)
-    elif pif.form.has("delete"):
-        delete_variation(pif, id, var)
-        show_model(pif, man)
+    edit = False
+    if pif.form.has("delete"):
+        delete_variation(pif, man_id, var)
+        var = ''
     elif pif.form.has("save"):
 	var = pif.form.get_str('ovar')
-        save(pif, id, var)
-    elif var:
-        single_variation(pif, man, var)
-    elif id:
-        show_model(pif, man)
-    else:
-        raise useful.SimpleError("Can't find requested information.  Please try something else.")
-    print pif.render.format_tail()
+        save(pif, man_id, var)
+	var = ''
+    elif pif.form.has("add"):
+        var = var or 'unset'
+        add_variation(pif, man_id, var, {'imported_from': 'web'})
+	edit = True
+    elif pif.form.has('edit'):
+	edit = True
+    elif pif.form.has("rmpic"):
+        remove_picture(pif, man_id, var)
+    elif pif.form.has("promote"):
+        promote_picture(pif, man_id, var)
+    elif not man:
+	raise useful.SimpleError("Can't find requested information.  Please try something else.")
+
+    if var:
+	return show_variation_editor(pif, man, var, edit)
+    return show_model(pif, man)
 
 # ----- msearch -------------------------------------------
 
@@ -931,36 +810,26 @@ def run_search(pif):
     pif.render.print_html()
     if pif.form.has('ask'):
         return var_search_ask(pif)
-    else:
-        return var_search(pif)
+    return var_search(pif)
 
 
 def var_search_ask(pif):
-    id = pif.form.get_str('id')
-    model = pif.dbh.fetch_casting(id)
-
-    #pif.render.title = model['id'] + ': ' + model['name']
+    mod_id = pif.form.get_str('id')
+    model = pif.dbh.fetch_casting(mod_id)
     if not model:
         raise useful.SimpleError("That is not a recognized model ID.")
+    vsform = VarSearchForm(pif, mod_id).read(pif.form)
+    pif.render.title = 'Search ' + model['id'] + ' Variations'
+    mvars = {var['var']: var for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))}
 
-    ostr = pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_select_js + pif.render.toggle_display_js)
-    vsform = VarSearchForm(pif, id).read(pif.form)
-    ostr += '<form action="vars.cgi" name="vars" method="post">'
-    if vsform.verbose:
-        ostr += '<input type="hidden" name="verbose" value="1">'
-    ostr += '<input type="hidden" name="page" value="vars">'
-    ostr += '<input type="hidden" name="mod" value="%s">' % id
-
-    mvars = {var['var']: var for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(id))}
-    ostr += vsform.write(pif, vsform.make_values(mvars))
-
-    ostr += '<hr>'
-    if pif.is_allowed('a'):  # pragma: no cover
-        ostr += pif.render.format_button_input("list")
-    ostr += pif.render.format_button_comment(pif, 'man=%s' % id)
-    ostr += '</form>'
-    ostr += '<hr>'
-    return ostr
+    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js + pif.render.toggle_display_js)
+    pif.render.format_button_comment(pif, 'man=%s' % mod_id)
+    context = {
+	'verbose': vsform.verbose,
+	'vsform': vsform.write(pif, vsform.make_values(mvars)),
+	'id': mod_id,
+    }
+    return pif.render.format_template('vsearchask.html', **context)
 
 
 def get_codes(pif):
@@ -1011,6 +880,7 @@ def var_search(pif):
         llineup['tail'][1] += pif.render.format_button("next", 'vsearch.cgi?%s&start=%d' % (qf, min(start + modsperpage, nmods)))
 
     pif.render.format_button_comment(pif, 'casting=%s&base=%s&body=%s&interior=%s&wheels=%s&windows=%s' % (pif.form.get_str('casting'), pif.form.get_str('base'), pif.form.get_str('body'), pif.form.get_str('interior'), pif.form.get_str('wheels'), pif.form.get_str('windows')))
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
@@ -1043,7 +913,7 @@ def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
 		print '|'.join([str(variation[f]) for f in sorted(variation.keys())])
 
 
-def command_help(pif, *args):
+def command_help(*args):
     print "./vars.py [d|r|c|s|m|i] ..."
     print "  d for delete: mod_id var_id"
     print "  r for rename: mod_id old_var_id new_var_id"

@@ -12,6 +12,8 @@ body {background-color: #CCFFCC; text-align: left;}
 .tb {width: auto;}
 .tb_single {width: 600px;}
 
+.sh {font-size: large;}
+
 .diff {font-weight: bold;}
 .same {}
 .good_attr {background-color: #FFFFFF;}

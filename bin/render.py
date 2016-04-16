@@ -171,11 +171,7 @@ class Presentation(object):
             suffix = graphic_types
         elif isinstance(suffix, str):
             suffix = [suffix]
-        if not pdir:
-            if art:
-                pdir = self.art_dir
-            else:
-                pdir = self.pic_dir
+	pdir = pdir if pdir else self.art_dir if art else self.pic_dir
 	retfiles = list()
 	for fname in fnames:
 	    for sfx in suffix:
@@ -189,36 +185,20 @@ class Presentation(object):
         elif isinstance(fnames, str):
             fnames = [fnames]
 
-        if suffix is None:
-            suffix = graphic_types
-        elif isinstance(suffix, str):
-            suffix = [suffix]
+	suffix = graphic_types if suffix is None else [suffix] if isinstance(suffix, str) else suffix
 
         if largest:  # overrides previous setting of prefixes.
-            prefix = mbdata.image_size_types
+            prefix = reversed(mbdata.image_size_types)
             if largest in prefix:
-                prefix = prefix[:prefix.index(largest) + 1]
-            prefix.reverse()
+                prefix = prefix[prefix.index(largest):]
         elif isinstance(prefix, str):
             prefix = [prefix]
 
-        if not pdir:
-            if art:
-                pdir = self.art_dir
-            else:
-                pdir = self.pic_dir
+	pdir = pdir if pdir else self.art_dir if art else self.pic_dir
 	pdirvar = os.path.join(pdir, 'var')
 
-        if nobase:
-            base = []
-        else:
-            base = ['']
-        if not vars:
-            vars = base
-        elif isinstance(vars, str):
-            vars = [vars] + base
-        else:
-            vars = vars + base
+	base = [] if nobase else ['']
+	vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
 
         self.comment("find_image_file", fnames, vars, prefix, suffix, pdir)
         for var in vars:
@@ -820,6 +800,13 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_flag(self, code2, name='', also={}):
         return self.fmt_opt_img(code2, alt=name, pdir=config.FLAG_DIR, also=also)
 
+    def format_image_link_image(self, img, link_largest=mbdata.IMG_SIZ_SMALL, image_largest=mbdata.IMG_SIZ_GIGANTIC):
+	txt = self.format_image_sized(img, largest=link_largest)
+	if txt:
+	    lnk = self.find_image_path(img, largest=image_largest)
+	    return self.format_link(os.path.join('..', lnk), txt)
+	return ''
+
     def format_image_as_link(self, fnames, txt, pdir=None, also={}):
         return self.format_link('../' + self.find_image_path(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
 
@@ -1084,14 +1071,14 @@ of Matchbox International Ltd. and are used with permission.
                             ostr += self.format_row_end()
                             icol = 0
                             ostr += self.format_row_start(also={'class': 'er'})
-                    if ent.get('rowspan') or ent.get('colspan'):
-                        spans[icol] = [ent.get('colspan', 1), ent.get('rowspan', 1) - 1]
-                        also.update({'rowspan': ent.get('rowspan', 1), 'colspan': ent.get('colspan', 1)})
-                        also['width'] = '%d%%' % (int(ent.get('colspan', 1)) * 100 / ncols)
-                    if ent.get('also'):
-                        also.update(ent['also'])
-                    if 'width' not in also:
-                        also['width'] = '%d%%' % (100/ncols)
+		    also['width'] = '%d%%' % (100/ncols)
+                    if ent.get('rowspan', 1) > 1:
+                        spans[icol] = [ent.get('colspan', 1), ent['rowspan'] - 1]
+                        also['rowspan'] = ent['rowspan']
+                    if ent.get('colspan', 1) > 1:
+                        also['colspan'] = ent['colspan']
+                        also['width'] = '%d%%' % (int(ent['colspan']) * 100 / ncols)
+		    also.update(ent.get('also', {}))
                     ostr += self.format_cell(disp_id, ent['text'], also=also)
                     icol += ent.get('colspan', 1)
                     if icol >= ncols:
@@ -1111,6 +1098,61 @@ of Matchbox International Ltd. and are used with permission.
 	    ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
+    def format_matrix_for_template(self, llineup):
+	maxes = {'s': 0, 'r': 0, 'e': 0}
+	self.comment_dict('lineup', llineup)
+	rows = sc = 0
+	for sec in llineup.get('section', []):
+	    sc += 1
+	    ncols = sec.get('columns', llineup.get('columns', 4))
+	    rc = 0
+	    for ran in sec.get('range', []):
+		rc += 1
+		icol = ec = 0
+		spans = [[0, 0]] * ncols
+		entries = list()
+		for ent in ran.get('entry', []):
+		    ec += 1
+		    if icol == 0:
+			ent['firstent'] = True
+			rows += 1
+		    also = {}
+		    ent.setdefault('rowspan', 1)
+		    ent.setdefault('colspan', 1)
+		    if ent.get('class'):
+			also['class'] = ent['class']
+		    if ent.get('style'):
+			also['style'] = ent['style']
+		    thisspan = spans[icol]
+		    if thisspan[1]:
+			spans[icol] = [thisspan[0], thisspan[1] - 1]
+			icol += thisspan[0]
+			if icol >= ncols:
+			    ent['firstent'] = True
+			    icol = 0
+		    also['width'] = '%d%%' % (100/ncols)
+		    if ent.get('rowspan', 1) > 1:
+			spans[icol] = [ent.get('colspan', 1), ent['rowspan'] - 1]
+			also['rowspan'] = ent['rowspan']
+		    if ent.get('colspan', 1) > 1:
+			also['colspan'] = ent['colspan']
+			also['width'] = '%d%%' % (int(ent['colspan']) * 100 / ncols)
+		    icol += ent['colspan']
+		    also.update(ent.get('also', {}))
+		    if icol >= ncols:
+			icol = 0
+			ent['lastent'] = True
+                    maxes['e'] = max(maxes['e'], ec)
+		    ent['also'] = also
+		    entries.append(ent)
+		ran['entry'] = entries
+                maxes['r'] = max(maxes['r'], rc)
+            maxes['s'] = max(maxes['s'], sc)
+	llineup['rowcount'] = rows
+	llineup['maxes'] = maxes
+        #print 'sec %(s)d ran %(r)d ent %(e)d<br>' % maxes
+	return llineup
+
     def format_box_tail(self, tail):
         if not tail:
             return ''
@@ -1124,98 +1166,6 @@ of Matchbox International Ltd. and are used with permission.
             ntail += 1
         ostr += self.format_row_end()
         ostr += self.format_table_end()
-        return ostr
-
-    def format_matrix_for_template(self, llineup):
-        maxes = {'s': 0, 'r': 0, 'e': 0}
-        self.comment_dict('lineup', llineup)
-        if llineup.get('graphics'):
-	    grafs = ''
-            for graf in llineup['graphics']:
-                grafs += self.fmt_opt_img(graf, suffix='gif')
-	    llineup['grafs'] = grafs
-        lin_id = llineup.get('id', '')
-        sc = 0
-        for sec in llineup.get('section', []):
-            sc += 1
-            sec_id = sec.get('id', '')
-            ncols = sec.get('columns', llineup.get('columns', 4))
-            if 'switch' in sec:
-                ostr += self.format_button_input_visibility(sec_id, sec['switch'])
-                ostr += sec.get('count', '')
-            ostr += self.format_table_start(style_id=lin_id)
-            if sec.get('name'):
-                ostr += self.format_section(sec.get('name', ''), cols=ncols, id=sec['id'])
-            if sec.get('note'):
-                ostr += self.format_row_start()
-                also = {'colspan': ncols}
-                also['class'] = self.style_name(also.get('class'), 'sb', sec_id)
-                ostr += self.format_cell(0, sec['note'], also=also)
-                ostr += self.format_row_end()
-#            ostr += self.format_row_start()
-#            ostr += '<td>\n'
-            #ostr += self.format_table_start(id=sec_id, style_id=lin_id, also={'style': "border-width: 0; padding: 0;"})
-            rc = 0
-            for ran in sec.get('range', []):
-                rc += 1
-                ran_id = ran.get('id', '')
-                ostr += self.fmt_anchor(ran.get('anchor'))
-                if ran.get('name') or ran.get('graphics'):
-                    ostr += self.format_range(ran.get('name', ''), None, ran.get('graphics', list()), cols=sec['columns'], id=ran.get('id', ''))
-                if ran.get('note'):
-                    ostr += self.format_row_start()
-                    also = {'colspan': ncols}
-                    also['class'] = self.style_name(also.get('class'), 'rb', ran_id)
-                    ostr += self.format_cell(0, ran['note'], also=also)
-                    ostr += self.format_row_end()
-                icol = 0
-                spans = [[0, 0]] * ncols
-                ec = 0
-                for ent in ran.get('entry', []):
-                    ec += 1
-                    if icol == 0:
-                        ostr += self.format_row_start(also={'class': 'er'})
-                    disp_id = ent.get('display_id')
-                    if not disp_id:
-                        disp_id = ran_id
-                    #disp_id += ent.get('st_suff', '')
-                    also = {}
-                    if ent.get('class'):
-                        also['class'] = ent['class']
-                    if ent.get('style'):
-                        also['style'] = ent['style']
-                    thisspan = spans[icol]
-                    if thisspan[1]:
-                        spans[icol] = [thisspan[0], thisspan[1] - 1]
-                        icol += thisspan[0]
-                        if icol >= ncols:
-                            ostr += self.format_row_end()
-                            icol = 0
-                            ostr += self.format_row_start(also={'class': 'er'})
-                    if ent.get('rowspan') or ent.get('colspan'):
-                        spans[icol] = [ent.get('colspan', 1), ent.get('rowspan', 1) - 1]
-                        also.update({'rowspan': ent.get('rowspan', 1), 'colspan': ent.get('colspan', 1)})
-                        also['width'] = '%d%%' % (int(ent.get('colspan', 1)) * 100 / ncols)
-                    if ent.get('also'):
-                        also.update(ent['also'])
-                    if 'width' not in also:
-                        also['width'] = '%d%%' % (100/ncols)
-                    ostr += self.format_cell(disp_id, ent['text'], also=also)
-                    icol += ent.get('colspan', 1)
-                    if icol >= ncols:
-                        ostr += self.format_row_end()
-                        icol = 0
-                    maxes['e'] = max(maxes['e'], ec)
-                if icol:
-                    ostr += self.format_row_end()
-                maxes['r'] = max(maxes['r'], rc)
-            #ostr += self.format_table_end()
-#            ostr += self.format_cell_end()
-#            ostr += self.format_row_end()
-            ostr += self.format_table_end()
-            maxes['s'] = max(maxes['s'], sc)
-        #print 'sec %(s)d ran %(r)d ent %(e)d<br>' % maxes
-        ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
     def format_links(self, llineup):

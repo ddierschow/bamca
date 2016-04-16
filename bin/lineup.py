@@ -678,6 +678,7 @@ def select_lineup(pif, region, year):
 	pif.render.format_checkbox('lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types], sep='<br>\n')) +
 	'<p>' + pif.render.format_button_input()})
     lsec['columns'] = len(lran['entry'])
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
@@ -770,6 +771,7 @@ def picture_count(pif, region, year):
 def product_pic_lineup_main(pif):
     pif.render.title = str(pif.form.get_str('region', 'Matchbox')) + ' Lineup'
     llineup = run_product_pics(pif, pif.form.get_str('region').upper())
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
@@ -778,6 +780,7 @@ def rank_lineup_main(pif):
         "%s #%d" % (mbdata.regions.get(pif.form.get_str('region'), ''), pif.form.get_int('num')))
     pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     llineup = run_ranks(pif, pif.form.get_int('num'), pif.form.get_str('region', 'U').upper(), pif.form.get_str('syear', '1953'), pif.form.get_str('eyear', '2014'))
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('lineup.html', llineup=llineup, large=pif.form.get_bool('large'), unroll=pif.form.get_bool('unroll'))
 
 
@@ -786,6 +789,7 @@ def multiyear_main(pif):
         pif.form.get_str('year', '') + ' ' + mbdata.regions.get(pif.form.get_str('region'), ''))
     pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     llineup = run_multi_file(pif, pif.form.get_str('year'), pif.form.get_str('region').upper(), pif.form.get_int('nyears'))
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('lineup.html', llineup=llineup, large=pif.form.get_bool('large'), unroll=pif.form.get_bool('unroll'))
 
 
@@ -797,6 +801,7 @@ def lineup_main(pif):
     if pif.form.get_bool('large'):
 	llineup['header'] = '<form action="mass.cgi" method="post">\n<input type="hidden" name="type" value="lineup_desc">\n'
 	llineup['footer'] = pif.render.format_button_input() + '</form>\n'
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('lineup.html', llineup=llineup, large=pif.form.get_bool('large'), unroll=pif.form.get_bool('unroll'))
 
 
@@ -1217,6 +1222,7 @@ def mack_lineup(pif):
     lsec = pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': pif.page_id})[0])
     lsec['range'] = [{'entry': mods}]
     llineup = {'section': [lsec]}
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('mack.html', llineup=llineup)
 
 
@@ -1256,6 +1262,7 @@ def makes_main(pif):
         llineup = show_makes(pif, makedict, makes)
     else:
         llineup = makes_form(pif, makelist)
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 

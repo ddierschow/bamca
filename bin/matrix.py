@@ -258,6 +258,7 @@ def main(pif):
     pif.render.hierarchy_append('/cgi-bin/matrix.cgi?page=%s' % pif.form.get_str('page'), pif.render.title)
     if matf:
         llineup = matf.matrix(pif)
+	pif.render.format_matrix_for_template(llineup)
 	print pif.render.format_template('matrix.html', llineup=llineup)
     else:
         print pif.render.format_template('matrixsel.html', llineup=select_matrix(pif))

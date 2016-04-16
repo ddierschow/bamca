@@ -27,7 +27,9 @@ def errors(pif):
 
     lsec = create_section(pif, 'e')
 
-    return pif.render.format_template('simplematrix.html', llineup={'section': [lsec]})
+    llineup = {'section': [lsec]}
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
 def prepro(pif):
@@ -39,7 +41,9 @@ def prepro(pif):
 
     lsec = create_section(pif, 'p')
 
-    return pif.render.format_template('simplematrix.html', llineup={'section': [lsec]})
+    llineup = {'section': [lsec]}
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
 @basics.web_page

@@ -15,6 +15,11 @@
 {%- endmacro -%}
 
 
+{%- macro format_image_optional(fname, desc, pdir, prefix='', suffix='.jpg', also={}) -%}
+{%- if fname -%}<img src="../{{ pdir }}/{{ prefix }}{{ fname|lower }}{{ suffix }}"{% if desc %} alt="{{ desc }}"{% endif %}{{ fmt_also(also) }}>{%- endif -%}
+{%- endmacro -%}
+
+
 {% macro fmt_anchor(fname, desc, hspace, also) %}{% if fname %}<a name="{{ fname }}"></a>
 {% endif %}{% endmacro %}
 
@@ -71,7 +76,7 @@
 {% macro format_listix(llistix) %}
 {% for section in llistix.section %}
 {{ fmt_anchor(section.anchor) }}
-<table class="tb">
+<table class="{{ class_id('tb', section.id) }}">
 {% if section.name %}
  <tr>
   <th colspan="{{ section.columns|length }}" class="{{ class_id('sh', section.id) }}">{{ section.name }}</th>
@@ -87,13 +92,13 @@
 {{ fmt_anchor(range.anchor) }}
 {% if range.name %}
  <tr>
-  <th colspan="{{ range.columns|length }}" class="{{ class_id('sh', range.id) }}">{{ range.name }}</th>
+  <th colspan="{{ section.columns|length }}" class="{{ class_id('sh', range.id) }}">{{ range.name }}</th>
  </tr>
 {% endif %}
 {%- for entry in range.entry %}
 <tr class="er">
 {%- for col in section.columns %}
-  <td class="eb">{{ entry[col] or '&nbsp;' }}</td>
+  <td class="{{ class_id('eb', '1') }}">{{ entry[col] or '&nbsp;' }}</td>
 {%- endfor %}
 </tr>
 {%- endfor -%}
@@ -148,11 +153,11 @@
  </tr>
 {% endif -%}
 {%- for entry in range.entry %}
-{% if (loop.index0 % section.columns) == 0 %} <tr class="er">{% endif %}
-  <td width="{{ (100 / section.columns) | int }}%" class="{{ class_id('', entry.class) }}{{ class_id('eb', range.id, entry.display_id) }}">
+{% if entry.firstent %} <tr class="er">{% endif %}
+  <td width="{{ (100 / section.columns) | int }}%" class="{{ class_id('', entry.class) }}{{ class_id('eb', range.id, entry.display_id) }}" colspan="{{ entry.colspan }}" rowspan="{{ entry.rowspan }}">
 {{ entry_formatter(entry) }}
   </td>
-{% if (loop.index0 % section.columns) == section.columns - 1 or loop.last %} </tr>{% endif %}
+{% if entry.lastent or loop.last %} </tr>{% endif %}
 {%- endfor -%}
 {%- endfor %}
 </table>
@@ -171,8 +176,12 @@
 
 
 {% macro add_icons(type_id, base_id, vehicle_type) %}
-{% if type_id %}{{ type_id }}<p>{% endif %}
-{% if base_id %}{{ base_id }}<p>{% endif %}
+{% if type_id %}{{ format_image_art(type_id) }}<p>{% endif %}
+{#    if base_id:
+        icon = pif.render.format_image_optional(base_id, None, prefix='i_', suffix='gif', pdir=config.IMG_DIR_ICON, also={'class': 'centered'})
+        if icon != '&nbsp;':
+            icon_list.append(icon)#}
+{% if base_id %}{{ format_image_optional(base_id, '', config.IMG_DIR_ICON, prefix='i_', suffix='.gif', also={'class':'centered'})  }}<p>{% endif %}
 {#    {% for vtype in vehicle_type %}
         if vtype in mbdata.model_icons:
             {{ format_image_art(mbdata.model_icons[vtype])) }}<p> #}
@@ -180,17 +189,18 @@
 
 
 {% macro add_left_bar(type_id=None, base_id=None, vehicle_type='', rowspan=4, content='') %}
-<td rowspan="{{ rowspan }}%" class="leftbar bamcamark"><div class="leftbarcontent">
-{% if base_id %}{{ add_icons(type_id, base_id, vehicle_type) }}<p>{% endif %}
+<td rowspan="{{ rowspan }}" class="leftbar bamcamark"><div class="leftbarcontent"><p>
+{% if base_id or type_id or vehicle_type %}{{ add_icons(type_id, base_id, vehicle_type) }}<p>{% endif %}
 {{ content }}
 </div></td>
 {% endmacro %}
 
 
 {% macro add_banner(title, note='') %}
-<td class="titlebar">{{ title }}
+<td class="titlebar">
+{{ title }}
 {% if note %}<br><span style="font-size: smaller;">{{ note }}</span>{% endif %}
-</td></tr>
+</td>
 {% endmacro %}
 
 

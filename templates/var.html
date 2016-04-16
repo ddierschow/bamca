@@ -1,0 +1,39 @@
+{% extends "framed.html" %}
+
+{%- block frame_body_panel %}
+
+<center>
+<a href="{{ upload }}">{{ image }}</a>
+<p>
+<table class="vartable" style="width: auto;">
+<tr><td class="varentry"><i>{{ description }}</i></td></tr>
+</table>
+</center><p>
+
+{% if edit %}
+<form action="vars.cgi" name="vars" method="post">
+<input type="hidden" name="page" value="{{ page_id }}">
+<input type="hidden" name="mod" value="{{ variation.mod_id }}">
+<input type="hidden" name="ovar" value="{{ variation.var }}">
+{% endif %}
+<center>
+{{ render.format_listix(llistix) }}
+{# formatted_listix #}
+</center>
+
+<p><center><b><a href="{{ upload }}">Upload a Picture</a></b></center>
+
+<p>
+{{ appearances }}
+
+<p>
+{{ adds }}
+
+{%- endblock frame_body_panel %}
+
+{%- block frame_footer %}
+{{ footer }}
+{% if edit %}
+</form>
+{% endif %}
+{%- endblock frame_footer %}

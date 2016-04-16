@@ -242,11 +242,11 @@ def add_icons(pif, type_id, base_id, vehicle_type):
 
 def add_left_bar(pif, type_id=None, base_id=None, vehicle_type='', rowspan=4, content=''):
     # left bar
-    ostr = '<td rowspan=%d class="leftbar bamcamark"><div class="leftbarcontent">' % rowspan
+    ostr = '<td rowspan="%d" class="leftbar bamcamark"><div class="leftbarcontent">\n<p>\n' % rowspan
     if base_id:
-        ostr += add_icons(pif, type_id, base_id, vehicle_type) + '<p>'
+        ostr += add_icons(pif, type_id, base_id, vehicle_type) + '\n<p>'
     ostr += content
-    ostr += '</div></td>\n'
+    ostr += '\n</div></td>\n'
     return ostr
 
 

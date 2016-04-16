@@ -12,6 +12,7 @@ import models
 # columns, colspan, rowspan, picsize
 # columns and picsize MUST NOT exceed 4!
 pack_layouts = {
+    '1s': [1, 1, 1, 4],
     '2h': [2, 2, 1, 4],
     '2v': [2, 1, 2, 2],
     '3h': [3, 3, 1, 4],
@@ -52,7 +53,7 @@ def make_page_list(pif):
             entries.append({'text': pif.render.format_link('?page=' + page['id'][page['id'].find('.') + 1:], txt)})
     ostr = '<center>\n' + pif.render.format_matrix(llineup) + '<center>\n'
     ostr += pif.render.format_button_comment(pif)
-    print ostr
+    return ostr
 
 # ---- pack list ------------------------------------------------------
 
@@ -67,16 +68,16 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
     years = []
     regions = []
 
-    print '<table class="packs fullpage"><tr>'
+    ostr = '<table class="packs fullpage"><tr>'
     if pif.is_allowed('m'):  # pragma: no cover
-        print '<td valign="top">\n'
+        ostr += '<td valign="top">\n'
     else:
-        print '<td width="70%" valign="top">\n'
-    print '<table>\n'
+        ostr += '<td width="70%" valign="top">\n'
+    ostr += '<table>\n'
     if pif.is_allowed('m'):  # pragma: no cover
-        print '<tr><th>Pack ID</th><th>Name</th><th>Year</th><th>Product</th><th>Rg</th><th>Cy</th><th>Ly</th><th>Th</th><th>Pic</th><th>Mat</th><th>Models</th><th>Note</th><th>Related</th></tr>\n'
+        ostr += '<tr><th>Pack ID</th><th>Name</th><th>Year</th><th>Product</th><th>Rg</th><th>Cy</th><th>Ly</th><th>Th</th><th>Pic</th><th>Mat</th><th>Models</th><th>Note</th><th>Related</th></tr>\n'
     else:
-        print '<tr><th>Name</th><th>Year</th><th>Product Code</th><th>Region</th><th>Note</th><th></th></tr>\n'
+        ostr += '<tr><th>Name</th><th>Year</th><th>Product Code</th><th>Region</th><th>Note</th><th></th></tr>\n'
     for pack in packs:
         if pack['first_year'] not in years:
             years.append(pack['first_year'])
@@ -118,62 +119,77 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
         pack['page'] = pif.form.get_str('page')
         pack['regionname'] = mbdata.regions[pack['region']]
         if pif.is_allowed('m'):  # pragma: no cover
-            print '<tr><td><a href="%(edlink)s">%(id)s</a></td><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(region)s</td><td>%(country)s</td><td>%(layout)s</td><td>%(thumb)s</td><td>%(pic)s</td><td>%(material)s</td><td>%(stars)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
+            ostr += '<tr><td><a href="%(edlink)s">%(id)s</a></td><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(region)s</td><td>%(country)s</td><td>%(layout)s</td><td>%(thumb)s</td><td>%(pic)s</td><td>%(material)s</td><td>%(stars)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
         else:
-            print '<tr><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(regionname)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
+            ostr += '<tr><td><a href="?page=%(page)s&id=%(id)s">%(name)s</a></td><td>%(first_year)s</td><td>%(product_code)s</td><td>%(regionname)s</td><td>%(note)s</td><td>%(rel)s</td></tr>\n' % pack
         sys.stdout.flush()
-    print '</table></td>'
+    ostr += '</table></td>'
     if pif.is_allowed('m'):  # pragma: no cover
-        print '<td valign="top">'
+        ostr += '<td valign="top">'
     else:
-        print '<td width="30%" valign="top">'
-    print '<form>'
+        ostr += '<td width="30%" valign="top">'
+    ostr += '<form>'
 
     years.sort()
     regions.sort()
-    print 'Filter by Year<br>'
-    print ''.join(pif.render.format_radio('year', zip([''] + years, ['all'] + years), checked='', sep='<br>'))
-    print '<p>'
-    print 'Filter by Region<br>'
-    print ''.join(pif.render.format_radio('region', zip([''] + regions, ['all'] + [mbdata.regions[x] for x in regions]), checked='', sep='<br>'))
-    print '<p>'
-#    print pif.render.format_select('lid', calc_pack_select(pif, packs))
-    print '<p>'
-    print pif.render.format_button_input()
-    print pif.render.format_button("add", 'mass.cgi?type=pack&id=%s' % pif.form.get_str('page', '5packs'))
-    print '<input type="hidden" name="page" value="%s">' % pif.form.get_str('page')
-    print '</form>'
-    print '</td></tr></table>\n'
-    print pif.render.format_button_comment(pif)
+    ostr += 'Filter by Year<br>'
+    ostr += ''.join(pif.render.format_radio('year', zip([''] + years, ['all'] + years), checked='', sep='<br>'))
+    ostr += '<p>'
+    ostr += 'Filter by Region<br>'
+    ostr += ''.join(pif.render.format_radio('region', zip([''] + regions, ['all'] + [mbdata.regions[x] for x in regions]), checked='', sep='<br>'))
+    ostr += '<p>'
+#    ostr += pif.render.format_select('lid', calc_pack_select(pif, packs))
+    ostr += '<p>'
+    ostr += pif.render.format_button_input()
+    ostr += pif.render.format_button("add", 'mass.cgi?type=pack&id=%s' % pif.form.get_str('page', '5packs'))
+    ostr += '<input type="hidden" name="page" value="%s">' % pif.form.get_str('page')
+    ostr += '</form>'
+    ostr += '</td></tr></table>\n'
+    ostr += pif.render.format_button_comment(pif)
+    return ostr
 
 # ---- single pack ----------------------------------------------------
 
-def do_single_pack(pif, pack):
-    if not pack:
-        return "That pack doesn't seem to exist.", ""
-    id = pack['pack.id']
-    relateds = pif.dbh.fetch_packs_related(id)
+def do_single_pack(pif, pid):
+    pack = dict()
+    packs = pif.dbh.fetch_pack(pid)
+    if not packs:
+	raise useful.SimpleError("That pack doesn't seem to exist.")
+    pack = packs[0]
+    pif.render.hierarchy_append('', pack['base_id.rawname'])
+
+    pack_id = pack['pack.id']
+    relateds = [
+	{
+	    'link': pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'], r['base_id.rawname']),
+	    'product_code': r['pack.product_code'],
+	    'region': mbdata.regions.get(r['pack.region'], ''),
+	    'country': mbdata.get_country(r['pack.country']),
+	    'material': mbdata.materials.get(r['pack.material'], ''),
+	    'description': r['base_id.description'],
+	}
+	for r in pif.dbh.fetch_packs_related(pack_id)
+    ]
 
     tcomments = set()
     for key in pack.keys():
         pack[key[key.find('.') + 1:]] = pack[key]
     pack['name'] = pack['rawname'].replace(';', ' ')
 
+    pmodels = distill_models(pif, pack, pif.page_id)
     if pack['layout'].isdigit():
 	layout = [int(x) for x in pack['layout']]
+    elif not pmodels:
+	layout = pack_layouts['1s']
     else:
 	layout = pack_layouts.get(pack['layout'], [4, 4, 1, 4])
     if len(layout) == 2:
 	layout[3] = 1
     if len(layout) == 3:
 	layout[4] = 4 - (layout[0] - layout[1])
-    lsec = {}
-    lsec['columns'] = layout[0]
-    lsec['anchor'] = pack['id']
+
     pif.render.comment('pack:', pack)
     entries = [{'text': show_pack(pif, pack, pack_pic_size[layout[3]]), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
-
-    pmodels = distill_models(pif, pack, pif.page_id)
     keys = pmodels.keys()
     keys.sort()
     for mod in keys:
@@ -190,70 +206,36 @@ def do_single_pack(pif, pack):
                 tcomments.add('v')
 
         entries.append({'text': show_pack_model(pif, pmodels[mod]), 'display_id': 1})
-        #pstr += edit_model(pif, pmodels[mod])
-    lsec['range'] = [{'entry': entries}]
 
-    lsec['id'] = ''
-
-    llineup = {}
-    llineup['section'] = []
-    llineup['tail'] = ['']
-    llineup['section'].append(lsec)
-    llineup['id'] = ''
-
-    # displayer
+    lsec = dict(id='', columns=layout[0], anchor=pack['id'], range=[{'entry': entries}])
+    llineup = dict(section=[lsec], tail=[''], id='')
 
     # left bar
-    content = ''
+    left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        #content += str(pack['page_id']) + '/' + str(pack['id'])
-	content += '<br><center>'
-        content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': id})
-        content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': id})
-        content += '<b><a href="traverse.cgi?d=%s">Library</a></b><br>\n' % config.IMG_DIR_PACK
-        content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (pack['section_id'], pack['id'])
-        content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack['id'])
-        content += '</center>\n'
+        #left_bar_content += str(pack['page_id']) + '/' + str(pack['id'])
+	left_bar_content += '<br><center>'
+        left_bar_content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pack_id})
+        left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
+        left_bar_content += '<b><a href="traverse.cgi?d=%s">Library</a></b><br>\n' % config.IMG_DIR_PACK
+        left_bar_content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (pack['section_id'], pack['id'])
+        left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack['id'])
+        left_bar_content += '</center>\n'
 
-    ostr = '<table class="fullpage"><tr>\n'
-    ostr += models.add_left_bar(pif, pif.page_name, id, '', 4, content)
-
-    # top bar
-    ostr += models.add_banner(pif, pack['name'], pack['note'])
-
-    # our feature presentation
-    ostr += '<tr><td>\n'
-    ostr += pif.render.format_matrix(llineup)
-    ostr += '</td></tr>\n'
-
-    # oh, just one more thing
-    ostr += '<tr><td>\n'
-    if relateds:
-        ostr += '<h3>Related Packs</h3>\n<ul>\n'
-        for related in relateds:
-            ostr += '<li>'
-            ostr += pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + related['pack.id'], related['base_id.rawname'])
-            if related['pack.product_code']:
-                ostr += ' - (' + related['pack.product_code'] + ')'
-            if related['pack.region']:
-                ostr += ' - ' + mbdata.regions[related['pack.region']]
-            if related['pack.country']:
-                ostr += ' - Made in ' + mbdata.get_country(related['pack.country'])
-            if related['pack.material']:
-                ostr += ' - ' + mbdata.materials.get(related['pack.material'], '')
-            if related['base_id.description']:
-                ostr += ' - ' + related['base_id.description']
-        ostr += '</ul>\n'
-    ostr += '</td></tr>\n'
-
-    # bottom bar
-    ostr += '<tr><td class="bottombar">\n'
-    ostr += pif.render.format_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
-    for comment in tcomments:
-        ostr += mbdata.comment_designation[comment] + '<br>'
-    ostr += '</td></tr></table>\n'
-    #pstr += pif.render.format_table_end()
-    return ostr#, pstr
+    pif.render.format_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
+    pif.render.format_matrix_for_template(llineup)
+    context = {
+	'title': pack['name'],
+	'note': pack['note'],
+	'type_id': pif.page_name,
+	'base_id': '',#pack_id,
+	'vehicle_type': '',
+	'rowspan': 4,
+	'left_bar_content': left_bar_content,
+	'llineup': llineup,
+	'relateds': relateds,
+    }
+    return pif.render.format_template('pack.html', **context)
 
 
 def distill_models(pif, pack, page_id):
@@ -375,24 +357,19 @@ def do_page(pif):
 #       pif.form['id'] = pif.form.get_str('id')[0]
     if pif.form.has('id'):
         pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
-    year = pif.form.get_str('year')
-    reg = pif.form.get_str('region')
-    pid = pif.form.get_str('id')
-    lid = pif.form.get_str('lid')
-    pack = dict()
-    if pid:
-        packs = pif.dbh.fetch_pack(pid)
-        if packs:
-            pack = packs[0]
-            pif.render.hierarchy_append('', pack['base_id.rawname'])
-    print pif.render.format_head()
-    if pid:
-        print do_single_pack(pif, pack)
+	pid = pif.form.get_str('id')
+        print do_single_pack(pif, pid)
     elif pif.form.has('page'):
-        make_pack_list(pif, year, reg, lid)
+	year = pif.form.get_str('year')
+	reg = pif.form.get_str('region')
+	print pif.render.format_head()
+	lid = pif.form.get_str('lid')
+        print make_pack_list(pif, year, reg, lid)
+	print pif.render.format_tail()
     else:
-        make_page_list(pif)
-    print pif.render.format_tail()
+	print pif.render.format_head()
+        print make_page_list(pif)
+	print pif.render.format_tail()
 
 # ---------------------------------------------------------------------
 

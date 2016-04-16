@@ -1,0 +1,133 @@
+{% extends "framed.html" %}
+
+{%- block frame_body_panel %}
+
+<center>
+<table cellspacing="8"><tr>
+
+{% if (variations_box or related_box) and product_box %}
+
+    {# top left box #}
+    <td valign="top">
+    <table class="inset inset_m"><tr><td>
+    {{ product_box }}
+    {% if variations_box %}
+	<p>
+	{{ variations_box }}
+    {% endif %}
+    </td></tr></table>
+
+    {# lower left box #}
+    {% if related_box %}
+	<p>
+	{{ related_box }}
+    {% endif %}
+
+    </td>
+
+    {# top right box #}
+    <td valign="top">
+    {{ model_box }}
+    {{ notes_box }}
+
+    {# lower right box #}
+
+    <p>
+    {{ links_box }}
+    </td>
+
+{% elif variations_box or related_box %}
+
+    {# top left box (missing) #}
+
+    {# top right box #}
+    {% if related_box or variations_box %}
+	<td valign="top" colspan="2">
+    {% else %}
+	<td valign="top">
+    {% endif %}
+    {{ model_box }}
+    {{ notes_box }}
+    </td>
+
+    </tr>
+
+    {# lower left box #}
+    <tr>
+    {% if related_box or variations_box %}
+	<td width="400" valign="top">
+	{% if variations_box %}
+	    <table class="inset inset_m"><tr><td>
+	    {{ variations_box }}
+	    </td></tr></table>
+	{% endif %}
+	{% if related_box %}
+	    <p>
+	    {{ related_box }}
+	{% endif %}
+	</td>
+    {% endif %}
+
+    {# lower right box #}
+
+    <td valign="top">
+    {{ links_box }}
+    </td>
+
+{% elif product_box %}
+
+    {# top left box #}
+    <td valign="top">
+    <table class="inset inset_m"><tr><td>
+    {{ product_box }}
+    </td></tr></table>
+    </td>
+
+    {# top right box #}
+    <td valign="top">
+    {{ model_box }}
+    {{ notes_box }}
+    </td></tr>
+
+    {# lower right box #}
+
+    <tr><td colspan="2">
+    {{ links_box }}
+    </td>
+
+{% else %}
+
+    {# top left box (missing) #}
+
+    {# top right box #}
+    <td valign="top">
+    {{ model_box }}
+    {{ notes_box }}
+    </td>
+
+    </tr>
+
+    {# lower left box #}
+    <tr>
+
+    {# lower right box #}
+
+    <td valign="top">
+    {{ links_box }}
+    </td>
+{% endif %}
+
+</tr></table>
+</center>
+</td></tr>
+
+{# bottom #}
+<tr><td>
+<center>
+{{ boxes_box }}
+
+{{ adds_box }}
+
+<p></center>
+
+{%- endblock frame_body_panel %}

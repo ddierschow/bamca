@@ -236,6 +236,7 @@ class PageInfoFile(object):
 
         self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, self.log.dbq, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
+        self.log_start()
         page_info = self.dbh.fetch_page(self.page_id)
 #	useful.write_comment('page_id: %s' % str(self.page_id))
 #	useful.write_comment('page_info: %s' % str(page_info))
@@ -248,7 +249,6 @@ class PageInfoFile(object):
 	self.render.is_moderator = self.is_allowed('m')
 	self.render.is_user = self.is_allowed('u')
 	self.render.is_viewer = self.is_allowed('v')
-        self.log_start()
         if 'REQUEST_METHOD' not in os.environ:  # not apache!
 	    useful.header_done(is_web=False)
 

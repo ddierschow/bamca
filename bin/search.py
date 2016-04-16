@@ -92,8 +92,8 @@ def run_search(pif):
     mods.sort(key=lambda x: x['rawname'])
     pif.render.format_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
     llineup = create_lineup(pif, mods)
+    pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
-
 
 
 if __name__ == '__main__':  # pragma: no cover

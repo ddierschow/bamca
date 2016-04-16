@@ -231,6 +231,7 @@ class MannoFile(object):
         llineup['section'] = self.run_thing(pif, self.show_section_manno_template)
 	pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
+	pif.render.format_matrix_for_template(llineup)
         return pif.render.format_template('mannum.html', llineup=llineup)
 
     # ----- play ------------------------------------------------

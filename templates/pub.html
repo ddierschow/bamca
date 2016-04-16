@@ -1,0 +1,24 @@
+{% extends "framed.html" %}
+
+{%- macro pub_entry(entry) -%}
+{{ entry.text }}
+{%- endmacro -%}
+
+{%- block frame_body_panel %}
+
+{% if upper_box %}
+{# top box #}
+<tr><td valign=top>
+{{ upper_box }}
+</td>
+</tr>
+{% endif %}
+
+{# lower box #}
+<tr><td>
+<center>
+{{ render.format_matrix(llineup, pub_entry) }}
+</center>
+</td></tr>
+
+{%- endblock frame_body_panel %}

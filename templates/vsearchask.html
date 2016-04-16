@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+<hr>
+<form action="vars.cgi" name="vars" method="post">
+{% if vsform.verbose %}<input type="hidden" name="verbose" value="1">{% endif %}
+<input type="hidden" name="page" value="vars">
+<input type="hidden" name="mod" value="{{ id }}">
+{{ vsform }}
+</form>
+<hr>
+
+{% endblock page_body %}

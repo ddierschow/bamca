@@ -13,7 +13,6 @@ import useful
 @basics.web_page
 def publication(pif):
     pif.render.print_html()
-    ostr = pif.render.format_head()
     pub_id = pif.form.get_str('id')
 
     man = pif.dbh.fetch_publication(pub_id)
@@ -24,62 +23,42 @@ def publication(pif):
     man['name'] = man['base_id.rawname'].replace(';', ' ')
     imgs = pub_images(pif, pub_id)
 
-    # top
-
-    ostr += '<table width="100%"><tr>'
-    # left bar
-    content = ''
+    left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
-        content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link('publication', {'id': pub_id})
-        content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % config.IMG_DIR_CAT
-	content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (config.IMG_DIR_CAT, pub_id, pub_id)
+        left_bar_content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
+        left_bar_content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link('publication', {'id': pub_id})
+        left_bar_content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % config.IMG_DIR_CAT
+	left_bar_content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (config.IMG_DIR_CAT, pub_id, pub_id)
 
-    ostr += models.add_left_bar(pif, '', pub_id, '', 4, content)
-
-    # title banner
-    ostr += models.add_banner(pif, man.get('name', ''))
-
-    # top box
-    ostr += '<tr><td valign=top>\n'
-#    if len(imgs) > 1:
-#        ostr += pif.render.format_image_sized([pub_id, pub_id + '_01'], largest=mbdata.IMG_SIZ_LARGE)
-    if not imgs:
-        img = pub_id + '.jpg'
-        txt = pif.render.format_image_sized(img, largest=mbdata.IMG_SIZ_SMALL)
-        txt = pif.render.format_link(os.path.join('..', pif.render.pic_dir, img), txt)
-        ostr += txt
-    if man['base_id.description']:
-        ostr += '<br>' + man['base_id.description']
-    ostr += '</td>\n'
-    ostr += '</tr>\n'
-
-    # lower box
-    ostr += '<tr><td>\n'
-    ostr += '<center>'
+    upper_box = ''
     if imgs:
-        lran = {'id': 'ran', 'entry': []}
-        imgs.sort()
-        for img in imgs:
-            img = img[img.rfind('/') + 1:]
-            txt = pif.render.format_image_sized(img, largest=mbdata.IMG_SIZ_SMALL)
-            lnk = pif.render.find_image_path(img, largest=mbdata.IMG_SIZ_GIGANTIC)
-            lran['entry'].append({'text': pif.render.format_link('../' + lnk, txt)})
-        llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran]}], 'columns': 4}
-        ostr += pif.render.format_matrix(llineup)
+	upper_box += pif.render.format_image_link_image(imgs[0], link_largest=mbdata.IMG_SIZ_LARGE)
     else:
-        img = pub_id + '.jpg'
-        txt = pif.render.format_image_sized(img, largest=mbdata.IMG_SIZ_SMALL)
-        txt = pif.render.format_link(os.path.join('..', pif.render.pic_dir, img), txt)
-        ostr += txt
-    ostr += '</center>\n'
-    ostr += '</td></tr>\n'
+	upper_box += pif.render.format_image_link_image(img, link_largest=mbdata.IMG_SIZ_LARGE)
+    if man['base_id.description']:
+	upper_box += '<br>' if upper_box else ''
+	upper_box += man['base_id.description']
 
-    ostr += '<tr><td class="bottombar">\n'
-    ostr += pif.render.format_button_comment(pif, 'id=%s' % pub_id)
-    ostr += '</td></tr></table>\n'
-    ostr += pif.render.format_tail()
-    return ostr
+    lran = {'id': 'ran', 'entry':
+	[{'text': pif.render.format_image_link_image(img[img.rfind('/') + 1:])} for img in sorted(imgs)] if imgs else 
+	[{'text': pif.render.format_image_link_image(pub_id)}]
+    }
+    llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran], 'columns': 4}], 'columns': 4}
+
+    pif.render.format_button_comment(pif, 'id=%s' % pub_id)
+    pif.render.format_matrix_for_template(llineup)
+    context = {
+	'title': man.get('name', ''),
+	'note': '',
+	'type_id': '',
+	#'base_id': pub_id,
+	'vehicle_type': '',
+	'rowspan': 5 if upper_box else 4,
+	'left_bar_content': left_bar_content,
+	'upper_box': upper_box,
+	'llineup': llineup,
+    }
+    return pif.render.format_template('pub.html', **context)
 
 
 def pub_images(pif, id):

@@ -1,0 +1,28 @@
+{% extends "framed.html" %}
+
+{%- macro pack_entry(entry) -%}
+{{ entry.text }}
+{%- endmacro -%}
+
+{%- block frame_body_panel %}
+
+{# our feature presentation #}
+{{ render.format_matrix(llineup, pack_entry) }}
+
+{# oh, just one more thing #}
+{% if relateds %}
+<h3>Related Packs</h3>
+<ul>
+{% for related in relateds %}
+<li>
+{{ related.link }}
+{% if related.product_code %} - ({{ related.product_code }}){% endif %}
+{% if related.region %} - {{ related.region }}{% endif %}
+{% if related.country %} - Made in {{ related.country }}{% endif %}
+{% if related.material %} - {{ related.material }}{% endif %}
+{% if related.description %} - {{ related.description }}{% endif %}
+{% endfor %}
+</ul>
+{% endif %}
+
+{%- endblock frame_body_panel %}

@@ -367,6 +367,67 @@ def get_mack_numbers(pif, cid, mod_type, aliases):
     return ['-'.join([str(y) for y in x]).upper() for x in mack_nums]
 
 
+def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, var_pics, var_texts, raw_variations):
+    content = ''
+    if pif.is_allowed('a'):  # pragma: no cover
+        content += '<a href="vars.cgi?recalc=1&mod=%s">Recalculate</a><br>\n' % mod_id
+        content += '<a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': mod_id})
+        content += '<a href="%s">Casting</a><br>\n' % pif.dbh.get_editor_link('casting', {'id': mod_id})
+        content += '<a href="%s">AttrPics</a><br>\n' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id})
+        content += '<a href="mass.cgi?type=related&mod_id=%s">Relateds</a><br>\n' % mod_id
+        if ref.startswith('year.'):
+            content += '<a href="%s">Lineup Model</a><br>\n' % pif.dbh.get_editor_link('lineup_model', {'year': ref[5:], 'mod_id': mod_id})
+        elif ref.startswith('matrix.'):
+            content += '<a href="%s">Matrix Model</a><br>\n' % pif.dbh.get_editor_link('matrix_model', {'page_id': ref, 'mod_id': id})
+        elif ref.startswith('packs.'):
+            content += '<a href="%s">Pack Model</a><br>\n' % pif.dbh.get_editor_link('pack_model', {'pack_id': pif.form.get_str('sub'), 'mod_id': mod_id})
+        content += '<a href="vars.cgi?list=1&mod=%s">Variations</a><br>\n' % mod_id
+        content += '<a href="vsearch.cgi?ask=1&id=%s">Search</a><br>\n' % mod_id
+        content += '<a href="pics.cgi?m=%s">Pictures</a><br>\n' % mod_id.lower()
+        content += '<a href="edlinks.cgi?page=single.%s">Links</a><br>\n' % mod_id
+    if os.path.exists(os.path.join(config.LIB_MAN_DIR, mod_id.lower())):
+	if pif.is_allowed('v'):  # pragma: no cover
+	    content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % os.path.join(config.LIB_MAN_DIR, mod_id.lower())
+	if pif.is_allowed('a'):  # pragma: no cover
+	    content += '<a href="upload.cgi?d=%s&m=%s">Library Upload</a><br>\n' % (os.path.join(config.LIB_MAN_DIR, mod_id.lower()), mod_id.lower())
+    if pif.is_allowed('a'):  # pragma: no cover
+        prodstar = 'stargreen.gif'
+        if pic:
+            prodstar = 'starwhite.gif'
+            content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (pdir, pic, pic)
+            prodpic = pif.render.find_image_path(pic, pdir=pdir)
+            if lm_pic_id:
+                content += '<a href="%s&useprev=2">Clr Prev</a><br>\n' % pif.request_uri
+            elif prodpic:
+                x, y = imglib.get_size(prodpic)
+                if x > 400:
+                    prodstar = 'staryellow.gif'
+                elif x == 400:
+                    prodstar = 'starblack.gif'
+                else:
+                    prodstar = 'starred.gif'
+                content += '<a href="imawidget.cgi?act=1&d=./%s&f=%s&delete=1">Remove Prod Pic</a><br>\n' % (pdir, prodpic[prodpic.rfind('/') + 1:])
+            else:
+                #content += '<a href="single.cgi?pic=%s&useprev=1">Use Prev</a><br>\n' % str(pic)
+                content += '<a href="%s&useprev=1">Use Prev</a><br>\n' % pif.request_uri
+        content += '<br>\n'
+        vfl = pif.dbh.fetch_variation_files(mod_id)
+        for vf in vfl if vfl else [{'mod_id': mod_id, 'imported_from': 'importer'}]:
+            content += '<a href="vedit.cgi?d=src/mbxf&m=%(mod_id)s&f=%(imported_from)s">%(imported_from)s</a><br>\n' % vf
+        content += '<br>\n'
+        content += '<br>\n'.join(var_pics) + '<p>'
+	for vt in var_texts[1:]:
+	    content += pif.render.format_image_art(
+                    'stargreen.gif' if vt == var_texts[0] else ('starred.gif' if not vt else 'staryellow.gif'))
+        content += '<p>'
+        content += pif.render.format_image_art(prodstar) + '<p>'
+        var_ids = [x['v.var'] for x in raw_variations]
+        var_ids.sort()
+        for var in var_ids:
+            content += '<a href="vars.cgi?mod=%s&var=%s&edit=1">%s</a><br>\n' % (mod_id, var, var)
+    return content
+
+
 img_re = re.compile('src="(?P<u>[^"]*)"')
 @basics.web_page
 def show_single(pif):
@@ -466,209 +527,32 @@ def show_single(pif):
     notes_box = show_model_notes(pif, man)
     links_box = show_model_links(pif, mod_id, pic, appearances, matrixes, packs, man, show_comparison_link, external_links)
     var_pics, var_texts = show_list_var_pics(pif, mod_id)
+    boxes_box = show_boxes(pif, mod_id, boxstyles, aliases) if boxstyles else ''
+    adds_box = models.show_adds(pif, mod_id)
+
+    left_bar_content = show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, var_pics, var_texts, raw_variations)
 
     # ------- render ------------------------------------
 
-    # top
-    print pif.render.format_head()
-
-    print '<table width="100%"><tr>'
-
-    # left bar
-
-    content = ''
-    if pif.is_allowed('a'):  # pragma: no cover
-        content += '<a href="vars.cgi?recalc=1&mod=%s">Recalculate</a><br>\n' % mod_id
-        content += '<a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': mod_id})
-        content += '<a href="%s">Casting</a><br>\n' % pif.dbh.get_editor_link('casting', {'id': mod_id})
-        content += '<a href="%s">AttrPics</a><br>\n' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id})
-        content += '<a href="mass.cgi?type=related&mod_id=%s">Relateds</a><br>\n' % mod_id
-        if ref.startswith('year.'):
-            content += '<a href="%s">Lineup Model</a><br>\n' % pif.dbh.get_editor_link('lineup_model', {'year': ref[5:], 'mod_id': mod_id})
-        elif ref.startswith('matrix.'):
-            content += '<a href="%s">Matrix Model</a><br>\n' % pif.dbh.get_editor_link('matrix_model', {'page_id': ref, 'mod_id': id})
-        elif ref.startswith('packs.'):
-            content += '<a href="%s">Pack Model</a><br>\n' % pif.dbh.get_editor_link('pack_model', {'pack_id': sub, 'mod_id': mod_id})
-        content += '<a href="vars.cgi?list=1&mod=%s">Variations</a><br>\n' % mod_id
-        content += '<a href="vsearch.cgi?ask=1&id=%s">Search</a><br>\n' % mod_id
-        content += '<a href="pics.cgi?m=%s">Pictures</a><br>\n' % mod_id.lower()
-        content += '<a href="edlinks.cgi?page=single.%s">Links</a><br>\n' % mod_id
-    if os.path.exists(os.path.join(config.LIB_MAN_DIR, mod_id.lower())):
-	if pif.is_allowed('v'):  # pragma: no cover
-	    content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % os.path.join(config.LIB_MAN_DIR, mod_id.lower())
-	if pif.is_allowed('a'):  # pragma: no cover
-	    content += '<a href="upload.cgi?d=%s&m=%s">Library Upload</a><br>\n' % (os.path.join(config.LIB_MAN_DIR, mod_id.lower()), mod_id.lower())
-    if pif.is_allowed('a'):  # pragma: no cover
-        prodstar = 'stargreen.gif'
-        if pic:
-            prodstar = 'starwhite.gif'
-            content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (pdir, pic, pic)
-            prodpic = pif.render.find_image_path(pic, pdir=pdir)
-            if lm_pic_id:
-                content += '<a href="%s&useprev=2">Clr Prev</a><br>\n' % pif.request_uri
-            elif prodpic:
-                x, y = imglib.get_size(prodpic)
-                if x > 400:
-                    prodstar = 'staryellow.gif'
-                elif x == 400:
-                    prodstar = 'starblack.gif'
-                else:
-                    prodstar = 'starred.gif'
-                content += '<a href="imawidget.cgi?act=1&d=./%s&f=%s&delete=1">Remove Prod Pic</a><br>\n' % (pdir, prodpic[prodpic.rfind('/') + 1:])
-            else:
-                #content += '<a href="single.cgi?pic=%s&useprev=1">Use Prev</a><br>\n' % str(pic)
-                content += '<a href="%s&useprev=1">Use Prev</a><br>\n' % pif.request_uri
-        content += '<br>\n'
-        vfl = pif.dbh.fetch_variation_files(mod_id)
-        for vf in vfl if vfl else [{'mod_id': mod_id, 'imported_from': 'importer'}]:
-            content += '<a href="vedit.cgi?d=src/mbxf&m=%(mod_id)s&f=%(imported_from)s">%(imported_from)s</a><br>\n' % vf
-        content += '<br>\n'
-        content += '<br>\n'.join(var_pics) + '<p>'
-	for vt in var_texts[1:]:
-	    content += pif.render.format_image_art(
-                    'stargreen.gif' if vt == var_texts[0] else ('starred.gif' if not vt else 'staryellow.gif'))
-        content += '<p>'
-        content += pif.render.format_image_art(prodstar) + '<p>'
-        var_ids = [x['v.var'] for x in raw_variations]
-        var_ids.sort()
-        for var in var_ids:
-            content += '<a href="vars.cgi?mod=%s&var=%s&edit=1">%s</a><br>\n' % (mod_id, var, var)
-    #content += '</center>\n'
-
-    print models.add_left_bar(pif, '', man['id'], man['vehicle_type'], 4, content)
-
-    # title banner
-    print models.add_banner(pif, '%s %s: %s' % (mbdata.model_types[man['model_type']], mod_id, man['name']))
-
-    print '<tr><td>'
-    print '<center>'
-    print '<table cellspacing="8"><tr>'
-
-    if (variations_box or related_box) and product_box:
-
-	# top left box
-	print '<td valign="top">'
-	print '<table class="inset inset_m"><tr><td>'
-	print product_box
-	if variations_box:
-	    print '<p>'
-	    print variations_box
-	print '</td></tr></table>'
-
-	# lower left box
-	if related_box:
-	    print '<p>'
-	    print related_box
-
-	print '</td>'
-
-	# top right box
-	print '<td valign="top">'
-	print model_box
-	print notes_box
-
-	# lower right box
-
-	print '<p>'
-	print links_box
-	print '</td>'
-
-    elif variations_box or related_box:
-
-	# top left box (missing)
-
-	# top right box
-	if related_box or variations_box:
-	    print '<td valign="top" colspan="2">'
-	else:
-	    print '<td valign="top">'
-	print model_box
-	print notes_box
-	print '</td>'
-
-	print '</tr>'
-
-	# lower left box
-	print '<tr>'
-	if related_box or variations_box:
-	    print '<td width="400" valign="top">'
-	    if variations_box:
-		print '<table class="inset inset_m"><tr><td>'
-		print variations_box
-		print '</td></tr></table>'
-	    if related_box:
-		print '<p>'
-		print related_box
-	    print '</td>'
-
-	# lower right box
-
-	print '<td valign="top">'
-	print links_box
-	print '</td>'
-
-    elif product_box:
-
-	# top left box
-	print '<td valign="top">'
-	print '<table class="inset inset_m"><tr><td>'
-	print product_box
-	print '</td></tr></table>'
-	print '</td>'
-
-	# top right box
-	print '<td valign="top">'
-	print model_box
-	print notes_box
-	print '</td></tr>'
-
-	# lower right box
-
-	print '<tr><td colspan="2">'
-	print links_box
-	print '</td>'
-
-    else:
-
-	# top left box (missing)
-
-	# top right box
-	print '<td valign="top">'
-	print model_box
-	print notes_box
-	print '</td>'
-
-	print '</tr>'
-
-	# lower left box
-	print '<tr>'
-
-	# lower right box
-
-	print '<td valign="top">'
-	print links_box
-	print '</td>'
-
-    print '</tr></table>'
-    print '</center>'
-    print '</td></tr>'
-
-    # bottom
-    print '<tr><td>'
-    print '<center>'
-    if boxstyles:
-        print show_boxes(pif, mod_id, boxstyles, aliases)
-
-    print models.show_adds(pif, mod_id)
-
-    print '<p></center>'
-    print '</td></tr>'
-
-    print '<tr><td class="bottombar">'
-    print pif.render.format_button_comment(pif, 'id=%s&pic=%s&dir=%s&ref=%s' % (cid, pic, pdir, ref))
-    print '</td></tr></table>'
-
-    print pif.render.format_tail()
+    pif.render.format_button_comment(pif, 'id=%s&pic=%s&dir=%s&ref=%s' % (cid, pic, pdir, ref))
+    context = {
+	'title': '%s %s: %s' % (mbdata.model_types[man['model_type']], mod_id, man['name']),
+	'note': '',
+	'type_id': '',
+	'base_id': man['id'],
+	'vehicle_type': man['vehicle_type'],
+	'rowspan': '4',
+	'left_bar_content': left_bar_content,
+	'adds_box': adds_box,
+	'boxes_box': boxes_box,
+	'links_box': links_box,
+	'model_box': model_box,
+	'notes_box': notes_box,
+	'product_box': product_box,
+	'related_box': related_box,
+	'variations_box': variations_box,
+    }
+    return pif.render.format_template('single.html', **context)
 
 
 if __name__ == '__main__':  # pragma: no cover
