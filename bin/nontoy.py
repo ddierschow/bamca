@@ -77,8 +77,11 @@ def biblio(pif):
 	lsection['headers'][key] = hdr
 
     sortkey = []
-    if pif.form.get_str('sort', page_info.get('sort')):
-	sortkey.append(pif.form.get_str('sort', page_info.get('sort')))
+    this_sort = pif.form.get_str('sort', page_info.get('sort'))
+    if this_sort:
+	if this_sort.isdigit():
+	    this_sort = lsection['columns'][int(this_sort)]
+	sortkey.append(this_sort)
     if page_info.get('lastsort'):
 	sortkey.append(page_info.get('lastsort'))
     if sortkey:
