@@ -440,6 +440,8 @@ def show_single(pif):
     if not pdir.startswith('pic/') or '/' in pic:
 	pdir = pic = ''
     ref = pif.form.get_str('ref')
+    ref = ref[:ref.find("'")] if "'" in ref else ref
+    ref = ''.join([x for x in ref if x in '.abcdefghijklmnopqrstuvwxyz0123456789'])
     sub = pif.form.get_str('sub')
     reg = sub if sub else pic[4] if ref.startswith('year') and pic and pic[:4].isdigit() else ''
     cid = man.get('id', '')

@@ -278,6 +278,7 @@ class PageInfoFile(object):
 
     def get_page_id(self, page_id, form_key, defval):
 	page_id = self.calc_page_id(page_id, form_key, defval)
+	page_id = page_id[:page_id.find("'")] if "'" in page_id else page_id
 	page_id = ''.join([x for x in page_id if x in '.abcdefghijklmnopqrstuvwxyz0123456789'])[:20]
 	return page_id
 

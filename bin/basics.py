@@ -46,8 +46,9 @@ def simple_html(status=404):
     useful.write_comment()
 
 
-def handle_exception(pif, header_done=False):
-    str_tb = write_traceback_file(pif)
+def handle_exception(pif, header_done=False, write_traceback=True):
+    if write_traceback:
+	str_tb = write_traceback_file(pif)
     if not pif or not pif.render or not pif.dbh:
 	if not header_done:
 	    simple_html()
@@ -228,7 +229,9 @@ def web_page(main_fn):
 	except useful.SimpleError as e:
 	    simple_html(status=e.status)
 	    print useful.render_template('error.html', error=[e.value], page={'tail':''})
-            handle_exception(pif, True)
+	    if pif:
+		pif.log.debug.error('SimpleError: ' + str(e) + ' - ' + '''%s''' % os.environ.get('REQUEST_URI', ''))
+            handle_exception(pif, True, False)
             return
         except MySQLdb.OperationalError:
 	    simple_html()
