@@ -45,6 +45,7 @@ to these new templates, and more will follow as I have time.
     6.0 published Sunday, 10 May 2015 at 12:01 AM PDT
     6.1 published Sunday, 6 September 2015 at 12:01 AM PDT
     6.2 published Sunday, 14 February 2016 at 12:01 AM PDT
+    6.3 published Sunday, 17 April 2016 at 12:01 AM PDT
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
