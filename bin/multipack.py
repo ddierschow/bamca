@@ -41,6 +41,7 @@ pack_pic_size = 'tcmlh'
 # ---- page list ------------------------------------------------------
 
 def make_page_list(pif):
+    pif.render.set_button_comment(pif)
     pages = pif.dbh.fetch_pages("format_type='packs'")
     pages.sort(key=lambda x: x['page_info.title'])
     lsec = [pif.dbh.depref('section', x) for x in pif.dbh.fetch_sections({'page_id': 'packs'})]
@@ -52,13 +53,13 @@ def make_page_list(pif):
         if not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED):
             txt = models.add_icons(pif, page['id'][6:], '', '') + '<br>' + page['title']
             entries.append({'text': pif.render.format_link('?page=' + page['id'][page['id'].find('.') + 1:], txt)})
-    ostr = '<center>\n' + pif.render.format_matrix(llineup) + '<center>\n'
-    ostr += pif.render.format_button_comment(pif)
-    return ostr
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('packpages.html', llineup=llineup)
 
 # ---- pack list ------------------------------------------------------
 
 def make_pack_list(pif, year=None, reg=None, lid=None):
+    pif.render.set_button_comment(pif)
     packs = pif.dbh.fetch_packs(page_id=pif.page_id)
     for pack in packs:
         pif.dbh.depref('base_id', pack)
@@ -146,7 +147,7 @@ def make_pack_list(pif, year=None, reg=None, lid=None):
     ostr += '<input type="hidden" name="page" value="%s">' % pif.form.get_str('page')
     ostr += '</form>'
     ostr += '</td></tr></table>\n'
-    ostr += pif.render.format_button_comment(pif)
+    ostr += pif.render.footer
     return ostr
 
 # ---- single pack ----------------------------------------------------
@@ -223,13 +224,13 @@ def do_single_pack(pif, pid):
         left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack['id'])
         left_bar_content += '</center>\n'
 
-    pif.render.format_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
+    pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
     pif.render.format_matrix_for_template(llineup)
     context = {
 	'title': pack['name'],
 	'note': pack['note'],
 	'type_id': pif.page_name,
-	'base_id': '',#pack_id,
+	'icon_id': '',#pack_id,
 	'vehicle_type': '',
 	'rowspan': 4,
 	'left_bar_content': left_bar_content,
@@ -364,13 +365,12 @@ def do_page(pif):
 	year = pif.form.get_str('year')
 	reg = pif.form.get_str('region')
 	print pif.render.format_head()
+	useful.header_done()
 	lid = pif.form.get_str('lid')
         print make_pack_list(pif, year, reg, lid)
 	print pif.render.format_tail()
     else:
-	print pif.render.format_head()
         print make_page_list(pif)
-	print pif.render.format_tail()
 
 # ---------------------------------------------------------------------
 

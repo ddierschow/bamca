@@ -6,6 +6,7 @@ import os
 import basics
 import bfiles
 import config
+import useful
 
 modnumlist = []
 
@@ -70,6 +71,7 @@ class SetFile(bfiles.ArgFile):
 
 
 def do_set(pif, setfile, set_id=None, dups=False):
+    pif.render.set_button_comment(pif, '')
     tables = setfile.tables
 
     ostr = '<center>'
@@ -79,8 +81,8 @@ def do_set(pif, setfile, set_id=None, dups=False):
         else:
             ostr += print_no_table(pif, db)
     ostr += '</center>\n'
-    ostr += pif.render.format_button_comment(pif, '')
-    return pif.render.format_head() + ostr + pif.render.format_tail()
+    ostr += pif.render.footer
+    return ostr
 
 
 def print_table(pif, db, setfile, dups=False):
@@ -239,7 +241,10 @@ def sets_main(pif):
         set_id = pif.form.get_str('set')
         dups = pif.form.get_int('dups')
         setfile = SetFile(os.path.join(config.SRC_DIR, pif.form.get_str('page') + '.dat'))
+	print pif.render.format_head()
+	useful.header_done()
         print do_set(pif, setfile, set_id, dups=dups)
+	print pif.render.format_tail()
     else:
         print select_set(pif)
 

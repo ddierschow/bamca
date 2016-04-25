@@ -255,7 +255,7 @@ def set_var(mod, llineup, region, ref_id, verbose=0):
     insert that model into the lineup.  This is not easy.'''
     def debug(self, *args):
 	if verbose:
-	    print ' '.join([str(x) for x in args])
+	    useful.write_message(' '.join([str(x) for x in args]))
 
     def add_model(mod):
         mod = copy.deepcopy(mod)
@@ -304,7 +304,7 @@ def create_lineup(mods, parents, year, region, verbose=0):
         #return {x['lineup_model.number']: x for x in mods}
     def debug(self, *args):
 	if verbose:
-	    print ' '.join([str(x) for x in args])
+	    useful.write_message(' '.join([str(x) for x in args]))
 
     rankmods = dict()
     reg_list = []
@@ -577,7 +577,7 @@ def run_file(pif, region, year, section_types):
     llineup['section'].append(lsec)
     llineup['tail'] = [pif.render.format_image_art('bamca_sm', also={'class': 'centered'}), '']
     #llineup['tail'][1] += 
-    pif.render.format_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
+    pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
     for comment in comments:
         llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
 #    if int(year) > config.YEAR_START:
@@ -648,7 +648,7 @@ def run_multi_file(pif, year, region, nyears):
     lsec['range'].append(lran)
 
     llineup['section'].append(lsec)
-    pif.render.format_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
+    pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
     for comment in comments:
         llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
     return llineup
@@ -813,16 +813,16 @@ def main(pif):
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi', 'Annual Lineup')
 
     if pif.form.has('prodpic'):
-        print product_pic_lineup_main(pif)
+        return product_pic_lineup_main(pif)
     elif pif.form.get_int('n'):
-        print rank_lineup_main(pif)
+        return rank_lineup_main(pif)
     elif pif.form.get_int('nyears', 1) > 1:
-        print multiyear_main(pif)
+        return multiyear_main(pif)
     elif pif.form.get_str('region') and pif.form.get_str('year'):
-        print lineup_main(pif)
+        return lineup_main(pif)
     else:
         pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
-        print select_lineup(pif, pif.form.get_str('region', 'W').upper(), pif.form.get_str('year', '0'))
+        return select_lineup(pif, pif.form.get_str('region', 'W').upper(), pif.form.get_str('year', '0'))
 
 #--------- text lineup -----------------------------
 
@@ -929,6 +929,7 @@ def show_text_section(pif, lsec, lran, mods, lup_region, year):
 
 
 def run_text_file(pif, region, year):
+    pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
     ostr = ''
     lup_region, year = correct_region(region, year)
     llineup = {'id': lup_region, 'section': [], 'name': '', 'tail': []}
@@ -977,7 +978,7 @@ def run_text_file(pif, region, year):
 
     llineup['section'].append(lsec)
     llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
-    llineup['tail'][1] += pif.render.format_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
+    llineup['tail'][1] += pif.render.footer
 #    if int(year) > config.YEAR_START:
 #       llineup['tail'][1] += pif.render.format_button("previous_year", link='http://www.bamca.org/cgi-bin/lineup.cgi?year=%s&region=%s' % (int(year) - 1, region))
 #    if int(year) > config.YEAR_END:
@@ -1096,7 +1097,7 @@ def run_ranks(pif, mnum, region, syear, eyear):
     llineup['section'].append(lsec)
     llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
     #llineup['tail'][1] += pif.render.format_button("comment_on_this_page", link='../pages/comment.php?page=%s&yr=%s&rg=%s' % (pif.page_id, pif.form.get_str('year'), pif.form.get_str('region')), also={'class': 'comment'}, lalso=dict())
-    pif.render.format_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
+    pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
     for comment in comments:
         llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
     return llineup
@@ -1196,7 +1197,7 @@ def mod_to_mack(pif, recs, start, end, series):
 
 @basics.web_page
 def mack_lineup(pif):
-    pif.render.format_button_comment(pif, 'rg=%s&sec=%s&start=%s&end=%s' % (pif.form.get_str('region', ''), pif.form.get_str('sect', ''), pif.form.get_str('start', ''), pif.form.get_str('end', '')))
+    pif.render.set_button_comment(pif, 'rg=%s&sec=%s&start=%s&end=%s' % (pif.form.get_str('region', ''), pif.form.get_str('sect', ''), pif.form.get_str('start', ''), pif.form.get_str('end', '')))
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append(pif.request_uri, 'Mack Numbers')
@@ -1257,7 +1258,7 @@ def makes_main(pif):
         else:
             make = ''
 
-    pif.render.format_button_comment(pif, 'make=%s&text=%s' % (pif.form.get_str('make', ''), pif.form.get_str('text', '')))
+    pif.render.set_button_comment(pif, 'make=%s&text=%s' % (pif.form.get_str('make', ''), pif.form.get_str('text', '')))
     if make:
         llineup = show_makes(pif, makedict, makes)
     else:
@@ -1329,14 +1330,14 @@ def show_lineup(pif):
     reg = pif.argv[2].upper()
     llineup = run_file(pif, reg, year, ["man", "series", "ks", "acc", "yy", "pack", "bld", "pub"])
     for sec in llineup['section']:
-	print sec['name']
+	useful.write_message(sec['name'])
 	for ran in sec['range']:
 	    for ent in ran['entry']:
 		if len(pif.argv) == 3 or str(ent['mdict']['shown_id']) in pif.argv[3:]:
-		    print ent['mdict']['shown_id'], ent['mdict']['name']
+		    useful.write_message(ent['mdict']['shown_id'], ent['mdict']['name'])
 		    for var in ent['mdict']['vars']:
-			print '    ', var[1]
-	print
+			useful.write_message('    ', var[1])
+	useful.write_message('')
 
 
 @basics.command_line
@@ -1344,8 +1345,8 @@ def commands(pif):
     if pif.argv and pif.argv[0] == 's':
 	show_lineup(pif)
     else:
-        print "./lineup.py s ..."
-        print "  s for show: year region [number]"
+        useful.write_message("./lineup.py s ...")
+        useful.write_message("  s for show: year region [number]")
 
 # --- -------------------------------------------------------------------
 

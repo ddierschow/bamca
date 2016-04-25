@@ -15,13 +15,6 @@ class TestRender(unittest.TestCase):
 	self.pif.render.verbose = False
 	self.assertTrue(self.pif.render.print_html() == None)
 
-    def test_table(self):
-	table = self.pif.render.create_table()
-	self.assertTrue(table != None)
-	self.assertTrue(table.row() == None)
-	self.assertTrue(table.cell(0, 'foo') == None)
-	self.assertTrue(table.render() != '')
-
     def test_FormatTable(self):
 	self.assertTrue(self.pif.render.format_table(
 	    {'also':{'class':'table'}, 'id':'table', 'rows':[
@@ -38,9 +31,6 @@ class TestRender(unittest.TestCase):
 		    {'col':None, 'content':"", 'hdr':False, 'also':{}, 'large':True, 'id':'2'}
 		]}
 	    ]}) != '')
-
-    def test_format_table_single_cell(self):
-	self.assertTrue(self.pif.render.format_table_single_cell(0, content='stuff', talso={}, ralso={}, calso={}, id='ut', hdr=False) != '')
 
     def teststr(self):
 	self.assertTrue(str(self.pif.render) != '')
@@ -118,7 +108,7 @@ class TestRender(unittest.TestCase):
     def test_format_head(self):
 	self.assertTrue(self.pif.render.format_head() != '')
 	self.pif.render.isbeta = True
-	self.assertTrue(self.pif.render.format_head(extra='<!-- -->') != '')
+	self.assertTrue(self.pif.render.format_head() != '')
 	self.pif.render.isbeta = False
 
     def test_format_tail1(self):
@@ -132,9 +122,6 @@ class TestRender(unittest.TestCase):
 	self.pif.render.tail['flags'] = 1
 	self.assertTrue(self.pif.render.format_tail() != '')
 	self.pif.render.isbeta = False
-
-    def test_create_table(self):
-	pass#self.assertTrue(self.pif.render.create_table(also={}, id='', style_id='') != '')
 
     def test_format_table_start(self):
 	pass#self.assertTrue(self.pif.render.format_table_start(also={}, id='', style_id='') != '')
@@ -232,9 +219,11 @@ class TestRender(unittest.TestCase):
     def test_format_button_reset(self):
 	self.assertTrue(self.pif.render.format_button_reset('thing') != '')
 
-    def test_format_button_comment(self):
-	self.assertTrue(self.pif.render.format_button_comment(self.pif, args=None) != '')
-	self.assertTrue(self.pif.render.format_button_comment(self.pif, args={'a':1}) != '')
+    def test_set_button_comment(self):
+	self.pif.render.set_button_comment(self.pif, args=None)
+	self.assertTrue(self.pif.render.footer != '')
+	self.pif.render.set_button_comment(self.pif, args={'a':1})
+	self.assertTrue(self.pif.render.footer != '')
 
     def test_format_image_art(self):
 	pass#self.assertTrue(self.pif.render.format_image_art('bamca', desc='', hspace=0, also={}) != '')

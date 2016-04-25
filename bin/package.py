@@ -41,7 +41,7 @@ def do_tree_page(pif, dblist):
         if cmd == 'dir':
             pif.render.pic_dir = llist.get_arg()
         elif cmd == 'render':
-            useful.render(pif.render.pic_dir + '/' + llist.get_arg())
+            print useful.render_file(pif.render.pic_dir + '/' + llist.get_arg())
         elif cmd == 'p':
             print '<p>\n'
         elif cmd == 's':
@@ -85,6 +85,7 @@ def blister(pif):
     dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
 
     print pif.render.format_head()
+    useful.header_done()
     do_tree_page(pif, dblist)
     print pif.render.format_tail()
 

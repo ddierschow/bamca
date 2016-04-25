@@ -45,13 +45,13 @@ def publication(pif):
     }
     llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran], 'columns': 4}], 'columns': 4}
 
-    pif.render.format_button_comment(pif, 'id=%s' % pub_id)
+    pif.render.set_button_comment(pif, 'id=%s' % pub_id)
     pif.render.format_matrix_for_template(llineup)
     context = {
 	'title': man.get('name', ''),
 	'note': '',
 	'type_id': '',
-	#'base_id': pub_id,
+	#'icon_id': pub_id,
 	'vehicle_type': '',
 	'rowspan': 5 if upper_box else 4,
 	'left_bar_content': left_bar_content,

@@ -1,0 +1,11 @@
+{%- extends "base.html" -%}
+
+{%- macro man_entry(entry) -%}
+{{ entry.text }}
+{%- endmacro -%}
+
+{%- block page_body -%}
+<center>
+{{ render.format_matrix(llineup, man_entry) }}
+</center>
+{%- endblock page_body -%}

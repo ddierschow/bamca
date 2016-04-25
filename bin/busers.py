@@ -81,7 +81,9 @@ def update_user(pif):
 def user_main(pif):
     pif.render.print_html()
     pif.restrict('a')
-    print pif.render.format_head(extra=pif.render.reset_button_js)
+    pif.render.set_page_extra(pif.render.reset_button_js)
+    print pif.render.format_head()
+    useful.header_done()
     if pif.form.has('name'):
         update_user(pif)
         print_users(pif)
@@ -130,6 +132,7 @@ def login(pif):
     else:
         pif.render.print_html()
         print pif.render.format_head()
+	useful.header_done()
         print 'Login Failed!<br>'
         print_login_form(pif)
 
@@ -141,6 +144,7 @@ def login_main(pif):
     else:
         pif.render.print_html()
         print pif.render.format_head()
+	useful.header_done()
         print_login_form(pif)
 
     print pif.render.format_tail()
@@ -163,6 +167,7 @@ def logout_main(pif):
 
 def print_signup_form(pif):
     print pif.render.format_head()
+    useful.header_done()
     print 'You are registering to receive an account on this system.'
     print '<form method="post">'
     print pif.render.format_table_start()
@@ -209,6 +214,7 @@ def create(pif):
         cookie = pif.render.secure.make_cookie(id, '', expires=15 * 12 * 60 * 60)
         pif.render.print_html(cookie=cookie)
         print pif.render.format_head()
+	useful.header_done()
         print "Your account has been created.  Please check your email for the verification."
     else:
         pif.render.print_html()
@@ -242,6 +248,7 @@ Thank you!
 def verify(pif, name, vkey):
     pif.render.print_html()
     print pif.render.format_head()
+    useful.header_done()
     userrec = pif.dbh.fetch_user(vkey=vkey, name=name)
     if userrec:
         userrec = userrec[0]
@@ -275,6 +282,7 @@ def register_main(pif):
 
 def print_change_password_form(pif):
     print pif.render.format_head()
+    useful.header_done()
     print 'You have requested to change your password.'
     print '<form method="post">'
     print '<table><tr><td>'

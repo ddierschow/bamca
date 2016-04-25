@@ -4,11 +4,10 @@ Pages Still Using the Old Rendering Engine
 File         | Page
 ---------    | --------------------------
 busers.py    | All pages
-mannum.py    | Playsets (not implemented)
 mbsets.py    | Main display page
-nontoy.py    | Site activity page
-package.py   | Blisters page; boxes page
-tlinks.py    | All pages
+package.py   | Blisters page
+nontoy.py    | Site activity page (not currently supported)
+tlinks.py    | Link editor (admin only)
 editor.py    | All pages (admin only)
 images.py    | All pages (admin only)
 traverse.py  | All pages (admin only)

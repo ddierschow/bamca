@@ -395,7 +395,9 @@ def main(pif):
     pif.restrict('vma')
     tform = TraverseForm().read(pif)
 
-    print pif.render.format_head(extra=pif.render.increment_js)
+    pif.render.set_page_extra(pif.render.increment_js)
+    print pif.render.format_head()
+    useful.header_done()
     print pif.form.get_form(), '<br>'
     if tform.patt:
         show_imgs(pif, tform)

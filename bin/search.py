@@ -90,7 +90,7 @@ def run_search(pif):
 	raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.")
 
     mods.sort(key=lambda x: x['rawname'])
-    pif.render.format_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
+    pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
     llineup = create_lineup(pif, mods)
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)

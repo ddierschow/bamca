@@ -702,6 +702,7 @@ def handle_form(pif):
     elif pif.form.has('f'):
         pif.render.title = 'Variations - ' + pif.form.get_str('f')
     print pif.render.format_head()
+    useful.header_done()
     if not pif.is_allowed('a'):
         return
 

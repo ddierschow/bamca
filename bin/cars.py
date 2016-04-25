@@ -4,6 +4,7 @@ import copy, os
 import basics
 import bfiles
 import config
+import useful
 
 
 # ------- ----------------------------------------------------------
@@ -69,6 +70,7 @@ def cars_main(pif):
     db = CarsFile(os.path.join(config.SRC_DIR, pif.form.get_str('page', 'cars') + '.dat'))
 
     print pif.render.format_head()
+    useful.header_done()
     render_cars(pif, db)
     print pif.render.format_tail()
 

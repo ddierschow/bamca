@@ -82,8 +82,6 @@ class MatrixFile(object):
         self.tables.sort(key=lambda x: x['display_order'])
 
     def matrix(self, pif):
-#        if not pif.render.simple:
-#            pif.render.tail['printable'] = 1
         llineup = {'id': pif.page_name, 'section': [], 'note': '\n'.join(self.text), 'columns': 4, 'tail': ''}
         comments = set()
 
@@ -115,7 +113,7 @@ class MatrixFile(object):
             section['range'].append(ran)
             llineup['section'].append(section)
         llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
-	pif.render.format_button_comment(pif, '')
+	pif.render.set_button_comment(pif, '')
         for comment in comments:
             llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
         return llineup

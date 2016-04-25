@@ -17,7 +17,9 @@ import useful
 def mass(pif):
     pif.render.print_html()
     pif.restrict('am')
-    print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.toggle_display_js)
+    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.toggle_display_js)
+    print pif.render.format_head()
+    useful.header_done()
     mass_type = pif.form.get_str('type')
     print mass_type, '<br>'
     #print pif.form, '<hr>'
@@ -423,7 +425,7 @@ def add_var_info(pif):
     if not mod:
 	raise useful.SimpleError("Model not found.")
     print '<h3>', mod['name'], '</h3>'
-    print '<form>'
+    print '<form onsubmit="save.disabled=true; return true;">'
     if var:
 	print pif.render.format_hidden_input({'store': 'update'})
 	var = pif.dbh.depref('variation', var[0])
@@ -492,33 +494,36 @@ def add_var_final(pif):
 
 def edit_casting_related(pif):
     mod_id = pif.form.get_str('mod_id')
-    # 'columns': ['id', 'model_id', 'related_id', 'description'],
-    if pif.form.has('add'):
-	pif.dbh.add_casting_related({'model_id': mod_id, 'related_id': pif.form.get_str('r')})
-	pif.dbh.add_casting_related({'model_id': pif.form.get_str('r'), 'related_id': mod_id})
+    # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
+    print pif.form, '<br>'
     if pif.form.has('save'):
-	crd = {}
-	for key in pif.form.keys(start='m.'):
-	    key = key[2:]
-	    crd[key] = dict()
-	    crd[key]['m'] = pif.form.get_str('m.' + key)
-	    crd[key]['r'] = pif.form.get_str('r.' + key)
-	    crd[key]['im'] = pif.form.get_str('im.' + key)
-	    crd[key]['ir'] = pif.form.get_str('ir.' + key)
-	    crd[key]['dm'] = pif.form.get_str('dm.' + key)
-	    crd[key]['dr'] = pif.form.get_str('dr.' + key)
-	for key in crd:
-	    cr = crd[key]
-	    print key, cr, '<br>'
-	    #print '+', pif.dbh.fetch_casting_related(crd[key]['m'], crd[key]['r']), '<br>'
-	    #print '+', pif.dbh.fetch_casting_related(crd[key]['r'], crd[key]['m']), '<br>'
-	    if cr['dm']:
-		print {'id': cr['im'], 'model_id': cr['m'], 'related_id': cr['r'], 'description': cr['dm']}, '<br>'
-		pif.dbh.update_casting_related({'id': cr['im'], 'model_id': cr['m'], 'related_id': cr['r'], 'description': cr['dm']})
-	    if cr['dr']:
-		print {'id': cr['ir'], 'model_id': cr['r'], 'related_id': cr['m'], 'description': cr['dr']}, '<br>'
-		pif.dbh.update_casting_related({'id': cr['ir'], 'model_id': cr['r'], 'related_id': cr['m'], 'description': cr['dr']})
-    else:
+	print 'saving', pif.form.keys(start='m.'), '<br>'
+	crd = {key : {
+		'm': pif.form.get_str('m.' + key), # base_id
+		'r': pif.form.get_str('r.' + key),
+		'im': pif.form.get_str('im.' + key), # casting_related database id
+		'ir': pif.form.get_str('ir.' + key),
+		'dm': pif.form.get_str('dm.' + key),
+		'dr': pif.form.get_str('dr.' + key),
+		'sm': pif.form.get_str('sm.' + key),
+		'sr': pif.form.get_str('sr.' + key),
+	    } for key in pif.form.roots(start='m.')}
+	for key, cr in crd.items():
+	    print 'made', key, cr, '<br>'
+	    if cr['im']:
+		cr_this = {'id': cr['im'], 'model_id': cr['m'], 'related_id': cr['r'], 'description': cr['dm'], 'section_id': cr['sm']}
+		pif.dbh.update_casting_related(cr_this)
+	    if cr['ir']:
+		cr_that = {'id': cr['ir'], 'model_id': cr['r'], 'related_id': cr['m'], 'description': cr['dr'], 'section_id': cr['sr']}
+		pif.dbh.update_casting_related(cr_that)
+	print 'done saving <br>'
+    elif pif.form.has('add'):
+	print 'adding'
+	print pif.dbh.add_casting_related({'model_id': mod_id, 'related_id': pif.form.get_str('r')})
+	print pif.dbh.add_casting_related({'model_id': pif.form.get_str('r'), 'related_id': mod_id})
+	print '<br>'
+
+    if 1:
 	crl = pif.dbh.fetch_casting_relateds()
 	crd_m = {}
 	crd_r = {}
@@ -538,7 +543,8 @@ def edit_casting_related(pif):
 #	for cr in crd_m:
 #	    print cr, crd_m[cr], '<br>'
 #	    print '...', crd_r[cr], '<br>'
-	print '<form method="post"><table border=1>'
+	print '<form action="mass.cgi" onsubmit="save.disabled=true; return true;"><table border=1>'
+	print pif.render.format_hidden_input({'mod_id': pif.form.get_str('mod_id'), 'type': 'related'})
 	cnt = 0
 	for cr in crd_m:
 	    cnt += 1
@@ -556,24 +562,23 @@ def edit_casting_related(pif):
 	    print '<td>', crd_m[cr].get('r.rawname', ''), '' if cr in crd_r else '(missing)', '</td>'
 	    if cr in crd_r:
 		print '<input type="hidden" name="ir.%s" value="%s">' % (cnt, crd_r[cr].get('casting_related.id', ''))
-	    print '<td>', crd_m[cr].get('casting_related.section_id', ''), '</td>'
 	    print '</tr><tr>'
 	    print '<td colspan=3>%s</td>' % crd_m[cr].get('m.description', '')
 	    print '<td colspan=3>%s</td>' % crd_m[cr].get('r.description', '')
-	    print '<td></td>'
 	    print '</tr><tr>'
 	    rd = crd_r[cr].get('casting_related.description', '') if cr in crd_r else ''
 	    print '<td colspan=3><input type="text" name="dr.%s" value="%s"></td>' % (cnt, rd)
 	    print '<td colspan=3><input type="text" name="dm.%s" value="%s"></td>' % (cnt, crd_m[cr].get('casting_related.description', ''))
+	    print '</tr><tr>'
+	    rd = crd_r[cr].get('casting_related.section_id', '') if cr in crd_r else ''
+	    print '<td colspan=3><input type="text" name="sr.%s" value="%s"></td>' % (cnt, rd)
+	    print '<td colspan=3><input type="text" name="sm.%s" value="%s"></td>' % (cnt, crd_m[cr].get('casting_related.section_id', ''))
 	    print '</tr>'
 	print '</table>'
 	print pif.render.format_button_input('save')
-	print '</form>'
-    uri = 'mass.cgi?type=related'
-    if mod_id:
-	uri += '&mod_id=' + mod_id
+	print '</form><hr>'
     if pif.form.has('mod_id'):
-	print '<form>'
+	print '<form action="mass.cgi" onsubmit="add.disabled=true; return true;">'
 	print pif.render.format_hidden_input({'mod_id': pif.form.get_str('mod_id'), 'type': 'related'})
 	print pif.render.format_text_input('r', 12)
 	print pif.render.format_button_input('add')

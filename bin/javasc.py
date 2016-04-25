@@ -27,8 +27,7 @@ def_increment_js = '''<script type="text/javascript" src="/bin/increment.js"></s
 def_increment_select_js = '''<script type="text/javascript" src="/bin/incrsel.js"></script>\n'''
 #def_toggle_display_js = '''<script type="text/javascript" src="/bin/togdisp.js"></script>\n'''
 
-def_google_analytics_js = '''
-<script type="text/javascript">
+def_google_analytics_js = '''<script type="text/javascript">
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-24758340-2']);
 _gaq.push(['_trackPageview']);
@@ -40,8 +39,7 @@ _gaq.push(['_trackPageview']);
 </script>
 '''
 
-def_edit_app = '''
-<div style="display:none" id="ima_query">q</div>
+def_edit_app = '''<div style="display:none" id="ima_query">q</div>
 <img id="ima_source" src="%(file)s" style="display:none">
 <canvas id="ima_widget" width="%(width)s" height="%(height)s" style="border:0px;">
 </canvas><br>

@@ -41,7 +41,7 @@ def upload_log(url, pdir):
 # for things out of http space:
 #print '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.render.pic_dir, fn)
 def show_picture(pif, fn, pdir=None):
-    print useful.warn("This path should move to traverse!")
+    useful.warn("This path should move to traverse!")
     if pdir:
 	pif.render.pic_dir = pdir
     picker(pif, fn)
@@ -155,59 +155,17 @@ class UploadForm(object):
 	return self
 
     def write(self, pif, restrict=False, desc=''):
-	print '<form action="upload.cgi" enctype="multipart/form-data" method="post" name="upload">'
-	if self.y:
-	    print '<input type="hidden" name="y" value="%s">' % self.y
-	#format_table({'also': {}, 'id': '', 'style_id': '', 'rows': []})
-	#rows=[{'ids': [], 'also': {}, 'cells': []}, ...]
-	#cells=[{'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''}, ...]
-
-	rows = list()
-	if self.mod_id:
-	    rows.append({'cells': [{'col': 0, 'content': 'Model'}, {'col': 1, 'content': self.mod_id}]})
-	    print '<input type="hidden" name="m" value="%s">' % self.mod_id
-	    rows.append({'cells': [{'col': 0, 'content': 'Variation'}, {'col': 1, 'content': pif.render.format_text_input('v', 8, value=self.var_id)}]})
-	if not restrict:
-	    rows.append({'cells': [{'col': 0, 'content': 'Directory'},
-			{'col': 1, 'content': pif.render.format_text_input('d', 64, value=self.tdir)}]})
-	    rows.append({'cells': [{'col': 0, 'content': 'CC'},
-			{'col': 1, 'content': pif.render.format_text_input('cc', 64, value=self.cc) + " (optional)"}]})
-	    if not self.mass:
-		rows.append({'cells': [{'col': 0, 'content': 'Rename file to'},
-			    {'col': 1, 'content': pif.render.format_text_input('n', 64, value=self.nfn) + " (optional)"}]})
-		rows.append({'cells': [{'col': 0},
-			    {'col': 0, 'content': "Choose one of the following:"}]})
-	if self.mass:
-	    rows.append({'cells': [{'col': 0, 'content': 'URLs to grab'},
-			{'col': 1, 'content': '<input type="hidden" value="1" name="mass"><textarea name="ul" cols="80" rows="20" wrap="off"></textarea>'}]})
-	else:
-	    rows.append({'cells': [{'col': 0, 'content': 'File to Upload'},
-			{'col': 1, 'content': '<input type="file" name="fi" size="40">'}]})
-	if not restrict and not self.mass:
-	    rows.append({'cells': [{'col': 0, 'content': 'URL to grab'},
-			{'col': 1, 'content': pif.render.format_text_input('u', 255, 80, id='urlgrab') +
-    pif.render.format_button_input_paste('urlgrab')
-}]})
-	    rows.append({'cells': [{'col': 0, 'content': 'URL to scrape'},
-			{'col': 1, 'content': pif.render.format_text_input('s', 120, 80)}]})
-	rows.append({'cells': [{'col': 0, 'content': 'Comment'},
-		    {'col': 1, 'content': pif.render.format_text_input('c', 80, 80, desc)}]})
-	if not restrict and not self.mass and self.mod_id:  # self.var_id:
-	    rows.append({'cells': [{'col': 0, 'content': 'Choose from library'},
-			{'col': 1, 'content': pif.render.format_button_input("select", name="l", also={})}]})
-	if self.mass:
-	    rows.append({'cells': [{'col': 0, 'content': '&nbsp;'},
-			{'col': 0, 'content': pif.render.format_button_input() +
-			    pif.render.format_button_reset("upload")}]})
-	else:
-	    rows.append({'cells': [{'col': 0, 'content': '&nbsp;'},
-			{'col': 0, 'content': pif.render.format_button_input() +
-			    (pif.render.format_button_input("replace") if not restrict else '') +
-			    pif.render.format_button_reset("upload") +
-			    (pif.render.format_button_input("mass") if not restrict else '')}]})
-	print pif.render.format_table({'rows': rows})
-
-	print '</form>'
+	var = pif.dbh.fetch_variation(self.mod_id, self.var_id) if self.mod_id and self.var_id else None
+	if var:
+	    var = pif.dbh.depref('variation', var[0])
+	    var['image'] = pif.render.format_image_sized(self.mod_id + '-' + self.var_id, pdir=config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
+	context = {
+	    'form': self,
+	    'restrict': restrict,
+	    'desc': desc,
+	    'var': var,
+	}
+	return pif.render.format_template('upload.html', **context)
 
     def scrape_url_pic(self):
 	url = self.scrape
@@ -271,6 +229,7 @@ class UploadForm(object):
 
     def restricted_upload(self, pif):
 	print pif.render.format_head()
+	useful.header_done()
 	direc = config.INC_DIR
 	descrips = open(descriptions_file).readlines()
 	fn = 1
@@ -284,11 +243,11 @@ class UploadForm(object):
 	fn = '%09d' % fn
 	if self.url:
 	    fn = grab_url_file(self.url, direc, fn)
-	    self.thanks(pif, fn)
+	    print self.thanks(pif, fn)
 	elif self.fimage:
 	    fn = useful.file_save(direc, fn, self.fimage)
 	    file_log(direc + '/' + fn, direc)
-	    self.thanks(pif, fn)
+	    print self.thanks(pif, fn)
 	else:
 	    self.write(pif, restrict=True)
 	print pif.render.format_tail()
@@ -302,8 +261,9 @@ class UploadForm(object):
 		self.var_id if self.var_id else '-',
 		self.y if self.y else '-',
 		comment]) + '\n')
-	useful.warn('Thank you for submitting that file.')
-	print "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
+	ostr = '<div class="warning">Thank you for submitting that file.</div><br>/n'
+	ostr += "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
+	return ostr
 
     def carbon_copy(self, fn):
 	if self.cc:
@@ -329,22 +289,27 @@ def upload_main(pif):
 	upform.carbon_copy(fn)
 	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id))
 
-    print pif.render.format_head(extra=pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
-    print pif.form.get_form()
-    print '<hr>'
-
-    print show_var_info(pif, upform.mod_id, upform.var_id)
+    useful.write_message(str(pif.form.get_form()))
+    useful.write_message('<hr>')
+    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
 
     try:
 	if upform.url_list:
+	    print pif.render.format_head()
+	    useful.header_done()
+	    print show_var_info(pif, upform.mod_id, upform.var_id)
 	    upform.grab_url_file_list()
+	    print pif.render.format_tail()
 	elif upform.scrape:
+	    print pif.render.format_head()
+	    useful.header_done()
+	    print show_var_info(pif, upform.mod_id, upform.var_id)
 	    upform.scrape_url_pic()
+	    print pif.render.format_tail()
         else:
-	    upform.write(pif, desc=upform.comment, restrict=not pif.is_allowed('uma'))
+	    return upform.write(pif, desc=upform.comment, restrict=not pif.is_allowed('uma'))
     except OSError:
-        print useful.warn('fail:', traceback.format_exc(0))
-    print pif.render.format_tail()
+        useful.warn('fail:', traceback.format_exc(0))
 
 # -- imawidget
 
@@ -356,7 +321,7 @@ def show_editor(pif, eform, pdir=None, fn=None):
 	fn = eform.fn
     full_path = os.path.join(pdir, fn)
     if not os.path.exists(full_path):
-        print useful.warn('%s not found.' % full_path)
+        useful.warn('%s not found.' % full_path)
         return
 
     print '<hr><form action="imawidget.cgi" name="myForm">'
@@ -554,7 +519,7 @@ class EditForm(imglib.ActionForm):
 
 	full_path = os.path.join(pdir, fn)
 	if not os.path.exists(full_path):
-	    print useful.warn('%s not found.<br>' % full_path)
+	    useful.warn('%s not found.<br>' % full_path)
 	    return 0, 0
 
 	presets = imglib.read_presets(pdir)
@@ -719,7 +684,9 @@ def imawidget_main(pif):
     eform = EditForm(pif).read(pif)
 
     pif.render.title = pif.render.pagetitle = pif.render.pic_dir + '/' + eform.fn
-    print pif.render.format_head(extra=pif.render.increment_js)
+    pif.render.set_page_extra(pif.render.increment_js)
+    print pif.render.format_head()
+    useful.header_done()
 
     if not pif.is_allowed('ma'):
 	print pif.render.format_image_required(eform.fn)
@@ -946,7 +913,6 @@ class StitchForm(object):
 	#print '<a href="../' + final + '">' + final + '<br>'
 	#print '<img src="../' + final + '"></a>'
 	d, f = os.path.split(final)
-	#eform = EditForm(pif).read(pif) # bullshit
 	show_picture(pif, f, d)
 	orig = input_files[0][input_files[0].rfind('/') + 1:]
 	print '<br><form>Final resting place:'
@@ -964,6 +930,7 @@ def stitch_main(pif, verbose=False):
 
     pif.render.title = 'stitch'
     print pif.render.format_head()
+    useful.header_done()
 
     if pif.form.has('finish'):
 	print pif.form.get_form(), '<hr>'
@@ -1010,6 +977,7 @@ def pictures_main(pif):
     pif.render.print_html()
     pif.render.title = 'pictures - ' + pif.form.get_str('m', '')
     print pif.render.format_head()
+    useful.header_done()
     mod_id = pif.form.get_str('m', '')
     if mod_id:
         [casting_pictures(pif, mod_id.lower(), x) for x in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_ICON, config.IMG_DIR_ADD]]
@@ -1354,7 +1322,9 @@ def library_main(pif):
     act = pif.form.get_int('act')
     cycle = pif.form.get_int("cy")
 
-    print pif.render.format_head(extra=pif.render.increment_js)
+    pif.render.set_page_extra(pif.render.increment_js)
+    print pif.render.format_head()
+    useful.header_done()
     print pif.form.get_form()
     if patt:
         show_library_imgs(pif, patt)

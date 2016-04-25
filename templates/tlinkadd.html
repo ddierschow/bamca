@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block page_body %}
+
+You can now suggest links to be added to the ToyLinks page.  I will review them and move them to the approprate place.
+Thanks for helping out!
+<p><hr><p>
+
+<form action="addlink.cgi" method="post" name="addlink">
+<table class="tb">
+ <tr>
+  <td class="eb_0 eb">&nbsp;
+</td>
+  <td class="eb_1 eb">Please enter the <b>full</b> URL (including the "http" part).</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">URL:</td>
+  <td class="eb_1 eb"><input name="url" type="text" size="64" maxlength="256" value="">
+</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">Name:</td>
+  <td class="eb_1 eb"><input name="name" type="text" size="64" maxlength="256" value="">
+</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">Description:</td>
+  <td class="eb_1 eb"><input name="desc" type="text" size="64" maxlength="256" value=""> (optional)</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">Country:</td>
+  <td class="eb_1 eb"><select name="country">
+<option value="" SELECTED>
+{% for cc in countries %}
+<option value="{{ cc[0] }}">{{ cc[1] }}
+{% endfor %}
+</select>
+</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">Category:</td>
+  <td class="eb_1 eb"><select name="cat">
+<option value="" SELECTED>Please choose one from the list
+{% for cat in categories %}
+<option value="{{ cat[0] }}">{{ cat[1] }}
+{% endfor %}
+</select>
+</td>
+ </tr>
+ <tr>
+  <td colspan="2" class="eb_0 eb">Note to the webmaster (optional):</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">&nbsp;</td>
+  <td class="eb_1 eb"><input name="note" type="text" size="80" maxlength="80" value="">
+</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">&nbsp;</td>
+  <td class="eb_0 eb">&nbsp;
+{{ render.format_button_input('submit link') }}
+{{ render.format_button_reset('addlink') }}
+  </td>
+ </tr>
+</table>
+</form>
+
+<p><hr><p>
+Please submit only links that have something to do with toys or toy collecting.  Die-cast toys are of particular interest.
+If you submit a site that has nothing to do with the subject material of this website, it will be summarily deleted.
+Note that if your submission includes just gibberish in the name or description, it will be rejected without being checked.
+
+{{ link }}
+
+{% endblock page_body %}

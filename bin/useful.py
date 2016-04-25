@@ -3,7 +3,7 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-import copy, filecmp, glob, itertools, os, pprint, stat, urllib, urllib2
+import copy, filecmp, glob, itertools, os, pprint, re, stat, urllib, urllib2
 import config  # bleagh
 import jinja2
 
@@ -96,9 +96,9 @@ def is_good(fname, v=True):
     return True
 
 
-def render(fname):
+def render_file(fname):
     if is_good(fname):
-        print open(fname).read()
+        return open(fname).read()
 
 
 def img_src(pth, alt=None, also={}):
@@ -109,24 +109,21 @@ def plural(thing):
     return 's' if len(thing) != 1 else ''
 
 
+id_re = re.compile('[-/\w.]+')  # 0-9 A-Z a-z underscore dash slash dot
+def clean_id(str_id):
+    id_m = id_re.match(str_id)
+    return id_m.group(0) if id_m else ''
+
+
 def dump_dict_comment(t, d, keys=None):
     print "<!-- dump", t, ":"
-    pprint.pprint(d, indent=1, width=132)
+    print pprint.pformat(d, indent=1, width=132)
     print '-->'
 
 
 def dump_dict(t, d, keys=None):
     print t,'<br>'
-    pprint.pprint(d, indent=1, width=132)
-    return
-    print "<p><h3>", t, "</h3><p>"
-    print '<dl>'
-    if not keys:
-        keys = d.keys()
-    keys.sort()
-    for k in keys:
-        print '<dt>', k, '<dd>', d[k]
-    print '</dl>'
+    print pprint.pformat(d, indent=1, width=132)
 
 
 def fmt_also(also={}, style={}):
@@ -192,12 +189,8 @@ def search_match(sobj, targ):
     return True
 
 
-def warn(*message):
-    print '<div class="warning">%s</div>' % ' '.join(message)
-
-
 def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma: no cover
-    print "file_mover", src, dst, "mv=", mv, "ov=", ov, "inc=", inc, "trash=", trash, '<br>'
+    warn("file_mover", src, dst, "mv=", mv, "ov=", ov, "inc=", inc, "trash=", trash)
     addon = 0
     if dst and inc:
         root, ext = dst.rsplit('.', 1)  # for inc
@@ -357,36 +350,66 @@ def show_error():
 _format_web = True
 _pending_comments = list()
 _header_done_flag = False
+_partial_comment = None
+
 def is_header_done():
     global _header_done_flag
     return _header_done_flag
 
-def header_done(is_web=True):
+def header_done(is_web=True, silent=False):
     global _format_web, _header_done_flag, _pending_comments
     _format_web = is_web
     _header_done_flag = True
-    map(lambda x: write_comment(*x), _pending_comments)
+    ostr = '\n'.join([format_string(*x) for x in _pending_comments])
     _pending_comments = list()
+    if silent:
+	return ostr
+    print ostr
 
-partial_comment = None
+def warn(*args, **kwargs):
+    write_string(*args, nonl=kwargs.get('nonl', False), warning=True, comment=False)
+
+def write_message(*args, **kwargs):
+    write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=False)
+
 def write_comment(*args, **kwargs):
-    global _header_done_flag, _pending_comments, partial_comment, _format_web
+    write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=True)
+
+def write_string(*args, **kwargs):
+    ostr = format_string(*args, **kwargs)
+    if ostr:
+	print ostr
+
+def format_string(*args, **kwargs):
+    global _header_done_flag, _pending_comments, _partial_comment, _format_web
     partial = kwargs.get('nonl')
+    warning = kwargs.get('warning', False)
+    comment = kwargs.get('comment', False)
+    if args and not _partial_comment:
+	if warning:
+	    args = ('!',) + args
+	if comment:
+	    args = ('#',) + args
     if partial:
-        if partial_comment is None:  # separate from empty list
-            partial_comment = list()
-        partial_comment.extend(args)
-        args = ''
-    elif partial_comment:
-        args = partial_comment + list(args)
-        partial_comment = None
+        if _partial_comment is None:  # separate from empty list
+            _partial_comment = list()
+        _partial_comment.extend(args)
+        args = []
+    elif _partial_comment:
+        args = _partial_comment + list(args)
+        _partial_comment = None
     if args:
         if not _header_done_flag:
             _pending_comments.append(args)
-	elif _format_web:
-            print '<!--', ' '.join([str(x) for x in args]), '-->'
-        else:
-            print ' '.join([str(x) for x in args])
+	elif not _format_web:
+            return ' '.join([str(x) for x in args])
+        elif args[0] == '#':
+	    return '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
+        elif args[0] == '!':
+	    return '<div class="warning">%s</div>' % ' '.join([str(x) for x in args[1:]])
+	else:
+	    return ' '.join([str(x) for x in args]) + '<br>'
+    return ''
 
 def read_comments():
     global _pending_comments, _header_done_flag
@@ -412,6 +435,7 @@ def render_template(template, **kwargs):
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
     tpl = env.get_template(template)
     return tpl.render(comments=read_comments(), **kwargs)
+
 
 def url_fetch(url, data=None):
     #fn = os.path.basename(url)

@@ -15,41 +15,8 @@ import useful
 # It sets PYTHON_EGG_CACHE; it adds /usr/local/bin to PATH;
 # and it sets DOCUMENT_ROOT and SERVER_NAME if this is being run
 # from the command line.  Since those change based on environment,
-# environ.py has not be checked into github.
+# environ.py has not been checked into github.
 import environ
-
-crawlers = [  # precluded from normal url tracking
-    'DoCoMo/2.0 N905i(c100;TB;W24H16) (compatible; Googlebot-Mobile/2.1; +http://www.google.com/bot.html)',
-    'Java/1.6.0_04',
-    'Java/1.8.0_40',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/600.2.5 (KHTML, like Gecko) Version/8.0.2 Safari/600.2.5 (Applebot/0.1; +http://www.apple.com/go/applebot)',
-    'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6 - James BOT - WebCrawler http://cognitiveseo.com/bot.html',
-    'Mozilla/5.0 (compatible; AhrefsBot/5.0; +http://ahrefs.com/robot/)',
-    'Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)',
-    'Mozilla/5.0 (compatible; Cliqzbot/1.0 +http://cliqz.com/company/cliqzbot)',
-    'Mozilla/5.0 (compatible; DotBot/1.1; http://www.opensiteexplorer.org/dotbot, help@moz.com)',
-    'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-    'Mozilla/5.0 (compatible; Linux x86_64; Mail.RU_Bot/2.0; +http://go.mail.ru/help/robots)',
-    'Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)',
-    'Mozilla/5.0 (compatible; MegaIndex.ru/2.0; +http://megaindex.com/crawler)',
-    'Mozilla/5.0 (compatible; SemrushBot/0.99~bl; +http://www.semrush.com/bot.html)',
-    'Mozilla/5.0 (compatible; SeznamBot/3.2-test1; +http://fulltext.sblog.cz/)',
-    'Mozilla/5.0 (compatible; SeznamBot/3.2; +http://fulltext.sblog.cz/)',
-    'Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)',
-    'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)',
-    'Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
-    'Mozilla/5.0 (compatible; linkdexbot/2.0; +http://www.linkdex.com/bots/)',
-    'Mozilla/5.0 (compatible; linkdexbot/2.2; +http://www.linkdex.com/bots/)',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0;  http://www.bing.com/bingbot.htm)',
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-    'SAMSUNG-SGH-E250/1.0 Profile/MIDP-2.0 Configuration/CLDC-1.1 UP.Browser/6.2.3.3.c.1.101 (GUI) MMP/2.0 (compatible; Googlebot-Mobile/2.1; +http://www.google.com/bot.html)',
-    'SafeAds.xyz bot',
-    'bhcBot',
-    'ia_archiver',
-    'linkapediabot (+http://www.linkapedia.com)',
-    'tbot-nutch/Nutch-1.10',
-    'webcrawler101/Nutch-1.9',
-]
 
 class BaseForm(object):
     def __init__(self, cgi_form, args):
@@ -81,6 +48,8 @@ class BaseForm(object):
                 if '=' in fl:
                     spl = fl.split('=')
                     form[spl[0]] = spl[1]
+		else:
+		    form[fl] = True
 	self.form = form
 
     def __repr__(self):
@@ -126,6 +95,12 @@ class BaseForm(object):
         except:
             return str(defval)
 
+    def get_id(self, key, limit=99, defval=''):
+        try:
+            return useful.clean_id(str(self.form[key][:limit]))
+        except:
+            return useful.clean_id(str(defval[:limit]))
+
     def get_list(self, key=None, start=None, defval=None):
 	ret = list()
 	if key:
@@ -151,20 +126,14 @@ class BaseForm(object):
 	return {key[len(start):-len(end)]: self.get_str(key) for key in self.keys(start=start, end=end)}
 
     def find(self, field):
-        keys = list()
-        for key in self.form.keys():
-            if key == field or key.startswith(field + '.'):
-                keys.append(key)
-        return keys
+        return [key for key in self.form.keys() if key == field or key.startswith(field + '.')]
 
     def reformat(self, fields):
         return '&'.join(['%s=%s' % (x, self.get_str(x)) for x in fields])
 
     def where(self, cols=None, prefix=""):
-        if not cols:
-            cols = self.form.keys()
         wheres = list()
-        for col in cols:
+        for col in cols if cols else self.form.keys():
             if prefix + col in self.form:
                 wheres.append(col + "='" + str(self.get_str(prefix + col)) + "'")
         return ' and '.join(wheres)
@@ -206,11 +175,9 @@ class PageInfoFile(object):
 	elif isinstance(user_id, tuple):
 	    user_id = user_id[0]
 	config.USER_ID = self.user_id = user_id
-        self.args = args  # this is for unittest only!
-	if not args:
-	    self.argv = sys.argv[1:]  # this is for command line only!
-        self.unittest = bool(args)
-        self.form = BaseForm(cgi.FieldStorage(), args.split() if args else self.argv)
+        self.unittest = bool(args)  # args comes from unittest only!
+        self.argv = args.split() if args else sys.argv[1:]  # argv comes from command line only!
+        self.form = BaseForm(cgi.FieldStorage(), self.argv)
         self.page_id = self.get_page_id(page_id, form_key, defval)
         self.page_name = self.page_id[self.page_id.rfind('.') + 1:]
         self.time_start = datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
@@ -223,7 +190,7 @@ class PageInfoFile(object):
         self.render = render.Presentation(self.page_id, self.form.get_int('verbose'))
         self.render.secure = self.secure
         self.render.comment('form', self.form.get_form())
-        self.privs = self.rawcookies.get('pr', '')
+        self.privs = set(self.rawcookies.get('pr', '')) & set(self.form.get_str('privs', 'vuma'))
         self.secure.cookies = self.rawcookies.get('co')
         if self.is_allowed(dbedit):
             self.secure.set_config('edit')
@@ -232,7 +199,6 @@ class PageInfoFile(object):
         self.cwd = os.getcwd()
         self.render.is_beta = self.secure.is_beta
         self.cgibin = '../cgi-bin'
-        self.render.simple = int(self.form.get_int("simple"))
 
         self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, self.log.dbq, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
@@ -261,8 +227,8 @@ class PageInfoFile(object):
             config.ENV = 'www'
 
     def log_start(self):
-        if not self.args and not self.is_allowed('m'):
-	    if os.getenv('HTTP_USER_AGENT', '') in crawlers:
+        if not self.argv and not self.is_allowed('m'):
+	    if os.getenv('HTTP_USER_AGENT', '') in logger.crawlers:
 		self.log.bot.info('%s %s' % (self.remote_addr, self.request_uri))
 	    else:
 		self.dbh.increment_counter(self.page_id)
@@ -277,10 +243,7 @@ class PageInfoFile(object):
 		    self.log.refer.info(refer)
 
     def get_page_id(self, page_id, form_key, defval):
-	page_id = self.calc_page_id(page_id, form_key, defval)
-	page_id = page_id[:page_id.find("'")] if "'" in page_id else page_id
-	page_id = ''.join([x for x in page_id if x in '.abcdefghijklmnopqrstuvwxyz0123456789'])[:20]
-	return page_id
+	return useful.clean_id(self.calc_page_id(page_id, form_key, defval)[:20])
 
     def calc_page_id(self, page_id, form_key, defval):
         if form_key:
@@ -302,8 +265,8 @@ class PageInfoFile(object):
             return False
         if priv == '':  # '' = always allowed
             return True
-        if set(priv) & set(self.privs):
-            self.render.comment('is_allowed', priv, self.privs, 'YES')
+        if set(priv) & self.privs:
+            self.render.comment('is_allowed', priv, ''.join(self.privs), 'YES')
             return True
         return False
 
@@ -313,11 +276,11 @@ class PageInfoFile(object):
 
     # -- debugging and error handling -----------------------------------
 
-    def dump(self, verbose=False):
-        if self.render.verbose or verbose:
-            useful.dump_dict_comment('pifile', self.__dict__)
-            useful.dump_dict_comment('pifile.render', self.render.__dict__)
-            useful.dump_dict_comment('pifile.dbh', self.dbh.__dict__)
+#    def dump(self, verbose=False):
+#        if self.render.verbose or verbose:
+#            useful.dump_dict_comment('pifile', self.__dict__)
+#            useful.dump_dict_comment('pifile.render', self.render.__dict__)
+#            useful.dump_dict_comment('pifile.dbh', self.dbh.__dict__)
 
     def error_report(self):
         ostr = 'pifile = ' + str(self.__dict__) + '\n'

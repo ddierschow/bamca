@@ -220,9 +220,10 @@ def main(pif):
         return
     else:
         print pif.render.format_head()
+	useful.header_done()
         run_file(pif, manf, year=pif.form.get_str('year'))
         #print pif.render.format_matrix(llineup)
-        #print pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
+        #print pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
     '''
     print pif.render.format_tail()
 

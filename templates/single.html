@@ -1,133 +1,241 @@
-{% extends "framed.html" %}
+{%- extends "framed.html" %}
+
+{%- macro show_boxes() %}
+{{ render.format_matrix(boxes_lineup, simple_formatter) }}
+{%- endmacro %}
+
+{%- macro show_adds() %}
+{{ adds_box }}
+{%- endmacro %}
+
+{%- macro show_model_links(sz='inset_m') %}
+<div class="inset {{ sz }}">
+<center><h3>Model-Related Links</h3></center>
+
+<center><b><a href="vars.cgi?mod={{ model.id }}">Variations</a></b></center>
+<center><b><a href="upload.cgi?m={{ model.id }}&y={{ product_pic }}">Upload a Picture</a></b></center>
+<p>
+
+{%- if baseplates %}{#- not currently implemented #}
+<center><h3>Base Plate Name{{ render.plural(baseplates) }}</h3>
+{{ render.br_list(baseplates) }}
+</center><p>
+{%- endif %}
+
+{%- if appearances %}
+{{ render.format_matrix(appearances, simple_formatter) }}
+<p>
+{%- endif %}
+
+{%- if matrixes %}
+<center><b>Series Appearances</b></center><p>
+<ul>
+{%- for appear in matrixes %}
+<li>{{ appear }}
+{%- endfor %}
+</ul><p>
+{%- endif %}
+
+{%- if packs %}
+<center><b>Multi-Pack Appearances</b></center><p><ul>
+{%- for appear in packs %}
+<li>{{ appear }}
+{%- endfor %}
+</ul><p>
+{%- endif %}
+
+{%- if model.make and model.make != 'unl' %}
+<center><a href="makes.cgi?make={{ model.make }}">See more <b>{{ model['vehicle_make.make_name'] }}</b> vehicles</a></center><p>
+{%- endif %}
+
+{%- if show_comparison %}
+<center><a href="compare.cgi#{{ model.id }}">See <b>casting comparison</b> page</a></center><p>
+{%- endif %}
+
+{%- if external_links %}
+<center><b>External Pages</b></center><p><ul>
+{%- for link in external_links %}
+<li>{{ link }}
+{%- endfor %}
+</ul><p>
+{%- endif %}
+</div>
+{%- endmacro %}
+
+{%- macro simple_formatter(content) %}
+{{ content.text }}
+{%- endmacro %}
+
+{%- macro show_model_info() %}
+<center><font face="Courier">{{ model.id }}</font><br>
+{{ model.img }}<br>
+<b>{{ model.name }}</b>
+{%- for s in model.descs %}<br>{{ s }}{% endfor %}
+<table cellspacing="8"><tr>
+{%- if model.scale %}<th>Scale</th>{% endif %}
+{%- if model.country %}<th>Country</th>{% endif %}
+{%- if model.first_year %}<th>Introduced</th>{% endif %}
+{%- if mack_nums %}<th>Mack Number{{ render.plural(mack_nums) }}</th>{% endif %}
+</tr>
+<tr>
+{%- if model.scale %}<td valign="top"><center>{{ model.scale }}</center></td>{% endif %}
+{%- if model.country %}
+<td valign="top"><center>{{ model.country_flag }}<br>
+{{ model.country_name }}
+</center></td>
+{%- endif %}
+{%- if model.first_year %}<td valign="top"><center>{{ model.first_year }}</center></td>{% endif %}
+{%- if mack_nums %}<td valign="top"><center>{{ render.br_list(mack_nums) }}</center></td>{% endif %}
+</tr></table></center>
+{%- endmacro %}
+
+{%- macro show_relateds() %}
+{%- if relateds %}
+<p>
+<center><h3>Related Models</h3>
+{%- for related in relateds %}
+<font face="Courier">{{ related.id }}</font><br>
+{{ related.img }}<br>
+<b>{{ related.name }}</b>
+{%- for s in related.descs %}
+<br><i>{{ s }}</i>
+{%- endfor %}
+{%- if not loop.last %}<br>{% endif %}
+{%- endfor %}
+</center>
+{%- endif %}
+{%- endmacro %}
+
+{%- macro show_product_box() %}
+{%- if product_image or prod_title or variations %}
+<div class="inset inset_m">
+{%- if product_image %}<center>{{ product_image }}</center><p>{% endif %}
+{%- if prod_title %}
+<center>{{ prod_title }}</center>
+{%- endif %}
+{%- if variations %}
+<center><h3>Variations for This Product</h3>
+<!-- variations {{ variations }} -->
+<table class="vartable">
+{%- for varset in variations %}
+<tr><td>
+{%- for var in varset[0] %}
+<a href="vars.cgi?mod={{ model.id }}&var={{ var }}">{{ var }}</a>{% if not loop.last %},{% endif %}
+{%- endfor %}
+</td></tr>
+<tr><td><img src="../{{ varset[1] }}"></td></tr>
+<tr><td class="varentry">{{ varset[2] }}</td></tr>
+{%- endfor %}
+</table></center>
+{%- endif %}
+</div>
+{%- endif %}
+{%- endmacro %}
+
+{%- macro show_model_notes() %}
+{%- if model.notes %}
+<center><div class="notes">{{ model.notes }}</div></center>
+{%- else %}
+<!-- no notes -->
+{%- endif %}
+{%- endmacro %}
 
 {%- block frame_body_panel %}
-
 <center>
 <table cellspacing="8"><tr>
 
-{% if (variations_box or related_box) and product_box %}
+{%- if (prod_title or variations or relateds) %}
+{%- if product_image %}
+    {#- top left box #}
+    <td valign="top" class="panel_1">
+    {{ show_product_box() }}
 
-    {# top left box #}
-    <td valign="top">
-    <table class="inset inset_m"><tr><td>
-    {{ product_box }}
-    {% if variations_box %}
-	<p>
-	{{ variations_box }}
-    {% endif %}
-    </td></tr></table>
-
-    {# lower left box #}
-    {% if related_box %}
-	<p>
-	{{ related_box }}
-    {% endif %}
-
+    {#- lower left box #}
+    {{ show_relateds() }}
     </td>
 
-    {# top right box #}
-    <td valign="top">
-    {{ model_box }}
-    {{ notes_box }}
+    {#- top right box #}
+    <td valign="top" class="panel_1">
+    {{ show_model_info() }}
+    {{ show_model_notes() }}
 
-    {# lower right box #}
+    {#- lower right box #}
 
     <p>
-    {{ links_box }}
+    {{ show_model_links() }}
     </td>
 
-{% elif variations_box or related_box %}
+{%- else %}
 
-    {# top left box (missing) #}
+    {#- top left box (missing) #}
 
-    {# top right box #}
-    {% if related_box or variations_box %}
-	<td valign="top" colspan="2">
-    {% else %}
-	<td valign="top">
-    {% endif %}
-    {{ model_box }}
-    {{ notes_box }}
+    {#- top right box #}
+    <td valign="top" colspan="2">
+    {{ show_model_info() }}
+    {{ show_model_notes() }}
     </td>
 
     </tr>
 
-    {# lower left box #}
+    {#- lower left box #}
     <tr>
-    {% if related_box or variations_box %}
-	<td width="400" valign="top">
-	{% if variations_box %}
-	    <table class="inset inset_m"><tr><td>
-	    {{ variations_box }}
-	    </td></tr></table>
-	{% endif %}
-	{% if related_box %}
-	    <p>
-	    {{ related_box }}
-	{% endif %}
-	</td>
-    {% endif %}
-
-    {# lower right box #}
-
-    <td valign="top">
-    {{ links_box }}
+    <td width="400" valign="top" class="panel_1">
+    {{ show_product_box() }}
+    {{ show_relateds() }}
     </td>
 
-{% elif product_box %}
+    {#- lower right box #}
 
-    {# top left box #}
-    <td valign="top">
-    <table class="inset inset_m"><tr><td>
-    {{ product_box }}
-    </td></tr></table>
+    <td valign="top" class="panel_1">
+    {{ show_model_links() }}
+    </td>
+{%- endif %}
+{%- elif product_image %}
+
+    {#- top left box #}
+    <td valign="top" class="panel_1">
+    {{ show_product_box() }}
     </td>
 
-    {# top right box #}
-    <td valign="top">
-    {{ model_box }}
-    {{ notes_box }}
+    {#- top right box #}
+    <td valign="top" class="panel_1">
+    {{ show_model_info() }}
+    {{ show_model_notes() }}
     </td></tr>
 
-    {# lower right box #}
+    {#- lower center box #}
 
     <tr><td colspan="2">
-    {{ links_box }}
+    {{ show_model_links('inset_l') }}
     </td>
 
-{% else %}
+{%- else %}
 
-    {# top left box (missing) #}
+    {#- top left box (missing) #}
 
-    {# top right box #}
-    <td valign="top">
-    {{ model_box }}
-    {{ notes_box }}
+    {#- top right box #}
+    <td valign="top" class="panel_2">
+    {{ show_model_info() }}
+    {{ show_model_notes() }}
+
+    {#- lower left box (missing) #}
+
+    {#- lower right box #}
+    <p>
+    {{ show_model_links('inset_l') }}
     </td>
-
-    </tr>
-
-    {# lower left box #}
-    <tr>
-
-    {# lower right box #}
-
-    <td valign="top">
-    {{ links_box }}
-    </td>
-{% endif %}
+{%- endif %}
 
 </tr></table>
 </center>
 </td></tr>
 
-{# bottom #}
+{#- bottom #}
 <tr><td>
 <center>
-{{ boxes_box }}
+{{ show_boxes() }}
 
-{{ adds_box }}
-
-<p></center>
+{{ show_adds() }}
+</center>
 
 {%- endblock frame_body_panel %}

@@ -34,6 +34,7 @@ admin_cols = [
         ['country', 'CC'],
         ['make', 'Make'],
 	['varids', 'Vars'],
+	['notes', 'Nt'],
         [ '9', 'XF'], #  9 | http://www.mbxforum.com/
         ['13', 'CH'], # 13 | http://www.mboxcommunity.com/
         ['14', 'DB'], # 14 | http://mb-db.co.uk
@@ -229,7 +230,7 @@ class MannoFile(object):
     def run_manno_template(self, pif):
         llineup = dict(columns=4)
         llineup['section'] = self.run_thing(pif, self.show_section_manno_template)
-	pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+	pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
 	pif.render.format_matrix_for_template(llineup)
         return pif.render.format_template('mannum.html', llineup=llineup)
@@ -253,7 +254,7 @@ class MannoFile(object):
     def run_checklist_template(self, pif):
         llineup = dict(columns=3)
         llineup['section'] = self.run_thing(pif, self.get_section_list)
-	pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+	pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
         return pif.render.format_template('manckl.html', llineup=llineup)
 
@@ -276,7 +277,7 @@ class MannoFile(object):
     def run_thumbnails_template(self, pif):
         llineup = dict(columns=6)
         llineup['section'] = self.run_thing(pif, self.get_section_thumbs)
-	pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+	pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
         return pif.render.format_template('manthm.html', llineup=llineup)
 
@@ -334,6 +335,7 @@ class MannoFile(object):
 	    mdict['name'] = mades[int(mdict['made'])] % mdict
 	    mdict.update({
 		'fvyear': '', 'lvyear': '',
+		'notes': 'N' if mdict['notes'] else '',
 		'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
 	    mdict.update(self.show_list_var_info(pif, mdict['id']))
@@ -352,7 +354,7 @@ class MannoFile(object):
     def run_admin_list_template(self, pif):
         llineup = dict()
         llineup['section'] = self.run_thing(pif, self.get_section_admin)
-	pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+	pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
         return pif.render.format_template('simplelistix.html', llineup=llineup)
 
@@ -412,7 +414,7 @@ class MannoFile(object):
 
     def run_picture_list_template(self, pif):
 	llineup = self.run_picture_list(pif)
-	pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+	pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
         return pif.render.format_template('manpxl.html', llineup=llineup)
 
@@ -482,7 +484,7 @@ class MannoFile(object):
 	llineup['cols'] = vt_cols
 	llineup['num_cols'] = len(vt_cols)
         llineup['section'] = self.run_thing(pif, self.show_section_vehicle_type_template)
-	pif.render.format_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
+	pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' %
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
         return pif.render.format_template('manvtl.html', llineup=llineup)
 
@@ -521,7 +523,7 @@ class MannoFile(object):
 
     def run_man2json_out(self, pif):
 	secs = self.run_thing(pif, self.show_section_man2json)
-	print json.dumps(secs)
+	return json.dumps(secs)
 
 # currently unused?
 def write_vehicle_types(pif):
@@ -557,7 +559,7 @@ def main(pif):
 
 	pif.render.print_html('application/json')
 	manf = MannoFile(pif, withaliases=True)
-	manf.run_man2json_out(pif)
+	return manf.run_man2json_out(pif)
     else:
 	if pif.form.get_str('num'):
 	    raise useful.Redirect(url="0;url=single.cgi?id=" + pif.form.get_str('num'))
@@ -568,29 +570,27 @@ def main(pif):
 	pif.render.print_html()
 	manf = MannoFile(pif, withaliases=True)
 	if listtype == 'adl':
-	    print manf.run_admin_list_template(pif)
+	    return manf.run_admin_list_template(pif)
 	elif listtype == 'pxl':
-	    print manf.run_picture_list_template(pif)
+	    return manf.run_picture_list_template(pif)
 	elif listtype == 'ckl':
-	    print manf.run_checklist_template(pif)
+	    return manf.run_checklist_template(pif)
 	elif listtype == 'thm':
-	    print manf.run_thumbnails_template(pif)
+	    return manf.run_thumbnails_template(pif)
 	elif listtype == 'vtl':
-	    print manf.run_vehicle_type_list_template(pif)
-	else:
-	    print manf.run_manno_template(pif)
+	    return manf.run_vehicle_type_list_template(pif)
+	return manf.run_manno_template(pif)
 
 #---- play ----------------------------------
 
 @basics.web_page
 def play_main(pif):
     pif.render.print_html()
-    print pif.render.format_head()
     manf = MannoFile(pif)
     llineup = manf.run_play(pif)
     llineup['section'][0]['range'][0]['entry'][0].update({'rowspan': 2, 'colspan': 2})
-    print pif.render.format_matrix(llineup)
-    print pif.render.format_tail()
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 #---- compare -------------------------------
 
@@ -638,8 +638,8 @@ def compare_main(pif):
 
 
 def delete_casting(pif, *args, **kwargs):
-        print "delete not yet implemented"
-        pass  # DeleteCasting(pif, pif.argv[1], pif.argv[2])
+    pif.render.message("delete not yet implemented")
+    pass  # DeleteCasting(pif, pif.argv[1], pif.argv[2])
 
 
 def search_name(pif, targ):
@@ -652,13 +652,13 @@ def search_name(pif, targ):
     return ret
 
 
-def run_search(pif, *args):
+def run_text_search(pif, *args):
     if not args:
 	return
     mods = [pif.dbh.modify_man_item(x) for x in search_name(pif, args)]
     mods.sort(key=lambda x: x['id'])
     for mod in mods:
-        print '%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod
+        pif.render.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod)
 
 
 def add_attributes(pif, mod_id=None, attr_list=None, *args, **kwargs):
@@ -693,7 +693,7 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
             print new_mod_id, "exists"
             return
     else:
-	print "rename", old_mod_id, new_mod_id
+	pif.render.message("rename", old_mod_id, new_mod_id)
         pif.dbh.rename_base_id(old_mod_id, new_mod_id)
 
     # If we're renaming, I'd like to also rename the pictures.
@@ -715,23 +715,23 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
     pics = reduce(lambda x, y: x + glob.glob(y.lower()), patts, list())
     for pic in pics:
         pic_new = pic.replace(old_mod_id.lower(), new_mod_id.lower())
-        print "rename", pic, pic_new, "<br>"
+        pif.render.message("rename", pic, pic_new, "<br>")
         os.rename(pic, pic_new)
 
 
 def command_help(pif, *args):
-    print "./mannum.py [f|d|r|a|c] ..."
-    print "  f for find: search-criterion"
-    print "  d for delete: mod_id"
-    print "  r for rename: old_mod_id new_mod_id"
-    print "  a for add attributes: mod_id attribute_name ..."
-    print "  c for clone attributes: old_mod_id new_mod_id"
+    pif.render.message("./mannum.py [f|d|r|a|c] ...")
+    pif.render.message("  f for find: search-criterion")
+    pif.render.message("  d for delete: mod_id")
+    pif.render.message("  r for rename: old_mod_id new_mod_id")
+    pif.render.message("  a for add attributes: mod_id attribute_name ...")
+    pif.render.message("  c for clone attributes: old_mod_id new_mod_id")
 
 
 command_lookup = {
     'd': delete_casting,
     'r': rename_base_id,
-    'f': run_search,
+    'f': run_text_search,
     'c': clone_attributes,
     'a': add_attributes,
 }

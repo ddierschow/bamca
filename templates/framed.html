@@ -1,17 +1,17 @@
-{% extends "base.html" %}
-{% block page_body %}
+{%- extends "base.html" %}
+{%- block page_body %}
 
-{# top #}
+{#- top #}
 <table width="100%"><tr>
 
-{# left bar #}
-{{ render.add_left_bar(type_id, base_id, vehicle_type, rowspan, content=left_bar_content) }}
+{#- left bar #}
+{{ render.add_left_bar(type_id, icon_id, vehicle_type, rowspan, content=left_bar_content) }}
 
-{# title banner #}
+{#- title banner #}
 {{ render.add_banner(title, note) }}
 </tr>
 
-{# main panel #}
+{#- main panel #}
 {%- block frame_body %}
 <tr><td>
 {%- block frame_body_panel %}
@@ -20,7 +20,7 @@ insert content here
 </td></tr>
 {%- endblock frame_body %}
 
-{# bottom bar #}
+{#- bottom bar #}
 <tr><td class="bottombar">
 {{ page.footer }}
 </td></tr></table>
@@ -28,7 +28,7 @@ insert content here
 {%- block frame_footer -%}
 {%- endblock frame_footer -%}
 
-{% endblock page_body %}
+{%- endblock page_body %}
 
-{% block page_footer %}
-{% endblock page_footer %}
+{%- block page_footer %}
+{%- endblock page_footer %}

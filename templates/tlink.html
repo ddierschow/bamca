@@ -1,0 +1,22 @@
+{%- extends "tlinks.html" -%}
+
+{%- block page_body -%}
+
+{{ showlink(link) }}
+
+<hr>
+Do you have a comment about this link?  Please send it to us.
+<form action="../pages/comment.php" method="post" name="comment">
+
+<table>
+<tr><td>My Subject</td><td><input type="text" name="mysubject" size=80 maxlength=80></td></tr>
+<tr><td>My Comment</td><td><textarea name="mycomment" cols=80 rows=6></textarea></td></tr>
+<tr><td>My Name</td><td><input type="text" name="myname" size=80 maxlength=80> (optional)</td></tr>
+<tr><td>My E-mail Address</td><td><input type="text" name="myemail" size=80 maxlength=80> (optional)</td></tr>
+</table>
+
+{{ render.format_button_input() }} -
+{{ render.format_button_reset('comment') }}
+</form>
+
+{%- endblock page_body -%}

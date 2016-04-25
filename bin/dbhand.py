@@ -430,11 +430,12 @@ class DBHandler(object):
     def update_casting_related(self, val):
 	if val['id']:
 	    print 'upd', val, '<br>'
-	    self.write('casting_related', values=val, where='id=%s' % val['id'], tag='UpdateCastingRelated')
+	    self.write('casting_related', values=val, where='id=%s' % val['id'], tag='UpdateCastingRelatedU', verbose=True)
 	else:
-	    del val['id']
+	    if 'id' in val:
+		del val['id']
 	    print 'new', val, '<br>'
-	    print self.write('casting_related', values=val, newonly=True, tag='UpdateCastingRelated')
+	    print self.write('casting_related', values=val, newonly=True, tag='UpdateCastingRelatedN', verbose=True)
 
     def add_casting_related(self, values):
         return self.write('casting_related', values=values, newonly=True, tag='AddCastingRelated', verbose=True)
@@ -804,9 +805,15 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         return self.dbi.select(table, cols, where=where, order='matrix_model.display_order')
 
     def fetch_matrix_appearances(self, mod_id):
-        where = "page_info.id like 'matrix.%%' and page_info.id=matrix_model.page_id and section.id=matrix_model.section_id and matrix_model.mod_id='%s'" % mod_id
+        wheres = [
+	    "page_info.id like 'matrix.%%'",
+	    "page_info.id=matrix_model.page_id",
+	    "section.id=matrix_model.section_id",
+	    "matrix_model.mod_id='%s'" % mod_id,
+	    "page_info.flags & %d = 0" % tables.FLAG_PAGE_INFO_NOT_RELEASED,
+	]
 	# turn this into a fetch
-        return self.dbi.select('matrix_model, page_info, section', ['matrix_model.section_id', 'page_info.id', 'page_info.title', 'page_info.description', 'page_info.flags', 'section.name'], where)
+        return self.dbi.select('matrix_model, page_info, section', ['matrix_model.section_id', 'page_info.id', 'page_info.title', 'page_info.description', 'page_info.flags', 'section.name'], ' and '.join(wheres))
 
     #- link_line
 
@@ -843,10 +850,12 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     def fetch_links_single(self, page_id=None):
         columns = ['l1.page_id', 'l1.associated_link', 'l1.url', 'l1.name', 'l2.id', 'l2.name', 'l2.url', 'l1.flags']
-        wheres = ['not l1.flags & 1']
+        wheres = [
+	    'not l1.flags & %d' % (tables.FLAG_LINK_LINE_NEW | tables.FLAG_LINK_LINE_HIDDEN),
+	    'l1.associated_link=l2.id',
+	]
         if page_id:
-            wheres.append("l1.page_id='" + page_id + "'")
-        wheres.append('l1.associated_link=l2.id')
+            wheres.append("l1.page_id='%s'" % page_id)
         return self.fetch('link_line l1, link_line l2', columns=columns, where=" and ".join(wheres), tag='LinksSingle', order="l1.display_order")
 
     def fetch_link_statuses(self):

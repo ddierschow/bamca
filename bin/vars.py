@@ -97,7 +97,7 @@ def show_variation_editor(pif, man, var_id, edit=False):
     # ------- render ------------------------------------
 
     pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js)
-    pif.render.format_button_comment(pif, 'man=%s&var_id=%s' % (mod_id, var_id))
+    pif.render.set_button_comment(pif, 'man=%s&var_id=%s' % (mod_id, var_id))
     context = {
 	'title': pif.render.title,
 	'note': '',
@@ -109,7 +109,6 @@ def show_variation_editor(pif, man, var_id, edit=False):
 	'description': variation['text_description'],
 	'image': img,
 	'llistix': llistix,
-	#'formatted_listix': pif.render.format_listix(llistix),
 	'appearances': appearances,
 	'adds': adds,
 	'upload': upload,
@@ -195,7 +194,7 @@ def save(pif, mod_id, var_id):
                 var_sel = pif.form.get_str(key)  # make it work!
             elif attr == 'repic':
                 repic = pif.form.get_str(key)
-                print 'repic', repic, '<br>'
+                pif.render.message('repic', repic, '<br>')
             elif attr == 'picture_id':
                 if pif.form.get_str(key) != var_id:
                     var_dict[attr] = pif.form.get_str(key)
@@ -205,14 +204,14 @@ def save(pif, mod_id, var_id):
                 var_dict[attr] = pif.form.get_str(key)
         if 'from_CY_number' in var_dict and 'from_CY_number' not in attributes:
             del var_dict['from_CY_number']
-        print '<p>', det_dict, '<p>', var_dict
+        pif.render.message('<p>', det_dict, '<p>', var_dict)
         if var_id != var_dict['var']:
             rename_variation(pif, var_dict['mod_id'], var_id, var_dict['var'])
         pif.dbh.write('variation', var_dict)
         for attr in det_dict:
             pif.dbh.write('detail', {'mod_id': var_dict['mod_id'], 'var_id': var_dict['var'], 'attr_id': str(attributes[attr]['id']), 'description': det_dict[attr]})
         if var_sel:
-            print 'varsel', var_sel, '<br>'
+            pif.render.message('varsel', var_sel, '<br>')
             pif.dbh.update_variation_selects(mod_id, var_dict['var'], var_sel.split())
         if repic:
             rename_variation_pictures(pif, mod_id, var_dict['var'], mod_id, repic)
@@ -228,10 +227,10 @@ def add_variation(pif, mod_id, var_id='unset', attributes={}):  # pragma: no cov
 def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, **kwargs):  # pragma: no cover
     verbose = False
     if pif.argv:
-        print 'move_variation', old_mod_id, old_var_id, new_mod_id, new_var_id
+        pif.render.message('move_variation', old_mod_id, old_var_id, new_mod_id, new_var_id)
         pif.dbh.dbi.verbose = verbose = True
     if old_mod_id == new_mod_id and old_var_id == new_var_id:
-	print 'no change'
+	pif.render.message('no change')
         return
     pif.dbh.update_variation({'mod_id': new_mod_id, 'var': new_var_id, 'imported_var': new_var_id}, {'mod_id': old_mod_id, 'var': old_var_id}, verbose=verbose)
     pif.dbh.update_variation({'picture_id': ''}, {'mod_id': old_mod_id, 'picture_id': old_var_id}, verbose=verbose)
@@ -241,8 +240,8 @@ def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, *
     old_attrs = {x['attribute_name']: x for x in old_attrs}
     new_attrs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(new_mod_id))
     new_attrs = {x['attribute_name']: x for x in new_attrs}
-    print old_attrs
-    print new_attrs
+    pif.render.message(old_attrs)
+    pif.render.message(new_attrs)
     details = pif.dbh.fetch_details(old_mod_id, old_var_id, nodefaults=True).get(old_var_id, {})
     for detail in details:
 	if detail in new_attrs:
@@ -251,7 +250,7 @@ def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, *
 	    pif.dbh.update_detail({'attr_id': new_att_id, 'mod_id': new_mod_id, 'var_id': new_var_id},
 		{'attr_id': old_att_id, 'mod_id': old_mod_id, 'var_id': old_var_id})
 	else:
-	    print 'cannot transfer %s="%s"' % (detail, details[detail])
+	    pif.render.message('cannot transfer %s="%s"' % (detail, details[detail]))
 
     pif.dbh.write('variation_select', {'mod_id': new_mod_id, 'var_id': new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, old_mod_id), modonly=True, verbose=verbose)
     rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_id)
@@ -260,7 +259,7 @@ def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, *
 def copy_variation(pif, mod_id, old_var_id, new_var_id, *args, **kwargs):  # pragma: no cover
     verbose = False
     if pif.argv:
-        print 'copy_variation', mod_id, old_var_id, new_var_id
+        pif.render.message('copy_variation', mod_id, old_var_id, new_var_id)
         #pif.dbh.dbi.verbose = verbose = True
     if old_var_id == new_var_id:
         return
@@ -277,7 +276,7 @@ def rename_variation(pif, mod_id=None, old_var_id=None, new_var_id=None, *args, 
 	return
     verbose = False
     if pif.argv:
-        print 'rename_variation', mod_id, old_var_id, new_var_id
+        pif.render.message('rename_variation', mod_id, old_var_id, new_var_id)
         #pif.dbh.dbi.verbose = verbose = True
     if old_var_id == new_var_id:
         return
@@ -305,12 +304,12 @@ def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_i
         new_pic = old_pic.replace('-%s.' % old_var_id.lower(), '-%s.' % new_var_id.lower())
         new_pic = new_pic.replace('_%s-' % old_mod_id.lower(), '_%s-' % new_mod_id.lower())
         pif.render.comment("rename", old_pic, new_pic)
-        print "rename", old_pic, new_pic, "<br>"
+        pif.render.message("rename", old_pic, new_pic, "<br>")
         os.rename(old_pic, new_pic)
 
 
 def promote_picture(pif, mod_id, var_id):  # pragma: no cover
-    print 'promoting picture for var', var_id, '<br>'
+    pif.render.message('promoting picture for var', var_id, '<br>')
     for pic in glob.glob(config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
         ofn = pic[pic.rfind('/') + 1:]
         nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
@@ -323,7 +322,7 @@ def remove_picture(pif, mod_id, var_id):  # pragma: no cover
     pics = glob.glob(patt1.lower()) + glob.glob(patt2.lower())
     for pic in pics:
         pif.render.comment("delete", pic)
-        print "delete", pic, "<br>"
+        pif.render.message("delete", pic, "<br>")
         os.unlink(pic)
 
 
@@ -710,7 +709,7 @@ def show_model(pif, model):
     # ------- render ------------------------------------
 
     pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js + pif.render.toggle_display_js)
-    pif.render.format_button_comment(pif, 'man=%s&var=%s' % (mod_id, vsform.varl))
+    pif.render.set_button_comment(pif, 'man=%s&var=%s' % (mod_id, vsform.varl))
     context = {
 	'image': img,
 	'llineup': llineup,
@@ -727,8 +726,8 @@ def show_model(pif, model):
 
 @basics.web_page
 def main(pif):
-    man_id = pif.form.get_str('mod')
-    var = pif.form.get_str('var')
+    man_id = pif.form.get_id('mod')
+    var = pif.form.get_id('var')
 
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
@@ -823,7 +822,7 @@ def var_search_ask(pif):
     mvars = {var['var']: var for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))}
 
     pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js + pif.render.toggle_display_js)
-    pif.render.format_button_comment(pif, 'man=%s' % mod_id)
+    pif.render.set_button_comment(pif, 'man=%s' % mod_id)
     context = {
 	'verbose': vsform.verbose,
 	'vsform': vsform.write(pif, vsform.make_values(mvars)),
@@ -879,7 +878,7 @@ def var_search(pif):
     if start + modsperpage < nmods:
         llineup['tail'][1] += pif.render.format_button("next", 'vsearch.cgi?%s&start=%d' % (qf, min(start + modsperpage, nmods)))
 
-    pif.render.format_button_comment(pif, 'casting=%s&base=%s&body=%s&interior=%s&wheels=%s&windows=%s' % (pif.form.get_str('casting'), pif.form.get_str('base'), pif.form.get_str('body'), pif.form.get_str('interior'), pif.form.get_str('wheels'), pif.form.get_str('windows')))
+    pif.render.set_button_comment(pif, 'casting=%s&base=%s&body=%s&interior=%s&wheels=%s&windows=%s' % (pif.form.get_str('casting'), pif.form.get_str('base'), pif.form.get_str('body'), pif.form.get_str('interior'), pif.form.get_str('wheels'), pif.form.get_str('windows')))
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
@@ -892,7 +891,7 @@ def run_search_command(pif, args):
     mods = pif.dbh.fetch_variations(args[0])
     mods.sort(key=lambda x: x['variation.var'])
     for mod in mods:
-        print '%(mod_id)-8s|%(var)-5s|%(imported_from)-8s|%(text_description)-s' % pif.dbh.depref('variation', mod)
+        pif.render.message('%(mod_id)-8s|%(var)-5s|%(imported_from)-8s|%(text_description)-s' % pif.dbh.depref('variation', mod))
 
 
 def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
@@ -902,25 +901,25 @@ def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
     if var_id:
 	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id)):
 	    if fields:
-		print '|'.join([str(variation[f]) for f in fields])
+		pif.render.message('|'.join([str(variation[f]) for f in fields]))
 	    else:
-		print '|'.join([str(variation[f]) for f in sorted(variation.keys())])
+		pif.render.message('|'.join([str(variation[f]) for f in sorted(variation.keys())]))
     else:
 	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
 	    if fields:
-		print '|'.join([str(variation[f]) for f in fields])
+		pif.render.message('|'.join([str(variation[f]) for f in fields]))
 	    else:
-		print '|'.join([str(variation[f]) for f in sorted(variation.keys())])
+		pif.render.message('|'.join([str(variation[f]) for f in sorted(variation.keys())]))
 
 
-def command_help(*args):
-    print "./vars.py [d|r|c|s|m|i] ..."
-    print "  d for delete: mod_id var_id"
-    print "  r for rename: mod_id old_var_id new_var_id"
-    print "  c for copy: mod_id old_var_id new_var_id"
-    print "  s for swap: mod_id var_id_1 var_id_2"
-    print "  m for move: old_mod_id old_var_id new_mod_id [new_var_id]"
-    print "  i for info: fields mod_id var_id"
+def command_help(pif, *args):
+    pif.render.message("./vars.py [d|r|c|s|m|i] ...")
+    pif.render.message("  d for delete: mod_id var_id")
+    pif.render.message("  r for rename: mod_id old_var_id new_var_id")
+    pif.render.message("  c for copy: mod_id old_var_id new_var_id")
+    pif.render.message("  s for swap: mod_id var_id_1 var_id_2")
+    pif.render.message("  m for move: old_mod_id old_var_id new_mod_id [new_var_id]")
+    pif.render.message("  i for info: fields mod_id var_id")
 
 
 command_lookup = {

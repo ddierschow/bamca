@@ -40,7 +40,7 @@ def write_traceback_file(pif):
 def simple_html(status=404):
     print 'Content-Type: text/html\n\n'
     print 'Status:', status, httplib.responses.get(status, '')
-    print '<!--\n' + str(os.environ) + '-->'
+    #print '<!--\n' + str(os.environ) + '-->'
     import useful
     useful.header_done()
     useful.write_comment()
@@ -217,6 +217,7 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 # Decorator that wraps web page mains.
 def web_page(main_fn):
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
+	useful.write_comment('PID', os.getpid())
         pif = None
         try:
             import pifile

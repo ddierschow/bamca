@@ -5,6 +5,7 @@ import basics
 import bfiles
 import config
 import javasc
+import useful
 
 #pagename = 'biblio'
 
@@ -101,7 +102,7 @@ def biblio(pif):
 
     lrange['entry'] = [{field: bib_field(fdict, field) for field in lsection['columns']}
 		       for fdict in table]
-    pif.render.format_button_comment(pif)
+    pif.render.set_button_comment(pif)
     return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]))
 
 # -- calendar
@@ -169,6 +170,7 @@ def activity_main(pif):
     pif.render.title = "Site Activity"
 
     print pif.render.format_head()
+    useful.header_done()
     if pif.form.has('d'):
         for id in pif.form.get_list('d'):
             pif.dbh.delete_activity(id)

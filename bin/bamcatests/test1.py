@@ -37,9 +37,6 @@ class TestPIF(unittest.TestCase):
     def test_restrict(self):
 	pass#self.assertTrue(self.pif.restrict(priv)
 
-    def test_dump(self):
-	self.assertTrue(self.pif.dump(True) == None)
-
     def test_error_report(self):
 	self.assertTrue(self.pif.error_report() != '')
 

@@ -6,16 +6,7 @@ import mflags
 import useful
 
 
-arts = {
-        'Rolamatics': 'rola-matics-sm.gif',
-        'Choppers': 'choppers-sm.gif',
-        'Real Talkin': 'realtalkin-sm.gif',
-        'D.A.R.E.': 'dare-sm.gif',
-        'Caterpillar': 'caterpillar-sm.gif',
-        'Auto Steer': 'autosteer-sm.gif',
-}
 flago = mflags.FlagList()
-
 
 
 # lineup, mannum
@@ -82,8 +73,8 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     mdict['desclist'] = ''
     if not mdict.get('nodesc'):
         for s in mdict['descs']:
-            if s in arts:
-                mdict['desclist'] += "   <br>\n" + pif.render.format_image_art(arts[s])
+            if s in mbdata.arts:
+                mdict['desclist'] += "   <br>\n" + pif.render.format_image_art(mbdata.arts[s])
             elif s:
                 mdict['desclist'] += "   <br><i>"+s+"</i>\n"
     return mdict

@@ -23,7 +23,7 @@ def errors(pif):
     pif.render.hierarchy_append('/', 'Home')
     #pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/errors.cgi', 'Error Models')
-    pif.render.format_button_comment(pif)
+    pif.render.set_button_comment(pif)
 
     lsec = create_section(pif, 'e')
 
@@ -37,7 +37,7 @@ def prepro(pif):
     pif.render.hierarchy_append('/', 'Home')
     #pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/prepro.cgi', 'Prototype and Preproduction Models')
-    pif.render.format_button_comment(pif)
+    pif.render.set_button_comment(pif)
 
     lsec = create_section(pif, 'p')
 

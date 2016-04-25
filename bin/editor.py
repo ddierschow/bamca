@@ -72,7 +72,9 @@ def editor_main(pif):
     pif.render.print_html()
     print pif.form.get_form(), '<br>'
     pif.restrict('a')
-    print pif.render.format_head(extra=pif.render.reset_button_js)
+    pif.render.set_page_extra(pif.render.reset_button_js)
+    print pif.render.format_head()
+    useful.header_done()
     show_table(pif)
     print pif.render.format_tail()
 
@@ -465,6 +467,7 @@ def roam_main(pif):
     pif.render.title = table
 
     print pif.render.format_head()
+    useful.header_done()
     if pif.form.has('table'):
         editor.roam_show_table(pif, table)
     else:
@@ -479,7 +482,9 @@ def roam_main(pif):
 def show_counters(pif):
     pif.render.print_html()
     pif.restrict('a')
-    print pif.render.format_head(extra=pif.render.reset_button_js)
+    pif.render.set_page_extra(pif.render.reset_button_js)
+    print pif.render.format_head()
+    useful.header_done()
     columns = ['ID', 'Value', 'Timestamp']
     res = pif.dbh.fetch_counters()
     sortorder = pif.form.get_str('s', 'id')

@@ -1,0 +1,109 @@
+{%- extends "base.html" -%}
+
+{%- block page_body -%}
+
+{%- if var %}
+{{ var.image }}<br>
+{{ var.var }}
+<ul>
+<li>description: {{ var.text_description }}
+<li>base: {{ var.text_base }}
+<li>body: {{ var.text_body }}
+<li>interior: {{ var.text_interior }}
+<li>wheels: {{ var.text_wheels }}
+<li>windows: {{ var.text_windows }}
+</ul><hr>
+{%- endif %}
+
+<form action="upload.cgi" enctype="multipart/form-data" method="post" name="upload">
+{%- if form.y %}<input type="hidden" name="y" value="{{ form.y }}">{% endif %}
+<table class="tb">
+
+{%- if form.mod_id %}
+ <tr>
+  <td class="eb_0 eb">Model</td>
+  <td class="eb_1 eb">{{ form.mod_id }}
+   <input name="d" type="hidden" value="{{ form.mod_id }}">
+  </td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">Variation</td>
+  <td class="eb_1 eb"><input name="d" type="text" size="8" maxlength="64" value="{{ form.var_id }}"></td>
+{%- endif %}
+ </tr>
+{%- if not restrict %}
+ <tr>
+  <td class="eb_0 eb">Directory</td>
+  <td class="eb_1 eb"><input name="d" type="text" size="24" maxlength="64" value="{{ form.tdir }}"></td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">CC</td>
+  <td class="eb_1 eb"><input name="cc" type="text" size="24" maxlength="64" value="{{ form.cc }}"> (optional)</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">Rename file to</td>
+  <td class="eb_1 eb"><input name="n" type="text" size="24" maxlength="64" value="{{ form.nfn }}">
+ (optional)</td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">&nbsp;</td>
+  <td class="eb_0 eb">Choose one of the following:</td>
+ </tr>
+{%- endif %}
+{%- if form.mass %}
+ <tr>
+  <td class="eb_0 eb">File to Upload</td>
+  <td class="eb_1 eb"><input type="file" name="fi" size="40">
+   <input type="hidden" value="1" name="mass">
+   <textarea name="ul" cols="80" rows="20" wrap="off"></textarea>
+  </td>
+ </tr>
+{%- else %}
+ <tr>
+  <td class="eb_0 eb">File to Upload</td>
+  <td class="eb_1 eb"><input type="file" name="fi" size="40"></td>
+ </tr>
+{%- endif %}
+{%- if not restrict and not form.mass %}
+ <tr>
+  <td class="eb_0 eb">URL to grab</td>
+  <td class="eb_1 eb"><input name="u" type="text" size="80" maxlength="255" value="" id="urlgrab">
+   <img onmouseover="this.src='../pic/gfx/hov_paste.gif';" src="../pic/gfx/but_paste.gif" class="button" onmouseout="this.src='../pic/gfx/but_paste.gif';" onclick="paste_from_clippy('urlgrab'); return false;">
+  </td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">URL to scrape</td>
+  <td class="eb_1 eb"><input name="s" type="text" size="80" maxlength="120" value=""></td>
+ </tr>
+{%- endif %}
+ <tr>
+  <td class="eb_0 eb">Comment</td>
+  <td class="eb_1 eb"><input name="c" type="text" size="80" maxlength="80" value=""></td>
+ </tr>
+{%- if not restrict and not form.mass and form.mod_id -%}
+ <tr>
+  <td class="eb_0 eb">Choose from library</td>
+  <td class="eb_1 eb">
+   {{ render.format_button_input('select') }}
+  </td>
+ </tr>
+
+{%- endif %}
+ <tr>
+  <td class="eb_0 eb">&nbsp;</td>
+  <td class="eb_1 eb">
+   {{ render.format_button_input() }}
+{%- if not form.mass and not restrict %}
+   {{ render.format_button_input('replace') }}
+{%- endif %}
+   {{ render.format_button_reset('upload') }}
+{%- if not form.mass and not restrict %}
+   {{ render.format_button_input('mass') }}
+{%- endif %}
+  </td>
+ </tr>
+</table>
+
+</form>
+
+{%- endblock page_body -%}

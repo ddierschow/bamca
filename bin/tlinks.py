@@ -21,36 +21,17 @@ def links(pif):
         if link['page_id'] != 'links.toylinks':
             pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
         pif.render.hierarchy_append('', 'Specific Link')
-        ostr += pif.render.format_head()
         ostr += single_link(pif, link)
-        ostr += pif.render.format_tail()
     else:
+	pif.render.set_page_extra(pif.render.reset_button_js)
         if pif.page_id != 'links.toylinks':
             pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
-        ostr += pif.render.format_head()
         ostr += link_page(pif)
-        ostr += pif.render.format_tail()
     return ostr
 
 
 def single_link(pif, link):
-    ostr  = 'Do you have a comment about this link?  Please send it to us.\n'
-    ostr += '<form action="../pages/comment.php" method="post" name="comment">\n'
-    ostr += '''
-<table>
-<tr><td>My Subject</td><td><input type="text" name="mysubject" size=80 maxlength=80></td></tr>
-<tr><td>My Comment</td><td><textarea name="mycomment" cols=80 rows=6></textarea></td></tr>
-<tr><td>My Name</td><td><input type="text" name="myname" size=80 maxlength=80> (optional)</td></tr>
-<tr><td>My E-mail Address</td><td><input type="text" name="myemail" size=80 maxlength=80> (optional)</td></tr>
-</table>
-'''
-    ostr += pif.render.format_button_input() + ' - '
-    ostr += pif.render.format_button_reset('comment') + '\n'
-    ostr += '</form>\n'
-    if pif.is_allowed('a'):  # pragma: no cover
-        ostr += pif.render.format_button("edit_this_page", link=pif.dbh.get_editor_link('link_line', {'id': pif.form.get_str('id', '')}), also={'class': 'comment'}, lalso={})
-    ostr += '<br>' + str(link) + '<br>'
-    return ostr
+    return pif.render.format_template('tlink.html', link=link)
 
 
 def link_page(pif):
@@ -71,28 +52,32 @@ def link_page(pif):
     llineup = {'id': pif.page_id, 'name': '', 'section': []}
     for lsec in sections:
         lsec.update({'anchor': lsec['id'], 'columns': 1})
-        lran = {'id': 'range', 'name': '', 'entry': generate_links(pif, sect_links.get(lsec['id'], []))}
+        lran = {'id': 'range', 'name': '', 'entry': list(generate_links(pif, sect_links.get(lsec['id'], [])))}
         lsec['range'] = [lran]
         llineup['section'].append(lsec)
 
-    return pif.render.format_links(llineup) + '\n' + end_of_page(pif)
+    return pif.render.format_template('tlinks.html', llineup=llineup, flags=pif.render.format_shown_flags())
 
 
 def generate_links(pif, links):
     for ent in links:
         if ent['link_type'] != 'x' and not (ent['flags'] & pif.dbh.FLAG_LINK_LINE_NEW):
-            lnk = dict()
-            lnk['text'], lnk['desc'] = format_entry(pif, ent)
-            lnk['indent'] = (ent['flags'] & pif.dbh.FLAG_LINK_LINE_INDENTED) != 0
-            lnk['id'] = ent['id']
-            cmd = ent['link_type']
-            if pif.is_allowed('m'):  # pragma: no cover
-                lnk['comment'] = True
-                if ent.get('last_status') == 'exc':
-                    cmd = 'b'
-            lnk['linktype'] = linktypes.get(cmd)
-            lnk['large'] = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
-            yield lnk
+	    yield make_link(pif, ent)
+
+
+def make_link(pif, ent):
+    lnk = dict()
+    lnk['text'], lnk['desc'] = format_entry(pif, ent)
+    lnk['indent'] = (ent['flags'] & pif.dbh.FLAG_LINK_LINE_INDENTED) != 0
+    lnk['id'] = ent['id']
+    cmd = ent['link_type']
+    if pif.is_allowed('m'):  # pragma: no cover
+	lnk['comment'] = True
+	if ent.get('last_status') == 'exc':
+	    cmd = 'b'
+    lnk['linktype'] = linktypes.get(cmd)
+    lnk['large'] = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
+    return lnk
 
 
 # the grafic for each of these, if any
@@ -208,49 +193,6 @@ def is_blacklisted(url, rejects):
     return ''
 
 
-def format_form(pif, listCats):
-    ostr = '<form action="addlink.cgi" method="post" name="addlink">\n'
-    ostr += pif.render.format_table_start()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0)
-    ostr += pif.render.format_cell(1, 'Please enter the <b>full</b> URL (including the "http" part).')
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0, 'URL:')
-    ostr += pif.render.format_cell(1, pif.render.format_text_input("url", 256, 64))
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0, 'Name:')
-    ostr += pif.render.format_cell(1, pif.render.format_text_input("name", 256, 64))
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0, 'Description:')
-    ostr += pif.render.format_cell(1, pif.render.format_text_input("desc", 256, 64) + ' (optional)')
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0, 'Country:')
-    ostr += pif.render.format_cell(1, pif.render.format_select_country('country', ''))
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0, 'Category:')
-    ostr += pif.render.format_cell(1, pif.render.format_select('cat', [('', 'Please choose one from the list')] + listCats, selected=''))
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0, 'Note to the webmaster (optional):', also={'colspan': 2})
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0)
-    ostr += pif.render.format_cell(1, pif.render.format_text_input("note", 80, 80))
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_row_start()
-    ostr += pif.render.format_cell(0, '&nbsp;')
-    ostr += pif.render.format_cell(1, pif.render.format_button_input("submit link") + pif.render.format_button_reset("addlink"))
-    ostr += pif.render.format_row_end()
-    ostr += pif.render.format_table_end()
-    ostr += '</form>\n'
-    return ostr
-
-
 def fix_url(url):
     url = url.lower()
     if url[-1] == '/':
@@ -344,29 +286,23 @@ def add_new_link(pif, dictCats, listRejects):
 @basics.web_page
 def add_page(pif):
     pif.render.print_html()
+    pif.render.set_page_extra(pif.render.reset_button_js)
 
     rejected, blacklist = read_blacklist(pif)
     for l in blacklist:
         if os.environ.get('REMOTE_ADDR') == l:
             raise useful.SimpleError("You have been banned from using this service because of previous abuses.  If you have a problem with this, contact us via email, but don't hope for much.")
 
-    print pif.render.format_head(extra=pif.render.reset_button_js)
     listCats, listIndices, dictCats, listRejectCats = read_config(pif)
-    ostr = '''
-You can now suggest links to be added to the ToyLinks page.  I will review them and move them to the approprate place.
-Thanks for helping out!
-<p><hr><p>
-''' + format_form(pif, listCats) + '''
-<p><hr><p>
-Please submit only links that have something to do with toys or toy collecting.  Die-cast toys are of particular interest.
-If you submit a site that has nothing to do with the subject material of this website, it will be summarily deleted.
-Note that if your submission includes just gibberish in the name or description, it will be rejected without being checked.
-'''
-    if pif.form.get_str('url'):
-        ostr += add_new_link(pif, dictCats, rejected)
-    print ostr
-    print pif.render.format_tail()
 
+    lnk = add_new_link(pif, dictCats, rejected) if pif.form.get_str('url') else ''
+
+    context = {
+	'categories': listCats,
+        'countries': mbdata.countries,
+	'link': lnk,
+    }
+    return pif.render.format_template('tlinkadd.html', **context)
 
 
 # -- edlinks
@@ -562,6 +498,7 @@ def edit_choose(pif):
 def edit_links(pif):
     pif.render.print_html()
     print pif.render.format_head()
+    useful.header_done()
 #    if pif.form.get_bool('add'):
 #        pif.form.set_val('id', pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
 #	pif.form.delete('add')

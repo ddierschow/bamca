@@ -12,7 +12,7 @@
 {%- if page.extra %}{{ page.extra }}{% endif %}
 {%- if not page.is_beta %}
 {{ page.google_analytics_js }}
-{% endif %}
+{%- endif %}
 </head>
 {% endblock page_header %}
 
@@ -20,7 +20,7 @@
 <body>
 {%- if page.is_beta %}
 <table width="100%"><tr><td height="24" class="beta">&nbsp;</td></tr><tr><td>
-{% endif %}
+{%- endif %}
 {%- if page.hierarchy -%}
 <table class="hier"><tr><td>
 {%- for lnk in page.hierarchy %}
@@ -28,12 +28,14 @@
 {%- endfor %}
 </td></tr></table>
 {%- endif %}
-{% if page.title and not page.hide_title %}<div class="title">{{ page.title }}</div>{% endif %}
+{{ page.messages }}
+{%- if page.title and not page.hide_title %}<div class="title">{{ page.title }}</div>{% endif %}
 {%- if page.titleimage %}<img src="{{ page.titleimage }}" class="titleimage">{% endif %}
 {%- if page.description %}<div class="description">{{ page.description }}</div>{% endif %}
 {%- if page.note %}<div class="note">{{ page.note }}</div>{% endif %}
 {%- endblock page_body_start %}
 {%- block page_body %}
+{{ content }}
 {%- endblock page_body %}
 {%- block page_footer %}
 {{ page.footer }}
@@ -57,16 +59,16 @@ Toys (USA) Ltd.  Matchbox and the Matchbox logo are registered trademarks
 of Matchbox International Ltd. and are used with permission.
 <hr><p>
 {%- endif %}
-{% if page.tail.flags %}
+{%- if page.tail.flags %}
 <center>
-{% for flag in page.list_flags %}
+{%- for flag in page.list_flags %}
 <nobr>{{ page.format_image_flag(flag) }} {{ page.flag_info[flag][0] }}</nobr>
-{% if not loop.last %}
+{%- if not loop.last %}
 {{ self.fmt_art('ball.gif', desc='o') }}
-{% endif %}
-{% endfor %}
+{%- endif %}
+{%- endfor %}
 </center><p>
-{% endif %}
+{%- endif %}
 {%- if page.tail.stat %}
 <font size="-1"><i>{{ page.tail.stat }}</i></font>\
 {%- endif %}
