@@ -256,15 +256,15 @@ def web_page(main_fn):
 		pif.render.print_html(status=e.status)
 	    print pif.render.format_template('error.html', error=[e.value])
 	except useful.Redirect as e:
-	    if not useful.is_header_done():
+	    if not pif.render.html_done:
 		pif.render.print_html()
 	    print pif.render.format_template('forward.html', url=e.value)
 	except useful.DelayedRedirect as e:
-	    if not useful.is_header_done():
+	    if not pif.render.html_done:
 		pif.render.print_html()
 	    print pif.render.format_template('forward.html', url=e.value, delay=10)
         except MySQLdb.OperationalError:
-	    if not useful.is_header_done():
+	    if not pif.render.html_done:
 		pif.render.print_html()
             print 'The database is currently done, and thus, this page is unable to be shown.<p>'
 	    str_tb = write_traceback_file(pif)
