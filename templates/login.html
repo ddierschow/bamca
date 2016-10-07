@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+Please log in.<br>
+<form method="post" action="login.cgi">
+{% if dest %}<input type="hidden" name="dest" value="{{ dest }}">{% endif %}
+
+<table><tr><td>
+Name:</td><td>
+<input type="text" name="n"></td></tr>
+<tr><td>
+Password:</td><td>
+<input type="password" name="p"></td></tr>
+<tr><td></td><td>
+{{ render.format_button_input("log in") }}
+</form>
+</td></tr><tr><td></td><td>
+<p><a href="signup.cgi{% if dest %}?dest={{ dest }}{% endif %}">{{ render.format_button('register') }}</a>
+</td></tr></table>
+
+{% endblock page_body %}

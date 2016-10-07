@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+You have requested to change your password.
+<form method="post" action="/cgi-bin/chpass.cgi">
+<table><tr><td>
+Name:</td><td>
+<input type="text" name="n"></td></tr>
+<tr><td>
+Old password:</td><td>
+<input type="password" name="op"></td></tr>
+<tr><td>
+New password:</td><td>
+<input type="password" name="p1"></td></tr>
+<tr><td>
+Retry new password:</td><td>
+<input type="password" name="p2"></td></tr>
+<tr><td>
+Change email address:</td><td>
+<input type="text" name="em" size=60></td></tr>
+<tr><td></td><td>
+{{ render.format_button_input("save changes") }}
+</td></tr></table>
+{% if dest %}<input type="hidden" name="dest" value="{{ dest }}">{% endif %}
+</form>
+
+{% endblock page_body %}

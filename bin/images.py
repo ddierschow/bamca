@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 import datetime, glob, logging, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
-import Image
+from PIL import Image
 import basics
 import bfiles
 import config
@@ -9,6 +9,7 @@ import imglib
 import imicon
 import javasc
 import mbdata
+import tumblr
 import useful
 
 #os.environ['PATH'] += ':/usr/local/bin'
@@ -41,7 +42,6 @@ def upload_log(url, pdir):
 # for things out of http space:
 #print '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.render.pic_dir, fn)
 def show_picture(pif, fn, pdir=None):
-    useful.warn("This path should move to traverse!")
     if pdir:
 	pif.render.pic_dir = pdir
     picker(pif, fn)
@@ -147,7 +147,7 @@ class UploadForm(object):
 	    self.nfn = ''
 	self.scrape = pif.form.get_str('s')
 	self.comment = pif.form.get_str('c')
-	self.select = pif.form.get_str('l')
+	self.select = pif.form.get_str('select')
 	self.replace = pif.form.get_bool('replace') and pif.is_allowed('ma')
 	self.mass = pif.form.get_bool('mass')
 	self.act = pif.form.get_int('act')
@@ -269,10 +269,11 @@ class UploadForm(object):
 	if self.cc:
 	    useful.file_mover(os.path.join(self.tdir, fn), os.path.join(self.cc, fn), mv=False, ov=False)
 
+# Product upload:   upload.cgi?d=lib/mattel&n=2015u001&c=2015u001
+# Variation upload: upload.cgi?d=lib/man/mb979&m=MB979&v=Y15
 @basics.web_page
 def upload_main(pif):
     os.environ['PATH'] += ':/usr/local/bin'
-    pif.render.print_html()
     upform = UploadForm().read(pif)
 
     # These will redirect so let's do them before putting anything out.
@@ -289,9 +290,10 @@ def upload_main(pif):
 	upform.carbon_copy(fn)
 	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id))
 
+    pif.render.print_html()
+    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
     useful.write_message(str(pif.form.get_form()))
     useful.write_message('<hr>')
-    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
 
     try:
 	if upform.url_list:
@@ -655,6 +657,7 @@ class EditForm(imglib.ActionForm):
 	    prefs = 'tsml'
 	    outnam = '_' + man + ('-' + var if var else '') + ot
 
+	largest = None
 	for pref in prefs:
 	    if xos < mbdata.imagesizes[pref][0]:
 		break
@@ -670,10 +673,13 @@ class EditForm(imglib.ActionForm):
 	    else:
 		nname = self.shape_image()
 	    useful.file_mover(os.path.join(self.tdir, nname), dpth, mv=True, ov=True)
+	    largest = dpth
 	    print '<br><img src="/%s"><hr>' % dpth
 
 	if self.mv:
 	    useful.file_delete(self.pth, True)
+
+	return largest
 
 
 @basics.web_page
@@ -736,10 +742,15 @@ def imawidget_main(pif):
 	    #pif.dbh.insert_activity(name, pif.user_id, description=desc, image=ddir + '/' + dnam)
 	    show_editor(pif, eform)
         elif eform.mass:
-            eform.mass_resize("from library")
+            largest = eform.mass_resize("from library")
             if eform.man and eform.var:
                 print pif.render.format_button("promote", 'vars.cgi?mod=%s&var=%s&promote=1' % (eform.man, eform.var))
 	    #pif.dbh.insert_activity(name, pif.user_id, description=desc, image=ddir + '/' + dnam)
+	    if largest:# and log_action:
+		title = pif.form.get_str('title', '%s-%s' % (eform.man, eform.var))
+		url = 'http://www.bamca.org/' + largest
+		link = 'http://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (eform.man, eform.var)
+		useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
         elif eform.wipe:
             eform.save_presets()
             eform.fn = eform.wipe_image()
@@ -779,7 +790,6 @@ def imawidget_main(pif):
     print pif.render.format_tail()
 
 
-
 # -- stitch
 
 
@@ -815,14 +825,22 @@ class StitchForm(object):
 	    self.fsl.append(fs)
 	self.limit_x = pif.form.get_int('limit_x', 999999)
 	self.limit_y = pif.form.get_int('limit_y', 999999)
+	self.finish = pif.form.has('finish')
+	self.finalize = pif.form.has('finalize')
+	self.in_list = pif.form.get_list('in')
+	self.src_dir = pif.form.get_str('f')
+	self.dst_dir = pif.form.get_str('o')
 	return self
 
     def write(self, pif):
-	print self.fsl, '<br>'
+	header = str(self.fsl) + '<br>'
 
-	print '''<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">'''
-	print pif.render.format_hidden_input({'fc': self.file_count + 1})
+	header += '''<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">\n'''
+	header += pif.render.format_hidden_input({'fc': self.file_count + 1})
+	columns = ['name', 'image']
+	print header
 	print pif.render.format_table_start()
+	entries = []
 	for fs in self.fsl:
 	    print pif.render.format_row_start()
 	    num = fs['n']
@@ -860,14 +878,30 @@ class StitchForm(object):
 		    print pif.render.format_cell(1, self.show_widget(fn), also={'colspan': 4})
 	    print pif.render.format_row_end()
 	print pif.render.format_table_end()
-	print '<input type="text" value="" name="q" id="q"><br>'  # for imawidget
-	print 'Debug: <span id="ima_debug">Debug output here.</span>'
-	print '</form>'
+	footer = '<input type="text" value="" name="q" id="q"><br>\n'  # for imawidget
+	footer += 'Debug: <span id="ima_debug">Debug output here.</span>\n'
+	footer += '</form>'
+	print footer
 
     def show_widget(self, filepath):
 	x, y = imglib.get_size(filepath)
 	dic = {'file': 'http://' + os.environ['SERVER_NAME'] + '/' + filepath, 'width': x, 'height': y}
 	return javasc.def_edit_app % dic
+
+    def finish(self, pif):
+	print pif.form.get_form(), '<hr>'
+	for fn in pif.form.get_list('in'):
+	    useful.file_mover(fn, os.path.join(config.TRASH_DIR, fn[fn.rfind('/') + 1:]), mv=True, inc=True, trash=False)
+	useful.file_mover(pif.form.get_str('f'), pif.form.get_str('o'), mv=True, ov=True)
+
+    def perform(self, pif):
+	if pif.form.has('finish'):
+	    self.finalize(pif)
+	elif pif.form.has('finalize'):
+	    self.finalize(pif)
+	else:
+	    self.write(pif)
+	return self
 
     def finalize(self, pif):
 	final = self.fsl[-2].get('fn', '').strip()
@@ -928,21 +962,16 @@ class StitchForm(object):
 def stitch_main(pif, verbose=False):
     pif.render.print_html()
 
-    pif.render.title = 'stitch'
-    print pif.render.format_head()
-    useful.header_done()
+    if 1:
+	pif.render.title = 'stitch'
+	print pif.render.format_head()
+	useful.header_done()
 
-    if pif.form.has('finish'):
-	print pif.form.get_form(), '<hr>'
-	for fn in pif.form.get_list('in'):
-	    useful.file_mover(fn, os.path.join(config.TRASH_DIR, fn[fn.rfind('/') + 1:]), mv=True, inc=True, trash=False)
-	useful.file_mover(pif.form.get_str('f'), pif.form.get_str('o'), mv=True, ov=True)
-    elif pif.form.has('finalize'):
-	StitchForm(verbose).read(pif).finalize(pif)
+	StitchForm(verbose).read(pif).perform(pif)
+
+	print pif.render.format_tail()
     else:
-	StitchForm(verbose).read(pif).write(pif)
-
-    print pif.render.format_tail()
+	return pif.render.format_template('stitch.html', StitchForm(verbose).read(pif).perform(pif))
 
 # -- pictures
 
@@ -1057,8 +1086,7 @@ def bits_main(pif):
 
     print "<table>"
 
-    yearlist = years.keys()
-    yearlist.sort()
+    yearlist = sorted(years.keys())
 
     c = False
     print "<tr>"
@@ -1148,10 +1176,8 @@ def show_library_graf(title, tdir, fl):
         fd.setdefault(root, [])
         fd[root].append(f)
 
-    keys = fd.keys()
-    keys.sort()
     print '<table>'
-    for root in keys:
+    for root in sorted(fd.keys()):
         fd[root].sort()
         print '<tr><td>%s</td><td><img src="thumber.cgi?d=%s&f=%s"></td><td>' % (root, tdir, fd[root][0])
         for f in fd[root]:
@@ -1256,7 +1282,7 @@ def show_library_table(pif, pagename):
     h = 0  # pif.form.get_int('h')
     sorty = pif.form.get_str('sort')
 
-    print pif.render.format_table_start()
+    print '<table>'
     hdr = ''
     if h:
         hdr = tablefile.dblist[0]
@@ -1294,7 +1320,7 @@ def show_library_table(pif, pagename):
             if ent >= len(cols) or cols[ent].lower() != 'n':
                 print "<td>" + line[ent] + "</td>"
         print "</tr>"
-    print pif.render.format_table_end()
+    print '</table>'
 
 
 def do_library_action(pif, tdir, fn, act):

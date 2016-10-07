@@ -7,6 +7,7 @@ import basics
 import bfiles
 import config
 import models
+import useful
 
 # interprets "manno.dat"
 class MannoFile(bfiles.ArgFile):
@@ -103,18 +104,14 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
     print '<a name="'+sect['label']+'"></a>'
     print "<hr><center><h3>"+sect['title']+"</h3></center>"
     if sect['comment']:
-        for comment in sect['comment']:
-            print comment
-        print "<br>"
+        print '\n'.join(sect['comment']) + '<br>'
     shown = 0
     cols = 4
     this_year = None
     for i in range(len(sect['models']) - 1, -1, -1):
         sect['models'][i]['last_year'] = this_year
-        if sect['models'][i]['subid'].isdigit() and int(sect['models'][i]['subid']) == 1:
-            this_year = None
-        else:
-            this_year = sect['models'][i]['first_year']
+	this_year = None if sect['models'][i]['subid'].isdigit() and int(sect['models'][i]['subid']) == 1 \
+	    else sect['models'][i]['first_year']
 
     for slist in sect['models']:
 
@@ -130,11 +127,8 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
             if modno < start or modno > end:
                 continue
 
-        if year and slist['last_year']:
-            if year < int(slist['first_year']):
-                continue
-            if year > int(slist['last_year']):
-                continue
+        if year and slist['last_year'] and (year < int(slist['first_year']) or year > int(slist['last_year'])):
+	    continue
 
         slist['link'] = "/cgi-bin/upload.cgi?d=./pic/tomica&r"
         slist['linkid'] = 's_' + slist['id'].lower()
@@ -147,13 +141,11 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
         print models.add_model_table_pic_link(pif, slist)
         print " </td>"
         if (shown == cols):
-            print "</tr></table></center>"
-            print
+            print "</tr></table></center>\n"
             shown = 0
 
     if shown:
-        print "</tr></table></center>"
-        print
+        print "</tr></table></center>\n"
 
 
 def show_section_list(pif, sect):
@@ -212,19 +204,16 @@ table {page-break-inside:avoid}
 @basics.web_page
 def main(pif):
     pif.render.print_html()
-    '''
+    print pif.render.format_head()
+    useful.header_done()
     manf = MannoFile(os.path.join(config.SRC_DIR, 'tomica.dat'))
     mans = manf.dictlist
     if pif.form.has('num'):
         print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form.get_str('num')
         return
     else:
-        print pif.render.format_head()
-	useful.header_done()
         run_file(pif, manf, year=pif.form.get_str('year'))
         #print pif.render.format_matrix(llineup)
-        #print pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
-    '''
     print pif.render.format_tail()
 
 

@@ -8,6 +8,14 @@ $pif['title'] .= ' ' . $version;
 DoHead($pif);
 DoPageHeader($pif);
 
+function warn_number($num) {
+    if ($num > 0) {
+	echo '<span class="warning">' . $num . '</span>';
+    }
+    else
+	echo '&nbsp;';
+}
+
 $retval = CheckPerm('a');
 if (!$retval)
 {
@@ -101,7 +109,8 @@ else
     <a href="cgi-bin/mass.cgi">mass</a>
 <li><a href="cgi-bin/edlinks.cgi">links</a>
     <a href="cgi-bin/links.cgi?page=others&section=private">other</a>
-<li><a href="cgi-bin/roam.cgi">roam</a>
+<li><a href="cgi-bin/traverse.cgi?d=./pic">pic</a>
+    <a href="cgi-bin/traverse.cgi?d=./lib">lib</a>
     <a href="cgi-bin/traverse.cgi?d=./lib/trash">trash</a>
 <li><a href="cgi-bin/vedit.cgi">vedit</a>
     <a href="cgi-bin/vedit.cgi?d=src/vdat">dat</a>
@@ -175,18 +184,14 @@ DoButtonLink('counters', $IMG_DIR_ART, "http://" . $pif['host'] . "/cgi-bin/coun
 <tr>
 <td background="pic/gfx/red4x4.gif"><img src="pic/gfx/red4x4.gif"></td>
 <td colspan=5>
-<table><tr><td>
+<table><tr><td width="144">
 <?php
 $result = Fetch("select id,health from page_info where not health=0", $pif);
-echo 'Errors found:</td><td><span class="warning">';
-if (count($result) > 0)
-{
-    $errcounter = 0;
-    foreach ($result as $ent)
-	$errcounter = $errcounter + $ent[1];
-    echo $errcounter . ' ';
-}
-echo "</span>";
+echo 'Errors found:</td><td width="48">';
+$errcounter = 0;
+foreach ($result as $ent)
+    $errcounter = $errcounter + $ent[1];
+warn_number($errcounter);
 echo "</td>";
 echo '<td><span class="warning">';
 DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/editor.cgi");
@@ -202,21 +207,21 @@ echo "</td></tr>";
 echo "<tr><td>\n";
 $result = Fetch("select name from user where state=1 and privs=''", $pif);
 echo "New users:</td><td>";
+warn_number(count($result));
+echo "</td><td>";
 echo '<span class="warning">';
+DoButtonLink('see', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/user.cgi");
 if (count($result) > 0)
 {
     foreach ($result as $ent)
 	echo $ent[0] . ' ';
 }
-echo "</span></td><td>";
-DoButtonLink('see', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/user.cgi");
-echo "</td></tr><tr><td>\n";
-
+echo "</span></td>";
+echo "</tr><tr><td>\n";
 $result = Fetch("select count(*) from link_line where ((flags&1)=1)", $pif);
-echo 'New links:</td><td><span class="warning">';
-if ($result[0][0])
-    echo $result[0][0];
-echo "</span></td><td>";
+echo 'New links:</td><td>';
+warn_number($result[0][0]);
+echo "</td><td>";
 DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/edlinks.cgi?sec=new");
 echo "</td></tr><tr><td>\n";
 
@@ -228,13 +233,18 @@ while (!feof($sf)) {
 	$m = $l;
 }
 fclose($sf);
-echo 'Latest image:</td><td>' . substr($m, 0, 9) . "</td></tr><tr><td>\n";
+$pf = glob("../../inc/*.*");
+echo 'Uploaded images:</td>';
+echo '<td>';
+warn_number(count($pf));
+echo "</td>";
+echo '<td>';
+echo 'last ' . substr($m, 0, 9) . "</td></tr><tr><td>\n";
 
 $pf = glob("../../logs/comment.*");
-echo 'New comments:</td><td><span class="warning">';
-if (count($pf))
-    echo count($pf);
-echo "</span></td><td>";
+echo 'New comments:</td><td>';
+warn_number(count($pf));
+echo "</td><td>";
 DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/traverse.cgi?d=../../logs");
 
 ?>

@@ -15,7 +15,7 @@ class CarsFile(bfiles.ArgFile):
         self.sec = []
         self.ent = []
         self.secname = ''
-        super(CarsFile, self).__init__(fname)
+        bfiles.ArgFile.__init__(self, fname)
 
     def parse_c(self, llist):
         self.parse_end()

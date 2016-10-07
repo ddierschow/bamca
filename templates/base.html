@@ -16,20 +16,23 @@
 </head>
 {% endblock page_header %}
 
+<!-- body -->
 {%- block page_body_start %}
 <body>
 {%- if page.is_beta %}
 <table width="100%"><tr><td height="24" class="beta">&nbsp;</td></tr><tr><td>
 {%- endif %}
 {%- if page.hierarchy -%}
-<table class="hier"><tr><td>
+<div class="hier">
 {%- for lnk in page.hierarchy %}
 <a href="{{ lnk.link }}">{{ lnk.name }}</a> &gt;
 {%- endfor %}
-</td></tr></table>
+</div>
 {%- endif %}
 {{ page.messages }}
-{%- if page.title and not page.hide_title %}<div class="title">{{ page.title }}</div>{% endif %}
+{% block body_title %}
+{{ render.add_body_title(page) }}
+{% endblock body_title %}
 {%- if page.titleimage %}<img src="{{ page.titleimage }}" class="titleimage">{% endif %}
 {%- if page.description %}<div class="description">{{ page.description }}</div>{% endif %}
 {%- if page.note %}<div class="note">{{ page.note }}</div>{% endif %}
@@ -37,11 +40,9 @@
 {%- block page_body %}
 {{ content }}
 {%- endblock page_body %}
-{%- block page_footer %}
-{{ page.footer }}
-{%- endblock page_footer %}
+
+<!-- footer -->
 {%- block page_body_end %}
-<p>
 {%- if page.tail.effort %}
 Every effort has been made to make this as accurate as possible.  If you have corrections, please contact us.<p>
 {%- endif %}
@@ -67,13 +68,15 @@ of Matchbox International Ltd. and are used with permission.
 {{ self.fmt_art('ball.gif', desc='o') }}
 {%- endif %}
 {%- endfor %}
-</center><p>
+</center>
 {%- endif %}
 {%- if page.tail.stat %}
 <font size="-1"><i>{{ page.tail.stat }}</i></font>\
 {%- endif %}
+{%- block body_footer %}
+{{- render.add_body_footer(page) }}
+{%- endblock body_footer %}
 {%- if page.is_beta %}
-<p>
 </td></tr><tr><td height="24" class="beta">&nbsp;</td></tr></table>
 {%- endif %}
 </body>

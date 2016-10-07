@@ -190,7 +190,7 @@ class ArgFile():
         return None
 
     def parse_data(self, llist):
-        llist.rewind()
+        #llist.rewind()
         key = llist.get_arg()
         fld = llist.get_arg()
         typ = llist.get_arg('')

@@ -21,17 +21,18 @@ a:hover      {color: #000099; background-color: transparent; text-decoration: un
 .hidden      {display: none;}
 .shown       {display: inline;}
 
-.title       {color: #000000; font-weight: bold; font-size: xx-large; text-align: center;}
+.title       {background-color: #000066; height: 66px; margin: 3px 0 3px 0; padding: auto; display: table; width: 100%;
+              color: #FFFFFF; font-weight: bold; font-size: xx-large; text-align: center;}
+.titletext   {display: table-cell; vertical-align: middle;}
 .titleimage  {margin-left: auto; margin-right: auto; display: block;}
 .description {color: #000000; font-weight: bold; font-size: x-large; text-align: center;}
 .note        {color: #000000;}
 .loginbar    {color: #000000; background-color: #FFFFFF; border-color: #000000; border-style: solid; border-width: thin;}
-.hier2       {width: 1024px; border-width: 1px; background-color: #FFFFFF; border-style: solid;}
+.hier        {width: 1024px; border-width: 1px; background-color: #CCCC99; border-style: solid;}
 .fullpage    {width: 100%;}
 
 .modelname   {font-weight: bold; font-size: large; text-align: center;}
 .newcasting  {padding-bottom: 16px; background-image: url("/pic/gfx/newcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
-.bamcamark   {padding-bottom: 52px; background-image: url("/pic/gfx/bamca_sm.gif"); background-position: center bottom; background-repeat: no-repeat;}
 .comment     {float: right; vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
 
 .tb          {background-color: #FFFFFF; padding: 0px; width: 100%;}
@@ -65,12 +66,15 @@ foo.tb_tail     {background-color: #F8EC6D;}
 
 .titlebar    {height: 66px; font-size: xx-large; background-color: #000066; color: #FFFFFF; text-align: center;}
 
-.leftbar     {background-color: #006600; vertical-align: top; width: 132px; color: #FFFFFF; font-weight: bold; height: 100%;}
+.leftbar     {background-color: #006600; vertical-align: top; width: 132px; color: #FFFFFF; font-weight: bold; height: 100%; position: relative; padding-top: 16px;}
 .leftbarcontent {vertical-align: top; height: 100%; padding: 0 0 20px 0; text-align: center;}
 .leftbar a:link       {color: #FFFFFF; background-color: transparent; text-decoration: none;}
 .leftbar a:visited    {color: #CCCCCC; background-color: transparent; text-decoration: none;}
 .leftbar a:active     {color: #FFFFFF; background-color: transparent; text-decoration: none;}
 .leftbar a:hover      {color: #FFFFFF; background-color: transparent; text-decoration: underline;}
 
-.bottombar   {background-color: #CCCCCC; text-align: left; height: 66px;}
-.bottombar img {margin-left: 0; display: inline;}
+.bottombar   {background-color: #CCCC99; text-align: left; height: 66px; display: table; position: relative; width: 100%;}
+foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; vertical-align: middle;}
+.bamcamark   {position: absolute; left: 0; bottom: 0; padding: 15px 32px;}
+.footer      {text-align: left; display: table-cell; position: absolute; height: 66px; left: 132px; bottom: 0; vertical-align: middle;}
+.comment_button   {height: 66px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}

@@ -1,0 +1,48 @@
+{{ stitch.fsl }}<br>
+
+<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">
+<input type="hidden" name="fc" value="{{ stitch.file_count + 1 }}">
+
+<table>
+{% for fs in stitch.fsl %}
+<tr>
+    num = fs['n']
+    fn = fs.get('fn', '').strip()
+    fn_size = ''
+    {% if fs['fn'] %}
+	if 'x1' not in fs and os.path.exists(fn):
+	    x, y = imglib.get_size(fn)
+	    stitch.limit_x = min(x, stitch.limit_x)
+	    stitch.limit_y = min(y, stitch.limit_y)
+	    fn_size = '<br>' + str((x, y))
+	print pif.render.format_cell(1, fn + fn_size)
+	print pif.render.format_hidden_input({'fn_' + num: fn})
+    {% else %}
+	print pif.render.format_cell(1, pif.render.format_text_input('fn_%d' % stitch.file_count, 80) + '<br>' + stitch.fsl[0]['fn'].strip())
+	print pif.render.format_cell(1, pif.render.format_button_input() + ' ' +
+	    pif.render.format_button_input('finalize') + '<br>' +
+	    pif.render.format_checkbox('or', [('h', 'horizontal')]),
+		also={'colspan': 2})
+	print pif.render.format_cell(1, 'x ' + pif.render.format_text_input('limit_x', 5, value=stitch.limit_x))
+	print pif.render.format_cell(1, 'y ' + pif.render.format_text_input('limit_y', 5, value=stitch.limit_y))
+    {% endif %}
+    if 'x1' in fs:
+	print pif.render.format_cell(1, str(fs['x1']), also={'width': 40})
+	print pif.render.format_hidden_input({'x1_' + num: fs['x1']})
+	print pif.render.format_cell(1, str(fs['y1']), also={'width': 40})
+	print pif.render.format_hidden_input({'y1_' + num: fs['y1']})
+	print pif.render.format_cell(1, str(fs['x2']), also={'width': 40})
+	print pif.render.format_hidden_input({'x2_' + num: fs['x2']})
+	print pif.render.format_cell(1, str(fs['y2']), also={'width': 40})
+	print pif.render.format_hidden_input({'y2_' + num: fs['y2']})
+    elif fn:
+	if not os.path.exists(fn):
+	    print pif.render.format_cell(1, 'Nonexistant: ' + os.getcwd() + '/' + fn, also={'colspan': 4})
+	else:
+	    print pif.render.format_cell(1, stitch.show_widget(fn), also={'colspan': 4})
+</tr>
+{% endfor %}
+</table>
+<input type="text" value="" name="q" id="q"><br>
+Debug: <span id="ima_debug">Debug output here.</span>
+</form>

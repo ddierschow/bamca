@@ -459,6 +459,9 @@ image_size_sizes = [(100,  60), (200, 120), (300, 180), (400, 240), (600, 360), 
 
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
+image_adds_names = ['advertisement', 'baseplate', 'comparison', 'custom', 'detail', 'error', 'interior', 'prototype', 'real', 'box']
+image_adds_types = ['f', 'b', 'z', 'a', 'd', 'e', 'i', 'p', 'r', 'x']
+
 model_type_chars = "aob2e1r4uztv59cidjgfmpl8hx"
 vehicle_types = {
     "a": "aircraft",

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+You are registering to receive an account on this system.
+<form method="post">
+<table>
+ <tr>
+  <td>Name:</td>
+  <td><input type="text" name="n"></td>
+ </tr>
+ <tr>
+  <td>Password:</td>
+  <td><input type="password" name="p"></td>
+ </tr>
+ <tr>
+  <td>Retry password:</td>
+  <td><input type="password" name="p2"></td>
+ </tr>
+ <tr>
+  <td>EMail:</td>
+  <td><input type="text" name="e" size=60></td>
+ </tr>
+ <tr>
+  <td>{{ render.format_button_input('register') }}  </td>
+ </tr>
+</table>
+{% if dest %}<input type="hidden" name="dest" value="{{ dest }}">{% endif %}
+</form>
+
+{% endblock page_body %}

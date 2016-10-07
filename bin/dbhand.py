@@ -128,7 +128,8 @@ class DBHandler(object):
 
     def depref(self, table, results):
         if isinstance(results, dict):
-            for key in results.keys():
+	    keys = list(results.keys())
+            for key in keys:
                 if key.startswith(table + '.'):
 		    if not results.get(key[len(table) + 1:]):
 			results[key[len(table) + 1:]] = results[key]
@@ -225,7 +226,7 @@ class DBHandler(object):
         self.write('base_id', self.make_values('base_id', values), "id='%s'" % id, modonly=True)
 
     def add_new_base_id(self, values):
-        self.write('base_id', self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
+        return self.write('base_id', self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
 
     def fetch_base_id_model_types(self):
 	return self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type', tag='fetch_base_id_model_type')
@@ -429,13 +430,13 @@ class DBHandler(object):
 
     def update_casting_related(self, val):
 	if val['id']:
-	    print 'upd', val, '<br>'
+	    useful.write_message('upd', val, '<br>')
 	    self.write('casting_related', values=val, where='id=%s' % val['id'], tag='UpdateCastingRelatedU', verbose=True)
 	else:
 	    if 'id' in val:
 		del val['id']
-	    print 'new', val, '<br>'
-	    print self.write('casting_related', values=val, newonly=True, tag='UpdateCastingRelatedN', verbose=True)
+	    useful.write_message('new', val, '<br>')
+	    useful.write_message(self.write('casting_related', values=val, newonly=True, tag='UpdateCastingRelatedN', verbose=True))
 
     def add_casting_related(self, values):
         return self.write('casting_related', values=values, newonly=True, tag='AddCastingRelated', verbose=True)
@@ -747,11 +748,11 @@ class DBHandler(object):
         return self.fetch('lineup_model', where=where, tag='LineupModel', verbose=verbose)
 
     def insert_lineup_model(self, values):
-	print values, '<br>'
+	useful.write_message(values, '<br>')
         self.write('lineup_model', self.make_values('lineup_model', values), newonly=True, verbose=True, tag='InsertLineupModel')
 
     def update_lineup_model(self, where, values):
-	print where, values, '<br>'
+	useful.write_message(where, values, '<br>')
         self.write('lineup_model', self.make_values('lineup_model', values), self.make_where(where), modonly=True, tag='UpdateLineupModel')
 
     def delete_lineup_model(self, where):
@@ -1066,7 +1067,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
     #- site_activity
 
     def fetch_activities(self):
-        return self.fetch('site_activity,user', where='site_activity.by_user_id=user.id')
+        return self.fetch('site_activity,user', where='site_activity.user_id=user.id', verbose=True)
     #def fetch(self, table_name, left_joins=None, columns=None, where=None, group=None, order=None, tag='', verbose=False):
 
     def insert_activity(self, name, user_id, description='', url='', image='', timestamp=None):
@@ -1076,7 +1077,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
         else:
             oldrow = 1
         self.raw_execute('''delete from site_activity where id < %d''' % oldrow, 'insert_activity')
-        rec = {'name': name, 'description': description, 'url': url, 'image': image, 'by_user_id': user_id}
+        rec = {'name': name, 'description': description, 'url': url, 'image': image, 'user_id': user_id}
         if timestamp:
             rec['timestamp'] = timestamp
         return self.write('site_activity', rec, newonly=True, tag='insert_activity', verbose=True)
@@ -1156,7 +1157,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 		if attr_name:
 		    if attr_name not in var:
 			if verbose:
-			    print '!', attr_name
+			    useful.write_message('!', attr_name)
 			return attr_name, ''
 		    value = var.get(attr_name)
 		    if not value or (is_opt and (value == 'no' or value == '-')):
@@ -1183,7 +1184,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 			desc = ', '.join([fmt[0][1] % var, fmt[1][1] % var])
 		except:
 		    if verbose:
-			print '!', field, fmt
+			useful.write_message('!', field, fmt)
 		if descs and descs[-1] == desc:
 		    continue
 		descs.append(desc)
@@ -1193,12 +1194,12 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	casting = self.fetch_casting(mod_id, extras=True)
 	for var in self.depref('variation', self.fetch_variations(mod_id)):
 	    if verbose:
-		print var['var']
+		useful.write_message(var['var'])
 	    ovar = {x: '' for x in textcols}
 	    ovar.update({'text_' + x: fmt_desc(var, casting, 'format_' + x, verbose) for x in cols})
 	    if showtexts:
 		for x in cols:
-		    print ' ', x[:2], ':', ovar['text_' + x]
+		    useful.write_message(' ', x[:2], ':', ovar['text_' + x])
 	    self.update_variation(ovar, {'mod_id': var['mod_id'], 'var': var['var']})
 
     def check_description_formatting(self, mod_id, linesep=''):
@@ -1231,6 +1232,11 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 		retval = True
 	return retval, messages
 
+    def fetch_tables(self):
+	return self.raw_execute('show tables')
+
+    def fetch_table(self, table):
+	return self.raw_execute('desc %s' % table)
 
 if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''

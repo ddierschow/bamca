@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 import os, sys
-import Image
+from PIL import Image
 
 # =========================
 
@@ -171,8 +171,8 @@ class Font(object):
             c = None
             for line in inp:
                 if line[0] == '\t':
-                    if not c:
-                        print '*** badly formed input'
+#                    if not c:
+#                        print '*** badly formed input'
                     line = line[1:] + " " * x
                     line = line[:x]
                     for p in line:

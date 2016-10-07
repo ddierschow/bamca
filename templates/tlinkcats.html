@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block page_body %}
+
+<table width="100%"><tr><td width="65%" valign="top">
+<ul>
+{% for sec in sections %}
+<li><a href="edlinks.cgi?sec={{ sec['section.id'] }}">{{ sec['section.page_id'] }}: {{ sec['section.name'] }}</a>
+{% endfor %}
+</ul>
+</td>
+<td width="35%" valign="top">
+<ul>
+<li><a href="edlinks.cgi?sec=new">New</a>
+<li><a href="edlinks.cgi?sec=nonf">Nonfunctional</a>
+<li><a href="edlinks.cgi?sec=single">Single</a>
+<li><a href="edlinks.cgi?as=1">Associables</a><p>
+<li><a href="{{ blacklist }}">Blacklist</a><p>
+{% for stat in link_statuses %}
+<li><a href="edlinks.cgi?stat={{ stat.last_status }}">{{ stat.last_status }}</a>
+{% endfor %}
+</ul>
+</td></tr></table>
+
+{% endblock page_body %}

@@ -300,19 +300,25 @@ function SectionManno()
     }
     Select('listtype', 'selList', $sl);
 
-    echo "  </td>\n </tr>\n</table>\nFilter by vehicle type:\n<table class=\"types\">";
-    echo " <tr>\n  <td class=\"tdboth\" colspan=\"3\">Every vehicle has one of these.</td>\n";
-    echo "  <td class=\"tdboth\" colspan=\"3\">Vehicle may have up to two of these.</td>\n </tr>";
+    echo "  </td>\n </tr>\n</table>\n";
+    echo "Filter by vehicle type:\n<table class=\"types\">";
+    echo " <tr>\n  <td class=\"tdboth\" colspan=\"2\">Every vehicle has one of these.</td>\n";
+    echo "  <td class=\"tdboth\" colspan=\"2\">Vehicle may have up to two of these.</td>\n";
+    if ($isadmin)
+	echo "  <td class=\"tdboth\" colspan=\"2\"><i>Filter by picture type.</i></td>\n";
+    echo " </tr>";
 
-    function YNMCell($arr, $verb)
+    function YNMCell($arr, $pref)
     {
 	global $isadmin;
 
-	echo "  <td class=\"tdleft\"><b>$arr[1]</b></td>\n  <td class=\"tdmiddle\">";
-	if ($isadmin)
-	    echo "<i>$arr[0]</i>";
-	echo "  </td>\n  <td class=\"tdright\">";
-	Checks('radio', 'type_' . $arr[0], [['y', 'yes'], ['n', 'no'], ['m', 'maybe', 1]], '');
+	echo "  <td class=\"tdleft\"><b>$arr[1]</b></td>\n";
+//        echo "  <td class=\"tdmiddle\">";
+//	if ($isadmin)
+//	    echo "<i>$arr[0]</i>";
+//	echo "  </td>\n";
+	echo "  <td class=\"tdright\">";
+	Checks('radio', $pref . $arr[0], [['y', 'yes'], ['n', 'no'], ['m', 'maybe', 1]], '');
 	echo "  </td>\n";
     }
     $a = [
@@ -345,11 +351,34 @@ function SectionManno()
 	["h", "recreation"],
 	["x", "taxi"]
     ];
+    $c = [
+	['f', 'advertisement'],
+	['b', 'baseplate'],
+	['z', 'comparison'],
+	['a', 'custom'],
+	['d', 'detail'],
+	['e', 'error'],
+	['i', 'interior'],
+	['p', 'prototype'],
+	['r', 'real'],
+	['x', 'box']
+    ];
+    $d = [
+	10 => ['s', 'small'],
+	11 => ['m', 'medium'],
+	12 => ['l', 'large'],
+    ];
     foreach(array_keys($a) as $k)
     {
 	echo(" <tr>\n");
-	YNMCell($a[$k], $isadmin);
-	YNMCell($b[$k], $isadmin);
+	YNMCell($a[$k], 'type_');
+	YNMCell($b[$k], 'type_');
+	if ($isadmin) {
+	    if (isset($c[$k]))
+		YNMCell($c[$k], 'add_');
+	    else
+		YNMCell($d[$k], 'pic_');
+	}
 	echo(" </tr>\n");
     }
     echo "</table>\n";

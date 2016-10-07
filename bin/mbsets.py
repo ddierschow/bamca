@@ -70,37 +70,27 @@ class SetFile(bfiles.ArgFile):
             self.tables.append(self.db)
 
 
-def do_set(pif, setfile, set_id=None, dups=False):
+def do_set(pif, setfile, set_id=None):
     pif.render.set_button_comment(pif, '')
     tables = setfile.tables
 
-    ostr = '<center>'
-    for db in tables:
-        if len(tables) == 1 or not db['title'] or set_id == db['label'] or set_id == 'all':  # or not set_id
-            ostr += print_table(pif, db, setfile, dups)
-        else:
-            ostr += print_no_table(pif, db)
-    ostr += '</center>\n'
-    ostr += pif.render.footer
-    return ostr
+    llineups = [
+            print_table(pif, db, setfile)
+	    if len(tables) == 1 or not db['title'] or set_id == db['label'] or set_id == 'all'  # or not set_id
+	    else print_no_table(pif, db) for db in tables]
+    return pif.render.format_template('sets.html', llineups=llineups)
 
 
-def print_table(pif, db, setfile, dups=False):
+def print_table(pif, db, setfile):
     global modnumlist
-    ostr = '<a name="%(label)s"></a>\n' % db
-    if db['title']:
-        ostr += '<h3>%s</h3>\n' % db['title']
-    ostr += pif.render.format_table_start()
+    entries = []
     prefix = db['prefix']
 
     ncols = 0
-    ostr += '\n' + pif.render.format_row_start()
     for field in db['header']:
         if field in setfile.colheads:
-            #ostr += '    <th align=center>%s</th>' % setfile.colheads[field]
-            ostr += pif.render.format_cell(ncols, setfile.colheads[field], True)
+            entries.append({'text': setfile.colheads[field], 'style': str(ncols)})
             ncols = ncols + 1
-    ostr += pif.render.format_row_end()
 
     for model in db['model']:
         showme = True
@@ -110,75 +100,45 @@ def print_table(pif, db, setfile, dups=False):
                     showme = False
         if not showme:
             continue
-        ostr += pif.render.format_row_start()
         if 'text' in model:
             # Need to calculate the colspan better.
-            ostr += pif.render.format_cell(0, model['text'], False, {'colspan': len(db['header']) - 1})
-            ostr += pif.render.format_row_end()
-            continue
-        if 'section' in model:
-            # Need to calculate the colspan better.
-            #ostr += '    <th colspan=%d valign=top>\n' % (len(db['header']) - 1)
-            #ostr += model['section']
-            #ostr += '</th></tr>\n'
-            ostr += pif.render.format_section(None, model['section'], also={'colspan': (len(db['header']) - 1)})
+	    entries.append({'text': model['text'], 'colspan': len(db['header']) - 1, 'style': '0'})
             continue
         ifield = 0
         for field in db['header']:
             if field == 'desc':
-                ostr += pif.render.format_cell(ifield, mod_desc(model[field]))
+                entries.append({'style': ifield, 'text': mod_desc(model[field])})
             elif field == 'fulldesc':
-                ostr += pif.render.format_row_end()
-                ostr += pif.render.format_row_start()
-                ostr += pif.render.format_cell(ifield, mod_desc(model['desc']), False, {'colspan': repr(db['ncols'])})
+                entries.append({'style': ifield, 'text': mod_desc(model['desc']), 'colspan': db['ncols']})
             elif field == 'insetdesc':
-                ostr += pif.render.format_row_end()
-                ostr += pif.render.format_row_start()
-                ostr += pif.render.format_cell(ifield, mod_desc(model['desc']), False, {'colspan': repr(db['ncols'] - 1)})
+                entries.append({'style': ifield, 'text': mod_desc(model['desc']), 'colspan': db['ncols'] - 1})
             elif field == 'num':
-                modnums = []
-                for modnum in model[field].split(';'):
-                    modnum = mod_num(prefix, modnum, model.get('rank'))
-                    if dups:
-                        if modnum in modnumlist:
-                            model['desc'].append('duplicate!')
-                        modnumlist.append(modnum)
-                    modnums.append(modnum)
-                ostr += pif.render.format_cell(ifield, '<nobr>%s</nobr>' % "<br>".join(modnums), False, {'height': '8'})
+                modnums = [mod_num(prefix, modnum, model.get('rank')) for modnum in model[field].split(';')]
+                entries.append({'style': ifield, 'text': '<nobr>%s</nobr>' % "<br>".join(modnums), 'also': {'height': '8'}})
             elif field == 'pic':
                 modnum = model['num'].split(';')
-                also = {}
-                if 'insetdesc' in db['header']:
-                    also = {'rowspan': '2'}
-                ostr += pif.render.format_cell(ifield, img(pif, prefix, modnum, model.get('rank'), int(db['digits']), (model['year'] != 'not made'), dirs=setfile.dirs), False, also)
+                rowspan = 2 if 'insetdesc' in db['header'] else 1
+                entries.append({'style': ifield, 'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']), (model['year'] != 'not made'), dirs=setfile.dirs), 'rowspan': rowspan})
             elif field == 'fullpic':
-                ostr += pif.render.format_row_end()
-                ostr += pif.render.format_row_start()
                 modnum = model['num'].split(';')
-                also = {'colspan': repr(db['ncols'])}
-                if 'insetdesc' in db['header']:
-                    also = {'rowspan': '2'}
-                ostr += pif.render.format_cell(ifield, img(pif, prefix, modnum, model.get('rank'), int(db['digits']), (model['year'] != 'not made'), dirs=setfile.dirs), False, also)
+                colspan = 2 if 'insetdesc' in db['header'] else repr(db['ncols'])
+                entries.append({'style': ifield, 'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']), (model['year'] != 'not made'), dirs=setfile.dirs), 'colspan': colspan})
             elif field == 'name':
-                if model[field]:
-                    ostr += pif.render.format_cell(ifield, '<center><b>' + model[field] + '</b></center>')
-                else:
-                    ostr += pif.render.format_cell(ifield)
+		entries.append({'style': ifield, 'text': '<center><b>' + model[field] + '</b></center>'}
+		    if model[field] else {'style': ifield})
             else:
-                if model[field]:
-                    ostr += pif.render.format_cell(ifield, model[field])
-                else:
-                    ostr += pif.render.format_cell(ifield)
+		entries.append({'style': ifield, 'text': model[field]} if model[field] else {'style': ifield})
             ifield += 1
-        ostr += pif.render.format_row_end()
-    ostr += '</table>\n'
-    return ostr
+    llineup = {'anchor': db['label'], 'name': db['title'], 'columns': ncols, 'widthauto': True,
+	'section': [{'id': 'box', 'name': '',
+	    'range': [{'entry': entries}]}],
+    }
+    return pif.render.format_matrix_for_template(llineup)
 
 
 def print_no_table(pif, db):
-    ostr = '<a name="%(label)s">\n' % db
-    ostr += '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.form.get_str('page') + '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db
-    return ostr
+    return {'anchor': db['label'],
+	'header': '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.form.get_str('page') + '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db}
 
 
 def mod_desc(desclist):
@@ -193,12 +153,7 @@ def mod_desc(desclist):
 
 
 def mod_num(prefix, model, suffix):
-    ostr = model
-    if prefix:
-        ostr = prefix + '-' + ostr
-    if suffix:
-        ostr += '-' + suffix
-    return ostr
+    return ''.join([(prefix + '-') if prefix else '', model, ('-' + suffix) if suffix else ''])
 
 
 def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
@@ -238,17 +193,12 @@ def sets_main(pif):
     pif.render.print_html()
 
     if pif.form.has('page'):
-        set_id = pif.form.get_str('set')
-        dups = pif.form.get_int('dups')
         setfile = SetFile(os.path.join(config.SRC_DIR, pif.form.get_str('page') + '.dat'))
-	print pif.render.format_head()
-	useful.header_done()
-        print do_set(pif, setfile, set_id, dups=dups)
-	print pif.render.format_tail()
+        return do_set(pif, setfile, pif.form.get_str('set'))
     else:
-        print select_set(pif)
+        return select_set(pif)
 
 
 
 if __name__ == '__main__':  # pragma: no cover
-    pass
+    basics.goaway()

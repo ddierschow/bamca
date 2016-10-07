@@ -48,11 +48,13 @@ class Presentation(object):
 	    self.styles.append(self.page_id[:self.page_id.find('.')])
 	self.styles.append(self.page_id)
 	self.extra = ''
-	self.footer = ''
+	self.comment_button = ''
 	self.is_admin = False
 	self.is_moderator = False
 	self.is_user = False
 	self.html_done = False
+	self.new_cookie = None
+	self.footer = ''
 #       if self.verbose:
 #           import datetime
 #           self.dump_file = open(os.path.join(config.LOG_ROOT, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
@@ -296,21 +298,24 @@ class Presentation(object):
         if self.verbose:
             useful.dump_dict_comment(name, arg)
 
-    def print_html(self, content='text/html', cookie=None, status=200):
+    def print_html(self, content='text/html', status=200):
         print 'Content-Type:', content
 	print 'Status:', status, httplib.responses.get(status, '')
 	self.html_done = True
-        self.print_cookie(cookie)
+        self.print_cookie()
         print
 	if content == 'text/html':
 	    print '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'
 	    print
 	#useful.header_done()
 
-    def print_cookie(self, cookie):  # pragma: no cover
-        if cookie:
-            print cookie.output()
-            os.environ['HTTP_COOKIE'] = cookie.output()
+    def set_cookie(self, cookie):
+	self.new_cookie = cookie
+
+    def print_cookie(self):  # pragma: no cover
+        if self.new_cookie:
+            print self.new_cookie.output()
+            os.environ['HTTP_COOKIE'] = self.new_cookie.output()
         else:
 	    incookie = self.secure.cookies if self.secure.cookies else self.secure.get_cookies()
             if not incookie:
@@ -320,11 +325,13 @@ class Presentation(object):
             elif '/' not in incookie['id'].value:
                 incookie['id']['expires'] = -1
                 print incookie.output()
-                del os.environ['HTTP_COOKIE']
+		if 'HTTP_COOKIE' in os.environ:
+		    del os.environ['HTTP_COOKIE']
             elif incookie['id'].value.split('/')[1] != os.environ['REMOTE_ADDR']:
                 incookie['id']['expires'] = -1
                 print incookie.output()
-                del os.environ['HTTP_COOKIE']
+		if 'HTTP_COOKIE' in os.environ:
+		    del os.environ['HTTP_COOKIE']
 
     #---- upper level rendering blocks
 
@@ -519,7 +526,7 @@ of Matchbox International Ltd. and are used with permission.
         if nstyle:
             ostr += '<span' + useful.fmt_also(nstyle) + '>'
         if args:
-            args = "&".join([x + '=' + args[x] for x in args.keys()])
+            args = "&".join([x + '=' + args[x] for x in args])
             if '?' in url:
                 url += '&' + args
             else:
@@ -581,7 +588,7 @@ of Matchbox International Ltd. and are used with permission.
         return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (name, min(showlength, maxlength), maxlength, value)
 
     def format_hidden_input(self, values):
-        return reduce(lambda x, y: x + '<input type="hidden" name="%s" value="%s">\n' % (y, values[y]), values.keys(), '')
+	return ''.join(['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in values.items()])
 
     #---- buttons
 
@@ -697,7 +704,14 @@ of Matchbox International Ltd. and are used with permission.
         if pif.is_allowed('a'):  # pragma: no cover
             ostr += self.format_button("pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class': 'comment'}, lalso=dict())
             ostr += self.format_button("edit_this_page", link=pif.dbh.get_editor_link('page_info', {'id': pif.page_id}), also={'class': 'comment'}, lalso=dict())
-	self.footer = ostr
+	self.comment_button = ostr
+
+    def set_footer(self, new_footer):
+	if self.footer:
+	    self.footer += '<br>'
+        if isinstance(new_footer, list):
+	    new_footer = '<br>'.join(new_footer)
+	self.footer += new_footer
 
     #---- images
 
@@ -868,7 +882,7 @@ of Matchbox International Ltd. and are used with permission.
     # a section consists of a header (inside the table) plus a list of entries.
     #     id, name, note, anchor, columns, headers | range
     # a range consists of a header plus a list of entries.
-    #     id, name, note, anchor, graphics | entry
+    #     id, name, note, anchor, graphics, styles | entry
     # an entry contains a dict of cells, keys in columns.
     #     <text>
 
@@ -885,6 +899,8 @@ of Matchbox International Ltd. and are used with permission.
             sec_id = sec.get('id', '')
 	    ncols = len(sec['columns'])
             ostr += self.fmt_anchor(sec.get('anchor'))
+            if sec.get('header'):
+                ostr += sec['header']
             ostr += self.format_table_start(style_id=lin_id)
             if sec.get('name'):
                 ostr += self.format_section(sec.get('name', ''), id=sec['id'], cols=len(sec['columns']))
@@ -895,10 +911,11 @@ of Matchbox International Ltd. and are used with permission.
                 ostr += self.format_cell(0, sec['note'], also=also)
                 ostr += self.format_row_end()
 
-	    ostr += self.format_row_start(also={'class': 'er'})
-	    for ent in sec['columns']:
-		ostr += self.format_cell(0, sec['headers'].get(ent, ''), hdr=True)
-	    ostr += self.format_row_end()
+	    if not sec.get('noheaders'):
+		ostr += self.format_row_start(also={'class': 'er'})
+		for ent in sec['columns']:
+		    ostr += self.format_cell(0, sec['headers'].get(ent, ''), hdr=True)
+		ostr += self.format_row_end()
 
 	    for ran in sec['range']:
 		ran_id = ran.get('id', '')
@@ -915,10 +932,12 @@ of Matchbox International Ltd. and are used with permission.
 		for ent in ran['entry']:
 		    ostr += self.format_row_start(also={'class': 'er'})
 		    for col in sec['columns']:
-			ostr += self.format_cell(1, ent.get(col, ''))
+			ostr += self.format_cell(ran.get('styles', {}).get(col, '1'), ent.get(col, ''))
 		    ostr += self.format_row_end()
 
             ostr += self.format_table_end()
+            if sec.get('footer'):
+                ostr += sec['footer']
         ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
@@ -1032,6 +1051,7 @@ of Matchbox International Ltd. and are used with permission.
 	maxes = {'s': 0, 'r': 0, 'e': 0}
 	#self.comment_dict('lineup', llineup)
 	rows = sc = 0
+	llineup.setdefault('widthauto', False)
 	for sec in llineup.get('section', []):
 	    sc += 1
 	    sec['columns'] = ncols = sec.get('columns', llineup.get('columns', 4))
@@ -1159,11 +1179,11 @@ of Matchbox International Ltd. and are used with permission.
 	    'verbose': self.verbose,
 	    'not_released': self.not_released,
 	    'flags': self.flags,
-	    'table_count': self.table_count,
 	    'flag_info': self.flag_info,
 	    'shown_flags': self.shown_flags,
 	    'secure': self.secure,
 	    'extra': self.extra,
+	    'comment_button': self.comment_button,
 	    'footer': self.footer,
 	}
 	return useful.render_template(template, page=page_info, **kwargs)

@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 import copy, os, re, sys
-import Image
+from PIL import Image
 import basics
 import imicon
 

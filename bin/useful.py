@@ -418,14 +418,6 @@ def read_comments():
     _header_done_flag = False
     return comments
 
-def write_message(*args):
-    global _format_web
-    if args:
-	if _format_web:
-            print ' '.join([str(x) for x in args]), '<br>'
-        else:
-            print ' '.join([str(x) for x in args])
-
 
 def defang(msg):
     return str(msg).replace('<', '&lt;').replace('>', '&gt;')

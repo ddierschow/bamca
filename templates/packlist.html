@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+<table class="packs fullpage"><tr>
+<td valign="top">
+{{- render.format_listix(llineup) }}
+</td>
+
+<td valign="top">
+<form>
+Filter by Year<br>
+<input type="radio" name="year" value="" CHECKED> all<br>
+{%- for year in years %}
+<input type="radio" name="year" value="{{ year }}"> {{ year }}<br>
+{%- endfor %}
+<p>
+Filter by Region<br>
+<input type="radio" name="region" value="" CHECKED> all<br>
+{%- for region in regions %}
+<input type="radio" name="region" value="{{ region[0] }}"> {{ region[1] }}<br>
+{%- endfor %}
+<p>
+{#    ostr += pif.render.format_select('lid', calc_pack_select(pif, packs)) + '<p>' #}
+{{- render.format_button_input('submit') }}
+<input type="hidden" name="{{ page_id }}" value="%s">
+</form>
+</td></tr></table>
+
+{%- endblock page_body %}

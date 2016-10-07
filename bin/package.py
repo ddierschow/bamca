@@ -11,9 +11,8 @@ import useful
 
 # -- package
 
-def print_tree_row(tree, text):
-    print tree + text
-    print '<br>\n'
+def tree_row(tree, text):
+    return "%s%s\n<br>\n" % (tree, text)
 
 
 def render_tree(pif, ch):
@@ -36,44 +35,41 @@ def show_pic(pif, flist):
 
 
 def do_tree_page(pif, dblist):
+    ostr = ''
     for llist in dblist:
         cmd = llist.get_arg()
         if cmd == 'dir':
             pif.render.pic_dir = llist.get_arg()
         elif cmd == 'render':
-            print useful.render_file(pif.render.pic_dir + '/' + llist.get_arg())
+            ostr += useful.render_file(pif.render.pic_dir + '/' + llist.get_arg())
         elif cmd == 'p':
-            print '<p>\n'
+            ostr += '<p>\n'
         elif cmd == 's':
-            print '<p>\n'
-            print '<a name="%s"></a>' % llist[1]
+            ostr += '<p>\n<a name="%s"></a><b><u>' % llist[1]
             if llist[2]:
-                print '<b><u>%s -' % llist[2],
-            else:
-                print '<b><u>',
-            print '%s</u></b>' % llist[3]
-            print '<br>\n'
+                ostr += ' %s - ' % llist[2]
+            ostr += '%s</u></b><br>\n' % llist[3]
         elif cmd == 'm':
             desc = ''
             if llist[2]:
                 desc += ('<b>%s</b> ' % llist[2])
                 if llist[3] and not llist[3][0].isupper():
-                    desc += "- "
+                    desc += " - "
             desc += llist[3]
-            #print render_tree(pif, llist[1]) + desc
-            #print '<br>\n'
-            print_tree_row(render_tree(pif, llist[1]), desc)
+            #ostr += render_tree(pif, llist[1]) + desc
+            #ostr += '<br>\n'
+            ostr += tree_row(render_tree(pif, llist[1]), desc)
         elif cmd == 'n':
-            print_tree_row(render_tree(pif, llist[1]), '<font color="#666600"><i>%s</i></font>' % llist[2])
+            ostr += tree_row(render_tree(pif, llist[1]), '<font color="#666600"><i>%s</i></font>' % llist[2])
         elif cmd == 'a':
-            print_tree_row(render_tree(pif, llist[1]), pif.render.format_image_as_link([llist[2]], llist[3], also={'target': '_showpic'}))
+            ostr += tree_row(render_tree(pif, llist[1]), pif.render.format_image_as_link([llist[2]], llist[3], also={'target': '_showpic'}))
         elif cmd == 'e':
-            flist = glob.glob(pif.render.pic_dir + '/' + llist[2] + "*.jpg")
-            flist.sort()
+            flist = sorted(glob.glob(pif.render.pic_dir + '/' + llist[2] + "*.jpg"))
             if flist:
-                print '<font color="blue">'
-                print_tree_row(render_tree(pif, llist[1]), ('<i>Example%s:</i>\n' % useful.plural(flist)) + show_pic(pif, flist))
-                print '</font>'
+                ostr += '<font color="blue">'
+                ostr += tree_row(render_tree(pif, llist[1]), ('<i>Example%s:</i>\n' % useful.plural(flist)) + show_pic(pif, flist))
+                ostr += '</font>\n'
+    return ostr
 
 
 @basics.web_page
@@ -86,7 +82,7 @@ def blister(pif):
 
     print pif.render.format_head()
     useful.header_done()
-    do_tree_page(pif, dblist)
+    print do_tree_page(pif, dblist)
     print pif.render.format_tail()
 
 # -- boxart
@@ -473,10 +469,8 @@ def show_boxes(pif):
     boxes = find_boxes(pif)
 
     lrange = dict(note='', entry=list())
-    boxids = boxes.keys()
-    boxids.sort()
-    modids = list(set([x[:5] for x in boxids]))
-    modids.sort()
+    boxids = sorted(boxes.keys())
+    modids = sorted(list(set([x[:5] for x in boxids])))
     for mod_id in modids:
 	mod_box_ids = [x for x in boxids if x.startswith(mod_id)]
 	mod_box_ids.sort()
@@ -484,8 +478,8 @@ def show_boxes(pif):
 	ent1 = ent
 	for mod_box_id in mod_box_ids:
 	    mod = boxes[mod_box_id]
-	    if verbose and pif.is_allowed('ma'):
-		print '<br>'.join(mod['fronts']), '<hr>'
+#	    if verbose and pif.is_allowed('ma'):
+#		print '<br>'.join(mod['fronts']), '<hr>'
 	    box_style = mod['box_type.box_type'][0]
 	    picroots = get_pic_roots(mod['id'], box_style)
 	    if verbose:
@@ -570,10 +564,8 @@ def count_boxes(pif):
 def commands(pif):
     if pif.argv and pif.argv[0] == 'c':
 	boxes = find_boxes(pif)
-	keys = boxes.keys()
-	keys.sort()
 
-	for key in keys:
+	for key in sorted(boxes.keys()):
 	    for picroot in get_pic_roots(boxes[key]['id'], boxes[key]['box_type.box_type'][0]):
 		print '%-9s' % picroot,
 		for picsize in 'mcs':

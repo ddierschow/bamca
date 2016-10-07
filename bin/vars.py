@@ -335,14 +335,13 @@ def delete_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma:
 # ----- multiple variation page ---------------------------
 
 def do_var(pif, model, attributes, prev):
-    keys = sorted(model.keys())
     pic_id = model['picture_id']
     cats = [mbdata.categories.get(x, x) for x in model['_catlist']]
 
     descs = list()
     dets = list()
     note_text = ''
-    for d in keys:
+    for d in sorted(model.keys()):
 	if d.startswith('_') or d == 'text_description' or not model[d]:
 	    pass
 	elif d in desc_attributes:
@@ -419,12 +418,12 @@ class VarSearchForm(object):
 	self.selects = selects
 
     def read(self, form):
-	self.attrs = {key: form.get_str(key) for key in self.attributes.keys()}
+	self.attrs = {key: form.get_str(key) for key in self.attributes}
 	self.attrq = dict()
 	for attr in self.attributes:
 	    if form.has(attr):
 		self.attrq[attr] = form.search(attr)
-	self.nots = {key: form.get_bool('not_' + key) for key in self.attributes.keys()}
+	self.nots = {key: form.get_bool('not_' + key) for key in self.attributes}
 	self.ci = form.get_bool('ci')
 	self.c1 = form.get_bool('c1')
 	self.cateq = form.get_str('category', '')
@@ -443,66 +442,40 @@ class VarSearchForm(object):
 
     def write(self, pif, values={}):
 	pif.render.comment("attributes", self.attributes)
-	keys = self.attributes.keys()
-	keys.sort()
-	ostr = pif.render.format_table_start()
-	for key in keys:
-	    if key not in desc_attributes:
-		continue
-	    ostr += pif.render.format_row_start()
-	    ostr += pif.render.format_cell(0, self.attributes[key]['title'])
-	    ostr += pif.render.format_cell(1, pif.render.format_text_input(key, 64, 64))
-	    ostr += pif.render.format_row_end()
-	ostr += pif.render.format_row_start()
-	ostr += pif.render.format_cell(0)
-	ostr += pif.render.format_cell(1, pif.render.format_checkbox('ci', [(1, 'Case insensitive')]))
-	ostr += pif.render.format_row_end()
-	ostr += pif.render.format_table_end()
-	ostr += '<br>'
-	ostr += pif.render.format_table_start()
-	for key in keys:
-	    if key in hidden_attributes or key in desc_attributes:
-		continue
+
+	entries = [{'title': self.attributes[x]['title'], 'value': pif.render.format_text_input(x, 64, 64)} for x in desc_attributes]
+	entries.append({'title': '', 'value': pif.render.format_checkbox('ci', [(1, 'Case insensitive')])})
+	lsections = [dict(columns=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True, footer='<br>')]
+
+	entries = []
+	for key in sorted(set(self.attributes.keys()) - set(hidden_attributes) - set(desc_attributes)):
 	    #pif.render.comment(key)
-	    ostr += pif.render.format_row_start()
-	    ostr += pif.render.format_cell(0, self.attributes[key]['title'])
 	    if key == 'category':
 		cates = [('', '')] + [(x, mbdata.categories.get(x, x)) for x in values[key]]
 		cates.sort(key=lambda x: x[1])
-		pulldown = pif.render.format_button_up_down_select(key, -1) + pif.render.format_select(key, cates, id=key)
-		pulldown += '&nbsp;' + pif.render.format_checkbox('c1', [(1, 'Code 1 only')])
-		ostr += pif.render.format_cell(1, pulldown)
+		value = pif.render.format_button_up_down_select(key, -1) + pif.render.format_select(key, cates, id=key) + \
+			'&nbsp;' + pif.render.format_checkbox('c1', [(1, 'Code 1 only')])
 	    elif values.get(key):
-		values[key].sort()
-		ostr += pif.render.format_cell(1, pif.render.format_button_up_down_select(key, -1) +
-			pif.render.format_select(key, [('', '')] + values[key], id=key))
+		value = pif.render.format_button_up_down_select(key, -1) + \
+			pif.render.format_select(key, [('', '')] + sorted(values[key]), id=key)
 	    else:
-		ostr += pif.render.format_cell(1, pif.render.format_text_input(key, 64, 64))
-	    ostr += pif.render.format_cell(1, pif.render.format_checkbox('not_' + key, [(1, 'not')]))
-	    ostr += pif.render.format_row_end()
+		value = pif.render.format_text_input(key, 64, 64)
+	    entries.append({
+		'title': self.attributes[key]['title'],
+		'value': value,
+		'not': pif.render.format_checkbox('not_' + key, [(1, 'not')])
+	    })
 
-	if pif.is_allowed('a') and isinstance(values.get('imported_from'), list):  # pragma: no cover
-	    ostr += pif.render.format_row_start()
-	    ostr += pif.render.format_cell(0, self.attributes['imported_from']['title'])
-	    values['imported_from'].sort()
-	    ostr += pif.render.format_cell(1, pif.render.format_button_up_down_select('imported_from', -1) +
-			pif.render.format_select('imported_from', [('', '')] + values['imported_from'], id='imported_from') +
-			pif.render.format_checkbox('pic', [(1, 'with pictures'), (0, 'without pictures')]))
-	    ostr += pif.render.format_cell(1, pif.render.format_checkbox('not_imported_from', [(1, 'not')]))
-	    ostr += pif.render.format_row_end()
+	entries.append({
+	    'title': '&nbsp;',
+	    'value': pif.render.format_button_input("filter", "submit") + '\n' +
+		     ((pif.render.format_button_input("list") + '\n') if pif.is_allowed('a') else '') +
+		     pif.render.format_button_reset('vars'),
+	    'not': '&nbsp;'
+	})
 
-	ostr += pif.render.format_row_start()
-	ostr += pif.render.format_cell(0, '&nbsp;')
-	ostr += pif.render.format_cell_start(1)
-	ostr += pif.render.format_button_input("filter", "submit")
-	if pif.is_allowed('a'):  # pragma: no cover
-	    ostr += pif.render.format_button_input("list")
-	ostr += pif.render.format_button_reset('vars')
-	ostr += pif.render.format_cell_end()
-	ostr += pif.render.format_cell(1, '&nbsp;')
-	ostr += pif.render.format_row_end()
-	ostr += pif.render.format_table_end()
-	return ostr
+	lsections.append(dict(columns=['title', 'value', 'not'], range=[{'entry': entries}], note='', noheaders=True))
+	return dict(section=lsections)
 
     def cate_match(self, model, code):
 	category = model['_catlist'] = model.get('category', '').split()
@@ -588,7 +561,7 @@ class VarSearchForm(object):
 	if not self.c1:
 	    codes.append(2)
 	for code in codes:
-	    for key in mvars.keys():
+	    for key in mvars:
 		variation = mvars[key]
 		variation['references'] = ' '.join(list(set(self.selects.get(key, []))))
 		category = variation['_catlist'] = variation.get('category', '').split()

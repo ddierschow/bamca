@@ -3,6 +3,7 @@
 import copy, os, re, urllib2
 import basics
 import config
+import masses
 import mbdata
 import useful
 
@@ -18,51 +19,16 @@ def editor_start(pif):
 
     errs = pif.dbh.fetch_pages("health!=0")
     if errs:
-        print '<hr>'
-        print "<b>Errors found:<br><ul>"
-        for err in errs:
-            print "<li>", err['page_info.id']
-        print "</ul></b>"
-        print pif.render.format_button('clear', '?clear=1')
+        useful.warn('<hr>', "<b>Errors found:<br><ul>",
+	    '\n'.join(["<li>" + err['page_info.id'] for err in errs]),
+	    "</ul></b>", pif.render.format_button('clear', '?clear=1'))
 
-    print pif.render.format_button('mass', link='mass.cgi')
-    print pif.render.format_button('lineup', link='mass.cgi?type=lineup')
-    print pif.render.format_button('casting', link='mass.cgi?type=casting')
-    print pif.render.format_button('var', link='mass.cgi?type=var')
-    print pif.render.format_button('related', link='mass.cgi?type=related')
-    print pif.render.format_button('pack', link='mass.cgi?type=pack')
-    table_list = [t for t in pif.dbh.table_info if 'ask' in pif.dbh.table_info[t]]
-    table_list.sort()
-#    tabs = [table_list[:len(table_list) / 2], table_list[len(table_list) / 2:]]
-    entries = list()
-#    print '<table><tr>'
-#    for col in (0, 1):
-#	print '<td style="vertical-align: top; width: 50%;">'
-#	for table in tabs[col]:
-    for table in table_list:
-	    entries.append({'text': '<b>' + table + '</b>' + editor_ask(pif, pif.dbh.get_table_info(table))})
-#	print '</td>'
-#    print '</tr></table>'
-    lran = {'entry': entries}
-    lsec = {'range': [lran], 'columns': 4}
-    llineup = {'section': [lsec]}
-    print pif.render.format_matrix(llineup)
-
-
-def editor_ask(pif, table_info):
-    ostr = "<form>"
-    ostr += '<input type="hidden" name="table" value="%s">' % table_info['name']
-    ostr += pif.render.format_table_start()
-    for ent in table_info['ask']:
-        ostr += pif.render.format_row_start()
-        ostr += pif.render.format_cell(0, ent)
-        ostr += pif.render.format_cell(1, '<input type="text" name="%s">' % ent)
-        ostr += pif.render.format_row_end()
-    ostr += pif.render.format_table_end()
-    ostr += pif.render.format_button_input("submit")
-    ostr += pif.render.format_button_input('add')
-    ostr += "</form>"
-    return ostr
+    context = {
+	'table_info': pif.dbh.table_info,
+	'asks': sorted([t for t in pif.dbh.table_info if 'ask' in pif.dbh.table_info[t]]),
+	'masses': [x[0] for x in masses.mass_mains_list],
+    }
+    return pif.render.format_template('editorask.html', **context)
 
 
 # primary entry
@@ -70,41 +36,30 @@ def editor_ask(pif, table_info):
 @basics.web_page
 def editor_main(pif):
     pif.render.print_html()
-    print pif.form.get_form(), '<br>'
     pif.restrict('a')
     pif.render.set_page_extra(pif.render.reset_button_js)
-    print pif.render.format_head()
-    useful.header_done()
-    show_table(pif)
-    print pif.render.format_tail()
+    if pif.form.get_str('table'):
+	return show_table(pif)
+    return editor_start(pif)
 
 
 def show_table(pif):
-    if not pif.form.get_str('table'):
-        editor_start(pif)
-        return
-    table_info = pif.dbh.get_table_info(pif.form.get_str('table'))
-    print '<b>', table_info['name'], '</b>'
-    print pif.render.format_button('show all', "?table=" + table_info['name'])
-    print pif.form.get_form(), '<br>'
-    # DOES ANYBODY KNOW WHAT THE HELL I WAS THINKING HERE?
-#    if len(pif.form.get_form()) == 1 and table_info.get('ask'):
-#       editor_ask(pif, table_info)
-#       return
+    pif.render.message(str(pif.form.get_form()))
 
+    table_info = pif.dbh.get_table_info(pif.form.get_str('table'))
     loaded = False
     if pif.form.has('save'):
         pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
                       pif.form.where(table_info['id'], 'o_'), tag='ShowTableSave')
 #modonly=True,
         #del pif.form.delete('id')
-        print '<br>record saved<br>'
+        pif.render.message('record saved')
     elif pif.form.has('delete'):
         pif.dbh.delete(table_info['name'], pif.form.where(table_info['id'], 'o_'))
         pif.form.delete('id')
-        print '<br>record deleted<br>'
+        pif.render.message('record deleted')
     elif pif.form.has('add'):
-        print '<br>add', table_info.get('name', 'unset'), '<br>'
+        pif.render.message('add' + table_info.get('name', 'unset'))
 #        print table_info, '<br>'
         adds = table_info.get('add', {})
         creat = table_info.get('create', {})
@@ -120,169 +75,176 @@ def show_table(pif):
 #        if lid > 0:
 #            pif.form.set_val('id', lid)
 #        print 'lid', lid, '<br>'
-#        print '<br>record added<br>'
+#        print 'record added'
     elif pif.form.has('clone'):
         pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}, pif.form.where(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
         #del pif.form.delete('id')
-        print '<br>record cloned<br>'
+        pif.render.message('record cloned')
 	pif.form.delete('clone')
     if not loaded:
 	where = pif.form.where(table_info['columns'] + table_info.get('extra_columns', []))
-	dats = pif.dbh.fetch(table_info['name'], where=where, tag='ShowTable')
+	dats = pif.dbh.fetch(table_info['name'], where=where, tag='ShowTable', extras=True)
+
+    footer = ''
+    header = '<b>' + table_info['name'] + '</b>'
+    header += pif.render.format_button('show all', "?table=" + table_info['name'])
+    lsections = []
+
     if pif.form.has('order'):
         dats.sort(key=lambda x: x[pif.form.get_str('order')])
     if len(dats) > 1:
-        print len(dats), 'records'
-        show_multi(pif, table_info, dats, showsubs=True)
+	lsections.append(show_multi_section(pif, table_info, dats, showsubs=True))
         if table_info['name'] in table_info.get('add', {}):
             cond = {'add': '1'}
-            print pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
+            footer += pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
     elif len(dats) == 1:
-        show_single(pif, table_info, dats[0])
+        lsections.extend(show_single(pif, table_info, dats[0]))
     else:
-        show_none(pif, table_info, {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])})
-    return
-    args = ''
-    for col in table_info['columns'] + table_info.get('extra_columns', []):
-        if pif.form.has(col):
-            args += '&' + pif.form.reformat([col])
-    print '<a href="?table=' + table_info['name'] + '&add=1' + args + '">' + pif.render.format_button('add') + '</a>'
+        lsections.extend(show_none(pif, table_info, {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}))
+    lsections[0]['header'] = header + lsections[0].get('header', '')
+    lsections[0]['footer'] = lsections[0].get('footer', '') + footer
+    llistix = {'section': lsections}
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
+#    args = ''
+#    for col in table_info['columns'] + table_info.get('extra_columns', []):
+#        if pif.form.has(col):
+#            args += '&' + pif.form.reformat([col])
+#    print '<a href="?table=' + table_info['name'] + '&add=1' + args + '">' + pif.render.format_button('add') + '</a>'
 
 
-def show_multi(pif, table_info, dats, cols=None, showsubs=False):
-    print '%s entries' % len(dats)
+def show_multi_section(pif, table_info, dats, cols=None, showsubs=False):
     if not cols:
         cols = table_info['columns'] + table_info.get('extra_columns', [])
     if pif.form.has('order'):
         sort_ord = pif.form.get_str('order')
         dats.sort(key=lambda x: x[sort_ord])
-    print pif.render.format_table_start()
-    print pif.render.format_row_start()
-    for col in cols:
-        if col not in table_info.get('hidden', []):
-            print pif.render.format_cell(0, col, hdr=True, also={'class': 'hd'})
-    print pif.render.format_row_end()
-    for dat in dats:
-        dat = pif.dbh.depref(table_info['name'], dat)
-        print pif.render.format_row_start()
-        for col in cols:
-            if col in table_info.get('hidden', []):
-                pass
-            if col in table_info.get('clinks', {}):
-                cond = []
-                for id in table_info['clinks'][col]['id']:
-                    fr, to = id.split('/')
-                    cond.append(fr + "=" + str(dat[to]))
-                print pif.render.format_cell(1, '<a href="?table=%s&%s">%s</a><br>' % (table_info['clinks'][col]['tab'], '&'.join(cond), str(dat[col])))
-            else:
-                print pif.render.format_cell(1, str(dat.get(col, '')))
-        print pif.render.format_row_end()
-    print pif.render.format_table_end()
 
+    columns = [col for col in cols if col not in table_info.get('hidden', [])]
+    entries = []
+    for dat in pif.dbh.depref(table_info['name'], dats):
+	entry = {}
+	for col in columns:
+	    entry[col] = dat[col]
+	    if col in table_info.get('clinks', {}):
+		cond = []
+		for id in table_info['clinks'][col]['id']:
+		    fr, to = id.split('/')
+		    cond.append(fr + "=" + str(dat[to]))
+		entry[col] = '<a href="?table=%s&%s">%s</a>' % (table_info['clinks'][col]['tab'], '&'.join(cond), str(dat[col]))
+	entries.append(entry)
+
+    footer = ''
     if showsubs:
         for subtab in table_info.get('tlinks', []):
-            if not eval(subtab.get('if', '1')):
-                continue
-            print "<hr>", subtab['tab']
-            print pif.render.format_button('show', "?table=" + subtab['tab'])
+            if eval(subtab.get('if', '1')):
+		footer += "<hr>" + subtab['tab'] + '\n' + pif.render.format_button('show', "?table=" + subtab['tab'])
+    footer += '<hr>\n'
 
-    print '<hr>'
+    lrange = {'entry': entries, 'styles': dict.fromkeys(table_info.get('id', []), '2')}
+    lsection = {'columns': columns, 'range': [lrange], 'note': '',
+	'headers': dict(zip(columns, columns)), 'header': '%s entries\n' % len(entries), 'footer': footer}
+    return lsection
 
 
 def show_single(pif, table_info, dat):
     dat = pif.dbh.depref(table_info['name'], dat)
     dats = [dat]
     adds = table_info.get('add', {})
-    print '<form>'
-    print '<input type="hidden" name="verbose" value="1">'
-    print '<input type="hidden" name="table" value="%s">' % table_info['name']
-    for f in table_info['id']:
-        print '<input type="hidden" name="o_%s" value="%s">' % (f, dat.get(f, ''))
     descs = pif.dbh.describe_dict(table_info['name'])
-    print pif.render.format_table_start()
+
+    header = '<form>\n'
+    header += '<input type="hidden" name="verbose" value="1">\n'
+    header += '<input type="hidden" name="table" value="%s">\n' % table_info['name']
+    for f in table_info['id']:
+        header += '<input type="hidden" name="o_%s" value="%s">\n' % (f, dat.get(f, ''))
+
+    columns = ['column', 'type', 'value', 'new value']
+    entries = []
+#	    if col in table_info['id']:
+#		also = {'class': 'id'}
+
     for col in table_info['columns'] + table_info.get('extra_columns', []):
-        print pif.render.format_row_start()
-        also = {}
-        if col in table_info['id']:
-            also = {'class': 'id'}
-        print pif.render.format_cell(0, col, also={'class': 'hd'})
-        coltype = descs.get(col).get('type')
-        print pif.render.format_cell(0, coltype, also=also)
-        if col in table_info.get('clinks', {}):
-            cond = {'table': table_info['clinks'][col]['tab']}
-            for id in table_info['clinks'][col]['id']:
-                fr, to = id.split('/')
-                cond[fr] = str(dat.get(to, ''))
-            #print pif.render.format_cell(1, '<a href="?table=%s&%s">%s</a><br>' % (table_info['clinks'][col]['tab'], '&'.join(cond), dat.get(col, '')), also=also)
-            print pif.render.format_cell(1, pif.render.format_link('', str(dat.get(col, '')), cond, also=also))
-        else:
-            print pif.render.format_cell(1, str(dat.get(col, '')), also=also)
-        if col in table_info.get('readonly', []):
-            print pif.render.format_cell(1, '&nbsp;<input type=hidden name="%s" value="%s">' % (col, dat.get(col, '')), also=also)
-        elif coltype.startswith('varchar('):
-            colwidth = int(coltype[8:-1])
-            print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=dat.get(col)), also=also)
-        elif coltype.startswith('char('):
-            colwidth = 1
-            print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=dat.get(col, '')), also=also)
-        elif coltype.startswith('tinyint('):
-            if dat.get(col) is None:
-                dat[col] = 0
-            colwidth = int(coltype[8:-1])
-            val = dat[col]
-            if isinstance(val, str) and val.isdigit():
-                val = str(int(val))
-            elif not val:
-                val = '0'
-            print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=val), also=also)
-        elif coltype.startswith('smallint('):
-            if dat.get(col) is None:
-                dat[col] = 0
-            colwidth = int(coltype[9:-1])
-            val = dat[col]
-            if isinstance(val, str) and val.isdigit():
-                val = str(int(val))
-            elif not val:
-                val = '0'
-            print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=val), also=also)
-        elif coltype.startswith('int('):
-            if dat.get(col) is None:
-                dat[col] = 0
-            colwidth = int(coltype[4:-1])
-            val = dat[col]
-            if isinstance(val, str) and val.isdigit():
-                val = int(val)
-            elif not val:
-                val = 0
-            print pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, colwidth, value=str(val)), also=also)
-        else:
-            print pif.render.format_cell(1, coltype, also=also)
-        print pif.render.format_row_end()
-    print pif.render.format_table_end()
-    print pif.render.format_button_input("save")
-    print pif.render.format_button_input("delete")
+	coltype = descs.get(col).get('type', 'unknown')
+
+	oldvalue = str(dat.get(col, ''))
+	if col in table_info.get('clinks', {}):
+	    cond = {'table': table_info['clinks'][col]['tab']}
+	    for id in table_info['clinks'][col]['id']:
+		fr, to = id.split('/')
+		cond[fr] = str(dat.get(to, ''))
+	    oldvalue = pif.render.format_link('', oldvalue, cond)
+
+	newvalue = coltype
+	if col in table_info.get('readonly', []):
+	    newvalue = '&nbsp;<input type=hidden name="%s" value="%s">' % (col, dat.get(col, ''))
+	elif coltype.startswith('varchar('):
+	    colwidth = int(coltype[8:-1])
+	    newvalue = pif.render.format_text_input(col, colwidth, colwidth, value=dat.get(col))
+	elif coltype.startswith('char('):
+	    colwidth = 1
+	    newvalue = pif.render.format_text_input(col, colwidth, colwidth, value=dat.get(col, ''))
+	elif coltype.startswith('tinyint('):
+	    if dat.get(col) is None:
+		dat[col] = 0
+	    colwidth = int(coltype[8:-1])
+	    val = dat[col]
+	    if isinstance(val, str) and val.isdigit():
+		val = str(int(val))
+	    elif not val:
+		val = '0'
+	    newvalue = pif.render.format_text_input(col, colwidth, colwidth, value=val)
+	elif coltype.startswith('smallint('):
+	    if dat.get(col) is None:
+		dat[col] = 0
+	    colwidth = int(coltype[9:-1])
+	    val = dat[col]
+	    if isinstance(val, str) and val.isdigit():
+		val = str(int(val))
+	    elif not val:
+		val = '0'
+	    newvalue = pif.render.format_text_input(col, colwidth, colwidth, value=val)
+	elif coltype.startswith('int('):
+	    if dat.get(col) is None:
+		dat[col] = 0
+	    colwidth = int(coltype[4:-1])
+	    val = dat[col]
+	    if isinstance(val, str) and val.isdigit():
+		val = int(val)
+	    elif not val:
+		val = 0
+	    newvalue = pif.render.format_text_input(col, colwidth, colwidth, value=str(val))
+	entries.append({'column': col, 'type': coltype, 'value': oldvalue, 'new value': newvalue})
+
+    footer = pif.render.format_button_input("save")
+    footer += pif.render.format_button_input("delete")
+
     if table_info['name'] in adds:
         cond = dict()
         cond['add'] = '1'
         for id in adds[table_info['name']]:
             fr, to = id.split('/')
             cond[fr] = dat.get(to, '')
-        print pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
+        footer += pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
         del adds[table_info['name']]
-        print pif.render.format_button_input('clone')
-    print '</form>'
+        footer += pif.render.format_button_input('clone')
+    footer += '</form>\n'
     for elink in table_info.get('elinks', []):
-        print pif.render.format_link((elink['url'] % dat).lower(), elink['name']) + '<br>'
+        footer += pif.render.format_link((elink['url'] % dat).lower(), elink['name']) + '<br>\n'
+    footer += '<h3>Subtables</h3>\n'
 
-    print '<h3>Subtables</h3>'
+    lrange = {'entry': entries, 'styles': {'column': 0}}
+    lsections = [{'columns': columns, 'range': [lrange], 'note': '',
+	'headers': dict(zip(columns, columns)), 'header': header, 'footer': footer}]
+
+    anchors = []
     for subtab in table_info.get('tlinks', []):
 	try:
 	    if not eval(subtab.get('if', '1')):
 		continue
 	except:
 	    continue
-        #print "<hr>"
-        print subtab['tab']
+        #ostr += "<hr>"
+        header = subtab['tab']
 
         if subtab['tab'] in adds:
             cond = dict()
@@ -290,7 +252,7 @@ def show_single(pif, table_info, dat):
             for id in adds[subtab['tab']]:
                 fr, to = id.split('/')
                 cond[fr] = dat.get(to, '')
-            print pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
+            header += pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
             del adds[subtab['tab']]
 
         cond = dict()
@@ -301,33 +263,39 @@ def show_single(pif, table_info, dat):
                     cond[fr] = eval(to[1:])
                 else:
                     cond[fr] = dat.get(to, '')
-            print pif.render.format_button('show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
-            show_sub_table(pif, pif.dbh.get_table_info(subtab['tab']), cond, ref=subtab.get('ref', {}))
+            lsection = show_sub_table_section(pif, pif.dbh.get_table_info(subtab['tab']), cond, ref=subtab.get('ref', {}))
+            lsection['header'] = '<b>' + subtab['tab'] + '</b> ' + pif.render.format_button('show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond])) + '\n' + lsection['header']
         else:
-            print pif.render.format_button('show', "?table=" + subtab['tab'])
+            header += pif.render.format_button('show', "?table=" + subtab['tab'])
 #       if subtab['tab'] in adds:
-#           print pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) forx in cond]))
+#           ostr += pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) forx in cond]))
+	    lsection = {'columns': columns, 'range': [{'entry': [], 'styles': {'column': 0}}], 'note': '',
+		'headers': dict(zip(columns, columns)), 'header': header}
+	lsection['anchor'] = subtab['tab']
+	anchors.append(subtab['tab'])
+	lsections.append(lsection)
 
-    print '<hr>'
+    return lsections
 
 
 def show_none(pif, table_info, dat):
     dats = []
-    print "No records found.<br>"
+    pif.render.message("No records found.")
     adds = table_info.get('add', {})
     cond = {'add': '1'}
+    lsections = []
     if table_info['name'] in adds:
         for id in adds[table_info['name']]:
             fr, to = id.split('/')
             cond[fr] = dat.get(to, '')
-        print pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
+        lsections.append({'header': pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))})
         del adds[table_info['name']]
     for subtab in table_info.get('tlinks', []):
         if not eval(subtab.get('if', '1')):
             continue
-        print "<hr>", subtab['tab']
+        header = "<hr>" + subtab['tab']
         if subtab['tab'] in adds:
-            print pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
+            header += pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
         cond = {}
         if 'id' in subtab:
             for id in subtab['id']:
@@ -336,20 +304,23 @@ def show_none(pif, table_info, dat):
                     cond[fr] = eval(to[1:])
                 else:
                     cond[fr] = dat.get(to, '')
-            print pif.render.format_button('show', "?table=" + subtab['tab'] + "&" +
-                                           "&".join([x + '=' + str(cond[x]) for x in cond]))
-            show_sub_table(pif, pif.dbh.get_table_info(subtab['tab']), cond, ref=subtab.get('ref', {}))
-        else:
-            print pif.render.format_button('show', "?table=" + subtab['tab'])
-        if subtab['tab'] in adds:
+	    lsection = show_sub_table_section(pif, pif.dbh.get_table_info(subtab['tab']), cond, ref=subtab.get('ref', {}))
+            lsection['header'] = header + pif.render.format_button('show', "?table=" + subtab['tab'] + "&" +
+                                           "&".join([x + '=' + str(cond[x]) for x in cond])) + '\n' + lsection['header']
+	else:
+	    lsection = {header + 'header': pif.render.format_button('show', "?table=" + subtab['tab'])}
+	lsection.append(lsection)
+        if subtab['tab'] in adds:  #  ummmm?
             cond = {'add': '1'}
             for id in adds[subtab['tab']]:
                 fr, to = id.split('/')
                 cond[fr] = dat.get(to, '')
             del adds[subtab['tab']]
+    #llistix = {'section': lsections}
+    return lsections
 
 
-def show_sub_table(pif, table_info, cond, ref={}):
+def show_sub_table_section(pif, table_info, cond, ref={}):
     # need to make this handle subtab['ref']
     # {'tab': 'detail', 'id': ['mod_id/mod_id', 'var_id/var'], 'ref': {'attr_id': ['attribute', 'id', 'attribute_name']}},
     # so in this case: ref = {'attr_id': ['attribute', 'id', 'attribute_name']}
@@ -367,150 +338,80 @@ def show_sub_table(pif, table_info, cond, ref={}):
     else:
         cols = table_info['columns'] + table_info.get('extra_columns', [])
         where = " and ".join([table_info['name'] + '.' + x + "='" + str(cond[x]) + "'" for x in cond])
-    dats = pif.dbh.fetch(tname, columns=cols, where=where, tag='show_sub_table')
-    show_multi(pif, table_info, dats, cols)
-
-
-# ------- roam -----------------------------------------------------
-
-
-def roam_select_table(pif):
-    tnames = [''] + pif.dbh.table_info.keys()
-    tnames.sort()
-    print "<form>"
-    print "Table:"
-    print pif.render.format_select("table", zip(tnames, tnames))
-    print pif.render.format_button_input()
-    print "</form>"
-
-
-def roam_show_table(pif, table):
-    clinks = pif.dbh.table_info[table].get('clinks', {})
-    tlinks = pif.dbh.table_info[table].get('tlinks', [])
-    where = ''
-    cols = pif.dbh.table_info[table]['columns'] + table_info.get('extra_columns', [])
-    wheres = []
-    for col in cols:
-        if pif.form.has(col):
-            wheres.append(pif.form.reformat(col))
-    dats = pif.dbh.fetch(table, where=" and ".join(wheres), tag='Roam')
-
-    if len(dats) > 1:
-        roam_show_multi(pif, cols, dats, clinks, tlinks)
-    elif len(dats) == 1:
-        roam_show_single(pif, cols, dats[0], clinks, tlinks)
-    else:
-        print "No records found."
-
-
-def roam_show_multi(pif, cols, dats, clinks, tlinks):
-    print pif.render.format_table_start()
-    print pif.render.format_row_start()
-    for col in cols:
-        print pif.render.format_cell(0, col)
-    for tlink in tlinks:
-        print pif.render.format_cell(0, tlink['tab'])
-    print pif.render.format_row_end()
-    for dat in dats:
-        print pif.render.format_row_start()
-        for col in cols:
-            if col in clinks:
-                cond = []
-                for id in clinks[col]['id']:
-                    fr, to = id.split('/')
-                    cond.append(fr + "=" + str(dat.get(to, '')))
-                print pif.render.format_cell(1, '<a href="roam.cgi?table=%s&%s">%s</a><br>' % (clinks[col]['tab'], '&'.join(cond), dat.get(col, '')))
-            else:
-                print pif.render.format_cell(1, dat.get(col, ''))
-        for tlink in tlinks:
-            cond = []
-            for id in tlink['id']:
-                fr, to = id.split('/')
-                cond.append(fr + "=" + dat[to])
-            print pif.render.format_cell(1, '<a href="roam.cgi?table=%s&%s">%s</a><br>' % (tlink['tab'], '&'.join(cond), tlink['tab']))
-        print pif.render.format_row_end()
-    print pif.render.format_table_end()
-
-
-def roam_show_single(pif, cols, dat, clinks, tlinks):
-    print pif.render.format_table_start()
-    for col in cols:
-        print pif.render.format_row_start()
-        print pif.render.format_cell(0, col)
-        if col in clinks:
-            cond = []
-            for id in clinks[col]['id']:
-                fr, to = id.split('/')
-                cond.append(fr + "=" + dat[to])
-            print pif.render.format_cell(1, '<a href="roam.cgi?table=%s&%s">%s</a><br>' % (clinks[col]['tab'], '&'.join(cond), dat[col]))
-        else:
-            print pif.render.format_cell(1, dat[col])
-        print pif.render.format_row_end()
-    print pif.render.format_table_end()
-
-    print '<p>'
-    for tlink in tlinks:
-        cond = []
-        for id in tlink['id']:
-            fr, to = id.split('/')
-            cond.append(fr + "=" + dat[to])
-        print '<a href="roam.cgi?table=%s&%s">%s</a><br>' % (tlink['tab'], '&'.join(cond), tlink['tab'])
-
-
-# not the tip of an iceberg
-@basics.web_page
-def roam_main(pif):
-    os.environ['PATH'] += ':/usr/local/bin'
-    pif.render.print_html()
-    pif.restrict('a')
-    table = pif.form.get_str('table', 'tables')
-    pif.render.title = table
-
-    print pif.render.format_head()
-    useful.header_done()
-    if pif.form.has('table'):
-        editor.roam_show_table(pif, table)
-    else:
-        editor.roam_select_table(pif)
-    print pif.render.format_tail()
+    dats = pif.dbh.fetch(tname, columns=cols, where=where, tag='show_sub_table_section')
+    return show_multi_section(pif, table_info, dats, cols)
 
 
 # ------- counters -------------------------------------------------
 
+# fixed = unicodedata.normalize('NFKD', unicode(crazy_town)).encode('ascii','ignore')
+def printablize(lord):
+    if isinstance(lord, dict):
+	lord = [lord]
+    for ent in lord:
+	for key, val in ent.items():
+	    if isinstance(val, str):
+		val = unicode(val, errors='ignore')
+	    else:
+		val = str(val)
+	    ent[key] = val
+    return lord
 
 @basics.web_page
 def show_counters(pif):
     pif.render.print_html()
     pif.restrict('a')
     pif.render.set_page_extra(pif.render.reset_button_js)
-    print pif.render.format_head()
-    useful.header_done()
-    columns = ['ID', 'Value', 'Timestamp']
-    res = pif.dbh.fetch_counters()
+
+    res = pif.dbh.depref('counter', pif.dbh.fetch_counters())
     sortorder = pif.form.get_str('s', 'id')
     revorder = pif.form.get_int('r')
-    res.sort(key=lambda x: x['counter.' + sortorder.lower()])
+    res.sort(key=lambda x: x[sortorder])
     if revorder:
         res.reverse()
-    print pif.render.format_table_start()
-    print pif.render.format_row_start()
-    for col in columns:
-        if col == sortorder and not revorder:
-            print pif.render.format_cell(0, pif.render.format_link('?s=' + col + '&r=1', col), hdr=True)
-        else:
-            print pif.render.format_cell(0, pif.render.format_link('?s=' + col, col), hdr=True)
-    print pif.render.format_row_end()
-    for row in res:
-        print pif.render.format_row_start()
-        for col in columns:
-            print pif.render.format_cell(0, row['counter.' + col.lower()])
-        print pif.render.format_row_end()
-    print pif.render.format_table_end()
-    print pif.render.format_tail()
+
+    columns = ['id', 'value', 'timestamp']
+    headers = dict(zip(columns, ['ID', 'Value', 'Timestamp']))
+    lsection = dict(columns=columns, range=[{'entry': printablize(res)}], note='',
+	headers={col: pif.render.format_link('?s=' + col +
+	'&r=1' if col == sortorder and not revorder else '', headers[col]) for col in columns})
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]))
 
 
 # ------- ----------------------------------------------------------
 
+def command_help(pif, *args):
+    pif.render.message("./editor.py [i] ...")
+
+
+desc_cols = ['Field', 'Type', 'Null', 'Key', 'Default', 'Extra']
+def command_info(pif):
+    tabs = pif.dbh.fetch_tables()
+    for table in tabs[0]:
+	print table[0]
+	tinfo = pif.dbh.table_info.get(table[0])
+	tab = pif.dbh.fetch_table(table[0])
+	for col in tab[0]:
+	    dcol = dict(zip(desc_cols, col))
+	    dcol['listed'] = 'X' if col[0] in (tinfo['columns'] + tinfo.get('extra_columns', [])) else ''
+	    dcol['ask'] = 'X' if col[0] in tinfo.get('ask', []) else ''
+	    dcol['readonly'] = 'X' if col[0] in tinfo.get('readonly', []) else ''
+	    print "  %(Field)-20s %(Type)-12s %(Null)-5s %(Key)-5s %(listed)1s %(ask)1s %(readonly)1s %(Default)-5s %(Extra)-5s" % dcol
+	print
+
+
+command_lookup = {
+    'i': command_info,
+}
+
+@basics.command_line
+def commands(pif):
+    if pif.filelist:
+	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
+    else:
+	command_help()
+
+# ------- ----------------------------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()
+    commands(dbedit='')

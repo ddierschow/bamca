@@ -11,61 +11,50 @@ import useful
 #  password clearing - how?
 #  acct verification
 
-cols = [('id', 'Id'), ('name', 'User Name'), ('privs', 'Priveleges'), ('state', 'State'), ('email', 'Email Address'),
+user_cols = [('id', 'Id'), ('name', 'User Name'), ('privs', 'Priveleges'), ('state', 'State'), ('email', 'Email Address'),
         ('vkey', 'Verification Key')]
 
 
 def print_users(pif):
-    users = pif.dbh.fetch_users()
-    print pif.render.format_table_start(also={'border': 1})
+    entries = []
+    for user in pif.dbh.fetch_users():
+        pif.dbh.depref('user', user)
+	user['name'] = '<a href="user.cgi?id=%s">%s</a>' % (user['id'], user['name'])
+	entries.append(user)
 
-    print pif.render.format_row_start()
-    for col in cols:
-        print pif.render.format_cell(0, col[1], hdr=True)
-    print pif.render.format_row_end()
-
-    for user in users:
-        user = pif.dbh.depref('user', user)
-        print pif.render.format_row_start()
-        for col in cols:
-            if col[0] == 'name':
-                print pif.render.format_cell(0, '<a href="user.cgi?id=%s">%s</a>' % (user['id'], user[col[0]]))
-            else:
-                print pif.render.format_cell(0, user[col[0]])
-        print pif.render.format_row_end()
-
-    print pif.render.format_table_end()
+    lrange = dict(entry=entries, note='')
+    lsection = dict(columns=[x[0] for x in user_cols], headers=user_cols, range=[lrange], note='')
+    llineup = dict(section=[lsection])
+    return pif.render.format_template('simplelistix.html', llineup=llineup)
 
 
 def print_user_form(pif, id):
-    user = pif.dbh.depref('user', pif.dbh.fetch_user(id)[0])
-    print '<form name="userform">'
-    print pif.render.format_table_start(also={'border': 1})
+    users = pif.dbh.fetch_user(id)
+    if not users:
+	return print_users(pif)
 
-    for col in cols:
-        print pif.render.format_row_start()
-        print pif.render.format_cell(0, col[1], hdr=True)
+    user = pif.dbh.depref('user', users[0])
+    cols = ['title', 'value']
+    heads = dict(zip(cols, ['Titles', 'Values']))
+    entries = []
+    for col in user_cols:
+	title = col[1]
         if col[0] == 'id':
-            cell = '<input type="hidden" name="id" value="%s"><div class="lefty">%s</div>' % (user[col[0]], user[col[0]])
-            cell += '<a href="user.cgi?delete=1&id=%s">%s</a>' % \
+            value = '<input type="hidden" name="id" value="%s"><div class="lefty">%s</div>' % (user[col[0]], user[col[0]])
+            value += '<a href="user.cgi?delete=1&id=%s">%s</a>' % \
                     (id, pif.render.format_button('delete', also={'style': 'float:right'}))
         elif col[0] == 'email':
-            cell = '<input type="text" name="%s" value="%s" size=60>' % (col[0], user[col[0]])
+            value = '<input type="text" name="%s" value="%s" size=60>' % (col[0], user[col[0]])
         else:
-            cell = '<input type="text" name="%s" value="%s">' % (col[0], user[col[0]])
-        print pif.render.format_cell(0, cell)
-        print pif.render.format_row_end()
+            value = '<input type="text" name="%s" value="%s">' % (col[0], user[col[0]])
+	entries.append({'title': title, 'value': value})
+    entries.append({'title': 'Password', 'value': '<input type="checkbox" name="%s">' % col[0]})
 
-    print pif.render.format_row_start()
-    print pif.render.format_cell(0, 'Password', hdr=True)
-    cell = '<input type="checkbox" name="%s">' % col[0]
-    print pif.render.format_cell(0, cell)
-    print pif.render.format_row_end()
-
-    print pif.render.format_table_end()
-    print pif.render.format_button_input("save changes", "submit") + ' -'
-    print pif.render.format_button_reset("userform")
-    print '</form>'
+    lrange = dict(entry=entries, note='')
+    lsection = dict(columns=cols, headers=heads, range=[lrange], note='')
+    llineup = dict(section=[lsection], header='<form name="userform">',
+	footer=pif.render.format_button_input("save changes", "submit") + ' -' + pif.render.format_button_reset("userform") + '</form>')
+    return pif.render.format_template('simplelistix.html', llineup=llineup)
 
 
 def delete_user(pif):
@@ -73,81 +62,43 @@ def delete_user(pif):
 
 
 def update_user(pif):
-    pif.dbh.update_user(pif.form.get_str('id'), email=pif.form.get_str('email'), state=pif.form.get_str('state'), name=pif.form.get_str('name'),
+    pif.dbh.update_user(pif.form.get_str('id'),
+			email=pif.form.get_str('email'),
+			state=pif.form.get_str('state'),
+			name=pif.form.get_str('name'),
                         privs=pif.form.get_str('privs'))
 
 
 @basics.web_page
 def user_main(pif):
-    pif.render.print_html()
+    pif.render.set_button_comment(pif)
     pif.restrict('a')
     pif.render.set_page_extra(pif.render.reset_button_js)
-    print pif.render.format_head()
-    useful.header_done()
+    pif.render.print_html()
+    if pif.form.has('id'):
+        return print_user_form(pif, pif.form.get_str('id'))
+
     if pif.form.has('name'):
         update_user(pif)
-        print_users(pif)
     elif pif.form.has('delete'):
         delete_user(pif)
-        print_users(pif)
-    elif pif.form.has('id'):
-        print_user_form(pif, pif.form.get_str('id'))
-    else:
-        print_users(pif)
-    print pif.render.format_tail()
+    return print_users(pif)
 
 
 # ------ login
 
 
-def print_login_form(pif):
-    print 'Please log in.'
-    print '<form method="post" action="login.cgi">'
-    if pif.form.has('dest'):
-        print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest')
-    print '<table><tr><td>'
-    print 'Name:</td><td>'
-    print '<input type="text" name="n"></td></tr>'
-    print '<tr><td>'
-    print 'Password:</td><td>'
-    print '<input type="password" name="p"></td></tr>'
-    print '<tr><td></td><td>'
-#    print '<input type="image" name="submit" src="../pic/gfx/but_log_in.gif" class="img">'
-    print pif.render.format_button_input("log in", "submit")
-#    print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest', '/index.php')
-    print '</form>'
-    print '</td></tr><tr><td></td><td>'
-    print '<p><a href="signup.cgi?dest=%s">%s</a>' % (pif.form.get_str('dest', '/index.php'), pif.render.format_button('register'))
-    print '</td></tr></table>'
-
-
-def login(pif):
-    id = None
-    id, privs = pif.dbh.login(pif.form.get_str('n'), pif.form.get_str('p'))
-    if id:
-        cookie = pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60)
-        pif.render.print_html(cookie=cookie)
-        #print '<meta http-equiv="refresh" content="1;url=%s">' % pif.form.get_str('dest', '/index.php')
-	raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
-    else:
-        pif.render.print_html()
-        print pif.render.format_head()
-	useful.header_done()
-        print 'Login Failed!<br>'
-        print_login_form(pif)
-
-
 @basics.web_page
 def login_main(pif):
     if pif.form.has('n'):
-        login(pif)
-    else:
-        pif.render.print_html()
-        print pif.render.format_head()
-	useful.header_done()
-        print_login_form(pif)
+	id, privs = pif.dbh.login(pif.form.get_str('n'), pif.form.get_str('p'))
+	if id:
+	    pif.render.set_cookie(pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60))
+	    raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
+	useful.warn("Login Failed!")
 
-    print pif.render.format_tail()
+    pif.render.print_html()
+    return pif.render.format_template('login.html', dest=pif.form.get_str('dest', '/index.php'))
 
 
 # ------ logout
@@ -155,45 +106,11 @@ def login_main(pif):
 
 @basics.web_page
 def logout_main(pif):
-    cookie = pif.render.secure.clear_cookie(['id'])
-    pif.render.print_html(cookie=cookie)
-    #print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get_str('dest', '../')
-    raise useful.Redirect(pif.form.get_str('dest', '../'))
-#    print '<meta http-equiv="refresh" content="0;url=%s>' % '/index.php'
+    pif.render.set_cookie(pif.render.secure.clear_cookie(['id']))
+    raise useful.Redirect(pif.form.get_str('dest', '/'))
 
 
 # ------ signup
-
-
-def print_signup_form(pif):
-    print pif.render.format_head()
-    useful.header_done()
-    print 'You are registering to receive an account on this system.'
-    print '<form method="post">'
-    print pif.render.format_table_start()
-    print pif.render.format_row_start()
-    print pif.render.format_cell(0, 'Name:')
-    print pif.render.format_cell(1, '<input type="text" name="n">')
-    print pif.render.format_row_end()
-    print pif.render.format_row_start()
-    print pif.render.format_cell(0, 'Password:')
-    print pif.render.format_cell(1, '<input type="password" name="p">')
-    print pif.render.format_row_end()
-    print pif.render.format_row_start()
-    print pif.render.format_cell(0, 'Retry password:')
-    print pif.render.format_cell(1, '<input type="password" name="p2">')
-    print pif.render.format_row_end()
-    print pif.render.format_row_start()
-    print pif.render.format_cell(0, 'EMail:')
-    print pif.render.format_cell(1, '<input type="text" name="e" size=60>')
-    print pif.render.format_row_end()
-    print pif.render.format_row_start()
-    print pif.render.format_cell(0, pif.render.format_button_input("register", "submit"))
-    print pif.render.format_row_end()
-    print pif.render.format_table_end()
-    print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest', '/index.php')
-    print '</form>'
-    print pif.render.format_tail()
 
 
 def create(pif):
@@ -204,21 +121,18 @@ def create(pif):
     e = pif.form.get_str('e')
     if not n or not p or p != p2 or not e:
         pif.render.print_html()
-        print_signup_form(pif)
-        return
+	return pif.render.format_template('signup.html', dest=pif.form.get_str('dest'))
 
     vkey = gen_key()
     id = pif.dbh.create_user(n, p, e, vkey)
     if id:
         gen_email(n, e, vkey)
-        cookie = pif.render.secure.make_cookie(id, '', expires=15 * 12 * 60 * 60)
-        pif.render.print_html(cookie=cookie)
-        print pif.render.format_head()
-	useful.header_done()
-        print "Your account has been created.  Please check your email for the verification."
-    else:
-        pif.render.print_html()
-        print_signup_form(pif)
+	pif.render.set_cookie(pif.render.secure.make_cookie(id, '', expires=15 * 12 * 60 * 60))
+        useful.warn("Your account has been created.  Please check your email for the verification.")
+	raise useful.Redirect("/cgi-bin/login.cgi")
+
+    pif.render.print_html()
+    return pif.render.format_template('signup.html', dest=pif.form.get_str('dest'))
 
 
 def gen_key():
@@ -246,96 +160,53 @@ Thank you!
 
 
 def verify(pif, name, vkey):
-    pif.render.print_html()
-    print pif.render.format_head()
-    useful.header_done()
     userrec = pif.dbh.fetch_user(vkey=vkey, name=name)
     if userrec:
         userrec = userrec[0]
         id = userrec['user.id']
         pif.dbh.update_user(id, state=1)
-        print "Your account has been verified!  Now please log in.<br><hr>"
-        print_login_form(pif)
-    else:
-        print "You have not verified your account.  Please contact staff@bamca.org for help."
-    print pif.render.format_tail()
+        useful.warn("Your account has been verified!  Now please log in.<br><hr>")
+	raise useful.Redirect("/cgi-bin/login.cgi")
 
-
-# ------ signup
+    useful.warn("You have not verified your account.  Please contact staff@bamca.org for help.")
+    raise useful.Redirect("/")
 
 
 @basics.web_page
 def register_main(pif):
     if pif.form.get_str('n'):
-        create(pif)
+        return create(pif)
     elif pif.form.get_str('k'):
         u = pif.form.get_str('u')
         k = pif.form.get_str('k')
         verify(pif, u, k)
-    else:
-        pif.render.print_html()
-        print_signup_form(pif)
+
+    pif.render.print_html()
+    return pif.render.format_template('signup.html', dest=pif.form.get_str('dest'))
 
 
 # ------ chpass
 
 
-def print_change_password_form(pif):
-    print pif.render.format_head()
-    useful.header_done()
-    print 'You have requested to change your password.'
-    print '<form method="post">'
-    print '<table><tr><td>'
-    print 'Name:</td><td>'
-    print '<input type="text" name="n"></td></tr>'
-    print '<tr><td>'
-    print 'Old password:</td><td>'
-    print '<input type="password" name="op"></td></tr>'
-    print '<tr><td>'
-    print 'New password:</td><td>'
-    print '<input type="password" name="p1"></td></tr>'
-    print '<tr><td>'
-    print 'Retry new password:</td><td>'
-    print '<input type="password" name="p2"></td></tr>'
-    print '<tr><td>'
-    print 'Change email address:</td><td>'
-    print '<input type="text" name="em" size=60></td></tr>'
-    print '<tr><td></td><td>'
-#    print '<input type="image" name="submit" src="../pic/gfx/but_save_changes.gif" class="img">'
-    print pif.render.format_button_input("save changes", "submit")
-    print '</td></tr></table>'
-    print '<input type="hidden" name="dest" value="%s">' % pif.form.get_str('dest', '/index.php')
-    print '</form>'
-    print pif.render.format_tail()
+@basics.web_page
+def change_password_main(pif):
+    if not pif.form.get_str('n'):
+	pif.render.print_html()
+	return pif.render.format_template('chpass.html', dest=pif.form.get_str('dest'))
 
-
-def change_pass(pif):
     if not pif.form.get_str('p1') or pif.form.get_str('p1') != pif.form.get_str('p2'):
         pif.render.print_html()
-        print_change_password_form(pif)
-        return
+	return pif.render.format_template('chpass.html', dest=pif.form.get_str('dest'))
 
     id, privs = pif.dbh.login(pif.form.get_str('n'), pif.form.get_str('op'))
     if id and pif.form.get_str('p1') == pif.form.get_str('p2', -1):
         pif.dbh.update_user(id, email=pif.form.get_str('em'), passwd=pif.form.get_str('p1'))
-        cookie = pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60)
-        pif.render.print_html(cookie=cookie)
-        #print '<meta http-equiv="refresh" content="0;url=%s>' % pif.form.get_str('dest', '/index.php')
+	pif.render.set_cookie(pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60))
 	raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
-    else:
-        cookie = pif.render.secure.clear_cookie(['id'])
-        pif.render.print_html()
-        print_change_password_form(pif)
 
-
-@basics.web_page
-def change_password_main():
-    pif = basics.get_page_info('user')
-    if pif.form.get_str('n'):
-        change_pass(pif)
-    else:
-        pif.render.print_html()
-        print_change_password_form(pif)
+    cookie = pif.render.secure.clear_cookie(['id'])
+    pif.render.print_html()
+    return pif.render.format_template('chpass.html', dest=pif.form.get_str('dest'))
 
 
 # ------

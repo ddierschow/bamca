@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{%- macro simple_formatter(content) %}
+{{ content.text }}
+{%- endmacro %}
+
+{% block page_body %}
+
+<center>
+{%- for llineup in llineups %}
+{{- render.format_matrix(llineup, simple_formatter) }}
+{%- endfor %}
+</center>
+
+{% endblock page_body %}

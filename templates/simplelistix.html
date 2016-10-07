@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
 {% block page_body %}
-
 {{ render.format_listix(llineup) }}
-
 {% endblock page_body %}
+
+{% block body_title %}
+{% if not notitle %}{{ render.add_body_title(page) }}{% endif %}
+{% endblock body_title %}
+
+{% block body_footer %}
+{% if not nofooter %}{{ render.add_body_footer(page) }}{% endif %}
+{% endblock body_footer %}

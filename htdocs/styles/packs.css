@@ -7,10 +7,10 @@ img    {margin-left: auto; margin-right: auto; display: block;}
 .eb {text-align: center;}
 
 .tb_packs {width: auto;}
-.tb {background-color: #FFFFCC;}
+.tb {background-color: #FFFFFF; border-width 0px;}
 .sh {color: #FFFFFF; background-color: #000000;}
 .rh {background-color: #FFFFFF; color: #000000;}
-.eb {background-color: #DDDDAA;}
+.eb {background-color: #FFFFFF; text-align: left;}
 
 .eb_tail_2 {background-color: #CCCCCC; text-align: left;}
 .eb_tail_2 img {margin-left: 0; display: inline;}

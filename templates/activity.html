@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+<hr>
+
+{% for act in entries %}
+{% if act['link'] %}{{ act.link }}{% endif %}
+<b>{{ act.name }}</b><br>
+{% if act.img %}{{ act.img }}<br>{% endif %}
+{{ act.description }}<br>
+Change made by {{ act.user_name }} at {{ act.timestamp }}<br>
+{% if act.link %}</a>{% endif %}
+{{ act.delete }}
+<hr>
+{% endfor %}
+
+{% endblock page_body %}

@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, os, re
+import copy, os, re, urllib
 import basics
 import config
 import imglib
@@ -187,7 +187,7 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, var_pics, var_
         prodstar = 'stargreen.gif'
         if pic:
             prodstar = 'starwhite.gif'
-            ostr += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (pdir, pic, pic)
+            ostr += '<a href="upload.cgi?d=%s&n=%s&c=%s&link=%s">Product Upload</a><br>\n' % (pdir.replace('pic', 'lib/prod'), pic, pic, urllib.quote(pif.request_uri))
             prodpic = pif.render.find_image_path(pic, pdir=pdir)
             if lm_pic_id:
                 ostr += '<a href="%s&useprev=2">Clr Prev</a><br>\n' % pif.request_uri
@@ -289,7 +289,7 @@ def show_lineup_appearances(pif, appearances):
 				    for appear in yd[yr][reg]]) if yd[yr].get(reg) else '&nbsp;'
 		for reg in rl])
 
-    llineup = {'id': 'lappear', 'name': '', 'columns': columns,
+    llineup = {'id': 'lappear', 'name': '', 'columns': columns, 'widthauto': True,
 	'section': [{'id': 'la', 'name': '', 'columns': columns,
 	    'range': [{'entry': entries}],
 	}],

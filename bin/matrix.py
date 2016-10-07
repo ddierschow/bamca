@@ -112,10 +112,9 @@ class MatrixFile(object):
                     ran['entry'].append(self.add_cell(pif, mods, table, comments))
             section['range'].append(ran)
             llineup['section'].append(section)
-        llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
+        #llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
 	pif.render.set_button_comment(pif, '')
-        for comment in comments:
-            llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
+	llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
         return llineup
 
     def find_matrix_variations(self, ents, page_id, vsids):
@@ -257,9 +256,8 @@ def main(pif):
     if matf:
         llineup = matf.matrix(pif)
 	pif.render.format_matrix_for_template(llineup)
-	print pif.render.format_template('matrix.html', llineup=llineup)
-    else:
-        print pif.render.format_template('matrixsel.html', llineup=select_matrix(pif))
+	return pif.render.format_template('matrix.html', llineup=llineup)
+    return pif.render.format_template('matrixsel.html', llineup=select_matrix(pif))
 
 if __name__ == '__main__':  # pragma: no cover
     pass

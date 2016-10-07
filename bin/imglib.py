@@ -2,9 +2,10 @@
 
 import datetime, os, stat, subprocess, sys, time
 import config
-import Image, ImageDraw
+from PIL import Image, ImageDraw
 import imicon
 import mbdata
+import tumblr
 import useful
 
 os.environ['PATH'] += ':/usr/local/bin'
@@ -73,12 +74,12 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
     ch = '%'
     for pipe in pipes:
         if verbose:
-            useful.write_comment(ch, ' '.join(pipe), nonl=True)
+            useful.write_message(ch, ' '.join(pipe), nonl=True)
         ch = '|'
         proc = subprocess.Popen(pipe, stdin=inp, stdout=subprocess.PIPE, stderr=stderr, close_fds=True)
         inp = proc.stdout
     if verbose:
-        useful.write_comment()
+        useful.write_message()
     return proc.communicate()[0]
 
 
@@ -198,111 +199,111 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
     xcs = x2 - x1
     ycs = y2 - y1
     ratio = float(xts) / float(yts)
-    print "set_shape_sizes", x1, y1, "/", x2, y2, ';', xts, yts, ';', xcs, ycs, ';', xos, yos, ';', ratio, "<br>"
+    useful.write_message("set_shape_sizes", x1, y1, "/", x2, y2, ';', xts, yts, ';', xcs, ycs, ';', xos, yos, ';', ratio)
     if xcs < xts:
         if xos < xts:
-            print "fix x to orig /"
+            useful.write_message("fix x to orig /", nonl=True)
             x1 = 0
             x2 = xos - 1
         else:
-            print "fix x to target /"
+            useful.write_message("fix x to target /", nonl=True)
             x1 = max(0, x1 - (xts - xcs) / 2)
             x2 = x1 + xts
     if ycs < yts:
         if yos < yts:
-            print "fix y to orig /"
+            useful.write_message("fix y to orig /", nonl=True)
             y1 = 0
             y2 = yos - 1
         else:
-            print "fix y to target /"
+            useful.write_message("fix y to target /", nonl=True)
             y1 = max(0, y1 - (yts - ycs) / 2)
             y2 = y1 + yts
-    print "(", x1, y1, "/", x2, y2, ")"
+    useful.write_message("(", x1, y1, "/", x2, y2, ")", nonl=True)
     xcs = x2 - x1
     ycs = y2 - y1
     # might revisit this, for images that are off center this might not be right
     if xts <= xos and yts <= yos and xcs <= xts and ycs <= yts:
-        print "shape expanding x and y<br>"
+        useful.write_message("shape expanding x and y")
         x1 = x1 - (xts - xcs) / 2
         x2 = x1 + xts
         y1 = y1 - (yts - ycs) / 2
         y2 = y1 + yts
-        print "(", x1, y1, ") (", x2, y2, ")"
+        useful.write_message("(", x1, y1, ") (", x2, y2, ")", nonl=True)
         x1, x2, y1, y2 = normalize(x1, x2, y1, y2, xos, yos)
     elif xcs < int(float(ycs) * ratio):
         # too tall - expand x
-        print "shape expanding x"
+        useful.write_message("shape expanding x", nonl=True)
         nxs = int(float(ycs) * ratio)
         nx1 = x1 - (nxs - xcs) / 2
         nx2 = nx1 + nxs
         if nxs > xos:
-            print "off both edges<br>"
+            useful.write_message("off both edges")
             nx1 = 0
             nx2 = xos
         elif nx1 < 0:
-            print "off the left<br>"
+            useful.write_message("off the left")
             nx2 = nx2 - nx1
             nx1 = 0
         elif nx2 > xos:
-            print "off the right<br>"
+            useful.write_message("off the right")
             nx1 = nx1 - (nx2 - xos)
             nx2 = xos
         else:
             pass
-            print "on<br>"
+            useful.write_message("on")
         x1 = nx1
         x2 = nx2
     elif xcs > int(float(ycs) * ratio):
         # too wide - expand y
-        print "shape expanding y"
+        useful.write_message("shape expanding y", nonl=True)
         nys = int(float(xcs) / ratio)
         ny1 = y1 - (nys - ycs) / 2
         ny2 = ny1 + nys
         if nys > yos:
-            print "off both edges<br>"
+            useful.write_message("off both edges")
             ny1 = 0
             ny2 = yos
         elif ny1 < 0:
-            print "off the top<br>"
+            useful.write_message("off the top")
             ny2 = nys
             ny1 = 0
         elif ny2 > yos:
-            print "off the bottom<br>"
+            useful.write_message("off the bottom")
             #ny1 = ny1 - (ny2 - yos)
             ny1 = yos - nys
             ny2 = yos
         else:
             pass
-            print "on<br>"
+            useful.write_message("on")
         y1 = ny1
         y2 = ny2
     else:
-        print "shape as is<br>"
+        useful.write_message("shape as is")
         # hit the jackpot, Mel!
         pass
-    print 'set_shape_sizes returned', x1, y1, '/', x2, y2, '->', x2 - x1, y2 - y1, '<br>'
+    useful.write_message('set_shape_sizes returned', x1, y1, '/', x2, y2, '->', x2 - x1, y2 - y1)
     return x1, x2, y1, y2
 
 
 def normalize(x1, x2, y1, y2, xm, ym):
-    print 'normalize', x1, y1, "/", x2, y2, "orig", xm, ym
+    useful.write_message('normalize', x1, y1, "/", x2, y2, "orig", xm, ym, nonl=True)
     if x1 < 0:
         x2 = x2 - x1
         x1 = 0
-        print "x1"
+        useful.write_message("x1", nonl=True)
     if y1 < 0:
         y2 = y2 - y1
         y1 = 0
-        print "y1"
+        useful.write_message("y1", nonl=True)
     if x2 >= xm:
         x1 = x1 - (x2 - xm)
         x2 = xm
-        print "x2"
+        useful.write_message("x2", nonl=True)
     if y2 >= ym:
         y1 = y1 - (y2 - ym)
         y2 = ym
-        print "y2"
-    print 'returns', x1, y1, "/", x2, y2, '<br>'
+        useful.write_message("y2", nonl=True)
+    useful.write_message('returns', x1, y1, "/", x2, y2)
     return x1, x2, y1, y2
 
 
@@ -313,14 +314,14 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
     ycs = y2 - y1
     xos, yos = original_size
 
-    print 'Shape :', pth, ': bounds', x1, y1, x2, y2, 'bound size', xcs, ycs, 'target size', xts, yts, '<br>'
+    useful.write_message('Shape :', pth, ': bounds', x1, y1, x2, y2, 'bound size', xcs, ycs, 'target size', xts, yts)
     if xts and yts:
         x1, x2, y1, y2 = set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos)
         xcs = x2 - x1
         ycs = y2 - y1
 
         if xcs > xts:
-            print "shrinking"
+            useful.write_message("shrinking", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
             ofi = pipe_chain(open(pth),
                     import_file(pth) +
@@ -333,7 +334,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
             dx = xts - xcs
             dy = yts - ycs
             x1, x2, y1, y2 = normalize(x1, x2, y1, y2, xts, yts)
-            print "expanding", x1, x2, y1, y2
+            useful.write_message("expanding", x1, x2, y1, y2, nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
             ofi = pipe_chain(open(pth),
                     import_file(pth) +
@@ -342,10 +343,10 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     export_file(nname, pth),
 		    stderr=open('/dev/null', 'w'))
         elif xos == xts and yos == yts and xos == xcs and yos == ycs:
-            print "copying"
+            useful.write_message("copying", nonl=True)
             ofi = open(pth).read()
         else:
-            print "cutting"
+            useful.write_message("cutting", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
             ofi = pipe_chain(open(pth),
                     import_file(pth) +
@@ -357,7 +358,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
     else:
 
         if xts < x2 - x1:
-            print "trim shrinking x"
+            useful.write_message("trim shrinking x", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
             ofi = pipe_chain(open(pth),
                     import_file(pth) +
@@ -367,7 +368,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     export_file(nname, pth),
 		    stderr=open('/dev/null', 'w'))
         elif yts < y2 - y1:
-            print "trim shrinking y"
+            useful.write_message("trim shrinking y", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
             ofi = pipe_chain(open(pth),
                     import_file(pth) +
@@ -377,7 +378,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     export_file(nname, pth),
 		    stderr=open('/dev/null', 'w'))
         else:
-            print "trim cutting"
+            useful.write_message("trim cutting", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
             ofi = pipe_chain(open(pth),
                     import_file(pth) +
@@ -386,12 +387,12 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
                     export_file(nname, pth),
 		    stderr=open('/dev/null', 'w'))
 
-    print '<br>'
+    useful.write_message('')
     return ofi
 
 
 def shrinker(pth, nname, bound, maxsize, rf):
-    print 'shrinker', pth, nname, bound, maxsize, '<br>'
+    useful.write_message('shrinker', pth, nname, bound, maxsize)
     x1, y1, x2, y2 = bound
     xcs = x2 - x1
     ycs = y2 - y1
@@ -400,9 +401,10 @@ def shrinker(pth, nname, bound, maxsize, rf):
         xts = xcs
     if not yts:
         yts = ycs
-    print x1, y1, x2, y2, ':', xcs, ycs, ':', xts, yts, '<br>', pth, '<br>'
+    useful.write_message(x1, y1, x2, y2, ':', xcs, ycs, ':', xts, yts)
+    useful.write_message(pth)
     if xcs == xts and ycs == yts:
-        print "cutting", '<br>'
+        useful.write_message("cutting")
 	xts, yts = fix_axes(rf, xts, yts)
         ofi = pipe_chain(open(pth),
                 import_file(pth) +
@@ -411,7 +413,7 @@ def shrinker(pth, nname, bound, maxsize, rf):
                 export_file(nname, pth),
 		    stderr=open('/dev/null', 'w'))
     elif xts/xcs < yts/ycs:
-        print "shrinking x", '<br>'
+        useful.write_message("shrinking x")
 	xts, yts = fix_axes(rf, xts, yts)
         ofi = pipe_chain(open(pth),
                 import_file(pth) +
@@ -421,7 +423,7 @@ def shrinker(pth, nname, bound, maxsize, rf):
                 export_file(nname, pth),
 		    stderr=open('/dev/null', 'w'))
     else:
-        print "shrinking y", '<br>'
+        useful.write_message("shrinking y")
 	xts, yts = fix_axes(rf, xts, yts)
         ofi = pipe_chain(open(pth),
                 import_file(pth) +
@@ -435,8 +437,9 @@ def shrinker(pth, nname, bound, maxsize, rf):
 
 def cropper(pth, nname, bound, rf):
     x1, y1, x2, y2 = bound
-    print 'crop', x1, y1, x2, y2, ':', x2-x1, y2-y1, ':', rf, '<br>', pth, '<br>'
-    print "cutting", '<br>'
+    useful.write_message('crop', x1, y1, x2, y2, ':', x2-x1, y2-y1, ':', rf)
+    useful.write_message(pth)
+    useful.write_message("cutting")
     ofi = pipe_chain(open(pth),
             import_file(pth) +
             cut(x1, y1, x2, y2) +
@@ -448,7 +451,7 @@ def cropper(pth, nname, bound, rf):
 
 # PIL based
 def wiper(pth, bound, original_size, wipev, wipeh):
-    print 'wiper', pth, bound, original_size, wipev, wipeh, '<br>'
+    useful.write_message('wiper', pth, bound, original_size, wipev, wipeh)
     img = Image.open(pth)
     img = img.convert('RGB')
     xos, yos = original_size
@@ -466,7 +469,7 @@ def wiper(pth, bound, original_size, wipev, wipeh):
     x1, y1, x2, y2 = xl, yt, xr, yb
 
     def wiper_copy(img, xf1, yf1, xf2, yf2, xt1, yt1, xt2, yt2):
-	#print ('%3d ' * 8) % (xf1, yf1, xf2 + 1, yf2 + 1, xt1, yt1, xt2 + 1, yt2 + 1)
+	#useful.write_message(('%3d ' * 8) % (xf1, yf1, xf2 + 1, yf2 + 1, xt1, yt1, xt2 + 1, yt2 + 1), nonl=True)
 	cp = img.crop((xf1, yf1, xf2 + 1, yf2 + 1))
 	img.paste(cp, (xt1, yt1, xt2 + 1, yt2 + 1))
 
@@ -511,7 +514,7 @@ def wiper(pth, bound, original_size, wipev, wipeh):
 
 # PIL based
 def padder(pth, target_size):
-    print 'padder', pth, target_size, '<br>'
+    useful.write_message('padder', pth, target_size)
     img = Image.open(pth)
     img = img.convert('RGB')
 
@@ -521,7 +524,7 @@ def padder(pth, target_size):
     if img.size == (xts, yts):
 	return img
     if xos > xts or yos > yts:
-	print "original larger than new"
+	useful.write_message("original larger than new", nonl=True)
 	return img
     img = img.convert('RGB')
 
@@ -561,12 +564,12 @@ def padder(pth, target_size):
 
 def iconner(in_path, name, logo=None, isizex=100, isizey=100):
     if not os.path.exists(in_path):
-        print 'no original file', in_path
+        useful.write_message('no original file', in_path, nonl=True)
         return
 
     thumb = Image.open(in_path)
     if thumb.size[1] != 120:
-        print 'bad original size', thumb.size
+        useful.write_message('bad original size', thumb.size, nonl=True)
         return
     thumb = thumb.resize((isizex, isizex * thumb.size[1] / thumb.size[0]), Image.NEAREST)
     banner = Image.open(logo)
@@ -599,7 +602,7 @@ def iconner(in_path, name, logo=None, isizex=100, isizey=100):
 
 def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
     if is_horiz:
-        print 'horizontal'
+        useful.write_message('horizontal', nonl=True)
 
 	if limit_y:
 	    miny = min(miny, limit_y)
@@ -608,7 +611,7 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 	cat = ['pnmcat', '-lr']
 
     else:
-        print 'vertical'
+        useful.write_message('vertical', nonl=True)
 
 	if limit_x:
 	    minx = min(minx, limit_x)
@@ -623,14 +626,14 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 	outf = pipe_chain(open(f[0]), pipes, verbose=verbose,
 		    stderr=open('/dev/null', 'w'))
 	if verbose:
-	    print '>', f[0] + '.pnm', '<br>'
+	    useful.write_message('>', f[0] + '.pnm')
 	open(f[0] + '.pnm', 'w').write(outf)
 	cat.append(f[0] + '.pnm')
     outf = pipe_chain(open('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
 		    stderr=open('/dev/null', 'w'))
 
     if verbose:
-	print '>', ofn, '<br>'
+	useful.write_message('>', ofn)
     open(ofn, 'w').write(outf)
 
     if not verbose:
@@ -766,6 +769,8 @@ class ActionForm(object):
 	self.ptype = ''
 	self.inc = ''
 	self.cycle = False
+	self.title = ''
+	self.link = ''
 
     def read(self, form):
 	self.tdir = form.get_str('d')
@@ -792,9 +797,12 @@ class ActionForm(object):
 	self.ptype = form.get_str('pref')[0] if form.get_str('pref') else ''
 	self.inc = form.get_str('inc')
 	self.cycle = form.get_bool('cy')
+	self.title = form.get_str('title', self.nname)
+	self.link = form.get_str('link')
 	return self
 
     def action(self, pif, tdir=None, fn=None):
+	log_action = False
 	if not fn:
 	    fn = self.fn
 	if not tdir:
@@ -812,6 +820,7 @@ class ActionForm(object):
 	    else:
 		to_dir = self.dest
 		to_name = self.nname
+		log_action = True
 	elif self.rename:
 	    if not self.nname:
 		useful.warn('What?')
@@ -862,12 +871,18 @@ class ActionForm(object):
 		if dnam:
 		    to_name = dnam.lower() + '.jpg'
 		    to_dir = ddir
+		log_action = True
 	else:
 	    ret['act'] = False
 	if to_dir:
 	    useful.file_mover(from_path, os.path.join(to_dir, to_name), mv=self.mv, ov=self.ov, inc=self.inc)
 	    ret['fn'] = to_name
 	    ret['dir'] = to_dir
+	    if log_action:
+		title = pif.form.get_str('title', to_name)
+		url = 'http://www.bamca.org/' + os.path.join(to_dir, to_name)
+		link = 'http://www.bamca.org/' + self.link
+		useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=to_name, source=url, link=link))
 	return ret
 
     sel_cat = [
@@ -911,27 +926,10 @@ class ActionForm(object):
 	['zing',        'Zings'],
     ]
 
-    sel_pref = [
-	['', ''],
-	['st', 'thumbnail'],
-	['ss', 'small'],
-	['sc', 'compact'],
-	['sm', 'medium'],
-	['sl', 'large'],
-	['sh', 'huge'],
-	['sg', 'gigantic'],
-
-	['tf', 'advertisement'],
-	['tb', 'baseplate'],
-	['tz', 'comparison'],
-	['ta', 'custom'],
-	['td', 'detail'],
-	['te', 'error'],
-	['ti', 'interior'],
-	['tp', 'prototype'],
-	['tr', 'real'],
-	['tx', 'box'],
-    ]
+    def picture_prefixes(self):
+	return [('', '')] + \
+		[('s' + x[0], x[1]) for x in zip(mbdata.image_size_types, mbdata.image_size_names)] + \
+		[('t' + x[0], x[1]) for x in zip(mbdata.image_adds_types, mbdata.image_adds_names)]
 
     sel_moveto = [
 	['',        ''],
@@ -993,7 +991,7 @@ class ActionForm(object):
 	    print pif.render.format_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))])
 	    print '<input type=checkbox name="inc" value="1"> increment name'
 	    print '<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var
-	    print 'Prefix:', pif.render.format_select('pref', self.sel_pref, self.pref)
+	    print 'Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref)
 	    print 'Suffix: <input type="text" size="5" name="suff" value="">'
 	    print pif.render.format_button_input('select to casting', 'select')
 	    print 'Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest)

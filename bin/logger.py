@@ -108,6 +108,9 @@ class Logger(object):
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
+        'single': {
+            'format': '%(asctime)s [%(process)d] %(levelname)s ' + str(config.USER_ID) + ' - %(message)s',
+        },
         'serious': {
             'format': '%(asctime)s [%(process)d] %(levelname)s ' + str(config.USER_ID) + ' %(filename)s:%(lineno)d - %(message)s',
         },
@@ -141,7 +144,7 @@ class Logger(object):
         },
         'dbq': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
-            'formatter': 'serious',
+            'formatter': 'single',
             'class': 'logging.FileHandler',
             'filename': '/home/bamca/logs/' + env + '.dbq' + logdate + '.log',
         },

@@ -1,11 +1,24 @@
 {%- extends "base.html" %}
+
+{%- macro add_left_bar(type_id=None, base_id=None, vehicle_type='', rowspan=4, content='') %}
+<td rowspan="{{ rowspan }}" class="leftbar">
+<div class="leftbarcontent">
+{%- if base_id or type_id or vehicle_type %}{{ render.add_icons(type_id, base_id, vehicle_type) }}<p>{% endif %}
+{{ content }}
+</div>
+<div class="bamcamark">
+<img src="/pic/gfx/bamca_sm.gif">
+</div>
+</td>
+{%- endmacro %}
+
 {%- block page_body %}
 
 {#- top #}
 <table width="100%"><tr>
 
 {#- left bar #}
-{{ render.add_left_bar(type_id, icon_id, vehicle_type, rowspan, content=left_bar_content) }}
+{{ add_left_bar(type_id, icon_id, vehicle_type, rowspan, content=left_bar_content) }}
 
 {#- title banner #}
 {{ render.add_banner(title, note) }}
@@ -22,7 +35,7 @@ insert content here
 
 {#- bottom bar #}
 <tr><td class="bottombar">
-{{ page.footer }}
+{{ page.comment_button }}
 </td></tr></table>
 
 {%- block frame_footer -%}
@@ -30,5 +43,5 @@ insert content here
 
 {%- endblock page_body %}
 
-{%- block page_footer %}
-{%- endblock page_footer %}
+{%- block body_footer %}
+{%- endblock body_footer %}

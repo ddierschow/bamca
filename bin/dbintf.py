@@ -51,18 +51,21 @@ class DB(object):
 #                                           self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
 #            except:
 #                pass
-	    self.logger.info('%s %s%s %s %s' %
-			      (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/ ' if self.nowrites else '',
-			       self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
+	    self.logger.info('q %s%s %s' %
+			      ('/*mock*/ ' if self.nowrites else '',
+			       os.environ.get('REMOTE_ADDR', ''), query))
         cu = self.db.cursor()
 	if tag == 'UpdateLineupModel':
-	    print query, '<br>'
+	    useful.write_message(query, '<br>')
         try:
             if args:
                 nrows = cu.execute(query, args)
             else:
                 nrows = cu.execute(query)
         except:
+	    self.logger.info('x %s%s %s' %
+			      ('/*mock*/ ' if self.nowrites else '',
+			       os.environ.get('REMOTE_ADDR', ''), traceback.format_exc(0)))
             if verbose:
                 traceback.print_exc()
             return ([], cu.description, -1)
@@ -74,6 +77,9 @@ class DB(object):
         self.lastdescription = cu.description
         self.lastresp = resp
         cu.close()
+	self.logger.info('a %s%s %s' %
+			  ('/*mock*/ ' if self.nowrites else '',
+			   os.environ.get('REMOTE_ADDR', ''), "%s rows %s id" % (len(resp), self.lastrowid)))
         return (resp, self.lastdescription, self.lastrowid)
 
     def mockexecute(self, query, args=None, verbose=None, tag=''):

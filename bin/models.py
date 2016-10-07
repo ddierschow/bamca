@@ -65,7 +65,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
         mdict['flag'] = pif.render.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})
     elif mdict['unlicensed'] == '-':
         mdict['flag'] = pif.render.format_image_art('mbx.gif')
-    pif.render.comment('FLAG?', mdict['id'], mdict['country'], mdict['flag'])
+    pif.render.comment('FLAG?', mdict.get('id'), mdict.get('country'), mdict.get('flag'))
     if mdict.get('link'):
         mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(img)s<br><b>%(name)s</b></a>' % mdict
     else:
@@ -228,26 +228,6 @@ def add_icons(pif, type_id, base_id, vehicle_type):
         if vtype in mbdata.model_icons:
             icon_list.append(pif.render.format_image_art(mbdata.model_icons[vtype]))
     ostr = '<p>' + '<p><p>'.join(icon_list)
-    return ostr
-
-
-def add_left_bar(pif, type_id=None, base_id=None, vehicle_type='', rowspan=4, content=''):
-    # left bar
-    ostr = '<td rowspan="%d" class="leftbar bamcamark"><div class="leftbarcontent">\n<p>\n' % rowspan
-    if base_id:
-        ostr += add_icons(pif, type_id, base_id, vehicle_type) + '\n<p>'
-    ostr += content
-    ostr += '\n</div></td>\n'
-    return ostr
-
-
-def add_banner(pif, title, note=''):
-    # title banner
-    ostr = '<td class="titlebar">\n'
-    ostr += '%s\n' % title
-    if note:
-        ostr += '<br><span style="font-size: smaller;">%s</span>' % note
-    ostr += '</td></tr>\n'
     return ostr
 
 

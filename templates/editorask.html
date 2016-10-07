@@ -1,0 +1,30 @@
+{% extends "blank.html" %}
+
+{% block page_body %}
+
+{{- render.format_button('mass', 'mass.cgi') }}
+{% for mass in masses %}
+{{- render.format_button(mass, 'mass.cgi?type=' + mass) }}
+{% endfor %}
+
+<div class="askt">
+{% for table in asks %}
+<div class="askc">
+<b>{{ table }}</b>
+<form>
+<input type="hidden" name="table" value="{{ table }}">
+<table class="tb">
+{%- for ask in table_info[table]['ask'] %}
+ <tr>
+  <td class="eb_0 eb">{{ ask }}</td>
+  <td class="eb_1 eb"><input type="text" name="{{ ask }}">  </td>
+ </tr>
+{%- endfor %}
+</table>
+{{ render.format_button_input('submit') }}
+{{ render.format_button_input('add') }}
+</form>
+</div>
+{% endfor %}
+</div>
+{%- endblock page_body %}

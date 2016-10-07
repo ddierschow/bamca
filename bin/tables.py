@@ -329,7 +329,7 @@ table_info = {
         'add': {
                 'lineup_model': [],
         },
-        'ask': ['id', 'year', 'region', 'number', 'mod_id'],
+        'ask': ['id', 'year', 'number', 'mod_id'],
     },
     #link_line
     'link_line': {
@@ -473,7 +473,7 @@ table_info = {
     #site_activity
     'site_activity': {
         'id': ['id'],
-        'columns': ['id', 'name', 'description', 'url', 'image', 'by_user_id', 'timestamp'],
+        'columns': ['id', 'name', 'description', 'url', 'image', 'user_id', 'timestamp'],
     },
     #book
     'book': {

@@ -12,9 +12,7 @@ def main(pif):
     casting_ids = [x['base_id.id'].lower() for x in pif.dbh.fetch_base_ids()]
     variation_ids = [x['variation.mod_id'].lower() + '-' + x['variation.var'].lower() for x in pif.dbh.fetch_variations_bare()]
 
-    keys = checks.keys()
-    keys.sort()
-    for key in keys:
+    for key in sorted(checks.keys()):
 	if checks[key]:
 	    print key
 	    checks[key](pif, key)

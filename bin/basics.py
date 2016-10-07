@@ -108,7 +108,7 @@ All arguments are optional.
 def get_req(sw, reqs=[]):
     if isinstance(sw, dict):
         osw = []
-        for opt in sw.keys():
+        for opt in sw:
             if opt[0] == '+':
                 if sw[opt]:
                     reqs.append(sw[opt])
@@ -246,6 +246,8 @@ def web_page(main_fn):
 
 	try:
             ret = main_fn(pif)
+	    if not pif.render.html_done:
+		pif.render.print_html()
             useful.write_comment()
             if ret:
                 print ret

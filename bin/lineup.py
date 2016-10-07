@@ -386,7 +386,7 @@ def get_man_sections(pif, year, region):
         lsecs = filter(lambda x: x['id'].startswith(region), secs)
         if lsecs:
             break
-	useful.warn('get_man_sections had to defer for %s!' % region)
+	#useful.warn('get_man_sections had to defer for %s!' % region)
         if region not in mbdata.regionparents:
             return '', dict(), lsecs, xsecs
         region = mbdata.regionparents[region]
@@ -410,10 +410,7 @@ def generate_man_lineup(pif, year, region):
         moddict = create_lineup(get_lineup_models(pif, year, region),
                         mbdata.regionparents, year, region, verbose=pif.render.verbose)
 
-        keylist = moddict.keys()
-        keylist.sort()
-        #pif.render.debug('keylist', keylist, '<br>')
-        for key in keylist:
+        for key in sorted(moddict.keys()):
             #pif.render.debug('mod', moddict[key], '<br>')
             moddict[key]['lineup_model.picture_id'] = moddict[key]['lineup_model.picture_id'].replace('w', region.lower())
             yield moddict[key]
@@ -440,10 +437,7 @@ def create_extra_lineup(pif, year, secs, verbose=0):  # currently unimplemented 
             set_vars(moddict, rankmods[rank], [sec['id'], 'W'], ref_id, verbose=verbose)
 
         sec['mods'] = []
-        keylist = moddict.keys()
-        keylist.sort()
-        #pif.render.debug('keylist', keylist, '<br>')
-        for key in keylist:
+        for key in sorted(moddict.keys()):
             #pif.render.debug('mod', moddict[key], '<br>')
             sec['mods'].append(moddict[key])
 
@@ -533,7 +527,7 @@ def run_file(pif, region, year, section_types):
 
     img = pif.render.fmt_img(['%ss' % year])
     if img:
-        lsec['name'] += '<br>' + pif.render.fmt_img_src(img)
+        lsec['name'] += '<br>' + img
     lsec['id'] = lup_region
     lsec['range'] = []
     hdr = lsec['name']
@@ -575,17 +569,17 @@ def run_file(pif, region, year, section_types):
 	    lsec['range'].append(show_section(pif, lran, lran['mods'], 'X', year, comments))
 
     llineup['section'].append(lsec)
-    llineup['tail'] = [pif.render.format_image_art('bamca_sm', also={'class': 'centered'}), '']
+    #llineup['tail'] = [pif.render.format_image_art('bamca_sm', also={'class': 'centered'}), '']
     #llineup['tail'][1] += 
+    llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
+    #pif.render.set_footer(['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])])
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
-    for comment in comments:
-        llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
 #    if int(year) > config.YEAR_START:
 #       llineup['tail'][1] += pif.render.format_button("previous_year", link='http://www.bamca.org/cgi-bin/lineup.cgi?year=%s&region=%s' % (int(year) - 1, region))
 #    if int(year) > config.YEAR_END:
 #       llineup['tail'][1] += pif.render.format_button("following_year", link='http://www.bamca.org/cgi-bin/lineup.cgi?year=%s&region=%s' % (int(year) + 1, region))
-    if pif.is_allowed('a'):  # pragma: no cover
-        llineup['tail'][1] += 'multivars %s %s ' % (year, region) + ' '.join(multivars) + '<br>'
+#    if pif.is_allowed('a'):  # pragma: no cover
+#        llineup['tail'][1] += '<br>multivars %s %s ' % (year, region) + ' '.join(multivars) + '<br>'
     return llineup
 
 
@@ -609,7 +603,6 @@ def run_multi_file(pif, year, region, nyears):
         y += 1
 
     llineup = {'id': pif.page_id, 'section': [], 'name': ''}
-    llineup['tail'] = [pif.render.format_image_art('bamca_sm', also={'class': 'centered'}), '']
     lsec = pages[0]['sec']
     lsec['columns'] = nyears
     lsec['id'] = 'lineup'
@@ -649,8 +642,8 @@ def run_multi_file(pif, year, region, nyears):
 
     llineup['section'].append(lsec)
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
-    for comment in comments:
-        llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
+    #llineup['tail'] = [pif.render.format_image_art('bamca_sm', also={'class': 'centered'}), '']
+    llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
     return llineup
 
 
@@ -769,7 +762,7 @@ def picture_count(pif, region, year):
 
 
 def product_pic_lineup_main(pif):
-    pif.render.title = str(pif.form.get_str('region', 'Matchbox')) + ' Lineup'
+    pif.render.title = mbdata.regions.get(pif.form.get_str('region'), 'Matchbox') + ' Lineup'
     llineup = run_product_pics(pif, pif.form.get_str('region').upper())
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
@@ -778,7 +771,8 @@ def product_pic_lineup_main(pif):
 def rank_lineup_main(pif):
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi?n=1&num=%s&region=%s&syear=%s&eyear=%s&lty=all' % (pif.form.get_str('num'), pif.form.get_str('region'), pif.form.get_str('syear'), pif.form.get_str('eyear')),
         "%s #%d" % (mbdata.regions.get(pif.form.get_str('region'), ''), pif.form.get_int('num')))
-    pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
+    #pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
+    pif.render.title = 'Matchbox Number %d' % pif.form.get_int('num')
     llineup = run_ranks(pif, pif.form.get_int('num'), pif.form.get_str('region', 'U').upper(), pif.form.get_str('syear', '1953'), pif.form.get_str('eyear', '2014'))
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('lineup.html', llineup=llineup, large=pif.form.get_bool('large'), unroll=pif.form.get_bool('unroll'))
@@ -787,7 +781,7 @@ def rank_lineup_main(pif):
 def multiyear_main(pif):
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (pif.form.get_str('year'), pif.form.get_str('region')),
         pif.form.get_str('year', '') + ' ' + mbdata.regions.get(pif.form.get_str('region'), ''))
-    pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
+    pif.render.title = 'Matchbox %d-%d' % (pif.form.get_int('year'), pif.form.get_int('year') + min(pif.form.get_int('nyears'), 5) - 1)
     llineup = run_multi_file(pif, pif.form.get_str('year'), pif.form.get_str('region').upper(), pif.form.get_int('nyears'))
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('lineup.html', llineup=llineup, large=pif.form.get_bool('large'), unroll=pif.form.get_bool('unroll'))
@@ -796,7 +790,7 @@ def multiyear_main(pif):
 def lineup_main(pif):
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (pif.form.get_str('year'), pif.form.get_str('region')),
         pif.form.get_str('year', '') + ' ' + mbdata.regions.get(pif.form.get_str('region'), ''))
-    pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
+    #pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     llineup = run_file(pif, pif.form.get_str('region').upper(), pif.form.get_str('year'), pif.form.get_list('lty'))
     if pif.form.get_bool('large'):
 	llineup['header'] = '<form action="mass.cgi" method="post">\n<input type="hidden" name="type" value="lineup_desc">\n'
@@ -977,8 +971,8 @@ def run_text_file(pif, region, year):
         ostr += show_text_section(pif, lsec, lran, lran['mods'], 'X', year)
 
     llineup['section'].append(lsec)
-    llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
-    llineup['tail'][1] += pif.render.footer
+#    llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
+#    llineup['tail'][1] += pif.render.comment_button
 #    if int(year) > config.YEAR_START:
 #       llineup['tail'][1] += pif.render.format_button("previous_year", link='http://www.bamca.org/cgi-bin/lineup.cgi?year=%s&region=%s' % (int(year) - 1, region))
 #    if int(year) > config.YEAR_END:
@@ -1010,9 +1004,7 @@ def generate_rank_lineup(pif, rank, region, syear, eyear):
     pif.render.debug('<hr>')
 
     lmoddict = dict()
-    keys = years.keys()
-    keys.sort()
-    for year in keys:
+    for year in sorted(years.keys()):
 	pif.render.debug(year, '<br>')
         #reg, year = correct_region(region, year)
         reg = region
@@ -1095,11 +1087,11 @@ def run_ranks(pif, mnum, region, syear, eyear):
     lsec['range'].append(lran)
 
     llineup['section'].append(lsec)
-    llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
+    #llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
     #llineup['tail'][1] += pif.render.format_button("comment_on_this_page", link='../pages/comment.php?page=%s&yr=%s&rg=%s' % (pif.page_id, pif.form.get_str('year'), pif.form.get_str('region')), also={'class': 'comment'}, lalso=dict())
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
-    for comment in comments:
-        llineup['tail'][1] += mbdata.comment_designation[comment] + '<br>'
+    llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
+    #pif.render.set_footer(['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])])
     return llineup
 
 
@@ -1126,9 +1118,7 @@ def run_product_pics(pif, region):
     hdr = ""
     comments = set()
 
-    keys = pages.keys()
-    keys.sort()
-    for page in keys:
+    for page in sorted(pages.keys()):
         lmodlist = pif.dbh.fetch_simple_lineup_models(page[5:], region)
         lmodlist = filter(lambda x: x['lineup_model.region'][0] in region_list, lmodlist)
         lmoddict = {x['lineup_model.number']: x for x in lmodlist}

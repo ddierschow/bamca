@@ -12,94 +12,93 @@ import useful
 
 def show_list(title, tdir, fl):
     if not fl:
-        return
+        return ''
     #mlen = reduce(lambda x, y: max(x, len(y)), fl, 0)
     mlen = max([len(x) for x in fl])
     cols = max(1, 160/max(1, mlen))
     clen = (len(fl) - 1) / cols + 1
     ffl = [fl[(x*clen):((x+1)*clen)] for x in range(0, cols)]
-    print '<h4>%s (%d)</h4>' % (title, len(fl))
-    print "<table width=100%><tr valign=top>"
+    ostr = '<h4>%s (%d)</h4>\n' % (title, len(fl))
+    ostr += "<table width=100%><tr valign=top>\n"
     for cl in ffl:
-        print "<td width=%d%%>" % (100/cols)
+        ostr += "<td width=%d%%>\n" % (100/cols)
         for f in cl:
             root, ext = useful.root_ext(f.strip())
             fst = os.stat(tdir + '/' + f)
             perms = fst[stat.ST_MODE]
             if f[0] == '.':
-                print '<i>%s</i><br>' % f
+                ostr += '<i>%s</i><br>\n' % f
             elif stat.S_ISDIR(perms):
-                print '<a href="/cgi-bin/traverse.cgi?d=%s">%s</a><br>' % (tdir + '/' + f, f)
+                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s">%s</a><br>\n' % (tdir + '/' + f, f)
             elif tdir.startswith('../'):
-                #print '%s<br>' % f
-                print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
+                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
             elif f[-4:] == '.dat':
-                #print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
-                print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
+                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
             elif (perms & 5) == 0:
-                print '%s<br>' % f
+                ostr += '%s<br>\n' % f
             elif ext in imglib.itypes:
-                #print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
-                print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s">%s</a><br>' % (tdir, f, f)
+                ostr += '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
             else:
-                print '<a href="../%s">%s</a><br>' % (tdir + '/' + f, f)
-        print "</td>"
-    print "</tr></table>"
-    print '<br><hr>'
+                ostr += '<a href="../%s">%s</a><br>\n' % (tdir + '/' + f, f)
+        ostr += "</td>\n"
+    ostr += "</tr></table>\n"
+    ostr += '<br><hr>\n'
+    return ostr
 
 
 def show_dir(pif, tform):
-    print '<hr>'
     if not os.path.exists(tform.tdir):
         raise useful.SimpleError('Path does not exist.')
 
+    ostr = '<hr>\n'
     #dl, gl, ol, sl, xl = imglib.get_dir(tform.tdir)
     files = imglib.get_dir(tform.tdir)
 
-    show_list(files['titles']['dir'], tform.tdir, files['dir'])
+    ostr += show_list(files['titles']['dir'], tform.tdir, files['dir'])
 
     if files['graf']:
         if tform.graf:
-            print '<h4>%s (%d)</h4>' % (files['titles']['graf'], len(files['graf']))
+            ostr += '<h4>%s (%d)</h4>\n' % (files['titles']['graf'], len(files['graf']))
             for f in files['graf']:
                 perms = os.stat(tform.tdir + '/' + f)[stat.ST_MODE]
                 if (perms & 4) == 0:
-                    print '%s<br>' % f
+                    ostr += '%s<br>\n' % f
                 elif tform.graf:
-                    #print '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s"><img src="../%s" border=0>%s</a><br>' % (tform.tdir, f, tform.tdir + '/' + f, f)
-                    print '<a href="imawidget.cgi?d=%s&f=%s&man=%s&newvar=%s&cy=0"><img src="../%s" border=0>%s</a><br>' % (tform.tdir, f, tform.mod, tform.var, tform.tdir + '/' + f, f)
+                    #ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s"><img src="../%s" border=0>%s</a><br>' % (tform.tdir, f, tform.tdir + '/' + f, f)
+                    ostr += '<a href="imawidget.cgi?d=%s&f=%s&man=%s&newvar=%s&cy=0"><img src="../%s" border=0>%s</a><br>\n' % (tform.tdir, f, tform.mod, tform.var, tform.tdir + '/' + f, f)
                 else:
-                    print '<a href="../%s">%s</a><br>' % (tform.tdir + '/' + f, f)
-            print '<br><hr>'
+                    ostr += '<a href="../%s">%s</a><br>\n' % (tform.tdir + '/' + f, f)
+            ostr += '<br><hr>\n'
         else:
-            show_list(files['titles']['graf'], tform.tdir, files['graf'])
+            ostr += show_list(files['titles']['graf'], tform.tdir, files['graf'])
 
-    show_list(files['titles']['log'], tform.tdir, files['log'])
-    show_list(files['titles']['dat'], tform.tdir, files['dat'])
-    show_list(files['titles']['exe'], tform.tdir, files['exe'])
-    show_list(files['titles']['other'], tform.tdir, files['other'])
+    ostr += show_list(files['titles']['log'], tform.tdir, files['log'])
+    ostr += show_list(files['titles']['dat'], tform.tdir, files['dat'])
+    ostr += show_list(files['titles']['exe'], tform.tdir, files['exe'])
+    ostr += show_list(files['titles']['other'], tform.tdir, files['other'])
 
     if pif.render.is_admin:
-	print '<a href="upload.cgi?d=%s">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
+	ostr += '<a href="upload.cgi?d=%s">%s</a>\n' % (tform.tdir, pif.render.format_button('upload'))
 
     if files['graf']:
-        print '<form action="traverse.cgi">'
-        print '<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tform.tdir, pif.render.format_button('show all pictures'))
-        print 'Pattern <input type="text" name="p">'
-        print '<input type="hidden" name="d" value="%s">' % tform.tdir
-        print '<input type="checkbox" name="du" value="1"> Dupes'
-        print '<input type="checkbox" name="co" value="1"> Compact'
+        ostr += '<form action="traverse.cgi">\n'
+        ostr += '<a href="traverse.cgi?g=1&d=%s">%s</a> or \n' % (tform.tdir, pif.render.format_button('show all pictures'))
+        ostr += 'Pattern <input type="text" name="p">\n'
+        ostr += '<input type="hidden" name="d" value="%s">\n' % tform.tdir
+        ostr += '<input type="checkbox" name="du" value="1"> Dupes\n'
+        ostr += '<input type="checkbox" name="co" value="1"> Compact\n'
 	if pif.render.is_admin:
-	    print '<input type="checkbox" name="shc" value="1"> Categorize'
-	    print '<input type="checkbox" name="mss" value="1"> Mass'
-	    print '<input type="checkbox" name="shm" value="1"> Shelve'
-	    print '<input type="checkbox" name="suf" value="1"> Resuffix'
-        print '<input type="checkbox" name="si" value="1"> Sized'
-        print pif.render.format_button_input()
-	print '<br>'
-        print 'Size X <input type="text" name="sx">'
-        print 'Size Y <input type="text" name="sy">'
-        print '</form>'
+	    ostr += '<input type="checkbox" name="shc" value="1"> Categorize\n'
+	    ostr += '<input type="checkbox" name="mss" value="1"> Mass\n'
+	    ostr += '<input type="checkbox" name="shm" value="1"> Shelve\n'
+	    ostr += '<input type="checkbox" name="suf" value="1"> Resuffix\n'
+        ostr += '<input type="checkbox" name="si" value="1"> Sized\n'
+        ostr += pif.render.format_button_input()
+	ostr += '<br>\n'
+        ostr += 'Size X <input type="text" name="sx">\n'
+        ostr += 'Size Y <input type="text" name="sy">\n'
+        ostr += '</form>\n'
+    return ostr
 
 
 imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="checkbox" name="mv" value="%(f)s %(b)s"> mv'''
@@ -112,22 +111,22 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
 	also['width'] = sx
     if sy:
 	also['height'] = sy
-    print '<tr>'
+    ostr = '<tr>\n'
     args.sort()
     for arg in args:
         root, ext = useful.root_ext(arg.strip())
         inp = ''
         if shlv or cate:
             inp += '''<input type="text" name="lib.%s"> lib''' % arg
-            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
             continue
 	elif mss:
             inp += '''<input type="text" name="var.%s"> var''' % arg
-            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
             continue
 	elif rsuf:
             inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
-            print pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
             continue
         if arg == base:
             inp = imginputs % {'f': arg, 'b': root + 'z.' + ext}
@@ -138,8 +137,9 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
         #inp += ' <a href="imawidget.cgi?d=%s&f=%s&cy=0">' % (pif.render.pic_dir, arg) + pif.render.format_button('edit') + '</a>'
         inp += ' ' + pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
         inp += ' ' + pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (pif.render.pic_dir + '/' + arg))
-        print pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
-    print '</tr>'
+        ostr += pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+    ostr += '</tr>\n'
+    return ostr
 
 
 def flist_sort(flist, tform):
@@ -168,9 +168,9 @@ def show_imgs(pif, tform):
 		    flist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
 		    flist_sort(flist, tform)
 		    if len(flist) > 1:
-			img(pif, flist, fn, shlv=tform.shlv, cate=tform.cate, sx=tform.szx, sy=tform.szy, mss=tform.mss)
+			print img(pif, flist, fn, shlv=tform.shlv, cate=tform.cate, sx=tform.szx, sy=tform.szy, mss=tform.mss)
 		else:
-		    img(pif, [fn], shlv=tform.shlv, cate=tform.cate, rsuf=tform.rsuf, sx=tform.szx, sy=tform.szy, mss=tform.mss)
+		    print img(pif, [fn], shlv=tform.shlv, cate=tform.cate, rsuf=tform.rsuf, sx=tform.szx, sy=tform.szy, mss=tform.mss)
 	    print '</table>'
 	    print '<hr>'
     print '<input type="hidden" name="d" value="%s">' % tform.tdir
@@ -248,13 +248,13 @@ def show_file(pif, tform):
     if os.path.exists(os.path.join(tform.tdir, 'archive')):
 	print pif.render.format_button('archive', link=pif.request_uri + '&archive=1&act=1')
     root, ext = useful.root_ext(tform.fnam)
-    if ext == 'dat':
-        show_table(pif, tform)
-    elif ext in imglib.itypes:
+    if ext in imglib.itypes:
 #       if tform.tdir.startswith('..'):
 #           print '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (tform.tdir, tform.fnam)
 #       else:
             show_picture(pif, tform.fnam)
+#    elif ext == 'dat':
+#        show_table(pif, tform)
     elif tform.tdir == '../../logs':
         print '<p><div style="font-family: monospace;">'
         fil = open(tform.tdir + '/' + tform.fnam).readlines()
@@ -292,48 +292,48 @@ colors = ["#FFFFFF", "#CCCCCC"]
 
 
 #print '<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f)
-def show_table(pif, tform):
-    tablefile = bfiles.SimpleFile(tform.tdir + '/' + tform.fnam)
-    cols = ''  # pif.form.get_str('cols')
-    h = 0  # pif.form.get_int('h')
-
-    print pif.render.format_table_start()
-    hdr = ''
-    if h:
-        hdr = tablefile.dblist[0]
-        table = tablefile.dblist[1:]
-    else:
-        table = tablefile.dblist
-
-    if tform.sorty:
-        table.sort(key=lambda x: x[tform.sorty].lower())
-
-    row = 0
-    icol = irow = 0
-    if 'y' in cols:
-        icol = cols.find('y')
-    id = ''
-    for line in table:
-        if line[icol] != id:
-            id = line[icol]
-            irow = (irow + 1) % 2
-        if not row:
-            row = h
-            iarg = 0
-            print '<tr>'
-            for ent in range(0, len(hdr)):
-                if ent >= len(cols) or cols[ent].lower() != 'n':
-                    #print "<th>"+hdr[ent]+"</th>"
-                    print '<th bgcolor="#FFFFCC"><a href="table.cgi?page=%s&sort=%d&h=%d&cols=%s">%s</th>' % (tform.fnam, iarg, h, cols, hdr[ent])
-                iarg = iarg + 1
-            print "</tr>\n<tr>"
-        print '<tr bgcolor="%s">' % colors[irow]
-        row = row - 1
-        for ent in range(0, len(line)):
-            if ent >= len(cols) or cols[ent].lower() != 'n':
-                print "<td>"+line[ent]+"</td>"
-        print "</tr>"
-    print pif.render.format_table_end()
+#def show_table(pif, tform):
+#    tablefile = bfiles.SimpleFile(tform.tdir + '/' + tform.fnam)
+#    cols = ''  # pif.form.get_str('cols')
+#    h = 0  # pif.form.get_int('h')
+#
+#    print pif.render.format_table_start()
+#    hdr = ''
+#    if h:
+#        hdr = tablefile.dblist[0]
+#        table = tablefile.dblist[1:]
+#    else:
+#        table = tablefile.dblist
+#
+#    if tform.sorty:
+#        table.sort(key=lambda x: x[tform.sorty].lower())
+#
+#    row = 0
+#    icol = irow = 0
+#    if 'y' in cols:
+#        icol = cols.find('y')
+#    id = ''
+#    for line in table:
+#        if line[icol] != id:
+#            id = line[icol]
+#            irow = (irow + 1) % 2
+#        if not row:
+#            row = h
+#            iarg = 0
+#            print '<tr>'
+#            for ent in range(0, len(hdr)):
+#                if ent >= len(cols) or cols[ent].lower() != 'n':
+#                    #print "<th>"+hdr[ent]+"</th>"
+#                    print '<th bgcolor="#FFFFCC"><a href="table.cgi?page=%s&sort=%d&h=%d&cols=%s">%s</th>' % (tform.fnam, iarg, h, cols, hdr[ent])
+#                iarg = iarg + 1
+#            print "</tr>\n<tr>"
+#        print '<tr bgcolor="%s">' % colors[irow]
+#        row = row - 1
+#        for ent in range(0, len(line)):
+#            if ent >= len(cols) or cols[ent].lower() != 'n':
+#                print "<td>"+line[ent]+"</td>"
+#        print "</tr>"
+#    print pif.render.format_table_end()
 
 
 def do_action(pif, tform):
@@ -345,7 +345,7 @@ def do_action(pif, tform):
         show_picture(pif, nfn)
     else:
 	tform.graf = 0
-        show_dir(pif, tform)
+        print show_dir(pif, tform)
 
 
 class TraverseForm(object):
@@ -408,7 +408,7 @@ def main(pif):
     elif tform.fnam:
         show_file(pif, tform)
     else:
-        show_dir(pif, tform)
+        print show_dir(pif, tform)
     print pif.render.format_tail()
 
 

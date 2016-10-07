@@ -23,7 +23,7 @@ class BaseForm(object):
         '''Reads the cgi form and puts it into this object.'''
         form = dict()
         if 'REQUEST_METHOD' in os.environ:  # is this apache?
-            for key in cgi_form.keys():
+            for key in cgi_form:
 		field = cgi_form[key]
                 if isinstance(field, list):
                     form.setdefault(key, list())
@@ -71,6 +71,9 @@ class BaseForm(object):
     def has(self, key):
         return key in self.form
 
+    def has_any(self, keys):
+        return any([key in self.form for key in keys])
+
     def get_form(self):
 	return self.form
 
@@ -113,9 +116,14 @@ class BaseForm(object):
 	    ret.extend([(x[len(start):], self.get_str(x)) for x in self.keys(start=start)])
 	return ret
 
-    def keys(self, start='', end='', has=''):
-	return [x for x in self.form.keys() if (x.startswith(start) and x.endswith(end) and has in x)]
-        #return filter(lambda x: x.startswith(start) and x.endswith(end) and has in x, self.form.keys())
+    def keys(self, start='', end='', has='', sort=None):
+	keylist = [x for x in self.form if (x.startswith(start) and x.endswith(end) and has in x)]
+	if sort == True:
+	    keylist.sort()
+	elif sort:
+	    keylist.sort(key=sort)
+	return keylist
+        #return filter(lambda x: x.startswith(start) and x.endswith(end) and has in x, self.form)
 
     def roots(self, start='', end='', has=''):
 	if end:
@@ -126,7 +134,7 @@ class BaseForm(object):
 	return {key[len(start):-len(end)]: self.get_str(key) for key in self.keys(start=start, end=end)}
 
     def find(self, field):
-        return [key for key in self.form.keys() if key == field or key.startswith(field + '.')]
+        return [key for key in self.form if key == field or key.startswith(field + '.')]
 
     def reformat(self, fields):
         return '&'.join(['%s=%s' % (x, self.get_str(x)) for x in fields])

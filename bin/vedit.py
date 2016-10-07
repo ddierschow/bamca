@@ -639,9 +639,7 @@ def show_variations(pif, varfile, fitab, mod_id):
 	    char_test(fidet)
             print "</td>"
         print "</tr>"
-    dbvarkeys = dbvars.keys()
-    dbvarkeys.sort()
-    for varid in dbvarkeys:
+    for varid in sorted(dbvars.keys()):
         dbvar = dbvars[varid]
         is_same_file = dbvar.get('imported_from') == varfile['filename']
         #pif.render.comment(str(dbvar))
@@ -738,7 +736,7 @@ def save_attribute(pif, attr_id, mod_id):
     if len(attr) == 1:
         attr = attr[0]
 	if attr_id > 4:
-	    for key in attr.keys():
+	    for key in attr:
 		if pif.form.has(key + '.%d' % attr_id):
 		    attr[key] = pif.form.get_str(key + '.%d' % attr_id)
 	    pif.dbh.update_attribute(attr, attr_id)

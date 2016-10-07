@@ -113,7 +113,9 @@ class MannoFile(object):
         self.nodesc = pif.form.get_int('nodesc')
         vtypes = pif.dbh.fetch_vehicle_types()
         self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in vtypes}
-        self.vtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
+        self.vehtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
+        self.addtypes = {'y': "", 'n': "", 'm': "".join(mbdata.image_adds_types)}
+        self.pictypes = {'y': "", 'n': "", 'm': "sml"}
         self.plist = ['manno', 'manls']  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
         if pif.form.get_str('section', 'all') != 'all':
             slist = pif.dbh.fetch_sections({'id': pif.form.get_str('section')})  #, 'page_id': pif.page_id})
@@ -136,11 +138,15 @@ class MannoFile(object):
                 self.sdict[section['id']] = section
                 self.slist.append(section)
 
-        for key in pif.form.keys(start='type_'):
-            val = pif.form.get_str(key)
-            t = key[-1]
-            self.vtypes.setdefault(val, list())
-            self.vtypes[val] += t
+	def get_types(start, dest):
+	    for key in pif.form.keys(start=start):
+		val = pif.form.get_str(key)
+		dest.setdefault(val, list())
+		dest[val] += key[-1]
+
+	get_types('type_', self.vehtypes)
+	get_types('add_', self.addtypes)
+	get_types('pic_', self.pictypes)
 
         self.section = pif.form.get_str('section')
         if self.section == 'all':
@@ -212,11 +218,26 @@ class MannoFile(object):
         if mod['first_year'] and (self.firstyear > int(mod['first_year']) or self.lastyear < int(mod['first_year'])):
             return False
 
-        if self.vtypes.get('y') or self.vtypes.get('n'):
-            if useful.any_char_match(self.vtypes['n'], mod['vehicle_type']):
+        if self.vehtypes.get('y') or self.vehtypes.get('n'):
+            if useful.any_char_match(self.vehtypes['n'], mod['vehicle_type']):
                 return False
-            if self.vtypes['y'] and not useful.any_char_match(self.vtypes['y'], mod['vehicle_type']):
+            if self.vehtypes['y'] and not useful.any_char_match(self.vehtypes['y'], mod['vehicle_type']):
                 return False
+
+        if self.addtypes.get('y') or self.addtypes.get('n'):
+	    add_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(os.path.join(config.IMG_DIR_ADD, "?_" + mod['id'].lower() + '*.*'))]))
+            if useful.any_char_match(self.addtypes['n'], add_pics):
+                return False
+            if self.addtypes['y'] and not useful.any_char_match(self.addtypes['y'], add_pics):
+                return False
+
+        if self.pictypes.get('y') or self.pictypes.get('n'):
+	    mod_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(os.path.join(config.IMG_DIR_MAN, "?_" + mod['id'].lower() + '*.*'))]))
+            if useful.any_char_match(self.pictypes['n'], mod_pics):
+                return False
+            if self.pictypes['y'] and not useful.any_char_match(self.pictypes['y'], mod_pics):
+                return False
+
         return True
 
     # ----- castings --------------------------------------------
@@ -529,13 +550,13 @@ class MannoFile(object):
 def write_vehicle_types(pif):
     for key in pif.form.keys(start='vt_'):
         val = ''.join(pif.form.get_list(key))
-        print key[3:], 'type', val, '<br>'
+        #print key[3:], 'type', val, '<br>'
         pif.dbh.write_casting(values={'vehicle_type': val}, id=key[3:])
     for key in pif.form.keys(start='vm_'):
-        print key[3:], 'make', pif.form.get_str(key), '<br>'
+        #print key[3:], 'make', pif.form.get_str(key), '<br>'
         pif.dbh.write_casting(values={'make': pif.form.get_str(key)}, id=key[3:])
     for key in pif.form.keys(start='co_'):
-        print key[3:], 'country', pif.form.get_str(key), '<br>'
+        #print key[3:], 'country', pif.form.get_str(key), '<br>'
         pif.dbh.write_casting(values={'country': pif.form.get_str(key)}, id=key[3:])
 
 #---- main ----------------------------------
@@ -616,10 +637,8 @@ def compare_main(pif):
 	    img = pif.render.format_image_optional(mod['cr.model_id'] + ('-%s' % mod['cr.picture_id'] if mod['cr.picture_id'] else ''),
 			prefix='z_', nopad=True)
             modsets[mod['cr.model_id']].append((mod['model_id'], mod['name'], mod['cr.description'].split(';'), img))
-        keys = modsets.keys()
-        keys.sort()
 
-        for main_id in keys:
+        for main_id in sorted(modsets.keys()):
             modset = modsets[main_id]
             names = list()
             for id, name, descs, img in modset:
@@ -676,7 +695,7 @@ def clone_attributes(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
     if vals:
 	pif.dbh.write('casting', values=vals[0], where="id='%s'" % new_mod_id, modonly=True)
     vals = pif.dbh.fetch('detail', where={'mod_id': old_mod_id, 'var_id': ''})
-    print vals
+    #print vals
     for val in vals:
 	val = pif.dbh.depref('detail', val)
 	val['mod_id'] = new_mod_id
@@ -690,7 +709,7 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
     rec = pif.dbh.fetch_base_id(new_mod_id)
     if rec:
         if not force:
-            print new_mod_id, "exists"
+            #print new_mod_id, "exists"
             return
     else:
 	pif.render.message("rename", old_mod_id, new_mod_id)

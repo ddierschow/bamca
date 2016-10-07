@@ -271,14 +271,13 @@ def add_new_link(pif, dictCats, listRejects):
         ostr += "if you think this rejection was in error, you can send email.  Just don't hope for too much.\n"
         open(os.path.join(config.LOG_ROOT, 'trash.log'), 'a+').write(str(link) + '\n')
     else:
-        pif.dbh.insert_link_line(link)
+        link['id'] =  pif.dbh.insert_link_line(link)
         ostr += "The following has been added to the list:<br><ul>\n"
         ent = format_entry(pif, link)
         ostr += ent[0] + ' '
         ostr += '<br>' .join(ent[1])
         ostr += '\n</ul>\n'
-	check_link(link)
-	# TODO: Add auto-verification
+	check_link(pif, link)
     return ostr
 
 
@@ -349,7 +348,7 @@ def edit_single(pif):
         if nlink['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
             nlink['last_status'] = 'NoVer'
         pif.dbh.update_link_line(nlink)
-        print '<br>record saved<br>'
+        pif.render.message('<br>record saved<br>')
     elif pif.form.get_bool('test'):
         link = pif.dbh.fetch_link_line(link_id)
         check_link(pif, link)  # don't care about blacklist here, just actual check
@@ -363,7 +362,7 @@ def edit_single(pif):
         nlink['section_id'] = pif.form.get_str('rejects_sec')
         nlink['flags'] = 0
         pif.dbh.update_link_line(nlink)
-        print '<br>record rejected<br>'
+        pif.render.message('<br>record rejected<br>')
     elif pif.form.get_bool('add'):
         link_id = (#pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id', ''), 'section_id': pif.form.get_str('sec')})
 #        pif.form.set_val('id',
@@ -374,59 +373,65 @@ def edit_single(pif):
 	raise useful.SimpleError("That ID wasn't found.")
     link = links[0]
     asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)]
-    ostr = pif.render.format_table_start()
-    ostr += '<form>\n<input type="hidden" name="o_id" value="%s">\n' % link['link_line.id']
     descs = pif.dbh.describe_dict('link_line')
-    ostr += pif.render.format_table_start()
+
+    header = '<form>\n<input type="hidden" name="o_id" value="%s">\n' % link['link_line.id']
+
+    entries = []
     for col in table_info['columns']:
-        col_long = 'link_line.' + col
-        coltype = descs.get(col).get('type', 'unknown')
-        ostr += pif.render.format_row_start()
-        ostr += pif.render.format_cell(0, col)
-        if col == 'url':
-            ostr += pif.render.format_cell(1, '<a href="%s">%s</a>' % (link.get(col_long, ''), link.get(col_long, '')))
-        else:
-            ostr += pif.render.format_cell(1, link[col_long])
-        if col in table_info.get('readonly', []):
-            ostr += pif.render.format_cell(1, '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, link[col_long]))
+	col_long = 'link_line.' + col
+	coltype = descs.get(col).get('type', 'unknown')
+	entries.append({'text': col})
+	entries.append({'text': '<a href="%s">%s</a>' % (link.get(col_long, ''), link.get(col_long, ''))
+			if col == 'url' else link[col_long]})
+	if col in table_info.get('readonly', []):
+	    cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, link[col_long])
 #       elif col == 'page_id':
-#           ostr += pif.render.format_cell(1, '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, link[col_long]))
-        elif col == 'section_id':
-            ostr += pif.render.format_cell(1, pif.render.format_select('section_id', [('', 'Please choose one from the list')] + listCats, selected=link[col_long]))
-        elif col == 'flags':
-            ostr += pif.render.format_cell(1, pif.render.format_checkbox("flags", flag_check_names, useful.bit_list(link[col_long])))
-        elif col == 'country':
-            ostr += pif.render.format_cell(1, pif.render.format_select_country('country', link[col_long]))
-        elif col == 'link_type':
-            ostr += pif.render.format_cell(1, pif.render.format_select(col, link_type_names, selected=link[col_long]))
-        elif col == 'associated_link':
-            ostr += pif.render.format_cell(1, pif.render.format_select(col, asslinks, selected=link[col_long]))
-        elif coltype.startswith('varchar('):
-            colwidth = int(coltype[8:-1])
-            ostr += pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, 64, value=link[col_long]))
-        elif coltype.startswith('int('):
-            if link[col_long] is None:
-                link[col_long] = 0
-            colwidth = int(coltype[4:-1])
-            val = link[col_long]
-            if isinstance(val, str) and val.isdigit():
-                val = str(int(val))
-            elif not val:
-                val = ''
-            ostr += pif.render.format_cell(1, pif.render.format_text_input(col, colwidth, value=val))
-        else:
-            ostr += pif.render.format_cell(1, coltype)
-        ostr += pif.render.format_row_end()
-    ostr += pif.render.format_table_end()
-    ostr += pif.render.format_button_input("save")
-    ostr += pif.render.format_button_input("delete")
-    ostr += pif.render.format_button_input("test")
-    ostr += pif.render.format_button_input("reject")
-    ostr += pif.render.format_select('rejects_sec', [('', 'Please choose one from the list')] + listRejectCats)
-    ostr += '</form>'
-    ostr += pif.render.format_button("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id}))
-    #ostr += pif.render.format_table_end()
-    return ostr
+#           cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, link[col_long])
+	elif col == 'section_id':
+	    cell = pif.render.format_select('section_id', [('', 'Please choose one from the list')] + listCats, selected=link[col_long])
+	elif col == 'flags':
+	    cell = pif.render.format_checkbox("flags", flag_check_names, useful.bit_list(link[col_long]))
+	elif col == 'country':
+	    cell = pif.render.format_select_country('country', link[col_long])
+	elif col == 'link_type':
+	    cell = pif.render.format_select(col, link_type_names, selected=link[col_long])
+	elif col == 'associated_link':
+	    cell = pif.render.format_select(col, asslinks, selected=link[col_long])
+	elif coltype.startswith('varchar('):
+	    colwidth = int(coltype[8:-1])
+	    cell = pif.render.format_text_input(col, colwidth, 64, value=link[col_long])
+	elif coltype.startswith('int('):
+	    if link[col_long] is None:
+		link[col_long] = 0
+	    colwidth = int(coltype[4:-1])
+	    val = link[col_long]
+	    if isinstance(val, str) and val.isdigit():
+		val = str(int(val))
+	    elif not val:
+		val = ''
+	    cell = pif.render.format_text_input(col, colwidth, value=val)
+	else:
+	    cell = coltype
+	entries.append({'text': cell})
+
+    footer = ''.join([
+	pif.render.format_button_input("save"),
+	pif.render.format_button_input("delete"),
+	pif.render.format_button_input("test"),
+	pif.render.format_button_input("reject"),
+	pif.render.format_select('rejects_sec', [('', 'Please choose one from the list')] + listRejectCats),
+	'</form>',
+	pif.render.format_button("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
+    ])
+
+    llineup = {'id': 'tl', 'name': 'Edit Link', 'columns': 3, 'widthauto': True,
+	'section': [{'id': 's', 'name': '',
+	    'range': [{'entry': entries}]}],
+	'header': header, 'footer': footer,
+    }
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
 def edit_multiple(pif):
@@ -443,81 +448,56 @@ def edit_multiple(pif):
         linklines = pif.dbh.fetch_link_lines(where="last_status='%s'" % pif.form.get_str('stat'))
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
-        page_id = pif.dbh.fetch_section(sec_id)['section.page_id']
+        section = pif.dbh.fetch_section(sec_id)
+        page_id = section['section.page_id']
     else:
         linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page'), order="display_order")
-    print len(linklines), '<br>'
-    ostr = pif.render.format_table_start()
-    ostr += pif.render.format_row_start()
-    for col in table_info['columns']:
-        ostr += pif.render.format_cell(0, col)
-    ostr += pif.render.format_row_end()
+    pif.render.message(len(linklines), 'lines')
+
+    entries = [{'text': col} for col in table_info['columns']]
     for link in linklines:
-        pif.dbh.depref('link_line', link)
-        ostr += pif.render.format_row_start()
-        for col in table_info['columns']:
-            val = link.get(col, '')
-            if col == 'id':
-                ostr += pif.render.format_cell(1, '<a href="?id=' + str(val) + '">' + str(val) + '</a>')
-            elif col == 'url':
-                ostr += pif.render.format_cell(1, '<a href="%s">%s</a>' % (val, val))
-            else:
-                ostr += pif.render.format_cell(1, str(val))
-        ostr += pif.render.format_row_end()
-    ostr += pif.render.format_table_end()
-    ostr += pif.render.format_button("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" %
-        (page_id, sec_id))
-    return ostr
+	pif.dbh.depref('link_line', link)
+	for col in table_info['columns']:
+	    val = link.get(col, '')
+	    if col == 'id':
+		entries.append({'text': '<a href="?id=' + str(val) + '">' + str(val) + '</a>'})
+	    elif col == 'url':
+		entries.append({'text': '<a href="%s">%s</a>' % (val, val)})
+	    else:
+		entries.append({'text': unicode(val).encode('utf8')})
+    footer = pif.render.format_button("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
+
+    llineup = {'id': 'tl', 'name': 'Edit Link', 'columns': len(table_info['columns']),
+	'section': [{'id': 's', 'name': '',
+	    'range': [{'entry': entries}]}],
+	'footer': footer,
+    }
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
 def edit_choose(pif):
-    sections = pif.dbh.fetch_sections(where="page_id like 'links%'")
-    sections.sort(key=lambda x: x['section.page_id'])
-    ostr = '<table width="100%"><tr><td width="65%" valign="top">\n'
-    ostr += '<ul>\n'
-    for sec in sections:
-        ostr += '<li><a href="edlinks.cgi?sec=%(section.id)s">%(section.page_id)s: %(section.name)s</a>\n' % sec
-    ostr += '</ul>\n'
-    ostr += '</td>\n'
-    ostr += '<td width="35%" valign="top">\n'
-    ostr += '<ul>\n'
-    ostr += '<li><a href="edlinks.cgi?sec=new">New</a>\n'
-    ostr += '<li><a href="edlinks.cgi?sec=nonf">Nonfunctional</a>\n'
-    ostr += '<li><a href="edlinks.cgi?sec=single">Single</a>\n'
-    ostr += '<li><a href="edlinks.cgi?as=1">Associables</a><p>\n'
-    ostr += '<li><a href="%s">Blacklist</a><p>' % pif.dbh.get_editor_link('blacklist', {})
-    for stat in sorted(pif.dbh.fetch_link_statuses()):
-        ostr += '<li><a href="edlinks.cgi?stat=%(last_status)s">%(last_status)s</a>\n' % stat
-    ostr += '</ul>\n'
-    ostr += '</td></tr></table>\n'
-    return ostr
+    context = {
+	'sections': sorted(pif.dbh.fetch_sections(where="page_id like 'links%'"),
+			key=lambda x: x['section.page_id']),
+	'blacklist': pif.dbh.get_editor_link('blacklist', {}),
+	'link_statuses': sorted(pif.dbh.fetch_link_statuses()),
+    }
+    return pif.render.format_template('tlinkcats.html', **context)
 
 
 # main entry point for links editor
 @basics.web_page
 def edit_links(pif):
     pif.render.print_html()
-    print pif.render.format_head()
-    useful.header_done()
-#    if pif.form.get_bool('add'):
-#        pif.form.set_val('id', pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
-#	pif.form.delete('add')
-    ostr = ''
     if pif.form.get_str('id'):
-        ostr += edit_single(pif)
-    elif pif.form.get_bool('as'):
-        ostr += edit_multiple(pif)
-    elif pif.form.get_str('sec'):
-        ostr += edit_multiple(pif)
-    elif pif.form.get_str('stat'):
-        ostr += edit_multiple(pif)
-    elif pif.form.get_str('page'):
-        ostr += edit_multiple(pif)
+	return edit_single(pif)
+    elif pif.form.has_any(['as', 'sec', 'stat', 'page']):
+	return edit_multiple(pif)
     else:
-        ostr += edit_choose(pif)
-    print ostr
-    print pif.render.format_tail()
+	return edit_choose(pif)
 
+# -- link checker
 
 def check_links(pif, sections=None, reject=[], retest=False, visible=False):
     pif.dbh.dbi.verbose = True
@@ -554,7 +534,7 @@ def check_link(pif, link, rejects=[], visible=False):
             except:
                 lstatus = 'exc'
         print lstatus
-	if link['last_status'] != lstatus:
+	if link.get('last_status') != lstatus:
 	    pif.dbh.update_link_line({'id': str(link['id']), 'last_status': lstatus})
 
 

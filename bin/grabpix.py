@@ -278,9 +278,7 @@ def do_dir(thisdir, destdir, destdict):
     saved = crc_dir(thisdir, subdirs=subdirs)
 
     thisdict = {}
-    files = saved.keys()
-    files.sort()
-    for f in files:
+    for f in sorted(saved.keys()):
 	thisinfo = saved[f]
 	#thisdict[f.lower()] = thisinfo
 	thisdict[f] = thisinfo
