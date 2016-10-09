@@ -154,12 +154,6 @@ class Logger(object):
             'class': 'logging.FileHandler',
             'filename': '/home/bamca/logs/' + env + '.bot' + logdate + '.log',
         },
-        'activity': {
-            'level': os.environ.get('LOG_LEVEL', 'INFO'),
-            'formatter': 'serious',
-            'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.act.log',
-        },
         'count': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'informational',
@@ -216,11 +210,6 @@ class Logger(object):
             'handlers': ['bot'],
             'propagate': False,
         },
-        'activity': {
-            'level': 'INFO',
-            'handlers': ['activity'],
-            'propagate': False,
-        },
         'count': {
             'level': 'INFO',
             'handlers': ['count'],
@@ -251,7 +240,6 @@ class Logger(object):
         self.url	= logging.getLogger('url')
         self.dbq	= logging.getLogger('dbq')
         self.bot	= logging.getLogger('bot')
-        self.activity	= logging.getLogger('activity')
         self.count	= logging.getLogger('count')
         self.refer	= logging.getLogger('refer')
         self.debug	= logging.getLogger('debug')

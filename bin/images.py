@@ -189,11 +189,8 @@ class UploadForm(object):
 	    print '<center><h3>Added: ' + sfn + '</h3><p>'
 	    print '<img src="../%s/%s"></center>' % (self.tdir, sfn)
 
-    def grab_url_pic(self, pif, track=False):
+    def grab_url_pic(self, pif):
 	fn = grab_url_file(self.url, self.tdir, self.nfn, self.var_id, self.replace)
-	if track:
-	    pif.dbh.insert_activity(fn, pif.user_id, description=self.comment, image=self.tdir + '/' + fn)
-	    pif.log.activity.info("%s %s %s" % (fn, self.comment, self.tdir + '/' + fn))
 	return fn
 
     def calc_filename(self):
@@ -739,13 +736,11 @@ def imawidget_main(pif):
 
         elif eform.clean:
             eform.mass_clean()
-	    #pif.dbh.insert_activity(name, pif.user_id, description=desc, image=ddir + '/' + dnam)
 	    show_editor(pif, eform)
         elif eform.mass:
             largest = eform.mass_resize("from library")
             if eform.man and eform.var:
                 print pif.render.format_button("promote", 'vars.cgi?mod=%s&var=%s&promote=1' % (eform.man, eform.var))
-	    #pif.dbh.insert_activity(name, pif.user_id, description=desc, image=ddir + '/' + dnam)
 	    if largest:# and log_action:
 		title = pif.form.get_str('title', '%s-%s' % (eform.man, eform.var))
 		url = 'http://www.bamca.org/' + largest

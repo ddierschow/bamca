@@ -125,7 +125,7 @@ else
 <li><a href="cgi-bin/sets.cgi?page=mine1&noignore=1">mine1</a>
     <a href="cgi-bin/sets.cgi?page=mine2&noignore=1">2</a>
     <a href="cgi-bin/sets.cgi?page=mine3&noignore=1">3</a>
-<li><a href="cgi-bin/activity.cgi">activity</a>
+<li><a href="http://bamca.tumblr.com/">tumblr</a>
 </ul></h3>
 </td>
 

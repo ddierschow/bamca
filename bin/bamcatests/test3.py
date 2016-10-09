@@ -101,7 +101,6 @@ class TestRender(unittest.TestCase):
 
     def test_Nontoy(self):
 	import nontoy
-	self.assertTrue(nontoy.activity_main('editor', args="verbose=1") != '')
 	self.assertTrue(nontoy.biblio('bib', 'page', 'biblio', args="verbose=1 simple=1") != '')
 	self.assertTrue(nontoy.biblio('bib', 'page', 'biblio', args="page=bayarea sort=city") != '')
 	self.assertTrue(nontoy.calendar('calendar', args="verbose=1") != '')

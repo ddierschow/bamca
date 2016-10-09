@@ -162,34 +162,6 @@ def calendar(pif):
 
     return pif.render.format_template('simplelistix.html', llineup=llistix)
 
-# -- activity
-
-@basics.web_page
-def activity_main(pif):
-    pif.render.title = "Site Activity"
-    pif.render.print_html()
-
-    if pif.form.has('d'):
-        for id in pif.form.get_list('d'):
-            pif.dbh.delete_activity(id)
-    acts = pif.dbh.fetch_activities()
-
-    acts.sort(key=lambda x: x['site_activity.timestamp'], reverse=True)
-    entries = []
-    for act in acts:
-        if not act['site_activity.user_id']:
-            continue
-	entry = dict(name=act['site_activity.name'], description=act['site_activity.description'],
-	    user_name=act['user.name'], timestamp=act['site_activity.timestamp'])
-        if act['site_activity.url']:
-            entry['link'] = '<a href="../%s">' % act['site_activity.url']
-        if act['site_activity.image']:
-            entry['img'] = '<img src="../%s">' % act['site_activity.image']
-        if pif.is_allowed('am'):
-            entry['delete'] = pif.render.format_button('delete', link='?d=%s' % act['site_activity.id'])
-	entries.append(entry)
-    return pif.render.format_template('activity.html', entries=entries)
-
 
 if __name__ == '__main__':  # pragma: no cover
     basics.goaway()

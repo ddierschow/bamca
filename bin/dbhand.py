@@ -1064,27 +1064,6 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
     def delete_user(self, id):
         self.delete('user', 'id=%s' % id)
 
-    #- site_activity
-
-    def fetch_activities(self):
-        return self.fetch('site_activity,user', where='site_activity.user_id=user.id', verbose=True)
-    #def fetch(self, table_name, left_joins=None, columns=None, where=None, group=None, order=None, tag='', verbose=False):
-
-    def insert_activity(self, name, user_id, description='', url='', image='', timestamp=None):
-        oldrow = self.fetch('site_activity', columns=['id'], order='id desc limit 98,1', tag='insert_activity')
-        if oldrow:
-            oldrow = oldrow[0]['id']
-        else:
-            oldrow = 1
-        self.raw_execute('''delete from site_activity where id < %d''' % oldrow, 'insert_activity')
-        rec = {'name': name, 'description': description, 'url': url, 'image': image, 'user_id': user_id}
-        if timestamp:
-            rec['timestamp'] = timestamp
-        return self.write('site_activity', rec, newonly=True, tag='insert_activity', verbose=True)
-
-    def delete_activity(self, id):
-        self.delete('site_activity', where=self.make_where({'id': id}), tag='delete_activity')
-
     #- miscellaneous
 
     #select detail.mod_id, detail.var_id,attribute.attribute_name, detail.description from detail,attribute where detail.attr_id=attribute.id and attribute.attribute_name like '%wheel%' and description like '%front%' order by detail.mod_id;

@@ -470,11 +470,6 @@ table_info = {
                 {'tab': 'casting', 'id': ['id/id']},
         ],
     },
-    #site_activity
-    'site_activity': {
-        'id': ['id'],
-        'columns': ['id', 'name', 'description', 'url', 'image', 'user_id', 'timestamp'],
-    },
     #book
     'book': {
         'id': ['id'],
@@ -535,13 +530,6 @@ FLAG_ITEM_HIDDEN                        =  1
 #-
 
 '''
-site_activity
-    id                      int(11)         NO      PRI     NULL                  auto_increment
-    name                    varchar(128)    NO
-    description             varchar(256)    NO
-    url                     varchar(256)    NO
-    by_user_id              int(11)         NO              NULL
-    timestamp               timestamp       NO              CURRENT_TIMESTAMP     on update CURRENT_TIMESTAMP
 alias
     id                      varchar(12)     NO      PRI
     first_year              varchar(4)      YES

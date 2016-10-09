@@ -16,20 +16,8 @@ import mannum
 
 
 def main(pif):
-    act = get_last_activity(pif)
-    if act:
-	dat = read_commits(act['site_activity.timestamp'])
-	write_commits(pif, dat)
     write_php_config_file()
     write_jinja2_config_file()
-
-
-def get_last_activity(pif):
-    acts = filter(lambda x: x['site_activity.name'] == 'commit', pif.dbh.fetch_activities())
-    acts.sort(key=lambda x: x['site_activity.id'])
-    if acts:
-	return acts[-1]
-    return None
 
 
 def read_commits(endtime):
@@ -55,14 +43,6 @@ def read_commits(endtime):
         commits.append(commit)
     commits.sort(key=lambda x: x['timestamp'])
     return commits
-
-
-def write_commits(pif, commits):
-    print "Writing to activity table."
-    for commit in commits:
-        print commit
-        pif.dbh.insert_activity(**commit)
-    print
 
 
 def write_php_config_file():

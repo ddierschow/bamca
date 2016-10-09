@@ -219,11 +219,11 @@ class TestRender(unittest.TestCase):
     def test_format_button_reset(self):
 	self.assertTrue(self.pif.render.format_button_reset('thing') != '')
 
-    def test_set_button_comment(self):
-	self.pif.render.set_button_comment(self.pif, args=None)
-	self.assertTrue(self.pif.render.footer != '')
-	self.pif.render.set_button_comment(self.pif, args={'a':1})
-	self.assertTrue(self.pif.render.footer != '')
+#    def test_set_button_comment(self):
+#	self.pif.render.set_button_comment(self.pif, args=None)
+#	self.assertTrue(self.pif.render.footer != '')
+#	self.pif.render.set_button_comment(self.pif, args={'a':1})
+#	self.assertTrue(self.pif.render.footer != '')
 
     def test_format_image_art(self):
 	pass#self.assertTrue(self.pif.render.format_image_art('bamca', desc='', hspace=0, also={}) != '')
