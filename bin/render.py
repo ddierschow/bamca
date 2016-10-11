@@ -1087,7 +1087,7 @@ of Matchbox International Ltd. and are used with permission.
 		    if ent.get('colspan', 1) > 1:
 			also['colspan'] = ent['colspan']
 			also['width'] = '%d%%' % (int(ent['colspan']) * 100 / ncols)
-		    icol += ent['colspan']
+		    icol += int(ent['colspan'])
 		    also.update(ent.get('also', {}))
 		    if icol >= ncols:
 			icol = 0
