@@ -883,7 +883,7 @@ class StitchForm(object):
 	dic = {'file': 'http://' + os.environ['SERVER_NAME'] + '/' + filepath, 'width': x, 'height': y}
 	return javasc.def_edit_app % dic
 
-    def finish(self, pif):
+    def finish_picture(self, pif):
 	print pif.form.get_form(), '<hr>'
 	for fn in pif.form.get_list('in'):
 	    useful.file_mover(fn, os.path.join(config.TRASH_DIR, fn[fn.rfind('/') + 1:]), mv=True, inc=True, trash=False)
@@ -891,14 +891,14 @@ class StitchForm(object):
 
     def perform(self, pif):
 	if pif.form.has('finish'):
-	    self.finalize(pif)
+	    self.finish_picture(pif)
 	elif pif.form.has('finalize'):
-	    self.finalize(pif)
+	    self.finalize_picture(pif)
 	else:
 	    self.write(pif)
 	return self
 
-    def finalize(self, pif):
+    def finalize_picture(self, pif):
 	final = self.fsl[-2].get('fn', '').strip()
 	if not final:
 	    final = self.fsl[0]['fn'].rsplit('.', 1)
