@@ -35,6 +35,7 @@
 {%- endif -%}
 {%- for entry in range.entry %}
  <tr class="er">
+{{ render.fmt_anchor(entry.anchor) }}
   <td class="{{ render.class_id('eb', ranid, '0') }}">{{ entry[0] or '&nbsp;' }}</td>
 {%- if loop.first -%}
 {%- if entry[2] -%}

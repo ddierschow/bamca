@@ -16,7 +16,7 @@
 <li><a href="edlinks.cgi?as=1">Associables</a><p>
 <li><a href="{{ blacklist }}">Blacklist</a><p>
 {% for stat in link_statuses %}
-<li><a href="edlinks.cgi?stat={{ stat.last_status }}">{{ stat.last_status }}</a>
+<li><a href="edlinks.cgi?stat={{ stat }}">{{ stat }}</a> {{ reasons[stat] }}
 {% endfor %}
 </ul>
 </td></tr></table>

@@ -174,7 +174,7 @@ def read_config(pif, showall=False):
             listIndices.append(page_name)
         if showpage[section['section.page_id']]:
             listCats.append((section['section.id'], section['section.name']))
-        if section['section.page_id'] == 'links.rejects':
+        if section['section.page_id'] in ['links.rejects', 'links.trash']:
             listRejectCats.append((section['section.id'], section['section.name']))
         dictCats[section['section.id']] = page_name
     return listCats, listIndices, dictCats, listRejectCats
@@ -447,7 +447,10 @@ def edit_multiple(pif):
     elif sec_id == 'nonf':
         linklines = pif.dbh.fetch_link_lines(where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
     elif pif.form.get_str('stat'):
-        linklines = pif.dbh.fetch_link_lines(where="last_status='%s'" % pif.form.get_str('stat'))
+	if pif.form.get_str('stat') == 'None':
+	    linklines = pif.dbh.fetch_link_lines(where="last_status is NULL", order='id')
+	else:
+	    linklines = pif.dbh.fetch_link_lines(where="last_status='%s'" % pif.form.get_str('stat'), order='id')
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
         section = pif.dbh.fetch_section(sec_id)
@@ -479,11 +482,35 @@ def edit_multiple(pif):
 
 
 def edit_choose(pif):
+    reasons = {
+	'None': '(Untested)',
+	'H200': '(Good)',
+	'H302': '(Moved)',
+	'H403': '(Forbidden)',
+	'H404': '(Not Found)',
+	'H410': '(Gone)',
+	'H418': '(Teapot)',
+	'H429': '(Too Many Reqs)',
+	'H500': '(Internal Error)',
+	'H502': '(Bad Gateway)',
+	'H503': '(Unavailable)',
+	'NoVer': '(Ignored)',
+	'U1': '(Bad Cert)',
+	'U60': '(Timeout)',
+	'U61': '(Conn Refused)',
+	'U65': '(No Route)',
+	'U8': '(No DNS)',
+	'exc': '(Exception)',
+    }
+    link_statuses = sorted(pif.dbh.fetch_link_statuses())
+    link_statuses = [str(x['last_status']) for x in link_statuses]
+    #'link_statuses': ["%s (%s)" % (x, reasons.get(x, 'Unknown')) for x in sorted(pif.dbh.fetch_link_statuses())],
     context = {
 	'sections': sorted(pif.dbh.fetch_sections(where="page_id like 'links%'"),
 			key=lambda x: x['section.page_id']),
 	'blacklist': pif.dbh.get_editor_link('blacklist', {}),
-	'link_statuses': sorted(pif.dbh.fetch_link_statuses()),
+	'link_statuses': link_statuses,
+	'reasons': reasons,
     }
     return pif.render.format_template('tlinkcats.html', **context)
 
