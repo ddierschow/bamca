@@ -286,5 +286,21 @@ def add_model_thumb_pic_link(pif, mdict):
     return ostr
 
 
+def add_model_var_pic_link(pif, vdict):
+    vdict['link'] = 'vars.cgi?mod=%s&var=%s' % (vdict['mod_id'], vdict['var'].upper())
+    vdict['categories'] = ''
+    pic_id = vdict['picture_id'] if vdict['picture_id'] else vdict['var']
+    img = pif.render.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL)
+    vdict['img'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
+
+    return '''
+<a href="%(link)s">%(var)s<br>
+<center><table><tr><td class="spicture">%(img)s</td></tr></table></center></a>
+<table class="vartable">
+<tr><td class="varentry"><i>%(text_description)s</i></td></tr>
+</table>
+''' % vdict
+
+
 if __name__ == '__main__':  # pragma: no cover
     print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''

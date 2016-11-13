@@ -126,17 +126,20 @@ class DBHandler(object):
     def columns(self, table):
         return [x['field'] for x in self.describe(table)]
 
-    def depref(self, table, results):
+    def depref(self, tables, results):
+	if isinstance(tables, str):
+	    tables = [tables]
         if isinstance(results, dict):
-	    keys = list(results.keys())
-            for key in keys:
-                if key.startswith(table + '.'):
-		    if not results.get(key[len(table) + 1:]):
-			results[key[len(table) + 1:]] = results[key]
-                    del results[key]
+	    for table in tables:
+		keys = list(results.keys())
+		for key in keys:
+		    if key.startswith(table + '.'):
+			if not results.get(key[len(table) + 1:]):
+			    results[key[len(table) + 1:]] = results[key]
+			del results[key]
         else:
             for result in results:
-                self.depref(table, result)
+                self.depref(tables, result)
         return results
 
     def increment(self, table_name, values=None, where=None, tag='', verbose=False):
@@ -183,8 +186,15 @@ class DBHandler(object):
 
     #- section
 
-    def fetch_section(self, id):
-        secs = self.fetch('section', where={'id': id}, tag='Section')
+    def fetch_section(self, sec_id=None, page_id=None, category=None, verbose=False):
+	wheres = {}
+	if sec_id:
+	    wheres['id'] = sec_id
+	if page_id:
+	    wheres['page_id'] = page_id
+	if category:
+	    wheres['category'] = category
+        secs = self.fetch('section', where=wheres, tag='Section', verbose=verbose)
         if secs:
             return secs[0]
         return None
@@ -310,7 +320,6 @@ class DBHandler(object):
             wheres.append('section.id="%s"' % section_id)
         return self.fetch('base_id,casting,section', where=wheres, extras=['variation_digits'], tag='CastingList', verbose=verbose)
 
-
     def fetch_casting_dict(self):
 	return {x['base_id.id'].lower(): self.modify_man_item(x) for x in self.fetch_casting_list()}
 
@@ -394,6 +403,23 @@ class DBHandler(object):
         mod['shortname'] = self.short_name(mod.get('rawname', ''))
         mod['casting_type'] = mbdata.model_types.get(mod.get('model_type', 'SF'), 'Casting')
         return mod
+
+    def fetch_castings_by_category(self, page_id, category, verbose=False):
+        wheres = ['base_id.id=casting.id',
+	    'base_id.id=variation_select.mod_id', "variation_select.category='%s'" % category
+	]
+	columns = self.make_columns('base_id') + ['count(*)']
+        return self.fetch('base_id,casting,variation_select', where=wheres, tag='CastingByCat', verbose=verbose,
+		columns=columns, group='base_id.id', order='base_id.id')
+    #def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None,
+#	      distinct=False, tag='', verbose=False):
+
+	    #"base_id.id in (select mod_id from variation_select where ref_id='%s' and category='%s')" % (page_id, category)
+#select base_id.id,base_id.first_year,base_id.model_type,base_id.rawname,base_id.description,base_id.flags,casting.id,casting.scale,casting.vehicle_type,casting.country,casting.make,casting.section_id,count(*)
+#from base_id,casting,variation_select
+#where base_id.id=casting.id and base_id.id=variation_select.mod_id and variation_select.category='NC'
+#group by base_id.id
+#;
 
     #- casting_related
 
@@ -542,14 +568,18 @@ class DBHandler(object):
         varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), args=args)
         return varrecs
 
-    def fetch_variation_by_select(self, mod_id, ref_id, sub_id):
-        cols = ['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id']
+    def fetch_variation_by_select(self, mod_id, ref_id, sub_id, category=None, verbose=False):
+        cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id', 'vs.category']
         table = "variation_select vs"
         sub_id = ','.join(["'%s'" % x for x in sub_id])
-        where = "vs.mod_id='%s' and vs.ref_id='%s' and vs.sub_id in (%s)" % (mod_id, ref_id, sub_id)
+        where = "vs.mod_id='%s' and vs.ref_id='%s'" % (mod_id, ref_id)
+	if sub_id:
+	    where += " and vs.sub_id in (%s)" % sub_id
+	if category:
+	    where += " and vs.category='%s'" % category
         table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where)
+        return self.dbi.select(table, cols, where=where, verbose=verbose)
 
     def fetch_variation_files(self, mod_id):
         return self.fetch('variation', columns=['imported_from', 'mod_id'], group='imported_from', order='imported_from', where="mod_id='%s'" % mod_id, tag='VariationFiles', verbose=True)
@@ -592,16 +622,24 @@ class DBHandler(object):
         left_joins += [("lineup_model", "lineup_model.mod_id=variation_select.mod_id and lineup_model.page_id=variation_select.ref_id")]
         return self.fetch('variation_select,page_info', left_joins=left_joins, where=wheres, tag='VariationSelects', verbose=0)
 
+    def fetch_variation_select_counts(self, mod_id):
+        wheres = ["variation_select.mod_id='%s'" % mod_id]
+	columns = ['variation_select.mod_id', 'variation_select.category', 'count(*)']
+        return self.fetch('variation_select', where=wheres, tag='VariationSelectCounts', verbose=0,
+		columns=columns, group='variation_select.category', order='variation_select.category')
+
     def update_variation_select(self):
         self.write('variation_select', {'var_id': new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, mod_id), modonly=True)
 
     def update_variation_selects(self, mod_id, var_id, ref_ids):
         self.delete('variation_select', where="mod_id='%s' and var_id='%s'" % (mod_id, var_id))
         for ref_id in ref_ids:
-            sub_id = ''
+            cat_id = sub_id = ''
+            if ref_id.find(':') >= 0:
+                ref_id, cat_id = ref_id.split(':', 1)
             if ref_id.find('/') >= 0:
                 ref_id, sub_id = ref_id.split('/', 1)
-            self.write('variation_select', {'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sub_id': sub_id}, newonly=True, verbose=1)
+            self.write('variation_select', {'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sub_id': sub_id, 'category': cat_id}, newonly=True, verbose=1)
 
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):
         self.write('variation_select', {'sub_id': new_sub_id}, where="ref_id='%s' and sub_id='%s'" % (ref_id, sub_id), modonly=True)
@@ -837,7 +875,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         link = self.dbi.select('link_line', where="url='%s'" % url)
 	return link[0] if link else None
 
-    def fetch_link_lines(self, page_id=None, section=None, where=None, flags=None, order=None):
+    def clear_link_line_statuses(self, page_id=None, section=None, where=None, flags=None, verbose=False):
         wheres = list()
         if where:
             wheres.append(where)
@@ -847,7 +885,19 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             wheres.append("section_id='" + section + "'")
 	if flags:
 	    wheres.append("flags & %s" % flags)
-        return self.fetch('link_line', where=" and ".join(wheres), order=order, tag='LinkLines')
+        return self.write('link_line', {'last_status': None}, where=" and ".join(wheres), tag='LinkLineStatuses', modonly=True, verbose=verbose)
+
+    def fetch_link_lines(self, page_id=None, section=None, where=None, flags=None, order=None, verbose=False):
+        wheres = list()
+        if where:
+            wheres.append(where)
+        if page_id:
+            wheres.append("page_id='" + page_id + "'")
+        if section:
+            wheres.append("section_id='" + section + "'")
+	if flags:
+	    wheres.append("flags & %s" % flags)
+        return self.fetch('link_line', where=" and ".join(wheres), order=order, tag='LinkLines', verbose=verbose)
 
     def fetch_links_single(self, page_id=None):
         columns = ['l1.page_id', 'l1.associated_link', 'l1.url', 'l1.name', 'l2.id', 'l2.name', 'l2.url', 'l1.flags']
@@ -1150,7 +1200,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 		else:
 		    return fmt_subdetail(var, fmt, verbose)[1]
 
-	    fmts = [y for y in [fmt_detail(var, x, verbose) for x in casting[field].split('|')] if y]
+	    fmts = [y for y in [fmt_detail(var, x, verbose) for x in casting[field].split('|') if x] if y]
 	    descs = []
 	    for fmt in fmts:
 		desc = ''

@@ -6,11 +6,35 @@ include "fake.php";
 function CheckPerm($lev)
 {
     $retval = 0;
-    if (array_key_exists('id', $_COOKIE))
+    if ($lev)
     {
-	passthru('../bin/secure.py ' . $lev, $retval);
+	if (array_key_exists('id', $_COOKIE))
+	{
+	    passthru('../bin/secure.py ' . $lev, $retval);
+	}
     }
+    else
+	return 1;
     return $retval;
+}
+
+function NoAccess($pif, $access, $dest)
+{
+    $retval = CheckPerm($access);
+    if (!$retval)
+    {
+?> 
+
+<script type="text/javascript">
+<!--
+window.location = "https://<?php echo $pif['host']; ?>/cgi-bin/login.cgi?dest=http://<?php echo $pif['host']; ?>/<?php echo $dest; ?>";
+//document.write("dumpout!");
+//-->
+</script>
+
+<?php
+	exit();
+    }
 }
 
 function CheckID()

@@ -344,19 +344,6 @@ def show_sub_table_section(pif, table_info, cond, ref={}):
 
 # ------- counters -------------------------------------------------
 
-# fixed = unicodedata.normalize('NFKD', unicode(crazy_town)).encode('ascii','ignore')
-def printablize(lord):
-    if isinstance(lord, dict):
-	lord = [lord]
-    for ent in lord:
-	for key, val in ent.items():
-	    if isinstance(val, str):
-		val = unicode(val, errors='ignore')
-	    else:
-		val = str(val)
-	    ent[key] = val
-    return lord
-
 @basics.web_page
 def show_counters(pif):
     pif.render.print_html()
@@ -372,7 +359,7 @@ def show_counters(pif):
 
     columns = ['id', 'value', 'timestamp']
     headers = dict(zip(columns, ['ID', 'Value', 'Timestamp']))
-    lsection = dict(columns=columns, range=[{'entry': printablize(res)}], note='',
+    lsection = dict(columns=columns, range=[{'entry': useful.printablize(res)}], note='',
 	headers={col: pif.render.format_link('?s=' + col +
 	'&r=1' if col == sortorder and not revorder else '', headers[col]) for col in columns})
     return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]))

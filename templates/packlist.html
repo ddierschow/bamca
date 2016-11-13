@@ -9,6 +9,7 @@
 
 <td valign="top">
 <form>
+<input type="hidden" name="page" value="{{ page_id }}">
 Filter by Year<br>
 <input type="radio" name="year" value="" CHECKED> all<br>
 {%- for year in years %}
@@ -22,6 +23,9 @@ Filter by Region<br>
 {%- endfor %}
 <p>
 {#    ostr += pif.render.format_select('lid', calc_pack_select(pif, packs)) + '<p>' #}
+Filter by Title<br>
+<input type="text" name="title" size="20" maxlength="80">
+<p>
 {{- render.format_button_input('submit') }}
 <input type="hidden" name="{{ page_id }}" value="%s">
 </form>

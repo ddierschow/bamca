@@ -44,6 +44,14 @@
 </ul><p>
 {%- endif %}
 
+{%- if code2s %}
+<center><b>Code 2 Appearances</b></center><p><ul>
+{%- for appear in code2s %}
+<li>{{ appear }}
+{%- endfor %}
+</ul><p>
+{%- endif %}
+
 {%- if model.make and model.make != 'unl' %}
 <center><a href="makes.cgi?make={{ model.make }}">See more <b>{{ model['vehicle_make.make_name'] }}</b> vehicles</a></center><p>
 {%- endif %}

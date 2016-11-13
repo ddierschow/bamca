@@ -58,7 +58,6 @@ categories = {
     'A'     : 'Accessories',
     'AA'    : 'Across America',
     'AFL'   : 'Australian Football League',
-    'AM'    : 'Across America',
     'AP'    : 'Action Pack',
     'ARL'   : 'Australian Rugby League',
     'ASAP'  : '[Code 2] ASAP Promotional',
@@ -194,7 +193,17 @@ categories = {
     'YF'    : '[Code 2] York Fair',
     'YST'   : 'Yesteryear Train Set',
 }
-code2_categories = ['ASAP', 'C2', 'CCI', 'CQ', 'NC', 'WR', 'YF']
+code2_categories = ['ASAP', 'CCI', 'CQ', 'NC', 'WR', 'YF', 'C2']
+
+code2_names = {
+    'ASAP'  : 'ASAP Promotional',
+    'CCI'   : 'Color Comp Promotional',
+    'CQ'    : 'AdTrucks/Conquer',
+    'NC'    : 'Nutmeg Collectibles',
+    'WR'    : 'White Rose Collectibles',
+    'YF'    : 'York Fair',
+    'C2'    : 'Miscellaneous Code 2',
+}
 
 
 model_type_names = {

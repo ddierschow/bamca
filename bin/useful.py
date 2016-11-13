@@ -44,6 +44,26 @@ def read_dir(patt, tdir):
     return flist
 
 
+# still a work in progress
+def printablize(lord):
+    if lord is None:
+	return '(None)'
+    if isinstance(lord, dict):
+	lord = [lord]
+    elif not isinstance(lord, list):
+	if isinstance(lord, int) or isinstance(lord, long):
+	    return str(lord)
+	return unicode(lord, errors='ignore')
+    for ent in lord:
+	for key, val in ent.items():
+	    if isinstance(val, str):
+		val = unicode(val, errors='ignore')
+	    else:
+		val = str(val)
+	    ent[key] = val
+    return lord
+
+
 def root_ext(fn):
     '''Split fn into root and ext.  In this case, ext has no dot.
 
@@ -184,7 +204,7 @@ def search_match(sobj, targ):
         return True
     targ = targ.lower()
     for s in sobj:
-        if not (targ.find(s.lower()) >= 0):
+        if s.lower() not in targ:
             return False
     return True
 

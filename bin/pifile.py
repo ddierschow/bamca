@@ -116,8 +116,9 @@ class BaseForm(object):
 	    ret.extend([(x[len(start):], self.get_str(x)) for x in self.keys(start=start)])
 	return ret
 
-    def keys(self, start='', end='', has='', sort=None):
-	keylist = [x for x in self.form if (x.startswith(start) and x.endswith(end) and has in x)]
+    def keys(self, keylist=None, start='', end='', has='', sort=None):
+	keylist = keylist if keylist else self.form.keys()
+	keylist = [x for x in keylist if (x.startswith(start) and x.endswith(end) and has in x)]
 	if sort == True:
 	    keylist.sort()
 	elif sort:
@@ -130,8 +131,10 @@ class BaseForm(object):
 	    return [x[len(start):-len(end)] for x in self.keys(start, end, has)]
 	return [x[len(start):] for x in self.keys(start, end, has)]
 
-    def get_dict(self, start='', end=''):
-	return {key[len(start):-len(end)]: self.get_str(key) for key in self.keys(start=start, end=end)}
+    def get_dict(self, keylist=None, start='', end=''):
+	lstart = len(start) if start else None
+	lend = -len(end) if end else None
+	return {key[lstart:lend]: self.get_str(key) for key in self.keys(keylist, start=start, end=end)}
 
     def find(self, field):
         return [key for key in self.form if key == field or key.startswith(field + '.')]

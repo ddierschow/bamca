@@ -22,8 +22,10 @@
 // keys to move the bounds by one pixel, h for left, j for top, k for
 // bottom, l for right.  Unshifted expands the box, shifted contracts
 // the box.  ESC clears the box, z restores the last cleared box.  0-9
-// make the movement keys move 2^N pixels.  Note that the cursor must
-// be inside the picture area to use the keys.
+// make the movement keys move 2^N pixels.  o puts the box at the outer
+// limits.
+
+// Note that the cursor must be inside the picture area to use the keys.
 
 "use strict";
 var slop = 1;
@@ -384,6 +386,11 @@ function ima_key(event) {
         }
         else if (p2_x >= 0 && event.which === 76) {
             p2_x = Math.max(p1_x, p2_x - step);
+        }
+        else if (event.which === 111) {
+            p1_x = p1_y = 0;
+            p2_x = sz_x;
+            p2_y = sz_y;
         }
         else if (event.which === 66) {
             clr = '#000000';

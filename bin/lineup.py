@@ -762,6 +762,7 @@ def picture_count(pif, region, year):
 
 
 def product_pic_lineup_main(pif):
+    pif.render.styles.append('prodpic')
     pif.render.title = mbdata.regions.get(pif.form.get_str('region'), 'Matchbox') + ' Lineup'
     llineup = run_product_pics(pif, pif.form.get_str('region').upper())
     pif.render.format_matrix_for_template(llineup)

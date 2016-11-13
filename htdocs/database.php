@@ -29,19 +29,21 @@ $sections[] = array("tag" => "vsearch", "name" => "Variation Text Search", "fn" 
 $sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi");
 $sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
 $sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();');
+$sections[] = array("tag" => "code2", "name" => "Code 2 Models", "fn" => 'SectionCode2', "scr" => "code2.cgi");
+//$sections[] = array("tag" => "other", "name" => "Other Pages", "fn" => 'SectionOther');
 
 DoResetJavascript();
 DoIncDecJavascript();
 DoPageHeader($pif);
 
-echo "<ul class=\"header-links\">\n";
+echo "<div class=\"maintable\"><center><ul class=\"header-links\">\n";
 foreach ($sections as $sec)
 {
     echo " <li class=\"header-link-item\"><a href=\"#$sec[tag]\">By $sec[name]</a></li>\n";
 }
-echo "</ul>
+echo "</ul></center></div>
 
-<table width=\"100%\">
+<table class=\"maintable\">
 ";
 
 foreach ($sections as $sec)
@@ -146,15 +148,18 @@ function Section($args)
     echo "\n<tr><td><br></td></tr>\n<a name=\"$args[tag]\"></a>\n <tr>\n  <td class=\"$args[tag]_head sel_head\">\n";
     echo "   <center><h2>$args[name]</h2></center>\n  </td>\n </tr>\n";
     echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"$args[tag]_body sel_body\">\n";
-    echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".<p>\n\n";
-    echo "<form action=\"/cgi-bin/$args[scr]\" method=\"get\" name=\"$args[tag]\" id=\"$args[tag]\">\n";
-    call_user_func($args['fn']);
-    echo "<br>\n";
-    DoButtonSubmit("see_the_models", "../pic/gfx", "submit");
-    DoButtonReset("../pic/gfx", $args['tag'], arr_get($args, 'reset', ''));
-    if ($isadmin)
-	Checks('checkbox', 'verbose', [['1', '<i>Verbose</i>']], ''); 
-    echo "\n</form>\n\n  </td>\n </tr>\n";
+    if (isset($args['scr'])) {
+	echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".<p>\n\n";
+	echo "<form action=\"/cgi-bin/$args[scr]\" method=\"get\" name=\"$args[tag]\" id=\"$args[tag]\">\n";
+	call_user_func($args['fn']);
+	echo "<br>\n";
+	DoButtonSubmit("see_the_models", "../pic/gfx", "submit");
+	DoButtonReset("../pic/gfx", $args['tag'], arr_get($args, 'reset', ''));
+	if ($isadmin)
+	    Checks('checkbox', 'verbose', [['1', '<i>Verbose</i>']], ''); 
+	echo "\n</form>\n\n";
+    }
+    echo "  </td>\n </tr>\n";
 }
 
 function ChooseRegion($nrows)
@@ -450,8 +455,11 @@ function SectionVSearch()
 
 function SectionPacks()
 {
+    echo "<table><tr><td>\n";
     FetchSelect('page', 'packPage', 'pack type', "select flags, id, title from page_info where format_type='packs' order by title");
-    echo "<br>\n";
+    echo "</td></tr><tr><td>\n";
+    echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
+    echo "</td></tr></table>\n";
 }
 
 function SectionSets()
@@ -516,6 +524,17 @@ EOT;
 	echo "  </td>\n  <td></td>";
     }
     echo " </tr>\n</table>\n";
+}
+
+function SectionCode2()
+{
+    echo "Choose a type of Code 2 model:\n";
+    FetchSelect('section', 'code2Section', 'range', "select flags, id, name from section where page_id='code2' order by display_order", [[0, '', 'All Sections']]);
+    echo "<br>\n";
+}
+
+function SectionOther()
+{
 }
 
 //---- end of sections -------------------------------------------

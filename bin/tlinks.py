@@ -86,6 +86,7 @@ linktypes = {
     'f': 'folder',
     'g': '',  #graphic
     'l': 'ball',
+    'n': '',  #none; spacer
     'p': '',  #button
     's': 'star',
     't': '',  #text
@@ -210,7 +211,7 @@ def read_all_links(pif):
         highest_disp_order.setdefault((link['page_id'], link['section_id']), 0)
         if link['display_order'] > highest_disp_order[(link['page_id'], link['section_id'])]:
             highest_disp_order[(link['page_id'], link['section_id'])] = link['display_order']
-        if link['url'] and link['link_type'] in 'lnsx':
+        if link['url'] and link['link_type'] in 'lsx':
             all_links.append(fix_url(link['url']))
     return all_links, highest_disp_order
 
@@ -312,6 +313,7 @@ link_type_names = [
     ('f', 'folder'),
     ('g', 'graphic'),
     ('l', 'normal'),
+    ('n', 'none'),
     ('p', 'button'),
     ('s', 'star'),
     ('t', 'text'),
@@ -443,7 +445,7 @@ def edit_multiple(pif):
     elif sec_id == 'new':
         linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_NEW)
     elif sec_id == 'nonf':
-        linklines = pif.dbh.fetch_link_lines(where="last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
+        linklines = pif.dbh.fetch_link_lines(where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
     elif pif.form.get_str('stat'):
         linklines = pif.dbh.fetch_link_lines(where="last_status='%s'" % pif.form.get_str('stat'))
     elif sec_id:
@@ -464,7 +466,7 @@ def edit_multiple(pif):
 	    elif col == 'url':
 		entries.append({'text': '<a href="%s">%s</a>' % (val, val)})
 	    else:
-		entries.append({'text': unicode(val).encode('utf8')})
+		entries.append({'text': useful.printablize(val)})
     footer = pif.render.format_button("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
 
     llineup = {'id': 'tl', 'name': 'Edit Link', 'columns': len(table_info['columns']),
@@ -502,9 +504,11 @@ def edit_links(pif):
 def check_links(pif, sections=None, reject=[], retest=False, visible=False):
     pif.dbh.dbi.verbose = True
     for sec in sections if sections else [None]:
-        links = pif.dbh.fetch_link_lines(section=sec, where='last_status != "200"' if retest else '')
+        pif.dbh.clear_link_line_statuses(section=sec, where='last_status != "H200"' if retest else '')
+        links = pif.dbh.fetch_link_lines(section=sec, where='last_status is NULL' if retest else '', order='id')
         for link in links:
-            check_link(pif, link, reject, visible=visible)
+	    if not retest or link['link_line.page_id'] != 'links.rejects':
+		check_link(pif, link, reject, visible=visible)
 
 
 def check_link(pif, link, rejects=[], visible=False):
@@ -515,15 +519,18 @@ def check_link(pif, link, rejects=[], visible=False):
 	if visible and (link['flags'] & pif.dbh.FLAG_LINK_LINE_HIDDEN or link['page_id'] == 'links.rejects'):
 	    return
         print link['id'], link['url'],
-        if link['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE or link['link_type'] in 'tfp':
+        if link['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE or link['link_type'] in 'tfpn':
             lstatus = 'NoVer'
         elif link['link_type'] in 'bglsx':
 #            ret = is_blacklisted(link['url'], rejects)
 #            if ret:
 #                print link['id'], link['section_id'], link['url'], "BLACKLISTED", ret
                 #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
+	    lurl = link['url']
+	    if lurl.startswith('/'):
+		lurl = 'http://www.bamca.org' + lurl
             try:
-		url = urllib2.urlopen(urllib2.Request(link['url'], headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
+		url = urllib2.urlopen(urllib2.Request(lurl, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
                 lstatus = 'H' + str(url.code)
             except urllib2.HTTPError as (c):
                 print 'http error:', c.code

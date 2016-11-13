@@ -1,6 +1,7 @@
 body         {color: #000000; background-color: #FFFFFF; padding: 0 0 0 0; margin: 0 0 0 0;}
 img          {vertical-align: middle; border-width: 0;}
 .centered    {margin-left: auto; margin-right: auto; display: block;}
+.center      {text-align: center;}
 
 a:link       {color: #0000FF; background-color: transparent; text-decoration: none;}
 a:visited    {color: #000099; background-color: transparent; text-decoration: none;}
@@ -78,3 +79,8 @@ foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; ver
 .bamcamark   {position: absolute; left: 0; bottom: 0; padding: 15px 32px;}
 .footer      {text-align: left; display: table-cell; position: absolute; height: 66px; left: 132px; bottom: 0; vertical-align: middle;}
 .comment_button   {height: 66px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}
+
+.bgok {background-color: #FFFFFF}
+.bgno {background-color: #FFCCCC}
+.txok {color: #000000}
+.txno {color: #FF0000}

@@ -364,7 +364,7 @@ def do_var(pif, model, attributes, prev):
                 note_text += sz.upper() + ' '
 	if pic_id:
 	    note_text += '</span>'
-        note_text += "<br>References:<br>" + pif.render.format_text_input("var_sel." + model['var'], 256, 24, value=model['references'])
+        note_text += "<br>References:<br>" + pif.render.format_text_input("var_sel." + model['var'], 256, 24, value=model['references'], also={'class': 'bgok' if model['references'] else 'bgno'})
 
     ostr = '<center>'
     ostr += pif.render.format_link('?edit=1&mod=%s&var=%s' % (model['mod_id'], model['var']), model['var'].upper())
@@ -411,10 +411,10 @@ class VarSearchForm(object):
 	selects = dict()
 	for var_sel in var_selects:
 	    selects.setdefault(var_sel['var_id'], [])
-	    if var_sel['sub_id']:
-		selects[var_sel['var_id']].append(var_sel['ref_id'] + '/' + var_sel['sub_id'])
-	    else:
-		selects[var_sel['var_id']].append(var_sel['ref_id'])
+	    selects[var_sel['var_id']].append(var_sel['ref_id'] +
+		(('/' + var_sel['sub_id']) if var_sel['sub_id'] else '') +
+		((':' + var_sel['category']) if var_sel['category'] else '')
+	    )
 	self.selects = selects
 
     def read(self, form):

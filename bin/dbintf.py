@@ -221,11 +221,13 @@ class DB(object):
         return list()
 
     def update(self, table, values, where=None, tag='', verbose=None):
+	if verbose:
+	    print 'update', table, values, where, tag
         if self.db:
             query = 'update '
 #            if tag:
 #                query += "/* %s */ " % tag
-            setlist = ','.join([x + "=" + self.db.literal(str(values[x])) for x in values])
+            setlist = ','.join([x + "=" + (self.db.literal(str(values[x])) if values[x] is not None else 'NULL') for x in values])
             query += '''%s set %s''' % (table, setlist)
             if where:
                 query += ''' where %s;''' % where

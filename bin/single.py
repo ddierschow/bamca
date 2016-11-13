@@ -140,6 +140,13 @@ def show_series_appearances(pif, matrixes):
 	                    appear['title']) for appear in matrixes]
 
 
+def show_code2_appearances(pif, mod_id, vscounts):
+    vscounts = dict([(x['variation_select.category'], x['count(*)']) for x in vscounts])
+    code2s = {x: vscounts.get(x, 0) for x in mbdata.code2_categories}
+    return [show_link('code2.cgi?mod_id=%s&cat=%s' % (mod_id, x), ['%s (%d variation%s)' % (mbdata.code2_names[x], code2s[x], 's' if code2s[x] != 1 else '')])
+		for x in mbdata.code2_categories if vscounts.get(x)]
+
+
 def show_pack_appearances(pif, packs):
     # doesn't do pagename properly
     return [show_link("packs.cgi?page=%s&id=%s" % (pack['pack.section_id'], pack['base_id.id']),
@@ -372,6 +379,8 @@ def show_single(pif):
 	url = 'imawidget.cgi?d=%s&f=%s' % tuple(img[3:].rsplit('/', 1))
 	mainimg = pif.render.format_link(url, mainimg)
 
+    vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
+
     model['imgid'] = [model['id']]
     descs = []
     for s in model['descs']:
@@ -407,6 +416,7 @@ def show_single(pif):
 	'product_pic': pic,
 	'appearances': show_lineup_appearances(pif, appearances),
 	'matrixes': show_series_appearances(pif, matrixes),
+	'code2s': show_code2_appearances(pif, mod_id, vscounts),
 	'packs': show_pack_appearances(pif,
 		 sorted(pif.dbh.fetch_pack_model_appearances(mod_id), key=lambda x: x['base_id.first_year'])),
 	'show_comparison_link': pif.dbh.fetch_casting_related_exists(mod_id, model['model_type'].lower()),

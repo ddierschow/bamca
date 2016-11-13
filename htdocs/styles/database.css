@@ -1,4 +1,5 @@
 td {vertical-align: top;}
+.maintable {width: 100%; max-width: 1024px;}
 .types td {vertical-align: middle;}
 
 .tdboth {border-style: solid; border-width: thin; padding-left: 4px; padding-right: 4px;}
@@ -45,8 +46,10 @@ td {vertical-align: top;}
 .sets_body     {background-color: #EECCFF;}
 .boxes_head    {background-color: #88CCFF;}
 .boxes_body    {background-color: #CCD8FF;}
-.new2_head     {background-color: #88FFCC;}
-.new2_body     {background-color: #CCFFD8;}
+.code2_head    {background-color: #88FFCC;}
+.code2_body    {background-color: #CCFFD8;}
+.other_head    {background-color: #000000; color: #FFFFFF;}
+.other_body    {background-color: #999999;}
 .new3_head     {background-color: #FF9999;}
 .new3_body     {background-color: #FFCCCC;}
 .new4_head     {background-color: #FF99CF;}

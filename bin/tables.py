@@ -370,7 +370,7 @@ table_info = {
     #pack
     'pack': {
         'id': ['id'],
-        'columns': ['id', 'page_id', 'section_id', 'region', 'layout', 'product_code', 'material', 'country', 'note'],
+        'columns': ['id', 'page_id', 'section_id', 'region', 'end_year', 'layout', 'product_code', 'material', 'country', 'note'],
         'add': {
                 'pack': [],
                 'pack_model': ['pack_id/id'],
@@ -426,12 +426,13 @@ table_info = {
     #variation_select
     'variation_select': {
         'id': ['id'],
-        'columns': ['id', 'ref_id', 'mod_id', 'var_id', 'sub_id'],
+        'columns': ['id', 'ref_id', 'mod_id', 'var_id', 'sub_id', 'category'],
         'create': {
                 'ref_id': 'unset',
                 'mod_id': 'unset',
                 'var_id': 'unset',
                 'sub_id': 'unset',
+                'category': '',
         },
         'clinks': {
                 'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},

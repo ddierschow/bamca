@@ -438,6 +438,9 @@ class EditForm(imglib.ActionForm):
 	self.read_file(pif.form.get_str('q'))
 	if not self.pref:
 	    self.pref = pif.form.get_str('tysz')
+	if not self.man:
+	    self.man = self.nname[:self.nname.rfind('.')] if '.' in self.nname else self.nname
+	    self.man = self.man[2:] if self.man[1] == '_' else self.man
 	return self
 
     def read_file(self, q):
@@ -593,6 +596,8 @@ class EditForm(imglib.ActionForm):
 		"repl": [int(self.repl)],
 		"tysz": self.tysz,
 		"cc": self.cc,
+		"ov": self.ov,
+		"cpmv": self.cpmv,
 	    }
 	    imglib.write_presets(self.tdir, presets)
 	    #open(os.path.join(self.tdir, '.ima'), 'w').write(str(presets))

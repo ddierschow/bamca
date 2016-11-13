@@ -574,10 +574,10 @@ of Matchbox International Ltd. and are used with permission.
         ostr += '</select>'
         return ostr
 
-    def format_text_input(self, name, maxlength, showlength=24, value='', id=None):
+    def format_text_input(self, name, maxlength, showlength=24, value='', id=None, also={}):
         if not value:
             value = ''
-        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s"%s>\n' % (name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True), (' id="%s"' % id) if id else '')
+        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s"%s%s>\n' % (name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True), useful.fmt_also(also), (' id="%s"' % id) if id else '')
 
     def format_textarea_input(self, name, showlength=128, showheight=4, value=''):
         if not value:

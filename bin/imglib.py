@@ -785,6 +785,8 @@ class ActionForm(object):
 	self.delete = form.get_bool('delete')
 	self.selcat = form.get_bool('selcat')
 	self.dest = form.get_str('moveto')
+	if not self.dest and 'lib/prod' in self.tdir:
+	    self.dest = 'pic' + self.tdir[self.tdir.rfind('/'):]
 	self.rename = form.get_bool('rename')
 	self.lib = form.get_bool('lib')
 	self.mvbin = form.get_bool('mvbin')
@@ -799,6 +801,15 @@ class ActionForm(object):
 	self.cycle = form.get_bool('cy')
 	self.title = form.get_str('title', self.nname)
 	self.link = form.get_str('link')
+
+#	szname = ''
+#	self.sx = self.sy = 0
+#	if os.path.exists(self.tdir + '/' + fn):
+#	    x, y = get_size(self.tdir + '/' + fn)
+#	    print (x, y)
+#	    for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
+#		if x <= szxy[0]:
+#		    break
 	return self
 
     def action(self, pif, tdir=None, fn=None):
@@ -968,6 +979,8 @@ class ActionForm(object):
 	    for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
 		if x <= szxy[0]:
 		    break
+	if not self.pref:
+	    self.pref = 's' + szname
 	print '<input type=hidden name="act" value="1">'
 	print '<input type=hidden name="d" value="%s">' % self.tdir
 	print '<input type=hidden name="fi" value="%s">' % fn
