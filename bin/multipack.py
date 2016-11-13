@@ -81,6 +81,8 @@ def make_pack_list(pif, sec='', year='', region='', lid='', verbose=False):
 
     llineup = dict(section=[])
     for lsection in sections:
+	if sec and lsection['id'] != sec:
+	    continue
 	entries = list()
 	for pack in packs:
 	    if pack['section_id'] == lsection['id']:
@@ -353,6 +355,15 @@ def do_page(pif):
 	pid = pif.form.get_str('id')
         return do_single_pack(pif, pid)
     elif pif.form.has('page'):
+	return make_pack_list(pif,
+		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
+		    **pif.form.get_dict(['sec', 'year', 'region', 'lid']))
+    elif pif.form.has('sec'):
+	useful.write_comment(pif.form)
+	sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
+	if not sections:
+	    return make_page_list(pif)
+	pif.page_id = sections[0]['page_info.id']
 	return make_pack_list(pif,
 		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
 		    **pif.form.get_dict(['sec', 'year', 'region', 'lid']))

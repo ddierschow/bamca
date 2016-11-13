@@ -102,6 +102,8 @@ class DBHandler(object):
                 else:
                     columns.extend(self.make_columns(tab, extras))
             table_name = ','.join(table_name)
+	elif isinstance(columns, str):
+	    columns = columns.split(',')
         if isinstance(where, list):
             where = ' and '.join(where)
         elif isinstance(where, dict):
@@ -198,6 +200,13 @@ class DBHandler(object):
         if secs:
             return secs[0]
         return None
+
+    def fetch_sections_by_page_type(self, page_type, sec_id=None, verbose=False):
+	where = 'section.page_id=page_info.id and page_info.format_type="%s"' % page_type
+	if sec_id:
+	    where += ' and section.id="%s"' % sec_id
+        secs = self.fetch('section,page_info', columns='page_info.id', where=where, tag='SectionByPageType', verbose=verbose)
+	return secs
 
     def fetch_sections(self, where=None):
         return self.fetch('section', where=where, order='display_order', tag='Sections')

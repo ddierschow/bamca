@@ -47,12 +47,14 @@ def simple_html(status=404):
 
 
 def handle_exception(pif, header_done=False, write_traceback=True):
+    str_tb = ''
     if write_traceback:
 	str_tb = write_traceback_file(pif)
     if not pif or not pif.render or not pif.dbh:
 	if not header_done:
 	    simple_html()
-        print '<!--\n' + str_tb + '-->'
+	if str_tb:
+	    print '<!--\n' + str_tb + '-->'
         final_exit()
     pif.dbh.set_health(pif.page_id)
     import useful

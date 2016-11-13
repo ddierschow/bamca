@@ -456,7 +456,7 @@ function SectionVSearch()
 function SectionPacks()
 {
     echo "<table><tr><td>\n";
-    FetchSelect('page', 'packPage', 'pack type', "select flags, id, title from page_info where format_type='packs' order by title");
+    FetchSelect('sec', 'packPage', 'pack type', "select flags, id, name from section where page_id like 'packs.%' and not (flags & 16) order by name");
     echo "</td></tr><tr><td>\n";
     echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
     echo "</td></tr></table>\n";
