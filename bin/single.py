@@ -149,8 +149,8 @@ def show_code2_appearances(pif, mod_id, vscounts):
 
 def show_pack_appearances(pif, packs):
     # doesn't do pagename properly
-    return [show_link("packs.cgi?page=%s&id=%s" % (pack['pack.section_id'], pack['base_id.id']),
-            [pack['base_id.rawname'], pack['page_info.title'], mbdata.regions.get(pack['pack.region'], 'Worldwide'), pack['base_id.first_year']])
+    return [show_link("packs.cgi?page=%s&id=%s" % (pack['pack.page_id'], pack['base_id.id']),
+            [pack['base_id.rawname'], pack['page_info.title'], pack['section.name'], mbdata.regions.get(pack['pack.region'], 'Worldwide'), pack['base_id.first_year']])
 	    for pack in packs]
 
 

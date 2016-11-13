@@ -1057,7 +1057,11 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
         return self.dbi.rawquery(pack_model_query % (page_id, pack_id, pack_id))
 
     def fetch_pack_model_appearances(self, mod_id):
-        return self.fetch('pack, pack_model, page_info, base_id', columns=['pack.id', 'base_id.id', 'base_id.rawname', 'base_id.first_year', 'pack.region', 'pack.layout', 'page_info.title', 'pack.section_id'], where="pack.id=base_id.id and pack_model.mod_id='%s' and pack_model.pack_id=pack.id and page_info.id=pack.page_id" % mod_id, tag='PackModelAppearances')
+        return self.fetch(
+	    'pack, pack_model, page_info, base_id, section',
+	    columns=['pack.id', 'base_id.id', 'base_id.rawname', 'base_id.first_year', 'pack.page_id', 'pack.region', 'pack.layout', 'page_info.title', 'pack.section_id', 'section.name'],
+	    where="pack.id=base_id.id and pack_model.mod_id='%s' and pack_model.pack_id=pack.id and page_info.id=pack.page_id and pack.page_id=section.page_id and section.id=pack.section_id" % mod_id,
+	    tag='PackModelAppearances')
 
     def delete_pack_models(self, ref_id, pack_id):
         self.delete('pack_model', "pack_id='%s'" % pack_id)
