@@ -208,7 +208,7 @@ def add_model_table_list_entry(pif, mdict):
 
 
 def add_model_pic_link_short(pif, id):
-    ostr = '<a name="%s">' % id
+    ostr = '<a name="%s"></a>' % id
     ostr += '<center><b>%s</b><br>' % id
     ostr += '<a href="single.cgi?id=%s">' % id
     ostr += pif.render.format_image_required([id], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN) + '</a></center>'
