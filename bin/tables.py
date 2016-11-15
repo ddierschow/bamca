@@ -456,21 +456,6 @@ table_info = {
 #                {'tab': 'casting', 'id': ['id/mod_id']},
 #        ],
     },
-    #box_style
-    'box_style': {
-        'id': ['id'],
-        'columns': ['id', 'styles'],
-        'create': {
-                'id': 'unset',
-                'styles': '',
-        },
-        'clinks': {
-        },
-        'tlinks': [
-                {'tab': 'alias', 'id': ['id/id']},
-                {'tab': 'casting', 'id': ['id/id']},
-        ],
-    },
     #book
     'book': {
         'id': ['id'],
@@ -561,9 +546,6 @@ blacklist
     id                      int(11)         NO      PRI     NULL    auto_increment
     reason                  varchar(6)      YES
     target                  varchar(32)     YES
-box_style
-    id                      varchar(12)     NO              NULL
-    styles                  varchar(16)     NO              NULL
 casting
     id                      varchar(12)     NO      PRI
     first_year              varchar(4)      YES

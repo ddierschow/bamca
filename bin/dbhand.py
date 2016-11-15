@@ -237,7 +237,6 @@ class DBHandler(object):
         self.write('variation', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('variation_select', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('variation_select', {'sub_id': new_mod_id}, where="sub_id='%s'" % old_mod_id, modonly=True)
-        self.write('box_style', {'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
         self.write('box_type', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('link_line', {'page_id': 'single.' + new_mod_id}, where="page_id='single.%s'" % old_mod_id, modonly=True)
 
@@ -260,19 +259,6 @@ class DBHandler(object):
         if alist:
             return alist[0]
         return {}
-
-    def fetch_castings_by_box_old(self, series, style):
-        wheres = ['casting.id=base_id.id']
-        if series:
-            wheres.append("base_id.model_type='%s'" % series)
-        if style:
-            wheres.append("box_style.styles like '%%%s%%'" % style)
-        fet1 = self.fetch('box_style,casting,base_id', where=['box_style.id=casting.id'] + wheres, tag='CastingsByBox', verbose=0)
-
-        #ljoins = [('alias', "base_id.id=alias.ref_id")]  # and alias.section_id != ''")]
-        wheres = ['box_style.id=alias.id', 'alias.ref_id=casting.id'] + wheres
-        fet2 = self.fetch('box_style,alias,casting,base_id', where=wheres, tag='CastingsByBox', verbose=0)
-        return fet1 + fet2
 
     def fetch_castings_by_box(self, series, style):
         wheres = ['casting.id=base_id.id']
