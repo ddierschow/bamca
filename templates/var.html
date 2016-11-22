@@ -1,4 +1,5 @@
 {% extends "framed.html" %}
+{%- import "showix.html" as showix -%}
 
 {%- block frame_body_panel %}
 
@@ -17,7 +18,7 @@
 <input type="hidden" name="ovar" value="{{ variation.var }}">
 {% endif %}
 <center>
-{{ render.format_listix(llistix) }}
+{{ showix.format_listix(llistix) }}
 {# formatted_listix #}
 </center>
 

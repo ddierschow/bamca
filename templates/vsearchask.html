@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%- import "showix.html" as showix -%}
 
 {% block page_body %}
 
@@ -7,7 +8,7 @@
 {% if vsform.verbose %}<input type="hidden" name="verbose" value="1">{% endif %}
 <input type="hidden" name="page" value="vars">
 <input type="hidden" name="mod" value="{{ id }}">
-{{ render.format_listix(vsform) }}
+{{ showix.format_listix(vsform) }}
 </form>
 <hr>
 

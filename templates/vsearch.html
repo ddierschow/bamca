@@ -1,4 +1,5 @@
 {%- extends "base.html" -%}
+{%- import "showix.html" as showix -%}
 
 {%- macro vs_entry(entry) -%}
   <center>
@@ -17,5 +18,5 @@
 
 {%- block page_body -%}
 body
-{{ render.format_matrix(llineup, vs_entry) }}
+{{ showix.format_matrix(llineup, vs_entry) }}
 {%- endblock page_body -%}

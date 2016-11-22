@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%- import "showix.html" as showix -%}
 
 {%- macro simple_formatter(content) %}
 {{ content.text }}
@@ -8,7 +9,7 @@
 
 <center>
 {%- for llineup in llineups %}
-{{- render.format_matrix(llineup, simple_formatter) }}
+{{- showix.format_matrix(llineup, simple_formatter) }}
 {%- endfor %}
 </center>
 

@@ -3,7 +3,17 @@
 {%- macro add_left_bar(type_id=None, base_id=None, vehicle_type='', rowspan=4, content='') %}
 <td rowspan="{{ rowspan }}" class="leftbar">
 <div class="leftbarcontent">
-{%- if base_id or type_id or vehicle_type %}{{ render.add_icons(type_id, base_id, vehicle_type) }}<p>{% endif %}
+{%- if base_id or type_id or vehicle_type %}
+{%- if type_id %}{{ render.format_image_art(type_id) }}<p>{% endif %}
+{#-    if base_id:
+        icon = pif.render.format_image_optional(base_id, None, prefix='i_', suffix='gif', pdir=config.IMG_DIR_ICON, also={'class': 'centered'})
+        if icon != '&nbsp;':
+            icon_list.append(icon)#}
+{%- if base_id %}{{ render.format_image_optional(base_id, '', config.IMG_DIR_ICON, prefix='i_', suffix='.gif', also={'class':'centered'})  }}<p>{% endif %}
+{#-    {% for vtype in vehicle_type %}
+        if vtype in mbdata.model_icons:
+            {{ render.format_image_art(mbdata.model_icons[vtype])) }}<p> #}
+<p>{% endif %}
 {{ content }}
 </div>
 <div class="bamcamark">
@@ -15,7 +25,7 @@
 {%- block page_body %}
 
 {#- top #}
-<table width="100%"><tr>
+<table class="framed"><tr>
 
 {#- left bar #}
 {{ add_left_bar(type_id, icon_id, vehicle_type, rowspan, content=left_bar_content) }}

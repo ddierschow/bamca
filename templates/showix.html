@@ -1,0 +1,152 @@
+{%- import "render.html" as render %}
+
+
+{%- macro format_ulist(llist) %}
+{%- for section in llist.section %}
+{{ render.fmt_anchor(section.anchor) }}
+{%- if section.name %}
+<div class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</div>
+{%- endif %}
+{%- for range in section.range %}
+{{ render.fmt_anchor(range.anchor) }}
+{%- if range.name %}
+  <div class="{{ render.class_id('rh', range.id) }}">{{ range.name }}</div>
+{%- endif %}
+<ul class="{{ render.class_id('tb', section.id) }}">
+{%- for entry in range.entry %}
+  <li class="{{ render.class_id('eb', range.id) }}">{{ entry }}</li>
+{%- endfor -%}
+{%- if range.note -%}
+  <div class="et">{{ range.note }}</div>
+{%- endif -%}
+{%- endfor -%}
+</ul>
+{%- if section.note -%}
+  <div class="st">{{ section.note }}</div>
+{%- endif -%}
+{%- endfor %}
+{%- if llist.tail %}
+<ul class="tb_tail tb">
+{%- for tail in llist.tail %}
+  <li class="eb_tail_{{ loop.index }} eb_tail eb">{{ tail }}</li>
+{%- endfor %}
+</ul>
+{%- endif %}
+{%- endmacro %}
+
+
+{%- macro format_listix(llistix) %}
+{%- if llistix.note -%}{{ llistix.note }}{%- endif -%}
+{%- for section in llistix.section %}
+{{- render.fmt_anchor(section.anchor) }}
+{%- if section.header -%}{{ section.header }}{%- endif -%}
+<table class="{{ render.class_id('tb', section.id) }}">
+{%- if section.name %}
+ <tr>
+  <th{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
+ </tr>
+{%- endif %}
+{%- if not section.noheaders %}
+<tr class="er">
+{%- for col in section.columns %}
+{#-  <th class="{{ render.class_id('eh', section.id) }}{{ render.class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
+  <th class="{{ render.class_id('eh', section.id, range.id, col) }}">{{ section.headers[col] }}</th>
+{%- endfor -%}
+</tr>
+{%- endif %}
+{%- for range in section.range %}
+{{- render.fmt_anchor(range.anchor) }}
+{%- if range.name %}
+ <tr>
+  <th{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="{{ render.class_id('sh', range.id) }}">{{ range.name }}</th>
+ </tr>
+{%- endif %}
+{%- for entry in range.entry %}
+<tr class="er">
+{%- for col in section.columns %}
+  <td class="{{ render.class_id('eb', range.get('styles', {}).get(col, '1')) }}">{{ entry[col] or '&nbsp;' }}</td>
+{%- endfor %}
+</tr>
+{%- endfor -%}
+{%- if range.note -%}
+<tr class="er">
+  <td{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="eb">{{ range.note }}</td>
+</tr>
+{%- endif -%}
+{%- endfor -%}
+{%- if section.note -%}
+<tr class="er">
+  <td{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="eb">{{ section.note }}</td>
+</tr>
+{%- endif -%}
+</table>
+{%- if section.footer %}{{ section.footer }}{% endif %}
+{%- endfor %}
+{%- if llistix.tail %}
+<table class="tb_tail tb">
+ <tr>
+{%- for tail in llistix.tail %}
+  <td class="eb_tail_{{ loop.index }} eb">{{ tail }}</td>
+{%- endfor %}
+ </tr>
+</table>
+{%- endif %}
+{%- if llistix.footer -%}{{ llistix.footer }}{%- endif -%}
+{%- endmacro %}
+
+
+
+{%- macro format_matrix(lmatrix, entry_formatter) %}
+{%- if lmatrix.header -%}{{ lmatrix.header }}{%- endif -%}
+{%- if lmatrix.section %}
+{%- for section in lmatrix.section %}
+{{ render.fmt_anchor(section.anchor) }}
+<table class="{{ render.class_id('tb', lmatrix.id) }}">
+{%- if section.name %}
+ <tr>
+  <th{% if section.columns > 1 %} colspan="{{ section.columns }}"{% endif %} class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
+ </tr>
+{%- endif -%}
+{%- for range in section.range -%}
+{%- if range.name or range.graphics %}
+ <tr>
+{%- if section.columns == 1 %}
+  <th class="{{ render.class_id('rh', range.class, range.id) }}">{{ range.graphics }}&nbsp;{{ range.name }}&nbsp;</th>
+{%- elif section.columns == 2 %}
+  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
+  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
+{%- else %}
+  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
+  <th{% if section.columns > 3 %} colspan="{{ section.columns - 2 }}"{% endif %} class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
+  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;</th>
+{%- endif %}
+ </tr>
+{%- endif -%}
+{%- for entry in range.entry %}
+{%- if entry.firstent %} <tr class="er">{% endif %}
+  <td{%- if not lmatrix.widthauto %} width="{{ entry.width }}%"{% endif %} class="{{ render.class_id('', entry.class) }}{{ render.class_id('eb', range.id, entry.display_id) }}"{% if entry.colspan > 1 %} colspan="{{ entry.colspan }}"{% endif %}{% if entry.rowspan > 1 %} rowspan="{{ entry.rowspan }}"{% endif %}>
+{{- entry_formatter(entry) }}
+  </td>
+{%- if entry.lastent or loop.last %} </tr>{% endif %}
+{%- endfor -%}
+{%- endfor %}
+</table>
+{%- endfor %}
+{%- if lmatrix.tail %}
+<table class="tb_tail tb">
+ <tr>
+{%- for tail in lmatrix.tail %}
+  <td class="eb_tail_{{ loop.index }} eb">{{ tail }}</td>
+{%- endfor %}
+ </tr>
+</table>
+{%- endif %}
+{%- endif %}
+{%- if lmatrix.footer -%}{{ lmatrix.footer }}{%- endif -%}
+{%- endmacro %}
+
+
+{%- macro format_brlist(thing) %}
+{%- for ent in thing %}{{ ent }}{% if not loop.last %}<br>{% endif %}
+{%- endfor %}
+{%- endmacro %}

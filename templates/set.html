@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{%- import "showix.html" as showix -%}
 
 {% block page_body %}
 
-{{ render.format_listix(llineup) }}
+{{ showix.format_listix(llineup) }}
 
 {% endblock page_body %}

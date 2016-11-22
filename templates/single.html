@@ -1,7 +1,8 @@
 {%- extends "framed.html" %}
+{%- import "showix.html" as showix -%}
 
 {%- macro show_boxes() %}
-{{ render.format_matrix(boxes_lineup, simple_formatter) }}
+{{ showix.format_matrix(boxes_lineup, simple_formatter) }}
 {%- endmacro %}
 
 {%- macro show_adds() %}
@@ -18,12 +19,12 @@
 
 {%- if baseplates %}{#- not currently implemented #}
 <center><h3>Base Plate Name{{ render.plural(baseplates) }}</h3>
-{{ render.br_list(baseplates) }}
+{{ showix.format_brlist(baseplates) }}
 </center><p>
 {%- endif %}
 
 {%- if appearances %}
-{{ render.format_matrix(appearances, simple_formatter) }}
+{{ showix.format_matrix(appearances, simple_formatter) }}
 <p>
 {%- endif %}
 
@@ -93,7 +94,7 @@
 </center></td>
 {%- endif %}
 {%- if model.first_year %}<td valign="top"><center>{{ model.first_year }}</center></td>{% endif %}
-{%- if mack_nums %}<td valign="top"><center>{{ render.br_list(mack_nums) }}</center></td>{% endif %}
+{%- if mack_nums %}<td valign="top"><center>{{ showix.format_brlist(mack_nums) }}</center></td>{% endif %}
 </tr></table></center>
 {%- endmacro %}
 

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{%- import "showix.html" as showix -%}
 {% block page_body %}
 
 {% macro matrix_formatter(mdict) %}
@@ -32,6 +33,6 @@
 {{ mdict.additional }}
 {% endmacro %}
 
-{{ render.format_matrix(llineup, matrix_formatter) }}
+{{ showix.format_matrix(llineup, matrix_formatter) }}
 
 {% endblock page_body %}
