@@ -1,5 +1,5 @@
 td {vertical-align: top;}
-.maintable {width: 100%; max-width: 1024px;}
+.maintable {width: 1024px; max-width: 1024px;}
 .types td {vertical-align: middle;}
 
 .tdboth {border-style: solid; border-width: thin; padding-left: 4px; padding-right: 4px;}
@@ -24,8 +24,8 @@ td {vertical-align: top;}
 .header-link-item a:active     {color: #FFFFFF; background-color: #006600;}
 .header-link-item a:hover      {color: #006600; background-color: #FFFFFF; text-decoration: none;}
 
-.id_head       {background-color: #C8C8C8;}
-.id_body       {background-color: #EEEEEE;}
+.id_head       {background-color: #DDDDDD;}
+.id_body       {background-color: #F3F3F3;}
 .year_head     {background-color: #FFFF5A;}
 .year_body     {background-color: #FFFFCC;}
 .rank_head     {background-color: #B0B0FF;}
@@ -56,3 +56,8 @@ td {vertical-align: top;}
 .new4_body     {background-color: #FFCCE8;}
 
 .hspacer {width: 20px;}
+
+.paget {list-style-type: none; border-width: 0px; padding: 0 4px 0 4px; margin: 0; display: table; width: 100%;}
+.pagec {width: 172px; height: 120px; border-style: solid; border-width: 1px; float: left; display: block; padding: 4px; margin: 8px; background-color: #FFFFFF;}
+.othertitle {height: 96px; font-weight: bold; font-size: x-large;}
+.otherdesc {font-weight: normal; font-size: large;}

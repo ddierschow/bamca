@@ -3,7 +3,7 @@ body {background-color: #CCCCCC;}
 
 .boxborder {background-image: url(/pic/gfx/red4x4.gif); width: 4px; height: 4px;}
 .linklist {vertical-align: top;}
-.database {vertical-align: center; text-align: center; border-width: 1px; border-style: solid; font-size: xx-large; font-weight: bold;}
+.database {vertical-align: center; text-align: center; border-width: 1px; border-style: solid; font-size: xx-large; font-weight: bold; margin: 8px;}
 
 .public {width: 17%;}
 .private {width: 17%; background-color: #EEEEEE;}
