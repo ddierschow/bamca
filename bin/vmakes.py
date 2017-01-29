@@ -27,7 +27,7 @@ def makes_main(pif):
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/makes.cgi', 'Models by Make')
     if make:
-	pif.render.title = 'Models by Make: ' + makedict.get(make, {}).get('name')
+	pif.render.title = 'Models by Make: ' + makedict.get(make, {}).get('name', '')
     if make == 'text':
         pif.render.hierarchy_append(pif.request_uri, 'Search')
     elif make:

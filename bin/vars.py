@@ -196,7 +196,7 @@ def show_detail_modal(pif, attr_pic, mod_id, var_id=''):
     add = adds.get(attr_pic['attr_type'] + '_')
     if not add:
 	return ''
-    img_id = (mod_id + ('-' + var_id if var_id else '')).lower() + '-' + attr_pic['picture_id']
+    img_id = (mod_id + ('-' + var_id if var_id else '')).lower() + ('-' + attr_pic['picture_id'] if attr_pic['picture_id'] else '')
     pdir = config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD
 
     ostr = ''
@@ -439,7 +439,7 @@ class VarSearchForm(object):
     def __init__(self, pif, mod_id):
 	self.page_id = pif.page_id
 	self.mod_id = mod_id
-	attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id))}
+	attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))}
 	attributes.update({pif.dbh.table_info['variation']['columns'][x]:
 	    {'title': pif.dbh.table_info['variation']['titles'][x]}
 		for x in range(0, len(pif.dbh.table_info['variation']['columns']))})

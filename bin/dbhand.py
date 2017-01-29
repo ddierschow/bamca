@@ -492,8 +492,11 @@ class DBHandler(object):
 
     #- attribute
 
-    def fetch_attributes(self, id):
-        return self.fetch('attribute', where="mod_id='%s'" % id, tag='Attributes')
+    def fetch_attributes(self, mod_id, with_global=False):
+        where = "mod_id='%s'" % mod_id
+	if with_global:
+	    where += "or mod_id=''"
+        return self.fetch('attribute', where=where, tag='Attributes')
 
     def fetch_attribute(self, id):
         return self.fetch('attribute', where="id='%s'" % id, tag='Attribute')

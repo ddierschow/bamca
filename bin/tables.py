@@ -274,7 +274,7 @@ table_info = {
     #vehicle_make
     'vehicle_make': {
         'id': ['id'],
-        'columns': ['id', 'make', 'make_name', 'name', 'company_name', 'flags'],
+        'columns': ['id', 'name', 'company_name', 'flags'],
         'clinks': {
                 'id': {'tab': 'vehicle_make', 'id': ['id/id']},
         },
