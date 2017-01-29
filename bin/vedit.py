@@ -435,7 +435,6 @@ def show_base_id(pif, mod):
             % (col, pif.render.format_text_input("base_id." + col, flen, min(80, flen), mod[col]))
         print "</tr>"
     print "</table>"
-    #print '<input type="image" src="../pic/gfx/but_save.gif" name="save_base_id">'
     print pif.render.format_button_input('save', 'save base id')
     print "</form>"
 
@@ -459,7 +458,7 @@ def show_casting(pif, mod):
 		% (col, pif.render.format_text_input("casting." + col, flen, min(flen, 128), mod[col]))
         print "<td>%s</td></tr>" % casting_help(pif, col, mod)
     print "</table>"
-    print '<input type="image" src="../pic/gfx/but_save.gif" name="save_casting">'
+    print pif.render.format_button_input('save', 'save casting')
     print "</form>"
 
     fmt_invalid, messages =  pif.dbh.check_description_formatting(mod['id'], '<br>')
@@ -546,7 +545,7 @@ def show_no_model(pif, varfile, fitab):
 
 def show_model_table(pif, varfile, fitab):
     # header info
-    print '<a name="%s"></a>' % fitab['modid']
+    print '<i id="%s"></i>' % fitab['modid']
     mod = fitab['casting']
 
     for vf in filter(None, [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod['id'])]):

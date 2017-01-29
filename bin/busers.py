@@ -98,7 +98,7 @@ def login_main(pif):
 	useful.warn("Login Failed!")
 
     pif.render.print_html()
-    return pif.render.format_template('login.html', dest=pif.form.get_str('dest', '/index.php'))
+    return pif.render.format_template('login.html', dest=pif.form.get_str('dest', '/index.php'), register='signup.cgi?dest=' + pif.form.get_str('dest', '/index.php'))
 
 
 # ------ logout

@@ -158,7 +158,7 @@ class DB(object):
                 return [dict(zip(desc_cols, x)) for x in res]
         return list()
 
-    def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, tag='', verbose=None):
+    def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, outcols=None, tag='', verbose=None):
         if self.db:
             query = 'select '
             if tag:
@@ -179,8 +179,10 @@ class DB(object):
             res, desc, lid = self.execute(query, args, verbose=verbose)
             if not cols:
                 cols = [x[0] for x in desc]
+	    if not outcols:
+		outcols = cols
             if res:
-                return [dict(zip(cols, x)) for x in res]
+                return [dict(zip(outcols, x)) for x in res]
         return list()
 
     def rawquery(self, query, tag='', verbose=None):

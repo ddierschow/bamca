@@ -1,38 +1,36 @@
+<!DOCTYPE html>
 <html>
-<head>
-<title>Glossary of Terms</title>
-<link rel="icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
-<link rel="shortcut icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="/styles/main.css" type="text/css">
-<link rel="stylesheet" href="/styles/glossary.css" type="text/css">
-</head>
-
-<body>
-
-<h1>Glossary of Terms</h1>
+<?php
+chdir('..');
+include "bin/basics.php";
+include "config.php";
+$pif = GetPageInfo("glossary");
+DoHead($pif);
+DoPageHeader($pif);
+?>
 
 Like all hobbies, diecast collecting has a range of words, terms, phrases and acronyms that those new to the hobby may not know about, below is an alphabetical listing of those terms and an explanation of their meaning.<p>
 
-<a href="#A">A</a>- <a href="#B">B</a> - <a href="#C">C</a> - <a href="#D">D</a> - <a href="#E">E</a> -
-<a href="#F">F</a>- <a href="#G">G</a> - <a href="#H">H</a> - <a href="#I">I</a> - <a href="#J">J</a> -
-<a href="#K">K</a>- <a href="#L">L</a> - <a href="#M">M</a> - <a href="#N">N</a> - <a href="#O">O</a> -
-<a href="#P">P</a>- <a href="#Q">Q</a> - <a href="#R">R</a> - <a href="#S">S</a> - <a href="#T">T</a> -
-<a href="#U">U</a>- <a href="#V">V</a> - <a href="#W">W</a> - <a href="#X">X</a> - <a href="#Y">Y</a> -
-<a href="#Z">Z</a></p>
+<a href="#a">A</a>- <a href="#b">B</a> - <a href="#c">C</a> - <a href="#d">D</a> - <a href="#e">E</a> -
+<a href="#f">F</a>- <a href="#g">G</a> - <a href="#h">H</a> - <a href="#i">I</a> - <a href="#j">J</a> -
+<a href="#k">K</a>- <a href="#l">L</a> - <a href="#m">M</a> - <a href="#n">N</a> - <a href="#o">O</a> -
+<a href="#p">P</a>- <a href="#q">Q</a> - <a href="#r">R</a> - <a href="#s">S</a> - <a href="#t">T</a> -
+<a href="#u">U</a>- <a href="#v">V</a> - <a href="#w">W</a> - <a href="#x">X</a> - <a href="#y">Y</a> -
+<a href="#z">Z</a></p>
 
-<h2>A<a name="A"></a></h2>
+<h2 id="a">A</h2>
 
 <dl>
 </dl>
 
-<h2>B<a name="B"></a></h2>
+<h2 id="b">B</h2>
 
 <dl>
 <dt>Blister</dt>
 <dd>Common term for the plastic packaging that a model comes in</dd>
 </dl>
 
-<h2>C<a name="C"></a></h2>
+<h2 id="c">C</h2>
 
 <dl>
 <dt>C5 through C10</dt>
@@ -57,7 +55,7 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>Any model that has after market modifications that have not been approved by the original manufacturer</dd>
 </dl>
 
-<h2>D<a name="D"></a></h2>
+<h2 id="d">D</h2>
 
 <dl>
 <dt>Decal</dt>
@@ -70,12 +68,12 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>A brand of diecast originally made by Meccano.  Matchbox acquired the brand in the last 1980s.
 </dl>
 
-<h2>E<a name="E"></a></h2>
+<h2 id="e">E</h2>
 
 <dl>
 </dl>
 
-<h2>F<a name="F"></a></h2>
+<h2 id="f">F</h2>
 
 <dl>
 <dt>FEP</dt>
@@ -84,34 +82,34 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>Prior to mass production of a new model, the manufacturer will produce a couple of models that will include all components.  These &#8220;First Shot&#8221; models are used to gain final permission from license holders (Vehicle manufacturers) and to ensure that any potential defects in the mould are picked up and fixed.  Usually changes from this point onwards are very minor in nature.</dd>
 </dl>
 
-<h2>G<a name="G"></a></h2>
+<h2 id="g">G</h2>
 
 <dl>
 </dl>
 
-<h2>H<a name="H"></a></h2>
+<h2 id="h">H</h2>
 
 <dl>
 </dl>
 
-<h2>I<a name="I"></a></h2>
+<h2 id="i">I</h2>
 
 <dl>
 <dt>Inner</dt>
 <dd>This is short for &#8220;Inner Carton&#8221;, smaller cardboard containers packaged inside a case that contain subsets of contents.</dd>
 </dl>
 
-<h2>J<a name="J"></a></h2>
+<h2 id="j">J</h2>
 
 <dl>
 </dl>
 
-<h2>K<a name="K"></a></h2>
+<h2 id="k">K</h2>
 
 <dl>
 </dl>
 
-<h2>L<a name="L"></a></h2>
+<h2 id="l">L</h2>
 
 <dl>
 <dt>Label</dt>
@@ -124,7 +122,7 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>Descriptive term used for the longer (larger) cards used in the USA market</dd>
 </dl>
 
-<h2>M<a name="M"></a></h2>
+<h2 id="m">M</h2>
 
 <dl>
 <dt>MAN</dt>
@@ -137,21 +135,23 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>A common abbreviation for &#8220;Matchbox&#8221;, also used as the leading letters in the MAN coding system.</dd>
 <dt>MIB</dt>
 <dd>A common abbreviation for &#8220;Mint In Box&#8221; or &#8220;Mint In Blister&#8221;</dd>
+<dt>MOMC</dt>
+<dd>A common abbreviation for &#8220;Mint On Mint Card&#8221;</dd>
 <dt>MOY</dt>
 <dd>A common abbreviation for &#8220;Models of Yesteryear&#8221;</dd>
 </dl>
 
-<h2>N<a name="N"></a></h2>
+<h2 id="n">N</h2>
 
 <dl>
 </dl>
 
-<h2>O<a name="O"></a></h2>
+<h2 id="o">O</h2>
 
 <dl>
 </dl>
 
-<h2>P<a name="P"></a></h2>
+<h2 id="p">P</h2>
 
 <dl>
 <dt>Pre-Production</dt>
@@ -160,12 +160,12 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd><b>A</b>n early sample or model built to test a concept or process or to act as a thing to be replicated or learned from, also used to gain approval from license holders</dd>
 </dl>
 
-<h2>Q<a name="Q"></a></h2>
+<h2 id="q">Q</h2>
 
 <dl>
 </dl>
 
-<h2>R<a name="R"></a></h2>
+<h2 id="r">R</h2>
 
 <dl>
 <dt>R/C</dt>
@@ -178,7 +178,7 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>A common abbreviation for &#8220;Real Working Rigs&#8221;</dd>
 </dl>
 
-<h2>S<a name="S"></a></h2>
+<h2 id="s">S</h2>
 
 <dl>
 <dt>Scale</dt>
@@ -191,7 +191,7 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>A new style of faster rolling wheels introduced in 1969/1970 to counteract the introduction of Hot Wheels cars</dd>
 </dl>
 
-<h2>T<a name="T"></a></h2>
+<h2 id="t">T</h2>
 
 <dl>
 <dt>Tampo</dt>
@@ -200,7 +200,7 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>Owner of the Matchbox brand from 1993 till its take-over by Mattel, Inc in 1997</dd>
 </dl>
 
-<h2>U<a name="U"></a></h2>
+<h2 id="u">U</h2>
 
 <dl>
 <dt>USA</dt>
@@ -209,29 +209,29 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>The company that purchased the Matchbox brand after Lesney Industries went into liquidation in 1982.</dd>
 </dl>
 
-<h2>V<a name="V"></a></h2>
+<h2 id="v">V</h2>
 
 <dl>
 </dl>
 
-<h2>W<a name="W"></a></h2>
+<h2 id="w">W</h2>
 
 <dl>
 <dt>Window Box</dt>
 <dd>A type of packaging that features a see-through window on one or more sides</dd>
 </dl>
 
-<h2>X<a name="X"></a></h2>
+<h2 id="x">X</h2>
 
 <dl>
 </dl>
 
-<h2>Y<a name="Y"></a></h2>
+<h2 id="y">Y</h2>
 
 <dl>
 </dl>
 
-<h2>Z<a name="Z"></a></h2>
+<h2 id="z">Z</h2>
 
 <dl>
 <dt>ZAMAC</dt>

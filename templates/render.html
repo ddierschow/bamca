@@ -16,32 +16,26 @@
 {%- endmacro -%}
 
 
-{%- macro fmt_anchor(fname, desc, hspace, also) %}{% if fname %}<a name="{{ fname }}"></a>
+{%- macro fmt_anchor(fname, desc, hspace, also) %}{% if fname %}<i id="{{ fname }}"></i>
 {%- endif %}{% endmacro %}
 
 
 {%- macro format_button(bname, link='') -%}
-{% if link %}<a href="{{ link }}">{% endif %}<img src="../{{ find_button_image(bname) }}" alt="{{ find_button_label(bname) }}" class="button" onmouseout="this.src='../{{ find_button_image(bname) }}';" onmouseover="this.src='../{{ find_hover_image(bname) }}';">{% if link %}</a>{% endif %}
+{% if link -%}
+<a href="{{ link }}" class="textbutton">{{ find_button_label(bname) }}</a>
+{%- else -%}
+<div class="textbutton">{{ find_button_label(bname) }}</div>
+{%- endif -%}
 {%- endmacro -%}
 
 
 {%- macro format_button_input(bname="submit", also='') -%}
-<input type="image" name="{{ find_button_name(bname) }}" src="../{{ find_button_image(bname) }}" alt="{{ find_button_label(bname) }}" class="button" onmouseout="this.src='../{{ find_button_image(bname) }}';" onmouseover="this.src='../{{ find_hover_image(bname) }}';"{{ fmt_also(also) }}>
+<button type="submit" name="{{ find_button_name(bname) }}" value="1" class="textbutton">{{ find_button_label(bname) }}</button>
 {%- endmacro -%}
 
 
 {%- macro format_button_reset(form_id, also='') -%}
-<img src="../{{ find_button_image('reset') }}" onmouseover="this.src='../{{ find_hover_image('reset') }}';" onmouseout="this.src='../{{ find_button_image('reset') }}';" border="0" onClick="ResetForm(document.{{ form_id }})" alt="RESET" class="button"{{ fmt_also(also) }}>
-{%- endmacro %}
-
-
-{%- macro format_button_input_visibility_expanded(id) -%}
-<input type="image" src "../pic/gfx/but_collapse.gif" id="{{ id }}_l" value="collapse" onclick="toggle_visibility('{{ id }}','{{ id }}_l'); return false;" class="button" onmouseover="this.src='../pic/gfx/but_collapse.gif';" onmouseout="this.src='../pic/gfx/hov_collapse.gif';">
-{%- endmacro %}
-
-
-{%- macro format_button_input_visibility_collapsed(id) -%}
-<input type="image" src "../pic/gfx/but_expand.gif" id="{{ id }}_l" value="expand" onclick="toggle_visibility('{{ id }}','{{ id }}_l'); return false;" class="button" onmouseover="this.src='../pic/gfx/but_expand.gif';" onmouseout="this.src='../pic/gfx/hov_expand.gif';">
+<div onClick="ResetForm(document.{{ form_id }})" class="textbutton">RESET</div>
 {%- endmacro %}
 
 
@@ -60,16 +54,6 @@
 {%- endmacro %}
 
 
-{%- macro find_button_image(name, pdir='') -%}
-{%- if pdir %}{{ pdir }}{% else %}{{ config.IMG_DIR_ART }}{% endif %}/but_{{ name|replace(' ', '_')|lower }}.gif
-{%- endmacro %}
-
-
-{%- macro find_hover_image(name, pdir='') -%}
-{%- if pdir %}{{ pdir }}{% else %}{{ config.IMG_DIR_ART }}{% endif %}/hov_{{ name|replace(' ', '_')|lower }}.gif
-{%- endmacro %}
-
-
 {%- macro class_id(pfx) -%}
 {%- for cid in varargs -%}{% if cid %}{% if pfx %}{{ pfx }}_{% endif %}{{ cid }} {% endif %}{% endfor %}{{ pfx }}
 {%- endmacro -%}
@@ -78,7 +62,7 @@
 {%- macro add_banner(title, note='') %}
 <td class="titlebar">
 {{ title }}
-{%- if note %}<br><span style="font-size: smaller;">{{ note }}</span>{% endif %}
+{%- if note %}<br><span class="titlenote">{{ note }}</span>{% endif %}
 </td>
 {%- endmacro %}
 

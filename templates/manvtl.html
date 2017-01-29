@@ -37,7 +37,7 @@ country: <input name="co_RN01" type="text" size="2" maxlength="2" value="">
 <input type="hidden" name="vtset" value="1">
 <table class="tb">
 {%- for section in llineup.section %}
-<tr><th colspan={{ llineup.num_cols }}><a name="{{ section.id }}">{{ section.name }}</a></th></tr>
+<tr><th colspan={{ llineup.num_cols }} id="{{ section.id }}">{{ section.name }}</th></tr>
 <tr>
 {%- for col in llineup.cols %}<th>{{ col[1] }}</th>{%- endfor -%}
 {%- for entry in section.entry %}
@@ -48,6 +48,7 @@ country: <input name="co_RN01" type="text" size="2" maxlength="2" value="">
 {%- endfor %}
 {%- endfor %}
 </table>
-<input type="image" name="submit" src="../pic/gfx/but_submit.gif" alt="SUBMIT" class="button" onmouseout="this.src='../pic/gfx/but_submit.gif';" onmouseover="this.src='../pic/gfx/hov_submit.gif';"></form>
+{{ render.format_button_input('submit') }}
+</form>
 
 {% endblock page_body %}

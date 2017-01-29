@@ -23,7 +23,7 @@ m|b1p||illustration:
 m|b1t|A|MB21 Foden Cement Truck &amp; MB25 Ford Cortina (without &quot;Superfast&quot;)
 m|b1t|B|MB5 Lotus Europa &amp; MB20 Lamborghini Marzal (with &quot;Superfast&quot;)
 m|b1a|C|MB26 GMC Tipper &amp; MB58 DAF Girder Truck (with &quot;Superfast&quot;)
-m|b2p||illustration and lettering on backpage:
+m|b2p||backpage:
 m|b2t|A|&quot;Fred Bronner Corporation - A Division of Lesney Products &amp; Co. Ltd&quot;
 m|b2t|B|&quot;Lesney Products Corporation - Formerly Fred Bronner Corporation&quot;
 m|b2t|C|blue printed MB68 Porsche and MB52 Dodge illustration; lettering in English, German, Italian and French
@@ -155,9 +155,9 @@ e|v|eu-s
 m|a|T|Type - orange and yellow with older Matchbox logo, short card (late 2005 on)
 m|b||purple rectangle, "READY FOR ACTION", "MBX METAL"
 m|b||black and white curved stripe on left side
-m|bp||model name and number on right side of card:
-m|bt|A|number written vertically
-m|ba|B|number written horizontally
+m|bp||model name and number:
+m|bt|A|number written vertically on right side of card
+m|ba|B|number written horizontally on right side of card
 e|b|eu-t
 
 s|us|US|US Standard Packs 1971-2006
@@ -204,9 +204,9 @@ m|v2t|B|white on light blue
 m|v2t|C|black on yellow 
 m|v2t|D|black on blue and yellow 
 m|v2a|E|black on light blue 
-m|v3p||color of printed illustration and lettering on backpage:
-m|v3t|A|blue 
-m|v3a|B|black and red 
+m|v3p||backpage:
+m|v3t|A|blue illustration and lettering 
+m|v3a|B|black and red illustration and lettering 
 e|v|us-j
 
 m|t|L|Type - red border, yellow background, &quot;MATCHBOX&quot; in oval (1980-82)
@@ -357,9 +357,9 @@ m|b||black and white curved stripe on left side
 m|bp||drawing on vehicle(s) on card:
 m|bt|A|big-wheel SUV
 m|ba|B|dump truck, convertible, SUV
-m|bbp||model name and number on right side of card:
-m|bbt|A|number written vertically
-m|bba|B|number written horizontally
+m|bbp||model name and number:
+m|bbt|A|number written vertically on right side of card
+m|bba|B|number written horizontally on right side of card
 e|b|us-t
 
 s|ca|CA|Canadian Standard Packs 1978-1997

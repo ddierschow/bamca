@@ -3,21 +3,34 @@
 {% macro end_of_page(comment=False) %}
 <hr>
 <center>This page is maintained by <em>Dean Dierschow</em>.<br>
-<nobr>{{ render.format_image_art('star', desc='*') }} Dean's Recommendations</nobr>
-{{ render.format_image_art('ball', desc='o') }}
-<nobr>{{ render.format_image_art('recip') }} Reciprocal Link</nobr>
+<nobr><i class="fa fa-star"></i> Dean's Recommendations</nobr>
+<span class="blue">&#x26ab;</span>
+<nobr><i class="fa fa-refresh"></i> Reciprocal Link</nobr>
 {% if comment %}
-{{ render.format_image_art('ball', desc='o') }}
-<nobr>{{ render.format_image_art('comment') }} Comment on this link</nobr>
+<span class="blue">&#x26ab;</span>
+<nobr><i class="fa fa-comment-o"></i> Comment on this link</nobr>
 {% endif %}
 </center>
 {{ flags }}
 {% endmacro %}
 
+{% macro showbullet(linktype) %}
+{% if linktype == 'b' %}<i class="fa fa-exclamation-triangle red"></i>
+{% elif linktype == 'f' %}<i class="fa fa-folder-o"></i>
+{% elif linktype == 'g' %}
+{% elif linktype == 'l' %}<span class="blue">&#x26ab;</span>
+{% elif linktype == 'n' %}&nbsp;
+{% elif linktype == 'p' %}
+{% elif linktype == 's' %}<i class="fa fa-star"></i>
+{% elif linktype == 't' %}
+{% elif linktype == 'x' %}<i class="fa fa-trash"></i>
+{% endif %}
+{% endmacro %}
+
 {% macro showlink(ent) %}
 <div class="link{% if ent.indent %}-indent{% endif %}">
-{% if ent.comment %}<a href="?id={{ ent.id}}">{{ render.format_image_art('comment') }}</a>{% endif %}
-{% if ent.linktype %}{{ render.format_image_art(ent.linktype, also={'class': 'bullet'}) }}{% endif %}
+{% if ent.comment %}<a href="?id={{ ent.id}}"><i class="fa fa-comment-o"></i></a>{% endif %}
+{% if ent.linktype %}{{ showbullet(ent.linktype) }}{% endif %}
 {{ ent.text }}
 {% if ent.large %}
 </div>
@@ -29,6 +42,7 @@
 
 {%- block page_body -%}
 
+<div class="linkspage">
 {{ llineup.name }}
 {% for sec in llineup.section %}
 {{ render.fmt_anchor(sec.anchor) }}
@@ -43,6 +57,7 @@
 {% endfor %}
 {% endfor %}
 {% endfor %}
+</div>
 
 {{ end_of_page() }}
 

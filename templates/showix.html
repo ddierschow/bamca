@@ -2,6 +2,7 @@
 
 
 {%- macro format_ulist(llist) %}
+{%- if llist.note -%}{{ llist.note }}{%- endif -%}
 {%- for section in llist.section %}
 {{ render.fmt_anchor(section.anchor) }}
 {%- if section.name %}
@@ -19,8 +20,8 @@
 {%- if range.note -%}
   <div class="et">{{ range.note }}</div>
 {%- endif -%}
-{%- endfor -%}
 </ul>
+{%- endfor -%}
 {%- if section.note -%}
   <div class="st">{{ section.note }}</div>
 {%- endif -%}
@@ -124,7 +125,7 @@
 {%- endif -%}
 {%- for entry in range.entry %}
 {%- if entry.firstent %} <tr class="er">{% endif %}
-  <td{%- if not lmatrix.widthauto %} width="{{ entry.width }}%"{% endif %} class="{{ render.class_id('', entry.class) }}{{ render.class_id('eb', range.id, entry.display_id) }}"{% if entry.colspan > 1 %} colspan="{{ entry.colspan }}"{% endif %}{% if entry.rowspan > 1 %} rowspan="{{ entry.rowspan }}"{% endif %}>
+  <td{%- if not lmatrix.widthauto %} width="{{ entry.width }}"{% endif %} class="{{ render.class_id('', entry.class) }}{{ render.class_id('eb', range.id, entry.display_id) }}"{% if entry.colspan > 1 %} colspan="{{ entry.colspan }}"{% endif %}{% if entry.rowspan > 1 %} rowspan="{{ entry.rowspan }}"{% endif %}>
 {{- entry_formatter(entry) }}
   </td>
 {%- if entry.lastent or loop.last %} </tr>{% endif %}

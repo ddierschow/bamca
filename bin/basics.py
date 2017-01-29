@@ -38,10 +38,10 @@ def write_traceback_file(pif):
 
 
 def simple_html(status=404):
-    print 'Content-Type: text/html\n\n'
-    print 'Status:', status, httplib.responses.get(status, '')
+    if not useful.is_header_done():
+	print 'Content-Type: text/html\n\n'
+	print 'Status:', status, httplib.responses.get(status, '')
     #print '<!--\n' + str(os.environ) + '-->'
-    import useful
     useful.header_done()
     useful.write_comment()
 
@@ -248,7 +248,7 @@ def web_page(main_fn):
 
 	try:
             ret = main_fn(pif)
-	    if not pif.render.html_done:
+	    if not useful.is_header_done():
 		pif.render.print_html()
             useful.write_comment()
             if ret:
@@ -260,15 +260,15 @@ def web_page(main_fn):
 		pif.render.print_html(status=e.status)
 	    print pif.render.format_template('error.html', error=[e.value])
 	except useful.Redirect as e:
-	    if not pif.render.html_done:
+	    if not useful.is_header_done():
 		pif.render.print_html()
-	    print pif.render.format_template('forward.html', url=e.value)
+	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
 	except useful.DelayedRedirect as e:
-	    if not pif.render.html_done:
+	    if not useful.is_header_done():
 		pif.render.print_html()
-	    print pif.render.format_template('forward.html', url=e.value, delay=10)
+	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
         except MySQLdb.OperationalError:
-	    if not pif.render.html_done:
+	    if not useful.is_header_done():
 		pif.render.print_html()
             print 'The database is currently done, and thus, this page is unable to be shown.<p>'
 	    str_tb = write_traceback_file(pif)

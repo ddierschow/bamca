@@ -10,3 +10,5 @@ a:hover      {color: #FFFF00;}
 .special {font-size: x-large;}
 .special a {color: #FFFF00;}
 .special td {border-width: 1px; border-style: solid; background-color: #000000;}
+
+.database {border-width: 1px; border-style: solid; padding: 4px 8px 2px 8px; font-size: x-large;}

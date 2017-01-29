@@ -53,7 +53,13 @@ Thanks for helping out!
   <td class="eb_0 eb">&nbsp;</td>
   <td class="eb_1 eb"><input name="note" type="text" size="80" maxlength="80" value="">
 </td>
+{% if page.is_admin %}
  </tr>
+ <tr>
+  <td class="eb_0 eb">Duplicate OK:</td>
+  <td class="eb_1 eb"><input name="dup" type="checkbox" value="1"></td>
+ </tr>
+{% endif %}
  <tr>
   <td class="eb_0 eb">&nbsp;</td>
   <td class="eb_0 eb">&nbsp;

@@ -501,7 +501,7 @@ def show_section(pif, lran, mods, lup_region, year, comments):
         if len(mdict['cvarlist']) > 1:
             multivars.append(str(mdict['number']))
         if not (lran['flags'] & pif.dbh.FLAG_SECTION_NO_FIRSTS) and year == mdict['first_year']:
-            ent['class'] = 'newcasting'
+            ent['class'] = 'revcasting' if mdict['flags'] & pif.dbh.FLAG_MODEL_REVISED_CASTING else 'newcasting'
         lran['entry'].append(ent)
     lran['multivars'] = multivars
     return lran
@@ -574,9 +574,9 @@ def run_file(pif, region, year, section_types):
     llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
     #pif.render.set_footer(['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])])
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
-#    if int(year) > config.YEAR_START:
+#    if int(year) > year_start:
 #       llineup['tail'][1] += pif.render.format_button("previous_year", link='http://www.bamca.org/cgi-bin/lineup.cgi?year=%s&region=%s' % (int(year) - 1, region))
-#    if int(year) > config.YEAR_END:
+#    if int(year) > year_end:
 #       llineup['tail'][1] += pif.render.format_button("following_year", link='http://www.bamca.org/cgi-bin/lineup.cgi?year=%s&region=%s' % (int(year) + 1, region))
 #    if pif.is_allowed('a'):  # pragma: no cover
 #        llineup['tail'][1] += '<br>multivars %s %s ' % (year, region) + ' '.join(multivars) + '<br>'
@@ -1149,7 +1149,7 @@ def run_product_pics(pif, region):
 	    if not lmod or lmod.get('lineup_model.flags', 0) & pif.dbh.FLAG_MODEL_NOT_MADE:
 		pic_id = None
             lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (pdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
-	    istar = pif.render.format_image_art(imglib.image_star(product_image, pic_id, mnum in halfstars.get(page[5:], [])))
+	    istar = imglib.format_image_star(pif, product_image, pic_id, mnum in halfstars.get(page[5:], []))
             ent = {
                 'text': pif.render.format_link(lnk, istar),
                 'display_id': str(int(mnum % 10 == 0 or page[-1] == '0'))
@@ -1217,102 +1217,6 @@ def mack_lineup(pif):
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('mack.html', llineup=llineup)
 
-
-# -------- makes -----------------------------------
-
-
-@basics.web_page
-def makes_main(pif):
-    makelist = [(x['vehicle_make.make'], x['vehicle_make.make_name']) for x in pif.dbh.fetch_vehicle_makes()]
-    makedict = dict(makelist + [('unl', 'Unlicensed'), ('', 'Unknown')])
-    make = pif.form.get_str('make', '')
-    makes = [make]
-
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/makes.cgi', 'Models by Make')
-    if make == 'text':
-        pif.render.hierarchy_append(pif.request_uri, 'Search')
-    elif make:
-        pif.render.hierarchy_append(pif.request_uri, makedict.get(make, make))
-    pif.render.print_html()
-
-    if make == 'text':
-        makename = pif.form.get_str('text')
-        if makename:
-            makes = []
-            for m in makelist:
-                if m[1].lower().startswith(makename.lower()):
-                    makes.append(m[0])
-            if not makes:
-                makes = ['unk']
-        else:
-            make = ''
-
-    pif.render.set_button_comment(pif, 'make=%s&text=%s' % (pif.form.get_str('make', ''), pif.form.get_str('text', '')))
-    if make:
-        llineup = show_makes(pif, makedict, makes)
-    else:
-        llineup = makes_form(pif, makelist)
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
-
-
-def makes_form(pif, makelist):
-    cols = 5
-    makelist.sort(key=lambda x: x[1])
-    makelist = [['unk', 'unknown'], ['unl', 'unlicensed']] + makelist
-    ents = [{'text': x} for x in pif.render.format_radio("make", useful.reflect(makelist, cols), 'unk')]
-    llineup = {'id': '', 'name': '', 'columns': cols, 'section': [{'columns': cols, 'range': [{'entry': ents}]}],
-	'header': '<hr>Choose a make:<br><form>', 'footer': pif.render.format_button_input('see the models') + '<hr></form>'}
-    return llineup
-
-
-def show_make_selection(pif, make_id, make_dict):
-    casting_make = make_id
-    if make_id == 'unk':
-        casting_make = ''
-    lsec = dict()  #pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lsec['anchor'] = make_id
-    lsec['range'] = []
-    lsec['note'] = ''
-    lsec['id'] = ''
-    lsec['columns'] = 4
-    lsec['name'] = make_dict.get(make_id, make_id)
-    lran = {'id': '', 'name': '', 'anchor': '', 'note': '', 'entry': []}
-    castings = pif.dbh.fetch_casting_list(where=["casting.make='%s'" % casting_make, "section.page_id='manno'"])
-    aliases = []  #pif.dbh.fetch_aliases(where="casting.make='%s'" % casting_make)
-    mlist = []
-
-    for mdict in castings:
-        mlist.append(pif.dbh.modify_man_item(mdict))
-
-    for mdict in aliases:
-        mdict = pif.dbh.modify_man_item(mdict)
-        if mdict.get('alias.ref_id'):
-            mdict['picture_id'] = mdict['id']
-            mdict['id'] = mdict['alias.id']
-            #mdict['descs'] = mdict['descs']
-            #mdict['descs'].append('same as ' + mdict['ref_id'])
-        mlist.append(mdict)
-
-    mlist.sort(key=lambda x: x['name'])
-    for mdict in mlist:
-        # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
-        lran['entry'].append({'text': models.add_model_table_pic_link(pif, mdict, flago=models.flago)})
-
-    lsec['range'].append(lran)
-    return lsec
-
-
-def show_makes(pif, makedict, makes):
-    llineup = {'id': '', 'name': '', 'section': []}
-    models.flago = mflags.FlagList()
-
-    for make_id in makes:
-        lsec = show_make_selection(pif, make_id, makedict)
-        llineup['section'].append(lsec)
-    return llineup
 
 # --- -------------------------------------------------------------------
 

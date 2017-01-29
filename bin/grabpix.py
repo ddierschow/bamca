@@ -84,7 +84,7 @@ def web_read(url, noread=False, quiet=False, log=None):
 
 
 def fix_files(page_id):
-    dn = os.path.join(config.LIB_MAN_DIR, page_id[7:].lower())
+    dn = useful.relpath('.', config.LIB_MAN_DIR, page_id[7:].lower())
     os.system('sudo chown bamca:www %s' % dn)
     os.system('sudo chmod 775 %s' % dn)
     os.system('sudo chown bamca:www %s/*.*' % dn)
@@ -100,7 +100,7 @@ def grab_page(url):
 def grab_list(ll, fl):
     for url in fl:
         fn = url[url.rfind('/') + 1:]
-        libdir = os.path.join(config.LIB_MAN_DIR, ll['link_line.page_id'][7:].lower())
+        libdir = useful.relpath('.', config.LIB_MAN_DIR, ll['link_line.page_id'][7:].lower())
         if not os.path.exists(libdir):
             errors.append((ll, url))
         sfn = os.path.join(libdir, fn)
@@ -227,8 +227,8 @@ def run_line(ll):
 
 
 def clean_dir(page_id):
-    ln = os.path.join(config.LIB_DIR, '0files')
-    dn = os.path.join(config.LIB_MAN_DIR, page_id.lower())
+    ln = useful.relpath('.', config.LIB_DIR, '0files')
+    dn = useful.relpath('.', config.LIB_MAN_DIR, page_id.lower())
     print "attempting to clean", page_id
     do_top_dir(ln, dn)
     # Given this directory, clean it of things we know we don't want.

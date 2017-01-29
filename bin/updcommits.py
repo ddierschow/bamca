@@ -47,28 +47,30 @@ def read_commits(endtime):
 
 def write_php_config_file():
     print "Writing PHP config file."
-    cfg = open('../bin/config.py').readlines()
-    cfg[0] = '<?php\n// Generated file.  Do not modify.\n'
-    for idx in range(1, len(cfg)):
-        if cfg[idx][0] == '#':
-            cfg[idx] = '//' + cfg[idx][1:]
-        elif cfg[idx].find('=') >= 0:
-            cfg[idx] = '$' + cfg[idx].replace('\n', ';\n')
-    cfg.append('?>\n')
-    open('config.php', 'w').writelines(cfg)
+    configs = []
+    fout = open('../bin/config.py').readlines()
+    fout[0] = '<?php\n// Generated file.  Do not modify.\n'
+    for idx in range(1, len(fout)):
+        if fout[idx][0] == '#':
+            fout[idx] = '//' + fout[idx][1:]
+        elif fout[idx].find('=') >= 0:
+	    configs.append(fout[idx][:fout[idx].find('=')].strip())
+            fout[idx] = '$' + fout[idx].replace('\n', ';\n')
+    fout.append('?>\n')
+    open('../htdocs/config.php', 'w').writelines(fout)
     print
 
 
 def write_jinja2_config_file():
     print "Writing Jinja2 config file."
-    cfg = open('../bin/config.py').readlines()
-    cfg[0] = '{# Generated file.  Do not modify. #}\n'
-    for idx in range(1, len(cfg)):
-        if cfg[idx][0] == '#':
-            cfg[idx] = '{# ' + cfg[idx][1:] + cfg[idx].replace('\n', ' #}\n')
-        elif cfg[idx].find('=') >= 0:
-            cfg[idx] = '{% set ' + cfg[idx].replace('\n', ' %}\n')
-    open('../templates/config.html', 'w').writelines(cfg)
+    fout = open('../bin/config.py').readlines()
+    fout[0] = '{# Generated file.  Do not modify. #}\n'
+    for idx in range(1, len(fout)):
+        if fout[idx][0] == '#':
+            fout[idx] = '{# ' + fout[idx][1:] + fout[idx].replace('\n', ' #}\n')
+        elif fout[idx].find('=') >= 0:
+            fout[idx] = '{% set ' + fout[idx].replace('\n', ' %}\n')
+    open('../templates/config.html', 'w').writelines(fout)
     print
 
 

@@ -1,0 +1,7 @@
+body {background-color: #FFEEDD;}
+.description {font-size: large; padding: 16px 0; text-align: left;}
+
+.sh {background-color: #FFFF00;}
+.rh {background-color: transparent; border-style: none; font-size: large;}
+.tb {background-color: #FFEEDD; margin-left: 40px; width: auto; border-style: none;}
+.eb {margin: auto; border-style: none;}

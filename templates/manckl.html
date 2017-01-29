@@ -8,7 +8,7 @@
 {%- for entry in section.entry %}
 {% if (loop.index0 % section.columns) == 0 %} <tr class="er">{% endif %}
 {% if entry %}
-  <td><img src="../pic/gfx/box-sm.gif"></td>
+  <td><i class="fa fa-square-o"></i></td>
   <td><center>{{ entry.id }}</center></td>
   <td>{{ entry.first_year }}</td>
   <td>{% if entry.notmade %}<i>{% endif %}{{ entry.lname }}{% if entry.notmade %}</i>{% endif %}</td>

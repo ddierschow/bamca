@@ -1,6 +1,6 @@
 body {background-color: #CCFFCC; text-align: left;}
-#code_1 {}
-#code_2 {display: none;}
+/* #code_1 {} */
+/* #code_2 {display: none;} */
 #varsearch {display: none;}
 
 .eb {text-align: center;}
@@ -26,5 +26,6 @@ body {background-color: #CCFFCC; text-align: left;}
 .grayed_same {background-color: #CCCCCC; color: #990000;}
 .good {}
 .unrec {color: #000000; font-weight: bold;}
-.good_id: {font-weight: bold; color: #0000FF;}
-.bad_id: {font-weight: bold; color: #FF0000;}
+.good_id {font-weight: bold; color: #0000FF;}
+.bad_id {font-weight: bold; color: #FF0000;}
+.blank {border-style: none;}

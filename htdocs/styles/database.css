@@ -7,22 +7,16 @@ td {vertical-align: top;}
 .tdmiddle {border-style: solid; border-width: thin 0 thin 0; padding-left: 4px; padding-right: 4px;}
 .tdright {border-style: solid; border-width: thin thin thin 0; padding-left: 4px; padding-right: 4px;}
 
-.spacer {height: 5px; border-width: 0 1px 0 1px; border-style: solid;}
+.spacer {height: 5px; border-width: 0 1px 0 1px; border-style: solid; background-color: #F6F6F6;}
 .sel_head {border-width: 1px; border-style: solid;}
 .sel_body {border-width: 1px; border-style: solid; padding: 8px;}
 .input_label {text-align: right;}
 
 .header-links {width: 90%; padding: 0 0 0 0; text-align: center; font-size: 0;}
-.header-link-item {margin: 2px 4px; padding: 1px 2px 2px 2px; white-space: nowrap;
-    font-weight: bold; font-size: 13px; background-color: #006600; color: #FFFFFF;
-    display: inline-block; /* an inline element that has all the benifits of a block element without bieng full width */
+.header-link-item {margin: 2px;
+    display: inline-block; /* an inline element that has all the benifits of a block element without being full width */
     list-style-type: none; /* killing the bullet */
 }
-
-.header-link-item a:link       {color: #FFFFFF; background-color: #006600;}
-.header-link-item a:visited    {color: #FFFFFF; background-color: #006600;}
-.header-link-item a:active     {color: #FFFFFF; background-color: #006600;}
-.header-link-item a:hover      {color: #006600; background-color: #FFFFFF; text-decoration: none;}
 
 .id_head       {background-color: #DDDDDD;}
 .id_body       {background-color: #F3F3F3;}
@@ -50,7 +44,7 @@ td {vertical-align: top;}
 .code2_body    {background-color: #CCFFD8;}
 .other_head    {background-color: #000000; color: #FFFFFF;}
 .other_body    {background-color: #999999;}
-.new3_head     {background-color: #FF9999;}
+.new3_head     {background-color: #FF6666;}
 .new3_body     {background-color: #FFCCCC;}
 .new4_head     {background-color: #FF99CF;}
 .new4_body     {background-color: #FFCCE8;}

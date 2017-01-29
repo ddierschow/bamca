@@ -1,31 +1,27 @@
 
-def_toggle_display_js = '''<script type="text/javascript">
+def_toggle_display_text_js = '''<script type="text/javascript">
 function toggle_visibility(tbid,lnkid)
 {
- if (document.getElementById(lnkid).value == "collapse")
+ if (document.getElementById(lnkid).value == "COLLAPSE")
  {
   document.getElementById(tbid).style.display = "none";
-  document.getElementById(lnkid).src = "../pic/gfx/but_expand.gif";
-  document.getElementById(lnkid).onmouseover = "this.src='../pic/gfx/hov_expand.gif';";
-  document.getElementById(lnkid).onmouseout = "this.src='../pic/gfx/but_expand.gif';";
-  document.getElementById(lnkid).value = "expand";
+  document.getElementById(lnkid).value = "EXPAND";
+  document.getElementById(lnkid).innerHTML = "EXPAND";
  }
  else
  {
   document.getElementById(tbid).style.display = "table";
-  document.getElementById(lnkid).src = "../pic/gfx/but_collapse.gif";
-  document.getElementById(lnkid).onmouseover = "this.src='../pic/gfx/hov_collapse.gif';";
-  document.getElementById(lnkid).onmouseout = "this.src='../pic/gfx/but_collapse.gif';";
-  document.getElementById(lnkid).value = "collapse";
+  document.getElementById(lnkid).value = "COLLAPSE";
+  document.getElementById(lnkid).innerHTML = "COLLAPSE";
  }
 }
 </script>
 '''
 
+#def_toggle_display_text_js = '''<script type="text/javascript" src="/bin/togdisp.js"></script>\n'''
 def_reset_button_js = '''<script type="text/javascript" src="/bin/reset.js"></script>\n'''
 def_increment_js = '''<script type="text/javascript" src="/bin/increment.js"></script>\n'''
 def_increment_select_js = '''<script type="text/javascript" src="/bin/incrsel.js"></script>\n'''
-#def_toggle_display_js = '''<script type="text/javascript" src="/bin/togdisp.js"></script>\n'''
 
 def_google_analytics_js = '''<script type="text/javascript">
 var _gaq = _gaq || [];
@@ -79,3 +75,31 @@ function maplink($arr)
 
 def_image_selector_js = '''<script type="text/javascript" src="/bin/imageselector.js"></script>\n'''
 def_paste_from_clippy_js = '''<script type="text/javascript" src="/bin/clippypaste.js"></script>\n'''
+
+def_font_awesome_js = '''<script src="https://use.fontawesome.com/a21dc93072.js"></script>\n'''
+
+def_modal_js = '''<script type="text/javascript">
+function init_modal(modal_id) {
+    // Get the modal
+    var modal = document.getElementById(modal_id);
+    modal.style.display = 'block';
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementById(modal_id + ".close");
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+	modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+	if (event.target == modal) {
+	    modal.style.display = "none";
+	}
+    }
+}
+</script>
+'''
+
+def_modal_js = '''<script type="text/javascript" src="/bin/modal.js"></script>\n'''

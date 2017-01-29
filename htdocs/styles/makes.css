@@ -1,4 +1,6 @@
 body {background-color: #FFFFCC;}
 .tb {border-width: 0; background-color: #FFFFCC; width: 1024px;}
 .sh {font-size: large;}
-.eb {border-width: 0; background-color: #FFFFCC;}
+.eb {border-width: 0;}
+
+.eb_makelist {text-align: center; vertical-align: top; border-style: solid; border-width: 1px;}

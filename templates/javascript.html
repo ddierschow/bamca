@@ -138,24 +138,18 @@ function toggleOff(){
 </script>
 ''' %}
 
-{% set def_toggle_display_js = '''<script type="text/javascript">
+{% set def_toggle_display_text_js = '''<script type="text/javascript">
 function toggle_visibility(tbid,lnkid)
 {
- if (document.getElementById(lnkid).value == "collapse")
+ if (document.getElementById(lnkid).value == "COLLAPSE")
  {
   document.getElementById(tbid).style.display = "none";
-  document.getElementById(lnkid).src = "../pic/gfx/but_expand.gif";
-  document.getElementById(lnkid).onmouseover = "this.src='../pic/gfx/hov_expand.gif';";
-  document.getElementById(lnkid).onmouseout = "this.src='../pic/gfx/but_expand.gif';";
-  document.getElementById(lnkid).value = "expand";
+  document.getElementById(lnkid).value = "EXPAND";
  }
  else
  {
   document.getElementById(tbid).style.display = "table";
-  document.getElementById(lnkid).src = "../pic/gfx/but_collapse.gif";
-  document.getElementById(lnkid).onmouseover = "this.src='../pic/gfx/hov_collapse.gif';";
-  document.getElementById(lnkid).onmouseout = "this.src='../pic/gfx/but_collapse.gif';";
-  document.getElementById(lnkid).value = "collapse";
+  document.getElementById(lnkid).value = "COLLAPSE";
  }
 }
 </script>
@@ -164,7 +158,6 @@ function toggle_visibility(tbid,lnkid)
 {% set def_reset_button_js = '''<script type="text/javascript" src="/bin/reset.js"></script>\n''' %}
 {% set def_increment_js = '''<script type="text/javascript" src="/bin/increment.js"></script>\n''' %}
 {% set def_increment_select_js = '''<script type="text/javascript" src="/bin/incrsel.js"></script>\n''' %}
-#def_toggle_display_js %}<script type="text/javascript" src="/bin/togdisp.js"></script>\n''' %}
 
 {% set def_google_analytics_js = '''
 <script type="text/javascript">

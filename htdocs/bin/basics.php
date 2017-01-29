@@ -1,15 +1,12 @@
 <?php
 include "db.php";
-include "fake.php";
 
+$pif = 0;
 
-function CheckPerm($lev)
-{
+function CheckPerm($lev) {
     $retval = 0;
-    if ($lev)
-    {
-	if (array_key_exists('id', $_COOKIE))
-	{
+    if ($lev) {
+	if (array_key_exists('id', $_COOKIE)) {
 	    passthru('../bin/secure.py ' . $lev, $retval);
 	}
     }
@@ -18,11 +15,9 @@ function CheckPerm($lev)
     return $retval;
 }
 
-function NoAccess($pif, $access, $dest)
-{
+function NoAccess($pif, $access, $dest) {
     $retval = CheckPerm($access);
-    if (!$retval)
-    {
+    if (!$retval) {
 ?> 
 
 <script type="text/javascript">
@@ -37,47 +32,38 @@ window.location = "https://<?php echo $pif['host']; ?>/cgi-bin/login.cgi?dest=ht
     }
 }
 
-function CheckID()
-{
+function CheckID() {
     $retval = 0;
-    if (array_key_exists('id', $_COOKIE))
-    {
+    if (array_key_exists('id', $_COOKIE)) {
 	passthru('../bin/secure.py id', $retval);
     }
     return $retval;
 }
 
-function DBConnect($pif)
-{
+function DBConnect($pif) {
     $dbi = mysql_connect('localhost', $pif['dbuser'], $pif['dbpass']);
-    if (!$dbi)
-    {
+    if (!$dbi) {
 	echo 'connect failed';
 	return 0;
     }
     $r = mysql_select_db($pif['dbname'], $dbi);
-    if (!$r)
-    {
+    if (!$r) {
 	echo 'select failed';
 	return 0;
     }
     return $dbi;
 }
 
-function DBQuery($dbi, $query)
-{
+function DBQuery($dbi, $query) {
     $ret = Array();
     $res = mysql_query($query, $dbi);
-    echo "<!-- query " . $query . " : ";
-    print_r($res);
-    echo "-->\n";
-    if ($res && $res != 1)
-    {
-	while (1)
-	{
+    #echo "<!-- query " . $query . " : ";
+    #print_r($res);
+    #echo "-->\n";
+    if ($res && $res != 1) {
+	while (1) {
 	    $row = mysql_fetch_row($res);
-	    if (!$row)
-	    {
+	    if (!$row) {
 		break;
 	    }
 	    $ret[] = $row;
@@ -86,28 +72,26 @@ function DBQuery($dbi, $query)
     return $ret;
 }
 
-function DBClose($dbi)
-{
+function DBClose($dbi) {
     mysql_close($dbi);
 }
 
-function GetPageInfo($page_id)
-{
+function GetPageInfo($page_id) {
+    global $pif;
+    chdir(getenv('DOCUMENT_ROOT'));
     putenv('HTTP_COOKIE=' . apache_getenv('HTTP_COOKIE'));
-    //return FakeGetPageInfo($page_id);
     $pif = array();
     $pif['page_id'] = $page_id;
-    $pif['hier'] = array();
-    $pif['fake'] = 0;
+    $pif['styles'] = ['main', $page_id];
+    $pif['hierarchy'] = array();
     $pif['host'] = getenv('SERVER_NAME');
     $pif['docroot'] = getenv('DOCUMENT_ROOT');
     $pif['cgibin'] = $pif['docroot'] . '/../cgi-bin';
-    $pif['isbeta'] = 0;
+    $pif['is_beta'] = 0;
     if (substr($pif['host'], 0, 5) == 'beta.')
-	$pif['isbeta'] = 1;
+	$pif['is_beta'] = 1;
     $cfg = BarFile($pif['cgibin'] . '/.config', 'bamca.org');
-    foreach (array_slice($cfg[0], 1) as $c)
-    {
+    foreach (array_slice($cfg[0], 1) as $c) {
 	$nl = explode(',', trim($c));
 	$pif[$nl[0]] = $nl[1];
     }
@@ -116,18 +100,16 @@ function GetPageInfo($page_id)
 	return $pif;
     $q = "select page_info.format_type,page_info.title,page_info.pic_dir,page_info.tail,page_info.flags from page_info where page_info.id='" . $page_id . "'";
     $res = mysql_query($q, $dbi);
-    if ($res)
-    {
-	while (1)
-	{
+    if ($res) {
+	while (1) {
 	    $row = mysql_fetch_row($res);
-	    if ($row)
-	    {
+	    if ($row) {
 		$pif['format_type'] = $row[0];
 		$pif['title'] = $row[1];
 		$pif['pic_dir'] = $row[2];
 		$pif['tail'] = $row[3];
 		$pif['flags'] = $row[4];
+		$pif['hide_title'] = $row[4] & 2;
 	    }
 	    else
 		break;
@@ -135,25 +117,26 @@ function GetPageInfo($page_id)
     }
     $bad_ip = DBQuery($dbi, "select count(*) from blacklist where reason='ip' and target='" . getenv('REMOTE_ADDR') . "'");
     $pif['bad_ip'] = $bad_ip[0][0];
+    $pif['messages'] = '';
     mysql_close($dbi);
     return $pif;
 }
 
-function DoHead($pif)
-{
-    echo "<head>
+function DoHead($pif) {
+    echo "<head><meta charset=\"UTF-8\">
 <title>" . $pif['title'] . "</title>
+<script src=\"https://use.fontawesome.com/a21dc93072.js\"></script>
 <link rel=\"icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
 <link rel=\"shortcut icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
 <link rel=\"stylesheet\" href=\"/styles/main.css\" type=\"text/css\">
+<link rel=\"stylesheet\" href=\"/styles/fonts.css\" type=\"text/css\">
 <link rel=\"stylesheet\" href=\"/styles/" . $pif['page_id'] . ".css\" type=\"text/css\">
 ";
 }
 
-function DoPageHeader($pif)
-{
+function DoPageHeader($pif) {
     $IMG_DIR_ART = 'pic/gfx';
-    if (!$pif['isbeta'])
+    if (!$pif['is_beta'])
 	echo "<script type=\"text/javascript\">
 
   var _gaq = _gaq || [];
@@ -170,81 +153,66 @@ function DoPageHeader($pif)
 ";
     echo "</head>\n\n<body>\n";
     $id = CheckID();
-    echo '<table width=100% class="body">' . "\n";
-    if ($pif['fake'] == 1)
-	;
-    else if ($id > 0)
-    {
+    echo '<table width="1024" class="body">' . "\n";
+    if ($id > 0) {
 	$username = Fetch('select name from user where id=' . $id, $pif);
 	$username = $username[0][0];
 	echo '<tr><td class="loginbar">Welcome back, ' . $username . '! ('.$id.')';
-	DoButtonLink('log_out', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
-	DoButtonLink('change_password', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/chpass.cgi?dest=http://" . $pif['host'] . "/stuff.php");
+	DoTextButtonLink('log_out', "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
+	DoTextButtonLink('change_password', "https://" . $pif['host'] . "/cgi-bin/chpass.cgi?dest=http://" . $pif['host'] . "/stuff.php");
 	$retval = CheckPerm('u');
-	if ($retval)
-	{
-	    DoButtonLink('upload', $IMG_DIR_ART, "http://" . $pif['host'] . "/cgi-bin/upload.cgi");
+	if ($retval) {
+	    DoTextButtonLink('upload', "http://" . $pif['host'] . "/cgi-bin/upload.cgi");
 	}
-	if (CheckPerm('a'))
-	{
-	    DoButtonLink('control_panel', $IMG_DIR_ART, "http://" . $pif['host'] . "/stuff.php");
+	if (CheckPerm('a')) {
+	    DoTextButtonLink('control_panel', "http://" . $pif['host'] . "/stuff.php");
 	}
 	echo "</td></tr>\n";
     }
-    if ($pif['isbeta'])
-	echo "<tr><td height=24 background=\"http://" . $pif['host'] . "/pic/gfx/beta.gif\">&nbsp;</td></tr>\n";
+    if ($pif['is_beta'])
+	echo "<tr><td height=\"24\" class=\"beta\">&nbsp;</td></tr>\n";
     echo '<tr><td class="body">' . "\n";
-    foreach ($pif['hier'] as $hier)
-    {
-	echo '<a href="' . $hier[0] . '">' . $hier[1] . "</a> &gt;\n";
+    foreach ($pif['hierarchy'] as $hier) {
+	echo '<a href="' . $hier[0] . '">' . $hier[1] . "</a> <i class=\"fa fa-chevron-right\"></i>\n";
     }
     if (!($pif['flags'] & 2))
 	echo "<center><h1>" . $pif['title'] . "</h1></center>\n";
 }
 
-function DoPageFooter($pif)
-{
+function DoPageFooter($pif) {
     echo "</td></tr>\n";
-    if ($pif['isbeta'])
+    if ($pif['is_beta'])
 	echo "<tr><td height=24 background=\"http://" . $pif['host'] . "/pic/gfx/beta.gif\">&nbsp;</td></tr>\n";
     echo "</table>\n";
 }
 
-function DoButton($butname, $artdir, $classname="button")
-{
-    $buttext = strtoupper(str_replace('_', ' ', $butname));
-    echo '<img src="/' . $artdir . '/but_' . $butname . '.gif" alt="' . $buttext . '" onmouseover="this.src=\'/' . $artdir . '/hov_' . $butname . '.gif\';" onmouseout="this.src=\'/' . $artdir . '/but_' . $butname . '.gif\';" class="' . $classname . '">';
+function DoTextButton($buttext, $classname="textbutton") {
+    echo "<div class=\"$classname\">$buttext</div>";
 }
 
-function DoButtonLink($butname, $artdir, $linkloc, $classname="button")
-{
-    echo '<a href="' . $linkloc . '">';
-    DoButton($butname, $artdir, $classname);
+function DoTextButtonLink($buttext, $linkloc, $classname="textbutton") {
+    $buttext = strtoupper(str_replace('_', ' ', $buttext));
+    echo "<a href=\"$linkloc\">";
+    DoTextButton($buttext, $classname);
     echo "</a>\n";
 }
 
-function DoButtonReset($artdir, $formid, $addl='')
-{
-    echo '<img src="' . $artdir . '/but_reset.gif" onmouseover="this.src=\'' . $artdir . '/hov_reset.gif\';" onmouseout="this.src=\'' . $artdir . '/but_reset.gif\';" border="0" onClick="ResetForm(document.' . $formid . ');' . $addl . '" alt="RESET" class="button">';
+function DoTextButtonReset($formid, $addl='') {
+    echo '<div class="textbutton" onClick="ResetForm(document.' . $formid . ');' . $addl . '" alt="RESET" >RESET</div>';
 }
 
-function DoButtonSubmit($butname, $artdir, $submit)
-{
-    $buttext = strtoupper(str_replace('_', ' ', $butname));
-    echo '<input type="image" name="' . $submit . '" src="' . $artdir . '/but_' . $butname . '.gif" alt="' . $buttext . '" onmouseover="this.src=\'' . $artdir . '/hov_' . $butname . '.gif\';" onmouseout="this.src=\'' . $artdir . '/but_' . $butname . '.gif\';" class="button">' . "\n";
+function DoTextButtonSubmit($buttext, $submit) {
+    echo "<input type=\"submit\" name=\"$submit\" value=\"$buttext\" class=\"textbutton\">\n";
 }
 
-function BarFile($fname, $prefix)
-{
+function BarFile($fname, $prefix) {
     $sl = array();
     $sf = fopen($fname, "r");
     if (!$sf)
 	return $sl;
-    while (!feof($sf))
-    {
+    while (!feof($sf)) {
 	$l = fgets($sf);
-	if (!feof($sf))
-	{
+	if (!feof($sf)) {
 	    $nl = explode('|', trim($l));
 	    if ($nl[0] == $prefix)
 		$sl[] = $nl;
@@ -254,8 +222,7 @@ function BarFile($fname, $prefix)
     return $sl;
 }
 
-function Fetch($query, $pif)
-{
+function Fetch($query, $pif) {
     $ret = array();
     $dbi = DBConnect($pif);
     if (!$dbi)
@@ -265,8 +232,7 @@ function Fetch($query, $pif)
     return $ret;
 }
 
-function DoResetJavascript()
-{
+function DoResetJavascript() {
     echo "<script  language=\"Javascript\">
 function ResetForm(which){
  which.reset();
@@ -276,38 +242,37 @@ function ResetForm(which){
 ";
 }
 
-function incrnum($id, $mn, $mx, $cl)
-{
-    echo "<a onclick=\"" . $cl . "settnum('" . $id . "'," . $mx . ");\"><img src=\"../pic/gfx/but_max.gif\" alt=\"TOP\" onmouseover=\"this.src='../pic/gfx/hov_max.gif';\" onmouseout=\"this.src='../pic/gfx/but_max.gif';\" ></a>\n";
-    echo "<a onclick=\"" . $cl . "\" onmousedown=\"toggleOnNum('" . $id . "',1," . $mn . "," . $mx . ");\" onmouseup=\"toggleOff();\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
-    echo "<a onclick=\"" . $cl . "\" onmousedown=\"toggleOnNum('" . $id . "',-1," . $mn . "," . $mx . ");\" onmouseup=\"toggleOff();\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
-    echo "<a onclick=\"" . $cl . "settnum('" . $id . "'," . $mn . ");\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
+function incrnum($id, $mn, $mx, $cl) {
+    $but_max = '<div class="textbutton textupdown"><i class="fa fa-angle-double-up bold" title="TOP"></i></div>';
+    $but_inc = '<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>';
+    $but_dec = '<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>';
+    $but_min = '<div class="textbutton textupdown"><i class="fa fa-angle-double-down bold" title="BOTTOM"></i></div>';
+    echo "<a onclick=\"" . $cl . "settnum('" . $id . "'," . $mx . ");\">" . $but_max . "</a>\n";
+    echo "<a onclick=\"" . $cl . "\" onmousedown=\"toggleOnNum('" . $id . "',1," . $mn . "," . $mx . ");\" onmouseup=\"toggleOff();\">" . $but_inc . "</a>\n";
+    echo "<a onclick=\"" . $cl . "\" onmousedown=\"toggleOnNum('" . $id . "',-1," . $mn . "," . $mx . ");\" onmouseup=\"toggleOff();\">" . $but_dec . "</a>\n";
+    echo "<a onclick=\"" . $cl . "settnum('" . $id . "'," . $mn . ");\">" . $but_min . "</a>\n";
 }
 
-function incrsel($id, $vl, $onchg="")
-{
-    if ($vl > 0)
-    {
-	echo "<a onclick=\"settsel('" . $id . "');" . $onchg ."\"><img src=\"../pic/gfx/but_max.gif\" alt=\"TOP\" onmouseover=\"this.src='../pic/gfx/hov_max.gif';\" onmouseout=\"this.src='../pic/gfx/but_max.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);" . $onchg ."\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);" . $onchg ."\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
-	//echo "<a onclick=\"incrsel('" . $id . "',1);\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
-	//echo "<a onclick=\"incrsel('" . $id . "',-1);\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
-	echo "<a onclick=\"setbsel('" . $id . "');" . $onchg ."\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
+function incrsel($id, $vl, $onchg="") {
+    $but_max = '<div class="textbutton textupdown"><i class="fa fa-angle-double-up bold" title="TOP"></i></div>';
+    $but_inc = '<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>';
+    $but_dec = '<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>';
+    $but_min = '<div class="textbutton textupdown"><i class="fa fa-angle-double-down bold" title="BOTTOM"></i></div>';
+    if ($vl > 0) {
+	echo "<a onclick=\"settsel('" . $id . "');" . $onchg ."\">" . $but_max . "</a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);" . $onchg ."\" onmouseup=\"toggleOff();" . $onchg . "\">" . $but_inc . "</a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);" . $onchg ."\" onmouseup=\"toggleOff();" . $onchg . "\">" . $but_dec . "</a>\n";
+	echo "<a onclick=\"setbsel('" . $id . "');" . $onchg ."\">" . $but_min . "</a>\n";
     }
-    else
-    {
-	echo "<a onclick=\"setbsel('" . $id . "');" . $onchg . "\"><img src=\"../pic/gfx/but_max.gif\" alt=\"TOP\" onmouseover=\"this.src='../pic/gfx/hov_max.gif';\" onmouseout=\"this.src='../pic/gfx/but_max.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);" . $onchg . "\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
-	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);" . $onchg . "\" onmouseup=\"toggleOff();" . $onchg . "\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
-	//echo "<a onclick=\"incrsel('" . $id . "',-1);\"><img src=\"../pic/gfx/but_inc.gif\" alt=\"UP\" onmouseover=\"this.src='../pic/gfx/hov_inc.gif';\" onmouseout=\"this.src='../pic/gfx/but_inc.gif';\" ></a>\n";
-	//echo "<a onclick=\"incrsel('" . $id . "',1);\"><img src=\"../pic/gfx/but_dec.gif\" alt=\"DOWN\" onmouseover=\"this.src='../pic/gfx/hov_dec.gif';\" onmouseout=\"this.src='../pic/gfx/but_dec.gif';\" ></a>\n";
-	echo "<a onclick=\"settsel('" . $id . "');" . $onchg . "\"><img src=\"../pic/gfx/but_min.gif\" alt=\"BOTTOM\" onmouseover=\"this.src='../pic/gfx/hov_min.gif';\" onmouseout=\"this.src='../pic/gfx/but_min.gif';\" ></a>\n";
+    else {
+	echo "<a onclick=\"setbsel('" . $id . "');" . $onchg . "\">" . $but_max . "</a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',-1);" . $onchg . "\" onmouseup=\"toggleOff();" . $onchg . "\">" . $but_inc . "</a>\n";
+	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);" . $onchg . "\" onmouseup=\"toggleOff();" . $onchg . "\">" . $but_dec . "</a>\n";
+	echo "<a onclick=\"settsel('" . $id . "');" . $onchg . "\">" . $but_min . "</a>\n";
     }
 }
 
-function DoIncDecJavascript()
-{
+function DoIncDecJavascript() {
     echo '<script type="text/javascript" src="/bin/incrsel.js"></script>' . "\n";
 }
 
@@ -315,10 +280,28 @@ function arr_get($array, $key, $default = null) {
     return isset($array[$key]) ? $array[$key] : $default;
 }
 
-
-function Debug($something)
-{
+function Debug($something) {
     echo '<pre>'; print_r($something); echo '</pre>';
 }
 
+function LinksList($links, $star, $preface='', $post='', $prefix='') {
+    global $IMG_DIR_ART;
+    echo '   ';
+    if ($preface)
+	echo $preface . "\n";
+    foreach ($links as $ent) {
+	if ($ent['ty'] == 's')
+	    echo $prefix . $star . '<a href="' . $ent['url'] . '">' . $ent['name'] . "</a>\n";
+	else if ($ent['ty'] == 'l')
+	    echo $prefix . '<a href="' . $ent['url'] . '">' . $ent['name'] . "</a>\n";
+	else if ($ent['ty'] == 'b') 
+	    $prefix . DoTextButtonLink($ent['name'], $ent['url']);
+	else if ($ent['ty'] == 't') 
+	    echo $ent['name'] . "\n";
+	else
+	    echo "<br>&nbsp;\n";
+    }
+    if ($post)
+	echo $post . "\n";
+}
 ?>

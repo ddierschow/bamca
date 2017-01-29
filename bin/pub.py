@@ -27,8 +27,8 @@ def publication(pif):
     if pif.is_allowed('a'):  # pragma: no cover
         left_bar_content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
         left_bar_content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link('publication', {'id': pub_id})
-        left_bar_content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % config.IMG_DIR_CAT
-	left_bar_content += '<a href="upload.cgi?d=./%s&n=%s&c=%s">Product Upload</a><br>\n' % (config.IMG_DIR_CAT, pub_id, pub_id)
+        left_bar_content += '<a href="traverse.cgi?d=.%s">Library</a><br>\n' % config.IMG_DIR_CAT
+	left_bar_content += '<a href="upload.cgi?d=.%s&n=%s&c=%s">Product Upload</a><br>\n' % (config.IMG_DIR_CAT, pub_id, pub_id)
 
     upper_box = ''
     if imgs:

@@ -1,7 +1,7 @@
 import unittest
 import basics
 
-class TestRender(unittest.TestCase):
+class TestOther(unittest.TestCase):
 
     def setUp(self):
 	import os
@@ -39,11 +39,6 @@ class TestRender(unittest.TestCase):
 	pif = basics.get_page_info('editor', args="verbose=0")
 	#self.assertTrue(lineup.text_main(pif) != '')
 	self.assertTrue(lineup.picture_count(pif, 'U', 2012) != None)
-        self.assertTrue(lineup.makes_main('makes', args='verbose=1') is None)
-        self.assertTrue(lineup.makes_main('makes', args='make=text text=austin submit=1') is None)
-        self.assertTrue(lineup.makes_main('makes', args='make=unk text=austin submit=1') is None)
-        self.assertTrue(lineup.makes_main('makes', args='make=unl text=austin submit=1') is None)
-        self.assertTrue(lineup.makes_main('makes', args='make=isu see_the_models=1') is None)
         self.assertTrue(lineup.mack_lineup('mack', args='see_the_models=1 verbose=1') is None)
         self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U enum= eyear=1980 submit=1') is None)
         self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U prodpic=1 enum=15 eyear=1980 submit=1') is None)
@@ -58,7 +53,7 @@ class TestRender(unittest.TestCase):
         #self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=other") != '')
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="page=rejects") != '')
         self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="id=3") != '')
-        self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="id=286") != '')
+        self.assertTrue(tlinks.links('links', 'page', 'toylinks', args="id=517") != '')
         self.assertTrue(tlinks.add_page('addlink', args="verbose=0") != '')
 #    tlinks.edit_links('editor')
 
@@ -73,6 +68,14 @@ class TestRender(unittest.TestCase):
         self.assertTrue(mannum.main('manno', args='section=wr listtype=thm range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
         self.assertTrue(mannum.main('manno', args='section=wr listtype=ckl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
         self.assertTrue(mannum.main('manno', args='section=wr listtype=vtl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+
+    def test_Vmakes(self):
+	import vmakes
+        self.assertTrue(vmakes.makes_main('makes', args='verbose=1') is None)
+        self.assertTrue(vmakes.makes_main('makes', args='make=text text=austin submit=1') is None)
+        self.assertTrue(vmakes.makes_main('makes', args='make=unk text=austin submit=1') is None)
+        self.assertTrue(vmakes.makes_main('makes', args='make=unl text=austin submit=1') is None)
+        self.assertTrue(vmakes.makes_main('makes', args='make=isu see_the_models=1') is None)
 
     def test_Matrix1(self):
 	import matrix
@@ -142,9 +145,9 @@ class TestRender(unittest.TestCase):
 	self.assertTrue(single.show_single('single', args="id=MB700 dir=pic/mattel pic=2006u57 ref=year.2006 sub=") != '')
 	self.assertTrue(single.show_single('single', args="id=MB109") != '')
 
-    def test_Tomica(self):
-	import tomica
-	self.assertTrue(tomica.main('tomica', args="verbose=1") != '')
+#    def test_Tomica(self):
+#	import tomica
+#	self.assertTrue(tomica.main('tomica', args="verbose=1") != '')
 
 #    traverse.main('editor')
 

@@ -13,12 +13,14 @@ if __name__ == '__main__':
     pif = basics.get_page_info('editor')
     pif.render.print_html()
     print pif.render.format_head()
-    useful.dump_dict("Globals", globals())
-    useful.dump_dict("Basics", basics.__dict__)
-    useful.dump_dict("PIF", pif.__dict__)
-    useful.dump_dict("Render", pif.render.__dict__)
-    print pif.render.format_button('reset')
-    print pif.render.format_button('yodel')
+    print useful.dump_dict("Globals", globals())
+    print useful.dump_dict("Basics", basics.__dict__)
+    print useful.dump_dict("PIF", pif.__dict__)
+    print useful.dump_dict("Render", pif.render.__dict__)
+    print pif.render.format_button_input('reset')
+    print pif.render.format_button_input('submit')
+    print pif.render.format_button_input('yodel')
+    print pif.render.format_button('yodeltext')
     cgi.print_environ()
 #    if pif.cgiform:
 #        cgi.print_form(pif.cgiform)
@@ -37,7 +39,7 @@ if __name__ == '__main__':
 #    print c,'<br>'
 #    if c:
 #        print "id =", c['id'].value, '<br>'
-    useful.dump_dict("Sys", sys.__dict__)
+    print useful.dump_dict("Sys", sys.__dict__)
 
     pif.dbh.increment_counter('test')
 

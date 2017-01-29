@@ -1,5 +1,24 @@
-body    {background-color: #000000; text-color: #FFFFFF;}
+/* $c = array(30, 244, 550, 170, 30); */
+
+body    {background-color: #CCCC99; color: #FFFFFF;}
+table   {border-collapse: collapse; border-width: 0px; margin-right: auto; margin-left: auto;}
+img     {border-width: 0;}
+
 .boxend {background-color: #000033; width: 100%; height: 200px;}
-.int    {background-color: #FFFF00; text-color: #000000;}
-table   {border-collapse: collapse; border-width: 0px;}
-.horiz  {background-image: url(../pic/gfx/box-h.gif);}
+.boxin  {background-color: #FFFF00; color: #000000;}
+.boxrow {padding: 12px;}
+
+.boxul {background-image: url("/pic/gfx/box-ul.gif"); width: 30px; height: 30px;}
+.boxur {background-image: url("/pic/gfx/box-ur.gif"); width: 30px; height: 30px;}
+.boxll {background-image: url("/pic/gfx/box-ll.gif"); width: 30px; height: 30px;}
+.boxlr {background-image: url("/pic/gfx/box-lr.gif"); width: 30px; height: 30px;}
+.boxvs {background-image: url("/pic/gfx/box-v.gif"); width: 30px;}
+.boxhs {background-image: url("/pic/gfx/box-h.gif"); height: 30px;}
+
+.boxtitle {text-align: center; font-size: x-large; font-weight: bold;}
+.boxtop {background-image: url("/pic/gfx/logo.gif"); background-position: center center; background-repeat: no-repeat;}
+.boxbottom {background-image: url("/pic/gfx/box30.gif"); background-position: center center; background-repeat: no-repeat;}
+
+.c1 {width: 224px; text-align: center;}
+.c2 {width: 470px;}
+.c3 {width: 170px; background-image: url("/pic/gfx/boxmokoles.gif"); background-position: center center; background-repeat: no-repeat;}

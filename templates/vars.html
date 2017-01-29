@@ -2,12 +2,16 @@
 {%- import "showix.html" as showix -%}
 
 {%- macro man_entry(entry) -%}
+{% if entry.var -%}
 <a href="{{ entry.link }}">{{ entry.var|upper }}<br>
 <center><table><tr><td class="spicture">{{ entry._picture }}</td></tr></table></center></a>
 <table class="vartable">
 <tr><td class="varentry"><i>{{ entry.text_description }}</i></td></tr>
 </table>
 {{ entry.categories }}
+{%- else -%}
+&nbsp;
+{%- endif %}
 {%- endmacro -%}
 
 {%- block page_body -%}

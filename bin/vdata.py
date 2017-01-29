@@ -28,7 +28,7 @@ ok_letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,?
 # Decorator for reading data files
 def read_data_file(main_fn):
     def read_dat(fn):
-        dat = open(os.path.join(config.SRC_DIR, fn + '.dat')).readlines()
+        dat = open(useful.relpath(config.SRC_DIR, fn + '.dat')).readlines()
         dat = filter(lambda x: x and not x.startswith('#'), [ln.strip() for ln in dat])
         return main_fn(dat)
     return read_dat

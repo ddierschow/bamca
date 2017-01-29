@@ -11,7 +11,7 @@ import useful
 
 
 class CarsFile(bfiles.ArgFile):
-    def __init__(self, fname=os.path.join(config.SRC_DIR, "cars.dat")):
+    def __init__(self, fname=useful.relpath(config.SRC_DIR, "cars.dat")):
         self.sec = []
         self.ent = []
         self.secname = ''
@@ -67,10 +67,9 @@ def render_cars(pif, cf):
 def cars_main(pif):
     pif.render.print_html()
 
-    db = CarsFile(os.path.join(config.SRC_DIR, pif.form.get_str('page', 'cars') + '.dat'))
+    db = CarsFile(useful.relpath(config.SRC_DIR, pif.form.get_str('page', 'cars') + '.dat'))
 
     print pif.render.format_head()
-    useful.header_done()
     render_cars(pif, db)
     print pif.render.format_tail()
 

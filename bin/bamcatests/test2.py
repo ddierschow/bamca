@@ -60,9 +60,6 @@ class TestRender(unittest.TestCase):
     def test_show_flag(self):
 	self.assertTrue(self.pif.render.show_flag('US') != '')
 
-    def test_find_art(self):
-	self.assertTrue(self.pif.render.find_art('bamca') != '')
-
     def test_find_image_file01(self):
 	self.assertTrue(self.pif.render.find_image_file('', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN) == ('', ''))
 
@@ -204,14 +201,11 @@ class TestRender(unittest.TestCase):
 	self.assertTrue(self.pif.render.format_button_input(bname="see the models", also={}) != '')
 	self.assertTrue(self.pif.render.format_button_input(bname="unittest", name="no really", also={}) != '')
 
-    def test_find_button_images(self):
-	self.assertTrue(self.pif.render.find_button_images('recalc', image='', hover='', pdir=None) != '')
-
-    def test_format_image_button(self):
-	self.assertTrue(self.pif.render.format_image_button('see the models', image='', hover='', pdir=None, also={}) != '')
-	self.assertTrue(self.pif.render.format_image_button("submit", also={}) != '')
-	self.assertTrue(self.pif.render.format_image_button("unittest", also={}) != '')
-	self.assertTrue(self.pif.render.format_image_button("yodel", also={}) != '')
+    def test_format_text_button(self):
+	self.assertTrue(self.pif.render.format_text_button('see the models', also={}) != '')
+	self.assertTrue(self.pif.render.format_text_button("submit", also={}) != '')
+	self.assertTrue(self.pif.render.format_text_button("unittest", also={}) != '')
+	self.assertTrue(self.pif.render.format_text_button("yodel", also={}) != '')
 
     def test_format_button(self):
 	self.assertTrue(self.pif.render.format_button('pictures', link='', image='', args={}, also={}, lalso={}) != '')

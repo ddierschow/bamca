@@ -92,21 +92,21 @@ def add_model_table_product_link(pif, mdict):
     ostr = pif.render.fmt_anchor(mdict.get('anchor'))
     ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
     if mdict.get('no_casting'):
-        ostr += pif.render.format_image_art('stargreen.gif')
+        ostr += mbdata.comment_icon.get('m', '')
     elif not mdict.get('picture_only'):
         if mdict.get('no_specific_image'):
-            ostr += pif.render.format_image_art('star.gif')
+	    ostr += mbdata.comment_icon.get('i', '')
         if mdict.get('no_variation'):
-            ostr += pif.render.format_image_art('starred.gif')
+	    ostr += mbdata.comment_icon.get('v', '')
     ostr += '</td><td class="modelnumber">'
     ostr += mdict['displayed_id']
     ostr += '</td><td class="modelicons">'
     if mdict.get('not_made'):
-        ostr += pif.render.format_image_art('no.gif')
+        ostr += mbdata.comment_icon.get('n', '')
     if mdict.get('is_reused_product_picture'):  # pragma: no cover
-        ostr += pif.render.format_image_art('staryellow.gif')
+        ostr += mbdata.comment_icon.get('r', '')
     if mdict.get('is_product_picture'):
-        ostr += pif.render.format_image_art('camera.gif')
+        ostr += mbdata.comment_icon.get('c', '')
     ostr += '</td></tr></table>\n'
 
     if mdict.get('show_vars'):
@@ -114,7 +114,8 @@ def add_model_table_product_link(pif, mdict):
 	for vdict in mdict['show_vars']:
 	    if mdict.get('href'):
 		ostr += '<a href="%(href)s">\n' % mdict
-	    ostr += '<table><tr><td class="spicture"><center>%s</center></td></tr></table>\n' % (vdict['imgstr'])
+	    #ostr += '<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' % (vdict['imgstr'])
+	    ostr += '<center>%s</center>\n' % (vdict['imgstr'])
 	    ostr += '<span class="modelname">' + mdict['name'] + '</span>'
 	    if mdict.get('href'):
 		ostr += '</a>'
@@ -128,7 +129,8 @@ def add_model_table_product_link(pif, mdict):
     else:
 	if mdict.get('href'):
 	    ostr += '<a href="%(href)s">\n' % mdict
-	ostr += '<table><tr><td class="spicture"><center>%s</center></td></tr></table>\n' % (mdict['imgstr'])
+	#ostr += '<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' % (mdict['imgstr'])
+	ostr += '<center>%s</center>\n' % (mdict['imgstr'])
 	ostr += '<span class="modelname">' + mdict['name'] + '</span>'
 	if mdict.get('href'):
 	    ostr += '</a>'
@@ -176,11 +178,9 @@ def add_model_text_line(pif, mdict):
     return ostr
 
 
-# id, man_id, imgstr, is_new, name
+# id, man_id, imgstr, name
 def add_model_link(pif, mdict):
     ostr = '   <center>%(id)s<br><a href="single.cgi?id=%(man_id)s">%(imgstr)s</a><br>' % mdict
-    if mdict.get('is_new', 0):
-        ostr += pif.render.format_image_art('new') + ' '
     ostr += '<b>%(name)s</b></center>' % mdict
     return ostr
 
@@ -198,7 +198,7 @@ def add_model_table_list_entry_dict(pif, mdict):
 	mdict['lname'] = mdict['shortname']
 	if mdict.get('link'):
 	    mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(lname)s</a>' % mdict
-	mdict['box_sm'] = pif.render.format_image_art('box-sm.gif')
+	mdict['box_sm'] = '<i class="fa fa-square-o"></i>'
     return mdict
 
 
@@ -208,8 +208,7 @@ def add_model_table_list_entry(pif, mdict):
 
 
 def add_model_pic_link_short(pif, id):
-    ostr = '<a name="%s"></a>' % id
-    ostr += '<center><b>%s</b><br>' % id
+    ostr = '<center><b id="%s">%s</b><br>' % (id, id)
     ostr += '<a href="single.cgi?id=%s">' % id
     ostr += pif.render.format_image_required([id], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN) + '</a></center>'
     return ostr
@@ -296,7 +295,7 @@ def add_model_var_pic_link(pif, vdict):
 
     return '''
 <a href="%(link)s">%(var)s<br>
-<center><table><tr><td class="spicture">%(img)s</td></tr></table></center></a>
+<center><table class="spicture"><tr><td class="spicture">%(img)s</td></tr></table></center></a>
 <table class="vartable">
 <tr><td class="varentry"><i>%(text_description)s</i></td></tr>
 </table>
@@ -304,4 +303,4 @@ def add_model_var_pic_link(pif, vdict):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''
+    pass

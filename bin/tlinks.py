@@ -18,16 +18,15 @@ def links(pif):
     pif.render.hierarchy_append('/cgi-bin/links.cgi', 'Toy Links')
     if pif.form.get_int('id'):
         link = pif.dbh.fetch_link_line(pif.form.get_int('id'))
-        if link['page_id'] != 'links.toylinks':
-            pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
-        pif.render.hierarchy_append('', 'Specific Link')
-        ostr += single_link(pif, link)
-    else:
-	pif.render.set_page_extra(pif.render.reset_button_js)
-        if pif.page_id != 'links.toylinks':
-            pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
-        ostr += link_page(pif)
-    return ostr
+	if link:
+	    if link['page_id'] != 'links.toylinks':
+		pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
+	    pif.render.hierarchy_append('', 'Specific Link')
+	    return single_link(pif, link)
+    pif.render.set_page_extra(pif.render.reset_button_js)
+    if pif.page_id != 'links.toylinks':
+	pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
+    return link_page(pif)
 
 
 def single_link(pif, link):
@@ -75,29 +74,16 @@ def make_link(pif, ent):
 	lnk['comment'] = True
 	if ent.get('last_status') == 'exc':
 	    cmd = 'b'
-    lnk['linktype'] = linktypes.get(cmd)
+    lnk['linktype'] = cmd # linktypes.get(cmd)
     lnk['large'] = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
     return lnk
 
 
-# the grafic for each of these, if any
-linktypes = {
-    'b': 'bad',
-    'f': 'folder',
-    'g': '',  #graphic
-    'l': 'ball',
-    'n': '',  #none; spacer
-    'p': '',  #button
-    's': 'star',
-    't': '',  #text
-    'x': 'trash',  #trash
-}
-
 def format_entry(pif, ent):
     dictFlag = {
-            '': ('o', pif.render.find_art('wheel.gif')),
-            'Reciprocal': ('Reciprocal', pif.render.find_art('recip.gif')),
-            'PayPal': ('Accepts PayPal', pif.render.find_art('paypal.gif')),
+            '': ('o', pif.render.format_image_art('wheel.gif', also={'class': 'dlm'})),
+            'Reciprocal': ('Reciprocal', '<i class="fa fa-refresh dlm"></i>'),
+            'PayPal': ('Accepts PayPal', '<i class="fa fa-paypal dlm"></i>'),
     }
     is_large = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
     url = ent['url']
@@ -124,7 +110,7 @@ def format_entry(pif, ent):
         for dlm in dlms:
             flag = pif.render.show_flag(dlm)
             if flag:
-                ostr += format_delimiter(pif, flag)
+                ostr += useful.img_src(flag[1], also={'class': 'dlm'})
             else:
                 ostr += format_delimiter(pif, dictFlag[dlm])
 #    if cmt and is_large:
@@ -135,23 +121,10 @@ def format_entry(pif, ent):
 
 
 def format_delimiter(pif, dlm):
+    return dlm[1] + ' '
     also = {'class': 'dlm', 'alt': '[' + dlm[0] + ']'}
     pif.render.comment('format_delimiter', dlm)
     return useful.img_src(dlm[1], also=also) + ' '
-
-
-def end_of_page(pif):
-    ball = '%s\n' % pif.render.fmt_art('ball.gif', desc='o')
-    ostr = '<hr>\n'
-    ostr += '<center>This page is maintained by <em>Dean Dierschow</em>.<br>\n'
-    ostr += '<nobr>%s Dean\'s Recommendations</nobr>\n' % pif.render.fmt_art('star.gif', desc='*')
-    ostr += ball
-    ostr += '<nobr>%s Reciprocal Link</nobr>\n' % pif.render.fmt_art('recip.gif')
-    if pif.is_allowed('m'):  # pragma: no cover
-        ostr += ball
-        ostr += '<nobr>%s Comment on this link</nobr>\n' % pif.render.fmt_art('comment.gif')
-    ostr += '</center>\n'
-    return ostr
 
 
 # -- addlink
@@ -166,7 +139,7 @@ def read_config(pif, showall=False):
     if pif.is_allowed('a'):  # and pif.render.is_beta:  # pragma: no cover
         showpage = {x['page_info.id']: 1 for x in allpages}
     else:
-        showpage = {x['page_info.id']: not (x['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED) for x in allpages}
+        showpage = {x['page_info.id']: not (x['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_HIDDEN) for x in allpages}
     sections = pif.dbh.fetch_sections(where="page_id like 'links.%'")
     for section in sections:
         page_name = section['section.page_id'].split('.', 1)[1]
@@ -247,7 +220,7 @@ def add_new_link(pif, dictCats, listRejects):
     for reject in listRejects:
         if url.find(reject) >= 0:
             reasons.append("The URL is on a banned list.")
-    if url in all_links:
+    if url in all_links and not pif.form.get('dup'):
         reasons.append("The site has already been submitted.")
     if url.find('://') < 0:
         reasons.append("The URL is not properly formed.")

@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <?php
 chdir('..');
@@ -50,8 +50,9 @@ an email address, we will try to respond.
 <tr><td>My E-mail Address</td><td><input type="text" name="myemail" size=80 maxlength=80> (optional)</td></tr>
 </table>
 
-<input type="image" name="submit" src="../pic/gfx/but_submit.gif" alt="Submit" onmouseover="this.src=\'../pic/gfx/hov_submit.gif\';" onmouseout="this.src=\'../pic/gfx/but_submit.gif\';" class="button"> -
-<img src="../pic/gfx/but_reset.gif" onmouseover="this.src=\'../pic/gfx/hov_reset.gif\';" onmouseout="this.src=\'../pic/gfx/but_reset.gif\';" border="0" onClick="ResetForm(document.comment)" alt="RESET" class="button">
+<?php DoTextButtonSubmit("SUBMIT", "submit"); ?> -
+<?php DoTextButtonReset('comment', 'reset'); ?>
+
 
 </form>
 <?php

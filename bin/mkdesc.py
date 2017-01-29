@@ -44,8 +44,8 @@ def main(pif):
         #sys.stdout.write(casting + ' ')
         sys.stdout.flush()
 	print casting,
-        fmt_valid, messages = pif.dbh.check_description_formatting(casting)
-        if fmt_valid:
+        fmt_invalid, messages = pif.dbh.check_description_formatting(casting)
+        if fmt_invalid:
             print '*'
 	    if verbose:
 		print messages

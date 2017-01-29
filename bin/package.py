@@ -45,7 +45,7 @@ def do_tree_page(pif, dblist):
         elif cmd == 'p':
             ostr += '<p>\n'
         elif cmd == 's':
-            ostr += '<p>\n<a name="%s"></a><b><u>' % llist[1]
+            ostr += '<p>\n<b id="%s"><u>' % llist[1]
             if llist[2]:
                 ostr += ' %s - ' % llist[2]
             ostr += '%s</u></b><br>\n' % llist[3]
@@ -56,6 +56,8 @@ def do_tree_page(pif, dblist):
                 if llist[3] and not llist[3][0].isupper():
                     desc += " - "
             desc += llist[3]
+	    if llist[1].endswith('p'):
+                desc = '<b>%s</b>' % desc
             #ostr += render_tree(pif, llist[1]) + desc
             #ostr += '<br>\n'
             ostr += tree_row(render_tree(pif, llist[1]), desc)
@@ -78,7 +80,7 @@ def blister(pif):
     #global pagename
     #pagename = pif.form.get_str('page', 'blister')
 
-    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
+    dblist = bfiles.SimpleFile(useful.relpath(config.SRC_DIR, pif.page_name + '.dat'))
 
     print pif.render.format_head()
     useful.header_done()
@@ -364,7 +366,7 @@ def single_box(pif, mod, box):
 		ostr += '</ul>\n'
     istr = pif.render.format_image_selectable(pics, pic_name)
     if pif.is_allowed('ma'):
-	istr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, pic_name + '.jpg', istr)
+	istr = '<a href="upload.cgi?d=.%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, pic_name + '.jpg', istr)
 	istr += '<br>' + pif.render.format_button("edit", link=pif.dbh.get_editor_link('box_type', {'id': box['id']}))
     istr += '<center>' + pif.render.format_image_selector(pics, pic_name) + '</center>'
     ent = {'inf': ostr, 'pic': istr }
@@ -394,7 +396,7 @@ def single_box_type(pif):
 def get_box_image(pif, picroot, picsize=None, largest=mbdata.IMG_SIZ_PETITE, compact=False):
     if compact:
 	product_image = pif.render.find_image_path(picroot, prefix=picsize)
-	pic = pif.render.format_image_art(imglib.image_star(product_image, target_x=mbdata.imagesizes[picsize][0]))
+	pic = imglib.format_image_star(pif, product_image, target_x=mbdata.imagesizes[picsize][0])
     elif picsize:
 	pic = pif.render.format_image_required(picroot, prefix=picsize)
     else:
@@ -426,7 +428,7 @@ def find_boxes(pif):
 		((end and int(box['id'][2:4]) > end) or (not end and int(box['id'][2:4]) != start)):
 	    continue
 	pic_name = ('x_%s-%s%s' % (box['box_type.mod_id'], box['box_type.box_type'][0], box['box_type.pic_id'])).lower()
-	is_pic = int(os.path.exists(os.path.join(config.IMG_DIR_BOX, pic_name + '.jpg')))
+	is_pic = int(os.path.exists(useful.relpath('.', config.IMG_DIR_BOX, pic_name + '.jpg')))
 	sortid = box['id'][2:4] + box['id'][0:2] + box['id'][4:] + box['box_type.box_type'][0]
 	front = ' / '.join(
 		box_lookup('box_type', box['box_type.box_type']) +
@@ -447,7 +449,7 @@ def find_boxes(pif):
 
 
 def get_pic_roots(mod_id, box_style):
-    picroots = glob.glob(os.path.join(config.IMG_DIR_BOX, ('[scm]_' + mod_id + '-' + box_style + '?.jpg').lower()))
+    picroots = glob.glob(useful.relpath('.', config.IMG_DIR_BOX, ('[scm]_' + mod_id + '-' + box_style + '?.jpg').lower()))
     picroots = list(set([(mod_id + '-' + box_style).lower()] + [x[x.rfind('/') + 3:-4] for x in picroots]))
     picroots.sort()
     return picroots
@@ -493,7 +495,7 @@ def show_boxes(pif):
 		    else:
 			ostr = "<center>%s</center>" % hdr + '<br>'.join(imgs)
 		    if pif.is_allowed('ma'):
-			ostr = '<a href="upload.cgi?d=%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
+			ostr = '<a href="upload.cgi?d=.%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
 		    ent[picsize] = {'txt': ostr}
 		ent['s']['txt'] += '<br>%s box variations - %s' % (mod['count'], pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
 		ent['s']['txt'] += ' - %s pics' % mod['pics']
@@ -546,7 +548,7 @@ def count_boxes(pif):
 
 	box_styles.add(box['id'] + '-' + box['box_type.box_type'])
 	pr_count += 2
-	im_count += len(glob.glob(os.path.join(config.IMG_DIR_BOX, 'x_' + box['id'] + '-' + box['box_type.box_type'] + box['box_type.pic_id'] + '*.jpg')))
+	im_count += len(glob.glob(useful.relpath('.', config.IMG_DIR_BOX, 'x_' + box['id'] + '-' + box['box_type.box_type'] + box['box_type.pic_id'] + '*.jpg')))
 
     for box in box_styles:
 	if pif.render.find_image_path(box, pdir=config.IMG_DIR_BOX, prefix=mbdata.IMG_SIZ_SMALL):
@@ -562,7 +564,10 @@ def count_boxes(pif):
 
 @basics.command_line
 def commands(pif):
-    if pif.argv and pif.argv[0] == 'c':
+    if not pif.argv:
+	basics.goaway()
+
+    elif pif.argv[0] == 'c':
 	boxes = find_boxes(pif)
 
 	for key in sorted(boxes.keys()):
@@ -582,8 +587,11 @@ def commands(pif):
 
 	check_database(pif)
 
-    elif pif.argv and pif.argv[0] == 'd':
+    elif pif.argv[0] == 'd':
 	dump_database(pif)
+
+    elif pif.argv[0] == 'b':
+	bluster_things(pif)
 
 
 def check_database(pif):
@@ -591,7 +599,7 @@ def check_database(pif):
     fields = {}
     d = pif.dbh.fetch('box_type')
     for e in d:
-	x = config.IMG_DIR_BOX + '/x_' + e['box_type.mod_id'] + '-' + e['box_type.box_type'][0] + e['box_type.pic_id'] + '.jpg'
+	x = '.' + config.IMG_DIR_BOX + '/x_' + e['box_type.mod_id'] + '-' + e['box_type.box_type'][0] + e['box_type.pic_id'] + '.jpg'
 	count += int(os.path.exists(x.lower()))
 	for f in e:
 	    if e[f] and f[9:] not in ('notes', 'year', 'id', 'pic_id', 'mod_id', 'model_name'):
@@ -640,6 +648,15 @@ def dump_database(pif):
 
 # saving for later
 #select id, mod_id, box_type as typ, pic_id as p, box_size as z, year, additional_text as addl_text, bottom, sides, end_flap, model_name, notes from box_type;
+
+def bluster_things(pif):
+    dblist = bfiles.SimpleFile(useful.relpath(config.SRC_DIR, 'blister.dat'))
+    for llist in dblist:
+	if llist[0] == 'm':
+	    if llist[1].endswith('p'):
+		print llist[3]
+
+
 
 if __name__ == '__main__':  # pragma: no cover
     commands(dbedit='')

@@ -18,6 +18,7 @@ def mass(pif):
     pif.restrict('am')
     pif.render.set_page_extra(pif.render.reset_button_js + pif.render.toggle_display_js)
 
+    print pif.form, '<hr>'
     mass_type = pif.form.get_str('type')
     return dict(mass_mains_list).get(mass_type, mass_mains_hidden.get(mass_type, mass_main))(pif)
 
@@ -230,7 +231,7 @@ def add_casting_main(pif):
 	{'title': 'Description:', 'value': pif.render.format_text_input("description", 80, 80, value='')},
 	{'title': 'Made:', 'value': pif.render.format_checkbox('notmade', [('not', 'not')])},
 	{'title': 'Country:', 'value': pif.render.format_select_country('country')},
-	{'title': 'Make:', 'value': pif.render.format_select('make', [('', ''), ('unl', 'MBX')] + [(x['vehicle_make.make'], x['vehicle_make.make_name']) for x in pif.dbh.fetch_vehicle_makes()])},
+	{'title': 'Make:', 'value': pif.render.format_select('make', [('', ''), ('unl', 'MBX')] + [(x['vehicle_make.id'], x['vehicle_make.name']) for x in pif.dbh.fetch_vehicle_makes()])},
 	{'title': 'Section:', 'value': pif.render.format_select('section_id', [(x['section.id'], x['section.name']) for x in pif.dbh.fetch_sections(where="page_id like 'man%'")], selected=pif.form.get_str('section_id'))},
 	{'title': '', 'value': pif.render.format_button_input('save')},
     ]
@@ -431,95 +432,148 @@ def add_var_final(pif):
 # ------- casting_related ------------------------------------------
 
 
-def edit_casting_related(pif):
+def show_all_casting_related(pif):
     print pif.render.format_head()
-    useful.header_done()
+    # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
+    print pif.form, '<br>'
+
+    mod_id = ''
+    crl = pif.dbh.fetch_casting_related_models()
+    crd_m = {}
+    crd_r = {}
+    for cr in crl:
+	if mod_id in (None, cr['casting_related.model_id'], cr['casting_related.related_id']):
+	    if mod_id or cr['m.model_type'] in ('SF', 'RW') or cr['r.model_type'] in ('SF', 'RW'):
+		m_id = cr['casting_related.model_id']
+		r_id = cr['casting_related.related_id']
+		if m_id < r_id:
+		    crd_m[(m_id, r_id)] = cr
+		    crd_r.setdefault((m_id, r_id), {})
+		else:
+		    crd_m.setdefault((r_id, m_id), {})
+		    crd_r[(r_id, m_id)] = cr
+
+    print '<form action="mass.cgi" onsubmit="save.disabled=true; return true;"><table border=1>'
+    print pif.render.format_hidden_input({'type': 'related'})
+    cnt = 0
+    for cr in crd_m:
+	cnt += 1
+	print '<tr>'
+	print '<td><a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('casting_related', {'id': crd_m[cr].get('casting_related.id', '')}), crd_m[cr].get('casting_related.id', ''))
+	print '<td><a href="single.cgi?id=%s">%s</a><input type="hidden" name="m.%s" value="%s"></td>' % (cr[0], cr[0], cnt, cr[0])
+	print '<td>', crd_m[cr].get('m.rawname', ''), '</td>'
+	print '<input type="hidden" name="im.%s" value="%s">' % (cnt, crd_m[cr].get('casting_related.id', ''))
+	#print '<td>', crd_r[cr].get('casting_related.id', '') if cr in crd_r else '', '</td>'
+	if cr in crd_r:
+	    print '<td><a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('casting_related', {'id': crd_r[cr].get('casting_related.id', '')}), crd_r[cr].get('casting_related.id', ''))
+	else:
+	    print '<td></td>'
+	print '<td><a href="single.cgi?id=%s">%s</a><input type="hidden" name="r.%s" value="%s"></td>' % (cr[1], cr[1], cnt, cr[1])
+	print '<td>', crd_m[cr].get('r.rawname', ''), '' if cr in crd_r else '(missing)', '</td>'
+	if cr in crd_r:
+	    print '<input type="hidden" name="ir.%s" value="%s">' % (cnt, crd_r[cr].get('casting_related.id', ''))
+	print '</tr><tr>'
+	print '<td colspan=3>%s</td>' % crd_m[cr].get('m.description', '')
+	print '<td colspan=3>%s</td>' % crd_m[cr].get('r.description', '')
+	print '</tr><tr>'
+	rd = crd_r[cr].get('casting_related.description', '') if cr in crd_r else ''
+	print '<td colspan=3><input type="text" name="dr.%s" value="%s"></td>' % (cnt, rd)
+	print '<td colspan=3><input type="text" name="dm.%s" value="%s"></td>' % (cnt, crd_m[cr].get('casting_related.description', ''))
+	print '</tr><tr>'
+	rd = crd_r[cr].get('casting_related.section_id', '') if cr in crd_r else ''
+	print '<td colspan=3><input type="text" name="sr.%s" value="%s"></td>' % (cnt, rd)
+	print '<td colspan=3><input type="text" name="sm.%s" value="%s"></td>' % (cnt, crd_m[cr].get('casting_related.section_id', ''))
+	print '</tr>'
+    print '</table>'
+    print pif.render.format_button_input('save')
+    print '</form><hr>'
+    print pif.render.format_tail()
+
+
+def edit_casting_related(pif):
+    if not pif.form.has('mod_id'):
+	return show_all_casting_related(pif)
+
+    print pif.render.format_head()
     mod_id = pif.form.get_str('mod_id')
     # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
     print pif.form, '<br>'
-    if pif.form.has('save'):
-	print 'saving', pif.form.keys(start='m.'), '<br>'
-	crd = {key : {
-		'm': pif.form.get_str('m.' + key), # base_id
-		'r': pif.form.get_str('r.' + key),
-		'im': pif.form.get_str('im.' + key), # casting_related database id
-		'ir': pif.form.get_str('ir.' + key),
-		'dm': pif.form.get_str('dm.' + key),
-		'dr': pif.form.get_str('dr.' + key),
-		'sm': pif.form.get_str('sm.' + key),
-		'sr': pif.form.get_str('sr.' + key),
-	    } for key in pif.form.roots(start='m.')}
-	for key, cr in crd.items():
-	    print 'made', key, cr, '<br>'
-	    if cr['im']:
-		cr_this = {'id': cr['im'], 'model_id': cr['m'], 'related_id': cr['r'], 'description': cr['dm'], 'section_id': cr['sm']}
-		pif.dbh.update_casting_related(cr_this)
-	    if cr['ir']:
-		cr_that = {'id': cr['ir'], 'model_id': cr['r'], 'related_id': cr['m'], 'description': cr['dr'], 'section_id': cr['sr']}
-		pif.dbh.update_casting_related(cr_that)
-	print 'done saving <br>'
-    elif pif.form.has('add'):
-	print 'adding'
-	print pif.dbh.add_casting_related({'model_id': mod_id, 'related_id': pif.form.get_str('r')})
-	print pif.dbh.add_casting_related({'model_id': pif.form.get_str('r'), 'related_id': mod_id})
-	print '<br>'
+    print 'This currently only handles single.<br>'
 
-    if 1:
-	crl = pif.dbh.fetch_casting_relateds()
-	crd_m = {}
-	crd_r = {}
-	for cr in crl:
-	    if mod_id in (None, cr['casting_related.model_id'], cr['casting_related.related_id']):
-		if mod_id or cr['m.model_type'] in ('SF', 'RW') or cr['r.model_type'] in ('SF', 'RW'):
-		    m_id = cr['casting_related.model_id']
-		    r_id = cr['casting_related.related_id']
-		    if m_id < r_id:
-			crd_m[(m_id, r_id)] = cr
-			crd_r.setdefault((m_id, r_id), {})
-		    else:
-			crd_m.setdefault((r_id, m_id), {})
-			crd_r[(r_id, m_id)] = cr
-	#print crd_m, '<br>'
-	#print crd_r, '<hr>'
-#	for cr in crd_m:
-#	    print cr, crd_m[cr], '<br>'
-#	    print '...', crd_r[cr], '<br>'
-	print '<form action="mass.cgi" onsubmit="save.disabled=true; return true;"><table border=1>'
-	print pif.render.format_hidden_input({'mod_id': pif.form.get_str('mod_id'), 'type': 'related'})
-	cnt = 0
-	for cr in crd_m:
-	    cnt += 1
-	    print '<tr>'
-	    print '<td><a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('casting_related', {'id': crd_m[cr].get('casting_related.id', '')}), crd_m[cr].get('casting_related.id', ''))
-	    print '<td><a href="single.cgi?id=%s">%s</a><input type="hidden" name="m.%s" value="%s"></td>' % (cr[0], cr[0], cnt, cr[0])
-	    print '<td>', crd_m[cr].get('m.rawname', ''), '</td>'
-	    print '<input type="hidden" name="im.%s" value="%s">' % (cnt, crd_m[cr].get('casting_related.id', ''))
-	    #print '<td>', crd_r[cr].get('casting_related.id', '') if cr in crd_r else '', '</td>'
-	    if cr in crd_r:
-		print '<td><a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('casting_related', {'id': crd_r[cr].get('casting_related.id', '')}), crd_r[cr].get('casting_related.id', ''))
-	    else:
-		print '<td></td>'
-	    print '<td><a href="single.cgi?id=%s">%s</a><input type="hidden" name="r.%s" value="%s"></td>' % (cr[1], cr[1], cnt, cr[1])
-	    print '<td>', crd_m[cr].get('r.rawname', ''), '' if cr in crd_r else '(missing)', '</td>'
-	    if cr in crd_r:
-		print '<input type="hidden" name="ir.%s" value="%s">' % (cnt, crd_r[cr].get('casting_related.id', ''))
-	    print '</tr><tr>'
-	    print '<td colspan=3>%s</td>' % crd_m[cr].get('m.description', '')
-	    print '<td colspan=3>%s</td>' % crd_m[cr].get('r.description', '')
-	    print '</tr><tr>'
-	    rd = crd_r[cr].get('casting_related.description', '') if cr in crd_r else ''
-	    print '<td colspan=3><input type="text" name="dr.%s" value="%s"></td>' % (cnt, rd)
-	    print '<td colspan=3><input type="text" name="dm.%s" value="%s"></td>' % (cnt, crd_m[cr].get('casting_related.description', ''))
-	    print '</tr><tr>'
-	    rd = crd_r[cr].get('casting_related.section_id', '') if cr in crd_r else ''
-	    print '<td colspan=3><input type="text" name="sr.%s" value="%s"></td>' % (cnt, rd)
-	    print '<td colspan=3><input type="text" name="sm.%s" value="%s"></td>' % (cnt, crd_m[cr].get('casting_related.section_id', ''))
-	    print '</tr>'
-	print '</table>'
-	print pif.render.format_button_input('save')
-	print '</form><hr>'
+    if pif.form.has('save'):
+	for root in pif.form.roots(start='i'):
+	    rec = {'id': pif.form.get_str('i' + root),
+		   'model_id': pif.form.get_str('m' + root),
+		   'related_id': pif.form.get_str('r' + root),
+		   'description': pif.form.get_str('d' + root),
+		   'section_id': 'single',
+		   'picture_id': '',
+	    }
+	    pif.dbh.update_casting_related(rec)
+	
+
+    # id          | int(11)
+    # model_id    | varchar(12)
+    # related_id  | varchar(12)
+    # section_id  | varchar(16)
+    # picture_id  | varchar(12) - always blank for single
+    # description | varchar(256)
+
+    crl_m = pif.dbh.fetch_casting_relateds(mod_id=mod_id, section_id='single')
+    crl_r = pif.dbh.fetch_casting_relateds(rel_id=mod_id, section_id='single')
+
+    crd_m = {x['casting_related.related_id']: x for x in crl_m}
+    crd_r = {x['casting_related.model_id']: x for x in crl_r}
+    keys = set(crd_m.keys() + crd_r.keys())
+    if pif.form.has('r'):
+	keys.add(pif.form.get_str('r'))
+    print '<hr>'
+
+    def show_rel(num, cr):
+	print '<td>', cr.get('casting_related.id', '')
+	print pif.render.format_hidden_input({'i.%s' % num: cr.get('casting_related.id', 0)}), '</td>'
+	for tag, key, wid in [
+		('m', 'casting_related.model_id', 12),
+		('r', 'casting_related.related_id', 12),
+		('d', 'casting_related.description', 256)]:
+	    print '<td>', pif.render.format_text_input('%s.%s' % (tag, num), wid, min(wid, 64), value=cr.get(key, '')), '</td>'
+
+    print '<form name="edit" method="post" action="mass.cgi"><table border=1>'
+
+    print '<table border=1>'
+    num = 1
+    for rel_id in keys:
+	print '<tr>'
+	print '<td>%s</td>' % num
+	if rel_id in crd_r:
+	    print '<td colspan=3>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_r[rel_id]['base_id.id'], crd_r[rel_id]['base_id.rawname'])
+	else:
+	    print '<td colspan=3></td>'
+	print '<td>%s</td>' % (num + 1)
+	if rel_id in crd_m:
+	    print '<td colspan=3>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_m[rel_id]['base_id.id'], crd_m[rel_id]['base_id.rawname'])
+	else:
+	    print '<td colspan=3></td>'
+	print '</tr>'
+	print '<tr>'
+	if rel_id in crd_m:
+	    show_rel(num, crd_m[rel_id])
+	else:
+	    show_rel(num, {'casting_related.model_id': mod_id, 'casting_related.related_id': rel_id})
+	num += 1
+	if rel_id in crd_r:
+	    show_rel(num, crd_r[rel_id])
+	else:
+	    show_rel(num, {'casting_related.model_id': rel_id, 'casting_related.related_id': mod_id})
+	print '</tr>'
+	num += 1
+    print '</table>'
+
+    print pif.render.format_button_input('save')
+    print pif.render.format_hidden_input({'mod_id': pif.form.get_str('mod_id'), 'type': 'related'})
+    print '</form><hr>'
     if pif.form.has('mod_id'):
-	print '<form action="mass.cgi" onsubmit="add.disabled=true; return true;">'
+	print '<form name="add" action="mass.cgi" onsubmit="add.disabled=true; return true;">'
 	print pif.render.format_hidden_input({'mod_id': pif.form.get_str('mod_id'), 'type': 'related'})
 	print pif.render.format_text_input('r', 12)
 	print pif.render.format_button_input('add')
@@ -606,12 +660,12 @@ def add_pack_form(pif):
 	    'pack.note': '',
 	}
 
-    header += pif.render.format_button("edit", "imawidget.cgi?d=%s&f=%s.jpg" % (config.IMG_DIR_PACK, pack_id))
-    header += pif.render.format_button("upload", "upload.cgi?d=%s&n=%s" % (config.IMG_DIR_PACK, pack_id))
+    header += pif.render.format_button("edit", "imawidget.cgi?d=.%s&f=%s.jpg" % (config.IMG_DIR_PACK, pack_id))
+    header += pif.render.format_button("upload", "upload.cgi?d=.%s&n=%s" % (config.IMG_DIR_PACK, pack_id))
     header += '%(pack.page_id)s/%(pack.id)s<br>' % pack
     header += '/'.join(pack_img) + '<br>'
     header += '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (pack_img + (pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK, largest='g'),))
-    header += '<a href="imawidget.cgi?d=./%s&f=%s.jpg">%s</a><br>' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
+    header += '<a href="imawidget.cgi?d=.%s&f=%s.jpg">%s</a><br>' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
     header += pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK) + '<br>'
 
     pack_num = int(pack['pack.note'][2:-1]) if pack['pack.note'].startswith('(#') else 0
@@ -791,12 +845,14 @@ MCCH	= 13 # offline
 MBDB	= 14
 MBXU	= 15
 LW	= 16
+YT	= 17
 
 ml_re = re.compile('''<.*?>''', re.M|re.S)
 def_re_str = '''<a\s+href=['"](?P<u>[^'"]*)['"].*?>(?P<t>.*?)</a>'''
-def_re = re.compile(def_re_str, re.I | re.M | re.S)
 
 class LinkScraper(object):
+    def_re = re.compile(def_re_str, re.I | re.M | re.S)
+
     def __init__(self, pif):
 	self.pif = pif
 
@@ -805,7 +861,7 @@ class LinkScraper(object):
 
     def links_parse(self, url):
 	data = self.url_fetch(url)
-	return def_re.findall(data)
+	return [(x, useful.printablize(y)) for x,y in self.def_re.findall(data)]
 
     def is_valid_link(self, url, lnk):
 	return not lnk.startswith('mailto:') and not lnk.startswith('javascript:')
@@ -946,6 +1002,17 @@ class LinkScraperMBXU(LinkScraper):
 class LinkScraperLW(LinkScraper):
     lid = LW
 
+class LinkScraperYT(LinkScraper):
+    lid = YT
+
+    def_re = re.compile('''<a href="(?P<url>/watch\?[^"]*)"\s.*?\stitle="(?P<name>[^"]*)"''')
+    def links_parse(self, url):
+	links = super(LinkScraperYT, self).links_parse(url)
+	return [x for x in links if '/watch?' in x[0]]
+
+    def calc_page_id(self, lnk, txt):
+	return 'links.others'
+
 
 link_scraper = {
     MBXFDOC: LinkScraperMBXFDOC,
@@ -961,6 +1028,7 @@ link_scraper = {
     MBDB: LinkScraperMBDB,
     MBXU: LinkScraperMBXU,
     LW: LinkScraperLW,
+    YT: LinkScraperYT,
 }
 
 
@@ -973,6 +1041,7 @@ def add_links(pif):
 
 
 def add_links_ask(pif):
+    '''Top level of phase 1.'''
     asslinks = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)
 
     entries = [
@@ -1024,7 +1093,7 @@ def add_links_scrape(pif):
 
     header = '<form method="post" action="mass.cgi">'
 
-    columns = ['url', 'page_id', 'name']
+    columns = ['ch', 'url', 'page_id', 'name', 'description', 'country']
     found = 0
     cnt = 1
     entries = []
@@ -1037,13 +1106,17 @@ def add_links_scrape(pif):
 	    found += 1
 	    continue
 	entries.append({
+	    'ch': pif.render.format_checkbox('ch.' + str(cnt), [('1', '')], checked=['1']),
 	    'url': pif.render.format_link(dat['url']) +
 		   pif.render.format_hidden_input({'url.' + str(cnt): dat['url']}),
 	    'page_id': pif.render.format_text_input('page_id.' + str(cnt), 256, 20, dat['page_id']),
 	    'name': pif.render.format_text_input('name.' + str(cnt), 256, 40, dat['name']),
+	    'description': pif.render.format_text_input('description.' + str(cnt), 256, 20, ''),
+	    'country': pif.render.format_text_input('country.' + str(cnt), 2, 2, ''),
 	})
 	cnt += 1
     footer = pif.render.format_button_input('save')
+    footer += pif.render.format_hidden_input({'type': 'links'})
     footer += "%d found and dropped" % found
     footer += "</form>"
 
@@ -1060,11 +1133,16 @@ def add_links_final(pif):
     ostr = ''
     for key in pif.form.roots(start='page_id'):
 	link_vals = pif.form.get_dict(end=key)
-	link_vals.update({'display_order': site,
-	    'section_id': 'single', 'flags': 0, 'country': '', 'description': '',
-	    'associated_link': site, 'page_id': link_vals['page_id'],
-	    'note': '', 'last_status': None, 'link_type': 'l'})
-	ostr += str(link_vals) + ' ' + str(pif.dbh.insert_link_line(link_vals)) + '<br>\n'
+	if link_vals.get('ch'):
+	    del link_vals['ch']
+	    link_vals.update({'display_order': site,
+		'flags': 0, 'country': link_vals.get('country', ''),
+		'description': link_vals.get('description', ''),
+		'associated_link': site, 'page_id': link_vals.get('page_id', ''),
+		'note': '', 'last_status': None, 'link_type': 'l'})
+	    ostr += str(link_vals)
+	    ostr += ' ' + str(pif.dbh.insert_link_line(link_vals, verbose=True))
+	    ostr += '<br>\n'
     return pif.render.format_template('blank.html', content=ostr)
 
 # ------- book -----------------------------------------------------
@@ -1130,7 +1208,7 @@ def add_book_final(pif):
     if pif.form.get_str('pic_id') and pif.form.get_str('pic_url'):
 	if pif.dbh.fetch('book', where="pic_id='%s'" % pif.form.get_str('pic_id'), tag='mass_book'):
 	    raise useful.SimpleError("That pic_id is already in use.")
-	images.grab_url_file(pif.form.get_str('pic_url'), config.IMG_DIR_BOOK, pif.form.get_str('pic_id'))
+	images.grab_url_file(pif.form.get_str('pic_url'), '.' + config.IMG_DIR_BOOK, pif.form.get_str('pic_id'))
     vals = {
 	'author': pif.form.get_str('author'),
 	'title': pif.form.get_str('title'),
@@ -1143,7 +1221,89 @@ def add_book_final(pif):
     ostr += str(vals)
     ostr += str(pif.dbh.write('book', vals, newonly=True, tag='mass_book', verbose=True)) + '<br>'
     if vals['pic_id']:
-	ostr += pif.render.format_image_required(vals['pic_id'], pdir=config.IMG_DIR_BOOK)
+	ostr += pif.render.format_image_required(vals['pic_id'], pdir='.' + config.IMG_DIR_BOOK)
+    return pif.render.format_template('blank.html', content=ostr)
+
+# ------- ads ------------------------------------------------------
+
+def add_ads(pif):
+    if pif.form.has('save'):
+        return add_ads_final(pif)
+    return add_ads_ask(pif)
+    #'base_id': ['id', 'first_year', 'model_type'='AD', 'rawname', 'description', 'flags'=0],
+    #'publication': ['id', 'country', 'section_id'='ca'],
+
+
+def add_ads_ask(pif):
+    ad_id = pif.form.get_str('id')
+    ad = pif.dbh.fetch_publication(ad_id)
+    if ad:
+	raise useful.SimpleError('Duplicate ID.')
+    o_ad_id = pif.form.get_str('id')
+    yr = pif.form.get_str('year')
+    cy = pif.form.get_str('country')
+    desc = pif.form.get_str("description")
+    ad = {}
+    if ad_id.startswith('ad'):
+	ad = pif.dbh.fetch_publication(ad_id)
+	ad = ad if ad else {}
+    elif yr and cy:
+	ad_id = 'ad' + cy.lower() + str(yr)
+	ads = pif.dbh.fetch_publications(country=cy, year=yr, order='base_id.id', model_type='AD')
+	ad_id += chr(ord(ads[-1]['base_id.id'][8]) + 1) if ads else 'a'
+
+    header = '<form name="mass" action="mass.cgi">'
+    if desc == ad_id and '_' in desc:
+	desc = desc[desc.find('_') + 1:].replace('_', ' ').title()
+    if not yr and not cy and ad_id.startswith('ad'):
+	if ad_id[4:8].isdigit():
+	    yr = ad_id[4:8]
+	cy = ad_id[2:4].upper()
+    name = 'Advertisement'
+    name += ' ;- ' + mbdata.get_countries().get(cy, 'International')
+    if yr:
+	name += ' - ' + yr
+    entries = [
+	{'title': "ID:", 'value': pif.render.format_text_input("id", 64, 64, value=ad_id)},
+	{'title': "Raw Name:", 'value': pif.render.format_text_input("rawname", 64, 64, value=name)},
+	{'title': "Description:", 'value': pif.render.format_text_input("description", 64, 64, desc)},
+	{'title': "Year:", 'value': pif.render.format_text_input("first_year", 4, 4, value=yr)},
+	{'title': "Country:", 'value': pif.render.format_text_input("country", 16, 16, value=cy)},
+	{'title': '', 'value': pif.render.format_button_input('save') + pif.render.format_button_reset('mass')},
+    ]
+    footer = pif.render.format_hidden_input({'type': 'ads'})
+    footer += pif.render.format_hidden_input({'o_id': o_ad_id})
+    footer += "</form><p>" + pif.render.format_image_required(o_ad_id, pdir=config.IMG_DIR_ADS)
+    lsections = []
+    lsections.append(dict(columns=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True, header=header, footer=footer))
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=lsections), nofooter=True)
+
+
+def add_ads_final(pif):
+    ostr = str(pif.form) + '<br>'
+    if not pif.form.has('id'):
+	raise useful.SimpleError("No id supplied.")
+    ad_id = pif.form.get_str('id')
+    ad = pif.dbh.fetch_publication(ad_id)
+    if ad:
+	raise useful.SimpleError('Duplicate ID.')
+    ostr += str(pif.dbh.add_new_base_id({
+	'id': ad_id,
+	'first_year': pif.form.get_str('first_year'),
+	'model_type': 'AD',
+	'rawname': pif.form.get_str('rawname'),
+	'description': pif.form.get_str('description'),
+	'flags': 0,
+    })) + '<br>'
+    #'publication': ['id', 'country', 'section_id'='ca'],
+    ostr += str(pif.dbh.add_new_publication({
+	'id': ad_id,
+	'country': pif.form.get_str('country'),
+	'section_id': 'ca',
+    })) + '<br>'
+    o_id = pif.form.get_str('o_id')
+    if o_id and o_id != ad_id and os.path.exists('.' + config.IMG_DIR_ADS + '/' + o_id + '.jpg'):
+	useful.file_mover('.' + config.IMG_DIR_ADS + '/' + o_id + '.jpg', '.' + config.IMG_DIR_ADS + '/' + ad_id + '.jpg', mv=True)
     return pif.render.format_template('blank.html', content=ostr)
 
 # ------- ----------------------------------------------------------
@@ -1157,6 +1317,7 @@ mass_mains_list = [
     ('pack', add_pack),
     ('links', add_links),
     ('book', add_book),
+    ('ads', add_ads),
 ]
 
 mass_mains_hidden = {

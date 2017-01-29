@@ -14,7 +14,7 @@ field|pic|Picture
 data|m|num,rank,name,year
 
 cells|num|name|year|pic|insetdesc
-table|SB|num,rank,name,year|<img src="../gfx/skybusters.gif" alt="Skybusters">|2|sb
+table|SB|num,rank,name,year|<img src="/pic/sky/skybusters.gif" alt="Skybusters">|2|sb
 
 m|1|A|Lear Jet|1973
 d|yellow and white "D-ILDE"

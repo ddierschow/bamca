@@ -26,7 +26,7 @@ def check_box(pif, dn):
     pass
 
 def check_man(pif, dn):
-    files = glob.glob(dn + '/*.*')
+    files = glob.glob('.' + dn + '/*.*')
     files.sort()
     c = 0
     for fn in files:

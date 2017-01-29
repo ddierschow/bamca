@@ -1,5 +1,5 @@
 body {background-color: #EEEEEE;}
-#img    {margin-left: auto; margin-right: auto; display: block;}
+/* #img    {margin-left: auto; margin-right: auto; display: block;} */
 
 .eb {text-align: center;}
 
@@ -15,7 +15,11 @@ body {background-color: #EEEEEE;}
 .inset_m {width: 408px; margin: 0 auto;}
 .inset_l {width: 608px; margin: 0 auto;}
 
-.panel_1 {width: 440px;}
-.panel_2 {width: 800px;}
+.panel_1 {width: 444px;}
+.panel_2 {width: 890px;}
 
 .notes {background-color: #DDFFDD; border-style: solid; border-collapse: collapse; width: 400px;}
+
+.modelinfo {border-spacing: 8px;}
+.modelinfo th {border-style: solid; border-width: 0 0 1px 0; text-align: center;}
+.modelinfo td {margin: 8px; text-align: center;}

@@ -217,9 +217,9 @@ def show_script(pif, tform):
         dest = lb[1]  # we might have renamed this...
         if lb[0] in rend:
             lb[0] = rend[lb[0]]
-        if not os.path.exists(os.path.join(config.LIB_DIR, tform.pre, dest)):
-            os.mkdir(os.path.join(config.LIB_DIR, tform.pre, dest))
-        useful.file_mover(os.path.join(tform.tdir, lb[0]), os.path.join(config.LIB_DIR, tform.pre, dest, lb[0]), mv=True, inc=True)
+        if not os.path.exists(useful.relpath('.', config.LIB_DIR, tform.pre, dest)):
+            os.mkdir(useful.relpath('.', config.LIB_DIR, tform.pre, dest))
+        useful.file_mover(os.path.join(tform.tdir, lb[0]), useful.relpath('.', config.LIB_DIR, tform.pre, dest, lb[0]), mv=True, inc=True)
     for rm in tform.rml:
         if os.path.exists(os.path.join(tform.tdir, rm)):
             useful.file_mover(os.path.join(tform.tdir, rm), None, mv=True)
@@ -240,7 +240,7 @@ def do_masses(pif, tform):
 	eform.read_file('')
 	eform.man = eform.calc_man()
 	eform.var = eform.nvar = var
-	eform.mass_resize()
+	eform.mass_resize(pif)
 
 
 def show_file(pif, tform):
@@ -378,6 +378,8 @@ class TraverseForm(object):
 	self.rml = pif.form.get_list('rm')
 	self.pre = pif.form.get_str('pre')
 	self.mod = pif.form.get_str('mod')
+	if not self.mod:
+	    self.mod = pif.form.get_str('man')
 	self.var = pif.form.get_str('var')
 	self.szx = pif.form.get_int("sx")
 	self.szy = pif.form.get_int("sy")

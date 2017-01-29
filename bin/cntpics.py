@@ -29,7 +29,7 @@ def count_html(fpath):
 
 
 def count_directory(pdir):
-    count = len(glob.glob(pdir + '/*.jpg'))
+    count = len(glob.glob('.' + pdir + '/*.jpg'))
     report(pdir, count, count)
     return count
 
@@ -41,7 +41,7 @@ def count_combo_one_only(pdir, prefs, roots, suffs):
         for pref in prefs:
             for suff in suffs:
                 for ext in imglib.otypes:
-                    fl = glob.glob('%s/%s%s%s.%s' % (pdir, pref, root, suff, ext))
+                    fl = glob.glob('./%s/%s%s%s.%s' % (pdir, pref, root, suff, ext))
                     for fn in fl:
                         if os.path.exists(fn):
                             count += 1
@@ -66,7 +66,7 @@ def count_combo(pdir, prefs, roots, suffs):
         for pref in prefs:
             for suff in suffs:
                 for ext in imglib.otypes:
-                    fl = glob.glob('%s/%s%s%s.%s' % (pdir, pref + '_' if pref else '', root, suff, ext))
+                    fl = glob.glob('./%s/%s%s%s.%s' % (pdir, pref + '_' if pref else '', root, suff, ext))
                     for fn in fl:
                         if os.path.exists(fn):
                             count += 1

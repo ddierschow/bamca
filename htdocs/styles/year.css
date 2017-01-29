@@ -2,13 +2,10 @@
 
 body {background-color: #FFCC33;}
 
-#.tb {background-color: #CCCCCC;}
 .tb_year {background-color: #CCCCCC; max-width: 1024px;}
 .sh {color: #FFFFFF; background-color: #000099;}
 .rh {background-color: #FFFFFF; color: #000000;}
 .er {background-color: #CCCCFF;}
 .eb {background-color: #CCCC99;}
-#.eb_0 {background-color: #FFFFFF;}
-#.eb_1 {background-color: #CCCCFF;}
 .tb_tail {background-color: #CCCCCC;}
 .tb_tail eb {background-color: #CCCCCC;}

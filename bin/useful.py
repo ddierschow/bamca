@@ -7,21 +7,25 @@ import copy, filecmp, glob, itertools, os, pprint, re, stat, urllib, urllib2
 import config  # bleagh
 import jinja2
 
+#html_done = False
+
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
 
 
 class DelayedRedirect(Exception):
-    def __init__(self, value):
+    def __init__(self, value, delay=10):
         self.value = value
+	self.delay = delay
 
     def __str__(self):
         return repr(self.value)
 
 
 class Redirect(Exception):
-    def __init__(self, value):
+    def __init__(self, value, delay=0):
         self.value = value
+	self.delay = delay
 
     def __str__(self):
         return repr(self.value)
@@ -34,6 +38,20 @@ class SimpleError(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+def relpath(*args):
+    if len(args) == 0:
+	return '.'
+    if len(args) == 1:
+	if args[0].startswith('/'):
+	    return args[0][1:]
+	return args[0]
+    if args[0] == '.':
+	args = args[1:]
+    if args[0].startswith('/'):
+	args = (args[0][1:],) + args[1:]
+    return os.path.join(*args)
 
 
 def read_dir(patt, tdir):
@@ -136,14 +154,13 @@ def clean_id(str_id):
 
 
 def dump_dict_comment(t, d, keys=None):
-    print "<!-- dump", t, ":"
-    print pprint.pformat(d, indent=1, width=132)
-    print '-->'
+    ostr = "<!-- dump %s:\n" % t
+    ostr += pprint.pformat(d, indent=1, width=132)
+    return ostr + '\n-->\n'
 
 
 def dump_dict(t, d, keys=None):
-    print t,'<br>'
-    print pprint.pformat(d, indent=1, width=132)
+    return '%s<br>\n%s\n' % (t, pprint.pformat(d, indent=1, width=132))
 
 
 def fmt_also(also={}, style={}):
@@ -217,7 +234,7 @@ def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma:
     while 1:
         if src and dst and os.path.exists(src) and os.path.exists(dst) and os.path.samefile(src, dst):
             if not trash:
-                warn("What?")
+                warn("What? (trash)")
             return False
         if not os.path.exists(src):
             if not trash:
@@ -245,7 +262,7 @@ def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma:
         elif ov:
             #os.remove(dst)
             path, filename = dst.rsplit('/', 1)
-            file_mover(dst, os.path.join(config.TRASH_DIR, filename), mv=True, inc=True, trash=True)
+            file_mover(dst, relpath('.', config.TRASH_DIR, filename), mv=True, inc=True, trash=True)
             if not trash:
                 warn(dst, "- old file overwritten")
             if mv:
@@ -350,7 +367,7 @@ def file_save(pdir, fn, contents, overwrite=False):
     fn = root + '.' + ext
     if os.path.exists(pdir + '/' + fn):
         if overwrite:
-            file_mover(pdir + '/' + fn, os.path.join(config.TRASH_DIR, fn), mv=True, inc=True, trash=True)
+            file_mover(pdir + '/' + fn, relpath('.', config.TRASH_DIR, fn), mv=True, inc=True, trash=True)
         else:
             addon = 1
             while os.path.exists(pdir + '/' + root + '_' + str(addon) + '.' + ext):
@@ -372,14 +389,16 @@ _pending_comments = list()
 _header_done_flag = False
 _partial_comment = None
 
-def is_header_done():
+def is_header_done(new_set=False):
     global _header_done_flag
+    if new_set:
+	_header_done_flag = True
     return _header_done_flag
 
 def header_done(is_web=True, silent=False):
-    global _format_web, _header_done_flag, _pending_comments
+    global _format_web, _pending_comments
     _format_web = is_web
-    _header_done_flag = True
+    is_header_done(True)
     ostr = '\n'.join([format_string(*x) for x in _pending_comments])
     _pending_comments = list()
     if silent:
@@ -401,7 +420,7 @@ def write_string(*args, **kwargs):
 	print ostr
 
 def format_string(*args, **kwargs):
-    global _header_done_flag, _pending_comments, _partial_comment, _format_web
+    global _pending_comments, _partial_comment, _format_web
     partial = kwargs.get('nonl')
     warning = kwargs.get('warning', False)
     comment = kwargs.get('comment', False)
@@ -419,7 +438,7 @@ def format_string(*args, **kwargs):
         args = _partial_comment + list(args)
         _partial_comment = None
     if args:
-        if not _header_done_flag:
+        if not is_header_done():
             _pending_comments.append(args)
 	elif not _format_web:
             return ' '.join([str(x) for x in args])
@@ -432,10 +451,9 @@ def format_string(*args, **kwargs):
     return ''
 
 def read_comments():
-    global _pending_comments, _header_done_flag
+    global _pending_comments
     comments = '\n'.join([' '.join([str(arg) for arg in args]) for args in _pending_comments])
     _pending_comments = list()
-    _header_done_flag = False
     return comments
 
 
@@ -491,4 +509,4 @@ def url_fetch(url, data=None):
 #---- -------------------------------------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''
+    pass

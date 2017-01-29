@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 # readonly hidden select checkbox
-# 'add' 'ask' 'clinks' 'columns' 'create' 'elinks' 'id' 'readonly' 'titles' 'tlinks'
+# 'add' 'ask' 'clinks' 'columns' 'create' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
 table_info = {
     #page_info
     'page_info': {
@@ -96,6 +96,7 @@ table_info = {
     #casting
     'casting': {
         'id': ['id'],
+	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id'],
 	'extra_columns': ['notes', 'variation_digits',
 	    'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels'],
@@ -112,6 +113,7 @@ table_info = {
                 {'tab': 'alias', 'id': ['ref_id/id']},
                 {'tab': 'casting_related', 'id': ['model_id/id']},
                 {'tab': 'casting_related', 'id': ['related_id/id']},
+                {'tab': 'casting_make', 'id': ['casting_id/id']},
                 {'tab': 'matrix_model', 'id': ['mod_id/id']},
                 {'tab': 'lineup_model', 'id': ['mod_id/id']},
                 {'tab': 'pack_model', 'id': ['mod_id/id']},
@@ -145,7 +147,7 @@ table_info = {
                 'model_id': 'unset',
                 'related_id': 'unset',
         },
-        'ask': ['model_id', 'related_id'],
+        'ask': ['model_id', 'related_id', 'section_id'],
     },
     #attribute
     'attribute': {
@@ -271,15 +273,29 @@ table_info = {
     },
     #vehicle_make
     'vehicle_make': {
-        'id': ['make'],
-        'columns': ['make', 'make_name'],
+        'id': ['id'],
+        'columns': ['id', 'make', 'make_name', 'name', 'company_name', 'flags'],
         'clinks': {
-                'id': {'tab': 'vehicle_make', 'make': ['make/make']},
+                'id': {'tab': 'vehicle_make', 'id': ['id/id']},
         },
         'create': {
-                'make': '???',
+                'id': '???',
         },
-        'ask': ['make'],
+        'ask': ['id'],
+    },
+    #casting_make
+    'casting_make': {
+        'id': ['id'],
+        'columns': ['id', 'make_id', 'casting_id', 'flags'],
+        'clinks': {
+                'id': {'tab': 'casting_make', 'id': ['id/id']},
+                'make_id': {'tab': 'vehicle_make', 'id': ['id/make_id']},
+                'casting_id': {'tab': 'casting', 'id': ['id/casting_id']},
+        },
+        'add': {
+                'casting_make': ['id/id'],
+        },
+        'ask': ['id', 'make_id', 'casting_id'],
     },
     #matrix_model
     'matrix_model': {
@@ -370,6 +386,7 @@ table_info = {
     #pack
     'pack': {
         'id': ['id'],
+	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'page_id', 'section_id', 'region', 'end_year', 'layout', 'product_code', 'material', 'country', 'note'],
         'add': {
                 'pack': [],
@@ -405,6 +422,7 @@ table_info = {
     #publication
     'publication': {
         'id': ['id'],
+	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'country', 'section_id'],
         'clinks': {
                 'id': {'tab': 'base_id', 'id': ['id/id']},
@@ -493,233 +511,31 @@ FLAG_MODEL_NO_ID                        =  8
 FLAG_MODEL_SHOW_ALL_VARIATIONS          = 16
 FLAG_MODEL_HIDE_IMAGE                   = 32
 FLAG_MODEL_NO_SPECIFIC_MODEL            = 64
+FLAG_MODEL_REVISED_CASTING              =128
 
-FLAG_SECTION_NO_FIRSTS                  =  1
+FLAG_SECTION_HIDDEN                     =  1
 FLAG_SECTION_DEFAULT_IDS                =  2
-FLAG_SECTION_HIDDEN                     = 16
+FLAG_SECTION_NO_FIRSTS                  =  4
+FLAG_SECTION_HIDE_IMAGE                 = 32
 
-FLAG_PAGE_INFO_NOT_RELEASED             =  1
+FLAG_MAKE_PRIMARY                       =  2
+
+FLAG_PAGE_INFO_HIDDEN                   =  1
 FLAG_PAGE_INFO_HIDE_TITLE               =  2
 FLAG_PAGE_INFO_UNROLL_MODELS            =  4
 
-FLAG_LINK_LINE_NEW                      =  1
+FLAG_LINK_LINE_HIDDEN                   =  1
 FLAG_LINK_LINE_RECIPROCAL               =  2
 FLAG_LINK_LINE_PAYPAL                   =  4
 FLAG_LINK_LINE_INDENTED                 =  8
 FLAG_LINK_LINE_FORMAT_LARGE             = 16
 FLAG_LINK_LINE_NOT_VERIFIABLE           = 32
 FLAG_LINK_LINE_ASSOCIABLE               = 64
-FLAG_LINK_LINE_HIDDEN                   = 128
+FLAG_LINK_LINE_NEW                      =128
 
 FLAG_ITEM_HIDDEN                        =  1
 
 #-
 
-'''
-alias
-    id                      varchar(12)     NO      PRI
-    first_year              varchar(4)      YES
-    ref_id                  varchar(12)     NO      PRI
-    section_id              varchar(20)     YES
-    type                    varchar(16)     YES
-attribute
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    mod_id                  varchar(12)     YES     MUL     NULL
-    attribute_name          varchar(32)     YES
-    definition              varchar(32)     YES
-    title                   varchar(32)     YES
-    visual                  tinyint(1)      YES             1
-attribute_picture
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    mod_id                  varchar(8)      NO
-    attr_id                 int(11)         YES
-    picture_id              varchar(8)      NO
-    description             varchar(128)    YES
-base_id
-    id                      varchar(12)     NO      PRI     NULL
-    first_year              varchar(4)      NO              NULL
-    flags                   int(11)         NO              0
-    model_type              varchar(2)      NO              NULL
-    rawname                 varchar(64)     NO              NULL
-    description             varchar(128)    NO
-blacklist
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    reason                  varchar(6)      YES
-    target                  varchar(32)     YES
-casting
-    id                      varchar(12)     NO      PRI
-    first_year              varchar(4)      YES
-    flags                   int(11)         YES             0
-    scale                   varchar(6)      YES
-    model_type              varchar(2)      YES
-    vehicle_type            varchar(3)      NO
-    country                 varchar(2)      YES
-    rawname                 varchar(64)     NO
-    make                    varchar(3)      YES
-    box_styles              varchar(8)      YES
-    description             varchar(64)     YES
-    section_id              varchar(20)     YES
-    format_description                      varchar(128)    YES      &body
-    format_body             varchar(128)    YES             *body
-    format_interior         varchar(128)    YES             @interior
-    format_windows          varchar(128)    YES             @windows
-    format_base             varchar(128)    YES             @base|&manufacture
-    format_wheels           varchar(128)    YES             &wheels
-casting_related
-    model_id                varchar(12)     NO      PRI
-    related_id              varchar(12)     NO      PRI
-counter
-    id                      varchar(32)     NO      PRI
-    value                   int(11)         YES             0
-    timestamp               datetime        YES             NULL
-country
-    id                      varchar(2)      NO      PRI     NULL
-    name                    varchar(32)     YES
-    region                  varchar(2)      YES
-detail
-    mod_id                  varchar(12)     NO      PRI
-    var_id                  varchar(8)      NO      PRI     NULL
-    attr_id                 int(11)         NO      PRI     NULL
-    description             varchar(256)    YES             NULL
-lineup_model
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    mod_id                  varchar(12)     YES             NULL
-    number                  int(3)          YES             0
-    style_id                varchar(3)      YES             NULL
-    picture_id              varchar(12)     YES
-    region                  varchar(4)      YES             NULL
-    year                    varchar(6)      YES
-    page_id                 varchar(32)     YES
-    name                    varchar(64)     YES
-link_line
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    page_id                 varchar(20)     NO
-    section_id              varchar(20)     YES
-    display_order           int(3)          YES             0
-    flags                   int(11)         YES             0
-    associated_link         int(11)         YES             0
-    last_status             varchar(5)      YES             NULL
-    link_type               varchar(1)      YES
-    country                 varchar(2)      YES
-    url                     varchar(256)    YES
-    name                    varchar(128)    YES
-    description             varchar(512)    YES
-    note                    varchar(256)    YES
-matrix_model
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    section_id              varchar(20)     YES
-    display_order           int(3)          YES             0
-    page_id                 varchar(20)     YES
-    range_id                varchar(16)     YES
-    mod_id                  varchar(12)     YES             NULL
-    flags                   int(11)         YES             0
-    shown_id                varchar(12)     YES
-    name                    varchar(64)     YES
-    subname                 varchar(64)     YES
-    description             varchar(128)    YES
-pack
-    id                      varchar(12)     NO      PRI
-    page_id                 varchar(16)     YES
-    section_id              varchar(20)     YES
-    name                    varchar(64)     YES
-    year                    varchar(4)      YES
-    layout                  varchar(3)      YES             5v
-    region                  varchar(1)      YES
-    product_code            varchar(8)      YES
-    material                varchar(1)      YES
-    country                 varchar(2)      YES
-    note                    varchar(32)     YES
-pack_model
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    pack_id                 varchar(12)     YES
-    mod_id                  varchar(12)     YES             NULL
-    var_id                  varchar(20)     YES             NULL
-    display_order           int(2)          YES             0
-page_info
-    id                      varchar(20)     NO      PRI
-    flags                   int(11)         YES             0
-    health                  int(11)         YES             0
-    format_type             varchar(16)     YES
-    title                   varchar(80)     YES
-    pic_dir                 varchar(80)     YES
-    tail                    varchar(128)    YES
-    description             varchar(256)    YES
-    note                    varchar(256)    YES
-publication
-    id                      varchar(12)     NO              NULL
-    first_year              varchar(4)      YES
-    flags                   int(11)         YES             0
-    model_type              varchar(2)      YES
-    country                 varchar(2)      YES
-    rawname                 varchar(64)     NO
-    description             varchar(128)    YES             NULL
-    section_id              varchar(2)      YES
-region
-    id                      varchar(1)      NO      PRI
-    parent                  varchar(1)      YES
-    name                    varchar(20)     YES
-section
-    id                      varchar(20)     NO      PRI
-    page_id                 varchar(16)     NO      PRI
-    display_order           int(3)          YES             0
-    category                varchar(8)      YES
-    flags                   int(11)         YES             0
-    name                    varchar(80)     YES
-    columns                 int(1)          YES             4
-    start                   int(3)          YES             0
-    pic_dir                 varchar(80)     YES
-    disp_format             varchar(20)     YES
-    link_format             varchar(20)     YES
-    img_format              varchar(20)     YES
-    note                    varchar(255)    YES
-user
-    id                      int(11)         NO      PRI     NULL    auto_increment
-    name                    varchar(32)     NO      UNI
-    passwd                  varchar(41)     NO
-    privs                   varchar(16)     YES
-    email                   varchar(80)     NO
-    state                   int(4)          YES             0
-    vkey                    varchar(10)     YES             NULL
-variation
-    mod_id                  varchar(12)     NO      PRI
-    var                     varchar(8)      NO      PRI     NULL
-    flags                   int(11)         YES             0
-    text_body               varchar(256)    YES
-    text_interior           varchar(128)    YES
-    text_windows            varchar(128)    YES
-    text_base               varchar(128)    YES
-    text_wheels             varchar(128)    YES
-    text_description                        varchar(128)    YES
-    body                    varchar(64)     YES
-    base                    varchar(64)     YES
-    windows                 varchar(64)     YES
-    interior                varchar(64)     YES
-    category                varchar(32)     YES
-    area                    varchar(32)     YES
-    date                    varchar(32)     YES
-    note                    varchar(256)    YES
-    other                   varchar(64)     YES
-    picture_id              varchar(8)      YES
-    manufacture             varchar(32)     YES
-    imported                time            YES             NULL
-    imported_from           varchar(16)     YES
-    imported_var            varchar(8)      YES             NULL
-variation_select
-    ref_id                  varchar(32)     NO      PRI
-    mod_id                  varchar(12)     NO      PRI
-    var_id                  varchar(8)      NO      PRI
-    sub_id                  varchar(16)     NO      PRI
-vehicle_make
-    make                    varchar(3)      NO      PRI
-    make_name               varchar(32)     YES
-vehicle_type
-    id                      int(2)          NO      PRI     NULL    auto_increment
-    ch                      varchar(1)      YES
-    name                    varchar(32)     YES
-wheel
-    id                      varchar(11)     NO      PRI
-    description             varchar(128)    YES
-'''
-
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''
+    pass

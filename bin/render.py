@@ -15,19 +15,22 @@ graphic_types = ['jpg', 'gif', 'bmp', 'ico', 'png']
 
 
 class Presentation(object):
+    modal_js = javasc.def_modal_js
     incrsel_js = javasc.def_increment_select_js
-    toggle_display_js = javasc.def_toggle_display_js
+    toggle_display_js = javasc.def_toggle_display_text_js
     reset_button_js = javasc.def_reset_button_js
     increment_js = javasc.def_increment_js
     increment_select_js = javasc.def_increment_select_js
     google_analytics_js = javasc.def_google_analytics_js
     image_selector_js = javasc.def_image_selector_js
     paste_from_clippy_js = javasc.def_paste_from_clippy_js
+    font_awesome_js = javasc.def_font_awesome_js
     def __init__(self, page_id, verbose):
         self.page_id = page_id
         self.art_dir = config.IMG_DIR_ART
         self.is_beta = False
         self.title = 'BAMCA'
+        self.unittest = False
         self.description = ''
         self.note = ''
         self.pic_dir = 'pics'
@@ -43,16 +46,16 @@ class Presentation(object):
         self.flag_info = None
         self.shown_flags = set()
         self.secure = None
-        self.styles = list(('main',))
+        self.styles = list(('main', 'fonts'))
         if '.' in self.page_id:
 	    self.styles.append(self.page_id[:self.page_id.find('.')])
 	self.styles.append(self.page_id)
-	self.extra = ''
+	self.extra = self.font_awesome_js
 	self.comment_button = ''
 	self.is_admin = False
 	self.is_moderator = False
 	self.is_user = False
-	self.html_done = False
+	#useful.html_done = False
 	self.new_cookie = None
 	self.footer = ''
 #       if self.verbose:
@@ -121,9 +124,6 @@ class Presentation(object):
             self.shown_flags.add(country)
         return flag
 
-    def find_art(self, fnames, suffix="gif"):
-        return self.find_image_path(fnames, suffix=suffix, art=True)
-
     def find_image_files(self, fnames, suffix=None, pdir=None, art=False):
         if isinstance(fnames, str):
             fnames = [fnames]
@@ -131,11 +131,11 @@ class Presentation(object):
             suffix = graphic_types
         elif isinstance(suffix, str):
             suffix = [suffix]
-	pdir = pdir if pdir else self.art_dir if art else self.pic_dir
+	pdir = useful.relpath(pdir if pdir else self.art_dir if art else self.pic_dir)
 	retfiles = list()
 	for fname in fnames:
 	    for sfx in suffix:
-		retfiles.extend(glob.glob(os.path.join(pdir, fname + '.' + sfx))) # + glob.glob(os.path.join(pdir, fname.lower() + '.' + sfx)))
+		retfiles.extend(glob.glob(useful.relpath('.', pdir, fname + '.' + sfx))) # + glob.glob(os.path.join(pdir, fname.lower() + '.' + sfx)))
 	return retfiles
 
     def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
@@ -154,8 +154,8 @@ class Presentation(object):
         elif isinstance(prefix, str):
             prefix = [prefix]
 
-	pdir = pdir if pdir else self.art_dir if art else self.pic_dir
-	pdirvar = os.path.join(pdir, 'var')
+	pdir = useful.relpath(pdir if pdir else self.art_dir if art else self.pic_dir)
+	pdirvar = useful.relpath(pdir, 'var')
 
 	base = [] if nobase else ['']
 	vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
@@ -199,83 +199,15 @@ class Presentation(object):
         return ('', '')
 
     def find_image_path(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
+	if not fnames:
+	    return ''
 	return os.path.join(*self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir, art=art))
-        if not fnames:
-            self.comment('find_image_path ret', '')
-            return ''
-        elif isinstance(fnames, str):
-            fnames = [fnames]
-
-	suffix = graphic_types if suffix is None else [suffix] if isinstance(suffix, str) else suffix
-
-        if largest:  # overrides previous setting of prefixes.
-            prefix = reversed(mbdata.image_size_types)
-            if largest in prefix:
-                prefix = prefix[prefix.index(largest):]
-        elif isinstance(prefix, str):
-            prefix = [prefix]
-
-	pdir = pdir if pdir else self.art_dir if art else self.pic_dir
-
-	base = [] if nobase else ['']
-	vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
-
-        self.comment("find_image_path", fnames, vars, prefix, suffix, pdir)
-        for var in vars:
-            for fname in fnames:
-                fname = useful.clean_name(fname.replace('/', '_'))
-#               if not fname:
-#                   continue
-                if fname.find('.') >= 0:
-                    csuffix = [fname[fname.rfind('.') + 1:]]
-                    fname = fname[:fname.rfind('.')]
-                else:
-                    csuffix = suffix
-
-                for pfx in prefix + ['']:
-                    if pfx and not pfx.endswith('_'):
-                        pfx += '_'
-                    for suf in csuffix:
-                        suf = '.' + suf
-                        if var:
-                            img = self.fmt_img_file_check(pdir + '/var/' + pfx + fname + '-' + var + suf)
-                            if img:
-                                self.comment('find_image_path ret', pdir + '/' + img)
-                                return pdir + '/' + img
-                            img = self.fmt_img_file_check(pdir + '/var/' + (pfx + fname + '-' + var + suf).lower())
-                            if img:
-                                self.comment('find_image_path ret', pdir + '/' + img)
-                                return pdir + '/' + img
-                        else:
-                            img = self.fmt_img_file_check(pdir + '/' + pfx + fname + suf)
-                            if img:
-                                self.comment('find_image_path ret', pdir + '/' + img)
-                                return pdir + '/' + img
-                            img = self.fmt_img_file_check(pdir + '/' + (pfx + fname + suf).lower())
-                            if img:
-                                self.comment('find_image_path ret', pdir + '/' + img)
-                                return pdir + '/' + img
-        self.comment('find_image_path ret', '')
-        return ''
 
     def find_button_name(self, name):
-	return name.replace(' ', '_').lower()
+	return name.replace('<br>', '_').replace(' ', '_').lower()
 
     def find_button_label(self, name):
 	return name.replace('_', ' ').upper()
-
-    def find_button_images(self, name, image='', hover='', pdir=None):
-        name = self.find_button_label(name)
-	image = image or self.find_button_name(name)
-	hover = hover or image
-	image = image if image.startswith('but_') else 'but_' + image
-	hover = hover if hover.startswith('hov_') else 'hov_' + hover
-	pdir = pdir or self.art_dir
-        but_image = self.find_image_path(image, suffix='gif', pdir=pdir, art=True)
-        hov_image = self.find_image_path(hover, suffix='gif', pdir=pdir, art=True)
-	if not but_image and name != 'UNITTEST':
-	    logging.getLogger('debug').info('no button image: %s' % image)
-        return name, but_image, hov_image
 
     # immediate effect functions.
 
@@ -296,18 +228,19 @@ class Presentation(object):
 
     def comment_dict(self, name, arg):
         if self.verbose:
-            useful.dump_dict_comment(name, arg)
+            print useful.dump_dict_comment(name, arg)
 
     def print_html(self, content='text/html', status=200):
-        print 'Content-Type:', content
-	print 'Status:', status, httplib.responses.get(status, '')
-	self.html_done = True
-        self.print_cookie()
-        print
-	if content == 'text/html':
-	    print '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'
+	if not useful.is_header_done():
+	    print 'Content-Type:', content
+	    print 'Status:', status, httplib.responses.get(status, '')
+	    #useful.html_done = True
+	    self.print_cookie()
 	    print
-	#useful.header_done()
+	    if content == 'text/html':
+		print '<!DOCTYPE html>'
+		print
+	    useful.header_done()
 
     def set_cookie(self, cookie):
 	self.new_cookie = cookie
@@ -342,23 +275,24 @@ class Presentation(object):
 
         ostr  = '<html>\n<!-- This page rendered by the old-style rendering engine. -->\n'
         ostr += '<head><meta charset="UTF-8"><title>%s</title>\n' % pagetitle
-        ostr += '<link rel="icon" href="/' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
-        ostr += '<link rel="shortcut icon" href="/' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
-        ostr += '<link rel="stylesheet" href="/%s" type="text/css">\n' % config.CSS_FILE
+        ostr += '<link rel="icon" href="' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
+        ostr += '<link rel="shortcut icon" href="' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
+        ostr += '<link rel="stylesheet" href="%s" type="text/css">\n' % config.CSS_FILE
+        ostr += '<link rel="stylesheet" href="%s" type="text/css">\n' % config.FONTS_FILE
         if '.' in self.page_id:
-            ostr += '<link rel="stylesheet" href="/%s/%s.css" type="text/css">\n' % (config.CSS_DIR, self.page_id[:self.page_id.find('.')])
-        ostr += '<link rel="stylesheet" href="/%s/%s.css" type="text/css">\n' % (config.CSS_DIR, self.page_id)
+            ostr += '<link rel="stylesheet" href="%s/%s.css" type="text/css">\n' % (config.CSS_DIR, self.page_id[:self.page_id.find('.')])
+        ostr += '<link rel="stylesheet" href="%s/%s.css" type="text/css">\n' % (config.CSS_DIR, self.page_id)
 
 	ostr += self.extra
         if not self.is_beta:
             ostr += javasc.def_google_analytics_js
         ostr += '</head>\n<body>\n'
         if self.is_beta:
-            ostr += '<table width=100%><tr><td height=24 class="beta">&nbsp;</td></tr><tr><td>\n'
+            ostr += '<table width="100%"><tr><td height=24 class="beta">&nbsp;</td></tr><tr><td>\n'
         ostr += self.show_location()
         if not self.hide_title:
             if self.title:
-                ostr += '\n<div class="title">' + self.title + '</div>'
+                ostr += '\n<div class="title"><span class="titletext">' + self.title + '</span></div>'
             ostr += self.fmt_img(self.page_id.split('.'), also={'class': 'centered'})
             if self.description:
                 ostr += '\n<div class="description">' + self.description + '</div>'
@@ -375,7 +309,7 @@ class Presentation(object):
             ostr += "Feel free to ask for clarification on these or other models.<p>"
         if self.tail.get('contact'):
             ostr += 'This page is maintained by members of BAMCA.\n'
-            ostr += '<a href="../pages/faq.html">See here for information on contacting us.</a><p>\n'
+            ostr += '<a href="../pages/faq.php">See here for information on contacting us.</a><p>\n'
         if self.tail.get('disclaimer'):
             ostr += '''<hr>
 BAMCA is a private club and is not affiliated with Tyco Toys, Inc. or Matchbox
@@ -395,7 +329,7 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_shown_flags(self):
-	ball = '%s\n' % self.fmt_art('ball.gif', desc='o')
+	ball = '<span class="blue">&#x26ab;</span> '
 	return '<center>\n' + \
 	    ball.join(['<nobr>%s %s</nobr> ' % (self.format_image_flag(x), self.flag_info[x][0]) for x in 
 		sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'
@@ -593,17 +527,19 @@ of Matchbox International Ltd. and are used with permission.
     #---- buttons
 
     def format_button_up_down(self, field):
+        but_inc = '''<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>'''
+        but_dec = '''<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>'''
         ostr = ''
-        ostr += '''<a onclick="incrfield(%s, 1);">%s</a>''' % (field, self.format_image_button('up', 'inc'))
-        ostr += '''<a onclick="incrfield(%s,-1);">%s</a>''' % (field, self.format_image_button('down', 'dec'))
+        ostr += '''<a onclick="incrfield(%s, 1);">%s</a>''' % (field, but_inc)
+        ostr += '''<a onclick="incrfield(%s,-1);">%s</a>''' % (field, but_dec)
         return ostr
 
     def format_button_up_down_select(self, id, vl=1):
-        but_max = self.format_image_button("top", 'max')
-        but_inc = self.format_image_button("up", 'inc')
-        but_dec = self.format_image_button("down", 'dec')
-        but_min = self.format_image_button("bottom", 'min')
         ostr = ''
+        but_max = '''<div class="textbutton textupdown"><i class="fa fa-angle-double-up bold" title="TOP"></i></div>'''
+        but_inc = '''<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>'''
+        but_dec = '''<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>'''
+        but_min = '''<div class="textbutton textupdown"><i class="fa fa-angle-double-down bold" title="BOTTOM"></i></div>'''
         if vl > 0:
             ostr += "<a onclick=\"settsel('%s');\">%s</a>\n" % (id, but_max)
             ostr += "<a onmousedown=\"toggleOnSel('%s', 1);\" onmouseup=\"toggleOff();\">%s</a>\n" % (id, but_inc)
@@ -617,94 +553,60 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_button_input_visibility(self, id, collapsed=False):
-        if collapsed:
-            fname = 'expand'
-        else:
-            fname = 'collapse'
-        #image = self.art_loc('but_' + fname + '.gif')
-        #hover = self.art_loc('hov_' + fname + '.gif')
-	name, but_image, hov_image = self.find_button_images(fname)
-        also = {'src': '../' + but_image,
-                'id': id + '_l',
-                'value': fname,
+	fname = 'expand' if collapsed else 'collapse'
+        bname = self.find_button_label(fname)
+        also = {'id': id + '_l',
+                'name': bname,
+                'value': bname,
                 'onclick': "toggle_visibility('%s','%s_l'); return false;" % (id, id),
-                'class': 'button',
-                'onmouseover': "this.src='../%s';" % hov_image,
-                'onmouseout': "this.src='../%s';" % but_image}
-        return '<input type="image"%s>\n' % useful.fmt_also(also)
+                'class': 'textbutton',
+	}
+        return '<button type="submit"%s>%s</button>\n' % (useful.fmt_also(also), bname)
 
     def format_button_input(self, bname="submit", name=None, also=None):
-        bname, but_image, hov_image = self.find_button_images(bname, pdir=self.art_dir)
-        if not name:
-            name = bname
-
-	if not also:
-	    also = dict()
-	#also['onsubmit'] = 'this.disabled=true;'
-        inputname = self.find_button_name(name)
+        bname = self.find_button_label(bname)
+	name = name if name else bname
+        value = self.find_button_label(bname)
         altname = self.find_button_label(bname)
-        imalso = {'class': 'button', 'alt': altname}
-        self.comment('FormatButtonImage', bname, name, also, but_image, hov_image)
-        if not but_image or not useful.is_good(but_image, v=self.verbose):
-            imalso = {'class': 'textbuttonn textbutton', 'onmouseover': "this.class='textbuttonh textbutton';", 'onmouseout': "this.class='textbuttonn textbutton';"}
-            return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, altname, useful.fmt_also(imalso, also))
-        elif not hov_image or not useful.is_good(hov_image, v=self.verbose):
-            return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.fmt_also(imalso, also))
-        else:
-            imalso.update({'onmouseover': "this.src='../%s';" % hov_image, 'onmouseout': "this.src='../%s';" % but_image})
-            return '<input type="image" name="%s" src="../%s"%s>' % (inputname, but_image, useful.fmt_also(imalso, also))
+	also = also if also else {}
+        imalso = {'class': 'textbutton', 'alt': altname}
+	also['onsubmit'] = 'this.disabled=true;'
+        inputname = self.find_button_name(name)
+	#return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, value, useful.fmt_also(imalso, also))
+	return '<button type="submit" name="%s" value="%s"%s>%s</button>\n' % (inputname, altname, useful.fmt_also(imalso, also), altname)
 
-    def format_image_button(self, name, image='', hover='', pdir=None, also={}):
-        name, but_image, hov_image = self.find_button_images(name, image, hover, pdir)
-
-        imalso = dict({'class': 'button'})
+    def format_text_button(self, name, also={}):
+        bname = self.find_button_label(name)
+        imalso = dict({'class': 'textbutton'})
+	imalso['onsubmit'] = 'this.disabled=true;'
 	imalso.update(also)
-        btn = ''
-        if not but_image:
-            imalso.update({'class': 'textbuttonn textbutton', 'onmouseover': "this.className='textbuttonh textbutton';", 'onmouseout': "this.className='textbuttonn textbutton';"})
-            btn = '<span%s>%s</span>' % (useful.fmt_also(imalso), name)
-        elif not hov_image:
-            btn = self.fmt_img_src(but_image, alt=name, also=imalso)
-        else:
-            imalso.update({'onmouseover': "this.src='../%s';" % hov_image, 'onmouseout': "this.src='../%s';" % but_image})
-            btn = self.fmt_img_src(but_image, alt=name, also=imalso)
-        return btn
+	btn = '<div%s>%s</div>' % (useful.fmt_also(imalso), bname)
+	return btn
 
     def format_button(self, bname, link='', image='', args={}, also={}, lalso={}):
-        btn = self.format_image_button(bname, image=image, pdir=self.art_dir, also=also)
+        btn = self.format_text_button(bname, also=also)
         if link:
             btn = self.format_link(link, btn, args=args, also=lalso)
         return btn + '\n'
 
     def format_button_input_paste(self, id):
-	name, but_image, hov_image = self.find_button_images('paste')
-        also = {'src': '../' + but_image,
-                #'id': id + '_l',
-                #'value': 'paste',
-                'onclick': "paste_from_clippy('%s'); return false;" % id,
-                'class': 'button',
-                'onmouseover': "this.src='../%s';" % hov_image,
-                'onmouseout': "this.src='../%s';" % but_image}
-        #return '<input type="image"%s>\n' % useful.fmt_also(also)
-        return '<img %s>\n' % useful.fmt_also(also)
+	return self.format_text_button('paste', also={
+	    'onclick': "paste_from_clippy('%s'); return false;" % id,
+	})
 
     def format_button_reset(self, name):
-        return '<img ' + \
-                'src="../' + self.art_dir + '/but_reset.gif" ' + \
-                'onmouseover="this.src=\'../' + self.art_dir + '/hov_reset.gif\';" ' + \
-                'onmouseout="this.src=\'../' + self.art_dir + '/but_reset.gif\';" ' + \
-                'border="0" onClick="ResetForm(document.%s)" alt="RESET" class="button">' % name
+	return self.format_text_button('reset', also={'onClick': 'ResetForm(document.%s);' % name})
 
     def set_button_comment(self, pif, args=None):
         if args:
             args = 'page=%s&%s' % (pif.page_id, args)
         else:
             args = 'page=%s' % pif.page_id
-        ostr = self.format_button("comment_on_this_page", link='../pages/comment.php?%s' % args, also={'class': 'comment'}, lalso=dict())
+        ostr = self.format_button("comment on<br>this page", link='../pages/comment.php?%s' % args, also={'class': 'textbutton comment'}, lalso=dict())
         if pif.is_allowed('a'):  # pragma: no cover
-            ostr += self.format_button("pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class': 'comment'}, lalso=dict())
-            ostr += self.format_button("edit_this_page", link=pif.dbh.get_editor_link('page_info', {'id': pif.page_id}), also={'class': 'comment'}, lalso=dict())
-	self.comment_button = ostr
+            ostr += self.format_button("pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class': 'textbutton comment'}, lalso=dict())
+            ostr += self.format_button("edit_this_page", link=pif.dbh.get_editor_link('page_info', {'id': pif.page_id}), also={'class': 'textbutton comment'}, lalso=dict())
+	self.comment_button = '<div class="comment_box">' + ostr + '</div>'
 
     def set_footer(self, new_footer):
 	if self.footer:
@@ -731,16 +633,15 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_as_link(self, fnames, txt, pdir=None, also={}):
         return self.format_link('../' + self.find_image_path(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
 
-    def format_image_optional(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False, largest=None):
+    def format_image_optional(self, fnames, alt='', prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False, largest=None):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad, largest=largest)
 
-    def format_image_required(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True, largest=None):
+    def format_image_required(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True, largest=None):
         return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True, largest=largest)
 
-    def format_image_list(self, fn, alt=None, wc='', prefix='', suffix='jpg', pdir=None):
+    def format_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
-        if not pdir:
-            pdir = self.pic_dir
+	pdir = useful.relpath(pdir if pdir else self.pic_dir)
         if isinstance(suffix, str):
             suffix = [suffix]
         if isinstance(prefix, str):
@@ -767,8 +668,9 @@ of Matchbox International Ltd. and are used with permission.
 	select_id = select_id.replace('-', '_')
 	ostr = '''<script>var sel_%s = new imageselector("%s", %s);</script>\n''' % (select_id, select_id, str(pics))
 	for num in range(len(pics)):
-	    ostr += "<a onclick=\"sel_%s.select(%d);\">%s</a>\n" % (select_id, num,
-		    self.fmt_art('circle_empty' if num else 'circle_full', also={'id': select_id + '_' + str(num)}))
+	    ostr += "<a onclick=\"sel_%s.select(%d);\" id=\"%s_%s\">%s</a>\n" % (select_id, num, select_id, num,
+		'<i class="fa fa-circle%s green"></i>' % ('-o' if num else '')
+	    )
 	return ostr
 
     def format_image_selectable(self, pics, select_id):
@@ -807,7 +709,7 @@ of Matchbox International Ltd. and are used with permission.
     def fmt_art(self, fname, desc='', prefix='', also={}, largest=None):
         return self.fmt_img(fname, alt=desc, prefix=prefix, pdir=self.art_dir, also=also, largest=largest)
 
-    def fmt_img_src(self, pth, alt=None, also={}):
+    def fmt_img_src(self, pth, alt='', also={}):
 	if isinstance(pth, tuple):
 	    pth = '/'.join(pth)
         if useful.is_good(pth, v=self.verbose):
@@ -816,15 +718,15 @@ of Matchbox International Ltd. and are used with permission.
 
     def fmt_img_file_check(self, pdir, fn):
         self.comment("fmt_img_check", pdir, fn)
-	return fn if useful.is_good(os.path.join(pdir, fn), v=self.verbose) else ''
+	return fn if useful.is_good(useful.relpath('.', pdir, fn), v=self.verbose) else ''
 
     def fmt_img_check(self, pth):
         self.comment("fmt_img_check", pth)
 	return pth if useful.is_good(pth, v=self.verbose) else ''
 
-    def fmt_img(self, fnames, alt=None, vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, also={}, made=True, required=False, pad=False):
-        img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir)
-	return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required, unknown='unknown' in fnames, pad=pad)
+    def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, also={}, made=True, required=False, pad=False, art=False):
+        img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir, art=art)
+	return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required, unknown=fnames and 'unknown' in fnames, pad=pad)
 
     def find_alt_image_path(self, img, prefix='', largest=None, made=True, required=False, unknown=False):
         if img:
@@ -835,22 +737,15 @@ of Matchbox International Ltd. and are used with permission.
 	    return self.find_image_path('nopic' if made else 'notmade', prefix=prefix, suffix='gif', pdir=self.art_dir, largest=largest)
         return ''
 
-#    def find_alt_image_file(self, img, prefix='', largest=None, made=True, required=False, unknown=False):
-#        if img:
-#            return img
-#	if unknown:
-#	    return self.find_image_file('nomod', prefix=prefix, suffix='gif', pdir=self.art_dir, largest=largest)
-#        if required:
-#	    return self.find_image_file('nopic' if made else 'notmade', prefix=prefix, suffix='gif', pdir=self.art_dir, largest=largest)
-#        return ''
-
-    def fmt_img_file(self, img, alt=None, prefix='', largest=None, also={}, made=True, required=False, unknown=False, pad=False):
+    def fmt_img_file(self, img, alt='', prefix='', largest=None, also={}, made=True, required=False, unknown=False, pad=False):
         if img:
             return self.fmt_img_src(img, alt=alt, also=also)
 	if unknown:
 	    return self.fmt_art('nomod.gif', prefix=prefix, largest=largest, also=also)
         if required:
             return self.fmt_no_pic(made, prefix, largest=largest, also=also)
+	if alt:
+	    return alt
         if pad:
             return '&nbsp;'
         return ''
@@ -861,11 +756,11 @@ of Matchbox International Ltd. and are used with permission.
 	    img = self.fmt_art('nopic.gif' if made else 'notmade.gif', largest='s', also=also)
 	return img
 
-    def fmt_opt_img(self, fnames, alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
+    def fmt_opt_img(self, fnames, alt='', prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
 
     def fmt_anchor(self, name):
-	return ('<a name="%s"></a>\n' % name) if name else ''
+	return ('<i id="%s"></i>\n' % name) if name else ''
 
     def format_bullet_list(self, descs):
         ostr = ''
@@ -1080,7 +975,7 @@ of Matchbox International Ltd. and are used with permission.
 			if icol >= ncols:
 			    ent['firstent'] = True
 			    icol = 0
-		    also['width'] = '%d%%' % (100/ncols)
+		    ent['width'] = also['width'] = '%d%%' % (100/ncols)
 		    if ent.get('rowspan', 1) > 1:
 			spans[icol] = [ent.get('colspan', 1), ent['rowspan'] - 1]
 			also['rowspan'] = ent['rowspan']
@@ -1152,6 +1047,13 @@ of Matchbox International Ltd. and are used with permission.
                     ostr += '</div>\n'
         return ostr
 
+    def format_modal(self, modal_id, content):
+	ostr = '<div id="%s" class="modal">\n' % modal_id
+	ostr += '<div class="modal-content"><span class="close" id="%s.close">&times;</span>\n' % modal_id
+	ostr += content + '\n'
+	ostr += '</div>\n</div>\n'
+	return ostr
+	
     def format_template(self, template, **kwargs):
         if self.tail.get('flags'):
             self.flag_list = list(self.shown_flags)
@@ -1186,9 +1088,12 @@ of Matchbox International Ltd. and are used with permission.
 	    'comment_button': self.comment_button,
 	    'footer': self.footer,
 	}
-	return useful.render_template(template, page=page_info, **kwargs)
+	output = useful.render_template(template, page=page_info, config_context=config, **kwargs)
+	if self.unittest:
+	    return "[redacted]"
+	return output
 
 #---- -------------------------------------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''
+    pass

@@ -10,9 +10,9 @@
         if icon != '&nbsp;':
             icon_list.append(icon)#}
 {%- if base_id %}{{ render.format_image_optional(base_id, '', config.IMG_DIR_ICON, prefix='i_', suffix='.gif', also={'class':'centered'})  }}<p>{% endif %}
-{#-    {% for vtype in vehicle_type %}
-        if vtype in mbdata.model_icons:
-            {{ render.format_image_art(mbdata.model_icons[vtype])) }}<p> #}
+{% for vtype in vehicle_type %}
+{{ render.format_image_optional(vtype, '', config.IMG_DIR_ART, suffix='.gif', also={'class':'centered'})  }}<p>
+{% endfor %}
 <p>{% endif %}
 {{ content }}
 </div>

@@ -1,13 +1,13 @@
+<!DOCTYPE html>
 <html>
-<head>
-<link rel="icon" href="http://www.bamca.org/gfx/favicon.ico" type="image/x-icon" />
-<link rel="shortcut icon" href="http://www.bamca.org/gfx/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="/styles/main.css" type="text/css">
-<link rel="stylesheet" href="/styles/faq.css" type="text/css">
-<title>BAMCA FAQ v1.3</title>
-</head>
-<body>
-<h1>BAMCA FAQ v1.3</h1>
+<?php
+chdir('..');
+include "bin/basics.php";
+include "config.php";
+$pif = GetPageInfo("faq");
+DoHead($pif);
+DoPageHeader($pif);
+?>
 
 We welcome correspondence.  We just ask that you read these questions and
 answers first, to see if any of them meet your needs.   Please note that
@@ -113,7 +113,7 @@ comprehensive list will be a very large undertaking.
 <td valign=top>How do I find other collectors to interact with?
 <tr><th valign=top>A:</td>
 <td valign=top>The best community on the internet that we've found is at
-<a href="http://www.mboxcommunity.com/">the Matchobx Collectors Community Hall</a>.
+<a href="http://www.matchboxforum.co.uk/">the Matchobx Collectors Forum</a>.
 That would be an excellent place to start meeting other collectors of Matchbox toys,
 as well as other diecast toys.
 </td></tr>

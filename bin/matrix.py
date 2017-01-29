@@ -87,7 +87,7 @@ class MatrixFile(object):
 
         for table in self.tables:
             section_name = table['name']
-            if not (table['flags'] & pif.dbh.FLAG_MODEL_HIDE_IMAGE) and (table['id'] not in pif.page_id.split('.')):
+            if not (table['flags'] & pif.dbh.FLAG_SECTION_HIDE_IMAGE) and (table['id'] not in pif.page_id.split('.')):
                 img = pif.render.format_image_optional(table['id'], pdir=table['pic_dir'], nopad=True)
                 if img:
                     section_name += '<br>' + img

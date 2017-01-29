@@ -7,11 +7,11 @@ a:visited {color: #CC0000;}
 .rh {background-color: #FFFFFF; color: #000000;}
 .eb {background-color: #DDDDAA;}
 
-.cell_0 {vertical-align: top; color: #000000; border-width: 1; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
-.cell_1 {vertical-align: top; color: #000000; border-width: 1; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
-.cell_3 {vertical-align: top; background-color: #CCCCCC; border-width: thin; width: 300; border-color: #000000; font-size: medium; border-style: ridge; padding: 0; text-align: left;}
+.cell_0 {vertical-align: top; color: #000000; border-width: 1px; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
+.cell_1 {vertical-align: top; color: #000000; border-width: 1px; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
+.cell_3 {vertical-align: top; background-color: #CCCCCC; border-width: thin; width: 300px; border-color: #000000; font-size: medium; border-style: ridge; padding: 0; text-align: left;}
 .cell_4 {vertical-align: top; color: #000000; border-width: thin; background-color: #CCCCCC; border-color: #000000; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
-.hcell {height: 8px; color: #000000; border-width: 1; text-align: center; font-weight: bold;}
+.hcell {height: 8px; color: #000000; border-width: 1px; text-align: center; font-weight: bold;}
 .table {padding: 1px; color: #FFFFFF; background-color: #FFCC99; border-spacing: 1px; border-width: 2px;}
-.cell_2 {vertical-align: top; color: #000000; border-width: 1; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
+.cell_2 {vertical-align: top; color: #000000; border-width: 1px; border-color: #000000; height: 8px; font-size: medium; border-style: ridge; padding: 4px; text-align: left;}
 

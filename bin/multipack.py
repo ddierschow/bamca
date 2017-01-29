@@ -50,7 +50,7 @@ def make_page_list(pif):
     llineup = {'id': 'main', 'name': '', 'section': lsec}
     for page in pages:
         page = pif.dbh.depref('page_info', page)
-        if not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_NOT_RELEASED):
+        if not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_HIDDEN):
             txt = models.add_icons(pif, page['id'][6:], '', '') + '<center>' + page['title'] + '</center>'
             entries.append({'text': pif.render.format_link('?page=' + page['id'][page['id'].find('.') + 1:], txt)})
     pif.render.format_matrix_for_template(llineup)
@@ -132,13 +132,13 @@ def modify_pack_admin(pif, pack):
     stars = ''
     for mod in sorted(pmodels.keys()):
 	if not pmodels[mod].get('id'):
-	    stars += pif.render.format_image_art('stargreen.gif') + ' '
+	    stars += '<i class="fa fa-star green"></i> '
 	elif not pmodels[mod].get('vs.var_id'):
-	    stars += pif.render.format_image_art('starred.gif') + ' '
+	    stars += '<i class="fa fa-star red"></i> '
 	elif pmodels[mod]['imgstr'].find('-') < 0:
-	    stars += pif.render.format_image_art('stargray.gif') + ' '
+	    stars += '<i class="fa fa-star gray"></i> '
 	else:
-	    stars += pif.render.format_image_art('star.gif') + ' '
+	    stars += '<i class="fa fa-star black"></i> '
     pack['stars'] = stars
     pack['edlink'] = '<a href="mass.cgi?verbose=1&type=pack&section_id=%(section_id)s&pack=%(id)s&num=">%(id)s</a>' % pack
     relateds = []  #pif.dbh.fetch_packs_related(pack['id'])
@@ -210,7 +210,7 @@ def do_single_pack(pif, pid):
 	left_bar_content += '<br><center>'
         left_bar_content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pack_id})
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
-        left_bar_content += '<b><a href="traverse.cgi?d=%s">Library</a></b><br>\n' % config.IMG_DIR_PACK
+        left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % config.IMG_DIR_PACK
         left_bar_content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (pack['section_id'], pack['id'])
         left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack['id'])
         left_bar_content += '</center>\n'
@@ -236,11 +236,11 @@ def distill_models(pif, pack, page_id):
     pack['pic'] = ''
     #for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, '?_' + pack['id'] + '.jpg')):
     pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PACK, largest=mbdata.IMG_SIZ_HUGE)
-    pack['pic'] += pif.render.format_image_art(imglib.image_star(pic))
+    pack['pic'] += imglib.format_image_star(pif, pic)
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
-    pack['thumb'] = pif.render.format_image_art('box-sm-x.gif' if linmod else 'box-sm.gif')
+    pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
     if pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL):
-        pack['thumb'] += pif.render.format_image_art('starblack.gif')
+	pack['thumb'] += '<i class="fa fa-star"></i>'
     pmodels = {}
 
     for mod in [x for x in model_list if x['pack.id'] == pack['id']]:
@@ -298,7 +298,7 @@ def show_pack(pif, pack, picsize):
 	    ostr += '<b>%(first_year)s</b><br>' % pack
     dets = filter(None, [pack['country'], pack['material']])
     ostr += ' - '.join(dets)
-    return ostr
+    return '<center>' + ostr + '</center>'
 
 
 #mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname

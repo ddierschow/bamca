@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <?php
 include "bin/basics.php";
@@ -7,8 +7,8 @@ $pif = GetPageInfo("database");
 DoHead($pif);
 $isadmin = CheckPerm('a');
 //$isadmin = 0;
-$pif['hier'][0] = ['/', 'Home'];
-$pif['hier'][1] = ['/database.php', 'Database'];
+$pif['hierarchy'][0] = ['/', 'Home'];
+$pif['hierarchy'][1] = ['/database.php', 'Database'];
 $answer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
 $LINE_YEAR_START = $answer[0][0];
 $LINE_YEAR_END = $answer[0][1];
@@ -30,33 +30,38 @@ $sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'Se
 $sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
 $sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();');
 $sections[] = array("tag" => "code2", "name" => "Code 2 Models", "fn" => 'SectionCode2', "scr" => "code2.cgi");
-//$sections[] = array("tag" => "other", "name" => "Other Pages", "fn" => 'SectionOther');
+$sections[] = array("tag" => "other", "name" => "Other Database Pages", "fn" => 'SectionOther');
+
+$pages = array();
+$pages[] = array("title" => "About", "desc" => "About this website.", "url" => '/pages/about.php');
+$pages[] = array("title" => "Toy Links", "desc" => "Links to other sites of interest", "url" => '/cgi-bin/links.cgi');
+$pages[] = array("title" => "Bibliograpy", "desc" => "Books relevant to collectors", "url" => '/cgi-bin/biblio.cgi');
+$pages[] = array("title" => "Comparisons", "desc" => "Between various Matchbox castings", "url" => '/cgi-bin/compare.cgi');
+$pages[] = array("title" => "Errors", "desc" => "Matchbox manufacturing errors", "url" => '/cgi-bin/errors.cgi');
+$pages[] = array("title" => "Ads", "desc" => "Matchbox advertising", "url" => '/cgi-bin/ads.cgi');
+//prepro.cgi pub.cgi library.cgi package.cgi
 
 DoResetJavascript();
 DoIncDecJavascript();
 DoPageHeader($pif);
 
+echo "<hr><p>\n";
 echo "<div class=\"maintable\"><center><ul class=\"header-links\">\n";
-foreach ($sections as $sec)
-{
-    echo " <li class=\"header-link-item\"><a href=\"#$sec[tag]\">By $sec[name]</a></li>\n";
+foreach ($sections as $sec) {
+    echo " <li class=\"header-link-item\"><a href=\"#$sec[tag]\" class=\"textbutton\">&nbsp;By $sec[name]&nbsp;</a></li>\n";
 }
 echo "</ul></center></div>
 
 <table class=\"maintable\">
 ";
 
-foreach ($sections as $sec)
-{
+foreach ($sections as $sec) {
     Section($sec);
 }
 
-echo "</table>\n<hr>\n";
+echo "</table>\n";
+PageFooter();
 
-DoButtonLink("back", $IMG_DIR_ART, '/');
-echo " to the index.\n";
-DoButtonLink("comment_on_this_page", $IMG_DIR_ART, "pages/comment.php?page=database", "comment");
-DoPageFooter($pif);
 echo "</body>\n";
 
 //---- support functions -----------------------------------------
@@ -80,12 +85,10 @@ function ChooseNum($name, $id, $width, $minval, $maxval, $defval='', $js="", $cl
     echo "  </td>\n";
 }
 
-function SelectYear($name, $id, $defval, $min, $max)
-{
+function SelectYear($name, $id, $defval, $min, $max) {
     $sl = [];
     $yr = $max;
-    while ($yr >= $min)
-    {
+    while ($yr >= $min) {
 	$sel = 0;
 	if ($yr == $defval)
 	    $sel = 64;
@@ -97,8 +100,7 @@ function SelectYear($name, $id, $defval, $min, $max)
     echo "  </td>\n";
 }
 
-function Select($name, $id, $sl, $select_js="", $cl="")
-{
+function Select($name, $id, $sl, $select_js="", $cl="") {
     echo "   <select name=\"$name\" id=\"$id\"";
     if ($select_js)
 	echo " $select_js";
@@ -120,8 +122,7 @@ function Select($name, $id, $sl, $select_js="", $cl="")
     incrsel($id, -1, $cl);
 }
 
-function FetchSelect($name, $id, $thing, $query, $extra=[], $select_js="")
-{
+function FetchSelect($name, $id, $thing, $query, $extra=[], $select_js="") {
     global $pif;
 
     Select($name, $id, array_merge(
@@ -130,8 +131,7 @@ function FetchSelect($name, $id, $thing, $query, $extra=[], $select_js="")
 	$extra), $select_js);
 }
 
-function Checks($input, $name, $values, $sep='<br>')
-{
+function Checks($input, $name, $values, $sep='<br>') {
     foreach ($values as $val) {
 	echo "   <input type=\"$input\" name=\"$name\" value=\"$val[0]\"";
 	if (arr_get($val, 2, 0))
@@ -141,29 +141,34 @@ function Checks($input, $name, $values, $sep='<br>')
 }
 
 // required: fn tag scr name  optional: reset
-function Section($args)
-{
+function Section($args) {
     global $isadmin;
 
-    echo "\n<tr><td><br></td></tr>\n<a name=\"$args[tag]\"></a>\n <tr>\n  <td class=\"$args[tag]_head sel_head\">\n";
+    echo "\n<tr><td><br></td></tr>\n<tr>\n  <td class=\"$args[tag]_head sel_head\">\n";
+    if (isset($args['scr'])) {
+	echo "<form action=\"/cgi-bin/$args[scr]\" method=\"get\" name=\"$args[tag]\" id=\"$args[tag]\">\n";
+    }
+    else {
+	echo "<i id=\"$args[tag]\"></i>\n";
+    }
     echo "   <center><h2>$args[name]</h2></center>\n  </td>\n </tr>\n";
     echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"$args[tag]_body sel_body\">\n";
     if (isset($args['scr'])) {
 	echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".<p>\n\n";
-	echo "<form action=\"/cgi-bin/$args[scr]\" method=\"get\" name=\"$args[tag]\" id=\"$args[tag]\">\n";
 	call_user_func($args['fn']);
 	echo "<br>\n";
-	DoButtonSubmit("see_the_models", "../pic/gfx", "submit");
-	DoButtonReset("../pic/gfx", $args['tag'], arr_get($args, 'reset', ''));
+	DoTextButtonSubmit("SEE THE MODELS", "submit");
+	DoTextButtonReset($args['tag'], arr_get($args, 'reset', ''));
 	if ($isadmin)
 	    Checks('checkbox', 'verbose', [['1', '<i>Verbose</i>']], ''); 
 	echo "\n</form>\n\n";
     }
+    else
+	call_user_func($args['fn']);
     echo "  </td>\n </tr>\n";
 }
 
-function ChooseRegion($nrows)
-{
+function ChooseRegion($nrows) {
     $regions = [
 	    ['U', 'USA', 1],
 	    ['R', 'International'],
@@ -178,22 +183,19 @@ function ChooseRegion($nrows)
     echo "</td>\n";
 }
 
-function RegionNote()
-{
+function RegionNote() {
     echo "<td colspan=\"2\">Note that Australian dealers might carry either<br>USA or International assortments after 2001.</td>\n";
 }
 
 //---- beginning of sections -------------------------------------
 
-function SectionID()
-{
+function SectionID() {
     echo "\n<table>\n <tr>\n";
     echo "  <td>See specific manufacturing ID:</td><td><input type=\"text\" name=\"id\" id=\"idId\" value=\"\" size=\"12\">";
     echo "</td>\n </tr>\n</table>\n";
 }
 
-function SectionYear()
-{
+function SectionYear() {
     global $LINE_YEAR_START, $LINE_YEAR_END, $isadmin;
 
     echo "\n<table>\n <tr>\n  <td>Year: </td>\n";
@@ -215,8 +217,7 @@ function SectionYear()
     ];
     Checks('checkbox', 'lty', $ptypes);
     echo "  </td>\n</tr>\n<tr><td colspan=\"2\" rowspan=\"2\">\n";
-    if ($isadmin)
-    {
+    if ($isadmin) {
 	echo "<p>\n<i>Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
 	Checks('checkbox', 'unroll', [['1', 'Unroll']], '<p>');
 	Checks('checkbox', 'large', [['1', 'Large']], '');
@@ -226,8 +227,7 @@ function SectionYear()
     echo " </tr>\n</table>\n";
 }
 
-function SectionRank()
-{
+function SectionRank() {
     global $LINE_YEAR_START, $LINE_YEAR_END, $MAX_NUMBER, $isadmin;
 
     echo "<input type=\"hidden\" name=\"n\" value=\"1\">";
@@ -262,8 +262,7 @@ function SectionRank()
     echo " </tr>\n</table>";
 }
 
-function SectionManno()
-{
+function SectionManno() {
     global $MAN_YEAR_START, $MAN_YEAR_END, $isadmin;
 
     echo "<table>\n <tr>\n  <td colspan=\"7\">\n";
@@ -301,7 +300,7 @@ function SectionManno()
     echo " </tr>\n <tr><td colspan=\"4\">List type:\n";
     $sl = [[64, '', 'Normal'], [0, 'ckl', 'Checklist'], [0, 'thm', 'Thumbnails'], [0, 'csv', 'CSV'], [0, 'jsn', 'JSON']];
     if ($isadmin) {
-	$sl = array_merge($sl, [[0, 'adl', 'Admin List'], [0, 'pxl', 'Picture List'], [0, 'vtl', 'Vehicle Type']]);
+	$sl = array_merge($sl, [[0, 'adl', 'Admin List'], [0, 'pxl', 'Picture List'], [0, 'lnl', 'Links List'], [0, 'vtl', 'Vehicle Type']]);
     }
     Select('listtype', 'selList', $sl);
 
@@ -313,8 +312,7 @@ function SectionManno()
 	echo "  <td class=\"tdboth\" colspan=\"2\"><i>Filter by picture type.</i></td>\n";
     echo " </tr>";
 
-    function YNMCell($arr, $pref)
-    {
+    function YNMCell($arr, $pref) {
 	global $isadmin;
 
 	echo "  <td class=\"tdleft\"><b>$arr[1]</b></td>\n";
@@ -373,8 +371,7 @@ function SectionManno()
 	11 => ['m', 'medium'],
 	12 => ['l', 'large'],
     ];
-    foreach(array_keys($a) as $k)
-    {
+    foreach(array_keys($a) as $k) {
 	echo(" <tr>\n");
 	YNMCell($a[$k], 'type_');
 	YNMCell($b[$k], 'type_');
@@ -389,8 +386,7 @@ function SectionManno()
     echo "</table>\n";
 }
 
-function SectionMack()
-{
+function SectionMack() {
     global $MAX_NUMBER;
 
     echo "<table>\n <tr>\n  <td>\n";
@@ -412,8 +408,7 @@ function SectionMack()
     echo " </tr>\n</table>\n";
 }
 
-function SectionMakes()
-{
+function SectionMakes() {
     echo "Choose a make:<br>\n<table><tr><td>\n";
     Checks('radio', 'make', [['unk', 'unknown', 1], ['unl', 'unlicensed']]);
     Checks('radio', 'make', [['text', 'Specific make:']], '');
@@ -422,13 +417,13 @@ function SectionMakes()
     echo " </tr></table>\n";
 }
 
-function SectionSearch()
-{
-    echo "Search the casting information for: <input type=\"text\" name=\"query\"><br>";
+function SectionSearch() {
+    echo "<table><tr><td>\n";
+    echo "Search the casting information for: <input type=\"text\" name=\"query\">\n";
+    echo "</td></tr></table>\n";
 }
 
-function SectionVSearch()
-{
+function SectionVSearch() {
     global $isadmin;
 
     echo "Search the variation information for models containing the following.<p>\n";
@@ -453,25 +448,23 @@ function SectionVSearch()
     echo "</table>\n";
 }
 
-function SectionPacks()
-{
+function SectionPacks() {
     echo "<table><tr><td>\n";
-    FetchSelect('sec', 'packPage', 'pack type', "select flags, id, name from section where page_id like 'packs.%' and not (flags & 16) order by name");
+    FetchSelect('sec', 'packPage', 'pack type', "select flags, id, name from section where page_id like 'packs.%' and not (flags & 1) order by name");
     echo "</td></tr><tr><td>\n";
     echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
     echo "</td></tr></table>\n";
 }
 
-function SectionSets()
-{
+function SectionSets() {
+    echo "<table><tr><td>\n";
     FetchSelect('page', 'setsPage', 'set', "select flags, id, title, description from page_info where format_type='matrix' order by description");
-    echo "<br>\n";
+    echo "</td></tr></table>\n";
 }
 
 
 function Quote($x) { return "'" . $x . "'"; }
-function SectionBoxes()
-{
+function SectionBoxes() {
     global $isadmin;
 
     $examples = array('A' => 'rw01a', 'B' => 'rw02a', 'C' => 'rw03b', 'D' => 'rw04c', 'E' => 'rw05d', 'F' => 'rw06d',
@@ -526,17 +519,43 @@ EOT;
     echo " </tr>\n</table>\n";
 }
 
-function SectionCode2()
-{
+function SectionCode2() {
+    echo "<table><tr><td>\n";
     echo "Choose a type of Code 2 model:\n";
     FetchSelect('section', 'code2Section', 'range', "select flags, id, name from section where page_id='code2' order by display_order", [[0, '', 'All Sections']]);
-    echo "<br>\n";
+    echo "</td></tr></table>\n";
 }
 
-function SectionOther()
-{
+function SectionOther() {
+    global $IMG_DIR_ART, $pages;
+    echo "<div class='paget'>\n";
+    foreach ($pages as $page) {
+	echo "<div class='pagec'><center>\n";
+	echo "<div class='othertitle'>" . $page['title'];
+	echo "<p><div class='otherdesc'>" . $page['desc'] . "</div>\n";
+	echo "</div>\n";
+	DoTextButtonLink("VIEW THE PAGE", $page['url']);
+	echo "</center></div>\n";
+    }
+    echo "</div>\n";
 }
 
 //---- end of sections -------------------------------------------
+
+function PageFooter() {
+    global $IMG_DIR_ART;
+    echo "<hr>\n";
+    echo "<div class=\"bottombar\">\n";
+    echo "<div class=\"bamcamark\"><img src=\"$IMG_DIR_ART/bamca_sm.gif\"></div>\n";
+    echo "<div class=\"footer\">\n";
+    DoTextButtonLink("BACK", '/');
+    echo " to the index.\n</div>\n";
+
+    echo "<div class=\"comment_button\">\n";
+    echo "<div class=\"comment_box\">\n";
+    DoTextButtonLink("COMMENT ON<br>THIS PAGE", "/pages/comment.php?page=database", "textbutton");
+    echo "</div>\n</div>\n</div>\n";
+}
+
 ?>
 </html>

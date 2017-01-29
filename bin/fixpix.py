@@ -49,10 +49,10 @@ def main(pif):
                     found = True
                     break
             if not found:
-                if os.path.exists(os.path.join(config.LIB_MAN_DIR, cas)):
+                if os.path.exists('.' + useful.relpath(config.LIB_MAN_DIR, cas)):
                     for src in glob.glob(os.path.join(pth, '?_' + cas + '-' + var + '.jpg')):
-                        if not os.path.exists(os.path.join(config.LIB_MAN_DIR, cas + src[src.rfind('/'):])):
-                            os.rename(src, os.path.join(config.LIB_MAN_DIR, cas + src[src.rfind('/'):]))
+                        if not os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, cas + src[src.rfind('/'):])):
+                            os.rename(src, useful.relpath('.', config.LIB_MAN_DIR, cas + src[src.rfind('/'):]))
                 else:
                     print '    Bad var:', cas, var, [x['variation.var'] for x in dbvars]
 

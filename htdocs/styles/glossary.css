@@ -1,4 +1,4 @@
-body {background-color: #EEEEFF;}
+body {background-color: #EEEEFF; margin: auto;}
 h1 {text-align: center;}
 dt {text-indent: 20px; font-weight: bold;}
 h2 {border-width: thin; border-style: solid; padding-left: 4px; background-color: #FFFFFF;}

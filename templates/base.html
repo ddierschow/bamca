@@ -7,9 +7,9 @@
 <meta charset="UTF-8"><title>{% if page.is_beta %}BETA: {% endif %}{{ page.title }}</title>
 <link rel="icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
-{% for s in page.styles %}
+{% for s in page.styles -%}
 <link rel="stylesheet" href="/styles/{{ s }}.css" type="text/css">
-{% endfor %}
+{% endfor -%}
 {%- if page.extra %}{{ page.extra }}{% endif %}
 {%- if not page.is_beta %}
 <script type="text/javascript">
@@ -26,20 +26,20 @@ _gaq.push(['_trackPageview']);
 {%- block page_header_extra -%}
 {%- endblock page_header_extra -%}
 </head>
-{% endblock page_header %}
+{%- endblock page_header %}
 
 <!-- body -->
 {% block page_body_start %}
 <body>
 {% if page.is_beta %}
-<table width="1024" class="body">
-<tr><td height="24" class="beta">&nbsp;</td></tr>
+<table class="body">
+<tr><td class="beta">&nbsp;</td></tr>
 <tr><td class="body">
 {% endif %}
 {%- if page.hierarchy -%}
 <div class="hier">
 {%- for lnk in page.hierarchy %}
-<a href="{{ lnk.link }}">{{ lnk.name }}</a> &gt;
+<a href="{{ lnk.link }}">{{ lnk.name }}</a> <i class="fa fa-chevron-right"></i>
 {%- endfor %}
 </div>
 {%- endif %}
@@ -69,7 +69,7 @@ Feel free to ask for clarification on these or other models.<p>
 {%- endif %}
 {%- if page.tail.contact %}
 This page is maintained by members of BAMCA.
-<a href="../pages/faq.html">See here for information on contacting us.</a><p>
+<a href="../pages/faq.php">See here for information on contacting us.</a><p>
 {%- endif %}
 {%- if page.tail.disclaimer %}
 <hr>
@@ -83,13 +83,13 @@ of Matchbox International Ltd. and are used with permission.
 {%- for flag in page.list_flags %}
 <nobr>{{ page.format_image_flag(flag) }} {{ page.flag_info[flag][0] }}</nobr>
 {%- if not loop.last %}
-{{ render.format_image_art('ball.gif', 'o') }}
+<span class="blue">&#x26ab;</span>
 {%- endif %}
 {%- endfor %}
 </center>
 {%- endif %}
 {%- if page.tail.stat %}
-<font size="-1"><i>{{ page.tail.stat }}</i></font>\
+<span  class="stat">{{ page.tail.stat }}</span>
 {%- endif %}
 {%- block body_footer %}
 {% if not nofooter %}

@@ -19,8 +19,11 @@ import useful
 import environ
 
 class BaseForm(object):
-    def __init__(self, cgi_form, args):
+    def __init__(self, cgi_form=None, args=None, initform=None):
         '''Reads the cgi form and puts it into this object.'''
+	if initform:
+	    self.form = initform
+	    return
         form = dict()
         if 'REQUEST_METHOD' in os.environ:  # is this apache?
             for key in cgi_form:
@@ -128,8 +131,8 @@ class BaseForm(object):
 
     def roots(self, start='', end='', has=''):
 	if end:
-	    return [x[len(start):-len(end)] for x in self.keys(start, end, has)]
-	return [x[len(start):] for x in self.keys(start, end, has)]
+	    return [x[len(start):-len(end)] for x in self.keys(start=start, end=end, has=has)]
+	return [x[len(start):] for x in self.keys(start=start, end=end, has=has)]
 
     def get_dict(self, keylist=None, start='', end=''):
 	lstart = len(start) if start else None
@@ -200,6 +203,7 @@ class PageInfoFile(object):
         self.format_type = 'python'
         self.render = render.Presentation(self.page_id, self.form.get_int('verbose'))
         self.render.secure = self.secure
+        self.render.unittest = self.unittest
         self.render.comment('form', self.form.get_form())
         self.privs = set(self.rawcookies.get('pr', '')) & set(self.form.get_str('privs', 'vuma'))
         self.secure.cookies = self.rawcookies.get('co')
@@ -220,7 +224,7 @@ class PageInfoFile(object):
 	if not page_info:
 	    raise useful.SimpleError('Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id)
         self.render.set_page_info(page_info)
-        self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_NOT_RELEASED) != 0
+        self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDDEN) != 0
         self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
 	self.render.is_admin = self.is_allowed('a')
 	self.render.is_moderator = self.is_allowed('m')
@@ -289,9 +293,9 @@ class PageInfoFile(object):
 
 #    def dump(self, verbose=False):
 #        if self.render.verbose or verbose:
-#            useful.dump_dict_comment('pifile', self.__dict__)
-#            useful.dump_dict_comment('pifile.render', self.render.__dict__)
-#            useful.dump_dict_comment('pifile.dbh', self.dbh.__dict__)
+#            print useful.dump_dict_comment('pifile', self.__dict__)
+#            print useful.dump_dict_comment('pifile.render', self.render.__dict__)
+#            print useful.dump_dict_comment('pifile.dbh', self.dbh.__dict__)
 
     def error_report(self):
         ostr = 'pifile = ' + str(self.__dict__) + '\n'
@@ -305,4 +309,4 @@ class PageInfoFile(object):
 #---- -------------------------------------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''
+    pass

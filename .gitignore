@@ -55,6 +55,7 @@ docs/_build/
 
 # vim
 *~
+.*.swp
 
 #
 .crcs

@@ -64,7 +64,8 @@ def biblio(pif):
     lrange = dict(entry=list(), note='')
     lsection.update(dict(columns=list(), headers=dict(), range=[lrange]))
 
-    if pif.form.get_bool('edit'):
+    editable = pif.form.get_bool('edit') and pif.is_allowed('a')
+    if editable:
 	lsection['columns'].append('edit')
 	lsection['headers']['edit'] = '&nbsp;'
 	row_link_formatters['edit'] = lambda x: ('http://beta.bamca.org/cgi-bin/editor.cgi?table=%s&id=' % tab_name) + str(x[0])
@@ -98,7 +99,14 @@ def biblio(pif):
 	    arg = [str(fdict.get(x, lsection.get(x, ''))) for x in arg.split(',')]
 	    if ''.join(arg):
 		url = row_link_formatters[cmd](arg)
-	return pif.render.format_link(url, cont)
+
+	edlink = ''
+	if field == 'title' and editable:
+	    if os.path.exists('.' + config.IMG_DIR_BOOK + '/' + fdict['pic_id'] + '.jpg'):
+		edlink += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fa fa-paint-brush"></i>')
+	    edlink += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fa fa-upload"></i>')
+
+	return pif.render.format_link(url, cont) + edlink
 
     lrange['entry'] = [{field: bib_field(fdict, field) for field in lsection['columns']}
 		       for fdict in table]

@@ -51,7 +51,7 @@ def show_list_var_pics(pif, mod_id):
         if var['variation.picture_id']:
             fn = mod_id + '-' + var['variation.picture_id']
             isorig = 0
-        fn = config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'
+        fn = '.' + config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'
         apics += 1
         if not var['variation.var'].startswith('f'):
             if not mbdata.categories.get(var['variation.category'], '').startswith('['):

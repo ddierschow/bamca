@@ -73,7 +73,7 @@ def show_var_info(pif, mod_id, var_id):
         var = pif.dbh.fetch_variation(mod_id, var_id)
         if var:
             var = pif.dbh.depref('variation', var[0])
-	    ostr += pif.render.format_image_sized(mod_id + '-' + var_id, pdir=config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
+	    ostr += pif.render.format_image_sized(mod_id + '-' + var_id, pdir='.' + config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
             ostr += '<br>\n%s:<ul>\n' % var_id
             ostr += '<li>description: %s\n' % var['text_description']
             ostr += '<li>base: %s\n' % var['text_base']
@@ -91,7 +91,7 @@ ebay_end = '/s-l225.jpg'
 def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     if url.startswith(ebay_start) and url.endswith(ebay_end):
 	url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.jpg'
-    print url, '<br>'
+    #print url, '<br>'
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
     try:
@@ -120,7 +120,7 @@ class UploadForm(object):
 	if not pif.is_allowed('m'):
 	    self.tdir = config.INC_DIR
 	elif self.mod_id:
-	    self.tdir = os.path.join(config.LIB_MAN_DIR, self.mod_id.lower())
+	    self.tdir = useful.relpath('.', config.LIB_MAN_DIR, self.mod_id.lower())
 	if self.mod_id:
 	    pif.render.title += self.mod_id
 	    if self.var_id:
@@ -158,7 +158,7 @@ class UploadForm(object):
 	var = pif.dbh.fetch_variation(self.mod_id, self.var_id) if self.mod_id and self.var_id else None
 	if var:
 	    var = pif.dbh.depref('variation', var[0])
-	    var['image'] = pif.render.format_image_sized(self.mod_id + '-' + self.var_id, pdir=config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
+	    var['image'] = pif.render.format_image_sized(self.mod_id + '-' + self.var_id, pdir='.' + config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
 	context = {
 	    'form': self,
 	    'restrict': restrict,
@@ -184,13 +184,13 @@ class UploadForm(object):
 	    print img, self.tdir, fn, '<br>'
 	    if not img.startswith('http://'):
 		img = url + '/' + img
-	    sfn = grab_url_file(img, self.tdir, fn, self.replace)
+	    sfn = grab_url_file(img, self.tdir, fn, overwrite=self.replace)
 
 	    print '<center><h3>Added: ' + sfn + '</h3><p>'
 	    print '<img src="../%s/%s"></center>' % (self.tdir, sfn)
 
     def grab_url_pic(self, pif):
-	fn = grab_url_file(self.url, self.tdir, self.nfn, self.var_id, self.replace)
+	fn = grab_url_file(self.url, self.tdir, self.nfn, self.var_id, overwrite=self.replace)
 	return fn
 
     def calc_filename(self):
@@ -482,22 +482,25 @@ class EditForm(imglib.ActionForm):
 	self.target_size = self.xts, self.yts = (xts, yts)
 
     def calc_man(self):
+	useful.write_comment('calc_man')
 	pdir = self.tdir
-#	if pdir.startswith('./'):
-#	    pdir = pdir[2:]
+	if pdir.startswith('./'):
+	    pdir = pdir[2:]
+	if not pdir.startswith('/'):
+	    pdir = '/' + pdir
 	if pdir.endswith('/'):
 	    pdir = pdir[:-1]
 
 	man = ''
 	if pdir.startswith(config.LIB_MAN_DIR):
 	    man = pdir[pdir.rfind('/') + 1:]
-	elif pdir.startswith(config.IMG_DIR_PACK):
+	elif pdir.startswith('.' + config.IMG_DIR_PACK):
 	    if self.fn:
 		if len(self.fn) > 2 and self.fn[1] == '_':
 		    man = self.fn[2:-4]
 		else:
 		    man = self.fn[:-4]
-	elif pdir.startswith(config.IMG_DIR_CAT):
+	elif pdir.startswith('.' + config.IMG_DIR_CAT):
 	    if self.fn:
 		if len(self.fn) > 2 and self.fn[1] == '_':
 		    man = self.fn[2:-4]
@@ -632,13 +635,14 @@ class EditForm(imglib.ActionForm):
 	    nname = nname_root + '_' + pref + ('.' + self.ot) if self.ot else ''
 	    useful.file_delete(os.path.join(self.tdir, nname))
 
-    def mass_resize(self, desc=''):
+    def mass_resize(self, pif, desc=''):
 	print self.__dict__, '<br>'
 	var = self.var.lower()
 	man = self.man.lower()
 	print 'mass_resize', 'pth', self.pth, 'tdir "%s"' % self.tdir, 'fn', self.fn, 'ot', self.ot, 'os', self.original_size, '|', man, var, '<hr>'
 
-	nname_root = self.man if self.man else self.fn
+	#nname_root = self.man if self.man else self.fn
+	nname_root = self.fn
 	if self.suff:
 	    nname_root += '-' + self.suff
 	if len(nname_root) > 2 and nname_root[0] in mbdata.image_size_types and nname_root[1] == '_':
@@ -650,12 +654,12 @@ class EditForm(imglib.ActionForm):
 	ot = '.' + self.ot if self.ot else self.fn[self.fn.rfind('.') + 1:]
 	ddir = self.dest if self.dest else self.tdir
 	outnam = '_' + nname_root + ot
-	if self.dest == config.IMG_DIR_PACK or self.tdir == config.IMG_DIR_PACK: # or self.tdir == './' + config.IMG_DIR_PACK:
+	if self.dest == '.' + config.IMG_DIR_PACK or self.tdir == '.' + config.IMG_DIR_PACK: # or self.tdir == './' + config.IMG_DIR_PACK:
 	    prefs = 'scmlh'
-	elif self.dest == config.IMG_DIR_BOX or self.tdir == config.IMG_DIR_BOX:
+	elif self.dest == '.' + config.IMG_DIR_BOX or self.tdir == '.' + config.IMG_DIR_BOX:
 	    prefs = 'scm'
 	else:
-	    ddir = (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
+	    ddir = '.' + (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
 	    prefs = 'tsml'
 	    outnam = '_' + man + ('-' + var if var else '') + ot
 
@@ -678,8 +682,22 @@ class EditForm(imglib.ActionForm):
 	    largest = dpth
 	    print '<br><img src="/%s"><hr>' % dpth
 
+#	if not var:
+#	    dpth = os.path.join('.' + config.IMG_DIR_ICON, 'i' + man + '.gif')
+#	    print 'creating icon', self.tdir, self.nname, 'to', dpth, '<br>'
+# no pif
+#	    create_icon(pif, man, name='')
+#	    print '<br><img src="/%s"><hr>' % dpth
+
 	if self.mv:
 	    useful.file_delete(self.pth, True)
+
+	if largest:# and log_action:
+	    #title = pif.form.get_str('title', '%s-%s' % (eform.man, eform.var))
+	    title = '%s-%s' % (self.man, self.var)
+	    url = 'http://www.bamca.org/' + largest
+	    link = 'http://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
+	    useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
 
 	return largest
 
@@ -725,7 +743,7 @@ def imawidget_main(pif):
 		pass
 	    elif eform.cycle:
 		#dl, gl, ol, sl, xl = imglib.get_dir(eform.tdir)
-		files = imglib.get_dir(tdir)
+		files = imglib.get_dir(eform.tdir)
 		while files['graf']:
 		    if files['graf'][0] == nfn:
 			files['graf'].pop()
@@ -743,14 +761,9 @@ def imawidget_main(pif):
             eform.mass_clean()
 	    show_editor(pif, eform)
         elif eform.mass:
-            largest = eform.mass_resize("from library")
             if eform.man and eform.var:
                 print pif.render.format_button("promote", 'vars.cgi?mod=%s&var=%s&promote=1' % (eform.man, eform.var))
-	    if largest:# and log_action:
-		title = pif.form.get_str('title', '%s-%s' % (eform.man, eform.var))
-		url = 'http://www.bamca.org/' + largest
-		link = 'http://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (eform.man, eform.var)
-		useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+            largest = eform.mass_resize(pif, "from library")
         elif eform.wipe:
             eform.save_presets()
             eform.fn = eform.wipe_image()
@@ -980,7 +993,7 @@ def casting_pictures(pif, mod_id, direc):
     fl.sort()
     if fl:
         print '<h3>%s</h3>' % direc
-        if direc == config.IMG_DIR_ADD:
+        if direc == '.' + config.IMG_DIR_ADD:
             print pif.render.format_button('describe', pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id})) + '<br>'
         for fn in fl:
             print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&man=%s"><img src="../%s">%s</a> ' % (direc, fn[fn.rfind('/') + 1:], mod_id, fn, fn)
@@ -1009,7 +1022,7 @@ def pictures_main(pif):
     useful.header_done()
     mod_id = pif.form.get_str('m', '')
     if mod_id:
-        [casting_pictures(pif, mod_id.lower(), x) for x in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_ICON, config.IMG_DIR_ADD]]
+        [casting_pictures(pif, mod_id.lower(), '.' + x) for x in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_ICON, config.IMG_DIR_ADD]]
         lineup_pictures(pif, pif.dbh.fetch_casting_lineups(mod_id))
     else:
         print 'Huh?'
@@ -1020,14 +1033,16 @@ def pictures_main(pif):
 
 # understands 0-9 A-Z & ' + - .  /
 
-def create_icon(mod_id, name, logo, isizex=100, isizey=100):
+def create_icon(pif, mod_id, name, title='mb2', isizex=100, isizey=100):
+    if not name:
+	model = pif.dbh.fetch_casting(mod_id)
+	name = model['iconname']
+    logo = '.' + config.IMG_DIR_ART + '/mb2.gif'
     print ' ', mod_id, '|'.join(name)
 
-    #logo = logo if logo else pif.render.find_art('mb2')
-
-    in_path = os.path.join(config.IMG_DIR_MAN, 's_' + mod_id + '.jpg')
-    icon_file = os.path.join(config.IMG_DIR_ICON, 'i_' + mod_id + '.gif')
-    open(icon_file, 'w').write(imglib.iconner(in_path, name, logo=None, isizex=100, isizey=100))
+    in_path = os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg')
+    icon_file = os.path.join('.' + config.IMG_DIR_ICON, 'i_' + mod_id + '.gif')
+    open(icon_file, 'w').write(imglib.iconner(in_path, name, logo=logo, isizex=100, isizey=100))
 
 
 def get_man_dict(pif):
@@ -1043,15 +1058,14 @@ def get_man_dict(pif):
 def icon_main(pif):
 
     title = pif.switch['b'][-1] if pif.switch['b'] else 'mb2'
-    logo = pif.render.find_art(title)
-    mandict = pif.dbh.fetch_casting_dict(pif)
+    mandict = pif.dbh.fetch_casting_dict()
 
     if pif.switch['a']:
         for man in mandict:
             name = mandict[man]['iconname']
             if pif.switch['n']:
                 name = pif.switch['n'][-1].split(';')
-            create_icon(man, name, logo)
+            create_icon(pif, man, name, title)
     elif pif.filelist:
         for man in pif.filelist:
 	    man = man.lower()
@@ -1059,7 +1073,7 @@ def icon_main(pif):
                 name = mandict[man]['iconname']
                 if pif.switch['n']:
                     name = pif.switch['n'][-1].split(';')
-                create_icon(man, name, logo)
+                create_icon(pif, man, name, title)
 	    else:
 		print man, 'not in list'
     else:
@@ -1070,14 +1084,14 @@ def icon_main(pif):
 @basics.web_page
 def bits_main(pif):
     years = {
-        '1998': {'d': config.IMG_DIR_MT_LAUREL, 'p': '1998', 'r': 'ur'},
-        '1999': {'d': config.IMG_DIR_MT_LAUREL, 'p': '1999', 'r': 'urd'},
-        '2000': {'d': config.IMG_DIR_MT_LAUREL, 'p': '2000', 'r': 'urdab'},
-        '2002': {'d': config.IMG_DIR_MT_LAUREL, 'p': '2002', 'r': 'ur'},
-        '2003': {'d': config.IMG_DIR_MT_LAUREL, 'p': '2003', 'r': 'ur'},
-        '2004': {'d': config.IMG_DIR_MT_LAUREL, 'p': '2004', 'r': 'ur'},
-        '2008': {'d': config.IMG_DIR_MATTEL, 'p': '2008', 'r': 'u'},
-        '2009': {'d': config.IMG_DIR_MATTEL, 'p': '2009', 'r': 'u'},
+        '1998': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '1998', 'r': 'ur'},
+        '1999': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '1999', 'r': 'urd'},
+        '2000': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2000', 'r': 'urdab'},
+        '2002': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2002', 'r': 'ur'},
+        '2003': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2003', 'r': 'ur'},
+        '2004': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2004', 'r': 'ur'},
+        '2008': {'d': '.' + config.IMG_DIR_MATTEL, 'p': '2008', 'r': 'u'},
+        '2009': {'d': '.' + config.IMG_DIR_MATTEL, 'p': '2009', 'r': 'u'},
     }
 
     colors = {True: "#CCCCCC", False: "#FFFFFF"}

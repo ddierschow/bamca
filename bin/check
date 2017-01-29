@@ -14,8 +14,11 @@ bottom = '''if __name__ == '__main__': # pragma: no cover
 '''
 
 if __name__ == '__main__':
-    import glob
+    import updcommits
+    updcommits.write_php_config_file()
+    updcommits.write_jinja2_config_file()
 
+    import glob
     f = glob.glob('*.py')
     open('bamcatests/test0.py', 'w').write(top + ''.join(map(lambda x: fts % (x[:-3].capitalize(), x[:-3]), glob.glob('*.py'))) + bottom)
 

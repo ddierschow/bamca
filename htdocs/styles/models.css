@@ -1,0 +1,22 @@
+img {border-width: 0;}
+table {margin-right: auto; margin-left: auto;}
+
+.chead {height: 60px; text-align: center; width: 50%; font-size: x-large; font-weight: bold;}
+.lsm {background-color: #660000; color: #FFFFFF;}
+.ssm {background-color: #000066; color: #FFFFFF;}
+
+.ccell {height: 120px; text-align: center; width: 50%; font-weight: bold; padding: 8px;}
+.early {background-color: #FFFFFF;}
+.rw {background-color: #FFFF00;}
+.ks {background-color: #0099FF;}
+.sf {background-color: #198AAE;}
+.yy {background-color: #C2C24E;}
+.series {background-color: #330066;}
+.dinky {background-color: #FFFFFF;}
+.prem {background-color: #620000;}
+.coll43 {background-color: #FFFF99;}
+.coll64 {background-image: url("/pic/gfx/boxmc.gif"); color: #FFFFFF;}
+.coll72 {background-color: #99CCFF;}
+.skb {background-color: #FF6600;}
+.back {}
+.other {background-color: #99FF99;}

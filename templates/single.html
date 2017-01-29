@@ -13,8 +13,13 @@
 <div class="inset {{ sz }}">
 <center><h3>Model-Related Links</h3></center>
 
-<center><b><a href="vars.cgi?mod={{ model.id }}">Variations</a></b></center>
-<center><b><a href="upload.cgi?m={{ model.id }}&y={{ product_pic }}">Upload a Picture</a></b></center>
+<center><b>
+<a href="vars.cgi?mod={{ model.id }}">Variations ({{ model.vars }})</a>
+<br><a href="upload.cgi?m={{ model.id }}&y={{ product_pic }}">Upload a Picture</a>
+{% for compare in compares %}
+<br>{{ compare }}
+{% endfor %}
+</b></center>
 <p>
 
 {%- if baseplates %}{#- not currently implemented #}
@@ -53,9 +58,11 @@
 </ul><p>
 {%- endif %}
 
-{%- if model.make and model.make != 'unl' %}
-<center><a href="makes.cgi?make={{ model.make }}">See more <b>{{ model['vehicle_make.make_name'] }}</b> vehicles</a></center><p>
+{#- for make in model.makes -%}
+{%- if make.id and make.id != 'unl' %}
+<center><a href="{{ make.link }}">See more <b>{{ make.name }}</b> vehicles</a></center>{% if loop.last %}<p>{% endif %}
 {%- endif %}
+{%- endfor -#}
 
 {%- if show_comparison %}
 <center><a href="compare.cgi#{{ model.id }}">See <b>casting comparison</b> page</a></center><p>
@@ -76,17 +83,23 @@
 {%- endmacro %}
 
 {%- macro show_model_info() %}
-<center><font face="Courier">{{ model.id }}</font><br>
+<center><span class="modelnumber">{{ model.id }}</span><br>
 {{ model.img }}<br>
 <b>{{ model.name }}</b>
 {%- for s in model.descs %}<br>{{ s }}{% endfor %}
-<table cellspacing="8"><tr>
+<table class="modelinfo"><tr>
+{%- if model.makes %}<th>Make</th>{% endif %}
 {%- if model.scale %}<th>Scale</th>{% endif %}
 {%- if model.country %}<th>Country</th>{% endif %}
 {%- if model.first_year %}<th>Introduced</th>{% endif %}
 {%- if mack_nums %}<th>Mack Number{{ render.plural(mack_nums) }}</th>{% endif %}
 </tr>
 <tr>
+{%- if model.makes %}<td valign="top"><center>
+{% for make in model.makes %}
+<a href="{{ make.link }}">{% if make.image %}{{ make.image }}<br>{% endif %}{{ make.name }}</a><br>
+{% endfor %}
+</center></td>{% endif %}
 {%- if model.scale %}<td valign="top"><center>{{ model.scale }}</center></td>{% endif %}
 {%- if model.country %}
 <td valign="top"><center>{{ model.country_flag }}<br>
@@ -103,7 +116,7 @@
 <p>
 <center><h3>Related Models</h3>
 {%- for related in relateds %}
-<font face="Courier">{{ related.id }}</font><br>
+<span class="modelnumber">{{ related.id }}</span><br>
 {{ related.img }}<br>
 <b>{{ related.name }}</b>
 {%- for s in related.descs %}

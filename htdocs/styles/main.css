@@ -1,4 +1,5 @@
-body         {color: #000000; background-color: #FFFFFF; padding: 0 0 0 0; margin: 0 0 0 0; width: 1024px;}
+body         {color: #000000; background-color: #FFFFFF; padding: 0; width: 1024px;}
+.body        {width: 1024px;}
 img          {vertical-align: middle; border-width: 0;}
 .centered    {margin-left: auto; margin-right: auto; display: block;}
 .center      {text-align: center;}
@@ -8,38 +9,38 @@ a:visited    {color: #000099; background-color: transparent; text-decoration: no
 a:active     {color: #009900; background-color: transparent; text-decoration: none;}
 a:hover      {color: #000099; background-color: transparent; text-decoration: underline;}
 
-.button      {vertical-align: middle; color: #FFFFFF; padding: 1px; border-width: 0px;}
+.button      {vertical-align: middle; color: #FFFFFF; padding: 1px; border-width: 0px; cursor: pointer;}
 .updown      {vertical-align: top; text-align: center; width: 160px;}
 .lefty       {float: left;}
 .righty      {float: right;}
 .section     {vertical-align: middle; color: #000000; background-color: #FFFFFF; border-color: #000000; font-size: x-large; padding: 4px; border-width: thin; border-style: solid; text-align: center;}
 .subsection  {vertical-align: middle; border-color: #000000; font-size: large; border-width: thin; border-style: solid; text-align: center;}
-.textbutton  {vertical-align: middle; font-weight: bold; font-size: 13px; padding: 1px 2px 2px 2px; background-repeat: repeat-x; font-family: "Trebuchet MS", "Arial", "sans-serif";}
-.textbuttonn {color: #FFFFFF; background-image: url(/pic/gfx/tbbgn.gif);}
-.textbuttonh {color: #006600; background-image: url(/pic/gfx/tbbgh.gif); text-decoration: none;}
 .warning     {color: #FF0000; font-weight: bold;}
 .spicture    {padding: 0; margin: 0; border-style: none;}
 .hidden      {display: none;}
 .shown       {display: inline;}
 
-.title       {background-color: #000066; height: 66px; margin: 3px 0 3px 0; padding: auto; display: table; width: 100%;
+.title       {background-color: #000066; height: 66px; margin: 3px 0 3px 0; display: table; width: 100%;
               color: #FFFFFF; font-weight: bold; font-size: xx-large; text-align: center; max-width: 1024px;}
 .titletext   {display: table-cell; vertical-align: middle;}
 .titleimage  {margin-left: auto; margin-right: auto; display: block;}
 .description {color: #000000; font-weight: bold; font-size: x-large; text-align: center;}
 .note        {color: #000000;}
+.titlenote   {font-size: small;}
 .loginbar    {color: #000000; background-color: #FFFFFF; border-color: #000000; border-style: solid; border-width: thin;}
-.hier        {width: 1014px; border-width: 1px; background-color: #CCCC99; border-style: solid; padding: 0 4px 0 4px;}
+.hier        {width: 1014px; border-width: 1px; background-color: #CCCC99; border-style: solid; padding: 0 4px 0 4px; font-weight: bold;}
 .fullpage    {width: 100%;}
+.comment     {vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
+.comment_box {float: right; direction: rtl;}
 
 .modelname   {font-weight: bold; font-size: large; text-align: center;}
 .newcasting  {padding-bottom: 16px; background-image: url("/pic/gfx/newcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
-.comment     {float: right; vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
+.revcasting  {padding-bottom: 16px; background-image: url("/pic/gfx/revcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
 
 .tb          {background-color: #FFFFFF; padding: 0px; width: 100%;}
 .sh          {background-color: #FFFFFF; color: #000000; font-size: xx-large; padding: 4px; text-align: center; vertical-align: middle;}
 .rh          {background-color: #FFFFFF; color: #000000; font-size: x-large;}
-.eh          {font-size: large; font-weight: bold; padding: auto 4px auto 4px; text-align: center; vertical-align: top;}
+.eh          {font-size: large; font-weight: bold; padding-left: 4px; padding-right: 4px; text-align: center; vertical-align: top;}
 .eb          {font-size: medium; text-align: left; vertical-align: top;}
 
 .tb          {border-collapse: collapse; border-color: #000000; border-spacing: 1px 0; border-style: solid; border-width: 1px;}
@@ -54,35 +55,116 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .eb_tail_1   {border-width: 0; border-style: solid; border-collapse: collapse; vertical-align: middle;}
 .eb_tail_2   {border-width: 0; border-style: solid; border-collapse: collapse; text-align: left;}
 
-.beta {width: 100%; background-image: url(/pic/gfx/beta.gif); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0;}
+.beta {width: 100%; background-image: url("/pic/gfx/beta.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
 
 .modeltop    {width: 100%;}
 .modelnumber {text-align: center; font-size: medium; font-weight: bold; font-family: monospace; height: 16px; width: 20%;}
 .modelstars  {width: 40%;}
 .modelstars img {float: left;}
+.modelstars i {float: left;}
 .modelicons  {width: 40%;}
 .modelicons img {float: right;}
+.modelicons i {float: right;}
 .vartable    {width: 100%; text-align: center;}
 .varentry    {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFFFFF;}
 
 .titlebar    {height: 66px; font-size: xx-large; background-color: #000066; color: #FFFFFF; text-align: center;}
 
-.leftbar     {background-color: #006600; vertical-align: top; width: 132px; color: #FFFFFF; font-weight: bold; height: 100%; position: relative; padding-top: 16px;}
+.leftbar     {background-color: #006600; vertical-align: top; width: 132px; color: #FFFFFF; font-weight: bold; height: 100%; position: relative; padding-top: 16px; padding-bottom: 16px;}
 .leftbarcontent {vertical-align: top; height: 100%; padding: 0 0 20px 0; text-align: center;}
 .leftbar a:link       {color: #FFFFFF; background-color: transparent; text-decoration: none;}
 .leftbar a:visited    {color: #CCCCCC; background-color: transparent; text-decoration: none;}
 .leftbar a:active     {color: #FFFFFF; background-color: transparent; text-decoration: none;}
 .leftbar a:hover      {color: #FFFFFF; background-color: transparent; text-decoration: underline;}
 
-.bottombar   {background-color: #CCCC99; text-align: left; height: 66px; display: table; position: relative; width: 100%;}
+.bottombar   {background-color: #CCCC99; text-align: left; height: 44px; display: table; position: relative; width: 100%;}
 foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; vertical-align: middle;}
-.bamcamark   {position: absolute; left: 0; bottom: 0; padding: 15px 32px;}
-.footer      {text-align: left; display: table-cell; position: absolute; height: 66px; left: 132px; bottom: 0; vertical-align: middle;}
-.comment_button   {height: 66px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}
+.bamcamark   {position: absolute; left: 0; bottom: 0; padding: 6px 32px;}
+.footer      {margin-left: 132px; width: 600px;}
+/* position: absolute; display: table-cell; text-align: left; height: 44px; left: 132px; bottom: 0; vertical-align: middle; */
+.comment_button   {height: 44px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}
 
 .bgok {background-color: #FFFFFF}
 .bgno {background-color: #FFCCCC}
 .txok {color: #000000}
 .txno {color: #FF0000}
 
+.textbutton  {margin: 0 1px; padding: 0 3px; white-space: nowrap; background-color: #006600; color: #FFFFFF;
+    font-weight: bold; font-size: 13px; font-family: "Trebuchet MS", "Arial", "sans-serif"; text-decoration: none;
+    border-color: #FFFFFF; border-radius: 4px; border-style: solid; border-width: 1px;
+    display: inline-block; text-align: center; vertical-align: middle; cursor: pointer;
+}
+.textbutton:link    {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
+.textbutton:visited {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
+.textbutton:active  {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
+.textbutton:hover   {color: #006600; background-color: #FFFFFF; border-color: #006600; text-decoration: none;}
+.textupdown {margin: 0;}
+
+/* Used within FF chrome to target CSS to specific URLs: being FF-specific,
+it is also useful for targeting FF-only code */
+@-moz-document url-prefix(http://) {
+    button::-moz-focus-inner, input[type="button"]::-moz-focus-inner, input[type="submit"]::-moz-focus-inner, input[type="reset"]::-moz-focus-inner {
+	padding: 0 !important;
+	border: 0 none !important;
+    }
+}
+
+.see_the_faq  {background-color: #FFFF00; color: #006600;border-color: #006600;}
+.see_the_faq:link    {color: #006600; background-color: #FFFF00; border-color: #006600;}
+.see_the_faq:visited {color: #006600; background-color: #FFFF00; border-color: #006600;}
+.see_the_faq:active  {color: #006600; background-color: #FFFF00; border-color: #006600;}
+.see_the_faq:hover   {color: #FFFF00; background-color: #006600; border-color: #FFFF00;}
+
 .framed {width: 1024px;}
+
+.red    {color: #FF0000;}
+.green  {color: #009900;}
+.blue   {color: #0000FF;}
+.purple {color: #9900FF;}
+.black  {color: #000000;}
+.white  {color: #FFFFFF;}
+.orange {color: #FF9900;}
+.yellow {color: #FFFF00;}
+.gray   {color: #999999;}
+.bold   {font-weight: bold;}
+
+.stat {font-style: italic; font-size: small;}
+
+.modalbutton {cursor: pointer;}
+ /* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}

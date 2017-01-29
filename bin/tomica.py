@@ -101,8 +101,7 @@ def type_match(t1, t2):
 
 
 def show_section(pif, manf, sect, start=None, end=None, year=None):
-    print '<a name="'+sect['label']+'"></a>'
-    print "<hr><center><h3>"+sect['title']+"</h3></center>"
+    print '<hr><center><h3 id="%s">%s</h3></center>' % (sect['label'], sect['title'])
     if sect['comment']:
         print '\n'.join(sect['comment']) + '<br>'
     shown = 0
@@ -150,8 +149,7 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
 
 def show_section_list(pif, sect):
     cols = 3
-    print '<a name="'+sect['label']+'_list"></a>'
-    print '<table class="smallprint pagebreak" width=100%>'
+    print '<table class="smallprint pagebreak" width="100%" id="%s">' % sect['label']
     print '<tr><td colspan=%d style="text-align: center; font-weight: bold;">%s</td></tr>' % (4 * cols, sect['name'])
     inmods = filter(lambda x: x['subid'] != 'X', sect['models'])
     mods = []
@@ -206,7 +204,7 @@ def main(pif):
     pif.render.print_html()
     print pif.render.format_head()
     useful.header_done()
-    manf = MannoFile(os.path.join(config.SRC_DIR, 'tomica.dat'))
+    manf = MannoFile(useful.relpath(config.SRC_DIR, 'tomica.dat'))
     mans = manf.dictlist
     if pif.form.has('num'):
         print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form.get_str('num')

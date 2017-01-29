@@ -17,7 +17,7 @@ class FlagList(object):
     def format(self, code2, hspace=0, also={}):
         if code2 not in self:
             return ''
-        return '<img alt="[%s]" src="../%s/%s"%s>' % (self[code2], config.FLAG_DIR, code2, useful.fmt_also({'hspace': hspace}, also))
+        return '<img alt="[%s]" src="..%s/%s"%s>' % (self[code2], config.FLAG_DIR, code2, useful.fmt_also({'hspace': hspace}, also))
 
     def has_key(self, code):
         return code in self.lookup
@@ -30,4 +30,4 @@ class FlagList(object):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''
+    pass

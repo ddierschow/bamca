@@ -14,9 +14,10 @@ Password:</td><td>
 <input type="password" name="p"></td></tr>
 <tr><td></td><td>
 {{ render.format_button_input("log in") }}
-</form>
 </td></tr><tr><td></td><td>
-<p><a href="signup.cgi{% if dest %}?dest={{ dest }}{% endif %}">{{ render.format_button('register') }}</a>
+<p>
+{{ render.format_button('register', register) }}
 </td></tr></table>
+</form>
 
 {% endblock page_body %}

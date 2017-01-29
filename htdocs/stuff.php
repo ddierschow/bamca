@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <?php
 include "bin/basics.php";
@@ -24,38 +25,17 @@ foreach ($links as $ent) {
 	$sections[$ent[0]] = array();
     $sections[$ent[0]][] = array("ty" => $ent[1], 'name' => $ent[2], 'url' => $ent[3]);
 }
-if ($pif['isbeta'])
+if ($pif['is_beta'])
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'release', 'url' => "http://www.bamca.org/stuff.php"));
 else
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'beta', 'url' => "http://beta.bamca.org/stuff.php"));
-
-function LinksList($links, $star, $pref='', $post='') {
-    global $IMG_DIR_ART;
-    echo '   ';
-    if ($pref)
-	echo $pref . "\n";
-    foreach ($links as $ent) {
-	if ($ent['ty'] == 's')
-	    echo $star . '<a href="' . $ent['url'] . '">' . $ent['name'] . "</a>\n";
-	else if ($ent['ty'] == 'l')
-	    echo '<a href="' . $ent['url'] . '">' . $ent['name'] . "</a>\n";
-	else if ($ent['ty'] == 'b') 
-	    DoButtonLink($ent['name'], $IMG_DIR_ART, $ent['url']);
-	else if ($ent['ty'] == 't') 
-	    echo $ent['name'] . "\n";
-	else
-	    echo "<br>&nbsp;\n";
-    }
-    if ($post)
-	echo $post . "\n";
-}
 
 $newerrors = Fetch("select id,health from page_info where not health=0", $pif);
 $errcounter = 0;
 foreach ($newerrors as $ent)
     $errcounter = $errcounter + $ent[1];
 $newusers = Fetch("select name from user where state=1 and privs=''", $pif);
-$newlinks = Fetch("select count(*) from link_line where ((flags&1)=1)", $pif);
+$newlinks = Fetch("select count(*) from link_line where ((flags&128)=128)", $pif);
 $commentfiles = glob("../../logs/comment.*");
 $imagefiles = glob("../../inc/*.*");
 $imagename = $l = '';
@@ -73,7 +53,7 @@ fclose($imagedescs);
 <table width=1024px cellpadding=0 cellspacing=0>
  <tr><td colspan=8 class="boxborder"></td></tr>
  <tr>
-  <td class="boxborder" rowspan=5><img src="pic/gfx/red4x4.gif"></td>
+  <td class="boxborder" rowspan=4><img src="/pic/gfx/red4x4.gif"></td>
 <?php
 foreach ($cols as $col) {
     if ($col[0][0] == 'c') {
@@ -84,18 +64,17 @@ foreach ($cols as $col) {
 }
 ?>
 
-  <td class="boxborder" rowspan=5><img src="pic/gfx/red4x4.gif"></td>
+  <td class="boxborder" rowspan=4><img src="/pic/gfx/red4x4.gif"></td>
  </tr>
 
- <tr><td colspan=2 class="database high"><a href="database.php">database</a></td></tr>
- <tr><td colspan=2>&nbsp;</td></tr>
+ <tr><td colspan=2><div class="database high" id="dbc" onclick="document.getElementById('database').click();">
+  <a href="database.php" id="database">database</a>
+  </div></td></tr>
 
  <tr>
 
   <td colspan=6 class="high">
-<?php
-LinksList($sections['l1'], '', '<center>', '</center>');
-?>
+<?php LinksList($sections['l1'], '', '<center>', '</center>'); ?>
   </td>
 
  </tr>
@@ -118,8 +97,8 @@ LinksList($sections['l1'], '', '<center>', '</center>');
    </td>
    <td>
    <?php
-DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/editor.cgi");
-DoButtonLink('clear', $IMG_DIR_ART, "cgi-bin/editor.cgi?clear=1");
+DoTextButtonLink('see', "cgi-bin/editor.cgi");
+DoTextButtonLink('clear', "cgi-bin/editor.cgi?clear=1");
 ?>
    </td>
    <td><span class="warning"><?php
@@ -134,7 +113,7 @@ if (count($newerrors) > 0)
    <tr><td>
    New users:</td><td><?php warn_number(count($newusers)); ?></td><td>
    <span class="warning"><?php
-DoButtonLink('see', $IMG_DIR_ART, "https://" . $pif['host'] . "/cgi-bin/user.cgi");
+DoTextButtonLink('see', "https://" . $pif['host'] . "/cgi-bin/user.cgi");
 if (count($newusers) > 0)
 {
     foreach ($newusers as $ent)
@@ -144,12 +123,13 @@ if (count($newusers) > 0)
    </tr>
 
    <tr><td>
-   New links:</td><td><?php warn_number($newlinks[0][0]); ?></td><td><?php DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/edlinks.cgi?sec=new"); ?></td>
+   New links:</td><td><?php warn_number($newlinks[0][0]); ?></td><td><?php DoTextButtonLink('see', "cgi-bin/edlinks.cgi?sec=new"); ?></td>
    <td><?php LinksList($sections['l3'], ' - '); ?></td></tr>
 
    <tr><td>
    New comments:</td><td><?php warn_number(count($commentfiles)); ?></td><td>
-   <?php DoButtonLink('see', $IMG_DIR_ART, "cgi-bin/traverse.cgi?d=../../logs"); ?></td></tr>
+   <?php DoTextButtonLink('see', "cgi-bin/traverse.cgi?d=../../logs"); ?></td>
+   <td><?php LinksList($sections['l4'], ' - '); ?></td></tr>
 
    <tr><td>
    Uploaded images:</td><td><?php warn_number(count($imagefiles)); ?></td>
@@ -163,7 +143,7 @@ if (count($newusers) > 0)
 </table>
 
 <?php DoPageFooter($pif); ?>
-<img src="pic/gfx/hruler1024.gif">
+<img src="/pic/gfx/hruler1024.gif">
 
 </body>
 </html>

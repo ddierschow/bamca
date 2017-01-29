@@ -596,7 +596,7 @@ def iconner(in_path, name, logo=None, isizex=100, isizey=100):
     tmp_pth = '/tmp/iconner.png'
     iconimage.save(tmp_pth)
     ofi = pipe_convert(tmp_pth, '.gif', verbose=True)
-    os.unlink(tmp_path)
+    os.unlink(tmp_pth)
     return ofi
 
 
@@ -786,7 +786,7 @@ class ActionForm(object):
 	self.selcat = form.get_bool('selcat')
 	self.dest = form.get_str('moveto')
 	if not self.dest and 'lib/prod' in self.tdir:
-	    self.dest = 'pic' + self.tdir[self.tdir.rfind('/'):]
+	    self.dest = './pic' + self.tdir[self.tdir.rfind('/'):]
 	self.rename = form.get_bool('rename')
 	self.lib = form.get_bool('lib')
 	self.mvbin = form.get_bool('mvbin')
@@ -827,28 +827,28 @@ class ActionForm(object):
 	    useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
 	elif self.selcat:
 	    if not self.nname or not self.dest:
-		useful.warn('What?')
+		useful.warn('What? (selcat, no name or dest)')
 	    else:
 		to_dir = self.dest
 		to_name = self.nname
 		log_action = True
 	elif self.rename:
 	    if not self.nname:
-		useful.warn('What?')
+		useful.warn('What? (rename, no name)')
 	    else:
 		to_dir = tdir
 		to_name = self.nname
 	elif self.lib:
 	    if not self.man:
-		useful.warn('What?')
-	    elif not os.path.exists(os.path.join(config.LIB_MAN_DIR, self.man)):
+		useful.warn('What? (lib, no man)')
+	    elif not os.path.exists(useful.relpath('.' + config.LIB_MAN_DIR, self.man)):
 #		man2 = pif.dbh.fetch_alias(self.man)
 #		if not man2:
 		    useful.warn('bad destination')
 #		else:
-#		    useful.file_mover(from_path, os.path.join(config.LIB_MAN_DIR, man2['ref_id'].lower(), fn), mv=self.mv, ov=self.ov)
+#		    useful.file_mover(from_path, os.path.join('.' + config.LIB_MAN_DIR, man2['ref_id'].lower(), fn), mv=self.mv, ov=self.ov)
 	    else:
-		to_dir = os.path.join(config.LIB_MAN_DIR, self.man)
+		to_dir = useful.relpath('.' + config.LIB_MAN_DIR, self.man)
 		to_name = self.nname
 	elif self.mvbin:
 	    if not os.path.exists(os.path.join('lib', self.cat)):
@@ -862,22 +862,22 @@ class ActionForm(object):
 		#self.man = tdir[tdir.rfind('/') + 1:]
 		useful.warn('Huh? (select, no man)')
 	    else:
-		ddir = './' + config.IMG_DIR_MAN
+		ddir = '.' + config.IMG_DIR_MAN
 		dnam = self.man
 		if self.var:
-		    ddir = './' + config.IMG_DIR_VAR
+		    ddir = '.' + config.IMG_DIR_VAR
 		    dnam = dnam + '-' + self.var
 		    if self.pref:
 			dnam = self.pref + '_' + dnam
 		elif self.pref:
 		    dnam = self.pref + '_' + dnam
 		    if self.ptype == 't':
-			ddir = './' + config.IMG_DIR_ADD
+			ddir = '.' + config.IMG_DIR_ADD
 			if self.suff:
 			    dnam += '-' + self.suff
 			self.inc = True
 		else:
-		    useful.warn("What?")
+		    useful.warn("What? (select, no var or pref)")
 		    dnam = ''
 		if dnam:
 		    to_name = dnam.lower() + '.jpg'
@@ -899,6 +899,7 @@ class ActionForm(object):
     sel_cat = [
 	['unsorted',    'unsorted'],
 	['acc',         'Accessories'],
+	['ads',         'Advertising'],
 	['bigmx',       'BigMX'],
 	['blister',     'Blister'],
 	['box',         'Box'],
@@ -944,24 +945,27 @@ class ActionForm(object):
 
     sel_moveto = [
 	['',        ''],
-	[config.IMG_DIR_MATTEL,     'mattel'],
-	[config.IMG_DIR_MT_LAUREL,  'mtlaurel'],
-	[config.IMG_DIR_TYCO,       'tyco'],
-	[config.IMG_DIR_UNIV,       'univ'],
-	[config.IMG_DIR_LSF,        'lsf'],
-	[config.IMG_DIR_LRW,        'lrw'],
-	[config.IMG_DIR_LESNEY,     'lesney'],
-	[config.IMG_DIR_ACC,        'acc'],
-	[config.IMG_DIR_ADS,        'ads'],
-	[config.IMG_DIR_BLISTER,    'blister'],
-	[config.IMG_DIR_BOX,        'box'],
-	[config.IMG_DIR_COLL_43,    'mcoll'],
-	[config.IMG_DIR_ERRORS,     'errors'],
-	[config.IMG_DIR_KING,       'king'],
-	[config.IMG_DIR_PACK,       'packs'],
-	[config.IMG_DIR_COLL_64,    'prem'],
-	[config.IMG_DIR_SERIES,     'series'],
-	[config.IMG_DIR_SKY,        'sky'],
+	['.' + config.IMG_DIR_MATTEL,     config.IMG_DIR_MATTEL],
+	['.' + config.IMG_DIR_MT_LAUREL,  config.IMG_DIR_MT_LAUREL],
+	['.' + config.IMG_DIR_TYCO,       config.IMG_DIR_TYCO],
+	['.' + config.IMG_DIR_UNIV,       config.IMG_DIR_UNIV],
+	['.' + config.IMG_DIR_LSF,        config.IMG_DIR_LSF],
+	['.' + config.IMG_DIR_LRW,        config.IMG_DIR_LRW],
+	['.' + config.IMG_DIR_LESNEY,     config.IMG_DIR_LESNEY],
+	['.' + config.IMG_DIR_ACC,        config.IMG_DIR_ACC],
+	['.' + config.IMG_DIR_ADS,        config.IMG_DIR_ADS],
+	['.' + config.IMG_DIR_BLISTER,    config.IMG_DIR_BLISTER],
+	['.' + config.IMG_DIR_BOX,        config.IMG_DIR_BOX],
+	['.' + config.IMG_DIR_BOOK,       config.IMG_DIR_BOOK],
+	['.' + config.IMG_DIR_CAT,        config.IMG_DIR_CAT],
+	['.' + config.IMG_DIR_CODE_2,     config.IMG_DIR_CODE_2],
+	['.' + config.IMG_DIR_COLL_43,    config.IMG_DIR_COLL_43],
+	['.' + config.IMG_DIR_ERRORS,     config.IMG_DIR_ERRORS],
+	['.' + config.IMG_DIR_KING,       config.IMG_DIR_KING],
+	['.' + config.IMG_DIR_PACK,       config.IMG_DIR_PACK],
+	['.' + config.IMG_DIR_COLL_64,    config.IMG_DIR_COLL_64],
+	['.' + config.IMG_DIR_SERIES,     config.IMG_DIR_SERIES],
+	['.' + config.IMG_DIR_SKY,        config.IMG_DIR_SKY],
     ]
 
     def write(self, pif, fn):
@@ -1008,6 +1012,7 @@ class ActionForm(object):
 	    print 'Suffix: <input type="text" size="5" name="suff" value="">'
 	    print pif.render.format_button_input('select to casting', 'select')
 	    print 'Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest)
+	    useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
 	    print pif.render.format_button_input('select to category', 'selcat')
 	    print '<br>'
 
@@ -1044,37 +1049,38 @@ def get_dir(tdir):
     return files
 
 
+def format_image_star(pif, image_path, pic_id='', halfstar=False, target_x=400, target_y=0):
+    return '<i class="fa fa-%s %s"></i>' % (image_star(image_path, pic_id, halfstar, target_x, target_y)) 
+
+
 def image_star(image_path, pic_id='', halfstar=False, target_x=400, target_y=0):
+    pic = 'star-half-o' if halfstar else 'star'
     if pic_id is None:
-        return 'stargray.gif'
+        return 'star', 'white'
     if not os.path.exists(image_path):
         if pic_id:
-            return 'staryellow.gif'
-        return 'starwhite.gif'
+            return pic, 'yellow'
+        return 'star-o', 'black'
     try:
         img = Image.open(image_path)
     except:
-        return 'staryellow.gif'
+        return pic, 'yellow'
     ix, iy = img.size
     if target_x:
 	if ix < target_x / 2:
-	    return 'starred.gif'
+	    return pic, 'red'
 	if ix < target_x:
-	    return 'stargreen.gif'
+	    return pic, 'green'
 	if ix > target_x:
-	    return 'starblue.gif'
-	if halfstar:
-	    return 'starhalf.gif'
+	    return pic, 'blue'
     else:
 	if iy < target_y / 2:
-	    return 'starred.gif'
+	    return pic, 'red'
 	if iy < target_y:
-	    return 'stargreen.gif'
+	    return pic, 'green'
 	if iy > target_y:
-	    return 'starblue.gif'
-	if halfstar:
-	    return 'starhalf.gif'
-    return 'star.gif'
+	    return pic, 'blue'
+    return pic, 'black'
 
 
 def read_presets(pdir):

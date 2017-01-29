@@ -72,8 +72,8 @@ Choose which boxes you would like to see:<p>
  <tr>{{ menubox('E', 'rw05d') }}{{ menubox('K', 'sf19c') }} </tr>
  <tr>{{ menubox('F', 'rw06d') }}{{ menubox('L', 'sf21c') }} </tr>
 </table>
-<input type="image" name="submit" src="../pic/gfx/but_see_the_boxes.gif" alt="SEE THE BOXES" onmouseover="this.src='../pic/gfx/hov_see_the_boxes.gif';" onmouseout="this.src='../pic/gfx/but_see_the_boxes.gif';" class="button"> -
-<img src="../pic/gfx/but_reset.gif" onmouseover="this.src='../pic/gfx/hov_reset.gif';" onmouseout="this.src='../pic/gfx/but_reset.gif';" border="0" onClick="ResetForm(document.box)" alt="RESET" class="button">
+{{ render.format_button_input('see the boxes') }}
+{{ render.format_button_reset('box') }}
 </form>
 
 <p><hr><p>
