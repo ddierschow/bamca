@@ -30,7 +30,7 @@ DoPageHeader($pif);
 
 <li>Information about Matchbox Toys
  <ul>
- <li><span class="database"><a href="/database.php">Matchbox Model <b>Database</b></a></span>
+ <li style="margin: 3px 0 3px 0"><a class="database" href="/database.php">Matchbox Model <b>Database</b></a>
  <li><a href="/models.php">Matchbox <b>Model</b> Pages for all ranges
  <li><a href="/cgi-bin/ads.cgi">Matchbox <b>Advertisements</b> from over the years</a>
  <li><a href="/cgi-bin/errors.cgi">Matchbox <b>Errors</b> in packaging and manufacturing</a>
@@ -80,7 +80,7 @@ of Matchbox International Ltd. and are used with permission.
 <p>
 <table class="loginbar" width=1024><tr><td>
 <iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.bamca.org%2F&amp;layout=button_count&amp;show_faces=false&amp;width=100&amp;action=like&amp;font=arial&amp;colorscheme=light&amp;height=24" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:90px; height:24px; vertical-align: middle;" allowTransparency="true"></iframe>
-<a name="fb_share" type="button" href="http://www.facebook.com/sharer.php">Share</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
+<a name="fb_share" type="button" class="textbutton share" href="http://www.facebook.com/sharer.php">Share</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
 <a href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271"><img src="/pic/gfx/fb_visit.gif" border="0" /></a>
 <?php DoTextButtonLink('see_the_faq', "/pages/faq.php", "textbutton see_the_faq"); ?>
 </td></tr></table>

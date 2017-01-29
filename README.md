@@ -48,6 +48,7 @@ to these new templates, and more will follow as I have time.
     6.3 published Sunday, 17 April 2016 at 12:01 AM PDT
     6.4 published Sunday, 9 October 2016 at 12:01 AM PDT
     6.5 published Sunday, 13 November 2016 at 12:01 AM PST
+    6.6 published Sunday, 29 January 2017 at 12:01 AM PST
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
@@ -61,7 +62,7 @@ Current and planned projects:
    * Link related variations
    * Rearrange MAN pictures into directories for model type
    * Add support for publications, playsets, packaging, etc.
-   * Comparisons are a pain to work with and need fixing
+   * Comparisons are getting better but still need work
    * Need to add support for packs limited to region
    * Matrix items with no ID aren't well supported
    * Reimplement icons
