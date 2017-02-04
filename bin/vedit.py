@@ -373,7 +373,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
     attrs = pif.dbh.depref('attribute', attrs)
     common_attrs = pif.dbh.fetch_attributes('')
     common_attrs = pif.dbh.depref('attribute', common_attrs)
-    print '<form method="post">'
+    print '<form method="post">' + pif.render.format_form_token()
     print '<input type="hidden" name="mod_id" value="%s">' % mod_id
     dets = pif.dbh.fetch_details(mod_id, "").get('', dict())
     dets = pif.dbh.depref('detail', dets)
@@ -426,7 +426,7 @@ def show_base_id(pif, mod):
     # base id form
     print "<h3>Base ID</h3>"
     base_id_info = pif.dbh.describe_dict('base_id')
-    print '<form method="post" name="base_id">'
+    print '<form method="post" name="base_id">' + pif.render.format_form_token()
     print "<table border=1>"
     print "<tr><th>Column</th><th>Value</th></tr>"
     for col in tables.table_info['base_id']['columns']:
@@ -443,7 +443,7 @@ def show_casting(pif, mod):
     # casting form
     print "<h3>Casting</h3>"
     casting_info = pif.dbh.describe_dict('casting')
-    print '<form method="post" name="casting">'
+    print '<form method="post" name="casting">' + pif.render.format_form_token()
     print "<table border=1>"
     print "<tr><th>Column</th><th>Value</th><th>&nbsp;</th></tr>"
     for col in tables.table_info['casting']['columns'] + tables.table_info['casting']['extra_columns']:
@@ -568,7 +568,7 @@ def show_model_table(pif, varfile, fitab):
     show_attrs(pif, varfile['filename'], mod, fitab['gridhead'], varfile['var_desc'])
 
     # variations form
-    print '<form method="post">'
+    print '<form method="post">' + pif.render.format_form_token()
     print '<input type="hidden" name="current_file" value="%s">' % varfile['filename']
     print '<input type="hidden" name="mod_id" value="%s">' % mod['id']
     show_variations(pif, varfile, fitab, mod['id'])
@@ -713,6 +713,8 @@ def handle_form(pif):
         print "recalc<br>"
         for k in pif.form.keys(end='.var'):
             nvars.append(k[0:-4] + "=" + pif.form.get_str(k))
+    elif not pif.dbh.insert_token(pif.form.get_str('token')):
+	print 'duplicate form submission detected'
     else:
         do_action(pif, mod_id)
     print "<br><hr>"

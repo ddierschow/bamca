@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import os, random, string, subprocess, sys, urllib
+import os, subprocess, sys, urllib
 
 import basics
 import useful
@@ -52,7 +52,7 @@ def print_user_form(pif, id):
 
     lrange = dict(entry=entries, note='')
     lsection = dict(columns=cols, headers=heads, range=[lrange], note='')
-    llineup = dict(section=[lsection], header='<form name="userform">',
+    llineup = dict(section=[lsection], header='<form name="userform">' + pif.render.format_form_token(),
 	footer=pif.render.format_button_input("save changes", "submit") + ' -' + pif.render.format_button_reset("userform") + '</form>')
     return pif.render.format_template('simplelistix.html', llineup=llineup)
 
@@ -93,7 +93,8 @@ def login_main(pif):
     if pif.form.has('n'):
 	id, privs = pif.dbh.login(pif.form.get_str('n'), pif.form.get_str('p'))
 	if id:
-	    pif.render.set_cookie(pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60))
+	    expire = (15 * 12 * 60 * 60) if ('a' in privs) else (60 * 365 * 24 * 60 * 60)
+	    pif.render.set_cookie(pif.render.secure.make_cookie(id, privs, expires=expire))
 	    raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
 	useful.warn("Login Failed!")
 
@@ -123,21 +124,17 @@ def create(pif):
         pif.render.print_html()
 	return pif.render.format_template('signup.html', dest=pif.form.get_str('dest'))
 
-    vkey = gen_key()
+    vkey = useful.generate_token(10)
     id = pif.dbh.create_user(n, p, e, vkey)
     if id:
         gen_email(n, e, vkey)
-	pif.render.set_cookie(pif.render.secure.make_cookie(id, '', expires=15 * 12 * 60 * 60))
+	expire = (15 * 12 * 60 * 60) if ('a' in privs) else (60 * 365 * 24 * 60 * 60)
+	pif.render.set_cookie(pif.render.secure.make_cookie(id, '', expires=expire))
         useful.warn("Your account has been created.  Please check your email for the verification.")
 	raise useful.Redirect("/cgi-bin/login.cgi")
 
     pif.render.print_html()
     return pif.render.format_template('signup.html', dest=pif.form.get_str('dest'))
-
-
-def gen_key():
-    s = string.digits + string.ascii_lowercase
-    return ''.join([s[random.randrange(len(s))] for x in range(0, 10)])
 
 
 def gen_email(name, email, vkey):
@@ -201,7 +198,8 @@ def change_password_main(pif):
     id, privs = pif.dbh.login(pif.form.get_str('n'), pif.form.get_str('op'))
     if id and pif.form.get_str('p1') == pif.form.get_str('p2', -1):
         pif.dbh.update_user(id, email=pif.form.get_str('em'), passwd=pif.form.get_str('p1'))
-	pif.render.set_cookie(pif.render.secure.make_cookie(id, privs, expires=15 * 12 * 60 * 60))
+	expire = (15 * 12 * 60 * 60) if ('a' in privs) else (60 * 365 * 24 * 60 * 60)
+	pif.render.set_cookie(pif.render.secure.make_cookie(id, privs, expires=expire))
 	raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
 
     cookie = pif.render.secure.clear_cookie(['id'])

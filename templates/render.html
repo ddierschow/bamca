@@ -7,7 +7,7 @@
 
 
 {%- macro format_image_art(fname, desc, also) -%}
-{%- if fname -%}<img src="../{{ config.IMG_DIR_ART }}/{{ fname }}.gif" alt="{{ desc }}"{{ fmt_also(also) }}>{%- endif -%}
+{%- if fname -%}<img src="..{{ config.IMG_DIR_ART }}/{{ fname }}.gif" alt="{{ desc }}"{{ fmt_also(also) }}>{%- endif -%}
 {%- endmacro -%}
 
 
@@ -54,8 +54,12 @@
 {%- endmacro %}
 
 
+{%- macro mock_class_id(pfx) -%}
+<!-- class_id p={{pfx}} v={{varargs}} -->
+{%- endmacro -%}
+
 {%- macro class_id(pfx) -%}
-{%- for cid in varargs -%}{% if cid %}{% if pfx %}{{ pfx }}_{% endif %}{{ cid }} {% endif %}{% endfor %}{{ pfx }}
+{{ pfx }}{%- for cid in varargs -%}{% if cid %} {% if pfx %}{{ pfx }}_{% endif %}{{ cid }}{% endif %}{% endfor %}
 {%- endmacro -%}
 
 

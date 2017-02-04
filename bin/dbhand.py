@@ -74,7 +74,9 @@ class DBHandler(object):
         return ' and '.join(wheres)
 
     def raw_execute(self, query, tag=''):
-        return self.dbi.execute(query, tag=tag)
+        ret = self.dbi.execute(query, tag=tag)
+        self.dbi.execute('commit', tag=tag)
+	return ret
 
 #    def raw_fetch(self, query, tag=''):
 #       return self.dbi.rawquery(query, tag=tag)
@@ -162,6 +164,11 @@ class DBHandler(object):
 
     def delete(self, table, where=None, tag='', verbose=None):
         return self.dbi.remove(table, where, tag=tag, verbose=verbose)
+
+    def update_flags(self, table_name, turn_on, turn_off, where=None, tag='UpdateFlags', verbose=False):
+	# update table set flags = flags & ~turn_off | turn_on where
+        return self.dbi.updateraw(table_name,
+	    {'flags': 'flags & ~%d | %d' % (turn_off, turn_on)}, where, tag=tag, verbose=verbose)
 
     # end dbi interface section
 
@@ -1190,6 +1197,21 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 
     def delete_user(self, id):
         self.delete('user', 'id=%s' % id)
+
+    #- token
+
+    def insert_token(self, token_id, verbose=False):
+	self.delete('token', where='current_timestamp()-created > 20', tag='Token', verbose=None)
+	retval = True
+	if token_id:
+	    self.raw_execute('lock tables token write', tag='Token')
+	    ret = self.fetch('token', where={'id': token_id}, tag='Token', verbose=verbose)
+	    if not ret:
+		ret = self.write('token', values={'id': token_id}, newonly=True, tag='Token', verbose=verbose)
+	    else:
+		retval = False
+	    self.raw_execute('unlock tables', tag='Token')
+	return retval
 
     #- miscellaneous
 

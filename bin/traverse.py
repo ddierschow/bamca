@@ -81,7 +81,7 @@ def show_dir(pif, tform):
 	ostr += '<a href="upload.cgi?d=%s">%s</a>\n' % (tform.tdir, pif.render.format_button('upload'))
 
     if files['graf']:
-        ostr += '<form action="traverse.cgi">\n'
+        ostr += '<form action="traverse.cgi">\n' + pif.render.format_form_token()
         ostr += '<a href="traverse.cgi?g=1&d=%s">%s</a> or \n' % (tform.tdir, pif.render.format_button('show all pictures'))
         ostr += 'Pattern <input type="text" name="p">\n'
         ostr += '<input type="hidden" name="d" value="%s">\n' % tform.tdir
@@ -150,7 +150,7 @@ def flist_sort(flist, tform):
 
 def show_imgs(pif, tform):
     print '<hr>'
-    print '<form action="traverse.cgi" method="post">'
+    print '<form action="traverse.cgi" method="post">' + pif.render.format_form_token()
     plist = tform.patt.split(',')
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)

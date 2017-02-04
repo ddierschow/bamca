@@ -16,6 +16,7 @@
 {%- endif %}
 
 <form action="upload.cgi" enctype="multipart/form-data" method="post" name="upload">
+{{ page.token }}
 {%- if form.y %}<input type="hidden" name="y" value="{{ form.y }}">{% endif %}
 <table class="tb">
 

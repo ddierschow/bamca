@@ -3,7 +3,7 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-import copy, filecmp, glob, itertools, os, pprint, re, stat, urllib, urllib2
+import copy, filecmp, glob, itertools, os, pprint, random, re, stat, string, urllib, urllib2
 import config  # bleagh
 import jinja2
 
@@ -145,6 +145,11 @@ def img_src(pth, alt=None, also={}):
 
 def plural(thing):
     return 's' if len(thing) != 1 else ''
+
+
+def generate_token(number_digits=10):
+    s = string.digits + string.ascii_lowercase
+    return ''.join([s[random.randrange(len(s))] for x in range(0, number_digits)])
 
 
 id_re = re.compile('[-/\w.]+')  # 0-9 A-Z a-z underscore dash slash dot

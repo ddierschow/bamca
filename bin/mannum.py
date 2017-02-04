@@ -80,13 +80,15 @@ picture_cols = [
         [mbdata.IMG_SIZ_MEDIUM + '_', 'M'],
         [mbdata.IMG_SIZ_SMALL + '_', 'S'],
         [mbdata.IMG_SIZ_TINY + '_', 'T'],
-        ['z_', 'I'],
+        ['icon', 'I'],
         ['b_', 'B'],
         ['r_', 'R'],
         ['a_', 'A'],
-        ['d_', 'D'],
+        ['e_', 'E'],
         ['i_', 'I'],
         ['p_', 'P'],
+        ['z_', 'Z'],
+        ['d_', 'D'],
 #	['bx', 'Bx'],
 #	['bx2', 'Bx'],
 ]
@@ -96,6 +98,7 @@ prefixes = [  # need to phase this out somehow
         ['a_', '.' + config.IMG_DIR_ADD],
         ['b_', '.' + config.IMG_DIR_ADD],
         ['d_', '.' + config.IMG_DIR_ADD],
+        ['e_', '.' + config.IMG_DIR_ADD],
         ['i_', '.' + config.IMG_DIR_ADD],
         ['h_', '.' + config.IMG_DIR_MAN],
         ['l_', '.' + config.IMG_DIR_MAN],
@@ -104,7 +107,8 @@ prefixes = [  # need to phase this out somehow
         ['r_', '.' + config.IMG_DIR_ADD],
         ['s_', '.' + config.IMG_DIR_MAN],
         ['t_', '.' + config.IMG_DIR_MAN],
-        ['z_', '.' + config.IMG_DIR_ICON],
+        ['z_', '.' + config.IMG_DIR_ADD],
+        ['icon', '.' + config.IMG_DIR_ICON],
 ]
 format_attributes = ['format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels']
 
@@ -168,7 +172,7 @@ class MannoFile(object):
         for casting in pif.dbh.fetch_casting_list():  #(page_id=pif.page_id):
             self.add_casting(pif, casting, aliases=adict.get(casting['base_id.id'], []))
         if withaliases:
-            for alias in pif.dbh.fetch_aliases(where="section_id != ''"):
+            for alias in pif.dbh.fetch_aliases(where="alias.section_id != ''"):
 		if alias['alias.section_id']:
 		    #self.add_casting(pif, alias)
 		    self.add_alias(pif, alias)
@@ -363,6 +367,8 @@ class MannoFile(object):
 		'notes': 'N' if mdict['notes'] else '',
 		'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
+	    if mdict['flags'] & pif.dbh.FLAG_MODEL_REVISED_CASTING:
+		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fa fa-circle green"></i><nobr>'
 	    mdict.update(self.show_list_var_info(pif, mdict['id']))
 	    if not mdict['vehicle_type']:
 		mdict['vehicle_type'] = '<i class="fa fa-ban red"></i>'
@@ -382,7 +388,9 @@ class MannoFile(object):
     def get_section_admin(self, pif, sect):
         sect['columns'] = [x[0] for x in admin_cols]
         sect['headers'] = dict(admin_cols)
-        sect['range'] = [{'entry': self.get_admin_entries(pif, sect['model_ids'])}]
+        sect['range'] = [{'entry': self.get_admin_entries(pif, sect['model_ids']),
+	    'styles': {x[0]: x[0] for x in admin_cols},
+	}]
         return sect
 
     def run_admin_list_template(self, pif):
@@ -409,7 +417,9 @@ class MannoFile(object):
     def get_section_links(self, pif, sect):
         sect['columns'] = [x[0] for x in links_cols]
         sect['headers'] = dict(links_cols)
-        sect['range'] = [{'entry': self.get_links_entries(pif, sect['model_ids'])}]
+        sect['range'] = [{'entry': self.get_links_entries(pif, sect['model_ids']),
+	    'styles': {x[0]: x[0] for x in links_cols},
+	}]
         return sect
 
     def run_links_list_template(self, pif):
@@ -423,15 +433,12 @@ class MannoFile(object):
 
     def show_list_pic(self, pif, prefix, mod_id, txt):
 	mod_id = mod_id.replace('/', '_')
-        if glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'.jpg'):
-            return [prefix[0], pif.render.format_image_as_link([prefix[0]+mod_id.lower()], txt.upper(), prefix[1])]
-        if glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'-*.jpg'):
-            return [prefix[0], pif.render.format_image_as_link([prefix[0]+mod_id.lower()], txt.upper(), prefix[1])]
-        if glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'.gif'):
-            return [prefix[0], pif.render.format_image_as_link([prefix[0]+mod_id.lower()], txt.upper(), prefix[1])]
-        if glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'-*.gif'):
-            return [prefix[0], pif.render.format_image_as_link([prefix[0]+mod_id.lower()], txt.upper(), prefix[1])]
-        return [prefix[0], '-']
+	cnt = 0
+        cnt = (len(glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'.jpg')) +
+               len(glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'-*.jpg')) +
+               len(glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'.gif')) +
+               len(glob.glob(prefix[1]+'/'+prefix[0]+mod_id.lower()+'-*.gif')))
+        return [prefix[0], txt.upper() if cnt == 1 else str(cnt) if cnt > 1 else '-']
 
     def show_box_pics(self, box_types):
 	if box_types:
@@ -443,6 +450,17 @@ class MannoFile(object):
 		    'bx2': single.fmt_var_pic(box_count, len(box_types))}
 	return {'bx': '-', 'bx2': '-'}
 
+    def show_attr_pics(self, pif, mod_id):
+	cnt = tot = 0
+	var_id = ''
+	for attr_pic in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id)):
+	    tot += 1
+	    img_id = (mod_id + ('-' + var_id if var_id else '')).lower() + ('-' + attr_pic['picture_id'] if attr_pic['picture_id'] else '')
+	    pdir = config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD
+	    if pif.render.find_image_path(img_id, prefix=attr_pic['attr_type'], pdir='.' + pdir):
+		cnt += 1
+	return cnt, tot
+	    
     def get_picture_model_entries(self, pif, model_ids):
 	for mod in model_ids:
 	    mdict = self.mdict[mod]
@@ -452,7 +470,7 @@ class MannoFile(object):
 		'first_year': '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (useful.relpath(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year']),
 		'name': mades[int(mdict['made'])] % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
-		'z_': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_ICON], mdict['id'], 'i')[1]})
+		'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_ICON], mdict['id'], 'i')[1]})
 	    founds, needs, cnts = single.count_list_var_pics(pif, mdict['id'])
 	    #mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
 	    for ipix in range(0, 6):
@@ -461,12 +479,15 @@ class MannoFile(object):
 	    mdict.update(dict(zip(var_pic_keys, single.fmt_var_pics(founds, needs))))
 	    if not mdict['made']:
 		mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
+	    mdict['d_'] = single.fmt_var_pic(*self.show_attr_pics(pif, mod))
 	    yield mdict
 
     def get_section_picture(self, pif, sect):
         sect['columns'] = [x[0] for x in picture_cols]
         sect['headers'] = dict(picture_cols)
-        sect['range'] = [{'entry': self.get_picture_model_entries(pif, sect['model_ids'])}]
+        sect['range'] = [{'entry': self.get_picture_model_entries(pif, sect['model_ids']),
+	    'styles': {x[0]: x[0] for x in picture_cols},
+	}]
         return sect
 
     def run_picture_list(self, pif):
@@ -637,7 +658,8 @@ def main(pif):
     if not pif.form.has('section'):
 	raise useful.SimpleError("Please select a range to display.")
 
-    manf = MannoFile(pif, withaliases=True)
+    manf = MannoFile(pif)
+    #manf = MannoFile(pif, withaliases=True)
     return manf.format_output(pif, listtype)
     mime_types = {
 	'csv': 'text/csv',

@@ -34,6 +34,7 @@ country: <input name="co_RN01" type="text" size="2" maxlength="2" value="">
 {% extends "base.html" %}
 {% block page_body %}
 <form method="post">
+{{ page.token }}
 <input type="hidden" name="vtset" value="1">
 <table class="tb">
 {%- for section in llineup.section %}

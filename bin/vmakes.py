@@ -45,11 +45,11 @@ def makes_main(pif):
                 makes = ['unk']
         else:
             make = ''
-    elif make:
-	links = pif.dbh.fetch_link_lines(page_id='makes', section=makedict[makes[0]]['id'])
+    elif make and make in makedict:
+	links = pif.dbh.fetch_link_lines(page_id='makes', section=make)
 	footer = '<ul>' + '\n'.join(['<li>' + pif.render.format_link(x['link_line.url'], x['link_line.name']) for x in links]) + '</ul>\n'
 	if pif.is_allowed('a'):  # pragma: no cover
-	    footer += pif.render.format_button('ADD LINK', 'editor.cgi?table=link_line&add=1&page_id=makes&section_id=%s&link_type=l' % makes[0])
+	    footer += pif.render.format_button('ADD LINK', 'editor.cgi?table=link_line&add=1&page_id=makes&section_id=%s&link_type=l' % make)
 
     if make:
         llineup = show_makes(pif, makedict, makes)

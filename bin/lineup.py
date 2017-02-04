@@ -794,7 +794,7 @@ def lineup_main(pif):
     #pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     llineup = run_file(pif, pif.form.get_str('region').upper(), pif.form.get_str('year'), pif.form.get_list('lty'))
     if pif.form.get_bool('large'):
-	llineup['header'] = '<form action="mass.cgi" method="post">\n<input type="hidden" name="type" value="lineup_desc">\n'
+	llineup['header'] = '<form action="mass.cgi" method="post">\n<input type="hidden" name="type" value="lineup_desc">\n' + pif.render.format_form_token()
 	llineup['footer'] = pif.render.format_button_input() + '</form>\n'
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('lineup.html', llineup=llineup, large=pif.form.get_bool('large'), unroll=pif.form.get_bool('unroll'))

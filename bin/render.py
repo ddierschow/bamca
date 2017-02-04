@@ -481,6 +481,9 @@ of Matchbox International Ltd. and are used with permission.
 
     #---- forms
 
+    def format_form_token(self, name="token"):
+	return '<input type="hidden" name="%s" value="%s">\n' % (name, useful.generate_token(6))
+
     def format_checkbox(self, name, options, checked=[], sep='\n'):
         #self.comment('format_checkbox', name, options, checked)
         return ''.join([
@@ -570,10 +573,12 @@ of Matchbox International Ltd. and are used with permission.
         altname = self.find_button_label(bname)
 	also = also if also else {}
         imalso = {'class': 'textbutton', 'alt': altname}
-	also['onsubmit'] = 'this.disabled=true;'
+	#also['onsubmit'] = 'this.disabled=true;'
         inputname = self.find_button_name(name)
+	#also['onclick'] = 'this.disabled=true; var e=document.createElement("input"); e.type="text"; e.name="%s"; e.value="1"; this.form.appendChild(e); this.form.submit();' % inputname
 	#return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, value, useful.fmt_also(imalso, also))
 	return '<button type="submit" name="%s" value="%s"%s>%s</button>\n' % (inputname, altname, useful.fmt_also(imalso, also), altname)
+
 
     def format_text_button(self, name, also={}):
         bname = self.find_button_label(name)
@@ -1087,6 +1092,7 @@ of Matchbox International Ltd. and are used with permission.
 	    'extra': self.extra,
 	    'comment_button': self.comment_button,
 	    'footer': self.footer,
+	    'token': self.format_form_token(),
 	}
 	output = useful.render_template(template, page=page_info, config_context=config, **kwargs)
 	if self.unittest:

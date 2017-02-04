@@ -51,7 +51,7 @@
 <tr class="er">
 {%- for col in section.columns %}
 {#-  <th class="{{ render.class_id('eh', section.id) }}{{ render.class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
-  <th class="{{ render.class_id('eh', section.id, range.id, col) }}">{{ section.headers[col] }}</th>
+  <th class="{{ render.class_id('eh', col, range.id, section.id) }}">{{ section.headers[col] }}</th>
 {%- endfor -%}
 </tr>
 {%- endif %}

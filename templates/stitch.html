@@ -1,6 +1,7 @@
 {{ stitch.fsl }}<br>
 
 <form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">
+{{ page.token }}
 <input type="hidden" name="fc" value="{{ stitch.file_count + 1 }}">
 
 <table>

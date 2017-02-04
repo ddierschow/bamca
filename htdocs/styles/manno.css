@@ -1,8 +1,51 @@
 body {background-color: #FFFFCC;}
-.tb {border-width: 0; background-color: #FFFFCC;}
+.tb {border-width: thin; background-color: #FFFFCC;}
 .sh {font-size: large;}
-.eb {border-width: 0; background-color: #FFFFCC;}
 
 .ok {}
 .no {color: #FF0000;}
-.er {page-break-inside:avoid;}
+.er {page-break-inside: avoid;}
+
+.eb {border-style: solid; border-width: 0; background-color: #FFFFCC; text-align: center;}
+.eb_vid {border-left-width: thin; text-align: left;}
+.eb_unlicensed {}
+.eb_nl {text-align: left;}
+.eb_first_year {}
+.eb_l_ {border-left-width: thin;}
+.eb_m_ {}
+.eb_s_ {}
+.eb_t_ {}
+.eb_icon {}
+.eb_b_ {border-left-width: thin;}
+.eb_r_ {}
+.eb_a_ {}
+.eb_e_ {}
+.eb_i_ {}
+.eb_p_ {}
+.eb_z_ {}
+.eb_d_ {}
+.eb_pic_a {border-left-width: thin;}
+.eb_pic_c {}
+.eb_pic_1 {}
+.eb_pic_2 {}
+.eb_pic_f {}
+.eb_pic_p {}
+.eb_description {border-left-width: thin; border-right-width: thin; text-align: left;}
+
+.eb_own {}
+.eb_fvyear {}
+.eb_lvyear {}
+.eb_scale {}
+.eb_rel {text-align: left;}
+.eb_vehicle_type {}
+.eb_country {}
+.eb_make {text-align: left;}
+.eb_varids {}
+.eb_notes {}
+.eb_de {}
+.eb_fo {}
+.eb_ba {}
+.eb_bo {}
+.eb_in {}
+.eb_wh {}
+.eb_wi {}

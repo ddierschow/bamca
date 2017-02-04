@@ -31,10 +31,10 @@ def show_variation_editor(pif, man, var_id, edit=False):
     mod_id = man['id']
 
     variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))
-    attr_pics = {x['attribute.attribute_name']: x for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
     if not variation:
         raise useful.SimpleError("That variation was not found.")
     variation = variation[0]
+    attr_pics = {x['attribute.attribute_name']: x for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
     vsform = VarSearchForm(pif, mod_id)
     pdir = pif.render.pic_dir
 
@@ -439,6 +439,7 @@ class VarSearchForm(object):
     def __init__(self, pif, mod_id):
 	self.page_id = pif.page_id
 	self.mod_id = mod_id
+	self.attr_pics = {x['attribute.attribute_name']: x for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
 	attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))}
 	attributes.update({pif.dbh.table_info['variation']['columns'][x]:
 	    {'title': pif.dbh.table_info['variation']['titles'][x]}
@@ -502,8 +503,13 @@ class VarSearchForm(object):
 			pif.render.format_select(key, [('', '')] + sorted(values[key]), id=key)
 	    else:
 		value = pif.render.format_text_input(key, 64, 64)
+	    title = self.attributes[key]['title']
+	    title_modal = show_detail_modal(pif, self.attr_pics.get(key, {}), self.mod_id)
+	    if title_modal:
+		title += ''' <i onclick="init_modal('m.%s');" class="modalbutton fa fa-question-circle-o"></i>\n''' % key
+		title += pif.render.format_modal('m.' + key, title_modal)
 	    entries.append({
-		'title': self.attributes[key]['title'],
+		'title': title,
 		'value': value,
 		'not': pif.render.format_checkbox('not_' + key, [(1, 'not')])
 	    })
@@ -836,7 +842,7 @@ def var_search_ask(pif):
     pif.render.title = 'Search ' + model['id'] + ' Variations'
     mvars = {var['var']: var for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))}
 
-    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js)
+    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_select_js + pif.render.modal_js)
     pif.render.set_button_comment(pif, 'man=%s' % mod_id)
     context = {
 	'verbose': vsform.verbose,

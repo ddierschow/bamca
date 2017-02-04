@@ -11,12 +11,10 @@ table_info = {
                 'id': {'tab': 'page_info', 'id': ['id/id']},
         },
         'tlinks': [
-                #{'tab': 'style', 'id': ['page_id/id']},
                 {'tab': 'section', 'id': ['page_id/id']},
         ],
         'add': {
                 'page_info': [],
-                #'style': ['page_id/id'],
                 'section': ['page_id/id'],
         },
         'create': {
@@ -70,8 +68,6 @@ table_info = {
         'columns': ['id', 'first_year', 'model_type', 'rawname', 'description', 'flags'],
         'clinks': {
                 'id': {'tab': 'base_id', 'id': ['id/id']},
-                'country': {'tab': 'country', 'id': ['id/country']},
-                'section_id': {'tab': 'section', 'id': ['id/section_id']},
         },
         'tlinks': [
                 {'tab': 'alias', 'id': ['ref_id/id']},
@@ -155,7 +151,7 @@ table_info = {
         'columns': ['id', 'mod_id', 'attribute_name', 'definition', 'title', 'visual'],
         'clinks': {
                 'id': {'tab': 'attribute', 'id': ['id/id']},
-                'mod_id': {'tab': 'casting', 'id': ['mod_id/id']},
+                'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
                 'attribute_picture': ['mod_id/mod_id', 'attr_id/id'],
         },
         'add': {
@@ -177,8 +173,8 @@ table_info = {
         'columns': ['id', 'mod_id', 'attr_id', 'attr_type', 'picture_id', 'description'],
         'clinks': {
                 'id': {'tab': 'attribute_picture', 'id': ['id/id']},
-                'mod_id': {'tab': 'casting', 'id': ['mod_id/id']},
-                'attr_id': {'tab': 'attribute', 'id': ['attr_id/id']},
+                'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
+                'attr_id': {'tab': 'attribute', 'id': ['id/attr_id']},
         },
         'add': {
                 'attribute_picture': ['mod_id/mod_id'],
@@ -496,6 +492,10 @@ table_info = {
         'clinks': {
                 'id': {'tab': 'bayarea', 'id': ['id/id']},
         },
+    },
+    'token': {
+	'id': ['id'],
+	'columns': ['id', 'created'],
     },
 
 }

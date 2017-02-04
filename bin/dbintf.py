@@ -36,7 +36,7 @@ class DB(object):
         if verbose is None:
             verbose = self.verbose
         if tag:
-            query = query.split(None, 1)
+            query = query.split(None, 1) + ['']
             query = query[0] + ' /* ' + tag + ' */ ' + query[1]
         if verbose:
             useful.write_comment('DB.execute q : "%s"' % query)

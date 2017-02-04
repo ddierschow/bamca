@@ -47,17 +47,23 @@ def show_table(pif):
     pif.render.message(str(pif.form.get_form()))
 
     table_info = pif.dbh.get_table_info(pif.form.get_str('table'))
-    loaded = False
-    if pif.form.has('save'):
+    dats = []
+    if not pif.dbh.insert_token(pif.form.get_str('token')):
+	print 'duplicate form submission detected'
+    elif pif.form.has('save'):
         pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
                       pif.form.where(table_info['id'], 'o_'), tag='ShowTableSave')
-#modonly=True,
-        #del pif.form.delete('id')
         pif.render.message('record saved')
     elif pif.form.has('delete'):
         pif.dbh.delete(table_info['name'], pif.form.where(table_info['id'], 'o_'))
         pif.form.delete('id')
         pif.render.message('record deleted')
+    elif pif.form.has('clone'):
+	# this should be done in memory without saving yet
+        pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}, pif.form.where(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
+        #del pif.form.delete('id')
+        pif.render.message('record cloned')
+	pif.form.delete('clone')
     elif pif.form.has('add'):
         pif.render.message('add' + table_info.get('name', 'unset'))
 #        print table_info, '<br>'
@@ -67,21 +73,10 @@ def show_table(pif):
         for id in table_info['columns']:
             pif.form.default(id, creat.get(id, pif.form.get_str(id)))
             cond[id] = pif.form.get_str(id)
-#        print 'cond', cond, '<br>'
-#        print 'write', table_info['name'], cond
 	dats = [cond]
-	loaded = True
-#        lid = pif.dbh.write(table_info['name'], cond, newonly=True, tag='ShowTableAdd', verbose=1)
-#        if lid > 0:
-#            pif.form.set_val('id', lid)
-#        print 'lid', lid, '<br>'
-#        print 'record added'
-    elif pif.form.has('clone'):
-        pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}, pif.form.where(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
-        #del pif.form.delete('id')
-        pif.render.message('record cloned')
-	pif.form.delete('clone')
-    if not loaded:
+        print 'new record'
+
+    if not dats:
 	where = pif.form.where(table_info['columns'] + table_info.get('extra_columns', []))
 	dats = pif.dbh.fetch(table_info['name'], where=where, tag='ShowTable', extras=True)
 
@@ -90,72 +85,33 @@ def show_table(pif):
 #    header += pif.render.format_button('show all', "?table=" + table_info['name'])
     lsections = []
 
-    if pif.form.has('order'):
-        dats.sort(key=lambda x: x[pif.form.get_str('order')])
     if len(dats) > 1:
-	lsections.append(show_multi_section(pif, table_info, dats, showsubs=True))
-        if table_info['name'] in table_info.get('add', {}):
-            cond = {'add': '1'}
-            footer += pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
+	lsections.extend(show_multi(pif, table_info, dats))
     elif len(dats) == 1:
-        lsections.extend(show_single(pif, table_info, dats[0]))
+        lsections.extend(show_single(pif, table_info, dats))
     else:
         lsections.extend(show_none(pif, table_info, {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}))
+    if table_info['name'] in table_info.get('add', {}):
+	cond = {'add': '1'}
+	footer += pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
     lsections[0]['header'] = header + lsections[0].get('header', '')
     lsections[0]['footer'] = lsections[0].get('footer', '') + footer
+    lsections.extend(show_sub_tables(pif, table_info, dats[0] if len(dats) == 1 else None))
     llistix = {'section': lsections}
     return pif.render.format_template('simplelistix.html', llineup=llistix)
-#    args = ''
-#    for col in table_info['columns'] + table_info.get('extra_columns', []):
-#        if pif.form.has(col):
-#            args += '&' + pif.form.reformat([col])
-#    print '<a href="?table=' + table_info['name'] + '&add=1' + args + '">' + pif.render.format_button('add') + '</a>'
 
 
-def show_multi_section(pif, table_info, dats, cols=None, showsubs=False):
-    if not cols:
-        cols = table_info['columns'] + table_info.get('extra_columns', [])
-    if pif.form.has('order'):
-        sort_ord = pif.form.get_str('order')
-        dats.sort(key=lambda x: x[sort_ord])
-
-    columns = [col for col in cols if col not in table_info.get('hidden', [])]
-    entries = []
-    for dat in pif.dbh.depref(table_info['name'], dats):
-	entry = {}
-	for col in columns:
-	    entry[col] = dat[col]
-	    if col in table_info.get('id', []):
-		cond = []
-		for idcol in table_info['id']:
-		    cond.append("%s=%s" % (idcol, dat[idcol]))
-		entry[col] = '<a href="?table=%s&%s">%s</a>' % (table_info['name'], '&'.join(cond), str(dat[col]))
-	    elif col in table_info.get('clinks', {}):
-		cond = []
-		for id in table_info['clinks'][col]['id']:
-		    fr, to = id.split('/')
-		    cond.append(fr + "=" + str(dat[to]))
-		entry[col] = '<a href="?table=%s&%s">%s</a>' % (table_info['clinks'][col]['tab'], '&'.join(cond), str(dat[col]))
-	entries.append(entry)
-
-    footer = ''
-    header = '<b>' + table_info['name'] + '</b>'
-    header += pif.render.format_button('show all', "?table=" + table_info['name'])
-    header += '%s entries\n' % len(entries)
-    if showsubs:
-        for subtab in table_info.get('tlinks', []):
-            if eval(subtab.get('if', '1')):
-		footer += "<hr>" + subtab['tab'] + '\n' + pif.render.format_button('show', "?table=" + subtab['tab'])
-    footer += '<hr>\n'
-
-    lrange = {'entry': entries, 'styles': dict.fromkeys(table_info.get('id', []), '2')}
-    lsection = {'columns': columns, 'range': [lrange], 'note': '',
-	'headers': dict(zip(columns, columns)), 'header': header, 'footer': footer}
-    return lsection
+def show_multi(pif, table_info, dats, cols=None):
+    if pif.form.has('order') and dats:
+	sort_ord = table_info['name'] + '.' + pif.form.get_str('order')
+	if sort_ord in dats[0]:
+	    dats.sort(key=lambda x: x[sort_ord])
+    lsections = [show_multi_section(pif, table_info, dats, cols)]
+    return lsections
 
 
-def show_single(pif, table_info, dat, show_subs=True):
-    dat = pif.dbh.depref(table_info['name'], dat)
+def show_single(pif, table_info, dats):
+    dat = pif.dbh.depref(table_info['name'], dats[0])
     dats = [dat]
     adds = table_info.get('add', {})
     descs = pif.dbh.describe_dict(table_info['name'])
@@ -171,11 +127,12 @@ def show_single(pif, table_info, dat, show_subs=True):
 	elif not base_dats:
 	    pif.render.message('no instances of', base_tab, '!')
 	else:
-	    lsections.extend(show_single(pif, base_inf, base_dats[0], show_subs=False))
+	    lsections.extend(show_single(pif, base_inf, base_dats))
 
     header = '<b>' + table_info['name'] + '</b>'
     header += pif.render.format_button('show all', "?table=" + table_info['name'])
-    header += '<form>\n'
+    header += '<form action="/cgi-bin/editor.cgi">\n'
+    header += pif.render.format_form_token()
     header += '<input type="hidden" name="verbose" value="1">\n'
     header += '<input type="hidden" name="table" value="%s">\n' % table_info['name']
     for f in table_info['id']:
@@ -183,21 +140,20 @@ def show_single(pif, table_info, dat, show_subs=True):
 
     columns = ['column', 'type', 'value', 'new value']
     entries = []
-#	    if col in table_info['id']:
-#		also = {'class': 'id'}
 
     for col in table_info['columns'] + table_info.get('extra_columns', []):
 	coltype = descs.get(col).get('type', 'unknown')
-
-	oldvalue = str(dat.get(col, ''))
-	if col in table_info.get('clinks', {}):
-	    cond = {'table': table_info['clinks'][col]['tab']}
-	    for id in table_info['clinks'][col]['id']:
-		fr, to = id.split('/')
-		cond[fr] = str(dat.get(to, ''))
-	    oldvalue = pif.render.format_link('', oldvalue, cond)
-
+	oldvalue = make_col_value(table_info, col, dat)
 	newvalue = coltype
+	# char(N)
+	# datetime
+	# int(N)
+	# smallint(N)
+	# text
+	# time
+	# timestamp
+	# tinyint(N)
+	# varchar(N)
 	if col in table_info.get('readonly', []):
 	    newvalue = '&nbsp;<input type=hidden name="%s" value="%s">' % (col, dat.get(col, ''))
 	elif coltype.startswith('varchar('):
@@ -242,25 +198,25 @@ def show_single(pif, table_info, dat, show_subs=True):
     footer += pif.render.format_button_input("delete")
 
     if table_info['name'] in adds:
-        cond = dict()
-        cond['add'] = '1'
-        for id in adds[table_info['name']]:
-            fr, to = id.split('/')
-            cond[fr] = dat.get(to, '')
-        footer += pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join(['%s=%s' % (x, cond[x]) for x in cond]))
+        footer += pif.render.format_button('add', "?table=" + table_info['name'] + "&add=1&" + make_url_cond(adds[table_info['name']], dat))
         del adds[table_info['name']]
         footer += pif.render.format_button_input('clone')
     footer += '</form>\n'
     for elink in table_info.get('elinks', []):
         footer += pif.render.format_button(elink['name'], elink['url'] % dat) + '<br>\n'
+    footer += '<hr>\n'
 
     lrange = {'entry': entries, 'styles': {'column': 0}}
-    if show_subs:
-	footer += '<h3>Subtables</h3>\n'
     lsections.append({'columns': columns, 'range': [lrange], 'note': '',
 	'headers': dict(zip(columns, columns)), 'header': header, 'footer': footer})
-    if not show_subs:
-	return lsections
+    return lsections
+
+
+def show_sub_tables(pif, table_info, dat=None):
+    columns = ['column', 'type', 'value', 'new value']
+    adds = table_info.get('add', {})
+    lsections = []
+    lsections.append({'entry': [], 'header': '<h3>Subtables</h3>\n'})
 
     anchors = []
     for subtab in table_info.get('tlinks', []):
@@ -274,23 +230,13 @@ def show_single(pif, table_info, dat, show_subs=True):
         #ostr += "<hr>"
         header = subtab['tab']
 
-        if subtab['tab'] in adds:
-            cond = dict()
-            cond['add'] = '1'
-            for id in adds[subtab['tab']]:
-                fr, to = id.split('/')
-                cond[fr] = dat.get(to, '')
-            header += pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
+        if dat and subtab['tab'] in adds:
+            header += pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + make_url_cond(adds[subtab['tab']], dat))
             del adds[subtab['tab']]
 
         cond = dict()
-        if 'id' in subtab:
-            for id in subtab['id']:
-                fr, to = id.split('/')
-                if to[0] == '*':
-                    cond[fr] = eval(to[1:])
-                else:
-                    cond[fr] = dat.get(to, '')
+        if dat and 'id' in subtab:
+	    cond = make_cond(subtab['id'], dat)
             lsection = show_sub_table_section(pif, pif.dbh.get_table_info(subtab['tab']), cond, ref=subtab.get('ref', {}))
             lsection['header'] = '<b>' + subtab['tab'] + '</b> ' + pif.render.format_button('show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond])) + '\n' + lsection['header']
         else:
@@ -307,26 +253,22 @@ def show_single(pif, table_info, dat, show_subs=True):
 
 
 def show_none(pif, table_info, dat):
-    dats = []
     pif.render.message("No records found.")
     adds = table_info.get('add', {})
-    cond = {'add': '1'}
     header = '<b>' + table_info['name'] + '</b>'
     header += pif.render.format_button('show all', "?table=" + table_info['name'])
     lsections = []
     lsections.append({'header': header})
     if table_info['name'] in adds:
-        for id in adds[table_info['name']]:
-            fr, to = id.split('/')
-            cond[fr] = dat.get(to, '')
-        lsections.append({'header': pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))})
+	cond = make_url_cond(adds[table_info['name']], dat)
+        lsections.append({'header': pif.render.format_button('add', "?table=" + table_info['name'] + "&add=1&" + cond)})
         del adds[table_info['name']]
     for subtab in table_info.get('tlinks', []):
         if not eval(subtab.get('if', '1')):
             continue
         header = "<hr>" + subtab['tab']
-        if subtab['tab'] in adds:
-            header += pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
+#        if subtab['tab'] in adds:
+#            header += pif.render.format_button('add', "?table=" + subtab['tab'] + "&add=1&" + "&".join([x + '=' + str(cond[x]) for x in cond]))
         cond = {}
         if 'id' in subtab:
             for id in subtab['id']:
@@ -349,6 +291,48 @@ def show_none(pif, table_info, dat):
             del adds[subtab['tab']]
     #llistix = {'section': lsections}
     return lsections
+
+
+def make_cond(clinks, dat):
+    cond = {}
+    for cid in clinks:
+	fr, to = cid.split('/') if '/' in cid else (cid, cid)
+	to = eval(to[1:]) if to[0] == '*' else dat.get(to, '')
+	cond[fr] = to
+    return cond
+
+
+def make_url_cond(clinks, dat):
+    cond = make_cond(clinks, dat)
+    return '&'.join(['%s=%s' % x for x in cond.items()])
+
+
+def make_col_value(table_info, col, dat):
+    val = dat.get(col, '')
+    if col in table_info.get('id', []):
+	return '<a href="?table=%s&%s">%s</a>' % (table_info['name'], make_url_cond(table_info['id'], dat), val)
+    elif col in table_info.get('clinks', {}):
+	return '<a href="?table=%s&%s">%s</a>' % (table_info['clinks'][col]['tab'], make_url_cond(table_info['clinks'][col]['id'], dat), val)
+    return val
+
+
+def show_multi_section(pif, table_info, dats, cols=None):
+    columns = [col for col in
+	(cols if cols else table_info['columns'] + table_info.get('extra_columns', []))
+       	if col not in table_info.get('hidden', [])]
+    entries = [
+	{x: make_col_value(table_info, x, dat) for x in columns}
+	    for dat in pif.dbh.depref(table_info['name'], dats)
+    ]
+
+    header = ''#'<b>' + table_info['name'] + '</b>\n'
+    header += pif.render.format_button('show all', "?table=" + table_info['name'])
+    header += '\n%s entries\n' % len(entries)
+
+    lsection = {'columns': columns, 'note': '', 'header': header, 'footer': '<hr>\n',
+	'range': [{'entry': entries, 'styles': dict.fromkeys(table_info.get('id', []), '2')}],
+	'headers': dict(zip(columns, columns))}
+    return lsection
 
 
 def show_sub_table_section(pif, table_info, cond, ref={}):
