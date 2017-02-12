@@ -152,7 +152,7 @@ def calendar(pif):
 		    event(pif, 'meet', llist))))
 
         elif (cmd == 's'):
-	    lrange['entry'].append(dict(zip(lsection['columns'], 
+	    lrange['entry'].append(dict(zip(lsection['columns'],
 		    event(pif, 'show', llist))))
 
         elif (cmd == 'n'):

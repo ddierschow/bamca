@@ -65,7 +65,7 @@ def show_dir(pif, tform):
                     ostr += '%s<br>\n' % f
                 elif tform.graf:
                     #ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s"><img src="../%s" border=0>%s</a><br>' % (tform.tdir, f, tform.tdir + '/' + f, f)
-                    ostr += '<a href="imawidget.cgi?d=%s&f=%s&man=%s&newvar=%s&cy=0"><img src="../%s" border=0>%s</a><br>\n' % (tform.tdir, f, tform.mod, tform.var, tform.tdir + '/' + f, f)
+                    ostr += '<a href="imawidget.cgi?d=%s&f=%s&man=%s&newvar=%s&cy=0&suff=%s"><img src="../%s" border=0>%s</a><br>\n' % (tform.tdir, f, tform.mod, tform.var, tform.suff, tform.tdir + '/' + f, f)
                 else:
                     ostr += '<a href="../%s">%s</a><br>\n' % (tform.tdir + '/' + f, f)
             ostr += '<br><hr>\n'
@@ -92,6 +92,7 @@ def show_dir(pif, tform):
 	    ostr += '<input type="checkbox" name="mss" value="1"> Mass\n'
 	    ostr += '<input type="checkbox" name="shm" value="1"> Shelve\n'
 	    ostr += '<input type="checkbox" name="suf" value="1"> Resuffix\n'
+	    ostr += '<input type="checkbox" name="crd" value="1"> Credit\n'
         ostr += '<input type="checkbox" name="si" value="1"> Sized\n'
         ostr += pif.render.format_button_input()
 	ostr += '<br>\n'
@@ -105,7 +106,7 @@ imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="ch
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False):
+def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, cred=False):
     also = {'border': 0}
     if sx:
 	also['width'] = sx
@@ -126,6 +127,12 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             continue
 	elif rsuf:
             inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
+            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            continue
+	elif cred:
+	    fn = arg[:arg.find('.')] if '.' in arg else arg
+	    fn = fn[2:] if (fn[0] in 'sml' and fn[1] == '_') else fn
+            inp += '''<input type="text" name="cred.%s" size="12" value="%s"> cred''' % (fn, cred.get(fn, ''))
             ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
             continue
         if arg == base:
@@ -155,6 +162,9 @@ def show_imgs(pif, tform):
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
         flist_sort(flist, tform)
+	img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss}
+	if tform.cred:
+	    img_args['cred'] = {x['photo_credit.name']: x['photographer.id'] for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
 	if tform.cpct:
 	    for fn in flist:
 		print pif.render.format_link(
@@ -168,9 +178,9 @@ def show_imgs(pif, tform):
 		    flist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
 		    flist_sort(flist, tform)
 		    if len(flist) > 1:
-			print img(pif, flist, fn, shlv=tform.shlv, cate=tform.cate, sx=tform.szx, sy=tform.szy, mss=tform.mss)
+			print img(pif, flist, fn, **img_args)
 		else:
-		    print img(pif, [fn], shlv=tform.shlv, cate=tform.cate, rsuf=tform.rsuf, sx=tform.szx, sy=tform.szy, mss=tform.mss)
+		    print img(pif, [fn], rsuf=tform.rsuf, **img_args)
 	    print '</table>'
 	    print '<hr>'
     print '<input type="hidden" name="d" value="%s">' % tform.tdir
@@ -185,6 +195,9 @@ def show_imgs(pif, tform):
 	print '<input type="hidden" name="suf" value="1">'
     elif tform.mss:
 	print '<input type="hidden" name="mss" value="1">'
+	print 'promote <input type="text" name="msspromote">'
+    elif tform.cred:
+	print '<input type="hidden" name="crd" value="1">'
     print pif.render.format_button_input()
     print '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
     print '</form>'
@@ -202,6 +215,11 @@ def show_script(pif, tform):
 	    nfn = root + '-' + suf + ext
 	    print fn, root + '-' + suf + ext, '<br>'
 	    useful.file_mover(os.path.join(tform.tdir, fn), os.path.join(tform.tdir, nfn), mv=True, inc=True)
+	return
+    if tform.cred:
+	for fn, cred in pif.form.get_list(start='cred.'):
+	    print fn, cred, '<br>'
+	    pif.dbh.write_photo_credit(cred, tform.tdir, fn, verbose=False)
 	return
     rend = dict(tform.renl)
     print '<pre>'
@@ -241,6 +259,14 @@ def do_masses(pif, tform):
 	eform.man = eform.calc_man()
 	eform.var = eform.nvar = var
 	eform.mass_resize(pif)
+    var_id = pif.form.get('msspromote')
+    if var_id:
+	mod_id = eform.calc_man()
+	pif.render.message('promoting picture for var', var_id, '<br>')
+	for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
+	    ofn = pic[pic.rfind('/') + 1:]
+	    nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
+	    useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
 
 
 def show_file(pif, tform):
@@ -364,10 +390,12 @@ class TraverseForm(object):
 	self.graf = pif.form.get_int("g")
 	self.fnam = pif.form.get_str("f")
 	self.patt = pif.form.get_str("p")
+	self.suff = pif.form.get_str("suff")
 	self.dups = pif.form.get_int("du")
 	self.cpct = pif.form.get_int("co")
 	self.mss = pif.form.get_int("mss")
 	self.shlv = pif.form.get_int("shm")
+	self.cred = pif.form.get_int("crd")
 	self.rsuf = pif.form.get_int("suf")
 	self.cate = pif.form.get_int("shc")
 	self.sizd = pif.form.get_int("si")

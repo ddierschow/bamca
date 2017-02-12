@@ -1,63 +1,62 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+#__pycache__/
 *.py[cod]
 
 # C extensions
-*.so
+#*.so
 
 # Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-pytumblr
+#.Python
+#env/
+#build/
+#develop-eggs/
+#dist/
+#eggs/
+#lib/
+#lib64/
+#parts/
+#sdist/
+#var/
+#*.egg-info/
+#.installed.cfg
+#*.egg
 
 # Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+#pip-log.txt
+#pip-delete-this-directory.txt
 
 # Unit test / coverage reports
-htmlcov/
-.tox/
+#htmlcov/
+#.tox/
 .coverage
-.cache
-nosetests.xml
-coverage.xml
+#.cache
+#nosetests.xml
+#coverage.xml
 bin/bamcatests/test0.py
 
 # Translations
-*.mo
+#*.mo
 
 # Mr Developer
-.mr.developer.cfg
-.project
-.pydevproject
+#.mr.developer.cfg
+#.project
+#.pydevproject
 
 # Rope
-.ropeproject
+#.ropeproject
 
 # Django stuff:
-*.log
-*.pot
+#*.log
+#*.pot
 
 # Sphinx documentation
-docs/_build/
+#docs/_build/
 
 # vim
 *~
 .*.swp
 
-#
+# Our very own stuff
 .crcs
 notes/
 templates/config.html
@@ -70,4 +69,6 @@ htdocs/pic
 htdocs/robot.txt
 htdocs/robots.txt
 htdocs/src/mbxf
+htdocs/src/vdat
 cgi-bin/.config
+pytumblr

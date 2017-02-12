@@ -35,6 +35,8 @@ def show_variation_editor(pif, man, var_id, edit=False):
         raise useful.SimpleError("That variation was not found.")
     variation = variation[0]
     attr_pics = {x['attribute.attribute_name']: x for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
+    for attr in pif.dbh.fetch_attributes(mod_id):
+	variation.setdefault(attr['attribute.attribute_name'], '')
     vsform = VarSearchForm(pif, mod_id)
     pdir = pif.render.pic_dir
 
@@ -66,9 +68,11 @@ def show_variation_editor(pif, man, var_id, edit=False):
         pif.render.format_image_required(mod_id, pdir=pdir, vars=pic_var, nobase=True, prefix=s)
 	for s in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]
     ]) if edit else pif.render.format_image_required(mod_id, pdir=pdir, vars=pic_var, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
+    var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, pic_var, verbose=True)
+    var_img_credit = var_img_credit['photographer.name'] if var_img_credit else ''
 
     variation['references'] = ' '.join(list(set(vsform.selects.get(var_id, []))))
-    variation['area'] = ', '.join([mbdata.regions.get(x, x) for x in variation.get('area', '').split(';')])
+    variation['area'] = ', '.join([mbdata.get_countries().get(x, mbdata.areas.get(x, x)) for x in variation.get('area', '').split(';')])
     data = sorted(variation.keys() + [d for d in vsform.attributes if d not in variation])
 
     lsec = {'columns': ['title', 'value'], 'id': 'single'}
@@ -81,7 +85,8 @@ def show_variation_editor(pif, man, var_id, edit=False):
 	lsec['columns'] = ['title', 'value']
 	ranges = [{'name': 'Description Texts', 'id': 'det', '_attrs': desc_attributes[1:]}]
     ranges.extend([
-	    {'name': 'Individual Attributes', 'id': 'det', '_attrs': [d for d in data if not (d in desc_attributes or d in note_attributes or d in hidden_attributes)]},
+	    {'name': 'Individual Attributes', 'id': 'det',
+	     '_attrs': [d for d in data if not (d in desc_attributes or d in note_attributes or d in hidden_attributes)]},
 	    {'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
 	])
     for lran in ranges:
@@ -110,6 +115,7 @@ def show_variation_editor(pif, man, var_id, edit=False):
 	'left_bar_content': left_bar_content,
 	'description': variation['text_description'],
 	'image': img,
+	'credit': var_img_credit,
 	'llistix': llistix,
 	'appearances': appearances,
 	'adds': adds,
@@ -177,7 +183,7 @@ def show_detail(pif, field, attributes, variation, attr_pics={}, ran_id=''):
 	'field': field,
 	'title': title,
 	'value': value,
-	'new': pif.render.format_text_input(field + "." + variation['var'], 
+	'new': pif.render.format_text_input(field + "." + variation['var'],
 	    int(fieldwidth_re.search(attributes[field]['definition']).group('w')) \
 		if '(' in attributes[field]['definition'] else 20,
 	    64, value=variation.get(field, '')),
@@ -198,12 +204,26 @@ def show_detail_modal(pif, attr_pic, mod_id, var_id=''):
 	return ''
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower() + ('-' + attr_pic['picture_id'] if attr_pic['picture_id'] else '')
     pdir = config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD
+    var_img_credit = pif.dbh.fetch_photo_credit(pdir, img_id, verbose=True)
+    var_img_credit = var_img_credit['photographer.name'] if var_img_credit else ''
 
-    ostr = ''
     img = pif.render.find_image_path(img_id, prefix=attr_pic['attr_type'], pdir=pdir)
+    caption = ''
+    if attr_pic['description']:
+	caption = attr_pic['description']
+	if attr_pic['attribute.title']:
+	    caption = attr_pic['attribute.title'] + ': ' + caption
+    return show_var_image(pif, attr_pic, img, add % {'s': ''}, caption, var_img_credit)
+
+
+def show_var_image(pif, attr_pic, img, title, caption='', var_img_credit=''):
+    ostr = ''
     if img:
-	ostr += '<center><h3>%s</h3>\n' % add % {'s': ''}
-	ostr += pif.render.fmt_img_src(img) + '<br>'
+	ostr += '<center><h3>%s</h3>\n' % title
+	ostr += '<table><tr><td>' + pif.render.fmt_img_src(img) + '<br>'
+	if var_img_credit:
+	    ostr += '<div class="credit">Photo credit: %s</div>' % var_img_credit
+	ostr += '</td></tr></table>'
 	if attr_pic['description']:
 	    if attr_pic['attribute.title']:
 		ostr += attr_pic['attribute.title'] + ': '
@@ -219,6 +239,7 @@ def show_details(pif, data, attributes, variation, attr_pics={}, ran_id=''):
 
 def save(pif, mod_id, var_id):
     if var_id:
+	country_codes = mbdata.get_country_codes()
         var_sel = repic = ''
         attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id))}
         #attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title': pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
@@ -240,6 +261,8 @@ def save(pif, mod_id, var_id):
             elif attr == 'picture_id':
                 if pif.form.get_str(key) != var_id:
                     var_dict[attr] = pif.form.get_str(key)
+	    elif attr == 'area':
+		var_dict[attr] = ';'.join([country_codes.get(x, x) for x in pif.form.get_str(key).split(',')])
             elif 'id' in attributes.get(attr, {}):
                 det_dict[attr] = pif.form.get_str(key)
             else:
@@ -398,7 +421,7 @@ def do_var(pif, model, attributes, prev):
 	    dets.append(d)
     if pif.is_allowed('a'):  # pragma: no cover
         note_text += 'Import: %s, %s-%s<br>' % (model['imported'], model['imported_from'], model['imported_var'])
-        note_text += 'Show: ' + pif.render.format_text_input("picture_id." + model['var'], 8, value=pic_id)
+        note_text += 'Show: ' + pif.render.format_text_input("picture_id." + model['var'], 8, value=pic_id, also={'class': 'bgno' if pic_id else 'bgok'})
 	if pic_id:
 	    note_text += '<span class="warn">'
         for sz in mbdata.image_size_types:
@@ -413,7 +436,7 @@ def do_var(pif, model, attributes, prev):
     if pif.is_allowed('a'):  # pragma: no cover
         ostr += '<br><input type="checkbox" name="v" value="%s"><br>' % model['var']
     #count_descs = reduce(lambda y, x: y + (1 if model[x] != '' else 0), desc_attributes, 0)
-    count_descs = sum([int(bool(x)) for x in desc_attributes])
+    count_descs = sum([int(len(model[x]) > 0) for x in desc_attributes])
     ostr += '<i class="fa fa-star %s"></i>' % (
 	    'green' if count_descs == len(desc_attributes) else ('red' if not count_descs else 'orange'))
     ostr += '</center>'
@@ -709,6 +732,7 @@ def show_model(pif, model):
 	else:
 	    variation['_dir'] = '.' + config.INC_DIR
 	    variation['_lnk'] = 'upload.cgi?m=%(mod_id)s&v=%(var)s' % variation
+	variation['area'] = ', '.join([mbdata.get_countries().get(x, mbdata.areas.get(x, x)) for x in variation.get('area', '').split(';')])
 	mvars[variation['var']] = variation
 
     vsform = VarSearchForm(pif, mod_id).read(pif.form)
@@ -821,7 +845,7 @@ def add_model_var_table_pic_link(pif, mdict):
     return ostr
 
 
-vfields = {'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior', 'wheels': 'text_wheels', 'windows': 'text_windows', 'cat': 'category', 'date': 'date'}
+vfields = {'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior', 'wheels': 'text_wheels', 'windows': 'text_windows', 'cat': 'category', 'date': 'date', 'area': 'area'}
 cfields = {'casting': 'rawname'}
 
 

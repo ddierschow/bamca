@@ -283,7 +283,7 @@ def web_page(main_fn):
 # --- -------------------------------------------------------------------
 
 
-# Decorator that command line mains.
+# Decorator that wraps command line mains.
 def command_line(main_fn):
     def call_main(page_id='cli', form_key='', defval='', args='', dbedit=None, switches='', options=''):
         pif = None

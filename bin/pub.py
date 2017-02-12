@@ -40,7 +40,7 @@ def publication(pif):
 	upper_box += man['base_id.description']
 
     lran = {'id': 'ran', 'entry':
-	[{'text': pif.render.format_image_link_image(img[img.rfind('/') + 1:])} for img in sorted(imgs)] if imgs else 
+	[{'text': pif.render.format_image_link_image(img[img.rfind('/') + 1:])} for img in sorted(imgs)] if imgs else
 	[{'text': pif.render.format_image_link_image(pub_id)}]
     }
     llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran], 'columns': 4}], 'columns': 4}

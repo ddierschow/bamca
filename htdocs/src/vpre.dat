@@ -1,3 +1,4 @@
+
 |wheels|maltese cross (12x6.5mm front, 10x5.5mm rear)|maltese cross 12x6.5mm front / maltese cross 10x5.5mm rear|
 |wheels|maltese cross (10x5.5mm front, 12x6.5mm rear)|maltese cross 10x5.5mm front / maltese cross 12x6.5mm rear|
 |wheels|front and rear|
@@ -343,63 +344,87 @@ MW754|base|(C)|, revised text/ AeroMax
 |wheels|r/\bLS 75-B|SF75b
 |wheels|r/\bLS75-B|SF75b
 
-|area|Rest of World|R
-|area|United States|U
-|area|Germany|D
-|area|Britain|B
+|area|Britain|GB
+|area|Germany|DE
+|area|Rest of World|ROW
+|area|United States|US
 |area|r/^A / CH$|AT;CH
 |area|r/^A$|AT
-|area|r/^AUSROW$|R;A
-|area|r/^AUSUSA$|U;A
+|area|r/^AUS USA$|AU;US
+|area|r/^AUS$|AU
+|area|r/^AUSROW$|AU;ROW
+|area|r/^AUS ROW$|AU;ROW
+|area|r/^AUSUSA$|AU;US
 |area|r/^B$|BE
 |area|r/^CDN$|CA
+|area|r/^CN GB$|CN;GB
+|area|r/^CN ZW$|CN;ZW
 |area|r/^CNCDN$|CA;CN
+|area|r/^CN CDN$|CN;CA
 |area|r/^CNGB$|GB;CN
-|area|r/^CNH$|CN;H
+|area|r/^CNH$|CN;HU
+|area|r/^CN H$|CN;HU
 |area|r/^CNNL$|CN;NL
+|area|r/^CN NL$|CN;NL
 |area|r/^CNZW$|CN;ZW
+|area|r/^CORE$|W
 |area|r/^D / A$|DE;AT
+|area|r/^D J$|DE;JP
+|area|r/^D$|DE
 |area|r/^DCN$|DE;CN
+|area|r/^D CN$|DE;CN
 |area|r/^DGB$|DE;GB
+|area|r/^D GB$|DE;GB
 |area|r/^DJ$|DE;JP
 |area|r/^E$|ES
+|area|r/^F NL$|FR;NL
 |area|r/^F$|FR
 |area|r/^FNL$|FR;NL
+|area|r/^GB$|GB
 |area|r/^GBD / A$|GB;DE;AT
+|area|r/^GB D / A$|GB;DE;AT
 |area|r/^GBD$|GB;DE
+|area|r/^GB D$|GB;DE
 |area|r/^H$|HU
 |area|r/^I$|IT
 |area|r/^IRL$|IE
 |area|r/^J$|JP
 |area|r/^KSA$|SA
-|area|r/^M$|MT
+|area|r/^LA$|LA
+#|area|r/^M$|MT
 |area|r/^MAL$|MY
 |area|r/^MEX$|MX
-|area|r/^ROWD$|R;D
-|area|r/^ROWGB$|R;B
+|area|r/^ROW$|ROW
+|area|r/^ROW AUS$|ROW;AU
+|area|r/^ROWD$|ROW;DE
+|area|r/^ROW D$|ROW;DE
+|area|r/^ROWGB$|ROW;GB
+|area|r/^ROW GB$|ROW;GB
 |area|r/^S$|SE
 |area|r/^SA$|SE;AT
 |area|r/^SDK$|SE;DK
+|area|r/^S DK$|SE;DK
 |area|r/^SLO$|SK
-|area|r/^USAAUS$|U;A
-|area|r/^USACDN$|U;CA
-|area|r/^USAD$|U;D
-|area|r/^USANZ$|U;NZ
-|area|r/^USAUSA$|U
-|area|r/^USA$|U
-|area|r/^AUS$|A
-|area|r/^CORE$|W
-|area|r/^GB$|B
-|area|r/^LA$|L
-|area|r/^ROW$|R
-|category|r/^5PCK$|5P
-|category|r/^AM$|AA
-|category|r/^ANV$|50P
-|category|r/^BB$|BOB
-|category|r/^EL$|ELV
-|category|r/^ELP$|ELV
-|category|r/^FP$|FOR
-|category|r/^H$|HR
-|category|r/^LA$|LP
-|category|r/^SG$|SOG
-|category|r/^\(IC\)$|IC
+|area|r/^USA AUS$|US;AU
+|area|r/^USA CDN CN$|US;CA;CN
+|area|r/^USA CN$|US;CN
+|area|r/^USA USA$|US
+|area|r/^USA$|US
+|area|r/^USAAUS$|US;AU
+|area|r/^USACDN$|US;CA
+|area|r/^USAD$|US;DE
+|area|r/^USA D$|US;DE
+|area|r/^USANZ$|US;NZ
+|area|r/^USA NZ$|US;NZ
+|area|r/^USAUSA$|US
+|cate|r/^5PCK$|5P
+|cate|r/^AM$|AA
+|cate|r/^ANV$|50P
+|cate|r/^BB$|BOB
+|cate|r/^EL$|ELV
+|cate|r/^ELP$|ELV
+|cate|r/^FP$|FOR
+|cate|r/^H$|HR
+#|cate|r/^LA$|LP
+|cate|r/^SG$|SOG
+|cate|r/^\(IC\)$|IC

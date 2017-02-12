@@ -37,12 +37,12 @@ def count_list_var_pics(pif, mod_id):  # called from elsewhere
     count_de = count_ba = count_bo = count_in = count_wh = count_wi = 0
 #    nf = []
     for var in vars:
-	count_de += int(bool(var['variation.text_description']))
-	count_ba += int(bool(var['variation.text_base']))
-	count_bo += int(bool(var['variation.text_body']))
-	count_in += int(bool(var['variation.text_interior']))
-	count_wh += int(bool(var['variation.text_wheels']))
-	count_wi += int(bool(var['variation.text_windows']))
+	count_de += int(len(var['variation.text_description']) > 0)
+	count_ba += int(len(var['variation.text_base']) > 0)
+	count_bo += int(len(var['variation.text_body']) > 0)
+	count_in += int(len(var['variation.text_interior']) > 0)
+	count_wh += int(len(var['variation.text_wheels']) > 0)
+	count_wi += int(len(var['variation.text_windows']) > 0)
         if var['variation.picture_id'] or not var['variation.text_description']:
             continue
 	is_found = int(bool(pif.render.find_image_path(pdir=config.IMG_DIR_MAN, nobase=True,
@@ -396,11 +396,13 @@ def show_single(pif):
     boxstyles = pif.dbh.fetch_box_type_by_mod(model['id'])
 
     pif.render.title = '%(casting_type)s %(id)s: %(name)s' % model
-    mainimg = pif.render.format_image_sized(pic, pdir=pdir, largest=mbdata.IMG_SIZ_MEDIUM)
-    if mainimg and pif.is_allowed('a'):  # pragma: no cover
-	img = img_re.search(mainimg).group('u')
+    product_img = pif.render.format_image_sized(pic, pdir=pdir, largest=mbdata.IMG_SIZ_MEDIUM)
+    product_img_credit = pif.dbh.fetch_photo_credit(pdir, pic, verbose=True)
+    product_img_credit = product_img_credit['photographer.name'] if product_img_credit else ''
+    if product_img and pif.is_allowed('a'):  # pragma: no cover
+	img = img_re.search(product_img).group('u')
 	url = 'imawidget.cgi?d=%s&f=%s' % tuple(img[3:].rsplit('/', 1))
-	mainimg = pif.render.format_link(url, mainimg)
+	product_img = pif.render.format_link(url, product_img)
 
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
@@ -414,7 +416,9 @@ def show_single(pif):
 	elif s:
 	    descs.append("<i>%s</i>" % s)
     model['descs'] = descs
-    model['img'] = pif.render.format_image_required(model['imgid'], made=model['made'], pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM if mainimg else mbdata.IMG_SIZ_LARGE)
+    model['img'] = pif.render.format_image_required(model['imgid'], made=model['made'], pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM if product_img else mbdata.IMG_SIZ_LARGE)
+    model_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, model['imgid'][0], verbose=True)
+    model['credit'] = model_img_credit['photographer.name'] if model_img_credit else ''
     if model['country']:
 	model['country_flag'] = pif.render.format_image_flag(model['country'])
 	model['country_name'] = mflags.FlagList()[model['country']]
@@ -456,7 +460,8 @@ def show_single(pif):
 	'model': model,
 	'variations': variations,
 	'prod_title': prod_title,
-	'product_image': mainimg,
+	'product_image': product_img,
+	'product_img_credit': product_img_credit,
 	'mack_nums': get_mack_numbers(pif, mod_id, model['model_type'], aliases),
 	'product_pic': pic,
 	'appearances': show_lineup_appearances(pif, appearances),

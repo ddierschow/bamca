@@ -442,6 +442,7 @@ function SectionVSearch() {
     echo "<tr><td>Wheels:</td><td><input type=\"text\" name=\"wheels\"></td></tr>\n";
     echo "<tr><td>Windows:</td><td><input type=\"text\" name=\"windows\"></td></tr>\n";
     if ($isadmin) {
+	echo "<tr><td></td><td><i>Area:</i></td><td><input type=\"text\" name=\"area\"></td></tr>\n";
 	echo "<tr><td></td><td><i>Category:</i></td><td><input type=\"text\" name=\"cat\"></td></tr>\n";
 	echo "<tr><td></td><td><i>Date:</i></td><td><input type=\"text\" name=\"date\"></td></tr>\n";
     }

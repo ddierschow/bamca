@@ -49,6 +49,9 @@ LS38c|rear_seat_casting|E|metal with holes
 LS38e|license_plate||KG
 LS38e|base_text|r/^|LESNEY PRODUCTS, |
 LS38e|base_text|r/$| text
+EA40a|rear_casting|B|large holes, flat trunk edge
+LS40a|rear_casting|A|small holes, pointed trunk edge
+LS40a|rear_casting|B|large holes, flat trunk edge
 LS42c|container_type|A|base without lettering is part of body, ribs top and bottom, smooth center, opening doors
 LS42c|container_type|B|base without lettering is part of body, ribs on bottom only, upper smooth section, opening doors
 LS42c|container_type|C|black separate base with "P.S.1 CONTAINER" lettering, doors do not open

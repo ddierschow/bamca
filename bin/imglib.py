@@ -110,7 +110,7 @@ def export_file(nfn, ofn=''):
 def get_palette(img):
     lut = img.resize((256, 1))
     lut.putdata(range(256))
-    return lut.convert("RGB").getdata() 
+    return lut.convert("RGB").getdata()
 
 
 def corner_color(img, pixel):
@@ -894,6 +894,7 @@ class ActionForm(object):
 		url = 'http://www.bamca.org/' + os.path.join(to_dir, to_name)
 		link = 'http://www.bamca.org/' + self.link
 		useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=to_name, source=url, link=link))
+	    pif.dbh.write_photo_credit(pif.form.get_str('credit'), to_dir, to_name)
 	return ret
 
     sel_cat = [
@@ -1009,7 +1010,7 @@ class ActionForm(object):
 	    print '<input type=checkbox name="inc" value="1"> increment name'
 	    print '<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var
 	    print 'Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref)
-	    print 'Suffix: <input type="text" size="5" name="suff" value="">'
+	    print 'Suffix: <input type="text" size="5" name="suff" value="%s">' % self.suff
 	    print pif.render.format_button_input('select to casting', 'select')
 	    print 'Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest)
 	    useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
@@ -1050,7 +1051,7 @@ def get_dir(tdir):
 
 
 def format_image_star(pif, image_path, pic_id='', halfstar=False, target_x=400, target_y=0):
-    return '<i class="fa fa-%s %s"></i>' % (image_star(image_path, pic_id, halfstar, target_x, target_y)) 
+    return '<i class="fa fa-%s %s"></i>' % (image_star(image_path, pic_id, halfstar, target_x, target_y))
 
 
 def image_star(image_path, pic_id='', halfstar=False, target_x=400, target_y=0):

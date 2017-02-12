@@ -187,7 +187,7 @@ table_info = {
                 'attr_id': '0',
         },
         'elinks': [
-                {'name': 'upload', 'url': 'upload.cgi?d=./pic/add&r=%(attr_type)s_%(mod_id)s-%(picture_id)s&m=%(mod_id)s'},
+                {'name': 'upload', 'url': 'upload.cgi?d=./pic/add&r=%(attr_type)s_%(mod_id)s-%(picture_id)s&m=%(mod_id)s&suff=%(picture_id)s'},
         ],
     },
     #variation
@@ -497,6 +497,33 @@ table_info = {
 	'id': ['id'],
 	'columns': ['id', 'created'],
     },
+    #photographer
+    'photographer': {
+	'id': ['id'],
+	'columns': ['id', 'name', 'url'],
+        'ask': ['id'],
+	'add': {
+		'photo_credit': ['photographer_id/id'],
+		'photographer': [],
+	},
+        'tlinks': [
+                {'tab': 'photo_credit', 'id': ['id/photographer_id']},
+        ],
+    },
+    #photo_credit
+    'photo_credit': {
+	'id': ['id'],
+	'columns': ['id', 'path', 'name', 'photographer_id'],
+	'add': {
+		'photo_credit': ['photographer_id/photographer_id'],
+	},
+        'tlinks': [
+	],
+        'clinks': {
+                'id': {'tab': 'section', 'id': ['id/id']},
+                'photographer_id': {'tab': 'photographer', 'id': ['id/photographer_id']},
+        },
+    },
 
 }
 for key in table_info:
@@ -512,6 +539,7 @@ FLAG_MODEL_SHOW_ALL_VARIATIONS          = 16
 FLAG_MODEL_HIDE_IMAGE                   = 32
 FLAG_MODEL_NO_SPECIFIC_MODEL            = 64
 FLAG_MODEL_REVISED_CASTING              =128
+FLAG_MODEL_BASEPLATE_VISIBLE            =256
 
 FLAG_SECTION_HIDDEN                     =  1
 FLAG_SECTION_DEFAULT_IDS                =  2

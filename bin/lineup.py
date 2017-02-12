@@ -570,7 +570,7 @@ def run_file(pif, region, year, section_types):
 
     llineup['section'].append(lsec)
     #llineup['tail'] = [pif.render.format_image_art('bamca_sm', also={'class': 'centered'}), '']
-    #llineup['tail'][1] += 
+    #llineup['tail'][1] +=
     llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
     #pif.render.set_footer(['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])])
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
@@ -1042,7 +1042,11 @@ def get_product_image(page, mnum):
     if page:
         for section in page['section']:
             if section['start'] < mnum:
+		useful.write_comment('get_product_image section', section['page_id'], section['id'])
                 return section['img_format'], page['page_info.pic_dir']
+	useful.write_comment('get_product_image no section')
+    else:
+	useful.write_comment('get_product_image no page')
     return 'xxx%02d', 'unknown'
 
 

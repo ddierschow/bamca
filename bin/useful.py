@@ -9,6 +9,8 @@ import jinja2
 
 #html_done = False
 
+alnum = string.digits + string.ascii_lowercase
+
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
 
@@ -147,9 +149,17 @@ def plural(thing):
     return 's' if len(thing) != 1 else ''
 
 
+def make_alnum(thing):
+    output = []
+    for ch in list(thing):
+	if ch not in alnum:
+	    break
+	output.append(ch)
+    return ''.join(output)
+
+
 def generate_token(number_digits=10):
-    s = string.digits + string.ascii_lowercase
-    return ''.join([s[random.randrange(len(s))] for x in range(0, number_digits)])
+    return ''.join([alnum[random.randrange(len(alnum))] for x in range(0, number_digits)])
 
 
 id_re = re.compile('[-/\w.]+')  # 0-9 A-Z a-z underscore dash slash dot

@@ -84,8 +84,11 @@
 
 {%- macro show_model_info() %}
 <center><span class="modelnumber">{{ model.id }}</span><br>
+<table><tr><td>
 {{ model.img }}<br>
-<b>{{ model.name }}</b>
+{% if model.credit %}<div class="credit">Photo credit: {{ model.credit }}</div>{% endif %}
+</td></tr></table>
+<span class="info_name">{{ model.name }}</span>
 {%- for s in model.descs %}<br>{{ s }}{% endfor %}
 <table class="modelinfo"><tr>
 {%- if model.makes %}<th>Make</th>{% endif %}
@@ -131,7 +134,9 @@
 {%- macro show_product_box() %}
 {%- if product_image or prod_title or variations %}
 <div class="inset inset_m">
-{%- if product_image %}<center>{{ product_image }}</center><p>{% endif %}
+{%- if product_image %}<center>{{ product_image }}
+{% if product_img_credit %}<div class="credit">Photo credit: {{ product_img_credit }}</div>{% endif %}
+</center><p>{% endif %}
 {%- if prod_title %}
 <center>{{ prod_title }}</center>
 {%- endif %}

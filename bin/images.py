@@ -145,6 +145,7 @@ class UploadForm(object):
 	    self.nfn = self.fname
 	else:
 	    self.nfn = ''
+	self.suffix = pif.form.get_str('suff')
 	self.scrape = pif.form.get_str('s')
 	self.comment = pif.form.get_str('c')
 	self.select = pif.form.get_str('select')
@@ -275,17 +276,17 @@ def upload_main(pif):
 
     # These will redirect so let's do them before putting anything out.
     if upform.select:
-	raise useful.Redirect('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (upform.tdir, upform.mod_id, upform.var_id))
+	raise useful.Redirect('traverse.cgi?g=1&d=%s&man=%s&var=%s&suff=%s' % (upform.tdir, upform.mod_id, upform.var_id, upform.suffix))
     elif upform.fimage:
 	if not pif.is_allowed('u'):
 	    return upform.restricted_upload(pif)
 	fn = upform.save_uploaded_file()
 	upform.carbon_copy(fn)
-	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id))
+	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix))
     elif upform.url:
 	fn = upform.grab_url_pic(pif)
 	upform.carbon_copy(fn)
-	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id))
+	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix))
 
     pif.render.print_html()
     pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
@@ -563,6 +564,7 @@ class EditForm(imglib.ActionForm):
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
 	print '- Bounds: <input type="text" value="%s" name="q" id="q"> <span id="ima_info"></span>' % ','.join([str(x) for x in self.q])
+	print 'Credit ' + pif.render.format_text_input('credit', 4)
 	print pif.render.format_hidden_input({'cc': presets.get('cc', '')})
 	return xs, ys
 
@@ -698,6 +700,7 @@ class EditForm(imglib.ActionForm):
 	    url = 'http://www.bamca.org/' + largest
 	    link = 'http://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
 	    useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+	    pif.dbh.write_photo_credit(pif.form.get_str('credit'), ddir, self.man, self.var)
 
 	return largest
 

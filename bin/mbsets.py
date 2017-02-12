@@ -208,7 +208,7 @@ def sets_main(pif):
     pif.render.print_html()
 
     if pif.form.has('page'):
-        setfile = SetFile(useful.relpath(config.SRC_DIR, pif.form.get_str('page') + '.dat'))
+        setfile = SetFile(useful.relpath(config.SRC_DIR, useful.make_alnum(pif.form.get_str('page')) + '.dat'))
         return do_set(pif, setfile, pif.form.get_str('set'))
     else:
         return select_set(pif)

@@ -248,20 +248,25 @@ def show_adds(pif, mod_id, var_id=''):
         ["i_", "Interior%(s)s", "<p>"],
     ]
 
+    photo_credits = {x['photo_credit.name']: x['photographer.name'] for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
     attribute_pictures = pif.dbh.fetch_attribute_pictures(mod_id)
     attribute_pictures = dict([
         (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
-    pdir = config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD
+    pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
     adds = var_adds if var_id else mod_adds
     ostr = ''
     for add in adds:
-        imgs = pif.render.format_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
+        imgs = pif.render.find_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
         if imgs:
             ostr += '<h3>%s</h3>\n' % add[1] % {'s': useful.plural(imgs)}
             for img in imgs:
-                ostr += img + '<br>'
+		ostr += '<table><tr><td class="center">'
+                ostr += pif.render.fmt_img_src(pdir + '/' + img) + '<br>'
+		fn = img[:img.find('.')]
+		if fn in photo_credits:
+		    ostr += '<div class="credit">Photo credit: %s</div>' % photo_credits[fn]
                 for apic in attribute_pictures:
 		    # This is terrible and I'm a terrible person but I don't want to think too much right now.
                     if apic in img and attribute_pictures[apic]['attribute_picture.description']:
@@ -269,6 +274,7 @@ def show_adds(pif, mod_id, var_id=''):
 			    ostr += "%(attribute.title)s: %(attribute_picture.description)s" % attribute_pictures[apic]
 			else:
 			    ostr += "%(attribute_picture.description)s" % attribute_pictures[apic]
+		ostr += '</td></tr></table>'
                 ostr += '<p>\n'
     return ostr
 

@@ -5,6 +5,7 @@ import binascii, os, stat, sys
 
 import basics
 import config
+import useful
 
 errors = []
 
@@ -236,13 +237,14 @@ def clean_dir(page_id):
 
 @basics.command_line
 def main(pif):
+    where = ' and '.join(['associated_link=%s' % x for x in pif.switch['a']])
     if pif.filelist:
         for arg in pif.filelist:
-            for ll in pif.dbh.fetch_link_lines(page_id='single.' + arg, section='single'):
+            for ll in pif.dbh.fetch_link_lines(page_id='single.' + arg, section='single', where=where):
                 run_line(ll)
 	    clean_dir(arg)
     else:
-        for ll in pif.dbh.fetch_link_lines(section='single'):
+        for ll in pif.dbh.fetch_link_lines(section='single', where=where):
             run_line(ll)
 
     if errors:
@@ -383,4 +385,4 @@ def file_crc(fn):
 
 
 if __name__ == '__main__':
-    main()
+    main(options='a')

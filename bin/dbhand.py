@@ -73,29 +73,26 @@ class DBHandler(object):
                 wheres.append(col + "='" + str(form.get(prefix + col, '')) + "'")
         return ' and '.join(wheres)
 
-    def raw_execute(self, query, tag=''):
+    def raw_execute(self, query, tag='RawExecute'):
         ret = self.dbi.execute(query, tag=tag)
         self.dbi.execute('commit', tag=tag)
 	return ret
 
-#    def raw_fetch(self, query, tag=''):
+#    def raw_fetch(self, query, tag='RawFetch'):
 #       return self.dbi.rawquery(query, tag=tag)
 
-    def make_columns(self, tab, extras=False, tag=None):
-        if not tag:
-            tag = tab
-	#useful.write_comment('make_columns q', tab, extras, tag)
+    def make_columns(self, tab, extras=False):
         columns = list()
         if tab in self.table_info:
             columns.extend([tab + '.' + x for x in self.table_info[tab]['columns'] +
 			    (self.table_info[tab].get('extra_columns', []) if extras else [])])
         else:
+	    raise ValueError('unknown table: ' + tab)
             columns.append(tab + '.*')
-	#useful.write_comment('make_columns a', columns)
         return columns
 
     def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None,
-	      distinct=False, tag='', verbose=False):
+	      one=False, distinct=False, tag='Fetch', verbose=False):
 	#useful.write_comment('fetch', 't', table_name, 'a', args, 'l', left_joins, 'c', columns, 'e', extras, 'w', where, 'g', group, 'o', order, 'd', distinct, tag)
         if not columns:
             if isinstance(table_name, str):
@@ -103,9 +100,9 @@ class DBHandler(object):
             columns = list()
             for tab in table_name:
                 if ' ' in tab:
-                    columns.extend(self.make_columns(tab[:tab.find(' ')], tab[tab.find(' ') + 1:], extras, tag=tag))
+                    columns.extend(self.make_columns(tab[:tab.find(' ')], tab[tab.find(' ') + 1:], extras))
                 else:
-                    columns.extend(self.make_columns(tab, extras, tag=tag))
+                    columns.extend(self.make_columns(tab, extras))
             table_name = ','.join(table_name)
 	elif isinstance(columns, str):
 	    columns = columns.split(',')
@@ -123,7 +120,10 @@ class DBHandler(object):
 		j_name = lj[0][lj[0].find(' as ') + 4:] if ' as ' in lj[0] else lj[0]
                 columns.extend([j_name + '.' + x for x in self.table_info[j_tab]['columns']])
 	outcols = [x if ' as ' not in x else x[x.find(' as ') + 4:] for x in columns]
-        return self.dbi.select(table_name, columns, args=args, where=where, group=group, order=order, distinct=distinct, tag=tag, verbose=verbose, outcols=outcols)
+        results = self.dbi.select(table_name, columns, args=args, where=where, group=group, order=order, distinct=distinct, tag=tag, verbose=verbose, outcols=outcols)
+	if one:
+	    return results[0] if results else None
+	return results
 
     def describe_dict(self, table):
         return {x['field']: x for x in self.describe(table)}
@@ -137,6 +137,9 @@ class DBHandler(object):
     def depref(self, tables, results):
 	if isinstance(tables, str):
 	    tables = [tables]
+	if results is None:
+	    # Aw, come on.
+	    return None
         if isinstance(results, dict):
 	    for table in tables:
 		keys = list(results.keys())
@@ -150,11 +153,11 @@ class DBHandler(object):
                 self.depref(tables, result)
         return results
 
-    def increment(self, table_name, values=None, where=None, tag='', verbose=False):
+    def increment(self, table_name, values=None, where=None, tag='Increment', verbose=False):
         values = {x: x + '+1' for x in values}
         return self.dbi.updateraw(table_name, values, where, tag=tag, verbose=verbose)
 
-    def write(self, table_name, values=None, where=None, newonly=False, modonly=False, tag='', verbose=False):
+    def write(self, table_name, values=None, where=None, newonly=False, modonly=False, tag='Write', verbose=False):
         if newonly:
             return self.dbi.insert(table_name, values, tag=tag, verbose=verbose)
         elif modonly:
@@ -162,7 +165,7 @@ class DBHandler(object):
         else:
             return self.dbi.insert_or_update(table_name, values, tag=tag, verbose=verbose)
 
-    def delete(self, table, where=None, tag='', verbose=None):
+    def delete(self, table, where=None, tag='Delete', verbose=None):
         return self.dbi.remove(table, where, tag=tag, verbose=verbose)
 
     def update_flags(self, table_name, turn_on, turn_off, where=None, tag='UpdateFlags', verbose=False):
@@ -182,7 +185,7 @@ class DBHandler(object):
 
     def fetch_page_years(self):
         return self.fetch('page_info,lineup_model',
-                columns=self.make_columns('page_info', tag='PageYears') + ['max(lineup_model.number)'],
+                columns=self.make_columns('page_info') + ['max(lineup_model.number)'],
                 where=['page_info.id=lineup_model.page_id', "page_info.id like 'year.%'"],
                 group="page_info.id", tag='PageYears')
 
@@ -195,7 +198,7 @@ class DBHandler(object):
     #- country
 
     def fetch_countries(self):
-        return self.fetch('country')
+        return self.fetch('country', 'Country')
 
     #- section
 
@@ -207,10 +210,7 @@ class DBHandler(object):
 	    wheres['page_id'] = page_id
 	if category:
 	    wheres['category'] = category
-        secs = self.fetch('section', where=wheres, tag='Section', verbose=verbose)
-        if secs:
-            return secs[0]
-        return None
+        return self.fetch('section', where=wheres, tag='Section', verbose=verbose, one=True)
 
     def fetch_sections_by_page_type(self, page_type, sec_id=None, verbose=False):
 	where = 'section.page_id=page_info.id and page_info.format_type="%s"' % page_type
@@ -258,7 +258,7 @@ class DBHandler(object):
         return self.write('base_id', self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
 
     def fetch_base_id_model_types(self):
-	return self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type', tag='fetch_base_id_model_type')
+	return self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type', tag='BaseIdModelType')
 
     def delete_base_id(self, where):
         self.delete('base_id', self.make_where(where))
@@ -309,7 +309,7 @@ class DBHandler(object):
 
     def fetch_casting(self, id, extras=False, verbose=False, tag='Casting'):
         wheres = ['base_id.id=casting.id', 'casting.id="%s"' % id]
-	cols = self.make_columns('base_id', extras=extras, tag=tag) + self.make_columns('casting', extras=extras, tag=tag) + ['(select count(*) from variation where variation.mod_id=casting.id) as vars']
+	cols = self.make_columns('base_id', extras=extras) + self.make_columns('casting', extras=extras) + ['(select count(*) from variation where variation.mod_id=casting.id) as vars']
 	#select c.id,b.rawname,(select count(*) from variation where variation.mod_id=c.id) as vars from casting c,base_id b where c.id='MB900' and c.id=b.id;
         manlist = self.fetch("casting,base_id", left_joins=[("vehicle_make", "casting.make=vehicle_make.id")], columns=cols, where=wheres, extras=extras, tag=tag, verbose=verbose)
         if manlist:
@@ -435,11 +435,9 @@ class DBHandler(object):
         wheres = ['base_id.id=casting.id',
 	    'base_id.id=variation_select.mod_id', "variation_select.category='%s'" % category
 	]
-	columns = self.make_columns('base_id', tag='CastingByCat') + ['count(*)']
+	columns = self.make_columns('base_id') + ['count(*)']
         return self.fetch('base_id,casting,variation_select', where=wheres, tag='CastingByCat', verbose=verbose,
 		columns=columns, group='base_id.id', order='base_id.id')
-    #def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None,
-#	      distinct=False, tag='', verbose=False):
 
 	    #"base_id.id in (select mod_id from variation_select where ref_id='%s' and category='%s')" % (page_id, category)
 #select base_id.id,base_id.first_year,base_id.model_type,base_id.rawname,base_id.description,base_id.flags,casting.id,casting.scale,casting.vehicle_type,casting.country,casting.make,casting.section_id,count(*)
@@ -599,7 +597,7 @@ class DBHandler(object):
             wheres.extend(["casting.%s like %%s" % (key) for x in castingq[key]])
             args.extend(["%%%%%s%%%%" % (x) for x in castingq[key]])
 	# turn this into a fetch
-        varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), args=args)
+        varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), args=args, tag='VariationQuery')
         return varrecs
 
     def fetch_variation_by_select(self, mod_id, ref_id, sub_id, category=None, verbose=False):
@@ -613,7 +611,7 @@ class DBHandler(object):
 	    where += " and vs.category='%s'" % category
         table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, verbose=verbose)
+        return self.dbi.select(table, cols, where=where, verbose=verbose, tag='VariationBySelect')
 
     def fetch_variation_files(self, mod_id):
         return self.fetch('variation', columns=['imported_from', 'mod_id'], group='imported_from', order='imported_from', where="mod_id='%s'" % mod_id, tag='VariationFiles', verbose=True)
@@ -705,17 +703,17 @@ class DBHandler(object):
             commondetails = {x['attribute_name']: x['description'] for x in
                 self.dbi.select('detail, attribute',
                     ['detail.mod_id', 'attr_id', 'description', 'attribute_name'],
-                    "detail.mod_id='%s' and detail.attr_id=attribute.id and detail.var_id=''" % mod_id)}
+                    "detail.mod_id='%s' and detail.attr_id=attribute.id and detail.var_id=''" % mod_id, tag='Details')}
         if var_id is not None:
 	    # turn this into a fetch
             details = self.dbi.select('detail, attribute',
                 ['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
-                "detail.mod_id='%s' and detail.var_id='%s' and detail.attr_id=attribute.id" % (mod_id, var_id))
+                "detail.mod_id='%s' and detail.var_id='%s' and detail.attr_id=attribute.id" % (mod_id, var_id), tag='Details')
         else:
 	    # turn this into a fetch
             details = self.dbi.select('detail, attribute',
                 ['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
-                "detail.mod_id='%s' and detail.attr_id=attribute.id" % mod_id)
+                "detail.mod_id='%s' and detail.attr_id=attribute.id" % mod_id, tag='Details')
 
         mvars = {}
         for det in details:
@@ -732,8 +730,7 @@ class DBHandler(object):
         return self.fetch('vehicle_make', where=where, tag='VehicleMakes', order='name', verbose=verbose)
 
     def fetch_vehicle_make(self, make_id, verbose=False):
-        ret = self.fetch('vehicle_make', where={'id': make_id}, tag='VehicleMake', verbose=verbose)
-        return ret[0] if ret else None
+        return self.fetch('vehicle_make', where={'id': make_id}, tag='VehicleMake', verbose=verbose, one=True)
 
     def add_vehicle_make(self, make_id, name, company=None, verbose=False):
 	if not company:
@@ -798,7 +795,7 @@ class DBHandler(object):
         if base_id:
             wheres.append("lineup_model.base_id='" + base_id + "'")
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=' and '.join(wheres), verbose=verbose)
+        return self.dbi.select(table, cols, where=' and '.join(wheres), verbose=verbose, tag='SimpleLineupModels')
 
     def fetch_lineup_models(self, year='', region=''):
         cols = list()
@@ -824,7 +821,7 @@ class DBHandler(object):
             table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
             wheres.append("lineup_model.year='" + year + "'")
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=' and '.join(wheres))
+        return self.dbi.select(table, cols, where=' and '.join(wheres), tag='LineupModels')
 
     def fetch_lineup_models_by_rank(self, rank, syear, eyear):
         cols = [
@@ -843,11 +840,11 @@ class DBHandler(object):
         where += " and casting.id=lineup_model.mod_id"
         where += " and base_id.id=casting.id"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where)
+        return self.dbi.select(table, cols, where=where, tag='LineupModelsByRank')
 
     def fetch_lineup_years(self):
 	# turn this into a fetch
-        return self.dbi.select("lineup_model", ["year"], group="year")
+        return self.dbi.select("lineup_model", ["year"], group="year", tag='LineupYears')
 
     def fetch_casting_lineups(self, mod_id):
         where = "lineup_model.mod_id='%s'" % mod_id
@@ -914,7 +911,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         table += ") and vs.mod_id=matrix_model.mod_id left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
         where = "matrix_model.page_id='" + page_id + "'"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, order='matrix_model.display_order')
+        return self.dbi.select(table, cols, where=where, order='matrix_model.display_order', tag='MatrixModelsVariations')
 
     def fetch_matrix_appearances(self, mod_id):
         wheres = [
@@ -925,7 +922,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	    "page_info.flags & %d = 0" % tables.FLAG_PAGE_INFO_HIDDEN,
 	]
 	# turn this into a fetch
-        return self.dbi.select('matrix_model, page_info, section', ['matrix_model.section_id', 'page_info.id', 'page_info.title', 'page_info.description', 'page_info.flags', 'section.name'], ' and '.join(wheres))
+        return self.dbi.select('matrix_model, page_info, section', ['matrix_model.section_id', 'page_info.id', 'page_info.title', 'page_info.description', 'page_info.flags', 'section.name'], ' and '.join(wheres), tag='MatrixAppearances')
 
     #- link_line
 
@@ -933,20 +930,18 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         self.delete('link_line', where="id=%s" % id)
 
     def update_link_line(self, rec):
-        self.write('link_line', rec, 'id=%s' % rec['id'], modonly=True, tag='update_link_line')
+        self.write('link_line', rec, 'id=%s' % rec['id'], modonly=True, tag='UpdateLinkLine')
 
     def insert_link_line(self, rec, verbose=False):
-        return self.write('link_line', rec, newonly=True, tag='insert_link_line', verbose=verbose)
+        return self.write('link_line', rec, newonly=True, tag='InsertLinkLine', verbose=verbose)
 
     def fetch_link_line(self, id):
 	# turn this into a fetch
-        link = self.dbi.select('link_line', where="id='%s'" % id)
-	return link[0] if link else None
+        return self.dbi.select('link_line', where="id='%s'" % id, tag='LinkLine', one=True)
 
     def fetch_link_line_url(self, url):
 	# turn this into a fetch
-        link = self.dbi.select('link_line', where="url='%s'" % url)
-	return link[0] if link else None
+        return self.dbi.select('link_line', where="url='%s'" % url, tag='LinkLineURL', one=True)
 
     def clear_link_line_statuses(self, page_id=None, section=None, where=None, flags=None, verbose=False):
         wheres = list()
@@ -983,7 +978,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         return self.fetch('link_line l1, link_line l2', columns=columns, where=" and ".join(wheres), tag='LinksSingle', order="l1.display_order")
 
     def fetch_link_statuses(self):
-	return self.fetch('link_line', columns=['last_status'], distinct=True, tag='link_statuses', verbose=True)
+	return self.fetch('link_line', columns=['last_status'], distinct=True, tag='LinkStatuses', verbose=True)
 
     #- blacklist
 
@@ -1150,14 +1145,14 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
     #- box_type
 
     def fetch_box_type(self, box_id):
-	return self.fetch('box_type', where={"id": box_id}, verbose=True)
+	return self.fetch('box_type', where={"id": box_id}, verbose=True, tag='BoxTypes')
 
     def fetch_box_type_by_mod(self, mod_id, box_style=None):
 	# this sucks so hard
 	where1 = 'box_type.mod_id="%s"' % mod_id
 	where2 = '(box_type.mod_id=alias.id and alias.ref_id="%s")' % mod_id
 	where3 = ' and box_type.box_type like "%s%%"' % box_style if box_style else ''
-	return self.fetch('box_type', where=where1 + where3, verbose=True) + self.fetch('box_type,alias', where=where2 + where3, verbose=True)
+	return self.fetch('box_type', where=where1 + where3, verbose=True) + self.fetch('box_type,alias', where=where2 + where3, verbose=True, tag='BoxTypeByMod')
 
     #- user
 
@@ -1212,6 +1207,63 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 		retval = False
 	    self.raw_execute('unlock tables', tag='Token')
 	return retval
+
+    #- photographer
+
+    #- photo_credit
+
+    def fetch_photo_credit(self, path, name, suffix='', verbose=False):
+	if path.startswith('./'):
+	    path = path[2:]
+	if len(name) > 2 and name[0] in 'sml'  and name[1] == '_':
+	    name = name[2:]
+	if '.' in name:
+	    name = name[:name.find('.')]
+	if suffix:
+	    name += '-' + suffix
+        return self.fetch('photo_credit,photographer',
+                where=['photo_credit.photographer_id=photographer.id', 'photo_credit.path="%s"' % path, 'photo_credit.name="%s"' % name],
+                tag='PhotoCredit', verbose=verbose, one=True)
+
+    def fetch_photo_credits(self, photographer_id='', path='', name='', suffix='', verbose=False):
+	if path.startswith('./'):
+	    path = path[2:]
+	if len(name) > 2 and name[0] in 'sml'  and name[1] == '_':
+	    name = name[2:]
+	if '.' in name:
+	    name = name[:name.find('.')]
+	if suffix:
+	    name += '-' + suffix
+	wheres = ['photo_credit.photographer_id=photographer.id']
+	if path:
+	    wheres.append('photo_credit.path="%s"' % path)
+	if name:
+	    wheres.append('photo_credit.name="%s"' % name)
+	if photographer_id:
+	    wheres.append('photo_credit.photographer_id="%s"' % photographer_id)
+        return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCredit', verbose=verbose)
+
+    def write_photo_credit(self, photographer_id, path, name, suffix='', verbose=False):
+	if photographer_id and path and name:
+	    if path.startswith('./'):
+		path = path[2:]
+	    if len(name) > 2 and name[0] in 'sml'  and name[1] == '_':
+		name = name[2:]
+	    if '.' in name:
+		name = name[:name.find('.')]
+	    if suffix:
+		name += '-' + suffix
+	    ovalues = self.fetch_photo_credit(path, name, suffix, verbose=verbose)
+	    nvalues = {
+		'path': path,
+		'name': name,
+		'photographer_id': photographer_id,
+	    }
+	    where = ''
+	    if ovalues:
+		nvalues['id'] = ovalues['photo_credit.id']
+		where = 'photo_credit.id=%s' % nvalues['id']
+	    return self.write('photo_credit', values=nvalues, where=where, tag='WritePhotoCredit', verbose=verbose)
 
     #- miscellaneous
 

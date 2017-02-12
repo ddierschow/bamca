@@ -67,6 +67,7 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .modelicons i {float: right;}
 .vartable    {width: 100%; text-align: center;}
 .varentry    {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFFFFF;}
+.credit      {font-style: italic; font-size: x-small; text-align: right;}
 
 .titlebar    {height: 66px; font-size: xx-large; background-color: #000066; color: #FFFFFF; text-align: center;}
 

@@ -113,7 +113,6 @@ categories = {
     'GF'    : 'Graffic Traffic',
     'GS'    : 'Gift Set',
     'GW'    : 'Giftware',
-    'H'     : 'Heroes',
     'HD'    : 'Harley Davidson',
     'HNH'   : "Hitch 'n' Haul",
     'HR'    : 'Heroes',
@@ -403,6 +402,7 @@ model_types = {
 
 
 countries_dict = None
+country_code_dict = None
 countries = [
     ('AF', "Afghanistan"),
     ('AL', "Albania"),
@@ -760,6 +760,16 @@ arts = {
 }
 
 
+ATTRIBUTE_BASE     = 1
+ATTRIBUTE_BODY     = 2
+ATTRIBUTE_INTERIOR = 3
+ATTRIBUTE_WINDOWS  = 4
+
+areas = {
+    'ROW': 'Rest of World',
+    'LA': "Latin America",
+}
+
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_number(cid):
     id_m = id_re.match(cid)
@@ -786,8 +796,17 @@ def get_countries():
     return countries_dict
 
 
+def get_country_codes():
+    global countries, country_code_dict
+    if not country_code_dict:
+        country_code_dict = dict([(y, x) for x,y in countries])
+    country_code_dict.update({x: y for x,y in areas.items()})
+    return country_code_dict
+
+
 def get_country(cc2):
     return get_countries().get(cc2, '')
+
 
 
 starting_digits_re = re.compile('\d*')

@@ -460,7 +460,7 @@ class MannoFile(object):
 	    if pif.render.find_image_path(img_id, prefix=attr_pic['attr_type'], pdir='.' + pdir):
 		cnt += 1
 	return cnt, tot
-	    
+
     def get_picture_model_entries(self, pif, model_ids):
 	for mod in model_ids:
 	    mdict = self.mdict[mod]

@@ -12,9 +12,12 @@ def main(pif):
         print table, ':',
         if table in tables.table_info:
             desc = pif.dbh.dbi.execute('desc ' + table)
-            cols = [x[0] for x in desc[0]]
-            if set(cols) != set(tables.table_info[table]['columns']):
+            dbcols = set([x[0] for x in desc[0]])
+            ticols = set(tables.table_info[table]['columns'] + tables.table_info[table].get('extra_columns', []))
+            if dbcols != ticols:
                 print "differ"
+		print "  db:", sorted(dbcols - ticols)
+		print "  ti:", sorted(ticols - dbcols)
             else:
                 print "same"
         else:

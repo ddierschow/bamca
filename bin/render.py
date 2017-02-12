@@ -203,6 +203,26 @@ class Presentation(object):
 	    return ''
 	return os.path.join(*self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir, art=art))
 
+    def find_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
+        self.comment('find_image_list', fn, alt, wc, prefix, suffix, pdir)
+	pdir = useful.relpath(pdir if pdir else self.pic_dir)
+        if isinstance(suffix, str):
+            suffix = [suffix]
+        if isinstance(prefix, str):
+            prefix = [prefix]
+        imgs = list()
+
+        for suf in suffix:
+            for pref in prefix:
+                orig = (pref + fn + '.' + suf)
+                patt = (pref + fn + wc + '.' + suf)
+
+                for fname in [orig] + useful.read_dir(patt, pdir):
+                    img = self.fmt_img_src(pdir + '/' + fname, alt)
+		    if self.fmt_img_file_check(pdir, fname):
+                        imgs.append(fname)
+        return imgs
+
     def find_button_name(self, name):
 	return name.replace('<br>', '_').replace(' ', '_').lower()
 
@@ -331,7 +351,7 @@ of Matchbox International Ltd. and are used with permission.
     def format_shown_flags(self):
 	ball = '<span class="blue">&#x26ab;</span> '
 	return '<center>\n' + \
-	    ball.join(['<nobr>%s %s</nobr> ' % (self.format_image_flag(x), self.flag_info[x][0]) for x in 
+	    ball.join(['<nobr>%s %s</nobr> ' % (self.format_image_flag(x), self.flag_info[x][0]) for x in
 		sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'
 
     #---- tables
@@ -604,7 +624,7 @@ of Matchbox International Ltd. and are used with permission.
 
     def set_button_comment(self, pif, args=None):
         if args:
-            args = 'page=%s&%s' % (pif.page_id, args)
+            args = 'page=%s&%s' % (pif.page_id, unicode(args, errors='ignore'))
         else:
             args = 'page=%s' % pif.page_id
         ostr = self.format_button("comment on<br>this page", link='../pages/comment.php?%s' % args, also={'class': 'textbutton comment'}, lalso=dict())
@@ -687,7 +707,7 @@ of Matchbox International Ltd. and are used with permission.
 	return '\n'.join([self.fmt_img_src(pics[0], also={'id': select_id, 'class': 'shown'})] +
 			 [self.fmt_img_src(pics[n], also={'class': 'hidden'})
 			  for n in range(1, len(pics))])
-	    
+
     #---- lower level rendering blocks
 
     def fmt_pseudo(self, istr):
@@ -1058,7 +1078,7 @@ of Matchbox International Ltd. and are used with permission.
 	ostr += content + '\n'
 	ostr += '</div>\n</div>\n'
 	return ostr
-	
+
     def format_template(self, template, **kwargs):
         if self.tail.get('flags'):
             self.flag_list = list(self.shown_flags)

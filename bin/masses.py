@@ -63,7 +63,7 @@ def mass_select(pif):
 
     for row in rows:
 	entries.append({col:
-	    row[col] if col in table_info['id'] else 
+	    row[col] if col in table_info['id'] else
 		    pif.render.format_text_input(col + "." + '.'.join([str(row[x]) for x in table_info['id']]),
 		    256, 40, row[col])
 	for col in columns})
@@ -775,7 +775,7 @@ def add_pack_model(pif, pack):
 	    'var': 'var ' + pif.render.format_text_input("pm.var_id.%s" % mod, 20, 20, value='/'.join(list(set(pmodels[mod].get('vars', ''))))) +
 		    ' (' + str(pmodels[mod].get('pack_model.var_id', '')) + ')',
 	    'disp': 'disp ' + pif.render.format_text_input("pm.display_order.%s" % mod, 2, 2, value=pmodels[mod].get('pack_model.display_order', '')),
-	    'edit': pif.render.format_button('edit', link=pif.dbh.get_editor_link('pack_model', 
+	    'edit': pif.render.format_button('edit', link=pif.dbh.get_editor_link('pack_model',
 			pif.dbh.make_id('pack_model', pmodels[mod], 'pack_model' + '.'))),
 	})
     return dict(columns=['mod', 'var', 'disp', 'edit'], range=[{'entry': entries}], noheaders=True, header='pack_model<br>')
@@ -852,7 +852,7 @@ paren_re = re.compile('''\((?P<n>\d*)\)''')
 def pack_entry_form(pif, tab, dat, div_id=None, note=''):
     if not div_id:
 	div_id = tab
-    header = tab + ' ' + pif.render.format_button('edit', link=pif.dbh.get_editor_link(tab, 
+    header = tab + ' ' + pif.render.format_button('edit', link=pif.dbh.get_editor_link(tab,
 	pif.dbh.make_id(tab, dat, tab + '.')))
     header +=  pif.render.format_button_input_visibility(div_id) + ' ' + note + '<br>'
     descs = pif.dbh.describe_dict(tab)

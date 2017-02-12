@@ -50,7 +50,7 @@
 {%- if not section.noheaders %}
 <tr class="er">
 {%- for col in section.columns %}
-{#-  <th class="{{ render.class_id('eh', section.id) }}{{ render.class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
+{#-  <th class="{{ render.class_id('eh', section.id) }} {{ render.class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
   <th class="{{ render.class_id('eh', col, range.id, section.id) }}">{{ section.headers[col] }}</th>
 {%- endfor -%}
 </tr>
@@ -125,7 +125,7 @@
 {%- endif -%}
 {%- for entry in range.entry %}
 {%- if entry.firstent %} <tr class="er">{% endif %}
-  <td{%- if not lmatrix.widthauto %} width="{{ entry.width }}"{% endif %} class="{{ render.class_id('', entry.class) }}{{ render.class_id('eb', range.id, entry.display_id) }}"{% if entry.colspan > 1 %} colspan="{{ entry.colspan }}"{% endif %}{% if entry.rowspan > 1 %} rowspan="{{ entry.rowspan }}"{% endif %}>
+  <td{%- if not lmatrix.widthauto %} width="{{ entry.width }}"{% endif %} class="{{ render.class_id('', entry.class) }} {{ render.class_id('eb', range.id, entry.display_id) }}"{% if entry.colspan > 1 %} colspan="{{ entry.colspan }}"{% endif %}{% if entry.rowspan > 1 %} rowspan="{{ entry.rowspan }}"{% endif %}>
 {{- entry_formatter(entry) }}
   </td>
 {%- if entry.lastent or loop.last %} </tr>{% endif %}
