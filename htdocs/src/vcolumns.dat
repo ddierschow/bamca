@@ -1,4 +1,5 @@
 |cate|category
+|note;from_CY_number|note
 
 LS01a|body_casting|gap_between_door_and_fender;year_on_base;front_bumper;infill_above_gas_tank
 LS01a|cab_base|cab_base;grille
@@ -224,6 +225,7 @@ MI044|tampo|labels_tampo
 MI044|end_ridges_rivets|end_ridges;end_rivets
 LS45b|labels|labels_decal_tampo
 EA45b|decal_tampo|labels_decal_tampo
+LS45b|door_hinges|springs;door_hinges
 EA45b|wheels|front_wheels;rear_wheels
 LS45b|wheels|front_wheels;rear_wheels
 LS45c|wheels|front_wheels;rear_wheels
@@ -298,6 +300,7 @@ LS62c|wheels|front_wheels;rear_wheels
 MI062|front_rear_wheels|front_wheels;rear_wheels
 MI062|tampo|side_tampo
 LS63a|wheels|front_wheels;rear_wheels
+LS63a|crane_cab_boom|crane_cab_boom;die_number
 LS63b|base|cab_base
 LS63c|base|coupling_base
 LS63e|windows_roof_lights|windows;roof_lights

@@ -29,6 +29,8 @@ regionparents = {
     'L': 'W',
 }
 
+model_texts = ['Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows']
+
 lineup_types = [
     ("man", "Main line models"),
     ("series", "Series"),

@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import os, stat
+import glob, os, stat
 import basics
 import bfiles
 import config
@@ -159,6 +159,9 @@ def show_imgs(pif, tform):
     print '<hr>'
     print '<form action="traverse.cgi" method="post">' + pif.render.format_form_token()
     plist = tform.patt.split(',')
+    if tform.mss:
+	print 'Credit ' + pif.render.format_text_input('credit', 4)
+	print '<br>'
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
         flist_sort(flist, tform)

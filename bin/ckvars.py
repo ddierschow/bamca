@@ -92,7 +92,7 @@ def check_var_data(pif, id_list):
 	vars = modify_vars(pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)))
 	vars_dict = {x['var']: x for x in vars}
 	for var in vars:
-	    var['visual_key'] = tuple([var[x] for x in visual_keys])
+	    var['visual_key'] = tuple([var.get(x, '') for x in visual_keys])
 	    vk_set.setdefault(var['visual_key'], list())
 	    vk_set[var['visual_key']].append(var['var'])
 	for vk in sorted(vk_set):

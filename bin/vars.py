@@ -10,9 +10,9 @@ import useful
 
 
 id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic']
-note_attributes = ['manufacture', 'area', 'category', 'date', 'note', 'from_CY_number']
+note_attributes = ['manufacture', 'area', 'category', 'date', 'note']
 desc_attributes = ['text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows']
-hidden_attributes = ['mod_id', 'var', 'picture_id', 'other', 'references', 'imported', 'imported_from', 'imported_var', 'flags']
+hidden_attributes = ['mod_id', 'var', 'picture_id', 'references', 'imported', 'imported_from', 'imported_var', 'flags']
 detail_attributes = ['base', 'body', 'interior', 'windows']
 
 list_columns = ['ID', 'Description', 'Details', 'Picture', 'Notes']
@@ -267,8 +267,6 @@ def save(pif, mod_id, var_id):
                 det_dict[attr] = pif.form.get_str(key)
             else:
                 var_dict[attr] = pif.form.get_str(key)
-        if 'from_CY_number' in var_dict and 'from_CY_number' not in attributes:
-            del var_dict['from_CY_number']
         pif.render.message('<p>', det_dict, '<p>', var_dict)
         if var_id != var_dict['var']:
             rename_variation(pif, var_dict['mod_id'], var_id, var_dict['var'])
@@ -515,17 +513,16 @@ class VarSearchForm(object):
 
 	entries = []
 	for key in sorted(set(self.attributes.keys()) - set(hidden_attributes) - set(desc_attributes)):
-	    #pif.render.comment(key)
 	    if key == 'category':
 		cates = [('', '')] + [(x, mbdata.categories.get(x, x)) for x in values[key]]
 		cates.sort(key=lambda x: x[1])
 		value = pif.render.format_button_up_down_select(key, -1) + pif.render.format_select(key, cates, id=key) + \
 			'&nbsp;' + pif.render.format_checkbox('c1', [(1, 'Code 1 only')])
-	    elif values.get(key):
+	    elif not any(values.get(key, [])):
+		continue
+	    else:
 		value = pif.render.format_button_up_down_select(key, -1) + \
 			pif.render.format_select(key, [('', '')] + sorted(values[key]), id=key)
-	    else:
-		value = pif.render.format_text_input(key, 64, 64)
 	    title = self.attributes[key]['title']
 	    title_modal = show_detail_modal(pif, self.attr_pics.get(key, {}), self.mod_id)
 	    if title_modal:
@@ -931,7 +928,7 @@ def var_search(pif):
 #       'columns': ['mod_id', 'var', 'flags',
 #           'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows',
 #           'base', 'body', 'interior', 'windows',
-#           'manufacture', 'category', 'area', 'date', 'note', 'other', 'picture_id', 'imported', 'imported_from', 'imported_var'],
+#           'manufacture', 'category', 'area', 'date', 'note', 'picture_id', 'imported', 'imported_from', 'imported_var'],
 def run_search_command(pif, args):
     mods = pif.dbh.fetch_variations(args[0])
     mods.sort(key=lambda x: x['variation.var'])

@@ -196,7 +196,7 @@ table_info = {
         'columns': ['mod_id', 'var', 'flags',
             'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows',
             'base', 'body', 'interior', 'windows',
-            'manufacture', 'category', 'area', 'date', 'note', 'other', 'picture_id', 'imported', 'imported_from', 'imported_var'],
+            'manufacture', 'category', 'area', 'date', 'note', 'picture_id', 'imported', 'imported_from', 'imported_var'],
         'titles': ['Model ID', 'Variation ID', 'Flags',
             'Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows',
             'Base', 'Body', 'Interior', 'Windows',

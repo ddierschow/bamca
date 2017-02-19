@@ -86,7 +86,7 @@
 <center><span class="modelnumber">{{ model.id }}</span><br>
 <table><tr><td>
 {{ model.img }}<br>
-{% if model.credit %}<div class="credit">Photo credit: {{ model.credit }}</div>{% endif %}
+<div class="credit">{% if model.credit %}Photo credit: {{ model.credit }}{% else %}&nbsp;{% endif %}</div>
 </td></tr></table>
 <span class="info_name">{{ model.name }}</span>
 {%- for s in model.descs %}<br>{{ s }}{% endfor %}
@@ -135,7 +135,7 @@
 {%- if product_image or prod_title or variations %}
 <div class="inset inset_m">
 {%- if product_image %}<center>{{ product_image }}
-{% if product_img_credit %}<div class="credit">Photo credit: {{ product_img_credit }}</div>{% endif %}
+<div class="credit">{% if product_img_credit %}Photo credit: {{ product_img_credit }}{% else %}&nbsp;{% endif %}</div>
 </center><p>{% endif %}
 {%- if prod_title %}
 <center>{{ prod_title }}</center>

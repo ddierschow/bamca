@@ -229,8 +229,11 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations
             links.append('<a href="vedit.cgi?d=src/mbxf&m=%(mod_id)s&f=%(imported_from)s">%(imported_from)s</a>' % vf)
 	var_pics, var_texts = show_list_var_pics(pif, mod_id)
         ostr += '<br>\n'.join(var_pics) + '<p>\n'
-	for vt in var_texts[1:]:
-	    ostr += '<i class="fa fa-star %s"></i>\n' % (
+	fmt_bad, _ = pif.dbh.check_description_formatting(mod_id)
+	ostr += '<i class="fa fa-times red"></i>' if fmt_bad else '<i class="fa fa-check green"></i>'
+	for i_vt in range(1, len(var_texts)):
+	    vt = var_texts[i_vt]
+	    ostr += '<i title="%s" class="fa fa-star %s"></i>\n' % (mbdata.model_texts[i_vt - 1],
                     'green' if vt == var_texts[0] else ('red' if not vt else 'yellow'))
         ostr += '<p>\n'
         ostr += '<i class="fa %s"></i><p>\n' % prodstar

@@ -246,11 +246,16 @@ class VariationImportData(object):
             elif len(hdrs) > 1:  # N to 1 join
                 self.debug('RCC 4b')
                 nvals = list()
+		no_val = ''
                 for hdr in hdrs:
                     self.debug('RCC 4c', hdr, row.get(hdr))
-                    if hdr in row and row[hdr] != 'no' and row[hdr] not in nvals:
+		    if row.get(hdr) == 'no':
+			no_val = 'no'
+                    elif hdr in row and row[hdr] and row[hdr] not in nvals:
+			self.debug('   ... added', row[hdr])
                         nvals.append(row[hdr])
-                row[nhdrs[0]] = ', '.join(nvals) if nvals else 'no'
+                row[nhdrs[0]] = ', '.join(nvals) if nvals else no_val
+                self.debug('RCC 4b-finish', nhdrs[0], row[nhdrs[0]])
             elif len(nhdrs) > 1:  # 1 to N split
                 hdr = hdrs[0]
                 if hdr not in row:

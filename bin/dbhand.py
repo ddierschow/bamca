@@ -168,7 +168,7 @@ class DBHandler(object):
     def delete(self, table, where=None, tag='Delete', verbose=None):
         return self.dbi.remove(table, where, tag=tag, verbose=verbose)
 
-    def update_flags(self, table_name, turn_on, turn_off, where=None, tag='UpdateFlags', verbose=False):
+    def update_flags(self, table_name, turn_on=0, turn_off=0, where=None, tag='UpdateFlags', verbose=False):
 	# update table set flags = flags & ~turn_off | turn_on where
         return self.dbi.updateraw(table_name,
 	    {'flags': 'flags & ~%d | %d' % (turn_off, turn_on)}, where, tag=tag, verbose=verbose)
@@ -955,7 +955,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	    wheres.append("flags & %s" % flags)
         return self.write('link_line', {'last_status': None}, where=" and ".join(wheres), tag='LinkLineStatuses', modonly=True, verbose=verbose)
 
-    def fetch_link_lines(self, page_id=None, section=None, where=None, flags=None, order=None, verbose=False):
+    def fetch_link_lines(self, page_id=None, section=None, where=None, flags=None, not_flags=None, order=None, verbose=False):
         wheres = list()
         if where:
             wheres.append(where)
@@ -965,6 +965,8 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             wheres.append("section_id='" + section + "'")
 	if flags:
 	    wheres.append("flags & %s" % flags)
+	if not_flags:
+	    wheres.append("not(flags & %s)" % not_flags)
         return self.fetch('link_line', where=" and ".join(wheres), order=order, tag='LinkLines', verbose=verbose)
 
     def fetch_links_single(self, page_id=None):
@@ -1401,8 +1403,6 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 			messages += '%s ! %s %s%s\n' % (mod_id, cas_col, fmt, linesep)
 			retval = True
 	for attr in attributes:
-	    if attr == 'from_CY_number':
-		continue
 	    found = False
 	    attr_re = re.compile(r'\b%s\b' % attr)
 	    for col in cas_cols[1:]:  # ignore description for this check

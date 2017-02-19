@@ -373,7 +373,7 @@ class MannoFile(object):
 	    if not mdict['vehicle_type']:
 		mdict['vehicle_type'] = '<i class="fa fa-ban red"></i>'
 	    fmt_bad, _ = pif.dbh.check_description_formatting(mdict['id'])
-	    mdict['fo'] = '<i class="fa fa-ban red"></i>' if fmt_bad else ''
+	    mdict['fo'] = '<i class="fa fa-times red"></i>' if fmt_bad else ''
 	    makes = pif.dbh.fetch_casting_makes(mod)
 	    mdict['make'] = '<br>'.join([
 		pif.render.format_link("http://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
@@ -752,7 +752,7 @@ def run_text_search(pif, *args):
         pif.render.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod)
 
 
-def add_attributes(pif, mod_id=None, attr_list=None, *args, **kwargs):
+def add_attributes(pif, mod_id=None, *attr_list):
     if not mod_id or not attr_list:
 	return
     for attr in attr_list:

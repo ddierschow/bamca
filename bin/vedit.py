@@ -373,6 +373,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
     attrs = pif.dbh.depref('attribute', attrs)
     common_attrs = pif.dbh.fetch_attributes('')
     common_attrs = pif.dbh.depref('attribute', common_attrs)
+    visual_base = bool(mod['flags'] & pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE)
     print '<form method="post">' + pif.render.format_form_token()
     print '<input type="hidden" name="mod_id" value="%s">' % mod_id
     dets = pif.dbh.fetch_details(mod_id, "").get('', dict())
@@ -402,7 +403,10 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
 	    pif.render.format_hidden_input({"attribute_name.%(id)d" % attr: attr["attribute_name"]}))
         print "<td>%s</td>" % attr["definition"]
         print "<td>%s</td>" % attr["title"]
-        print "<td>%s</td>" % ('X' if attr['visual'] else '')
+	if attr['attribute_name'] == 'base':
+	    print "<td>%s</td>" % pif.render.format_checkbox("visualbase", [(1, '')], [1 if visual_base else 0])
+	else:
+	    print "<td>%s</td>" % ('X' if attr['visual'] else '')
         print "<td>%s</td>" % pif.render.format_text_input("description.%(id)d" % attr, 64, 32, dets.get(attr["attribute_name"], ""))
         print "<td>%s</td>" % pif.render.format_button_input(bname="save", name='renattr.%d' % attr['id'])
         print "</tr>"
@@ -749,6 +753,11 @@ def save_attribute(pif, attr_id, mod_id):
 	    print 'detail', rec, where
             print pif.dbh.write("detail", rec, where)
 	    print '<br>'
+	if attr_id == 1:
+	    if pif.form.get_bool("visualbase"):
+		pif.dbh.update_flags('base_id', turn_on=pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE, where='id="%s"' % mod_id)
+	    else:
+		pif.dbh.update_flags('base_id', turn_off=pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE, where='id="%s"' % mod_id)
     else:
         print '%d attributes returned!' % len(attr)
 

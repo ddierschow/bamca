@@ -40,7 +40,7 @@ def link_page(pif):
     else:
         sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
     sections = pif.dbh.depref('section', sections)
-    linklines = pif.dbh.fetch_link_lines(pif.page_id)
+    linklines = pif.dbh.fetch_link_lines(pif.page_id, not_flags=pif.dbh.FLAG_ITEM_HIDDEN)
     linklines = pif.dbh.depref('link_line', linklines)
     linklines.sort(key=lambda x: int(x['display_order']))
     sect_links = dict()

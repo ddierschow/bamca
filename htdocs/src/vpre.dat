@@ -94,6 +94,8 @@ LS42c|container|r/\sA| / A
 LS42c|container|r/\sB| / B
 LS42c|container|r/\sC| / C
 LS42c|container|r/\sD| / D
+LS45b|door_hinges|A|with / thin
+LS45b|door_hinges|B|no / thick
 LS49c|wheels_hubs|,|/
 EA49d|wheels_hubs|5 crown 11.5x6.5mm silver front, dot dash 14x7mm silver rear|5 crown 11.5x6.5mm silver / dot dash 14x7mm / silver
 EA49d|wheels_hubs|4 dot 15x7mm gold|4 dot 15x7mm / 4 dot 15x7mm / gold
@@ -113,6 +115,8 @@ MI059|base|(C)|/ axle braces / without / without scale / with rear license plate
 MI059|base|(D)|/ axle braces / without / with scale / without rear license plate / thick
 LS62c|base|(A)|, backslash marks
 LS62c|base|(B)|, slash and backslash marks
+LS63a|crane_cab_boom|(1)|/ 1
+LS63a|crane_cab_boom|(2)|/ 2
 LS71c|grille|A|separate headlights
 LS71c|grille|B|connected headlights
 LS72e|wheels_hubs|,| / 
