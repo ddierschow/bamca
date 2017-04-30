@@ -150,6 +150,7 @@ def ads(pif):
 	# ent: id, description, country, first_year, model_type
 	cy, post = fmt_cy(ent)
 	floc = '.' + pdir + '/' + ent['id'] + '.jpg'
+	lloc = floc.replace('/pic/', '/lib/')
 	url = pdir + '/' + ent['id'] + '.jpg'
 	name = useful.printablize(ent['description'])
 	if ent.get('first_year'):
@@ -164,6 +165,8 @@ def ads(pif):
 )
 	    if os.path.exists(floc):
 		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (pdir, ent['id'] + '.jpg'), '<i class="fa fa-paint-brush"></i>')
+	    elif os.path.exists(lloc):
+		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (pdir.replace('pic', 'lib'), ent['id'] + '.jpg'), '<i class="fa fa-paint-brush"></i>')
 	    post += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (lib_dir, ent['id'] + '.jpg'), '<i class="fa fa-upload"></i>')
 	    name = ent['id'] + ' - ' + name
 	files.append(ent['id'] + '.jpg')

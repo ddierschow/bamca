@@ -936,6 +936,47 @@ def run_search_command(pif, args):
         pif.render.message('%(mod_id)-8s|%(var)-5s|%(imported_from)-8s|%(text_description)-s' % pif.dbh.depref('variation', mod))
 
 
+def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
+    value = ' '.join(args)
+    mod = pif.dbh.fetch_casting(mod_id)
+    if not mod:
+	print mod_id, 'not found'
+	return
+    attrs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))
+
+    for attr in attrs:
+	if attr['attribute_name'] == attribute:
+	    break
+    else:
+	print attribute, 'not found'
+	return
+
+    var = {}
+    if var_id == 'default':
+	var_id = ''
+	var_id_list = []
+    elif var_id == 'all':
+	var_id = '*'
+	var_id_list = [x['variation.var'] for x in pif.dbh.fetch_variations(mod_id)]
+    else:
+	var = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))
+	var_id_list = [var_id]
+	if not var:
+	    print var_id, 'not found'
+	    return
+
+    print mod_id, var_id_list, attribute, attr['id'], '=>', value
+    if var_id:
+	for var_id in var_id_list:
+	    if attribute in detail_attributes and var_id:
+		pif.dbh.update_variation({attribute: value}, {'mod_id': mod_id, 'var': var_id})
+	    else:
+		print pif.dbh.add_or_update_detail({'description': value, 'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=True)
+    else:
+	print pif.dbh.add_or_update_detail({'description': value, 'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=True)
+    pif.dbh.recalc_description(mod_id)
+
+    
 def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
     if not mod_id:
 	return
@@ -955,13 +996,14 @@ def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
 
 
 def command_help(pif, *args):
-    pif.render.message("./vars.py [d|r|c|s|m|i] ...")
+    pif.render.message("./vars.py [d|r|c|s|m|i|v] ...")
     pif.render.message("  d for delete: mod_id var_id")
     pif.render.message("  r for rename: mod_id old_var_id new_var_id")
     pif.render.message("  c for copy: mod_id old_var_id new_var_id")
     pif.render.message("  s for swap: mod_id var_id_1 var_id_2")
     pif.render.message("  m for move: old_mod_id old_var_id new_mod_id [new_var_id]")
     pif.render.message("  i for info: fields mod_id var_id")
+    pif.render.message("  v for value: mod_id var_id-or-default-or-all attribute value")
 
 
 command_lookup = {
@@ -972,6 +1014,7 @@ command_lookup = {
     'm': move_variation,
     'f': run_search_command,
     'i': info,
+    'v': add_value,
 }
 
 
@@ -980,7 +1023,7 @@ def commands(pif):
     if pif.filelist:
 	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
     else:
-	command_help()
+	command_help(pif)
 
 
 if __name__ == '__main__':  # pragma: no cover

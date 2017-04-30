@@ -201,7 +201,7 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
     ratio = float(xts) / float(yts)
     useful.write_message("set_shape_sizes", x1, y1, "/", x2, y2, ';', xts, yts, ';', xcs, ycs, ';', xos, yos, ';', ratio)
     if xcs < xts:
-        if xos < xts:
+        if xos < xts: # this one doesn't work right
             useful.write_message("fix x to orig /", nonl=True)
             x1 = 0
             x2 = xos - 1
@@ -825,13 +825,6 @@ class ActionForm(object):
 	    useful.file_delete(from_path)
 	elif self.archive:
 	    useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
-	elif self.selcat:
-	    if not self.nname or not self.dest:
-		useful.warn('What? (selcat, no name or dest)')
-	    else:
-		to_dir = self.dest
-		to_name = self.nname
-		log_action = True
 	elif self.rename:
 	    if not self.nname:
 		useful.warn('What? (rename, no name)')
@@ -856,6 +849,22 @@ class ActionForm(object):
 	    else:
 		to_dir = os.path.join('lib', self.cat)
 		to_name = self.nname
+	elif self.selcat:
+	    if not (self.man or self.nname) or not self.dest:
+		useful.warn('What? (selcat, no name or dest)')
+	    else:
+		ddir = self.dest
+		dnam = self.man if self.man else self.nname
+		if self.pref:
+		    dnam = self.pref + '_' + dnam
+		    if self.ptype == 't':
+			ddir = '.' + config.IMG_DIR_ADD
+			if self.suff:
+			    dnam += '-' + self.suff
+		if dnam:
+		    to_name = dnam.lower() + '.jpg'
+		    to_dir = ddir
+		log_action = True
 	elif self.select:
 	    inc = self.inc
 	    if not self.man:
@@ -984,8 +993,7 @@ class ActionForm(object):
 	    for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
 		if x <= szxy[0]:
 		    break
-	if not self.pref:
-	    self.pref = 's' + szname
+	self.pref = 's' + szname
 	print '<input type=hidden name="act" value="1">'
 	print '<input type=hidden name="d" value="%s">' % self.tdir
 	print '<input type=hidden name="fi" value="%s">' % fn

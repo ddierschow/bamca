@@ -289,7 +289,14 @@ function SectionManno() {
 	echo "   <td>Start year:</td>\n";
 	SelectYear('syear', 'manSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
     }
-    echo " </tr>\n <tr><td colspan=\"2\"></td>\n  <td>ending at:</td>\n";
+    echo " </tr>\n <tr><td colspan=\"2\">";
+    if ($isadmin) {
+	echo "<i>";
+	Checks('checkbox', 'large', [['1', 'Large']], '');
+	echo "</i>";
+    }
+    echo "</td>\n";
+    echo "  <td>ending at:</td>\n";
     ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 1499, 1499, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
     if ($isadmin) {

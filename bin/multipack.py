@@ -93,8 +93,6 @@ def make_pack_list(pif, sec='', year='', region='', lid='', verbose=False):
 			 (region and region != pack['region']) or (lid and not pack['id'].startswith(lid)) or \
 			 not useful.search_match(title, pack['name']):
 		    continue
-		relateds = []  #pif.dbh.fetch_packs_related(pack['id'])
-		pack['rel'] = ' '.join(sorted([x['pack.id'] for x in relateds]))
 		pack['year'] = (pack['first_year'] + '-' + pack['end_year']) if (pack['end_year'] and pack['end_year'] != pack['first_year']) else pack['first_year']
 
 		pack['layout'] = pack['layout'] if pack['layout'] in pack_layouts else '<font color="red">%s</font>' % pack['layout']
@@ -136,12 +134,12 @@ def modify_pack_admin(pif, pack):
 	elif not pmodels[mod].get('vs.var_id'):
 	    stars += '<i class="fa fa-star red"></i> '
 	elif pmodels[mod]['imgstr'].find('-') < 0:
-	    stars += '<i class="fa fa-star gray"></i> '
+	    stars += '<i class="fa fa-star yellow"></i> '
 	else:
 	    stars += '<i class="fa fa-star black"></i> '
     pack['stars'] = stars
     pack['edlink'] = '<a href="mass.cgi?verbose=1&type=pack&section_id=%(section_id)s&pack=%(id)s&num=">%(id)s</a>' % pack
-    relateds = []  #pif.dbh.fetch_packs_related(pack['id'])
+    relateds = pif.dbh.fetch_packs_related(pack['id'])
     pack['rel'] = ' '.join(sorted([x['pack.id'] for x in relateds]))
 
 # ---- single pack ----------------------------------------------------
@@ -155,6 +153,7 @@ def do_single_pack(pif, pid):
     pif.render.hierarchy_append('', pack['base_id.rawname'])
 
     pack_id = pack['pack.id']
+    db_relateds = pif.dbh.fetch_packs_related(pack_id)
     relateds = [
 	{
 	    'link': pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'], r['base_id.rawname']),
@@ -164,7 +163,7 @@ def do_single_pack(pif, pid):
 	    'material': mbdata.materials.get(r['pack.material'], ''),
 	    'description': r['base_id.description'],
 	}
-	for r in pif.dbh.fetch_packs_related(pack_id)
+	for r in db_relateds
     ]
 
     tcomments = set()
@@ -239,7 +238,7 @@ def distill_models(pif, pack, page_id):
     pack['pic'] += imglib.format_image_star(pif, pic)
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
     pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
-    if pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL):
+    if ''.join(pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):
 	pack['thumb'] += '<i class="fa fa-star"></i>'
     pmodels = {}
 

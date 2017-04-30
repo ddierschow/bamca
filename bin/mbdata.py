@@ -606,6 +606,7 @@ countries = [
     ('ZW', "Zimbabwe"),
 ]
 
+IMG_SIZ_ENORMOUS = 'e'
 IMG_SIZ_GIGANTIC = 'g'
 IMG_SIZ_HUGE = 'h'
 IMG_SIZ_LARGE = 'l'
@@ -613,13 +614,13 @@ IMG_SIZ_MEDIUM = 'm'
 IMG_SIZ_PETITE = 'c'
 IMG_SIZ_SMALL = 's'
 IMG_SIZ_TINY = 't'
-image_size_names = ["micro", "tiny", "small", "compact", "medium", "large", "huge", "gigantic"]
-image_size_types = ["u", "t", "s", "c", "m", "l", "h", "g"]
-image_size_sizes = [(50, 30), (100,  60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480), (1200, 720)]
+image_size_names = ["micro", "tiny", "small", "compact", "medium", "large", "huge", "gigantic", "enormous"]
+image_size_types = ['u', 't', 's', 'c', 'm', 'l', 'h', 'g', 'e']
+image_size_sizes = [(50, 30), (100,  60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480), (1000, 600), (1200, 720)]
 
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
-image_adds_names = ['advertisement', 'baseplate', 'comparison', 'custom', 'detail', 'error', 'interior', 'prototype', 'real', 'box']
+image_adds_names = ["advertisement", "baseplate", "comparison", "custom", "detail", "error", "interior", "prototype", "real", "box"]
 image_adds_types = ['f', 'b', 'z', 'a', 'd', 'e', 'i', 'p', 'r', 'x']
 
 model_type_chars = "aob2e1r4uztv59cidjgfmpl8hx"

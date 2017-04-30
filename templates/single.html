@@ -2,11 +2,23 @@
 {%- import "showix.html" as showix -%}
 
 {%- macro show_boxes() %}
-{{ showix.format_matrix(boxes_lineup, simple_formatter) }}
+{# showix.format_matrix(boxes_lineup, simple_formatter) #}
 {%- endmacro %}
 
 {%- macro show_adds() %}
-{{ adds_box }}
+{% for shadd in adds %}
+<h3>{{ shadd.title }}</h3>
+<table><tr>
+{% for ent in shadd.entry %}
+<td><center>
+{{ ent.img }}
+{% if ent.credit %}<div class="credit">Photo credit: {{ ent.credit }}</div>{% else %}<br>{% endif %}
+{{ ent.desc }}</center>
+</td>
+{% if not (loop.index % shadd.columns) and not loop.last %}</tr><tr>{% endif %}
+{% endfor %}
+</tr></table>
+{% endfor %}
 {%- endmacro %}
 
 {%- macro show_model_links(sz='inset_m') %}

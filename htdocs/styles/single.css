@@ -23,4 +23,4 @@ body {background-color: #EEEEEE;}
 .modelinfo {border-spacing: 8px;}
 .modelinfo th {border-style: solid; border-width: 0 0 1px 0; text-align: center;}
 .modelinfo td {margin: 8px; text-align: center;}
-.info_name {border-style: solid; border-width: thin; font-weight: bold; padding: 2px 16px 3px; font-size: large; color: #FFFFFF; background-color: #CC6600;}
+.info_name {border-style: solid; border-width: thin; font-weight: bold; padding: 3px 16px 2px; margin-bottom: 3px; font-size: large; color: #FFFFFF; background-color: #CC6600;}

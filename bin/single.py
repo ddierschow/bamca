@@ -241,36 +241,35 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations
         var_ids.sort()
         for var in var_ids:
             ostr += '<a href="vars.cgi?mod=%s&var=%s&edit=1">%s</a>\n' % (mod_id, var, var)
-	    for sz in mbdata.image_size_types:
-		if os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + mod_id + '-' + var + '.jpg').lower()):
-		    ostr += sz.upper() + ' '
-            ostr += '<a href="vars.cgi?mod=%s&var=%s"><i class="fa fa-edit"></i></a>\n' % (mod_id, var)
-	    ostr += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var, mod_id, var), '<i class="fa fa-upload"></i>') + '\n'
-	    ostr += pif.render.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var), '<i class="fa fa-bars"></i>') + '\n'
+	    if var:
+		for sz in mbdata.image_size_types:
+		    if os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + mod_id + '-' + var + '.jpg').lower()):
+			ostr += sz.upper() + ' '
+		ostr += '<a href="vars.cgi?mod=%s&var=%s"><i class="fa fa-edit"></i></a>\n' % (mod_id, var)
+		ostr += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var, mod_id, var), '<i class="fa fa-upload"></i>') + '\n'
+		ostr += pif.render.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var), '<i class="fa fa-bars"></i>') + '\n'
             ostr += '<br>\n'
     ostr = '<br>\n'.join(links) + '<p>\n' + ostr
     return ostr
 
 
-def show_boxes(pif, mod_id, box_types, mack_nums):
+def make_boxes(pif, mod_id, box_types, mack_nums):
     mod_id = box_types[0]['box_type.mod_id']
     base_box_types = [box['box_type.box_type'][0] for box in box_types]
     box_fmt = "<b>%s style box</b><br>%s" #<br>%s entries"
     # rewrite this.  glob for alternate boxes.  well, maybe.
     entries = [
-	{'text':
+	{'desc':
+	    pif.render.format_link('boxart.cgi', txt='%s style box' % box_type,
+		args={'mod': mod_id, 'ty': box_type}),
+	 'img':
 	    pif.render.format_link('boxart.cgi',
-		txt=box_fmt % (box_type,
-		    pif.render.format_image_sized([mod_id + '-' + box_type], pdir=config.IMG_DIR_BOX, required=True)
-		    #, base_box_types.count(box_type)
-		),
-		args={'mod': mod_id, 'ty': box_type})
+		txt=pif.render.format_image_sized([mod_id + '-' + box_type], pdir=config.IMG_DIR_BOX, required=True),
+		args={'mod': mod_id, 'ty': box_type}),
 	} for box_type in sorted(list(set(base_box_types)))]
-    llineup = {'id': 'boxes', 'name': 'Boxes', 'columns': min(2, len(entries)),
-	'section': [{'id': 'box', 'name': 'Box Styles',
-	    'range': [{'entry': entries}]}],
-    }
-    return pif.render.format_matrix_for_template(llineup)
+    elem = {'title': 'Box Style%(s)s' % {'s': useful.plural(entries)}, 'entry': entries,
+	    'columns': 2}
+    return elem
 
 
 def show_lineup_appearances(pif, appearances):
@@ -448,6 +447,8 @@ def show_single(pif):
 	}
 
     model['makes'] = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
+    adds = [make_boxes(pif, mod_id, boxstyles, aliases)] if boxstyles else []
+    adds += models.make_adds(pif, mod_id)
 
     # ------- render ------------------------------------
 
@@ -476,8 +477,8 @@ def show_single(pif):
 	'external_links': show_external_links(pif, pif.dbh.fetch_links_single('single.' + mod_id)),
 	'relateds': make_relateds(pif, mod_id),
 	'compares': make_compares(pif, mod_id),
-	'boxes_lineup': show_boxes(pif, mod_id, boxstyles, aliases) if boxstyles else None,
 	'adds_box': models.show_adds(pif, mod_id),
+	'adds': adds,
     }
     return pif.render.format_template('single.html', **context)
 

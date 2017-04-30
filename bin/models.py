@@ -59,7 +59,8 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     for s in mdict['descs']:
         if s.startswith('same as '):
             img.append(s[8:].lower())
-    mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'], prefix=mdict.get('prefix', mbdata.IMG_SIZ_SMALL))
+    img_size = mdict.get('prefix', mbdata.IMG_SIZ_LARGE if pif.form.get_bool('large') else mbdata.IMG_SIZ_SMALL)
+    mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'], prefix=img_size)
     mdict['flag'] = ''
     if mdict.get('country') in flago:
         mdict['flag'] = pif.render.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})
@@ -231,23 +232,24 @@ def add_icons(pif, type_id, base_id, vehicle_type):
     return ostr
 
 
-def show_adds(pif, mod_id, var_id=''):
-    mod_adds = [
-        ["b_", "Sample Baseplate%(s)s", "<p>"],
-        ["d_", "Detail%(s)s", " "],
-        ["i_", "Interior%(s)s", "<p>"],
-        ["p_", "Prototype%(s)s or Preproduction Model%(s)s", "<p>"],
-        ["r_", "Real Vehicle Example%(s)s", "<p>"],
-        ["a_", "Customization%(s)s", "<p>"],
-        ["f_", "Advertisement%(s)s", "<p>"],
-        ["e_", "Error Model%(s)s", "<p>"],
-    ]
-    var_adds = [
-        ["b_", "Baseplate%(s)s", "<p>"],
-        ["d_", "Detail%(s)s", " "],
-        ["i_", "Interior%(s)s", "<p>"],
-    ]
+mod_adds = [
+    ["b_", "Sample Base%(s)s", "<p>", 1],
+    ["d_", "Detail%(s)s", " ", 1],
+    ["i_", "Interior%(s)s", "<p>", 1],
+    ["p_", "Prototype%(s)s or Preproduction Model%(s)s", "<p>", 1],
+    ["r_", "Real Vehicle Example%(s)s", "<p>", 1],
+    ["a_", "Customization%(s)s", "<p>", 2],
+    ["f_", "Advertisement%(s)s", "<p>", 1],
+    ["e_", "Error Model%(s)s", "<p>", 1],
+]
+var_adds = [
+    ["b_", "Base%(s)s", "<p>", 1],
+    ["d_", "Detail%(s)s", " ", 1],
+    ["i_", "Interior%(s)s", "<p>", 1],
+]
 
+
+def show_adds(pif, mod_id, var_id=''):
     photo_credits = {x['photo_credit.name']: x['photographer.name'] for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
     attribute_pictures = pif.dbh.fetch_attribute_pictures(mod_id)
     attribute_pictures = dict([
@@ -277,6 +279,37 @@ def show_adds(pif, mod_id, var_id=''):
 		ostr += '</td></tr></table>'
                 ostr += '<p>\n'
     return ostr
+
+
+def make_adds(pif, mod_id, var_id=''):
+    photo_credits = {x['photo_credit.name']: x['photographer.name'] for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
+    attribute_pictures = pif.dbh.fetch_attribute_pictures(mod_id)
+    attribute_pictures = dict([
+        (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
+
+    img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
+    pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
+    adds = var_adds if var_id else mod_adds
+    outd = []
+    for add in adds:
+        imgs = pif.render.find_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
+        if imgs:
+	    elem = {'title': add[1] % {'s': useful.plural(imgs)}, 'entry': [],
+		    'columns': add[3]}
+            for img in imgs:
+		fn = img[:img.find('.')]
+		ent = {'img': pif.render.fmt_img_src(pdir + '/' + img),
+		       'credit': photo_credits.get(fn, '')}
+                for apic in attribute_pictures:
+		    # This is terrible and I'm a terrible person but I don't want to think too much right now.
+                    if apic in img and attribute_pictures[apic]['attribute_picture.description']:
+			if attribute_pictures[apic]['attribute.title']:
+			    ent['desc'] = "%(attribute.title)s: %(attribute_picture.description)s" % attribute_pictures[apic]
+			else:
+			    ent['desc'] = "%(attribute_picture.description)s" % attribute_pictures[apic]
+                elem['entry'].append(ent)
+	    outd.append(elem)
+    return outd
 
 
 def add_model_thumb_pic_link(pif, mdict):

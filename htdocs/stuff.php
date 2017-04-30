@@ -36,8 +36,8 @@ foreach ($newerrors as $ent)
     $errcounter = $errcounter + $ent[1];
 $newusers = Fetch("select name from user where state=1 and privs=''", $pif);
 $newlinks = Fetch("select count(*) from link_line where ((flags&128)=128)", $pif);
-$commentfiles = glob("../../logs/comment.*");
-$imagefiles = glob("../../inc/*.*");
+$commentfiles = glob("../../comments/comment.*");
+$imagefiles = glob("../../inc/*");
 $imagename = $l = '';
 $imagedescs = fopen('/home/bamca/logs/descr.log', "rt");
 while (!feof($imagedescs)) {
@@ -97,7 +97,7 @@ foreach ($cols as $col) {
    </td>
    <td>
    <?php
-DoTextButtonLink('see', "cgi-bin/editor.cgi");
+DoTextButtonLink('see', "cgi-bin/traverse.cgi?d=../../logs");
 DoTextButtonLink('clear', "cgi-bin/editor.cgi?clear=1");
 ?>
    </td>
@@ -128,7 +128,7 @@ if (count($newusers) > 0)
 
    <tr><td>
    New comments:</td><td><?php warn_number(count($commentfiles)); ?></td><td>
-   <?php DoTextButtonLink('see', "cgi-bin/traverse.cgi?d=../../logs"); ?></td>
+   <?php DoTextButtonLink('see', "cgi-bin/traverse.cgi?d=../../comments"); ?></td>
    <td><?php LinksList($sections['l4'], ' - '); ?></td></tr>
 
    <tr><td>

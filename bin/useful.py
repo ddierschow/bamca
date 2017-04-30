@@ -418,7 +418,8 @@ def header_done(is_web=True, silent=False):
     _pending_comments = list()
     if silent:
 	return ostr
-    print ostr
+    if ostr:
+	print ostr
 
 def warn(*args, **kwargs):
     write_string(*args, nonl=kwargs.get('nonl', False), warning=True, comment=False)

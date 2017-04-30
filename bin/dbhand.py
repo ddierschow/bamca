@@ -471,7 +471,7 @@ class DBHandler(object):
         #return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
 
     def fetch_casting_related_compares(self, section_id=None):
-        columns = ['cr.id', 'cr.model_id', 'cr.related_id', 'cr.section_id', 'cr.picture_id', 'cr.description', 'c1.rawname', 'c2.rawname']
+        columns = ['cr.id', 'cr.model_id', 'cr.related_id', 'cr.section_id', 'cr.picture_id', 'cr.description', 'c1.rawname', 'c2.rawname', 'c1.first_year', 'c2.first_year']
         where = 'cr.model_id=c1.id'
         if section_id:
             where += " and cr.section_id='%s'" % section_id
@@ -690,10 +690,13 @@ class DBHandler(object):
     #- detail
 
     def update_detail(self, values, where, verbose=False):
-        self.write('detail', values, where=self.make_where(where), modonly=True, verbose=verbose)
+        return self.write('detail', values, where=self.make_where(where), modonly=True, verbose=verbose)
+
+    def add_or_update_detail(self, values, where, verbose=False):
+        return self.write('detail', values, where=self.make_where(where), verbose=verbose)
 
     def delete_detail(self, where):
-        self.delete('detail', where=self.make_where(where))
+        return self.delete('detail', where=self.make_where(where))
 
     def fetch_details(self, mod_id, var_id=None, nodefaults=False):
         if nodefaults:

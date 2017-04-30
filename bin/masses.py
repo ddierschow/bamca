@@ -444,9 +444,10 @@ def add_var_final(pif):
 def show_all_casting_related(pif):
     print pif.render.format_head()
     # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
-    print pif.form, '<br>'
+    print 'show_all_casting_related', pif.form, '<br>'
 
     mod_id = ''
+    section_id = pif.form.get_str('section_id', 'single')
     crl = pif.dbh.fetch_casting_related_models()
     crd_m = {}
     crd_r = {}
@@ -464,7 +465,7 @@ def show_all_casting_related(pif):
 
     print '<form action="mass.cgi" onsubmit="save.disabled=true; return true;">' + pif.render.format_form_token()
     print '<table border=1>'
-    print pif.render.format_hidden_input({'type': 'related'})
+    print pif.render.format_hidden_input({'section_id': section_id, 'type': 'related'})
     cnt = 0
     for cr in crd_m:
 	cnt += 1
@@ -506,8 +507,9 @@ def edit_casting_related(pif):
 
     print pif.render.format_head()
     mod_id = pif.form.get_str('mod_id')
+    section_id = pif.form.get_str('section_id', 'single')
     # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
-    print pif.form, '<br>'
+    print 'edit_casting_related', pif.form, '<br>'
     print 'This currently only handles single.<br>'
 
     revlist = pif.form.get_list('rev')
@@ -518,7 +520,7 @@ def edit_casting_related(pif):
 		   'model_id': pif.form.get_str('m' + root),
 		   'related_id': pif.form.get_str('r' + root),
 		   'description': pif.form.get_str('d' + root),
-		   'section_id': 'single',
+		   'section_id': section_id,
 		   'picture_id': '',
 	    }
 	    revdict[pif.form.get_str('m' + root)] = root[1:] in revlist
@@ -539,8 +541,8 @@ def edit_casting_related(pif):
     # picture_id  | varchar(12) - always blank for single
     # description | varchar(256)
 
-    crl_m = pif.dbh.fetch_casting_relateds(mod_id=mod_id, section_id='single')
-    crl_r = pif.dbh.fetch_casting_relateds(rel_id=mod_id, section_id='single')
+    crl_m = pif.dbh.fetch_casting_relateds(mod_id=mod_id, section_id=section_id)
+    crl_r = pif.dbh.fetch_casting_relateds(rel_id=mod_id, section_id=section_id)
 
     crd_m = {x['casting_related.related_id']: x for x in crl_m}
     crd_r = {x['casting_related.model_id']: x for x in crl_r}
@@ -609,12 +611,14 @@ def edit_casting_related(pif):
 
     print pif.render.format_button_input('save')
     print pif.render.format_hidden_input({'mod_id': pif.form.get_str('mod_id'), 'type': 'related'})
+    print pif.render.format_hidden_input({'section_id': section_id})
     print '</form><hr>'
     if pif.form.has('mod_id'):
 	print '<form name="add" action="mass.cgi" onsubmit="add.disabled=true; return true;">' + pif.render.format_form_token()
 	print pif.render.format_hidden_input({'mod_id': pif.form.get_str('mod_id'), 'type': 'related'})
 	print pif.render.format_text_input('r', 12)
 	print pif.render.format_button_input('add')
+	print pif.render.format_hidden_input({'section_id': section_id})
 	print '</form>'
     print pif.render.format_tail()
 
@@ -671,6 +675,7 @@ def add_pack_form(pif):
     pack_img = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PACK, largest='g')
 
     header = '<hr>\n'
+    header += str(pif.form) + '<hr>\n'
     header += '<form action="mass.cgi">\n' + pif.render.format_form_token()
     header += '<input type="hidden" name="verbose" value="1">\n'
     header += '<input type="hidden" name="type" value="pack">\n'
@@ -737,10 +742,10 @@ def add_pack_form(pif):
     # related
     relateds = pif.dbh.fetch_packs_related(pack_id)
     footer = 'related '
-    footer += pif.render.format_button('edit', link='?type=related&mod_id=%s' % pack_id)
+    footer += pif.render.format_button('edit', link='?type=related&section_id=packs&mod_id=%s' % pack_id)
     footer += '<br>\n'
     for rel in relateds:
-	footer += rel['pack.id'], '<br>\n'
+	footer += rel['pack.id'] + '<br>\n'
 
     footer += pif.render.format_button_input("save")
     footer += pif.render.format_button_input("delete")
@@ -753,7 +758,7 @@ def add_pack_form(pif):
 def add_pack_model(pif, pack):
     pmodels = {x + 1: {'pack_model.display_order': x + 1} for x in range(pif.form.get_int('num'))}
     if pack.get('base_id.id'):
-	model_list = pif.dbh.fetch_pack_models(pack_id=pack['pack.id'], page_id='packs.' + pif.form.get_str('section_id'))
+	model_list = pif.dbh.fetch_pack_models(pack_id=pack['pack.id'], page_id=pack.get('pack.page_id'))
 
 	for mod in pif.dbh.modify_man_items([x for x in model_list if x['pack.id'] == pack['base_id.id']]):
 	    sub_ids = [None, '', pack['base_id.id'], pack['base_id.id'] + '.' + str(mod['pack_model.display_order'])]

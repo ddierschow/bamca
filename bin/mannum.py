@@ -254,6 +254,8 @@ class MannoFile(object):
     # ----- castings --------------------------------------------
 
     def show_section_manno_template(self, pif, sect):
+	if pif.form.get_bool('large'):
+	    sect['columns'] = 1
         sect['anchor'] = sect['id']
         sect['id'] = ''
         sect['range'] = [{'entry': models.generate_model_table_pic_link_dict(pif, self.mdict, sect['model_ids'])}]
@@ -699,6 +701,7 @@ def compare_main(pif):
     for sec in csecs:
 
 	cmods = pif.dbh.fetch_casting_related_compares(section_id=sec['section.id'])
+	cmods.sort(key=lambda x: x['c2.first_year'])
 	lsec = {'name': sec['section.name'], 'note': sec['section.note'], 'range': []}
 	llineup['section'].append(lsec)
         modsets = {}
@@ -757,6 +760,13 @@ def add_attributes(pif, mod_id=None, *attr_list):
 	return
     for attr in attr_list:
 	pif.dbh.insert_attribute(mod_id, attr)
+
+
+def list_attributes(pif, mod_id):
+    attrs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))
+    for attr in attrs:
+	print attr['attribute_name'],
+    print
 
 
 def clone_attributes(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
@@ -826,6 +836,7 @@ command_lookup = {
     'f': run_text_search,
     'c': clone_attributes,
     'a': add_attributes,
+    'l': list_attributes,
 }
 
 

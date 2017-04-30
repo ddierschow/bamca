@@ -26,6 +26,10 @@ Filter by Region<br>
 Filter by Title<br>
 <input type="text" name="title" size="20" maxlength="80">
 <p>
+{% if page.is_admin %}
+<input type="checkbox" name="verbose" value="1"> <i>Verbose</i>
+<p>
+{% endif %}
 {{- render.format_button_input('submit') }}
 <input type="hidden" name="{{ page_id }}" value="%s">
 </form>

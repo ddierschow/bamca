@@ -88,24 +88,24 @@ of Matchbox International Ltd. and are used with permission.
 </div>
 <hr>
 
-<img src="/pic/flags/au.gif" alt="Australia">
-<img src="/pic/flags/at.gif" alt="Austria">
-<img src="/pic/flags/be.gif" alt="Belgium">
-<img src="/pic/flags/ca.gif" alt="Canada">
-<img src="/pic/flags/eu.gif" alt="EC">
-<img src="/pic/flags/fi.gif" alt="Finland">
-<img src="/pic/flags/fr.gif" alt="France">
-<img src="/pic/flags/de.gif" alt="Germany">
-<img src="/pic/flags/it.gif" alt="Italy">
-<img src="/pic/flags/jp.gif" alt="Japan">
-<img src="/pic/flags/nl.gif" alt="Netherlands">
-<img src="/pic/flags/nz.gif" alt="NewZealand">
-<img src="/pic/flags/no.gif" alt="Norway">
-<img src="/pic/flags/pt.gif" alt="Portugal">
-<img src="/pic/flags/es.gif" alt="Spain">
-<img src="/pic/flags/se.gif" alt="Sweden">
-<img src="/pic/flags/gb.gif" alt="UK">
-<img src="/pic/flags/us.gif" alt="USA">
+<img src="/pic/flags/au.gif" alt="Australia" label="Australia">
+<img src="/pic/flags/at.gif" alt="Austria" label="Austria">
+<img src="/pic/flags/be.gif" alt="Belgium" label="Belgium">
+<img src="/pic/flags/ca.gif" alt="Canada" label="Canada">
+<img src="/pic/flags/eu.gif" alt="EC" label="EC">
+<img src="/pic/flags/fi.gif" alt="Finland" label="Finland">
+<img src="/pic/flags/fr.gif" alt="France" label="France">
+<img src="/pic/flags/de.gif" alt="Germany" label="Germany">
+<img src="/pic/flags/it.gif" alt="Italy" label="Italy">
+<img src="/pic/flags/jp.gif" alt="Japan" label="Japan">
+<img src="/pic/flags/nl.gif" alt="Netherlands" label="Netherlands">
+<img src="/pic/flags/nz.gif" alt="NewZealand" label="NewZealand">
+<img src="/pic/flags/no.gif" alt="Norway" label="Norway">
+<img src="/pic/flags/pt.gif" alt="Portugal" label="Portugal">
+<img src="/pic/flags/es.gif" alt="Spain" label="Spain">
+<img src="/pic/flags/se.gif" alt="Sweden" label="Sweden">
+<img src="/pic/flags/gb.gif" alt="UK" label="UK">
+<img src="/pic/flags/us.gif" alt="USA" label="USA">
 
 </body>
 </html>
