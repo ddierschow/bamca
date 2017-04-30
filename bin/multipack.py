@@ -58,7 +58,7 @@ def make_page_list(pif):
 
 # ---- pack list ------------------------------------------------------
 
-def make_pack_list(pif, sec='', year='', region='', lid='', verbose=False):
+def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose=False):
     pif.render.set_button_comment(pif)
     years = set()
     regions = set()
@@ -91,6 +91,7 @@ def make_pack_list(pif, sec='', year='', region='', lid='', verbose=False):
 		pack['name'] = pack['rawname'].replace(';', ' ')
 		if (year and (year < pack['first_year'] or year > pack['end_year'])) or \
 			 (region and region != pack['region']) or (lid and not pack['id'].startswith(lid)) or \
+			 (material and pack['material'] != material) or \
 			 not useful.search_match(title, pack['name']):
 		    continue
 		pack['year'] = (pack['first_year'] + '-' + pack['end_year']) if (pack['end_year'] and pack['end_year'] != pack['first_year']) else pack['first_year']
@@ -356,7 +357,7 @@ def do_page(pif):
     elif pif.form.has('page'):
 	return make_pack_list(pif,
 		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
-		    **pif.form.get_dict(['sec', 'year', 'region', 'lid']))
+		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     elif pif.form.has('sec'):
 	useful.write_comment(pif.form)
 	sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
@@ -365,7 +366,7 @@ def do_page(pif):
 	pif.page_id = sections[0]['page_info.id']
 	return make_pack_list(pif,
 		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
-		    **pif.form.get_dict(['sec', 'year', 'region', 'lid']))
+		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     else:
         return make_page_list(pif)
 

@@ -775,7 +775,7 @@ def add_pack_model(pif, pack):
 	{
 	    'mod': pif.render.format_hidden_input({'pm.id.%s' % mod: pmodels[mod].get('pack_model.id', '0'),
 			'pm.pack_id.%s' % mod: pmodels[mod].get('pack_model.pack_id', '')}) +
-		   pif.render.format_link("single.cgi?id=%s" % pmodels[mod].get('pack_model.mod_id', ''), 'mod') + ' ' +
+		   pif.render.format_link("single.cgi?id=%s" % pmodels[mod].get('pack_model.mod_id', ''), pmodels[mod].get('pack_model.mod_id', '')) + ' ' +
 	           pif.render.format_text_input("pm.mod_id.%s" % mod, 8, 8, value=pmodels[mod].get('pack_model.mod_id', '')),
 	    'var': 'var ' + pif.render.format_text_input("pm.var_id.%s" % mod, 20, 20, value='/'.join(list(set(pmodels[mod].get('vars', ''))))) +
 		    ' (' + str(pmodels[mod].get('pack_model.var_id', '')) + ')',
