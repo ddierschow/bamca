@@ -126,6 +126,7 @@ categories = {
     'JB'    : 'James Bond',
     'JL'    : 'Justice League',
     'JR'    : 'Jurassic Park',
+    'JW'    : 'Jurassic World',
     'K'     : 'Super Kings (King Size)',
     'LA'    : 'Launcher',
     'LE'    : 'Limited Edition Set',

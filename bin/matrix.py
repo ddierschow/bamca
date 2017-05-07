@@ -39,6 +39,8 @@ class MatrixFile(object):
                     ent['subname']         = ent['matrix_model.subname']
                     ent['subnames']        = ent['matrix_model.subname'].split(';')
                     ent['sub_id']          = mbdata.reverse_regions.get(ent['matrix_model.subname'], '')
+                    ent['model_type']      = ent['base_id.model_type']
+                    ent.setdefault('pack.page_id', '')
                     ent['description']     = []
                     if ent.get('sub_id') and ent.get('vs.sub_id') and ent['sub_id'] != ent['vs.sub_id']:
                         continue
@@ -58,7 +60,10 @@ class MatrixFile(object):
                             ent['range_id'] = int(ent['range_id'])
                         else:
                             ent['range_id'] = 0
-                    if ent['range_id'] and ffmt['img']:
+		    if ent['model_type'] == 'MP':
+                        ent['image'] = \
+                                pif.render.format_image_optional(ent['mod_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True)
+                    elif ent['range_id'] and ffmt['img']:
                         ent['image'] = \
                                 pif.render.format_image_required([useful.clean_name(ffmt['img'] % ent['range_id'], '/')])
                     elif ent.get('v.picture_id'):
@@ -181,7 +186,8 @@ class MatrixFile(object):
             ent['shown_id'] = ''
 
         ent['product'] = [ent['link']]
-        if pif.render.find_image_path(ent['product'], suffix='jpg'):
+        if pif.render.find_image_path(ent['product'], suffix='jpg') or \
+		pif.render.find_image_path(ent['product'], suffix='jpg', largest='l'):
             comments.add('c')
             ent['is_product_picture'] = 1
             if pif.is_allowed('a') and pif.form.has('large'):  # pragma: no cover
@@ -192,7 +198,9 @@ class MatrixFile(object):
             ent['picture_only'] = 1
 
         ent['href'] = ''
-        if ent['mod_id']:
+	if ent['model_type'] == 'MP':
+            ent['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(mod_id)s" % ent
+        elif ent['mod_id']:
             ent['href'] = "single.cgi?dir=%(pdir)s&pic=%(link)s&ref=%(vs.ref_id)s&sub=%(vs.sub_id)s&id=%(mod_id)s" % ent
         else:
             img = pif.render.find_image_path(ent['link'])

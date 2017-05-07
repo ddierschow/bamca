@@ -275,7 +275,7 @@ def save(pif, mod_id, var_id):
             pif.dbh.write('detail', {'mod_id': var_dict['mod_id'], 'var_id': var_dict['var'], 'attr_id': str(attributes[attr]['id']), 'description': det_dict[attr]})
         if var_sel:
             pif.render.message('varsel', var_sel, '<br>')
-            pif.dbh.update_variation_selects(mod_id, var_dict['var'], var_sel.split())
+            pif.dbh.update_variation_selects_for_variation(mod_id, var_dict['var'], var_sel.split())
         if repic:
             rename_variation_pictures(pif, mod_id, var_dict['var'], mod_id, repic)
     else:
@@ -284,7 +284,11 @@ def save(pif, mod_id, var_id):
 
 
 def add_variation(pif, mod_id, var_id='unset', attributes={}):  # pragma: no cover
-    pif.dbh.insert_variation(mod_id, var_id, attributes)
+    var = pif.dbh.fetch_variation(mod_id, var_id)
+    if var:
+	print 'That variation already exists!', mod_id, var_id
+    else:
+	pif.dbh.insert_variation(mod_id, var_id, attributes)
 
 
 def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, **kwargs):  # pragma: no cover
@@ -387,6 +391,12 @@ def remove_picture(pif, mod_id, var_id):  # pragma: no cover
         pif.render.comment("delete", pic)
         pif.render.message("delete", pic, "<br>")
         os.unlink(pic)
+
+
+def add_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no cover
+    if mod_id and var_id:
+	pif.dbh.insert_variation(mod_id, var_id, {'body': ' '.join(args), 'imported_from': 'cl', 'imported_var': var_id})
+	pif.dbh.recalc_description(mod_id)
 
 
 def delete_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no cover
@@ -701,7 +711,7 @@ def save_model(pif, id):
             pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': id, 'var': key[11:]})
     for key in pif.form.keys(start='var_sel.'):
         varsel = list(set(pif.form.get_str(key).split()))
-        pif.dbh.update_variation_selects(id, key[8:], varsel)
+        pif.dbh.update_variation_selects_for_variation(id, key[8:], varsel)
 
 
 def show_model(pif, model):
@@ -998,6 +1008,7 @@ def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
 def command_help(pif, *args):
     pif.render.message("./vars.py [d|r|c|s|m|i|v] ...")
     pif.render.message("  d for delete: mod_id var_id")
+    pif.render.message("  a for delete: mod_id var_id body")
     pif.render.message("  r for rename: mod_id old_var_id new_var_id")
     pif.render.message("  c for copy: mod_id old_var_id new_var_id")
     pif.render.message("  s for swap: mod_id var_id_1 var_id_2")
@@ -1008,6 +1019,7 @@ def command_help(pif, *args):
 
 command_lookup = {
     'd': delete_variation,
+    'a': add_variation,
     'r': rename_variation,
     'c': copy_variation,
     's': swap_variations,

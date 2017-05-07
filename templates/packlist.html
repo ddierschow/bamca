@@ -33,6 +33,9 @@ Filter by Title<br>
 {{- render.format_button_input('submit') }}
 <input type="hidden" name="{{ page_id }}" value="%s">
 </form>
+{% if page.is_admin %}
+<a href="mass.cgi?type=pack"><div class="textbutton">ADD</div></a>
+{% endif %}
 </td></tr></table>
 
 {%- endblock page_body %}

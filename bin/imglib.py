@@ -879,7 +879,8 @@ class ActionForm(object):
 		    if self.pref:
 			dnam = self.pref + '_' + dnam
 		elif self.pref:
-		    dnam = self.pref + '_' + dnam
+		    if self.pref != 'n':
+			dnam = self.pref + '_' + dnam
 		    if self.ptype == 't':
 			ddir = '.' + config.IMG_DIR_ADD
 			if self.suff:
@@ -949,7 +950,7 @@ class ActionForm(object):
     ]
 
     def picture_prefixes(self):
-	return [('', '')] + \
+	return [('', ''), ('n', 'no prefix')] + \
 		[('s' + x[0], x[1]) for x in zip(mbdata.image_size_types, mbdata.image_size_names)] + \
 		[('t' + x[0], x[1]) for x in zip(mbdata.image_adds_types, mbdata.image_adds_names)]
 
@@ -1030,13 +1031,15 @@ class ActionForm(object):
 
 titles = {'dir': 'Directories', 'graf': 'Graphics', 'dat': 'Data Files',
 	  'exe': 'Executable Files', 'other': 'Other Files', 'log': 'Log Files'}
-def get_dir(tdir):
+def get_dir(tdir, name_has=''):
     fl = os.listdir(tdir)
     fl.sort()
     files = {'dir': list(), 'graf': list(), 'dat': list(),
 	     'exe': list(), 'other': list(), 'log': list(),
 	     'titles': titles}
     for f in fl:
+	if name_has and name_has not in f:
+	    continue
         root, ext = useful.root_ext(f)
         if os.path.exists(tdir + '/' + f):
             if f[-1] == '~' or f == '.crcs' or f[-4:] == '.pyc':

@@ -149,6 +149,7 @@ class UploadForm(object):
 	self.scrape = pif.form.get_str('s')
 	self.comment = pif.form.get_str('c')
 	self.select = pif.form.get_str('select')
+	self.selsearch = pif.form.get_str('selsearch')
 	self.replace = pif.form.get_bool('replace') and pif.is_allowed('ma')
 	self.mass = pif.form.get_bool('mass')
 	self.act = pif.form.get_int('act')
@@ -276,7 +277,7 @@ def upload_main(pif):
 
     # These will redirect so let's do them before putting anything out.
     if upform.select:
-	raise useful.Redirect('traverse.cgi?g=1&d=%s&man=%s&var=%s&suff=%s' % (upform.tdir, upform.mod_id, upform.var_id, upform.suffix))
+	raise useful.Redirect('traverse.cgi?g=1&d=%s&man=%s&var=%s&suff=%s&has=%s' % (upform.tdir, upform.mod_id, upform.var_id, upform.suffix, upform.selsearch))
     elif upform.fimage:
 	if not pif.is_allowed('u'):
 	    return upform.restricted_upload(pif)

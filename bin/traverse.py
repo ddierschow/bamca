@@ -52,7 +52,7 @@ def show_dir(pif, tform):
 
     ostr = '<hr>\n'
     #dl, gl, ol, sl, xl = imglib.get_dir(tform.tdir)
-    files = imglib.get_dir(tform.tdir)
+    files = imglib.get_dir(tform.tdir, name_has=tform.has)
 
     ostr += show_list(files['titles']['dir'], tform.tdir, files['dir'])
 
@@ -393,6 +393,7 @@ class TraverseForm(object):
 	self.graf = pif.form.get_int("g")
 	self.fnam = pif.form.get_str("f")
 	self.patt = pif.form.get_str("p")
+	self.has = pif.form.get_str("has")
 	self.suff = pif.form.get_str("suff")
 	self.dups = pif.form.get_int("du")
 	self.cpct = pif.form.get_int("co")

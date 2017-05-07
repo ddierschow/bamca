@@ -231,12 +231,21 @@ def do_single_pack(pif, pid):
     return pif.render.format_template('pack.html', **context)
 
 
+def imgsizes(pif, pdir, pic_id):
+    sizes_found = []
+    for imgsize in mbdata.image_size_types:
+	if os.path.exists(os.path.join('.' + pdir, imgsize + '_' + pic_id + '.jpg')):
+	    sizes_found.append(imgsize.upper())
+    return ' '.join(sizes_found)
+
+
 def distill_models(pif, pack, page_id):
     model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=page_id)
     pack['pic'] = ''
     #for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, '?_' + pack['id'] + '.jpg')):
-    pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PACK, largest=mbdata.IMG_SIZ_HUGE)
-    pack['pic'] += imglib.format_image_star(pif, pic)
+    #pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PACK, largest=mbdata.IMG_SIZ_HUGE)
+    #pack['pic'] += imglib.format_image_star(pif, pic)
+    pack['pic'] += imgsizes(pif, config.IMG_DIR_PACK, pack['id'])
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
     pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
     if ''.join(pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):

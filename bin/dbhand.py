@@ -193,7 +193,10 @@ class DBHandler(object):
         return self.increment('page_info', ['health'], "id='%s'" % page_id, tag='Health', verbose=verbose)
 
     def clear_health(self):
-        self.write('page_info', {'health': 0}, modonly=True)
+        return self.write('page_info', {'health': 0}, modonly=True)
+
+    def insert_or_update_page(self, values, verbose=False):
+	return self.write('page_info', values, tag='InsertOrUpdatePage', verbose=verbose)
 
     #- country
 
@@ -221,6 +224,9 @@ class DBHandler(object):
 
     def fetch_sections(self, where=None):
         return self.fetch('section', where=where, order='display_order', tag='Sections')
+
+    def insert_or_update_section(self, values, verbose=False):
+	return self.write('section', values, tag='InsertOrUpdateSection', verbose=verbose)
 
     #- base_id
 
@@ -645,6 +651,10 @@ class DBHandler(object):
 
     #- variation_select
 
+    def fetch_variation_selects_for_ref(self, ref_id, sub_id=''):
+	wheres = ["ref_id='%s'" % ref_id, "sub_id='%s'" % sub_id]
+	return self.fetch('variation_select', where=wheres, tag='FetchVariationSelectsForRef')
+
     def fetch_variation_selects(self, mod_id, var_id=None):
         wheres = ["variation_select.mod_id='%s'" % mod_id, "variation_select.ref_id=page_info.id"]
         if var_id:
@@ -663,7 +673,7 @@ class DBHandler(object):
     def update_variation_select(self):
         self.write('variation_select', {'var_id': new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, mod_id), modonly=True)
 
-    def update_variation_selects(self, mod_id, var_id, ref_ids):
+    def update_variation_selects_for_variation(self, mod_id, var_id, ref_ids):
         self.delete('variation_select', where="mod_id='%s' and var_id='%s'" % (mod_id, var_id))
         for ref_id in ref_ids:
             cat_id = sub_id = ''
@@ -683,6 +693,24 @@ class DBHandler(object):
             if page_id and sub_id:
                 for var_id in list(set([x for x in pm['var_id'].split('/') if x])):
                     self.write('variation_select', {'mod_id': pm['mod_id'], 'var_id': var_id, 'ref_id': page_id, 'sub_id': pm['pack_id']}, newonly=True)
+
+    def update_variation_selects_for_ref(self, mod_vars, ref_id='', sub_id='', category=''):
+	# mod vars is list of tuple (mod_id, var_id)
+	old_vs = self.fetch_variation_selects_for_ref(ref_id=ref_id, sub_id=sub_id)
+	for vs in old_vs:
+	    modvar = (vs['variation_select.mod_id'], vs['variation_select.var_id'])
+	    if modvar not in mod_vars:
+		self.delete('variation_select', 'id=%d' % vs['variation_select.id'])
+	    else:
+		mod_vars.remove(modvar)
+		if vs['variation_select.category'] != category:
+		    self.write('variation_select', 
+			{'mod_id': vs['variation_select.mod_id'], 'var_id': vs['variation_select.var_id'],
+			 'ref_id': ref_id, 'sub_id': sub_id, 'category': category},
+			where='id=%s' % vs['variation_select.id'], tag='UVSFRcat')
+
+        for modvar in mod_vars:
+	    self.write('variation_select', {'mod_id': modvar[0], 'var_id': modvar[1], 'ref_id': ref_id, 'sub_id': sub_id, 'category': category}, newonly=True)
 
     def delete_variation_select(self, where):
         self.delete('variation_select', where=self.make_where(where))
@@ -858,9 +886,9 @@ class DBHandler(object):
     def fetch_lineup_model(self, where, verbose=None):
         return self.fetch('lineup_model', where=where, tag='LineupModel', verbose=verbose)
 
-    def insert_lineup_model(self, values):
+    def insert_lineup_model(self, values, newonly=True):
 	#useful.write_message(values, '<br>')
-        self.write('lineup_model', self.make_values('lineup_model', values), newonly=True, verbose=True, tag='InsertLineupModel')
+        self.write('lineup_model', self.make_values('lineup_model', values), newonly=newonly, verbose=True, tag='InsertLineupModel')
 
     def update_lineup_model(self, where, values):
 	#useful.write_message(where, values, '<br>')
@@ -904,15 +932,20 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make', 'casting.section_id',
             'matrix_model.id', 'matrix_model.mod_id', 'matrix_model.flags', 'matrix_model.section_id',
             'matrix_model.display_order', 'matrix_model.page_id', 'matrix_model.range_id', 'matrix_model.name',
-            'matrix_model.subname', 'matrix_model.description', 'matrix_model.shown_id']
+            'matrix_model.subname', 'matrix_model.description', 'matrix_model.shown_id',
+	    'pack.id', 'pack.page_id', 'pack.section_id', 'pack.name',
+	]
         table = "matrix_model"
-        cols.extend(['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id'])
+        cols.extend(['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id', 'vs.category'])
         table += " left join base_id on (base_id.id=matrix_model.mod_id)"
         table += " left join casting on (casting.id=matrix_model.mod_id)"
+        table += " left join pack on (pack.id=matrix_model.mod_id)"
         table += " left join variation_select vs on (vs.ref_id='%s'" % page_id
         #table += " or vs.ref_id like '%s.%%'" % page_id
         table += ") and vs.mod_id=matrix_model.mod_id left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
         where = "matrix_model.page_id='" + page_id + "'"
+	if section:
+	    where += " and matrix_model.section_id='%s'" % section
 	# turn this into a fetch
         return self.dbi.select(table, cols, where=where, order='matrix_model.display_order', tag='MatrixModelsVariations')
 
@@ -926,6 +959,9 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	]
 	# turn this into a fetch
         return self.dbi.select('matrix_model, page_info, section', ['matrix_model.section_id', 'page_info.id', 'page_info.title', 'page_info.description', 'page_info.flags', 'section.name'], ' and '.join(wheres), tag='MatrixAppearances')
+
+    def insert_or_update_matrix_model(self, values, verbose=False):
+	return self.write('matrix_model', values, tag='InsertOrUpdateMatrixModel', verbose=verbose)
 
     #- link_line
 
