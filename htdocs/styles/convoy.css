@@ -1,0 +1,43 @@
+body         {color: #000000; background-color: #ffffff;}
+a:link       {color: #000099; background-color: transparent; text-decoration: none;}
+a:visited    {color: #990000; background-color: transparent; text-decoration: none;}
+a:active     {color: #009900; background-color: transparent; text-decoration: none;}
+a:hover      {color: #CC0000; background-color: transparent; text-decoration: underline;}
+
+.commentform {text-align: center; color: #000000; font-size: medium; font-family: Arial;}
+.commenttitle {color: #000000; font-size: x-large; font-family: Arial;}
+.commentdesc {color: #ff0000; font-size: large; font-family: Arial;}
+
+.outertable {border-color: #000000; border-width: thin; border-style: solid; text-align: left; margin-left: auto; margin-right: auto; background-color: #9999CC;}
+.cytable {border-color: #000000; border-width: thin; border-style: solid; text-align: left; width: 800px; border-collapse: collapse; background-color: #FFFFFF;}
+.enthead {border-color: #000000; border-width: thin; border-style: solid; text-align: left; font-weight: bold; height: 24px; width: 120px;}
+.entval {border-color: #000000; border-width: thin; border-style: solid; text-align: left;}
+.entpic {width: 400px; text-align: center;}
+
+.seriestable {width: auto; border-width: 5px; padding: 1px; margin: 3px; border-style: solid; border-width: 1px; margin-left: auto; margin-right: auto;}
+.serieshead {vertical-align: top; text-align: center;}
+.seriesempty {background-color: #CCCCCC;}
+.seriescol00 {vertical-align: middle; text-align: center; height: 64px;}
+.seriesent {vertical-align: middle; text-align: center; font-weight: bold; width: 60px; height: 75px;}
+.seriescol01 {background-color: #99FFFF;}
+.seriescol02 {background-color: #FFFFCC;}
+.seriescol03 {background-color: #CCCCFF;}
+.seriescol04 {background-color: #CCFFFF;}
+.seriescol05 {background-color: #FF99CC;}
+.seriescol06 {background-color: #99CCFF;}
+.seriescol07 {background-color: #CCFF99;}
+.seriescol08 {background-color: #FFCCCC;}
+.seriescol09 {background-color: #FFCCFF;}
+.seriescol10 {background-color: #FFCC99;}
+.seriescol11 {background-color: #99FFCC;}
+.seriescol12 {background-color: #FFFF99;}
+.seriescol13 {background-color: #CCFFCC;}
+.seriescol14 {background-color: #CC99FF;}
+
+.cabhead {vertical-align: top; text-align: center; font-family: Arial; font-size: x-large;}
+.cabname {vertical-align: middle; text-align: center; font-size: large;}
+.cabcell {vertical-align: top; text-align: left;}
+
+.cyyeartab {text-align: left; width: 800px; background-color: rgb(204, 204, 255); margin-left: auto; margin-right: auto; border-width: 5px; margin: auto; border-style: solid;}
+.cyyeartab td {padding: 2px; margin: 2px; border-style: solid;}
+.cyyear {text-align: center; font-family: Helvetica,Arial,sans-serif; color: #333399; font-size: x-large;}

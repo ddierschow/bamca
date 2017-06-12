@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<?php
+chdir('..');
+include "bin/basics.php";
+include "config.php";
+$pif = GetPageInfo("convoy");
+$pif['title'] = $pif['title'] . ' - Semi Cabs';
+DoHead($pif);
+?>
+  <meta name="author" content="John Baum and Dean Dierschow">
+  <meta name="description" content="<?php echo $desc; ?>">
+<?php
+DoPageHeader($pif);
+?>
+
+<?php
+function link_if_exists($fn, $text='') {
+    if (!$text)
+	$text = $fn;
+    if (file_exists('convoy/' . $fn . '.php')) {
+	echo '<a href="' . $fn . '.php">' . $text . '</a>';
+    }
+    else {
+	echo '<i>' . $text . '</i>';
+    }
+}
+?>
+
+The Matchbox Convoy Project&nbsp; - Basic Information<br>
+<br>
+<div align="center"><font size="+3" face="Arial">Truck Cabs<br>
+<br>
+</font>
+<table border="7" cellspacing="5">
+  <tbody>
+    <tr>
+      <td class="cabhead">Model #</td>
+      <td class="cabhead">Standard Model</td>
+      <td class="cabhead">Premiere &amp; Ultra Model</td>
+      <td class="cabhead">Convoys</td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-45C<br>Kenworth Cabover Aerodyne<br>1982</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB045"><img src="/pic/man/s_mb045.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=Mb309"><img src="/pic/man/s_mb309.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY001A'); ?><br>
+	<?php link_if_exists('CY002A'); ?><br>
+	<?php link_if_exists('CY003A'); ?><br>
+	<?php link_if_exists('CY003B'); ?><br>
+	<?php link_if_exists('CY007A'); ?><br>
+	<?php link_if_exists('CY008A'); ?><br>
+	<?php link_if_exists('CY009A'); ?><br>
+	<?php link_if_exists('CY011A'); ?><br>
+	<?php link_if_exists('CY012A'); ?><br>
+	<?php link_if_exists('CY013A'); ?><br>
+	<?php link_if_exists('CY014A'); ?><br>
+	<?php link_if_exists('CY020A'); ?><br>
+	<?php link_if_exists('CY038A'); ?><br>
+	<?php link_if_exists('CY104A'); ?><br>
+	<?php link_if_exists('CY105A'); ?><br>
+	<?php link_if_exists('CY110A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="cabname">Man # 045</td>
+      <td class="cabname">Man # 309</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-41D<br>Kenworth Aerodyne Conventional Cab<br>1982</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB103"><img src="/pic/man/s_mb103.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB310"><img src="/pic/man/s_mb310.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY003A'); ?><br>
+	<?php link_if_exists('CY004A'); ?><br>
+	<?php link_if_exists('CY005A'); ?><br>
+	<?php link_if_exists('CY006A'); ?><br>
+	<?php link_if_exists('CY007A'); ?><br>
+	<?php link_if_exists('CY008A'); ?><br>
+	<?php link_if_exists('CY009A'); ?><br>
+	<?php link_if_exists('CY036A'); ?><br>
+	<?php link_if_exists('CY105A'); ?></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="cabname">Man # 103</td>
+      <td class="cabname">Man # 310</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-43D<br>Peterbilt Conventional Sleeper Cab<br>1982</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB106"><img src="/pic/man/s_mb106.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB307"><img src="/pic/man/s_mb307.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY003A'); ?><br>
+	<?php link_if_exists('CY005A'); ?><br>
+	<?php link_if_exists('CY007A'); ?><br>
+	<?php link_if_exists('CY013A'); ?><br>
+	<?php link_if_exists('CY015A'); ?><br>
+	<?php link_if_exists('CY019A'); ?><br>
+	<?php link_if_exists('CY034A'); ?><br>
+	<?php link_if_exists('CY106A'); ?><br>
+	<?php link_if_exists('CY106B'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 106</td>
+      <td class="cabname">Man # 307</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">Peterbilt Conventional Cab<br>1984</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MI724"><img src="/pic/man/s_mi724.jpg"></a></td>
+      <td class="cabcell"></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY013A'); ?><br>
+	<?php link_if_exists('CY203A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 724</td>
+      <td class="cabname"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-08F<br>Scania T 142 Cab<br>1985</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB147"><img src="/pic/man/s_mb147.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB341"><img src="/pic/man/s_mb341.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY004B'); ?><br>
+	<?php link_if_exists('CY016A'); ?><br>
+	<?php link_if_exists('CY017A'); ?><br>
+	<?php link_if_exists('CY020A'); ?><br>
+	<?php link_if_exists('CY021B'); ?><br>
+	<?php link_if_exists('CY023A'); ?><br>
+	<?php link_if_exists('CY104B'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 147</td>
+      <td class="cabname">Man # 341</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-15L<br>DAF 3300 Space Cab<br>1999</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB183"><img src="/pic/man/s_mb183.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB340"><img src="/pic/man/s_mb340.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY007C'); ?><br>
+	<?php link_if_exists('CY009A'); ?><br>
+	<?php link_if_exists('CY018A'); ?><br>
+	<?php link_if_exists('CY021A'); ?><br>
+	<?php link_if_exists('CY022A'); ?><br>
+	<?php link_if_exists('CY024A'); ?><br>
+	<?php link_if_exists('CY025A'); ?><br>
+	<?php link_if_exists('CY026A'); ?><br>
+	<?php link_if_exists('CY108A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 183</td>
+      <td class="cabname">Man # 340</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-54S<br>DAF XB95 Space Cab<br>2007</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB702"><img src="/pic/man/s_mb702.jpg"></a></td>
+      <td class="cabcell"></td>
+      <td class="cabcell">
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td class="cabname">Man # 702</td>
+      <td class="cabname"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-08H<br>Mack CH 600 Cab<br>1990</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB202"><img src="/pic/man/s_mb202.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB311"><img src="/pic/man/s_mb311.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY027A'); ?><br>
+	<?php link_if_exists('CY028A'); ?><br>
+	<?php link_if_exists('CY029A'); ?><br>
+	<?php link_if_exists('CY031A'); ?><br>
+	<?php link_if_exists('CY032A'); ?><br>
+	<?php link_if_exists('CY033A'); ?><br>
+	<?php link_if_exists('CY035A'); ?><br>
+	<?php link_if_exists('CY107A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 202</td>
+      <td class="cabname">Man # 311</td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname">Ford Aeromax Cab<br>1992</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB214"><img src="/pic/man/s_mb214.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=Mb308"><img src="/pic/man/s_mb308.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY018B'); ?><br>
+	<?php link_if_exists('CY037A'); ?><br>
+	<?php link_if_exists('CY039A'); ?><br>
+	<?php link_if_exists('CY109A'); ?><br>
+	<?php link_if_exists('CY113A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 214</td>
+      <td class="cabname">Man # 308</td>
+      <td>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-64J<br>Mercedes Actros 1857 Cab<br>1999</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB425"><img src="/pic/man/s_mb425.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB425"><img src="/pic/convoy/s_mb425p.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY009C'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 425</td>
+      <td class="cabname">Man # 425 w/upgraded tires</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-13G<br>Kenworth T2000 Cab<br>1999</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB432"><img src="/pic/man/s_mb432.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=Mb318"><img src="/pic/man/s_mb318.jpg"></a></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY002B'); ?><br>
+	<?php link_if_exists('CY009B'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 432</td>
+      <td class="cabname">Man # 318</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-31R<br>Generic Tractor Cab<br>2005</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB664"><img src="/pic/man/s_mb664.jpg"></a></td>
+      <td class="cabcell"></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY114A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"></td>
+      <td class="cabname">Man # 664</td>
+      <td class="cabname"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">Kenworth T600 Cab<br>1994</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=CY112"><img src="/pic/man/s_cy112.jpg"></a></td>
+      <td class="cabcell"></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY112A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname"></td>
+      <td class="cabname"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td colspan="4" class="cabhead">TP-900 Long Haul Cabs</td>
+    </tr>
+    <tr>
+      <td class="cabname">Peterbilt Conventional Cab<br>1979</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=T9CC"><img src="/pic/man/s_t9cc.jpg"></a></td>
+      <td class="cabcell"></td>
+      <td class="cabcell">
+	<?php link_if_exists('TP022A'); ?><br>
+	<?php link_if_exists('TP024A'); ?><br>
+	<?php link_if_exists('TP025A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabcell"><br></td>
+      <td class="cabname">T9CC</td>
+      <td class="cabname"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">Leyland Cabover<br>1981</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=T9CO"><img src="/pic/man/s_t9co.jpg"></a></td>
+      <td class="cabcell"></td>
+      <td class="cabcell">
+	<?php link_if_exists('TP002C'); ?><br>
+	<?php link_if_exists('TP026A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabcell"><br></td>
+      <td class="cabname">T9CO</td>
+      <td class="cabcell"></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<font size="+3"><font face="Arial"><br>
+<a href="index.php">Return to Index</a><br>
+</font></font></div>
+</body>
+</html>
