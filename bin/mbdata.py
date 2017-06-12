@@ -44,7 +44,6 @@ lineup_types = [
 
 ''' unidentified
 HP - heroes?
-MNS
 MP-1
 MSN
 '''
@@ -142,6 +141,7 @@ categories = {
     'MCC'   : 'My Classic Car',
     'MD'    : 'Superfast Minis',
     'MLB'   : 'Major League Baseball (USA)',
+    'MNS'   : 'Monsters',
     'MO'    : 'Matchbox Originals',
     'MP'    : 'Multipack',
     'MS'    : 'Monsters',

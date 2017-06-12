@@ -795,7 +795,8 @@ class ActionForm(object):
 	self.suff = form.get_str('suff')
 	if not self.var:
 	    self.var = form.get_str('v')
-	self.pref = form.get_str('pref')[1] if form.get_str('pref') else ''
+	pref = form.get_str('pref')
+	self.pref = pref[1:] if pref and pref != 'n' else ''
 	self.ptype = form.get_str('pref')[0] if form.get_str('pref') else ''
 	self.inc = form.get_str('inc')
 	self.cycle = form.get_bool('cy')
@@ -919,7 +920,7 @@ class ActionForm(object):
 	['coll',        'Collectibles'],
 	['commando',    'Commando'],
 	['copies',      'Copies'],
-	['cy',          'Convoys'],
+	['convoy',      'Convoys'],
 	['disp',        'Displays'],
 	['e',           'Early'],
 	['game',        'Games'],
@@ -971,6 +972,7 @@ class ActionForm(object):
 	['.' + config.IMG_DIR_CAT,        config.IMG_DIR_CAT],
 	['.' + config.IMG_DIR_CODE_2,     config.IMG_DIR_CODE_2],
 	['.' + config.IMG_DIR_COLL_43,    config.IMG_DIR_COLL_43],
+	['.' + config.IMG_DIR_CONVOY,     config.IMG_DIR_CONVOY],
 	['.' + config.IMG_DIR_ERRORS,     config.IMG_DIR_ERRORS],
 	['.' + config.IMG_DIR_KING,       config.IMG_DIR_KING],
 	['.' + config.IMG_DIR_PACK,       config.IMG_DIR_PACK],

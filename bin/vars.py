@@ -6,34 +6,42 @@ import basics
 import config
 import mbdata
 import models
+import single
 import useful
 
 
-id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic']
+id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic', '_credit']
 note_attributes = ['manufacture', 'area', 'category', 'date', 'note']
 desc_attributes = ['text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows']
-hidden_attributes = ['mod_id', 'var', 'picture_id', 'references', 'imported', 'imported_from', 'imported_var', 'flags']
+hidden_attributes = id_attributes + ['imported', 'flags']
 detail_attributes = ['base', 'body', 'interior', 'windows']
 
 list_columns = ['ID', 'Description', 'Details', 'Picture', 'Notes']
+detail_columns = ['ID', 'Description', 'Ty', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Ba', 'Bo', 'In', 'Wh', 'Wi']
 
-DISPLAY_TYPE_GRID = 1
-DISPLAY_TYPE_LIST = 2
+DISPLAY_TYPE_GRID = 'g'
+DISPLAY_TYPE_LIST = 'l'
+DISPLAY_TYPE_DETAIL = 'd'
 
 fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
 
 # ----- display single variation --------------------------
 
-def show_variation_editor(pif, man, var_id, edit=False):
+def show_variation_editor(pif, man, var_id, edit=False, addnew=False):
     edit = edit and pif.is_allowed('a')
     if not man:
         raise useful.SimpleError("That casting was not found.")
     mod_id = man['id']
 
     variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))
-    if not variation:
+    if variation:
+	variation = variation[0]
+    elif addnew:
+	variation = {x: '' for x in pif.dbh.table_info['variation']['columns']}
+	variation['var'] = var_id
+	variation['mod_id'] = mod_id
+    else:
         raise useful.SimpleError("That variation was not found.")
-    variation = variation[0]
     attr_pics = {x['attribute.attribute_name']: x for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
     for attr in pif.dbh.fetch_attributes(mod_id):
 	variation.setdefault(attr['attribute.attribute_name'], '')
@@ -63,12 +71,14 @@ def show_variation_editor(pif, man, var_id, edit=False):
 	footer += pif.render.format_button("remove_picture", 'vars.cgi?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
 	footer += pif.render.format_button("promote", '?mod=%s&var=%s&promote=1' % (mod_id, var_id))
 
+    photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers()]
     pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
     img = ''.join([
         pif.render.format_image_required(mod_id, pdir=pdir, vars=pic_var, nobase=True, prefix=s)
 	for s in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]
     ]) if edit else pif.render.format_image_required(mod_id, pdir=pdir, vars=pic_var, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
     var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, pic_var, verbose=True)
+    variation['_credit'] = var_img_credit['photographer.id'] if var_img_credit else ''
     var_img_credit = var_img_credit['photographer.name'] if var_img_credit else ''
 
     variation['references'] = ' '.join(list(set(vsform.selects.get(var_id, []))))
@@ -90,7 +100,7 @@ def show_variation_editor(pif, man, var_id, edit=False):
 	    {'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
 	])
     for lran in ranges:
-	lran['entry'] = show_details(pif, lran['_attrs'], vsform.attributes, variation, attr_pics, ran_id=lran['id'])
+	lran['entry'] = show_details(pif, lran['_attrs'], vsform.attributes, variation, attr_pics, ran_id=lran['id'], photogs=photogs)
     lsec['range'] = ranges
     llistix = {'id': 'single', 'section': [lsec]}
 
@@ -121,6 +131,7 @@ def show_variation_editor(pif, man, var_id, edit=False):
 	'adds': adds,
 	'upload': upload,
 	'edit': edit,
+	'addnew': addnew,
 	'variation': variation,
 	'footer': footer,
     }
@@ -164,10 +175,13 @@ def show_appearances(pif, mod_id, var_id, pics=False):
 
 # ----- variation editor ----------------------------------
 
-def show_detail(pif, field, attributes, variation, attr_pics={}, ran_id=''):
+def show_detail(pif, field, attributes, variation, attr_pics={}, ran_id='', photogs=[]):
     if field == '_repic':
 	return {'field': '', 'title': 'Move pictures to', 'value': '',
 		'new': pif.render.format_text_input("repic." + variation['var'], 16, 16)}
+    if field == '_credit':
+	return {'field': '', 'title': 'Credit', 'value': '',
+		'new': pif.render.format_select("phcred." + variation['var'], photogs, selected=variation.get('_credit', ''))}
     title = attributes[field]['title']
     value = variation.get(field, '')
     modals = ''
@@ -233,14 +247,15 @@ def show_var_image(pif, attr_pic, img, title, caption='', var_img_credit=''):
 
 
 
-def show_details(pif, data, attributes, variation, attr_pics={}, ran_id=''):
-    return [show_detail(pif, d, attributes, variation, attr_pics, ran_id=ran_id) for d in data if d in variation]
+def show_details(pif, data, attributes, variation, attr_pics={}, ran_id='', photogs=[]):
+    return [show_detail(pif, d, attributes, variation, attr_pics, ran_id=ran_id, photogs=photogs) for d in data if d in variation or d.startswith('_')]
 
 
 def save(pif, mod_id, var_id):
+    # pif.form.get_bool('addnew')
     if var_id:
 	country_codes = mbdata.get_country_codes()
-        var_sel = repic = ''
+        phcred = var_sel = repic = ''
         attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id))}
         #attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title': pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
         pif.render.comment("Save: ", attributes)
@@ -255,6 +270,9 @@ def save(pif, mod_id, var_id):
             attr = key[:key.rfind('.')]
             if attr == 'references':
                 var_sel = pif.form.get_str(key)  # make it work!
+	    elif attr == 'phcred':
+		phcred = pif.form.get_str(key)
+		pif.render.message('read phcred', key, phcred, '<br>')
             elif attr == 'repic':
                 repic = pif.form.get_str(key)
                 pif.render.message('repic', repic, '<br>')
@@ -276,19 +294,13 @@ def save(pif, mod_id, var_id):
         if var_sel:
             pif.render.message('varsel', var_sel, '<br>')
             pif.dbh.update_variation_selects_for_variation(mod_id, var_dict['var'], var_sel.split())
+	pif.render.message('phcred', phcred, '<br>')
+	pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var_dict['var'])
         if repic:
             rename_variation_pictures(pif, mod_id, var_dict['var'], mod_id, repic)
     else:
         save_model(pif, mod_id)
     pif.dbh.recalc_description(mod_id)
-
-
-def add_variation(pif, mod_id, var_id='unset', attributes={}):  # pragma: no cover
-    var = pif.dbh.fetch_variation(mod_id, var_id)
-    if var:
-	print 'That variation already exists!', mod_id, var_id
-    else:
-	pif.dbh.insert_variation(mod_id, var_id, attributes)
 
 
 def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, **kwargs):  # pragma: no cover
@@ -373,6 +385,10 @@ def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_i
         pif.render.comment("rename", old_pic, new_pic)
         pif.render.message("rename", old_pic, new_pic, "<br>")
         os.rename(old_pic, new_pic)
+    pif.dbh.write('photo_credit',
+	{'name': '%s-%s' % (new_mod_id.lower(), new_var_id.lower())},
+	pif.dbh.make_where({'name': '%s-%s' % (old_mod_id.lower(), old_var_id.lower()), 'path': config.IMG_DIR_VAR[1:]}),
+	modonly=True, tag='RenamePictures')
 
 
 def promote_picture(pif, mod_id, var_id):  # pragma: no cover
@@ -395,8 +411,14 @@ def remove_picture(pif, mod_id, var_id):  # pragma: no cover
 
 def add_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no cover
     if mod_id and var_id:
-	pif.dbh.insert_variation(mod_id, var_id, {'body': ' '.join(args), 'imported_from': 'cl', 'imported_var': var_id})
-	pif.dbh.recalc_description(mod_id)
+	new_var = {'body': ' '.join(args), 'imported_from': 'cl', 'imported_var': var_id}
+	new_var.update(kwargs)
+	var = pif.dbh.fetch_variation(mod_id, var_id)
+	if var:
+	    print 'That variation already exists!', mod_id, var_id
+	else:
+	    pif.dbh.insert_variation(mod_id, var_id, new_var)
+	    pif.dbh.recalc_description(mod_id)
 
 
 def delete_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no cover
@@ -407,7 +429,47 @@ def delete_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma:
 
 # ----- multiple variation page ---------------------------
 
-def do_var(pif, model, attributes, prev):
+def do_var(pif, display_type, model, attributes, prev, credits, photogs):
+    if display_type == DISPLAY_TYPE_GRID:
+	return model
+    elif display_type == DISPLAY_TYPE_DETAIL:
+	return do_var_detail(pif, model, attributes, prev, credits, photogs)
+    return do_var_for_list(pif, model, attributes, prev, credits, photogs)
+
+
+var_types = {
+	'c': 'Core',
+	'1': 'C1',
+	'2': 'C2',
+	'f': 'F',
+	'p': '2P',
+}
+def do_var_detail(pif, model, attributes, prev, credits, photogs):
+    def mk_star(has_thing):
+	return '<i class="fa fa-star %s"></i>' % ('green' if has_thing else 'white')
+
+    phcred = credits.get(('%(mod_id)s-%(var)s' % model).lower(), '')
+    ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = single.calc_var_pics(pif, model)
+    row = {
+	'ID': pif.render.format_link('?edit=1&mod=%s&var=%s' % (model['mod_id'], model['var']), model['var'].upper()),
+	'Description': model['text_description'],
+	'Ty': var_types.get(ty_var, ty_var),
+	'Cr': phcred,
+	'Pic': model['picture_id'],
+	'De': mk_star(has_de),
+	'Ba': mk_star(has_ba),
+	'Bo': mk_star(has_bo),
+	'In': mk_star(has_in),
+	'Wh': mk_star(has_wh),
+	'Wi': mk_star(has_wi),
+    }
+    for sz in mbdata.image_size_types:
+	row[sz.upper()] = mk_star(
+	    os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + model['mod_id'] + '-' + model['var'] + '.jpg').lower()))
+    return row
+
+
+def do_var_for_list(pif, model, attributes, prev, credits, photogs):
     pic_id = model['picture_id']
     cats = [mbdata.categories.get(x, x) for x in model['_catlist']]
 
@@ -429,7 +491,7 @@ def do_var(pif, model, attributes, prev):
 	    dets.append(d)
     if pif.is_allowed('a'):  # pragma: no cover
         note_text += 'Import: %s, %s-%s<br>' % (model['imported'], model['imported_from'], model['imported_var'])
-        note_text += 'Show: ' + pif.render.format_text_input("picture_id." + model['var'], 8, value=pic_id, also={'class': 'bgno' if pic_id else 'bgok'})
+        note_text += 'Show: ' + pif.render.format_text_input("picture_id." + model['var'], 8, value=pic_id, also={'class': 'bggray' if pic_id else 'bgok'})
 	if pic_id:
 	    note_text += '<span class="warn">'
         for sz in mbdata.image_size_types:
@@ -437,7 +499,11 @@ def do_var(pif, model, attributes, prev):
                 note_text += sz.upper() + ' '
 	if pic_id:
 	    note_text += '</span>'
-        note_text += "<br>References:<br>" + pif.render.format_text_input("var_sel." + model['var'], 256, 24, value=model['references'], also={'class': 'bgok' if model['references'] else 'bgno'})
+	else:
+	    phcred = credits.get(('%(mod_id)s-%(var)s' % model).lower(), '')
+	    note_text += '<div class="%s">Credit: ' % ('bgok' if phcred or pic_id else 'bgno')
+	    note_text += pif.render.format_select("phcred." + model['var'], photogs, selected=phcred) + '</div>'
+        note_text += "References:<br>" + pif.render.format_text_input("var_sel." + model['var'], 256, 24, value=model['references'], also={'class': 'bgok' if model['references'] else 'bgno'})
 
     ostr = '<center>'
     ostr += pif.render.format_link('?edit=1&mod=%s&var=%s' % (model['mod_id'], model['var']), model['var'].upper())
@@ -448,7 +514,7 @@ def do_var(pif, model, attributes, prev):
     ostr += '<i class="fa fa-star %s"></i>' % (
 	    'green' if count_descs == len(desc_attributes) else ('red' if not count_descs else 'orange'))
     ostr += '</center>'
-    row = {
+    return {
         'ID': ostr,
         'Description': '<div class="varentry">' + model['text_description'] + '</div>\n' + '<br>'.join([
 	    '<span class="%s">%s: %s</span>\n' % (
@@ -461,8 +527,6 @@ def do_var(pif, model, attributes, prev):
         'Picture': '<a href="%(_lnk)s">%(_picture)s</a>' % model,
         'Notes': note_text,
     }
-
-    return row
 
 
 class VarSearchForm(object):
@@ -507,11 +571,13 @@ class VarSearchForm(object):
 	self.wheelq = form.get_str("var.wheels")
 	self.sobj = form.search("var.s")
 	self.is_list = form.has('list')
+	self.is_detail = form.has('vdet')
 	self.recalc = form.has('recalc')
 	self.verbose = form.get_bool('verbose')
 	self.codes = [1]
 	if not self.c1:
 	    self.codes.append(2)
+	#useful.write_message(str(self.__dict__))
 	return self
 
     def write(self, pif, values={}):
@@ -667,14 +733,16 @@ class VarSearchForm(object):
 	return values
 
 
-def do_model(pif, vsform, mvars, display_type):
+def do_model(pif, vsform, mvars, display_type, photogs):
     llineup = {'id': 'vars', 'section': []}
+    shown_columns = detail_columns if display_type == DISPLAY_TYPE_DETAIL else list_columns
 
+    credits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=vsform.mod_id, verbose=False)}
     prev = {}
     for code in vsform.codes:
-	lsec = {'id': 'code_%d' % code, 'name': 'Code %d Models' % code, 'range': list(), 'switch': code != 1,
-            'headers': dict(zip(list_columns, list_columns)),
-            'columns': list_columns if display_type == DISPLAY_TYPE_LIST else 4,
+	lsec = {'id': 'code_%d dt_%s' % (code, display_type), 'name': 'Code %d Models' % code, 'range': list(), 'switch': code != 1,
+            'headers': dict(zip(shown_columns, shown_columns)),
+            'columns': 4 if display_type == DISPLAY_TYPE_GRID else shown_columns,
 	}
 	lran = {'id': 'ran', 'entry': []}
         for var_id in sorted(mvars.keys()):
@@ -685,11 +753,10 @@ def do_model(pif, vsform, mvars, display_type):
                 #model['area'] = ', '.join([mbdata.regions.get(x, x) for x in model.get('area', '').split(';')])
 		model['link'] = '?mod=%s&var=%s' % (model['mod_id'], model['var'])
 		model['categories'] =  ' - '.join([pif.render.format_image_art(mbdata.cat_arts.get(x), desc=mbdata.categories.get(x, x)) for x in model['_catlist']])
-		lran['entry'].append(
-                    do_var(pif, model, vsform.attributes, prev) if display_type == DISPLAY_TYPE_LIST else model
-		)
+		lran['entry'].append(do_var(pif, display_type, model, vsform.attributes, prev, credits, photogs))
 		prev = model
 
+	lran['styles'] = {'Description': 'lefty'}
 	if len(lran['entry']):
 	    lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
 	    if display_type == DISPLAY_TYPE_GRID:
@@ -703,15 +770,24 @@ def do_model(pif, vsform, mvars, display_type):
     return llineup
 
 
-def save_model(pif, id):
+def save_model(pif, mod_id):
     for key in pif.form.keys(start='picture_id.'):
         if key[11:] == pif.form.get_str(key):
-            pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': id, 'var': ''})
+            pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': mod_id, 'var': ''})
         else:
-            pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': id, 'var': key[11:]})
+            pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': mod_id, 'var': key[11:]})
     for key in pif.form.keys(start='var_sel.'):
         varsel = list(set(pif.form.get_str(key).split()))
-        pif.dbh.update_variation_selects_for_variation(id, key[8:], varsel)
+        pif.dbh.update_variation_selects_for_variation(mod_id, key[8:], varsel)
+    for var in pif.form.roots(start='phcred.'):
+	phcred = pif.form.get_str('phcred.' + var)
+	if phcred:
+	    pif.render.message('phcred', mod_id, var, "'%s'" % phcred, '<br>')
+            pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var)
+    phcred = pif.form.get_str('phcred')
+    if phcred:
+	pif.render.message('phcred', mod_id, "'%s'" % phcred, '<br>')
+	pif.dbh.write_photo_credit(phcred, config.IMG_DIR_MAN[1:], mod_id)
 
 
 def show_model(pif, model):
@@ -722,6 +798,7 @@ def show_model(pif, model):
     if vsform.recalc:
         pif.dbh.recalc_description(mod_id)
 
+    pic_id = None
     cates = {'MB'}
     mvars = dict()
     for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
@@ -731,7 +808,7 @@ def show_model(pif, model):
 
         img = pif.render.find_image_path([variation['mod_id']], nobase=True, vars=pic_id if pic_id else variation['var'], prefix=mbdata.IMG_SIZ_SMALL)
 	variation['_has_pic'] = bool(img)
-        variation['_picture'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
+        variation['_picture'] = pif.render.fmt_img_src(img, also={'title': variation['var']}) if img else pif.render.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
 
 	if pif.is_allowed('u'):  # pragma: no cover
 	    variation['_dir'] = useful.relpath('.', config.LIB_MAN_DIR, variation['mod_id'].lower())
@@ -745,8 +822,12 @@ def show_model(pif, model):
     vsform = VarSearchForm(pif, mod_id).read(pif.form)
     values = vsform.make_values(mvars)
     values['category'] = list(cates)
-    llineup = do_model(pif, vsform, mvars, DISPLAY_TYPE_LIST if vsform.is_list else DISPLAY_TYPE_GRID)
+    photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers()]
+    display_type = DISPLAY_TYPE_LIST if vsform.is_list else DISPLAY_TYPE_DETAIL if vsform.is_detail else DISPLAY_TYPE_GRID;
+    llineup = do_model(pif, vsform, mvars, display_type, photogs)
     img = pif.render.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
+    phcred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id)
+    phcred = phcred.get('photographer.id', '') if phcred else ''
 
     footer = pif.render.format_button_input('list')
     if pif.is_allowed('a'):  # pragma: no cover
@@ -754,6 +835,9 @@ def show_model(pif, model):
 	footer += pif.render.format_button("add", 'vars.cgi?edit=1&mod=%s&add=1' % mod_id)
 	footer += pif.render.format_button("casting", pif.dbh.get_editor_link('casting', {'id': mod_id}))
 	footer += pif.render.format_button("recalc", '?recalc=1&mod=%s' % mod_id)
+	if display_type == DISPLAY_TYPE_LIST:
+	    img += '<div class="%s">Credit: ' % ('bgok' if phcred or pic_id else 'bgno')
+	    img += pif.render.format_select("phcred", photogs, selected=phcred) + '</div>'
     if pif.is_allowed('u'):  # pragma: no cover
 	footer += pif.render.format_button("upload", 'upload.cgi?d=' + useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()) + '&m=' + mod_id)
 	footer += pif.render.format_button("pictures", 'traverse.cgi?d=%s' % useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()))
@@ -768,7 +852,7 @@ def show_model(pif, model):
 	'footer': footer,
 	'search_object': vsform.show_search_object(),
 	'verbose': vsform.verbose,
-	'show_as_list': vsform.is_list,
+	'show_as_list': vsform.is_list or vsform.is_detail,
 	'mod_id': mod_id,
 	'var_search_form': vsform.write(pif, values),
 	'var_search_visible': pif.render.format_button_input_visibility("varsearch", True),
@@ -818,8 +902,8 @@ def main(pif):
 	var = ''
     elif pif.form.has("add"):
         var = var or 'unset'
-        add_variation(pif, man_id, var, {'imported_from': 'web'})
-	edit = True
+        #add_variation(pif, man_id, var, kwargs={'imported_from': 'web'})
+	return show_variation_editor(pif, man, var, True, True)
     elif pif.form.has('edit'):
 	edit = True
     elif pif.form.has("rmpic"):
@@ -1008,7 +1092,7 @@ def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
 def command_help(pif, *args):
     pif.render.message("./vars.py [d|r|c|s|m|i|v] ...")
     pif.render.message("  d for delete: mod_id var_id")
-    pif.render.message("  a for delete: mod_id var_id body")
+    pif.render.message("  a for add: mod_id var_id body")
     pif.render.message("  r for rename: mod_id old_var_id new_var_id")
     pif.render.message("  c for copy: mod_id old_var_id new_var_id")
     pif.render.message("  s for swap: mod_id var_id_1 var_id_2")

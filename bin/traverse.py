@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import glob, os, stat
+import datetime, glob, os, stat
 import basics
 import bfiles
 import config
@@ -115,19 +115,21 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
     ostr = '<tr>\n'
     args.sort()
     for arg in args:
+	f_st = os.stat(os.path.join(pif.render.pic_dir, arg))
+	f_date = str(datetime.datetime.fromtimestamp(f_st.st_mtime))
         root, ext = useful.root_ext(arg.strip())
         inp = ''
         if shlv or cate:
             inp += '''<input type="text" name="lib.%s"> lib''' % arg
-            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
             continue
 	elif mss:
             inp += '''<input type="text" name="var.%s"> var''' % arg
-            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
             continue
 	elif rsuf:
             inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
-            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
             continue
 	elif cred:
 	    fn = arg[:arg.find('.')] if '.' in arg else arg
@@ -142,9 +144,10 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
         else:
             inp = imginput % {'f': arg}
         #inp += ' <a href="imawidget.cgi?d=%s&f=%s&cy=0">' % (pif.render.pic_dir, arg) + pif.render.format_button('edit') + '</a>'
-        inp += ' ' + pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
-        inp += ' ' + pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (pif.render.pic_dir + '/' + arg))
-        ostr += pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+        #inp += ' ' + pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
+        #inp += ' ' + pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (pif.render.pic_dir + '/' + arg))
+        #ostr += pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
+        ostr += pif.render.format_cell(0, '<a href="imawidget.cgi?d=%s&f=%s&cy=0">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
     ostr += '</tr>\n'
     return ostr
 
@@ -270,6 +273,8 @@ def do_masses(pif, tform):
 	    ofn = pic[pic.rfind('/') + 1:]
 	    nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
 	    useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
+	# transfer credit
+	pif.dbh.write_photo_credit(pif.form.get_str('credit'), config.IMG_DIR_MAN[1:], mod_id)
 
 
 def show_file(pif, tform):

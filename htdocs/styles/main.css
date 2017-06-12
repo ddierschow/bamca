@@ -87,6 +87,7 @@ foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; ver
 
 .bgok {background-color: #FFFFFF}
 .bgno {background-color: #FFCCCC}
+.bggray {background-color: #CCCCCC}
 .txok {color: #000000}
 .txno {color: #FF0000}
 

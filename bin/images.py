@@ -86,12 +86,28 @@ def show_var_info(pif, mod_id, var_id):
 
 # -- upload
 
-ebay_start = 'http://thumbs.ebaystatic.com/images/g/'
-ebay_end = '/s-l225.jpg'
+ebay_starts = [
+    'http://thumbs.ebaystatic.com/images/g/',
+    'https://i.ebayimg.com/thumbs/images/g/',
+    'http://i.ebayimg.com/images/g/',
+]
+ebay_ends = [
+    '/s-l225.jpg',
+    '/s-l300.jpg',
+    '/s-l64.jpg',
+]
 def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
-    if url.startswith(ebay_start) and url.endswith(ebay_end):
-	url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.jpg'
-    #print url, '<br>'
+    url = url.strip()
+    found = False
+    for ebay_start in ebay_starts:
+	for ebay_end in ebay_ends:
+	    if url.startswith(ebay_start) and url.endswith(ebay_end):
+		url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.jpg'
+		found = True
+		break
+	if found:
+	    break
+    print url, '<br>'
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
     try:
@@ -283,11 +299,16 @@ def upload_main(pif):
 	    return upform.restricted_upload(pif)
 	fn = upform.save_uploaded_file()
 	upform.carbon_copy(fn)
-	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix))
+	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s&credit=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix, ''))
     elif upform.url:
+	credit = ''
+	if 'mbx-u.com' in upform.url:
+	    credit = 'MBXU'
+	elif 'publicsafetydiecast.com' in upform.url:
+	    credit = 'PSDC'
 	fn = upform.grab_url_pic(pif)
 	upform.carbon_copy(fn)
-	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix))
+	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s&credit=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix, credit))
 
     pif.render.print_html()
     pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
@@ -437,6 +458,7 @@ class EditForm(imglib.ActionForm):
 	self.repl = pif.form.get_bool('repl')
 	self.save = pif.form.get_bool('save')
 	self.cc = pif.form.get_str('cc')
+	self.credit = pif.form.get_str('credit')
 	self.read_file(pif.form.get_str('q'))
 	if not self.pref:
 	    self.pref = pif.form.get_str('tysz')
@@ -555,7 +577,7 @@ class EditForm(imglib.ActionForm):
 	    #print 'Name:', pif.render.format_text_input('newname', 20, value=pif.form.get_str('newname', ''))
 	    print pif.render.format_button_input('resize')
 	    print pif.render.format_button_input('crop')
-	    print pif.render.format_button_input('crop and shrink', 'shrink')
+	    print pif.render.format_button_input('crop/shrink', 'shrink')
 	    print pif.render.format_button_input('wipe')
 	    print pif.render.format_button_input('pad')
 	    #if pif.is_allowed('m'):  # pragma: no cover
@@ -564,8 +586,10 @@ class EditForm(imglib.ActionForm):
 	    print pif.render.format_checkbox("save", [(1, "Save")], presets.get("save", []))
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
-	print '- Bounds: <input type="text" value="%s" name="q" id="q"> <span id="ima_info"></span>' % ','.join([str(x) for x in self.q])
-	print 'Credit ' + pif.render.format_text_input('credit', 4)
+	photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers()]
+	print 'Credit', pif.render.format_select('credit', photogs, selected=self.credit)
+	print 'Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q])
+	print '<br><span id="ima_info"></span>&nbsp;'
 	print pif.render.format_hidden_input({'cc': presets.get('cc', '')})
 	return xs, ys
 
@@ -682,6 +706,7 @@ class EditForm(imglib.ActionForm):
 	    else:
 		nname = self.shape_image()
 	    useful.file_mover(os.path.join(self.tdir, nname), dpth, mv=True, ov=True)
+	    useful.file_touch(dpth)
 	    largest = dpth
 	    print '<br><img src="/%s"><hr>' % dpth
 

@@ -93,8 +93,8 @@ table_info = {
     'casting': {
         'id': ['id'],
 	'extends': {'base_id': 'id/id'},
-        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id'],
-	'extra_columns': ['notes', 'variation_digits',
+        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'variation_digits'],
+	'extra_columns': ['notes',
 	    'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels'],
         'clinks': {
                 'id': {'tab': 'casting', 'id': ['id/id']},
@@ -309,7 +309,7 @@ table_info = {
         'add': {
                 'matrix_model': ['page_id/page_id', 'section_id/section_id'],
         },
-        'ask': ['id', 'page_id', 'mod_id'],
+        'ask': ['id', 'page_id', 'section_id', 'mod_id'],
     },
     #region
     'region': {

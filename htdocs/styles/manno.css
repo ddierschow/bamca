@@ -11,7 +11,8 @@ body {background-color: #FFFFCC;}
 .eb_unlicensed {}
 .eb_nl {text-align: left;}
 .eb_first_year {}
-.eb_l_ {border-left-width: thin;}
+.eb_credit {border-left-width: thin;}
+.eb_l_ {}
 .eb_m_ {}
 .eb_s_ {}
 .eb_t_ {}

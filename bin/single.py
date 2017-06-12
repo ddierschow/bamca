@@ -30,44 +30,68 @@ def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
 
 
 other_plants = ['Brazil', 'Bulgaria', 'Hungary', 'Japan']
+var_types = ['c', '1', '2', 'f', 'p']
+def calc_var_pics(pif, var):
+    has_de = 1 if len(var['text_description']) > 0 else 0
+    has_ba = 1 if len(var['text_base']) > 0 else 0
+    has_bo = 1 if len(var['text_body']) > 0 else 0
+    has_in = 1 if len(var['text_interior']) > 0 else 0
+    has_wh = 1 if len(var['text_wheels']) > 0 else 0
+    has_wi = 1 if len(var['text_windows']) > 0 else 0
+    ty_var = ''
+    is_found = False
+    if not var['picture_id']:
+	is_found = int(bool(pif.render.find_image_path(pdir=config.IMG_DIR_MAN, nobase=True,
+	    prefix=mbdata.IMG_SIZ_SMALL, suffix='jpg', fnames=var['mod_id'], vars=var['var'])))
+
+	if any([var['manufacture'].startswith(x) for x in other_plants]):
+	    ty_var = 'p'
+	elif var['var'].startswith('f'):
+	    ty_var = 'f'
+	elif not var['category']:
+	    ty_var = 'c'
+	elif set(mbdata.code2_categories) & set(var['category'].split()):
+	    ty_var = '2'
+	else:
+	    ty_var = '1'
+    return ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi
+
+
 def count_list_var_pics(pif, mod_id):  # called from elsewhere
-    vars = pif.dbh.fetch_variations(mod_id)
+    vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
     needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
     found_c = found_f = found_a = found_1 = found_2 = found_p = 0
     count_de = count_ba = count_bo = count_in = count_wh = count_wi = 0
 #    nf = []
     for var in vars:
-	count_de += int(len(var['variation.text_description']) > 0)
-	count_ba += int(len(var['variation.text_base']) > 0)
-	count_bo += int(len(var['variation.text_body']) > 0)
-	count_in += int(len(var['variation.text_interior']) > 0)
-	count_wh += int(len(var['variation.text_wheels']) > 0)
-	count_wi += int(len(var['variation.text_windows']) > 0)
-        if var['variation.picture_id'] or not var['variation.text_description']:
-            continue
-	is_found = int(bool(pif.render.find_image_path(pdir=config.IMG_DIR_MAN, nobase=True,
-	    prefix=mbdata.IMG_SIZ_SMALL, suffix='jpg', fnames=mod_id, vars=var['variation.var'])))
-#        if not is_found:
-#            nf.append(var['variation.var'])
-        is_code2 = set(mbdata.code2_categories) & set(var['variation.category'].split())
+	ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = calc_var_pics(pif, var)
+	count_de += has_de
+	count_ba += has_ba
+	count_bo += has_bo
+	count_in += has_in
+	count_wh += has_wh
+	count_wi += has_wi
+	if not var['picture_id']:
+    #        if not is_found:
+    #            nf.append(var['var'])
 
-        needs_a += 1
-        found_a += is_found
-	if any([var['variation.manufacture'].startswith(x) for x in other_plants]):
-            needs_p += 1
-            found_p += is_found
-        elif var['variation.var'].startswith('f'):
-            needs_f += 1
-            found_f += is_found
-        elif not var['variation.category']:
-            needs_c += 1
-            found_c += is_found
-        elif is_code2:
-            needs_2 += 1
-            found_2 += is_found
-        else:
-            needs_1 += 1
-            found_1 += is_found
+	    needs_a += 1
+	    found_a += is_found
+	    if ty_var == 'p':
+		needs_p += 1
+		found_p += is_found
+	    elif ty_var == 'f':
+		needs_f += 1
+		found_f += is_found
+	    elif ty_var == 'c':
+		needs_c += 1
+		found_c += is_found
+	    elif ty_var == '2':
+		needs_2 += 1
+		found_2 += is_found
+	    else:
+		needs_1 += 1
+		found_1 += is_found
     return (found_a, found_c, found_1, found_2, found_f, found_p), \
 	   (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p), \
 	   (len(vars), count_de, count_ba, count_bo, count_in, count_wh, count_wi)
@@ -188,6 +212,7 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations
         elif ref.startswith('packs.'):
             links.append('<a href="%s">Pack Model</a>' % pif.dbh.get_editor_link('pack_model', {'pack_id': pif.form.get_str('sub'), 'mod_id': mod_id}))
         links.append('<a href="vars.cgi?list=1&mod=%s">Variations</a>' % mod_id)
+        links.append('<a href="vars.cgi?vdet=1&mod=%s">Details</a>' % mod_id)
         links.append('<a href="vsearch.cgi?ask=1&id=%s">Search</a>' % mod_id)
         links.append('<a href="pics.cgi?m=%s">Pictures</a>' % mod_id.lower())
         links.append('<a href="edlinks.cgi?page=single.%s">Links</a>' % mod_id)

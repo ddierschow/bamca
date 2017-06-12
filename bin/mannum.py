@@ -31,6 +31,7 @@ admin_cols = [
         ['fvyear', 'First'],
         ['lvyear', 'Last'],
         ['scale', 'Scale'],
+        ['alias', 'Aliases'],
         ['rel', 'Rel'],
         ['vehicle_type', 'VT'],
         ['country', 'CC'],
@@ -76,6 +77,7 @@ picture_cols = [
         ['unlicensed', ''],
         ['nl', 'Name'],
         ['first_year', 'Year'],
+        ['credit', 'Cr'],
         [mbdata.IMG_SIZ_LARGE + '_', 'L'],
         [mbdata.IMG_SIZ_MEDIUM + '_', 'M'],
         [mbdata.IMG_SIZ_SMALL + '_', 'S'],
@@ -359,15 +361,21 @@ class MannoFile(object):
         return td
 
     def get_admin_entries(self, pif, model_ids):
+	# 'alias' : list of aliases, separated by br
+	aliases = {}
+	for alias in pif.dbh.fetch_aliases():
+	    aliases.setdefault(alias['alias.ref_id'], [])
+	    aliases[alias['alias.ref_id']].append(alias['alias.id'])
 	for mod in model_ids:
 	    mdict = self.mdict[mod]
 	    mdict.setdefault('own', '')
 	    mdict.setdefault('mydesc', '')
 	    mdict['name'] = mades[int(mdict['made'])] % mdict
+	    mdict['alias'] = '<br>'.join(aliases.get(mod, []))
 	    mdict.update({
 		'fvyear': '', 'lvyear': '',
 		'notes': 'N' if mdict['notes'] else '',
-		'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
+		'vid': '<a href="vars.cgi?mod=%(id)s">%(id)s</a>' % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
 	    if mdict['flags'] & pif.dbh.FLAG_MODEL_REVISED_CASTING:
 		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fa fa-circle green"></i><nobr>'
@@ -464,6 +472,7 @@ class MannoFile(object):
 	return cnt, tot
 
     def get_picture_model_entries(self, pif, model_ids):
+	photogs = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_models('.' + config.IMG_DIR_MAN)}
 	for mod in model_ids:
 	    mdict = self.mdict[mod]
 	    mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
@@ -472,6 +481,7 @@ class MannoFile(object):
 		'first_year': '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (useful.relpath(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year']),
 		'name': mades[int(mdict['made'])] % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
+		'credit': '<a href="vars.cgi?vdet=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
 		'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_ICON], mdict['id'], 'i')[1]})
 	    founds, needs, cnts = single.count_list_var_pics(pif, mdict['id'])
 	    #mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))

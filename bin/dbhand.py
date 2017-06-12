@@ -606,6 +606,16 @@ class DBHandler(object):
         varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), args=args, tag='VariationQuery')
         return varrecs
 
+    def fetch_variation_query_by_id(self, mod_id, var_id):
+        wheres = ['v.mod_id=casting.id', 'casting.id=base_id.id']
+        cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.text_description', 'v.text_base',
+                'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.picture_id']
+	wheres.append('casting.id="%s"' % mod_id)
+	wheres.append('v.var="%s"' % var_id)
+	# turn this into a fetch
+        varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), tag='VariationIdQuery')
+        return varrecs
+
     def fetch_variation_by_select(self, mod_id, ref_id, sub_id, category=None, verbose=False):
         cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id', 'vs.category']
         table = "variation_select vs"
@@ -976,11 +986,11 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     def fetch_link_line(self, id):
 	# turn this into a fetch
-        return self.dbi.select('link_line', where="id='%s'" % id, tag='LinkLine', one=True)
+        return self.dbi.select('link_line', where="id='%s'" % id, tag='LinkLine')
 
     def fetch_link_line_url(self, url):
 	# turn this into a fetch
-        return self.dbi.select('link_line', where="url='%s'" % url, tag='LinkLineURL', one=True)
+        return self.dbi.select('link_line', where="url='%s'" % url, tag='LinkLineURL')
 
     def clear_link_line_statuses(self, page_id=None, section=None, where=None, flags=None, verbose=False):
         wheres = list()
@@ -1251,6 +1261,9 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 
     #- photographer
 
+    def get_photographers(self):
+	return self.fetch('photographer', tag='Photographers')
+
     #- photo_credit
 
     def fetch_photo_credit(self, path, name, suffix='', verbose=False):
@@ -1284,8 +1297,23 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	    wheres.append('photo_credit.photographer_id="%s"' % photographer_id)
         return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCredit', verbose=verbose)
 
+    def fetch_photo_credits_for_models(self, path, verbose=False):
+	if path.startswith('./'):
+	    path = path[2:]
+	wheres = ['photo_credit.photographer_id=photographer.id',
+		  'photo_credit.path="%s"' % path]
+        return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCreditMods', verbose=verbose)
+
+    def fetch_photo_credits_for_vars(self, path, name, verbose=False):
+	if path.startswith('./'):
+	    path = path[2:]
+	wheres = ['photo_credit.photographer_id=photographer.id',
+		  'photo_credit.name like "%%%s%%"' % name,
+		  'photo_credit.path="%s"' % path]
+        return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCreditVars', verbose=verbose)
+
     def write_photo_credit(self, photographer_id, path, name, suffix='', verbose=False):
-	if photographer_id and path and name:
+	if path and name:
 	    if path.startswith('./'):
 		path = path[2:]
 	    if len(name) > 2 and name[0] in 'sml'  and name[1] == '_':
@@ -1294,17 +1322,23 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 		name = name[:name.find('.')]
 	    if suffix:
 		name += '-' + suffix
-	    ovalues = self.fetch_photo_credit(path, name, suffix, verbose=verbose)
-	    nvalues = {
-		'path': path,
-		'name': name,
-		'photographer_id': photographer_id,
-	    }
-	    where = ''
-	    if ovalues:
-		nvalues['id'] = ovalues['photo_credit.id']
-		where = 'photo_credit.id=%s' % nvalues['id']
-	    return self.write('photo_credit', values=nvalues, where=where, tag='WritePhotoCredit', verbose=verbose)
+	    if photographer_id:
+		ovalues = self.fetch_photo_credit(path, name, suffix, verbose=verbose)
+		nvalues = {
+		    'path': path.lower(),
+		    'name': name.lower(),
+		    'photographer_id': photographer_id,
+		}
+		where = ''
+		if ovalues:
+		    nvalues['id'] = ovalues['photo_credit.id']
+		    where = 'photo_credit.id=%s' % nvalues['id']
+		return self.write('photo_credit', values=nvalues, where=where, tag='WritePhotoCredit', verbose=verbose)
+	    else:
+		where = self.make_where({
+		    'path': path.lower(),
+		    'name': name.lower()})
+		return self.delete('photo_credit', where=where, tag='DeletePhotoCredit', verbose=verbose)
 
     #- miscellaneous
 

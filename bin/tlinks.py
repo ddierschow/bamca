@@ -19,6 +19,7 @@ def links(pif):
     if pif.form.get_int('id'):
         link = pif.dbh.fetch_link_line(pif.form.get_int('id'))
 	if link:
+	    link = link[0]
 	    if link['page_id'] != 'links.toylinks':
 		pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
 	    pif.render.hierarchy_append('', 'Specific Link')
@@ -325,7 +326,7 @@ def edit_single(pif):
         pif.dbh.update_link_line(nlink)
         pif.render.message('<br>record saved<br>')
     elif pif.form.get_bool('test'):
-        link = pif.dbh.fetch_link_line(link_id)
+        link = pif.dbh.fetch_link_line(link_id)[0]
         check_link(pif, link)  # don't care about blacklist here, just actual check
     elif pif.form.get_bool('delete'):
         pif.dbh.delete_link_line(link_id)

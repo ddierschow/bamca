@@ -118,7 +118,7 @@ def calc_lineup_model(pif, mdict, comments):
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
         elif mdict.get('image_format'):
             mdict['product'] = mdict['image_format'] % mdict['lineup_model.number']
-        if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
+        if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
             mdict['is_product_picture'] = 1
             comments.add('c')
         mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sub=%(sub_id)s&id=%(mod_id)s" % mdict
@@ -867,7 +867,7 @@ def show_text_lineup_main(pif, mdict, verbose=0):
                 mdict['product'] = mdict['lineup_model.picture_id']
             elif mdict.get('image_format'):
                 mdict['product'] = mdict['image_format'] % mdict['lineup_model.number']
-            if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir']):
+            if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
                 mdict['is_product_picture'] = 1
             mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sub=%(sub_id)s&id=%(mod_id)s" % mdict
             if mdict['imgstr'].find('-') < 0:

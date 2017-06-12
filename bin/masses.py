@@ -360,13 +360,18 @@ var_data_columns = ['category', 'area', 'date', 'note', 'manufacture', 'imported
 var_record_columns = var_id_columns + var_attr_columns + var_data_columns
 def add_var_info(pif):
     mod_id = pif.form.get_str('mod_id')
-    mod = pif.dbh.fetch_casting(mod_id)
+    mod = pif.dbh.fetch_casting_by_id_or_alias(mod_id)
+    if not mod:
+	raise useful.SimpleError("Model not found.")
+    elif len(mod) > 1:
+	raise useful.SimpleError("Multiple models found.")
+    mod = pif.dbh.modify_man_item(mod[0])
+    mod_id = mod['id']
     var_id = mbdata.normalize_var_id(mod, pif.form.get_str('var'))
     attrs = pif.dbh.fetch_attributes(mod_id)
     attr_names = [x['attribute.attribute_name'] for x in attrs]
     var = pif.dbh.fetch_variation(mod_id, var_id)
-    if not mod:
-	raise useful.SimpleError("Model not found.")
+    useful.write_message(mod)
 
     print pif.render.format_head()
     useful.header_done()
@@ -1460,13 +1465,18 @@ def add_matrix_model(pif, section):
     mmodels = {x + 1: {'matrix_model.display_order': x + 1, 'vars': []} for x in range(pif.form.get_int('num'))}
     mmodelsdb = pif.dbh.fetch_matrix_models_variations(section['section.page_id'], section=section['section.id'])
     for mmdb in mmodelsdb:
+	if mmdb['vs.sub_id'] and mmdb['vs.sub_id'] != section['section.id']:
+	    continue
 	if mmdb['vs.category']:
 	    category = mmdb['vs.category']
 	dispo = mmdb['matrix_model.display_order']
 	if dispo not in mmodels:
 	    mmodels[dispo] = {'matrix_model.display_order': dispo, 'vars': []}
+	if mmodels[dispo].get('matrix_model.id'):
+	    useful.write_message('duplicate matrix_model entry found:', mmodels[dispo]['matrix_model.id'], mmdb['matrix_model.id'])
 	mmodels[dispo].update(mmdb)
-	mmodels[dispo]['vars'].append(mmdb['v.var'])
+	if mmdb['v.var']:
+	    mmodels[dispo]['vars'].append(mmdb['v.var'])
 
     def mod_name(mod):
 	if mod.get('matrix_mode.name'):
@@ -1480,7 +1490,7 @@ def add_matrix_model(pif, section):
 		   pif.render.format_link("single.cgi?id=%s" % mod.get('matrix_model.mod_id', ''), mod.get('matrix_model.mod_id', '')) + ' ' +
 	           pif.render.format_text_input("mm.mod_id.%s" % key, 8, 8, value=mod.get('matrix_model.mod_id', '')),
 	    'var_id': pif.render.format_text_input("mm.var_id.%s" % key, 20, 20, value='/'.join(sorted(set(mod.get('vars', []))))),
-	    'display_order': 'disp ' + pif.render.format_text_input("mm.display_order.%s" % key, 2, 2, value=mod.get('matrix_model.display_order', '')),
+	    'display_order': 'disp ' + pif.render.format_text_input("mm.display_order.%s" % key, 3, 3, value=mod.get('matrix_model.display_order', '')),
 	    'edit': pif.render.format_button('edit', link=pif.dbh.get_editor_link('matrix_model',
 			pif.dbh.make_id('matrix_model', mod, 'matrix_model' + '.'))) + str(mod.get('matrix_model.id', '')),
 	    'name': pif.render.format_text_input("mm.name.%s" % key, 80, 20, value=mod_name(mod)),
@@ -1488,6 +1498,7 @@ def add_matrix_model(pif, section):
 	    'flags': pif.render.format_text_input("mm.flags.%s" % key, 4, value=str(mod.get('matrix_model.flags', 0))),
 	}
 	for key, mod in sorted(mmodels.items())]
+
     return dict(columns=cols, range=[{'entry': entries}], noheaders=True, header='matrix_model<br>'), category
 
 
@@ -1507,6 +1518,8 @@ def add_matrix_save(pif):
     modvars = []
     for root in pif.form.roots(start='mm.id'):
 	mm = pif.form.get_dict(start='mm.', end=root)
+	if not mm.get('mod_id'):
+	    continue
 	if 'id' in mm and (not mm['id'] or not int(mm['id'])):
 	    del mm['id']
 	if 'var_id' in mm:

@@ -24,7 +24,7 @@ if ($pif['bad_ip']) {
 else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE)) {
     echo 'Whoa there.  This is not the correct place to submit links.  Please use the "Suggest a Link" page on the main index.' . "\n";
 }
-else if (array_key_exists('submit_x', $_POST)) {
+else if (array_key_exists('submit', $_POST) || array_key_exists('submit_x', $_POST)) {
     echo "I am sending this comment for you. ";
     $fn = "../../logs/comment." . strftime('%Y%m%d.%H%M%S');
     echo "<dl><dt>My Subject</dt><dd>" . $_POST['mysubject'] . "</dd>\n";

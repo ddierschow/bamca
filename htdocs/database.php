@@ -191,7 +191,9 @@ function RegionNote() {
 
 function SectionID() {
     echo "\n<table>\n <tr>\n";
-    echo "  <td>See specific manufacturing ID:</td><td><input type=\"text\" name=\"id\" id=\"idId\" value=\"\" size=\"12\">";
+    echo "  <td class=\"idtab\">See specific manufacturing ID:</td><td><input type=\"text\" name=\"id\" id=\"idId\" value=\"\" size=\"12\"></td>\n";
+    echo " </tr><tr>\n";
+    echo "  <td class=\"idtab\">See specific variation ID:</td><td><input type=\"text\" name=\"var\" id=\"idVar\" value=\"\" size=\"12\"> (optional)";
     echo "</td>\n </tr>\n</table>\n";
 }
 

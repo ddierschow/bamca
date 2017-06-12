@@ -241,6 +241,10 @@ def search_match(sobj, targ):
     return True
 
 
+def file_touch(dst):
+    os.utime(dst, None)
+
+
 def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma: no cover
     warn("file_mover", src, dst, "mv=", mv, "ov=", ov, "inc=", inc, "trash=", trash)
     addon = 0

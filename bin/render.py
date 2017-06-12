@@ -523,7 +523,7 @@ of Matchbox International Ltd. and are used with permission.
         ostr = '<select name="%s"' % name
         if id:
             ostr += ' id="%s"' % id
-        ostr += '>\n'
+	ostr += '>\n'
         for option in options:
             if isinstance(option, str):
                 option = (option, option)

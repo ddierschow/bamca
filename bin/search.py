@@ -4,6 +4,7 @@ import basics
 import mflags
 import models
 import useful
+import vars
 
 def search_name(pif):
     return pif.dbh.fetch_casting_list(where=["base_id.rawname like '%%%s%%'" % x for x in pif.form.search('query')], verbose=True)
@@ -14,17 +15,21 @@ def search_name(pif):
 def search_id(pif):
     cid = get_casting_id(pif.form.get_str('id'))
     mod = pif.dbh.fetch_casting(cid)
+    var_id = pif.form.get_str('var')
     if mod:
-        raise useful.Redirect('/cgi-bin/single.cgi?id=%s' % mod['id'])
-        #print '<meta http-equiv="refresh" content="0;url=/cgi-bin/single.cgi?id=%s">' % mod['id']
-        #return None
+	if var_id:
+	    raise useful.Redirect('/cgi-bin/vars.cgi?mod=%s&var=%s' % (mod['id'], var_id))
+	else:
+	    raise useful.Redirect('/cgi-bin/single.cgi?id=%s' % mod['id'])
 
     mod = pif.dbh.fetch_castings_by_alias(cid)
     if len(mod) == 1:
-        if mod[0].get('alias.id'):
-	    raise useful.Redirect('/cgi-bin/single.cgi?id=%s' % mod[0]['casting.id'])
-            #print '<meta http-equiv="refresh" content="0;url=/cgi-bin/single.cgi?id=%s">' % mod[0]['casting.id']
-        #return None
+	mod = mod[0]
+        if mod.get('alias.id'):
+	    if var_id:
+		raise useful.Redirect('/cgi-bin/vars.cgi?mod=%s&var=%s' % (mod['casting.id'], var_id))
+	    else:
+		raise useful.Redirect('/cgi-bin/single.cgi?id=%s' % mod['casting.id'])
 
     if not mod:
         mod1 = pif.dbh.fetch_casting_list(where="casting.id like '%%%s%%'" % pif.form.get_str('id'))
@@ -52,6 +57,19 @@ def get_casting_id(id):
     return id
 
 
+def create_var_lineup(mods, var_id):
+    llineup = {'columns': 4}
+    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    lran = {'entry': []}
+    for mod in mods:
+	var = pif.dbh.fetch_variation_query_by_id(mod['base_id.id'], var_id)
+	lran['entry'].append({'text': vars.add_model_var_table_pic_link(pif, var)})
+    lsec['range'] = [lran]
+    lsec['columns'] = 4
+    llineup['section'] = [lsec]
+    return llineup
+
+
 def create_lineup(pif, mods):
     flago = mflags.FlagList()
     llineup = {'columns': 4}
@@ -68,6 +86,7 @@ def create_lineup(pif, mods):
 
 @basics.web_page
 def run_search(pif):
+    # form['var'] is now a possibility
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append(pif.request_uri, 'Model Search')
@@ -90,8 +109,14 @@ def run_search(pif):
 	raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.")
 
     mods.sort(key=lambda x: x['rawname'])
-    pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
-    llineup = create_lineup(pif, mods)
+    var_id = pif.form.get_str('var')
+    if var_id:
+	pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
+	llineup = create_var_lineup(pif, mods, var_id)
+    else:
+	pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
+	llineup = create_lineup(pif, mods)
+
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 

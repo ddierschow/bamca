@@ -125,6 +125,7 @@ function GetPageInfo($page_id) {
 function DoHead($pif) {
     echo "<head><meta charset=\"UTF-8\">
 <title>" . $pif['title'] . "</title>
+<meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\">
 <script src=\"https://use.fontawesome.com/a21dc93072.js\"></script>
 <link rel=\"icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
 <link rel=\"shortcut icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
@@ -176,7 +177,7 @@ function DoPageHeader($pif) {
 	echo '<a href="' . $hier[0] . '">' . $hier[1] . "</a> <i class=\"fa fa-chevron-right\"></i>\n";
     }
     if (!($pif['flags'] & 2))
-	echo "<center><h1>" . $pif['title'] . "</h1></center>\n";
+	echo '<span class="titletext">' . $pif['title'] . "</span>\n";
 }
 
 function DoPageFooter($pif) {
