@@ -53,6 +53,10 @@ Like all hobbies, diecast collecting has a range of words, terms, phrases and ac
 <dd>Any model produced by the original manufacturer but contains authorised after market modifications such as additional tampo printing</dd>
 <dt>Code 3</dt>
 <dd>Any model that has after market modifications that have not been approved by the original manufacturer</dd>
+<dt>Code 4</dt>
+<dd>Matchbox limited quantity models (one-offs) not put on general sale. Normally company issued gifts to
+individuals or organization.</dt>
+
 </dl>
 
 <h2 id="d">D</h2>

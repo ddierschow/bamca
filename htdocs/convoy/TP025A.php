@@ -3,52 +3,41 @@ $subtitle = 'TP025A';
 // TP25-A PIPE TRUCK, issued 1979
 $desc = "Peterbilt Pipe Truck";
 $year = '1979';
+
+$defaults = ['mod' => $subtitle, 'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England', 'cod' => '1'];
+
 include "cypage.php";
 
 function body() {
-    global $subtitle;
-
     show_table([
 // 1. Yellow cab, amber windows, silver-gray flatbed, orange pipes
-	['mod' => $subtitle, 'var' => '01a',
-	    'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England',
-	    'liv' => 'none', 'cod' => '1', 'rar' => '',
-            'cdt' => 'yellow cab, amber windows',
+	['var' => '01a', 'liv' => 'none',
+            'cdt' => 'yellow, amber windows',
             'tdt' => 'silver-gray flatbed, orange pipes',
 	],
 // 2. Yellow cab, amber windows, black flatbed, orange pipes
-	['mod' => $subtitle, 'var' => '02a',
-	    'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England',
-	    'liv' => 'none', 'cod' => '1', 'rar' => '',
-            'cdt' => 'yellow cab, amber windows',
+	['var' => '02a', 'liv' => 'none',
+            'cdt' => 'yellow, amber windows',
             'tdt' => 'black flatbed, orange pipes',
 	],
 // 3. Dark green cab, amber windows, silver-gray flatbed, orange pipes
-	['mod' => $subtitle, 'var' => '03a',
-	    'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England',
-	    'liv' => 'none', 'cod' => '1', 'rar' => '',
-            'cdt' => 'dark green cab, amber windows',
+	['var' => '03a', 'liv' => 'none',
+            'cdt' => 'dark green, amber windows',
             'tdt' => 'silver-gray flatbed, orange pipes',
 	],
 // 4. Dark green cab, amber windows, black flatbed, orange pipes
-	['mod' => $subtitle, 'var' => '04a',
-	    'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England',
-	    'liv' => 'none', 'cod' => '1', 'rar' => '',
-            'cdt' => 'dark green cab, amber windows',
+	['var' => '04a', 'liv' => 'none',
+            'cdt' => 'dark green, amber windows',
             'tdt' => 'black flatbed, orange pipes',
 	],
 // 5. Dark green cab, no windows, black flatbed, orange pipes
-	['mod' => $subtitle, 'var' => '05a',
-	    'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England',
-	    'liv' => 'none', 'cod' => '1', 'rar' => '',
-            'cdt' => 'dark green cab, no windows',
+	['var' => '05a', 'liv' => 'none',
+            'cdt' => 'dark green, no windows',
             'tdt' => 'black flatbed, orange pipes',
 	],
 // 6. Bronze cab, amber windows, black flatbed, orange pipes
-	['mod' => $subtitle, 'var' => '06a',
-	    'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England',
-	    'liv' => 'none', 'cod' => '1', 'rar' => '',
-            'cdt' => 'bronze cab, amber windows',
+	['var' => '06a', 'liv' => 'none',
+            'cdt' => 'bronze, amber windows',
             'tdt' => 'black flatbed, orange pipes',
 	],
     ]);

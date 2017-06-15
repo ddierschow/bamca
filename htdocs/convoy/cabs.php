@@ -4,6 +4,7 @@
 chdir('..');
 include "bin/basics.php";
 include "config.php";
+include "subs.php";
 $pif = GetPageInfo("convoy");
 $pif['title'] = $pif['title'] . ' - Semi Cabs';
 DoHead($pif);
@@ -14,20 +15,7 @@ DoHead($pif);
 DoPageHeader($pif);
 ?>
 
-<?php
-function link_if_exists($fn, $text='') {
-    if (!$text)
-	$text = $fn;
-    if (file_exists('convoy/' . $fn . '.php')) {
-	echo '<a href="' . $fn . '.php">' . $text . '</a>';
-    }
-    else {
-	echo '<i>' . $text . '</i>';
-    }
-}
-?>
-
-The Matchbox Convoy Project&nbsp; - Basic Information<br>
+The Matchbox Convoy Project - Basic Information<br>
 <br>
 <div align="center"><font size="+3" face="Arial">Truck Cabs<br>
 <br>
@@ -41,7 +29,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td class="cabhead">Convoys</td>
     </tr>
     <tr>
-      <td class="cabname">MB-45C<br>Kenworth Cabover Aerodyne<br>1982</td>
+      <td class="cabname">MB-45C<br>Kenworth Cabover Aerodyne<br>Introduced 1982</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB045"><img src="/pic/man/s_mb045.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=Mb309"><img src="/pic/man/s_mb309.jpg"></a></td>
       <td class="cabcell">
@@ -70,7 +58,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-41D<br>Kenworth Aerodyne Conventional Cab<br>1982</td>
+      <td class="cabname">MB-41D<br>Kenworth Aerodyne Conventional Cab<br>Introduced 1982</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB103"><img src="/pic/man/s_mb103.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB310"><img src="/pic/man/s_mb310.jpg"></a></td>
       <td class="cabcell">
@@ -91,7 +79,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-43D<br>Peterbilt Conventional Sleeper Cab<br>1982</td>
+      <td class="cabname">MB-43D<br>Peterbilt Conventional Sleeper Cab<br>Introduced 1982</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB106"><img src="/pic/man/s_mb106.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB307"><img src="/pic/man/s_mb307.jpg"></a></td>
       <td class="cabcell">
@@ -113,7 +101,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">Peterbilt Conventional Cab<br>1984</td>
+      <td class="cabname">Peterbilt Conventional Cab<br>Introduced 1984</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MI724"><img src="/pic/man/s_mi724.jpg"></a></td>
       <td class="cabcell"></td>
       <td class="cabcell">
@@ -128,7 +116,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-08F<br>Scania T 142 Cab<br>1985</td>
+      <td class="cabname">MB-08F<br>Scania T 142 Cab<br>Introduced 1985</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB147"><img src="/pic/man/s_mb147.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB341"><img src="/pic/man/s_mb341.jpg"></a></td>
       <td class="cabcell">
@@ -148,7 +136,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-15L<br>DAF 3300 Space Cab<br>1999</td>
+      <td class="cabname">MB-15L<br>DAF 3300 Space Cab<br>Introduced 1999</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB183"><img src="/pic/man/s_mb183.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB340"><img src="/pic/man/s_mb340.jpg"></a></td>
       <td class="cabcell">
@@ -170,7 +158,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-54S<br>DAF XB95 Space Cab<br>2007</td>
+      <td class="cabname">MB-54S<br>DAF XB95 Space Cab<br>Introduced 2007</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB702"><img src="/pic/man/s_mb702.jpg"></a></td>
       <td class="cabcell"></td>
       <td class="cabcell">
@@ -183,7 +171,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-08H<br>Mack CH 600 Cab<br>1990</td>
+      <td class="cabname">MB-08H<br>Mack CH 600 Cab<br>Introduced 1990</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB202"><img src="/pic/man/s_mb202.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB311"><img src="/pic/man/s_mb311.jpg"></a></td>
       <td class="cabcell">
@@ -205,7 +193,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       </td>
     </tr>
     <tr>
-      <td class="cabname">Ford Aeromax Cab<br>1992</td>
+      <td class="cabname">Ford Aeromax Cab<br>Introduced 1992</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB214"><img src="/pic/man/s_mb214.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=Mb308"><img src="/pic/man/s_mb308.jpg"></a></td>
       <td class="cabcell">
@@ -224,7 +212,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       </td>
     </tr>
     <tr>
-      <td class="cabname">MB-64J<br>Mercedes Actros 1857 Cab<br>1999</td>
+      <td class="cabname">MB-64J<br>Mercedes Actros 1857 Cab<br>Introduced 1999</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB425"><img src="/pic/man/s_mb425.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB425"><img src="/pic/convoy/s_mb425p.jpg"></a></td>
       <td class="cabcell">
@@ -238,7 +226,21 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-13G<br>Kenworth T2000 Cab<br>1999</td>
+      <td class="cabname">Mercedes Actros 1857 Cab<br>Introduced 2007</td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB725"><img src="/pic/man/s_mb725.jpg"></a></td>
+      <td class="cabcell"></td>
+      <td class="cabcell">
+	<?php link_if_exists('CY121A'); ?><br>
+      </td>
+    </tr>
+    <tr>
+      <td class="cabname"><br></td>
+      <td class="cabname">Man # 725</td>
+      <td class="cabname"></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td class="cabname">MB-13G<br>Kenworth T2000 Cab<br>Introduced 1999</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB432"><img src="/pic/man/s_mb432.jpg"></a></td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=Mb318"><img src="/pic/man/s_mb318.jpg"></a></td>
       <td class="cabcell">
@@ -253,7 +255,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">MB-31R<br>Generic Tractor Cab<br>2005</td>
+      <td class="cabname">MB-31R<br>Generic Tractor Cab<br>Introduced 2005</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB664"><img src="/pic/man/s_mb664.jpg"></a></td>
       <td class="cabcell"></td>
       <td class="cabcell">
@@ -267,7 +269,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">Kenworth T600 Cab<br>1994</td>
+      <td class="cabname">Kenworth T600 Cab<br>Introduced 1994</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=CY112"><img src="/pic/man/s_cy112.jpg"></a></td>
       <td class="cabcell"></td>
       <td class="cabcell">
@@ -284,7 +286,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td colspan="4" class="cabhead">TP-900 Long Haul Cabs</td>
     </tr>
     <tr>
-      <td class="cabname">Peterbilt Conventional Cab<br>1979</td>
+      <td class="cabname">Peterbilt Conventional Cab<br>Introduced 1979</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=T9CC"><img src="/pic/man/s_t9cc.jpg"></a></td>
       <td class="cabcell"></td>
       <td class="cabcell">
@@ -300,7 +302,7 @@ The Matchbox Convoy Project&nbsp; - Basic Information<br>
       <td></td>
     </tr>
     <tr>
-      <td class="cabname">Leyland Cabover<br>1981</td>
+      <td class="cabname">Leyland Cabover<br>Introduced 1981</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=T9CO"><img src="/pic/man/s_t9co.jpg"></a></td>
       <td class="cabcell"></td>
       <td class="cabcell">

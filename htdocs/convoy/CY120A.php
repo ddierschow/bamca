@@ -1,22 +1,19 @@
 <?php // DONE
 $subtitle = 'CY120A';
 $desc = "DAF Space Cab with Fishbelly";
-$year = '20??';
+$year = '2007';
+
+$defaults = ['mod' => $subtitle, 'cab' => 'MB702', 'tlr' => 'Fishbelly', 'mfg' => 'Thailand', 'cod' => '1'];
+
 include "cypage.php";
 
 function body() {
-    global $subtitle;
-
     show_table([
-	['mod' => $subtitle, 'var' => '01a',
-	    'cab' => 'MB702', 'tlr' => 'Fishbelly', 'mfg' => 'Thailand',
-	    'liv' => 'Wheaties', 'cod' => '1', 'rar' => '',
+	['var' => '01a', 'liv' => 'Wheaties',
             'cdt' => 'white',
             'tdt' => 'white',
 	],
-	['mod' => $subtitle, 'var' => '02a',
-	    'cab' => 'MB702', 'tlr' => 'Fishbelly', 'mfg' => 'Thailand',
-	    'liv' => 'Simpson Racing', 'cod' => '1', 'rar' => '',
+	['var' => '02a', 'liv' => 'Simpson Racing',
             'cdt' => 'red',
             'tdt' => 'silver-gray',
 	],

@@ -277,8 +277,11 @@ function DoIncDecJavascript() {
     echo '<script type="text/javascript" src="/bin/incrsel.js"></script>' . "\n";
 }
 
-function arr_get($array, $key, $default = null) {
+function arr_get($array, $key, $default=null) {
     return isset($array[$key]) ? $array[$key] : $default;
+}
+function arr_get2($array, $key, $defaults, $default=null) {
+    return isset($array[$key]) ? $array[$key] : (isset($defaults[$key]) ? $defaults[$key] : $default);
 }
 
 function Debug($something) {

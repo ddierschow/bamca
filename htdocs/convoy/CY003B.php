@@ -3,14 +3,15 @@ $subtitle = 'CY003B';
 // CY-3-B KENWORTH BOX TRUCK, issued 1985 (AU)
 $desc = "Kenworth Box Truck";
 $year = '1985';
+
+$defaults = ['mod' => $subtitle];
+
 include "cypage.php";
 
 function body() {
-    global $subtitle;
-
     show_table([
 // 1. Red cab, red container, yellow trailer, "Linfox" tempa, Macau casting (AU)
-	['mod' => $subtitle, 'var' => '01a',
+	['var' => '01a',
 	    'cab' => 'MB045', 'tlr' => 'Box', 'mfg' => 'Macau',
 	    'liv' => 'Linfox', 'cod' => '1', 'rar' => '',
             'cdt' => 'red',

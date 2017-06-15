@@ -1,22 +1,19 @@
 <?php // DONE
 $subtitle = 'CY116A';
 $desc = "Ford Aeromax with Tanker V2";
-$year = '20??';
+$year = '2006';
+
+$defaults = ['mod' => $subtitle, 'cab' => 'MB214', 'tlr' => 'Tanker V2', 'cod' => '1'];
+
 include "cypage.php";
 
 function body() {
-    global $subtitle;
-
     show_table([
-	['mod' => $subtitle, 'var' => '01a',
-	    'cab' => 'MB214', 'tlr' => 'Tanker V2', 'mfg' => 'Thailand',
-	    'liv' => 'Shell', 'cod' => '1', 'rar' => '',
+	['var' => '01a', 'mfg' => 'Thailand', 'liv' => 'Shell',
             'cdt' => 'silver-gray',
             'tdt' => 'silver-gray, SHELL',
 	],
-	['mod' => $subtitle, 'var' => '02a',
-	    'cab' => 'MB214', 'tlr' => 'Tanker V2', 'mfg' => 'Thailand',
-	    'liv' => 'Conoco', 'cod' => '1', 'rar' => '',
+	['var' => '02a', 'mfg' => 'Thailand', 'liv' => 'Conoco',
             'cdt' => 'white',
             'tdt' => 'gray, CONOCO',
 	],

@@ -1,22 +1,19 @@
 <?php // DONE
 $subtitle = 'CY121A';
 $desc = "Flat Bed";
-$year = '20??';
+$year = '2008';
+
+$defaults = ['mod' => $subtitle, 'cab' => 'MB725', 'tlr' => 'Flat Bed V2', 'cod' => '1'];
+
 include "cypage.php";
 
 function body() {
-    global $subtitle;
-
     show_table([
-	['mod' => $subtitle, 'var' => '01a',
-	    'cab' => 'MB725', 'tlr' => 'Flat Bed V2', 'mfg' => 'Thailand',
-	    'liv' => '', 'cod' => '1', 'rar' => '',
+	['var' => '01a', 'mfg' => 'Thailand',
             'cdt' => '',
             'tdt' => '',
 	],
-	['mod' => $subtitle, 'var' => '02a',
-	    'cab' => 'MB725', 'tlr' => 'Flat Bed V2', 'mfg' => 'Thailand',
-	    'liv' => '', 'cod' => '1', 'rar' => '',
+	['var' => '02a', 'mfg' => 'Thailand',
             'cdt' => '',
             'tdt' => '',
 	],

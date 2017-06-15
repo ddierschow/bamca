@@ -14,25 +14,30 @@ a:hover      {color: #CC0000; background-color: transparent; text-decoration: un
 .entval {border-color: #000000; border-width: thin; border-style: solid; text-align: left;}
 .entpic {width: 400px; text-align: center;}
 
+.ids {padding-left: 6px; padding-right: 6px;}
+.idsh {background-color: #E0E0FF;}
+.ids0 {background-color: #FFFFFF;}
+.ids1 {background-color: #EFEFEF;}
+
 .seriestable {width: auto; border-width: 5px; padding: 1px; margin: 3px; border-style: solid; border-width: 1px; margin-left: auto; margin-right: auto;}
 .serieshead {vertical-align: top; text-align: center;}
-.seriesempty {background-color: #CCCCCC;}
+.seriesempty {background-color: #D3D3D3; text-align: center;}
 .seriescol00 {vertical-align: middle; text-align: center; height: 64px;}
 .seriesent {vertical-align: middle; text-align: center; font-weight: bold; width: 60px; height: 75px;}
-.seriescol01 {background-color: #99FFFF;}
-.seriescol02 {background-color: #FFFFCC;}
-.seriescol03 {background-color: #CCCCFF;}
-.seriescol04 {background-color: #CCFFFF;}
-.seriescol05 {background-color: #FF99CC;}
-.seriescol06 {background-color: #99CCFF;}
-.seriescol07 {background-color: #CCFF99;}
-.seriescol08 {background-color: #FFCCCC;}
-.seriescol09 {background-color: #FFCCFF;}
-.seriescol10 {background-color: #FFCC99;}
-.seriescol11 {background-color: #99FFCC;}
-.seriescol12 {background-color: #FFFF99;}
-.seriescol13 {background-color: #CCFFCC;}
-.seriescol14 {background-color: #CC99FF;}
+.seriescolAC {background-color: #CCFF99;}
+.seriescolD3 {background-color: #CCFFFF;}
+.seriescolDS {background-color: #FF99CC;}
+.seriescolFA {background-color: #CCCCFF;}
+.seriescolKO {background-color: #99CCFF;}
+.seriescolKC {background-color: #FFFFCC;}
+.seriescolKT {background-color: #FFCCCC;}
+.seriescolLY {background-color: #CCFFCC;}
+.seriescolMA {background-color: #FFCCFF;}
+.seriescolPC {background-color: #FFCC99;}
+.seriescolPE {background-color: #99FFCC;}
+.seriescolPL {background-color: #CC99FF;}
+.seriescolSC {background-color: #FFFF99;}
+.seriescolTC {background-color: #99FFFF;}
 
 .cabhead {vertical-align: top; text-align: center; font-family: Arial; font-size: x-large;}
 .cabname {vertical-align: middle; text-align: center; font-size: large;}
