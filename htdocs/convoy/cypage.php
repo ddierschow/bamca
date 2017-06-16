@@ -15,7 +15,6 @@ DoHead($pif);
 DoPageHeader($pif);
 ?>
 
-<body>
 The Matchbox Convoy Project - <?php echo $subtitle; ?> - Under Construction<br>
 <br>
 

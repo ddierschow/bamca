@@ -12,7 +12,7 @@ a:hover      {color: #CC0000; background-color: transparent; text-decoration: un
 .cytable {border-color: #000000; border-width: thin; border-style: solid; text-align: left; width: 800px; border-collapse: collapse; background-color: #FFFFFF;}
 .enthead {border-color: #000000; border-width: thin; border-style: solid; text-align: left; font-weight: bold; height: 24px; width: 120px;}
 .entval {border-color: #000000; border-width: thin; border-style: solid; text-align: left;}
-.entpic {width: 400px; text-align: center;}
+.entpic {width: 400px; text-align: center; border-width: 1px;}
 
 .ids {padding-left: 6px; padding-right: 6px;}
 .idsh {background-color: #E0E0FF;}
@@ -46,3 +46,11 @@ a:hover      {color: #CC0000; background-color: transparent; text-decoration: un
 .cyyeartab {text-align: left; width: 800px; background-color: rgb(204, 204, 255); margin-left: auto; margin-right: auto; border-width: 5px; margin: auto; border-style: solid;}
 .cyyeartab td {padding: 2px; margin: 2px; border-style: solid;}
 .cyyear {text-align: center; font-family: Helvetica,Arial,sans-serif; color: #333399; font-size: x-large;}
+
+.cyindex {text-align: center; font-family: Helvetica,Arial,sans-serif; font-size: large;}
+.cyindex .ititle {font-size: xx-large;}
+.cyindex .iwarn {color: #FF6666;}
+.cyindex .iimportant {color: #0000CC; font-size: x-large;}
+.cyindex .itable {border-width: 6px; width: 600px; margin-left: auto; margin-right: auto; border-style: ridge;}
+.cyindex .itable td {padding: 2px; margin: 2px; border-style: inset; border-width: 1px;}
+.cyindex .disclaim {font-family: Tahoma; font-size: medium;}

@@ -28,6 +28,7 @@ The Matchbox Convoy Project - ID Index
       <th>Notes</th>
     </tr>
 <?php
+
 $entries = [
     ['i' => 'CY001A', 'c' => ['MB045'], 't' => 'Car Transporter', 'y' => '1982', 'n' => 'Kenworth Car Transporter',],
     ['i' => 'CY002A', 'c' => ['MB045'], 't' => 'Low Loader with Space Shuttle<br>Rocket Transporter', 'y' => '1982', 'n' => 'Kenworth Rocket Transporter',],
@@ -101,12 +102,64 @@ $entries = [
     ['i' => 'CY122A', 'c' => ['MB702'], 't' => 'Box', 'n' => "DAF Space Cab with Flatbed", 'y' => '2008',],
     ['i' => 'CY203A', 'c' => ['MB724'], 't' => 'Lowboy with Excavator', 'y' => '1989', 'n' => 'Construction Low Loader',],
     ['i' => 'CY803A', 'c' => ['MB147'], 't' => 'Lowboy with Cargo Truck', 'y' => '1992', 'n' => 'Scania Low Loader',],
+    ['i' => 'TC001A', 'r' => 'TMTC', 'h' => 'TC001A', 'n' => 'Fire Set', 'y' => '1988', 'c' => ['MI724'], 't' => 'Fire Ladder',],
+    ['i' => 'TC002A', 'r' => 'TMTC', 'h' => 'TC002A', 'n' => 'Tanker Set', 'y' => '1988', 'c' => ['MB147'], 't' => 'Tanker',],
+    ['i' => 'TC003A', 'r' => 'TMTC', 'h' => 'TC003A', 'n' => 'Construction Set', 'y' => '1988', 'c' => ['MB045'], 't' => 'Tipper',],
+    ['i' => 'TC004A', 'r' => 'TMTC', 'h' => 'TC004A', 'n' => 'Cargo Set', 'y' => '1988', 'c' => ['MB183'], 't' => 'Box',],
+    ['i' => 'TC005A', 'r' => 'TMTC', 'h' => 'TC005A', 'n' => 'NASA Set', 'y' => '1988', 'c' => ['MB045'], 't' => 'Rocket Transporter',],
+    ['i' => 'TC005B', 'r' => 'TMTC', 'h' => 'TC005B', 'n' => 'Team Kelloggs', 'y' => '1994', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC006A', 'r' => 'TMTC', 'h' => 'TC006A', 'n' => 'Rescue Set', 'y' => '1988', 'c' => ['MB183'], 't' => 'Boat Transporter',],
+    ['i' => 'TC007A', 'r' => 'TMTC', 'h' => 'TC007A', 'n' => 'Pepsi Team Racing Transporter', 'y' => '1988', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting', 'm' => "Rerelease of TM01A",],
+    ['i' => 'TC007B', 'r' => 'TMTC', 'h' => 'TC007B', 'n' => 'Team Manheim', 'y' => '1994', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC008A', 'r' => 'TMTC', 'h' => 'TC008A', 'n' => '7 Up Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting', 'm' => "Rerelease of TM05A",],
+    ['i' => 'TC008B', 'r' => 'TMTC', 'h' => 'TC008B', 'n' => 'Team DeWalt', 'y' => '1994', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC009A', 'r' => 'TMTC', 'h' => 'TC009A', 'n' => 'Duckhams Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting', 'm' => "Rerelease of TM06A",],
+    ['i' => 'TC010A', 'r' => 'TMTC', 'h' => 'TC010A', 'n' => 'Team Fuji', 'y' => '1988', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC011A', 'r' => 'TMTC', 'h' => 'TC011A', 'n' => 'Pirelli Team', 'y' => '1989', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC012A', 'r' => 'TMTC', 'h' => 'TC012A', 'n' => 'Tizer Team Racing Transporter', 'y' => '1989', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC013A', 'r' => 'TMTC', 'h' => 'TC013A', 'n' => 'TV News Set', 'y' => '1990', 'c' => ['MB183'], 't' => 'Box',],
+    ['i' => 'TC014A', 'r' => 'TMTC', 'h' => 'TC014A', 'n' => 'Ferrari Set', 'y' => '1990', 'c' => ['MB183'], 't' => 'Box',],
+    ['i' => 'TC015A', 'r' => 'TMTC', 'h' => 'TC015A', 'n' => 'Pirelli Set', 'y' => '1990', 'c' => ['MB183'], 't' => 'Box',],
+    ['i' => 'TC015B', 'r' => 'TMTC', 'h' => 'TC015B', 'n' => 'Team Quality Care Racing Transporter', 'y' => '1994', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC016A', 'r' => 'TMTC', 'h' => 'TC016A', 'n' => 'Coast Guard Set', 'y' => '1990', 'c' => ['MB183'], 't' => 'Boat Transporter',],
+    ['i' => 'TC017A', 'r' => 'TMTC', 'h' => 'TC017A', 'n' => 'Farm Set', 'y' => '1988', 'c' => ['MB045'], 't' => 'Tipper',],
+    ['i' => 'TC018A', 'r' => 'TMTC', 'h' => 'TC018A', 'n' => 'Transport Set', 'y' => '1988', 'c' => ['MB202'], 't' => 'Double COntainer',],
+    ['i' => 'TC024A', 'r' => 'TMTC', 'h' => 'TC024A', 'n' => 'Team Dupont Racing Transporter', 'y' => '1993', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC040A', 'r' => 'TMTC', 'h' => 'TC040A', 'n' => 'Dirt Devil Team Racing Transporter', 'y' => '1993', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC043A', 'r' => 'TMTC', 'h' => 'TC043A', 'n' => 'Hulkster Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC054A', 'r' => 'TMTC', 'h' => 'TC054A', 'n' => 'Goodwrench Racing Team Transporter', 'y' => '1990', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC056A', 'r' => 'TMTC', 'h' => 'TC056A', 'n' => 'Purolator Racing Team Transporter', 'y' => '1991', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC057A', 'r' => 'TMTC', 'h' => 'TC057A', 'n' => 'Kodak Racing Team Transporter', 'y' => '1991', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC059A', 'r' => 'TMTC', 'h' => 'TC059A', 'n' => 'Schraeder Racing Team Transporter', 'y' => '1991', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC060A', 'r' => 'TMTC', 'h' => 'TC060A', 'n' => 'Pennzoil Racing Team Transporter', 'y' => '1992', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC061A', 'r' => 'TMTC', 'h' => 'TC061A', 'n' => 'STP (Petty) Racing Team Transporter', 'y' => '1992', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC062A', 'r' => 'TMTC', 'h' => 'TC062A', 'n' => 'Mello Yello Racing Team Transporter', 'y' => '1992', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC063A', 'r' => 'TMTC', 'h' => 'TC063A', 'n' => 'McDuffie Racing Team Transporter', 'y' => '1992', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC064A', 'r' => 'TMTC', 'h' => 'TC064A', 'n' => 'Pontiac Excitement Team Racing Transporter', 'y' => '1992', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC065A', 'r' => 'TMTC', 'h' => 'TC065A', 'n' => 'Bill Elliot Racing Team Transporter', 'y' => '1992', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC066A', 'r' => 'TMTC', 'h' => 'TC066A', 'n' => 'Texaco/Havoline Team Racing Transporter', 'y' => '1993', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC067A', 'r' => 'TMTC', 'h' => 'TC067A', 'n' => 'Hooters Team Racing Transporter', 'y' => '1993', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC068A', 'r' => 'TMTC', 'h' => 'TC068A', 'n' => 'Country Time Team Racing Transporter', 'y' => '1993', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC095A', 'r' => 'TMTC', 'h' => 'TC095A', 'n' => 'Auto Palace Racing Team Transporter', 'y' => '1995', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC095B', 'r' => 'TMTC', 'h' => 'TC095B', 'n' => 'Team Caterpillar Racing Transporter', 'y' => '1996', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC096A', 'r' => 'TMTC', 'h' => 'TC096A', 'n' => "Team McDonald's Racing Transporter", 'y' => '1996', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC098A', 'r' => 'TMTC', 'h' => 'TC098A', 'n' => 'Team Bo Jangles Racing Transporter', 'y' => '1994', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC098B', 'r' => 'TMTC', 'h' => 'TC098B', 'n' => 'Team Fingerhut Racing Transporter', 'y' => '1995', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TC111A', 'r' => 'TMTC', 'h' => 'TC111A', 'n' => 'Team Mitre 10 Racing Transporter', 'y' => '1993', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TM01A', 'r' => 'TMTC', 'h' => 'TM01A', 'n' => 'Pemsi Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TM02A', 'r' => 'TMTC', 'h' => 'TM02A', 'n' => 'Superstar Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TM03A', 'r' => 'TMTC', 'h' => 'TM03A', 'n' => 'Dr. Pepper Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TM04A', 'r' => 'TMTC', 'h' => 'TM04A', 'n' => 'Brut Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TM05A', 'r' => 'TMTC', 'h' => 'TM05A', 'n' => '7 Up Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TM06A', 'r' => 'TMTC', 'h' => 'TM06A', 'n' => 'Duckhams Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting',],
+    ['i' => 'TMXXA', 'r' => 'TMTC', 'h' => 'TMXXA', 'n' => 'STP Team Racing Transporter', 'y' => '1985', 'c' => ['CY010'], 't' => 'Racing transporter, part of cab casting', 'm' => 'no identification number',],
     ['i' => 'TP002C', 'c' => ['T9CO'], 't' => 'Tanker', 'y' => '1981', 'n' => 'Articulated Petrol Tanker',],
     ['i' => 'TP022A', 'c' => ['T9CC'], 't' => 'Double Container', 'y' => '1979', 'n' => 'Double Container Truck',],
     ['i' => 'TP023A', 'c' => ['T9CC'], 't' => 'Covered Container', 'y' => '1979', 'n' => 'Covered Countaier Truck',],
     ['i' => 'TP024A', 'c' => ['T9CC'], 't' => 'Container', 'y' => '1979', 'n' => 'Container Truck',],
     ['i' => 'TP025A', 'c' => ['T9CC'], 't' => 'Pipe Trailer', 'y' => '1979', 'n' => 'Pipe Truck',],
     ['i' => 'TP026A', 'c' => ['T9CO'], 't' => 'Boat Transporter', 'y' => '1981', 'n' => 'Boat Transporter',],
+
 ];
 
 $row = 0;
@@ -115,7 +168,10 @@ foreach ($entries as $ent) {
     echo '      <td class="ids">';
     $fn = arr_get($ent, 'r', $ent['i']);
     if (file_exists('convoy/' . $fn . '.php')) {
-	echo '<a href="' . $fn . '.php">' . $fn . '</a>';
+	echo '<a href="' . $fn . '.php';
+	if (arr_get($ent, 'h'))
+	    echo '#' . arr_get($ent, 'h');
+	echo '">' . $ent['i'] . '</a>';
     }
     else {
 	echo '<i>' . $fn . '</i>';

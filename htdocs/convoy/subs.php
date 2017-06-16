@@ -1,10 +1,27 @@
 <?php
+
+function show_header($header, $id='') {
+?>
+    <tr align="center" <?php if ($id) echo ' id="' . $id . '"'; ?>>
+      <td valign="top" colspan="2">
+	<b><font face="Arial"><?php echo $header; ?></font></b>
+      </td>
+    </tr>
+<?php
+}
+
+function show_note_row($text) {
+    echo '<tr><td class="cytable enthead" colspan="2">';
+    echo $text;
+    echo "</td></tr>\n";
+}
+
 function show($array, $key, $defaults) {
     echo arr_get2($array, $key, $defaults, '');
 }
 
-function show_pic($mod, $var, $crd='') {
-    $filename = strtolower("/pic/convoy/m_" . $mod . "_" . $var . ".jpg");
+function show_pic($mod, $var, $pfx, $crd='') {
+    $filename = strtolower("/pic/convoy/" . $pfx . "_" . $mod . "_" . $var . ".jpg");
     echo strtolower('<a href="/cgi-bin/upload.cgi?d=lib/convoy&n=' . $mod . '_' . $var . '">');
     if (file_exists('.' . $filename)) {
 	echo '<img src="' . $filename . '">';
@@ -43,6 +60,7 @@ function show_cab($mod) {
 	'MB432' => 'Kenworth T2000 Cab',
 	'MB318' => 'Kenworth T2000 Cab Premiere',
 	'MB664' => 'Generic Tractor Cab',
+	'MI724' => 'Peterbilt Conventional Cab with roof lights',
 	'CY112' => 'Kenworth T600 Cab',
 	'T9CC' => 'Peterbilt Conventional Cab',
 	'T9CO' => 'Leyland Cabover',
@@ -57,13 +75,13 @@ function start_table() {
     echo "<table class=\"outertable\">\n  <tbody>\n";
 }
 
-function show_convoy($cy) {
+function show_convoy_corner($cy) {
     global $defaults;
 ?>
   <tr><td><table class="cytable">
     <tr>
       <td class="enthead">Variation</td><td class="entval"><?php echo $cy['var']; ?></td>
-      <td class="entpic" rowspan="7"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], arr_get($cy, 'crd', '')); ?></td>
+      <td class="entpic" rowspan="7"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm', arr_get($cy, 'crd', '')); ?></td>
     </tr>
     <tr>
       <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
@@ -103,6 +121,99 @@ function show_convoy($cy) {
 <?php
 }
 
+function show_convoy_wide($cy) {
+    global $defaults;
+?>
+  <tr><td><table class="cytable">
+    <tr>
+      <td class="enthead">Variation</td><td class="entval"><?php echo $cy['var']; ?></td>
+      <td class="enthead">Code</td><td class="entval"><?php show($cy, 'cod', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="entpic" colspan="4"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'h', arr_get($cy, 'crd', '')); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
+      <td class="enthead">Cab Detail</td><td class="entval" colspan="2"><?php show($cy, 'cdt', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Trailer</td><td class="entval"><?php echo arr_get2($cy, 'tlr', $defaults); ?></td>
+      <td class="enthead">Trailer Detail</td><td class="entval" colspan="2"><?php show($cy, 'tdt', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Livery</td><td class="entval"><?php show($cy, 'liv', $defaults); ?></td>
+      <td class="enthead">Manufacture</td><td class="entval"><?php show($cy, 'mfg', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Rarity</td><td class="entval"><?php show($cy, 'rar', $defaults); ?></td>
+      <td colspan="2"></td>
+    </tr>
+<?php if (arr_get($cy, 'nts', '')) { ?>
+    <tr>
+      <td class="enthead">Notes</td><td class="entval" colspan="3"><?php show($cy, 'nts', $defaults); ?></td>
+    </tr>
+<?php } ?>
+<?php foreach (arr_get($cy, 'add', []) as $add) { ?>
+    <tr>
+      <td class="entval"><?php echo $add[0]; ?></td><td class="entpic" colspan="3"><?php echo $add[1]; ?></td>
+    </tr>
+<?php } ?>
+  </table></td></tr>
+<?php
+}
+
+function show_convoy_tall($cy) {
+    global $defaults;
+
+$rows = 9;
+if (arr_get($cy, 'nts', '')) {
+    $rows += 1;
+}
+$rows += count(arr_get($cy, 'add', []));
+?>
+  <tr><td><table class="cytable">
+    <tr>
+      <td class="enthead">Variation</td><td class="entval"><?php echo $cy['var']; ?></td>
+      <td class="entpic" rowspan="<?php echo $rows; ?>"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm', arr_get($cy, 'crd', '')); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Trailer</td><td class="entval"><?php echo arr_get2($cy, 'tlr', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Manufacture</td><td class="entval"><?php show($cy, 'mfg', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Livery</td><td class="entval"><?php show($cy, 'liv', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Code</td><td class="entval"><?php show($cy, 'cod', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Rarity</td><td class="entval"><?php show($cy, 'rar', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Cab Detail</td><td class="entval"><?php show($cy, 'cdt', $defaults); ?></td>
+    </tr>
+    <tr>
+      <td class="enthead">Trailer Detail</td><td class="entval"><?php show($cy, 'tdt', $defaults); ?></td>
+    </tr>
+<?php if (arr_get($cy, 'nts', '')) { ?>
+    <tr>
+      <td class="enthead">Notes</td><td class="entval"><?php show($cy, 'nts', $defaults); ?></td>
+    </tr>
+<?php } ?>
+<?php foreach (arr_get($cy, 'add', []) as $add) { ?>
+    <tr>
+      <td class="entval"><?php echo $add[0]; ?></td><td class="entpic"><?php echo $add[1]; ?></td>
+    </tr>
+<?php } ?>
+  </table></td></tr>
+<?php
+}
+
 function end_table() {
     echo "  </tbody>\n</table>\n";
 }
@@ -110,16 +221,19 @@ function end_table() {
 function show_table($models) {
     start_table();
     foreach ($models as $model) {
-	show_convoy($model);
+	show_convoy_corner($model);
     }
     end_table();
 }
 
-function link_if_exists($fn, $text='', $dir='convoy/') {
+function link_if_exists($fn, $text='', $hash='', $dir='convoy/') {
     if (!$text)
 	$text = $fn;
     if (file_exists($dir . $fn . '.php')) {
-	echo '<a href="' . $fn . '.php">' . $text . '</a>';
+	echo '<a href="' . $fn . '.php';
+	if ($hash)
+	    echo '#' . $hash;
+	echo '">' . $text . '</a>';
     }
     else {
 	echo '<i>' . $text . '</i>';

@@ -26,7 +26,7 @@ else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE)) {
 }
 else if (array_key_exists('submit', $_POST) || array_key_exists('submit_x', $_POST)) {
     echo "I am sending this comment for you. ";
-    $fn = "../../logs/comment." . strftime('%Y%m%d.%H%M%S');
+    $fn = "../../comments/comment." . strftime('%Y%m%d.%H%M%S');
     echo "<dl><dt>My Subject</dt><dd>" . $_POST['mysubject'] . "</dd>\n";
     echo "<dl><dt>My Comment</dt><dd>" . $_POST['mycomment'] . "</dd>\n";
     echo "<dt>My Name</dt><dd>" . $_POST['myname'] . "</dd>\n";

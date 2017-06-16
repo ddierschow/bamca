@@ -74,7 +74,7 @@ The Matchbox Convoy Project - Series Index
     <tr>
       <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_boat_a.jpg"><br>Boat</td>
       <td class="seriesempty"></td>
-      <td class="seriesent seriescolD3"><?php link_if_exists('CY022A'); ?></td>
+      <td class="seriesent seriescolD3"><?php link_if_exists('CY022A'); ?><br><?php link_if_exists('TMTC', 'TC006A', 'TC006A'); ?><br><?php link_if_exists('TMTC', 'TC016A', 'TC016A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolKO"><?php link_if_exists('CY014A'); ?></td>
@@ -91,7 +91,7 @@ The Matchbox Convoy Project - Series Index
     <tr>
       <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_box.jpg"><br>Box</td>
       <td class="seriesent seriescolAC"><?php link_if_exists('CY009C'); ?></td>
-      <td class="seriesent seriescolD3"><?php link_if_exists('CY009A'); ?><br><?php link_if_exists('CY025A'); ?></td>
+      <td class="seriesent seriescolD3"><?php link_if_exists('CY009A'); ?><br><?php link_if_exists('CY025A'); ?><br><?php link_if_exists('TMTC', 'TC004A', 'TC004A'); ?><br><?php link_if_exists('TMTC', 'TC015A', 'TC015A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolFA"><?php link_if_exists('CY039A'); ?></td>
       <td class="seriesent seriescolKO"><?php link_if_exists('CY003B'); ?><br><?php link_if_exists('CY008A'); ?><br><?php link_if_exists('CY009A'); ?></td>
@@ -132,7 +132,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolKC"><?php link_if_exists('CY003A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
-      <td class="seriesent seriescolMA"><?php link_if_exists('CY028A'); ?></td>
+      <td class="seriesent seriescolMA"><?php link_if_exists('CY028A'); ?><br><?php link_if_exists('TMTC', 'TC018A', 'TC018A'); ?></td>
       <td class="seriesent seriescolPC"><?php link_if_exists('CY003A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolPL"><?php link_if_exists('TP022A'); ?></td>
@@ -230,7 +230,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
-      <td class="seriesent seriescolKO"><?php link_if_exists('CY002A'); ?></td>
+      <td class="seriesent seriescolKO"><?php link_if_exists('CY002A'); ?><br><?php link_if_exists('TMTC', 'TC005A', 'TC005A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolKT"><?php link_if_exists('CY002B'); ?></td>
       <td class="seriesempty"></td>
@@ -272,7 +272,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolPC"><?php link_if_exists('CY007A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
-      <td class="seriesent seriescolSC"><?php link_if_exists('CY017A'); ?></td>
+      <td class="seriesent seriescolSC"><?php link_if_exists('CY017A'); ?><br><?php link_if_exists('TMTC', 'TC002A', 'TC002A'); ?></td>
       <td class="seriesempty"></td>
     </tr>
     <tr>
@@ -298,7 +298,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
-      <td class="seriesent seriescolKO"><?php link_if_exists('CY020A'); ?></td>
+      <td class="seriesent seriescolKO"><?php link_if_exists('CY020A'); ?><br><?php link_if_exists('TMTC', 'TC003A', 'TC003A'); ?><br><?php link_if_exists('TMTC', 'TC017A', 'TC017A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -312,7 +312,7 @@ The Matchbox Convoy Project - Series Index
     <tr>
       <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_transp.jpg"><br>Transporter</td>
       <td class="seriesempty"></td>
-      <td class="seriesent seriescolD3"><?php link_if_exists('CY024A'); ?></td>
+      <td class="seriesent seriescolD3"><?php link_if_exists('CY024A'); ?><br><?php link_if_exists('TMTC', 'TC014A', 'TC014A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolFA"><?php link_if_exists('CY037A'); ?></td>
       <td class="seriesent seriescolKO"><?php link_if_exists('CY038A'); ?></td>
@@ -347,7 +347,7 @@ The Matchbox Convoy Project - Series Index
 </table>
 <p>
 
-<table class="seriestable"><tr><td valign="top">
+<table class="seriestable"><tr><td valign="top" width="270">
 <table class="seriestable">
   <tbody>
     <tr>
@@ -357,7 +357,8 @@ The Matchbox Convoy Project - Series Index
     </tr>
     <tr>
       <td class="seriescol00 ids1" colspan="2"><img src="/pic/convoy/t_cy010a.jpg"><br><font face="Arial Narrow">Racing Transporter</font></td>
-      <td class="seriesent seriescolKO"><?php link_if_exists('CY010A'); ?><br><?php link_if_exists('CY111A'); ?></td>
+      <td class="seriesent seriescolKO"><?php link_if_exists('CY010A'); ?><br><?php link_if_exists('CY111A'); ?>
+      <br><?php link_if_exists('TMTC', 'TM/TC'); ?></td>
     </tr>
     <tr>
       <td class="seriescol00 ids0" colspan="2"><img src="/pic/convoy/t_cy030a.jpg" border="2"><br><font face="Arial Narrow">Grove Crane</font></td>
@@ -370,8 +371,9 @@ The Matchbox Convoy Project - Series Index
     </tr>
   </tbody>
 </table>
+</td>
 
-</td><td valign="top">
+<td valign="top" width="270">
 <table class="seriestable">
   <tbody>
     <tr>
@@ -402,7 +404,49 @@ The Matchbox Convoy Project - Series Index
     <tr>
       <td class="seriescol00 ids1"><img src="/pic/man/t_mb106.jpg" width="60" height="36"><br>MB106</td>
       <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_tracking.jpg"><br>Tracking</td>
-      <td class="seriesent seriescolPC"><?php link_if_exists('CY015A'); ?></td>
+      <td class="seriesent seriescolPC"><?php link_if_exists('CY015A'); ?><br><?php link_if_exists('TMTC', 'TC013A', 'TC013A'); ?><br><?php link_if_exists('TMTC', 'TC001A', 'TC001A'); ?>
+</td>
+    </tr>
+  </tbody>
+</table>
+</td>
+
+<td valign="top" width="270">
+<table class="seriestable">
+  <tbody>
+    <tr>
+      <td colspan="3">
+<div class="description">Team Matchbox and Team Convoy</div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="3">
+Team Matchbox packaged various Convoys with other models starting in 1985.
+This line was renamed Team Convoy in 1988.
+      </td>
+    </tr>
+    <tr>
+      <td class="seriescol00 ids1" colspan="2"><img src="/pic/convoy/t_cy010a.jpg"><br><font face="Arial Narrow">Racing Transporter</font></td>
+      <td class="seriesent seriescolKO"><?php link_if_exists('TMTC', 'TM/TC'); ?><br>(many)</td>
+    </tr>
+    <tr>
+      <td class="seriescol00 ids0" width="100">
+Other cab/trailer combinations
+</td>
+      <td class="seriesent ids1" colspan="2">
+<?php link_if_exists('TMTC', 'TC001A includes CY013A', 'TC001A'); ?><br>
+<?php link_if_exists('TMTC', 'TC002A includes CY017A', 'TC002A'); ?><br>
+<?php link_if_exists('TMTC', 'TC003A includes CY020A', 'TC003A'); ?><br>
+<?php link_if_exists('TMTC', 'TC004A includes CY025A', 'TC004A'); ?><br>
+<?php link_if_exists('TMTC', 'TC005A includes CY002A', 'TC005A'); ?><br>
+<?php link_if_exists('TMTC', 'TC006A includes CY022A', 'TC006A'); ?><br>
+<?php link_if_exists('TMTC', 'TC013A includes CY015A', 'TC013A'); ?><br>
+<?php link_if_exists('TMTC', 'TC014A includes CY024A', 'TC014A'); ?><br>
+<?php link_if_exists('TMTC', 'TC015A includes CY025A', 'TC015A'); ?><br>
+<?php link_if_exists('TMTC', 'TC016A includes CY022A', 'TC016A'); ?><br>
+<?php link_if_exists('TMTC', 'TC017A includes CY020A', 'TC017A'); ?><br>
+<?php link_if_exists('TMTC', 'TC018A includes CY028A', 'TC018A'); ?><br>
+</td>
     </tr>
   </tbody>
 </table>

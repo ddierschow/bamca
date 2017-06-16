@@ -32,14 +32,8 @@ provide another example with more variations.<br>
 <div align="center">
 <?php
     start_table();
-?>
-    <tr align="center">
-      <td valign="top" colspan="2">
-	<b><font face="Arial">Series: CY009A - Kenworth Aerodyne Conventional Cab with Box Trailer</font></b>
-      </td>
-    </tr>
-<?php
-    show_convoy(['mod' => 'CY009A', 'var' => '29a',
+    show_header("Series: CY009A - Kenworth Aerodyne Conventional Cab with Box Trailer");
+    show_convoy_corner(['mod' => 'CY009A', 'var' => '29a',
 	'cab' => 'MB103', 'tlr' => 'Box', 'mfg' => 'Thailand',
 	'liv' => 'Skittles', 'cod' => '1', 'rar' => '',
 	'cdt' => 'red',
@@ -146,14 +140,8 @@ history about the specific model.<br>
 <div align="center">
 <?php
     start_table();
-?>
-    <tr align="center">
-      <td valign="top" colspan="2">
-        <b><font face="Arial">Series: CY017 - Scania T 142 Cab with Tanker Trailer</font></b>
-      </td>
-    </tr>
-<?php
-    show_convoy(['mod' => 'CY017A', 'var' => '08a',
+    show_header("Series: CY017 - Scania T 142 Cab with Tanker Trailer");
+    show_convoy_corner(['mod' => 'CY017A', 'var' => '08a',
 	'cab' => 'MB147', 'tlr' => 'Tanker', 'mfg' => 'Thailand',
 	'liv' => 'Feoso', 'cod' => '1', 'rar' => '',
 	'cdt' => 'white, dark gray chassis, black base',
