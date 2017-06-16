@@ -163,12 +163,12 @@ The Matchbox Convoy Project - Basic Information<br>
     <tr><td class="ttdesc" colspan="2">Collecitble Convoy Trailers</td></tr>
 
     <tr>
-      <td class="ttdesc">Ultra Model Box</td>
+      <td class="ttdesc">Ultra Model Box<br>Iintroduced 1997</td>
       <td class="ttpic"><img src="/pic/convoy/m_cyt_ul_box.jpg"></td>
     </tr>
 
     <tr>
-      <td class="ttdesc">Ultra Model Tank</td>
+      <td class="ttdesc">Ultra Model Tank<br>Iintroduced 1998</td>
       <td class="ttpic"><img src="/pic/convoy/m_cyt_ul_tank.jpg"></td>
     </tr>
 

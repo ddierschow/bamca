@@ -144,10 +144,12 @@ function show_convoy_wide($cy) {
       <td class="enthead">Livery</td><td class="entval"><?php show($cy, 'liv', $defaults); ?></td>
       <td class="enthead">Manufacture</td><td class="entval"><?php show($cy, 'mfg', $defaults); ?></td>
     </tr>
+<?php if (arr_get($cy, 'rar')) { ?>
     <tr>
       <td class="enthead">Rarity</td><td class="entval"><?php show($cy, 'rar', $defaults); ?></td>
       <td colspan="2"></td>
     </tr>
+<?php } ?>
 <?php if (arr_get($cy, 'nts', '')) { ?>
     <tr>
       <td class="enthead">Notes</td><td class="entval" colspan="3"><?php show($cy, 'nts', $defaults); ?></td>
@@ -237,6 +239,21 @@ function link_if_exists($fn, $text='', $hash='', $dir='convoy/') {
     }
     else {
 	echo '<i>' . $text . '</i>';
+    }
+}
+
+function show_tmtc($prod) {
+    show_header($prod['id'] . ' - ' . $prod['name'] . ' - ' . $prod['year'], $prod['id']);
+    foreach ($prod['models'] as $model) {
+	if (isset($model['note'])) {
+	    show_note_row($model['note']);
+	}
+	else if ($prod['fmt'] == 'wide') {
+	    show_convoy_wide($model);
+	}
+	else {
+	    show_convoy_tall($model);
+	}
     }
 }
 ?>

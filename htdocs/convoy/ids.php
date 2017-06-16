@@ -30,6 +30,20 @@ The Matchbox Convoy Project - ID Index
 <?php
 
 $entries = [
+    ['i' => 'CCY01', 'r' => 'CCY', 'h' => 'CCY01', 'n' => 'Peterbilt Container Truck', 'y' => '1997', 'c' => ['MB307'], 't' => 'Ultra Container',],
+    ['i' => 'CCY02', 'r' => 'CCY', 'h' => 'CCY02', 'n' => 'Ford Aeromax Container Truck', 'y' => '1997', 'c' => ['MB308'], 't' => 'Ultra Container',],
+    ['i' => 'CCY03', 'r' => 'CCY', 'h' => 'CCY03', 'n' => 'Kenworth Container Truck', 'y' => '1997', 'c' => ['MB309'], 't' => 'Ultra Container',],
+    ['i' => 'CCY04', 'r' => 'CCY', 'h' => 'CCY04', 'n' => 'Kenworth Container Truck', 'y' => '1997', 'c' => ['MB310'], 't' => 'Ultra Container',],
+    ['i' => 'CCY05', 'r' => 'CCY', 'h' => 'CCY05', 'n' => 'Mack Container Truck', 'y' => '1997', 'c' => ['MB311'], 't' => 'Ultra Container',],
+    ['i' => 'CCY06', 'r' => 'CCY', 'h' => 'CCY06', 'n' => 'Peterbilt Container Truck', 'y' => '1997', 'c' => ['MB307'], 't' => 'Ultra Container',],
+    ['i' => 'CCY07', 'r' => 'CCY', 'h' => 'CCY07', 'n' => 'Scania Container Truck', 'y' => '1998', 'c' => ['MB341'], 't' => 'Ultra Container',],
+    ['i' => 'CCY08', 'r' => 'CCY', 'h' => 'CCY08', 'n' => 'DAF Container Truck', 'y' => '1998', 'c' => ['MB340'], 't' => 'Ultra Container',],
+    ['i' => 'CCY09', 'r' => 'CCY', 'h' => 'CCY09', 'n' => 'Peterbilt Tanker ', 'y' => '1998', 'c' => ['MB307'], 't' => 'Ultra Tanker',],
+    ['i' => 'CCY10', 'r' => 'CCY', 'h' => 'CCY10', 'n' => 'Ford Aeromax Tanker', 'y' => '1998', 'c' => ['MB308'], 't' => 'Ultra Tanker',],
+    ['i' => 'CCY11', 'r' => 'CCY', 'h' => 'CCY11', 'n' => 'Mack Tanker', 'y' => '1998', 'c' => ['MB311'], 't' => 'Ultra Tanker',],
+    ['i' => 'CCY12', 'r' => 'CCY', 'h' => 'CCY12', 'n' => 'Kenworth Tanker', 'y' => '1998', 'c' => ['MB310'], 't' => 'Ultra Tanker',],
+    ['i' => 'CCY13', 'r' => 'CCY', 'h' => 'CCY13', 'n' => 'DAF Tanker', 'y' => '1998', 'c' => ['MB340'], 't' => 'Ultra Tanker',],
+    ['i' => 'CCY14', 'r' => 'CCY', 'h' => 'CCY14', 'n' => 'Peterbilt Box Truck', 'y' => '1999', 'c' => ['MB307'], 't' => 'Ultra Container',],
     ['i' => 'CY001A', 'c' => ['MB045'], 't' => 'Car Transporter', 'y' => '1982', 'n' => 'Kenworth Car Transporter',],
     ['i' => 'CY002A', 'c' => ['MB045'], 't' => 'Low Loader with Space Shuttle<br>Rocket Transporter', 'y' => '1982', 'n' => 'Kenworth Rocket Transporter',],
     ['i' => 'CY002B', 'c' => ['MB432'], 't' => 'Rocket Transporter', 'y' => '1999', 'n' => 'Kenworth T-2000 Rocket Transporter', 'm' => 'Rest of World',],
@@ -79,6 +93,7 @@ $entries = [
     ['i' => 'CY037A', 'c' => ['MB214','MB308'], 't' => 'Racing Transporter', 'y' => '1993', 'n' => 'Ford Aeromax Transporter',],
     ['i' => 'CY038A', 'c' => ['MB045'], 't' => 'Container', 'y' => '1993', 'n' => 'Kenworth Container Truck',],
     ['i' => 'CY039A', 'c' => ['MB214','MB308'], 't' => 'Box', 'y' => '1994', 'n' => 'Ford Aeromax Box Truck',],
+    ['i' => 'CY047A', 'c' => ['MCI'], 't' => 'none', 'y' => '1999', 'n' => 'MCI Coach',],
     ['i' => 'CY104A', 'c' => ['MB103'], 't' => 'Superstar Transporter', 'y' => '1989', 'n' => 'Kenworth Superstar Transporter',],
     ['i' => 'CY104B', 'c' => ['MB147'], 't' => 'Box', 'y' => '1997', 'n' => 'Scania Box Truck',],
     ['i' => 'CY105A', 'c' => ['MB045','MB103'], 't' => 'Box', 'y' => '1989', 'n' => 'Kenworth Gas Truck',],

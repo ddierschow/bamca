@@ -14,6 +14,7 @@ function body() {
 	['var' => '01a', 'cab' => 'MB214', 'mfg' => 'Thailand', 'liv' => 'Charitoys', 'cod' => '2',
             'cdt' => 'black, black chassis',
             'tdt' => 'black flatbed with black containers, CHARITOYS 1993 tampo, 8-spoke wheels',
+	    'nts' => 'Manufactured for White Rose',
 	],
 // 2. White cab with black chassis, blue flatbed with white containers, "American Airlines" tampo, antennas cast, rubber tires, China (PC)
 	['var' => '02a', 'cab' => 'MB308', 'mfg' => 'China', 'liv' => 'American Airlines',

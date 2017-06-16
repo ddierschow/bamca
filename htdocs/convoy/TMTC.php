@@ -9,21 +9,6 @@ $defaults = [];
 
 include "cypage.php";
 
-function show_tmtc($prod) {
-    show_header($prod['id'] . ' - ' . $prod['name'] . ' - ' . $prod['year'], $prod['id']);
-    foreach ($prod['models'] as $model) {
-	if (isset($model['note'])) {
-	    show_note_row($model['note']);
-	}
-	else if ($prod['fmt'] == 'wide') {
-	    show_convoy_wide($model);
-	}
-	else {
-	    show_convoy_tall($model);
-	}
-    }
-}
-
 function body() {
 ?>
 Team Matchbox was first introduced in 1985 as a secondary Convoy line which included team transporters and two vehicles. By 1988, the line was renamed Team Convoy. Team Convoy included some of the Team Matchbox, but also included a combination of one Convoy plus one miniature. Several models were never numbered, however in late 1992, a CY111A was issued for Australia which includes a Team Matchbox type issue. As this has a CY rather than a TM or TC number, these are listed in the Convoy section. White Rose Collectibles introduced Team Convoy sets in 1990 with numbers starting at TC-54.<p>
@@ -179,6 +164,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Dark blue transporter, Thailand casting; MB267 Lumina in yellow and red, China casting; MB267 Lumina in gray, China casting-all with "Kellogg's Racing 5" tampo (WR)
 	    ['mod' => 'TC005B', 'var' => '01a', 'liv' => "Kellogg's",
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
 	    'cdt' => "dark blue, chrome exhausts, KELLOGG'S RACING 5",
 	    'tdt' => "includes MB267 Lumina in yellow and red, and MB267 Lumina in gray, both with KELLOGG'S RACING 5 tampo and CHina castings",],
 	]]);
@@ -213,6 +199,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Fluorescent green transporter, Thailand casting; MB267 Luminas in fluorescent green-one with black lettering, other with white lettering, China castings-all with "Manheim Auctions 7" tampo (WR)
 	    ['mod' => 'TC007B', 'var' => '01a', 'liv' => "Manheim",
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
 	    'cdt' => 'fluorescent green, MANHEIM AUCTIONS tampo',
 	    'tdt' => 'includes MB267 Luminas in fluorescent green--one with black lettering, other with white lettering, China castings--both with MANHEIM AUCTIONS 7 tampo',],
 	]]);
@@ -237,6 +224,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Orange-yellow transporter, Thailand casting; MB267 in orange-yellow, China casting; MB068 Chevy Van in orange-yellow, Thailand casting-all with "DeWalt 08" tampo (WR) TC-09-A DUCKHAMS TEAM (see TM-6-A)
 	    ['mod' => 'TC008B', 'var' => '01a', 'liv' => "DeWalt",
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
 	    'cdt' => 'orange-yellow transporter, DEWALT tampo',
 	    'tdt' => 'includes MB267 in orange-yellow, China casting; MB068 Chevy Van in orange-yellow, Thailand casting, both with DEWALT 08 tampo',],
 	]]);
@@ -344,6 +332,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Bright blue transporter, Thailand casting; MB267 Lumina in bright blue, China casting; MB053 Flareside in bright blue, Thailand casting-all in "Quality Care 15" tampo (WR)
 	    ['mod' => 'TC015B', 'var' => '01a', 'liv' => 'Quality Care',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'bright blue transporter with QUALITY CARE 15 tampo',
             'tdt' => 'includes MB267 Lumina in bright blue, China casting, and MB053 Flareside in bright blue, Thailand casting, both with QUALITY CARE 15 tampo',],
 	]]);
@@ -384,6 +373,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Metallic blue transporter, Thailand casting; MB221 Lumina in metallic blue and orange, China casting, MB221 Lumina in gold plate, China casting-all with "Dupont 24" tampo (WR)
 	    ['mod' => 'TC024A', 'var' => '01a', 'liv' => 'Dupont',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'metallic blue transporter with DUPONT 24 tampo',
             'tdt' => 'includes MB221 Lumina in metallic blue and orange, China casting, MB221 Lumina in gold plate, China casting, both with DUPONT 24 tampo',],
 	]]);
@@ -394,6 +384,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Black transporter, Thailand casting: MB216 Pontiacs in black, one with white "40" and other with orange "40," Thailand castings-all in "Dirt Devil 40" tampo (WR)
 	    ['mod' => 'TC040A', 'var' => '01a', 'liv' => 'Dirt Devil',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with DIRT DEVIL 40 tampo',
             'tdt' => 'includes MB216 Pontiacs in black, one with white 40 and other with orange 40, Thailand castings, both with DIRT DEVIL 40 tampo',],
 	]]);
@@ -404,6 +395,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Red transporter, Thailand casting; MB269 Pontiac in red, China casting; WR002 F800 Ford in red with orange/ yellow container, China casting; all with "Hulkster 43/ Hogan" liveries (WR)
 	    ['mod' => 'TC043A', 'var' => '01a', 'liv' => 'Hulkster',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'red transporter with HULKSTER 43/HOGAN tampo',
             'tdt' => 'includes MB269 Pontiac in red, China casting, and WR002 F800 Ford in red with orange-yellow container, China casting, both with HULKSTER 43/HOGAN tampo',],
 	]]);
@@ -414,36 +406,43 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Black transporter with "GM" roof tampo and no door tampo; MB221 Chevy Lumina in black with Goodyear slicks, plain trunk and no "Western Steer" emblem; MB068 Chevy Van in black-all with "Goodwrench Racing," Macau castings (WR)
 	    ['mod' => 'TC054A', 'var' => '01a', 'liv' => 'Goodwrench',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Macau', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with GM roof tampo, no door tampo, with GOODWRENCH RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in black with Goodyear slicks, plain trunk, and MB068 Chevy Van in black, both with GOODWRENCH RACING, Macau castings',], 
 // 2. Black transporter with "GM" roof tampo and "1990 Champion" on door, Thailand casting; MB221 Chevy Lumina in black with Goodyear slicks, with trunk design and no "Western Steer" tampo, China casting; MB068 Chevy Van in black, Thailand casting-all with "Goodwrench Racing" (WR)
 	    ['mod' => 'TC054A', 'var' => '02a', 'liv' => 'Goodwrench',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Macau', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with GM roof tampo and 1990 CHAMPION on door with GOODWRENCH RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in black with Goodyear slicks, with trunk design tampo, China casting, and MB068 Chevy Van in black, Thailand casting, both with GOODWRENCH RACING tampo',],
 // 3. Black transporter with "GM" on roof tampo and "1990 Champion" on doors, Thailand casting; MB221 Chevy Lumina in black with black disc and rubber tires, with trunk design and with "Western Steer" tampo, China casting; MB068 Chevy Van in black, Thailand casting-all with "Goodwrench Racing" (WR)
 	    ['mod' => 'TC054A', 'var' => '03a', 'liv' => 'Goodwrench',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Macau', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with GM on roof tampo and 1990 CHAMPION on doors, with GOODWRENCH RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in black with black disc and rubber tires, with trunk design and WESTERN STEER tampo, China casting, and MB068 Chevy Van in black, Thailand casting, both with GOODWRENCH RACING tampo',],
 // 4. Black transporter with "GM" on roof tampo and "1990 Champion" on door, Thailand casting; MB221 Chevy Lumina in black with gray disc and rubber tires, with trunk design and with "Western Steer" tampo, China casting; MB068 Chevy Van in black, Thailand casting - all with "Goodwrench Racing" (WR)
 	    ['mod' => 'TC054A', 'var' => '04a', 'liv' => 'Goodwrench',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Macau', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with GM on roof tampo and 1990 CHAMPION on doors, with GOODWRENCH RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in black with black disc and rubber tires, with trunk design and WESTERN STEER tampo, China casting, and MB068 Chevy Van in black, Thailand casting, both with GOODWRENCH RACING tampo',],
 // 5. Black transporter with "Dale Earnhardt" roof tampo and "1990 Champion" on doors, Thailand casting; MB221 Chevy Lumina in black with black disc and rubber tires, with trunk design and with "Western Steer" tampo, China casting; MB068 Chevy Van in black, Thailand casting -all with "Goodwrench Racing" (WR)
 	    ['mod' => 'TC054A', 'var' => '05a', 'liv' => 'Goodwrench',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Macau', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with DALE EARNHARDT roof tampo and 1990 CHAMPION on doors, with GOODWRENCH RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in black with black disc and rubber tires, with trunk design and with WESTERN STEER tampo, China casting, and MB068 Chevy Van in black, Thailand casting, both with GOODWRENCH RACING tampo',],
 // 6. Black transporter with "Dale Earnhardt" on roof tampo and "1991 Champion" on doors, Thailand casting; MB221 Chevy Lumina in black with black disc and rubber tires, with trunk design and with "Western Steer" tampo, China casting; MB068 Chevy Van in black with "5 Time Champion" tampo, Thailand casting-all with "Goodwrench Racing" (WR)
 	    ['mod' => 'TC054A', 'var' => '06a', 'liv' => 'Goodwrench',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Macau', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with DALE EARNHARDT on roof tampo and 1991 CHAMPION on doors, with GOODWRENCH RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in black with black disc and rubber tires, with trunk design and with WESTERN STEER tampo, China casting, and MB068 Chevy Van in black with 5 TIME CHAMPION tampo, Thailand casting, both with GOODWRENCH RACING tampo',],
 // 7. Black transporter with "Dale Earnhardt" roof signature and "1991 Champion" on door, Thailand casting; MB221 Chevy Lumina in black with gray disc and rubber tires, with trunk design and with "Western Steer," China casting; MB221 Chevy Lumina in matt black with "GM" on hood and "Goodwrench" on sides, slicks, Thailand casting - all with "Goodwrench Racing" tampo (WR)
 	    ['mod' => 'TC054A', 'var' => '07a', 'liv' => 'Goodwrench',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Macau', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with DALE EARNHARDT roof signature and 1991 CHAMPION on door, with GOODWRENCH RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in black with gray disc and rubber tires, with trunk design and with WESTERN STEER, China casting, and MB221 Chevy Lumina in matt black with GM on hood and GOODWRENCH on sides, slicks, Thailand casting, both with GOODWRENCH RACING tampo',],
 	]]);
@@ -454,6 +453,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. White and florescent orange transporter, Thailand casting; MB221 Chevy Lumina in white and florescent orange, China casting; MB068 Chevy Van in white and florescent orange, Thailand casting - all with "Purolator 10 Racing Team" liveries (WR)
 	    ['mod' => 'TC056A', 'var' => '01a', 'liv' => 'Purolator',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'white and florescent orange transporter with PUROLATOR 10 RACING TEAM tampo',
             'tdt' => 'includes includes MB221 Chevy Lumina in white and florescent orange, China casting, and MB068 Chevy Van in white and florescent orange, Thailand casting, both with PUROLATOR 10 RACING TEAM tampos',],
 	]]);
@@ -464,6 +464,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Orange-yellow transporter, Thailand casting; MB221 Chevy Lumina in orange-yellow, China casting; MB068 Chevy Van in orange-yellow, Thailand casting - all with "Kodak 4 Racing" liveries (WR)
 	    ['mod' => 'TC057A', 'var' => '01a', 'liv' => 'Kodak',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'orange-yellow transporter with KODAK 4 RACING tampo',
             'tdt' => 'includes MB221 Chevy Lumina in orange-yellow, China casting, and MB068 Chevy Van in orange-yellow, Thailand casting, both with KODAK 4 RACING tampos',],
 	]]);
@@ -484,6 +485,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Yellow transporter, Thailand casting; MB216 Pontiac in yellow, China casting; MB068 Chevy Van in yellow, Thailand casting-all with "Pennzoil" liveries (WR)
 	    ['mod' => 'TC060A', 'var' => '01a', 'liv' => 'Pennzoil',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'yellow transporter with PENNZOIL tampo',
             'tdt' => 'includes MB216 Pontiac in yellow, China casting, and MB068 Chevy Van in yellow, Thailand casting, both with PENNZOIL tampos',],
 	]]);
@@ -494,6 +496,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Blue transporter, Thailand casting; MB216 Pontiac in blue with blue wheels, China casting; MB068 Chevy Van in blue, Thailand casting - all with "STP Oil Treatment" liveries (WR)
 	    ['mod' => 'TC061A', 'var' => '01a', 'liv' => 'STP',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'blue transporter with STP OIL TREATMENT tampo',
             'tdt' => 'includes MB216 Pontiac in blue with blue wheels, China casting, and MB068 Chevy Van in blue, Thailand casting, both with STP OIL TREATMENT tampos',],
 	]]);
@@ -504,6 +507,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Black and green transporter, Thailand casting; MB216 Pontiac in green and black, China casting; MB068 Chevy Van in black and green, Thailand casting - all with "Mello Yello 42" liveries (WR)
 	    ['mod' => 'TC062A', 'var' => '01a', 'liv' => 'Mello Yello',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black and green transporter with MELLO YELLO 42 tampo',
             'tdt' => 'includes MB216 Pontiac in green and black, China casting, and MB068 Chevy Van in black and green, Thailand casting, both with MELLO YELLO 42 tampos',],
 	]]);
@@ -514,6 +518,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Blue transporter, Thailand casting; MB216 Pontiac in blue, China casting; MB034 Chevy Prostocker in blue and white, Thailand casting-all with "Rumple 70," "Son's" or "J.D. McDuffie" liveries (WR)
 	    ['mod' => 'TC063A', 'var' => '01a', 'liv' => 'McDuffie',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'blue transporter with J.D. MCDUFFIE tampo',
             'tdt' => "includes MB216 Pontiac in blue, China casting, and MB034 Chevy Prostocker in blue and white, Thailand casting, both with RUMPLE 70, SON'S or J.D. MCDUFFIE tampos",],
 	]]);
@@ -524,6 +529,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Black transporter, Thailand casting; MB216 Pontiac in black, China casting; MB068 Chevy Van in black, Thailand casting - all with "Pontiac Excitement" and "Rusty Wallace" liveries (WR)
 	    ['mod' => 'TC064A', 'var' => '01a', 'liv' => 'Pontiac',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with PONTIAC EXCITEMENT and RUSTY WALLACE tampos',
             'tdt' => 'includes MB216 Pontiac in black, China casting, and MB068 Chevy Van in black, Thailand casting, both with PONTIAC EXCITEMENT and RUSTY WALLACE tampos',],
 	]]);
@@ -534,6 +540,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Red transporter, Thailand casting; MB212 Ford Thunder-bird in red, China casting; MB053 Flareside Pickup in red, Thailand casting - all with "Bill Elliot 11 Racing" liveries (WR)
 	    ['mod' => 'TC065A', 'var' => '01a', 'liv' => 'Bill Elliot',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'red transporter with BILL ELLIOT 11 RACING tampos',
             'tdt' => 'includes MB212 Ford Thunderbird in red, China casting, and MB053 Flareside Pickup in red, Thailand casting, both with BILL ELLIOT 11 RACING tampos',],
 	]]);
@@ -544,6 +551,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Black transporter, Thailand casting; MB221 Lumina in black, Thailand casting; MB212 Ford Thunderbird in matt black, Thailand casting - all in "Texaco/Havoline 28" tampo (WR)
 	    ['mod' => 'TC066A', 'var' => '01a', 'liv' => 'Texaco',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter with TEXACO/HAVOLINE 28 tampo',
             'tdt' => 'includes MB221 Lumina in black, Thailand casting and MB212 Ford Thunderbird in matt black, Thailand casting, both with TEXACO/HAVOLINE 28 tampo',],
 	]]);
@@ -554,6 +562,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. White transporter, Thailand casting; MB221 Lumina in white and orange, Thailand casting; MB212 Ford Thunder-bird in gray, Thailand casting-all with "Hooters 7" tampo (WR)
 	    ['mod' => 'TC067A', 'var' => '01a', 'liv' => 'Hooters',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'white transporter with HOOTERS 7 tampo',
             'tdt' => 'includes MB221 Lumina in white and orange, Thailand casting and MB212 Ford Thunderbird in gray, Thailand casting, both with HOOTERS 7 tampo',],
 	]]);
@@ -564,6 +573,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Yellow transporter, Thailand casting; MB212 Thunderbird in yellow, Thailand casting; MB212 Thunderbird in pink, Thailand casting - all with "Country Time 68" tampo (WR)
 	    ['mod' => 'TC068A', 'var' => '01a', 'liv' => 'Country Time',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'yellow transporter with COUNTRY TIME 68 tampo',
             'tdt' => 'includes MB212 Thunderbird in yellow, Thailand casting; MB212 Thunderbird in pink, Thailand casting, both with COUNTRY TIME 68 tampo',],
 	]]);
@@ -584,6 +594,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Yellow and black transporter, China casting; MB283 Chevy Monte Carlo in black and yellow, China casting; WR002 Ford Delivery in white, China casting - all with "95 Cat Racing" liveries (WR)
 	    ['mod' => 'TC095B', 'var' => '01a', 'liv' => 'Caterpillar',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'China', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'yellow and black transporter with 95 CAT RACING tampo',
             'tdt' => 'includes MB283 Chevy Monte Carlo in black and yellow, China casting, and WR002 Ford Delivery in white, China casting, both with 95 CAT RACING tampos',],
 	]]);
@@ -594,6 +605,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Red transporter with red wheels, China casting; WRP02 Ford Thunderbird in red and white with red wheels, China casting; WR002 Ford Delivery with red cab and white container, silver wheels, China casting - all with "94 "McDonald's" or "Bill Elliot" liveries (WR)
 	    ['mod' => 'TC096A', 'var' => '01a', 'liv' => "McDonald's",
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'China', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => '', "red transporter with red wheels, with 94 MCDONALD'S, BILL ELLIOT tampo",
             'tdt' => "with WRP02 Ford Thunderbird in red and white with red wheels, China casting and WR002 Ford Delivery with red cab and white container, silver wheels, China casting, both with 94 MCDONALD'S or BILL ELLIOT tampos",],
 	]]);
@@ -604,6 +616,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Yellow transporter, Thailand casting; MB212 Thunderbird in yellow, Thailand casting; MB212 Thunderbird in black, Thailand casting - all in "Bojangles 98" tampo (WR)
 	    ['mod' => 'TC098A', 'var' => '01a', 'liv' => 'Bo Jangles',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'yellow transporter, with BOJANGLES 98 tampo',
             'tdt' => 'includes MB212 Thunderbird in yellow, Thailand casting, and MB212 Thunderbird in black, Thailand casting, both in BOJANGLES 98 tampo',],
 	]]);
@@ -614,6 +627,7 @@ Team Matchbox was first introduced in 1985 as a secondary Convoy line which incl
 // 1. Black transporter, Thailand casting; MB268 Ford Thunder-bird in black, China casting; MB068 Chevy Van in black, Thailand casting - all with "Fingerhut 98" liveries (WR)
 	    ['mod' => 'TC098B', 'var' => '01a', 'liv' => 'Fingerhut',
 	    'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'mfg' => 'Thailand', 'cod' => '1',
+	    'nts' => 'Manufactured for White Rose',
             'cdt' => 'black transporter',
             'tdt' => 'includes MB268 Ford Thunderbird in black, China casting, and MB068 Chevy Van in black, Thailand casting, both with FINGERHUT 98 tampo',],
 	]]);
