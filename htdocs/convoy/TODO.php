@@ -38,6 +38,7 @@ The following models are missing from these pages.  As I can compile information
 <i>NOTE: Above two models from Real Talkin' series issued only with a serial number.</i><br>
 
 <h3>TALKING BASKETBALL TRUCKS, issued 1999 </h3>
+MB045 Kenworth COE cab with:<br>
 36367 Celtics<br>
 36368 Lakers<br>
 36369 Rockets<br>
