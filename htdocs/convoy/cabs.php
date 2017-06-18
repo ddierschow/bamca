@@ -6,6 +6,7 @@ include "bin/basics.php";
 include "config.php";
 include "subs.php";
 $pif = GetPageInfo("convoy");
+$desc = 'Semi Cabs';
 $pif['title'] = $pif['title'] . ' - Semi Cabs';
 DoHead($pif);
 ?>

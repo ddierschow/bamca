@@ -102,7 +102,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolPC"><?php link_if_exists('CY019A'); ?><br><?php link_if_exists('CY106B'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolPL"><?php link_if_exists('TP024A'); ?></td>
-      <td class="seriesent seriescolSC"><?php link_if_exists('CY016A'); ?><br><?php link_if_exists('CY004B'); ?></td>
+      <td class="seriesent seriescolSC"><?php link_if_exists('CY004B'); ?><br><?php link_if_exists('CY016A'); ?></td>
       <td class="seriesempty"></td>
     </tr>
     <tr>
@@ -196,7 +196,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
-      <td class="seriesent seriescolKO"><?php link_if_exists('CY011A'); ?><br>w/ heli<br><?php link_if_exists('CY002A'); ?><br>w/ shuttle</td>
+      <td class="seriesent seriescolKO"><?php link_if_exists('CY002A'); ?><br>w/ shuttle<br><?php link_if_exists('CY011A'); ?><br>w/ heli</td>
       <td class="seriesent seriescolKC"><?php link_if_exists('CY004A'); ?><br>with<br>boat</td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolLY"><?php link_if_exists('TP026A'); ?><br>with<br>boat</td>

@@ -39,38 +39,52 @@ DoPageHeader($pif);
   <table class="itable">
     <tbody>
       <tr>
-	<td colspan="3">
+	<td colspan="4">
 	  <b><font face="Arial" size="+1">The Basics </font></b><br>
 	  <font face="Arial">What you need to know and how to speak the language.</font>
 	</td>
       </tr>
       <tr>
-	<td align="center" valign="middle" width="200">
+	<td align="center" valign="middle" width="180">
 	  <b><a href="cabs.php">Truck Cabs </a></b>
 	</td>
-	<td align="center" valign="middle" width="200">
+	<td align="center" valign="middle" width="240" colspan="2">
 	  <a href="definitions.php"><b>Basic Information &amp;<br>Definitions</b></a>
 	</td>
-	<td align="center" valign="middle" width="200">
+	<td align="center" valign="middle" width="180">
 	  <b><a href="trailer.php">Trailers </a></b>
 	</td>
       </tr>
       <tr>
-	<td colspan="3" align="center" valign="middle" width="200">
+	<td colspan="4" align="center" valign="middle" width="200">
 	  <b><font face="Arial" size="+2"><font size="+1">The Guts</font></font></b><br>
 	  <font face="Arial">This is where we have the models posted</font>
 	</td>
       </tr>
       <tr>
-	<td align="center" valign="middle" width="200">
+	<td align="center" valign="middle" width="300" colspan="2">
 	  <b><a href="series.php"><b>Convoy Index</b></a><br> by tractor/trailer</b>
 	</td>
-	<td style="background-color: #FFFFFF;" align="center" bgcolor="#ffffcc" valign="middle" width="200">
-	  <!--<b><b><a href="year.php"><b>Convoy Index</b></a><br> by year</b></b>-->
-	</td>
-	<td align="center" valign="middle" width="200">
+	<!--<td align="center" valign="middle" width="200" colspan="2">
+	  <b><b><a href="year.php"><b>Convoy Index</b></a><br> by year</b></b>
+	</td>-->
+	<td align="center" valign="middle" width="300" colspan="2">
 	  <a href="ids.php" style="font-weight: bold">Convoy Index </a><br>
 	  <span style="font-weight: bold">by ID</span>
+	</td>
+      </tr>
+      <tr>
+	<td colspan="4" align="center" valign="middle">
+	  <b><font face="Arial" size="+2"><font size="+1">More Info</font></font></b><br>
+	  A few things that will help you understand the current state of these pages
+	</td>
+      </tr>
+      <tr>
+	<td align="center" valign="middle" width="300" colspan="2">
+	  <b><a href="updates.php"><b>Updates</b></a></b><br>The history of these pages
+	</td>
+	<td align="center" valign="middle" width="300" colspan="2">
+	  <a href="TODO.php" style="font-weight: bold">Not Covered </a><br>Some of the things not yet documented
 	</td>
       </tr>
     </tbody>
