@@ -49,7 +49,7 @@ to these new templates, and more will follow as I have time.
     6.4 published Sunday, 9 October 2016 at 12:01 AM PDT
     6.5 published Sunday, 13 November 2016 at 12:01 AM PST
     6.6 published Sunday, 29 January 2017 at 12:01 AM PST
-    6.7 published Sunday, 17 June 2017 at 12:01 AM PDT
+    6.7 published Sunday, 18 June 2017 at 12:01 AM PDT
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing

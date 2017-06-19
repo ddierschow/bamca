@@ -177,7 +177,7 @@ function DoPageHeader($pif) {
 	echo '<a href="' . $hier[0] . '">' . $hier[1] . "</a> <i class=\"fa fa-chevron-right\"></i>\n";
     }
     if (!($pif['flags'] & 2))
-	echo '<span class="titletext">' . $pif['title'] . "</span>\n";
+	echo '<div class="title"><span class="titletext">' . $pif['title'] . "</span></div>\n";
 }
 
 function DoPageFooter($pif) {
