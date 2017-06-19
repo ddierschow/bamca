@@ -112,14 +112,29 @@ DYM96658 1939 Peterbilt - Sprite Boy<br>
 92554 Peterbilt - Seasons Greetings Coca Cola<br>
 96769 Mack B-56 Flat Bed - Jack Daniel's<br>
 
-<h3>OTHER MISSING CONVOYS</h3>
+<h3>OTHER CONVOYS MENTIONED BY MBXFORUM</h3>
 PS001 - Articulated Truck, from Container Port playset<br>
 CY002C - Kenworth Conventional Car Transporter, part of Superfast Minis line<br>
 CY008C - Kenworth C.O.E. Box Truck with Sound - probably 35237 above<br>
-Ford Aeromax Transporter - History of Trucks/History of Automobiles<br>
-Mack CH600 Transporter - History of Ships<br>
-Kenworth T2000 Transporter - History of Air and Space/History of Railroads<br>
-Kenworth Conventional Transporter - History of Motorcycles<br>
+<!--CY027A - Mack CH600 Container Truck
+CY036A - Kenworth Conventional Transporter
+CY039A - Ford Aeromax Box Truck-->
+CY041A - Peterbilt Conventional Sleeper Lowboy Transporter - currently part of CY032B<br>
+CY042A - Kenworth Conventional Double Container - currently part of CY003A<br>
+CY048A - Kenworth Conventional Box Truck - currently part of CY009A<br>
+CY051A - Peterbilt Conventional Sleeper Gas Tanker - currently part of CY007A<br>
+CY052A - MACK CH600 Gas Tanker - currently part of CY035A<br>
+CY053A - Kenworth C.O.E. Superstar - currently part of CY110A<br>
+CY054A - Ford Aeromax Box Truck - currently part of CY039A<br>
+CY055A - Ford Aeromax Double Container Truck - currently part of CY018B<br>
+CY056A - Ford Aeromax Transporter - currently part of CY037A, plus two others<br>
+CY058A - Mack CH600 Transporter - currently part of CY107A, plus one other<br>
+CY059A - Peterbilt Conventional Sleeper Box Truck - currently part of CY106B<br>
+CY060A - Kenworth T2000 Transporter<br>
+CY061A - Kenworth Conventional Transporter<br>
+CY062A - Scania T142 Box Truck - currently part of CY016A<br>
+CY063A - DAF Box Truck - currently part of CY025A<br>
+CY064A - Mercedes Benz Actros Box Truck - currently part of CY009C<br>
 CY065A - Kenworth C.O.E. Box Truck with Sound - MBA Talking Rigs above<br>
 CY101A - Kenworth T600 Box Car Cooler<br>
 CY102A - Ford Aeromax Box Car Cooler<br>
