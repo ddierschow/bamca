@@ -821,8 +821,8 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
         '.' + config.IMG_DIR_CAT + '/?_%s_*.*' % old_mod_id,
         '.' + config.IMG_DIR_CAT + '/%s.*' % old_mod_id,
         '.' + config.IMG_DIR_ADS + '/%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_PACK + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_PACK + '/%s.*' % old_mod_id,
+        '.' + config.IMG_DIR_PROD_PACK + '/?_%s.*' % old_mod_id,
+        '.' + config.IMG_DIR_PROD_PACK + '/%s.*' % old_mod_id,
     ]
     pics = reduce(lambda x, y: x + glob.glob(y.lower()), patts, list())
     for pic in pics:

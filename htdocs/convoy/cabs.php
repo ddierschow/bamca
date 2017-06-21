@@ -242,7 +242,7 @@ The Matchbox Convoy Project - Basic Information<br>
     <tr>
       <td class="cabname">MB-64J<br>Mercedes Actros 1857 Cab<br>Introduced 1999</td>
       <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB425"><img src="/pic/man/s_mb425.jpg"></a></td>
-      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB425"><img src="/pic/convoy/s_mb425p.jpg"></a></td>
+      <td class="cabcell"><a href="/cgi-bin/single.cgi?id=MB425"><img src="/pic/set/convoy/s_mb425p.jpg"></a></td>
       <td class="cabcell">
 	<?php link_if_exists('CY009C'); ?><br>
       </td>

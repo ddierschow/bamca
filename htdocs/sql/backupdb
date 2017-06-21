@@ -1,4 +1,0 @@
-export f=`date +'bamca.mysql.%Y%m%d'`
-echo "Dumping to $f"
-mysqldump -u root -p bamca > $f
-echo "Now remove user."

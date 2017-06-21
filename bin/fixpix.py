@@ -15,7 +15,7 @@ def ren(cas, ov, nv):
 
 
 def main(pif):
-    pth = 'pic/man/var'
+    pth = '.' + config.IMG_DIR_VAR
     piclist = []
     casvar = {}
 

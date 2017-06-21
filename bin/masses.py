@@ -677,7 +677,7 @@ def add_pack_form(pif):
     if not year.isdigit():
 	year = '0000'
     pack = pif.dbh.fetch_pack(id=pack_id)
-    pack_img = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PACK, largest='g')
+    pack_img = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
 
     header = '<hr>\n'
     header += str(pif.form) + '<hr>\n'
@@ -708,13 +708,13 @@ def add_pack_form(pif):
 	    'pack.note': '',
 	}
 
-    header += pif.render.format_button("edit", "imawidget.cgi?d=.%s&f=%s.jpg" % (config.IMG_DIR_PACK, pack_id))
-    header += pif.render.format_button("upload", "upload.cgi?d=.%s&n=%s" % (config.IMG_DIR_PACK, pack_id))
+    header += pif.render.format_button("edit", "imawidget.cgi?d=.%s&f=%s.jpg" % (config.IMG_DIR_PROD_PACK, pack_id))
+    header += pif.render.format_button("upload", "upload.cgi?d=.%s&n=%s" % (config.IMG_DIR_PROD_PACK, pack_id))
     header += '%(pack.page_id)s/%(pack.id)s<br>' % pack
     header += '/'.join(pack_img) + '<br>'
-    header += '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (pack_img + (pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK, largest='g'),))
+    header += '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (pack_img + (pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g'),))
     header += '<a href="imawidget.cgi?d=.%s&f=%s.jpg">%s</a><br>' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
-    header += pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PACK) + '<br>'
+    header += pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PROD_PACK) + '<br>'
 
     pack_num = int(pack['pack.note'][2:-1]) if pack['pack.note'].startswith('(#') else 0
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
@@ -1413,7 +1413,7 @@ def add_matrix_form(pif):
 	    'page_info.id': page_id,
 	    'page_info.flags': 1,
 	    'page_info.format_type': 'matrix',
-	    'page_info.pic_dir': 'pic/series',
+	    'page_info.pic_dir': 'pic/prod/series',
 	}
 
     if section:

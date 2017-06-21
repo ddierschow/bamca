@@ -28,7 +28,7 @@ function body() {
             'tdt' => 'powder blue container with pearly silver base, MB TV NEWS tampo',
 	    'add' =>
 [['The only difference between variations 03 and 04 is the tampo on the hood of the cab.',
-'<img src="/pic/convoy/m_cy015a_03a1.jpg">']],
+'<img src="/pic/set/convoy/m_cy015a_03a1.jpg">']],
 	],
 // 4. Powder blue cab with "Peterbilt" and bolt tampo, chrome exhausts, powder blue container with pearly silver base, "MB TV News" tampo, Macau
 	['var' => '04a', 'mfg' => 'Macau', 'liv' => 'Matchbox', 'rar' => '2',

@@ -79,7 +79,7 @@ function body() {
 	['var' => '15a', 'mfg' => 'China', 'liv' => 'Lucky',
             'cdt' => '',
             'tdt' => '',
-	    'add' => [['Other side', '<img src="/pic/convoy/m_cy027a_15a2.jpg">']],
+	    'add' => [['Other side', '<img src="/pic/set/convoy/m_cy027a_15a2.jpg">']],
 	],
 	['var' => '16a', 'mfg' => 'China', 'liv' => 'Smiths',
             'cdt' => '',

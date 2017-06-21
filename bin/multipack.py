@@ -210,7 +210,7 @@ def do_single_pack(pif, pid):
 	left_bar_content += '<br><center>'
         left_bar_content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pack_id})
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
-        left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % config.IMG_DIR_PACK
+        left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % config.IMG_DIR_PROD_PACK
         left_bar_content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (pack['section_id'], pack['id'])
         left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack['id'])
         left_bar_content += '</center>\n'
@@ -242,10 +242,10 @@ def imgsizes(pif, pdir, pic_id):
 def distill_models(pif, pack, page_id):
     model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=page_id)
     pack['pic'] = ''
-    #for pic in glob.glob(os.path.join(config.IMG_DIR_PACK, '?_' + pack['id'] + '.jpg')):
-    #pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PACK, largest=mbdata.IMG_SIZ_HUGE)
+    #for pic in glob.glob(os.path.join(config.IMG_DIR_PROD_PACK, '?_' + pack['id'] + '.jpg')):
+    #pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
     #pack['pic'] += imglib.format_image_star(pif, pic)
-    pack['pic'] += imgsizes(pif, config.IMG_DIR_PACK, pack['id'])
+    pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack['id'])
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
     pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
     if ''.join(pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):

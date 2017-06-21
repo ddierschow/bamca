@@ -76,17 +76,17 @@ def count_combo(pdir, prefs, roots, suffs):
 
 def get_year(pif, region, year):
     if year < 1970:
-        pif.render.pic_dir = config.IMG_DIR_LRW
+        pif.render.pic_dir = config.IMG_DIR_PROD_LRW
     elif year < 1982:
-        pif.render.pic_dir = config.IMG_DIR_LSF
+        pif.render.pic_dir = config.IMG_DIR_PROD_LSF
     elif year < 1993:
-        pif.render.pic_dir = config.IMG_DIR_UNIV
+        pif.render.pic_dir = config.IMG_DIR_PROD_UNIV
     elif year < 1998:
-        pif.render.pic_dir = config.IMG_DIR_TYCO
+        pif.render.pic_dir = config.IMG_DIR_PROD_TYCO
     elif year < 2005:
-        pif.render.pic_dir = config.IMG_DIR_MT_LAUREL
+        pif.render.pic_dir = config.IMG_DIR_PROD_MT_LAUREL
     else:
-        pif.render.pic_dir = config.IMG_DIR_MATTEL
+        pif.render.pic_dir = config.IMG_DIR_PROD_MATTEL
     return lineup.picture_count(pif, region, str(year))
 
 
@@ -127,8 +127,8 @@ def count_pub(pif):
 def count_pack(pif):
     recs = pif.dbh.fetch_packs()
     count = 0
-    count += count_combo_one_only(config.IMG_DIR_PACK, [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_PETITE, mbdata.IMG_SIZ_MEDIUM], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_PACK, [mbdata.IMG_SIZ_LARGE, mbdata.IMG_SIZ_HUGE], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo_one_only(config.IMG_DIR_PROD_PACK, [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_PETITE, mbdata.IMG_SIZ_MEDIUM], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_PROD_PACK, [mbdata.IMG_SIZ_LARGE, mbdata.IMG_SIZ_HUGE], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
@@ -181,11 +181,11 @@ if __name__ == '__main__':  # pragma: no cover
     count += count_from_file('src/coll72.dat', 'm', 2, config.IMG_DIR_COLL_43)
     count += count_from_file('src/coll18.dat', 'm', 2, config.IMG_DIR_COLL_43)
     count += count_box(pif)
-    count += count_directory(config.IMG_DIR_SERIES)
+    count += count_directory(config.IMG_DIR_PROD_SERIES)
     count += count_directory(config.IMG_DIR_ACC)
     count += count_directory(config.IMG_DIR_BLISTER)
-    count += count_directory(config.IMG_DIR_CODE_2)
-    count += count_directory(config.IMG_DIR_COLL_64)
+    count += count_directory(config.IMG_DIR_PROD_CODE_2)
+    count += count_directory(config.IMG_DIR_PROD_COLL_64)
     count += count_html(config.IMG_DIR_ADS + '/index.php')
     count += count_html(config.IMG_DIR_ERRORS + '/index.html')
     count += count_lineups(pif)

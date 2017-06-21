@@ -117,6 +117,10 @@ function body() {
 	    'cab' => 'MB307', 'tlr' => 'Ultra Container', 'mfg' => 'China', 'cod' => '1',
             'cdt' => 'brown and beige',
             'tdt' => 'brown container with silver-gray base, 61 OHV KNUCKLEHEAD HARLEY DAVIDSON 1937 tampo',],
+	    ['mod' => 'CCY06', 'var' => '05a', 'liv' => 'Peterbilt',
+	    'cab' => 'MB307', 'tlr' => 'Ultra Container', 'mfg' => 'China', 'cod' => '1',
+            'cdt' => 'red, silver stripes',
+            'tdt' => 'red, silver roof and stripes, PETERBILT logo',],
 	]]);
 
 // CCY-07 SCANIA CONTAINER TRUCK, issued 1998

@@ -156,6 +156,8 @@ def show_single(pif, table_info, dats):
 	# varchar(N)
 	if col in table_info.get('readonly', []):
 	    newvalue = '&nbsp;<input type=hidden name="%s" value="%s">' % (col, dat.get(col, ''))
+	elif coltype == 'text':
+	    newvalue = pif.render.format_textarea_input(col, value=dat.get(col, ''))
 	elif coltype.startswith('varchar('):
 	    colwidth = int(coltype[8:-1])
 	    newvalue = pif.render.format_text_input(col, colwidth, colwidth, value=dat.get(col, ''))

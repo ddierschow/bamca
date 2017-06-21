@@ -81,4 +81,5 @@ def count(pif):
 
 
 if __name__ == '__main__':  # pragma: no cover
+    print "This has not been rewritten to match the moved directories."
     count()

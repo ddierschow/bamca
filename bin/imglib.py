@@ -786,7 +786,7 @@ class ActionForm(object):
 	self.selcat = form.get_bool('selcat')
 	self.dest = form.get_str('moveto')
 	if not self.dest and 'lib/prod' in self.tdir:
-	    self.dest = './pic' + self.tdir[self.tdir.rfind('/'):]
+	    self.dest = './pic/prod' + self.tdir[self.tdir.rfind('/'):]
 	self.rename = form.get_bool('rename')
 	self.lib = form.get_bool('lib')
 	self.mvbin = form.get_bool('mvbin')
@@ -956,29 +956,29 @@ class ActionForm(object):
 		[('t' + x[0], x[1]) for x in zip(mbdata.image_adds_types, mbdata.image_adds_names)]
 
     sel_moveto = [
-	['',        ''],
-	['.' + config.IMG_DIR_MATTEL,     config.IMG_DIR_MATTEL],
-	['.' + config.IMG_DIR_MT_LAUREL,  config.IMG_DIR_MT_LAUREL],
-	['.' + config.IMG_DIR_TYCO,       config.IMG_DIR_TYCO],
-	['.' + config.IMG_DIR_UNIV,       config.IMG_DIR_UNIV],
-	['.' + config.IMG_DIR_LSF,        config.IMG_DIR_LSF],
-	['.' + config.IMG_DIR_LRW,        config.IMG_DIR_LRW],
-	['.' + config.IMG_DIR_LESNEY,     config.IMG_DIR_LESNEY],
-	['.' + config.IMG_DIR_ACC,        config.IMG_DIR_ACC],
-	['.' + config.IMG_DIR_ADS,        config.IMG_DIR_ADS],
-	['.' + config.IMG_DIR_BLISTER,    config.IMG_DIR_BLISTER],
-	['.' + config.IMG_DIR_BOX,        config.IMG_DIR_BOX],
-	['.' + config.IMG_DIR_BOOK,       config.IMG_DIR_BOOK],
-	['.' + config.IMG_DIR_CAT,        config.IMG_DIR_CAT],
-	['.' + config.IMG_DIR_CODE_2,     config.IMG_DIR_CODE_2],
-	['.' + config.IMG_DIR_COLL_43,    config.IMG_DIR_COLL_43],
-	['.' + config.IMG_DIR_CONVOY,     config.IMG_DIR_CONVOY],
-	['.' + config.IMG_DIR_ERRORS,     config.IMG_DIR_ERRORS],
-	['.' + config.IMG_DIR_KING,       config.IMG_DIR_KING],
-	['.' + config.IMG_DIR_PACK,       config.IMG_DIR_PACK],
-	['.' + config.IMG_DIR_COLL_64,    config.IMG_DIR_COLL_64],
-	['.' + config.IMG_DIR_SERIES,     config.IMG_DIR_SERIES],
-	['.' + config.IMG_DIR_SKY,        config.IMG_DIR_SKY],
+	['', ''],
+	['.' + config.IMG_DIR_PROD_MATTEL,     config.IMG_DIR_PROD_MATTEL],
+	['.' + config.IMG_DIR_PROD_MT_LAUREL,  config.IMG_DIR_PROD_MT_LAUREL],
+	['.' + config.IMG_DIR_PROD_TYCO,       config.IMG_DIR_PROD_TYCO],
+	['.' + config.IMG_DIR_PROD_UNIV,       config.IMG_DIR_PROD_UNIV],
+	['.' + config.IMG_DIR_PROD_LSF,        config.IMG_DIR_PROD_LSF],
+	['.' + config.IMG_DIR_PROD_LRW,        config.IMG_DIR_PROD_LRW],
+	['.' + config.IMG_DIR_LESNEY,          config.IMG_DIR_LESNEY],
+	['.' + config.IMG_DIR_ACC,             config.IMG_DIR_ACC],
+	['.' + config.IMG_DIR_ADS,             config.IMG_DIR_ADS],
+	['.' + config.IMG_DIR_BLISTER,         config.IMG_DIR_BLISTER],
+	['.' + config.IMG_DIR_BOX,             config.IMG_DIR_BOX],
+	['.' + config.IMG_DIR_BOOK,            config.IMG_DIR_BOOK],
+	['.' + config.IMG_DIR_CAT,             config.IMG_DIR_CAT],
+	['.' + config.IMG_DIR_PROD_CODE_2,     config.IMG_DIR_PROD_CODE_2],
+	['.' + config.IMG_DIR_COLL_43,         config.IMG_DIR_COLL_43],
+	['.' + config.IMG_DIR_CONVOY,          config.IMG_DIR_CONVOY],
+	['.' + config.IMG_DIR_ERRORS,          config.IMG_DIR_ERRORS],
+	['.' + config.IMG_DIR_KING,            config.IMG_DIR_KING],
+	['.' + config.IMG_DIR_PROD_PACK,       config.IMG_DIR_PROD_PACK],
+	['.' + config.IMG_DIR_PROD_COLL_64,    config.IMG_DIR_PROD_COLL_64],
+	['.' + config.IMG_DIR_PROD_SERIES,     config.IMG_DIR_PROD_SERIES],
+	['.' + config.IMG_DIR_SKY,             config.IMG_DIR_SKY],
     ]
 
     def write(self, pif, fn):

@@ -175,15 +175,15 @@ function body() {
 <div class="center">
 <a name="Code3"></a>
 CODE 3's<br>
-<img src="/pic/convoy/m_cy016a_c3a.jpg"><br>
+<img src="/pic/set/convoy/m_cy016a_c3a.jpg"><br>
 Picture from Jim Jenkins - USA<p>
-<img src="/pic/convoy/m_cy016a_c3b.jpg"><br>
+<img src="/pic/set/convoy/m_cy016a_c3b.jpg"><br>
 Picture from Simon Rogers - AU<p>
-<img src="/pic/convoy/m_cy016a_c3c.jpg"><br>
+<img src="/pic/set/convoy/m_cy016a_c3c.jpg"><br>
 Picture from Simon Rogers - AU<p>
-<img src="/pic/convoy/m_cy016a_c3d.jpg"><br>
+<img src="/pic/set/convoy/m_cy016a_c3d.jpg"><br>
 Picture from Lee James - UK<p>
-<img src="/pic/convoy/m_cy016a_c3e.jpg"><br>
+<img src="/pic/set/convoy/m_cy016a_c3e.jpg"><br>
 Picture from Jim Jenkins - USA<p>
 </div>
 

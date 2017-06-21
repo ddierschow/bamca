@@ -12,7 +12,7 @@ import mbdata
 
 # hardcoded values:
 regions = ['U', 'R']
-picdir = 'pic/mattel'
+picdir = 'pic/prod/mattel'
 
 
 def raw_insert(pif, table, data):

@@ -49,7 +49,7 @@ function body() {
 	['var' => '08a', 'mfg' => 'Thailand', 'liv' => 'Feoso',
             'cdt' => 'white, dark gray chassis, black base',
             'tdt' => 'white tank, dark gray base, FEOSO tampo',
-	    'add' => [['Other side', '<img src="/pic/convoy/m_cy017a_08a2.jpg">']],
+	    'add' => [['Other side', '<img src="/pic/set/convoy/m_cy017a_08a2.jpg">']],
 	],
 
 	['var' => 'P01', 'mfg' => 'Thailand', 'liv' => 'none', 'cdt' => 'PP',

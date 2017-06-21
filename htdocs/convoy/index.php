@@ -17,7 +17,7 @@ DoPageHeader($pif);
 ?>
 
 <div class="cyindex">
-  <span class="ititle"><img alt="" src="/pic/convoy/banner.jpg"><br>
+  <span class="ititle"><img alt="" src="/pic/set/convoy/banner.jpg"><br>
   The Matchbox Convoy Project</span>
   <p>
     Welcome to our site. The Matchbox Convoy Project is an effort to compile

@@ -22,7 +22,7 @@ The Matchbox Convoy Project - Series Index
 <table class="seriestable">
   <tbody>
     <tr>
-      <td class="serieshead ids0" rowspan="2"><img src="/pic/convoy/series_ul.gif"></td>
+      <td class="serieshead ids0" rowspan="2"><img src="/pic/set/convoy/series_ul.gif"></td>
       <td class="serieshead ids1"><img src="/pic/man/t_mb425.jpg" width="60" height="36"><br>MB425<br>MB725</td>
       <td class="serieshead ids0"><img src="/pic/man/t_mb183.jpg" width="60" height="36"><br>MB183<br>MB340</td>
       <td class="serieshead ids1"><img src="/pic/man/t_mb702.jpg" width="60" height="36"><br>MB702</td>
@@ -55,7 +55,7 @@ The Matchbox Convoy Project - Series Index
       <td class="serieshead ids0">Tractor<br>Cab</td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_plane_f.jpg"><br>Airplane </td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_plane_f.jpg"><br>Airplane </td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CY021A'); ?><br><?php link_if_exists('CY108A'); ?><br>(modified)</td>
       <td class="seriesempty"></td>
@@ -72,7 +72,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_boat_a.jpg"><br>Boat</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_boat_a.jpg"><br>Boat</td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CY022A'); ?><br><?php link_if_exists('TMTC', 'TC006A', 'TC006A'); ?><br><?php link_if_exists('TMTC', 'TC016A', 'TC016A'); ?></td>
       <td class="seriesempty"></td>
@@ -89,7 +89,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_box.jpg"><br>Box</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_box.jpg"><br>Box</td>
       <td class="seriesent seriescolAC"><?php link_if_exists('CY009C'); ?></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CY009A'); ?><br><?php link_if_exists('CY025A'); ?><br><?php link_if_exists('TMTC', 'TC004A', 'TC004A'); ?><br><?php link_if_exists('TMTC', 'TC015A', 'TC015A'); ?></td>
       <td class="seriesempty"></td>
@@ -106,7 +106,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_covered.jpg"><br>Covered</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_covered.jpg"><br>Covered</td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -123,7 +123,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_dblcont.jpg"><br><div align="center">Double Cont<br></div></td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_dblcont.jpg"><br><div align="center">Double Cont<br></div></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CY026A'); ?></td>
       <td class="seriesempty"></td>
@@ -140,7 +140,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_fire.jpg"><br>Fire Ladder</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_fire.jpg"><br>Fire Ladder</td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -157,7 +157,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_fbelly.jpg"><br><div align="center">Fishbelly<br></div></td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_fbelly.jpg"><br><div align="center">Fishbelly<br></div></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolDS"><?php link_if_exists('CY120A'); ?> </td>
@@ -174,7 +174,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolTC"><?php link_if_exists('CY114A'); ?></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_flat2.jpg"><br><div style="text-align: center;">Flatbed V2<br></div></td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_flat2.jpg"><br><div style="text-align: center;">Flatbed V2<br></div></td>
       <td class="seriesent seriescolAC"><?php link_if_exists('CY121A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolDS"><?php link_if_exists('CY122A'); ?></td>
@@ -191,7 +191,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolTC"><?php link_if_exists('CY119A'); ?></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_lowboy.jpg"><br>Low Boy</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_lowboy.jpg"><br>Low Boy</td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -208,7 +208,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_pipe.jpg"><br>Pipe Trailer</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_pipe.jpg"><br>Pipe Trailer</td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -225,7 +225,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_rocket.jpg"><br>Rocket</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_rocket.jpg"><br>Rocket</td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -242,7 +242,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_sstransp.jpg"><br>Superstar</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_sstransp.jpg"><br>Superstar</td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -259,7 +259,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_tanker.jpg"><br>Tanker</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_tanker.jpg"><br>Tanker</td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CY007C'); ?></td>
       <td class="seriesempty"></td>
@@ -276,7 +276,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_tanker2.jpg"><br>Tanker V.2<br> </td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_tanker2.jpg"><br>Tanker V.2<br> </td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolDS"><?php link_if_exists('CY118A'); ?></td>
@@ -293,7 +293,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolTC"><?php link_if_exists('CY117A'); ?></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_tipper.jpg"><br>Tipper</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_tipper.jpg"><br>Tipper</td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>
@@ -310,7 +310,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_transp.jpg"><br>Transporter</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_transp.jpg"><br>Transporter</td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CY024A'); ?><br><?php link_if_exists('TMTC', 'TC014A', 'TC014A'); ?></td>
       <td class="seriesempty"></td>
@@ -330,7 +330,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriestable description" colspan="15">Collectible Convoy Trailers</td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_ul_box.jpg"><br>Ultra Box</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_ul_box.jpg"><br>Ultra Box</td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CCY', 'CCY08', 'CCY08'); ?></td>
       <td class="seriesempty"></td>
@@ -347,7 +347,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesempty"></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_ul_tank.jpg"><br>Ultra Tanker</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_ul_tank.jpg"><br>Ultra Tanker</td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolD3"><?php link_if_exists('CCY', 'CCY13', 'CCY13'); ?></td>
       <td class="seriesempty"></td>
@@ -393,22 +393,22 @@ The Matchbox Convoy Project - Series Index
       </td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1" colspan="2"><img src="/pic/convoy/t_cy010a.jpg"><br><font face="Arial Narrow">Racing Transporter</font></td>
+      <td class="seriescol00 ids1" colspan="2"><img src="/pic/set/convoy/t_cy010a.jpg"><br><font face="Arial Narrow">Racing Transporter</font></td>
       <td class="seriesent seriescolKO"><?php link_if_exists('CY010A'); ?><br><?php link_if_exists('CY111A'); ?>
       <br><?php link_if_exists('TMTC', 'TM/TC'); ?></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0" colspan="2"><img src="/pic/convoy/t_cy030a.jpg" border="2"><br><font face="Arial Narrow">Grove Crane</font></td>
+      <td class="seriescol00 ids0" colspan="2"><img src="/pic/set/convoy/t_cy030a.jpg" border="2"><br><font face="Arial Narrow">Grove Crane</font></td>
       <td class="seriesent seriescolTC"><?php link_if_exists('CY030A'); ?></td>
     </tr>
     <tr>
       <td class="seriescol00 ids1"><img src="/pic/man/t_cy112.jpg" width="60" height="36"><br>CY112</td>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_transp.jpg"><br>Transporter</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_transp.jpg"><br>Transporter</td>
       <td class="seriesent seriescolKT"><?php link_if_exists('CY112A'); ?></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0" colspan="2"><img src="/pic/convoy/t_cy047a.jpg" border="2"><br><font face="Arial Narrow">MCI Coach</font></td>
-      <td class="seriesent seriescolMA"><?php link_if_exists('CY047A'); ?></td>
+      <td class="seriescol00 ids0" colspan="2"><img src="/pic/set/convoy/t_cy047a.jpg" border="2"><br><font face="Arial Narrow">MCI Coach</font></td>
+      <td class="seriesent seriescolMC"><?php link_if_exists('CY047A'); ?></td>
     </tr>
   </tbody>
 </table>
@@ -424,27 +424,27 @@ The Matchbox Convoy Project - Series Index
     </tr>
     <tr>
       <td class="seriescol00 ids1"><img src="/pic/man/t_mb045.jpg" width="60" height="36"><br>MB045</td>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_auto.jpg"><br>Automobile</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_auto.jpg"><br>Automobile</td>
       <td class="seriesent seriescolKO"><?php link_if_exists('CY001A'); ?></td>
     </tr>
     <tr>
       <td class="seriescol00 ids0"><img src="/pic/man/t_mb106.jpg" width="60" height="36"><br>MB106</td>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_emergency.jpg"><br>Emergency</td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_emergency.jpg"><br>Emergency</td>
       <td class="seriesent seriescolPC"><?php link_if_exists('CY034A'); ?></td>
     </tr>
     <tr>
       <td class="seriescol00 ids1"><img src="/pic/man/t_mb202.jpg" width="60" height="36"><br>MB202</td>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_heli.jpg"><br>Helicopter</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_heli.jpg"><br>Helicopter</td>
       <td class="seriesent seriescolMA"><?php link_if_exists('CY033A'); ?></td>
     </tr>
     <tr>
       <td class="seriescol00 ids0"><img src="/pic/man/t_mb045.jpg" width="60" height="36"><br>MB045</td>
-      <td class="seriescol00 ids0"><img src="/pic/convoy/t_cyt_horsebox.jpg"><br>Horse Box</td>
-      <td class="seriesent seriescolKC"><?php link_if_exists('CY006A'); ?></td>
+      <td class="seriescol00 ids0"><img src="/pic/set/convoy/t_cyt_horsebox.jpg"><br>Horse Box</td>
+      <td class="seriesent seriescolKO"><?php link_if_exists('CY006A'); ?></td>
     </tr>
     <tr>
       <td class="seriescol00 ids1"><img src="/pic/man/t_mb106.jpg" width="60" height="36"><br>MB106</td>
-      <td class="seriescol00 ids1"><img src="/pic/convoy/t_cyt_tracking.jpg"><br>Tracking</td>
+      <td class="seriescol00 ids1"><img src="/pic/set/convoy/t_cyt_tracking.jpg"><br>Tracking</td>
       <td class="seriesent seriescolPC"><?php link_if_exists('CY015A'); ?><br><?php link_if_exists('TMTC', 'TC013A', 'TC013A'); ?><br><?php link_if_exists('TMTC', 'TC001A', 'TC001A'); ?>
 </td>
     </tr>
@@ -467,7 +467,7 @@ This line was renamed Team Convoy in 1988.
       </td>
     </tr>
     <tr>
-      <td class="seriescol00 ids1" colspan="2"><img src="/pic/convoy/t_cy010a.jpg"><br><font face="Arial Narrow">Racing Transporter</font></td>
+      <td class="seriescol00 ids1" colspan="2"><img src="/pic/set/convoy/t_cy010a.jpg"><br><font face="Arial Narrow">Racing Transporter</font></td>
       <td class="seriesent seriescolKO"><?php link_if_exists('TMTC', 'TM/TC'); ?><br>(many)</td>
     </tr>
     <tr>

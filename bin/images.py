@@ -518,7 +518,7 @@ class EditForm(imglib.ActionForm):
 	man = ''
 	if pdir.startswith(config.LIB_MAN_DIR):
 	    man = pdir[pdir.rfind('/') + 1:]
-	elif pdir.startswith('.' + config.IMG_DIR_PACK):
+	elif pdir.startswith('.' + config.IMG_DIR_PROD_PACK):
 	    if self.fn:
 		if len(self.fn) > 2 and self.fn[1] == '_':
 		    man = self.fn[2:-4]
@@ -681,7 +681,7 @@ class EditForm(imglib.ActionForm):
 	ot = '.' + self.ot if self.ot else self.fn[self.fn.rfind('.') + 1:]
 	ddir = self.dest if self.dest else self.tdir
 	outnam = '_' + nname_root + ot
-	if self.dest == '.' + config.IMG_DIR_PACK or self.tdir == '.' + config.IMG_DIR_PACK: # or self.tdir == './' + config.IMG_DIR_PACK:
+	if self.dest == '.' + config.IMG_DIR_PROD_PACK or self.tdir == '.' + config.IMG_DIR_PROD_PACK: # or self.tdir == './' + config.IMG_DIR_PROD_PACK:
 	    prefs = 'scmlh'
 	elif self.dest == '.' + config.IMG_DIR_BOX or self.tdir == '.' + config.IMG_DIR_BOX:
 	    prefs = 'scm'
@@ -1114,14 +1114,14 @@ def icon_main(pif):
 @basics.web_page
 def bits_main(pif):
     years = {
-        '1998': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '1998', 'r': 'ur'},
-        '1999': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '1999', 'r': 'urd'},
-        '2000': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2000', 'r': 'urdab'},
-        '2002': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2002', 'r': 'ur'},
-        '2003': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2003', 'r': 'ur'},
-        '2004': {'d': '.' + config.IMG_DIR_MT_LAUREL, 'p': '2004', 'r': 'ur'},
-        '2008': {'d': '.' + config.IMG_DIR_MATTEL, 'p': '2008', 'r': 'u'},
-        '2009': {'d': '.' + config.IMG_DIR_MATTEL, 'p': '2009', 'r': 'u'},
+        '1998': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '1998', 'r': 'ur'},
+        '1999': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '1999', 'r': 'urd'},
+        '2000': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '2000', 'r': 'urdab'},
+        '2002': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '2002', 'r': 'ur'},
+        '2003': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '2003', 'r': 'ur'},
+        '2004': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '2004', 'r': 'ur'},
+        '2008': {'d': '.' + config.IMG_DIR_PROD_MATTEL, 'p': '2008', 'r': 'u'},
+        '2009': {'d': '.' + config.IMG_DIR_PROD_MATTEL, 'p': '2009', 'r': 'u'},
     }
 
     colors = {True: "#CCCCCC", False: "#FFFFFF"}
