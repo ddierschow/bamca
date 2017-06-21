@@ -49,7 +49,7 @@ DoPageHeader($pif);
 	  <b><a href="cabs.php">Truck Cabs </a></b>
 	</td>
 	<td align="center" valign="middle" width="240" colspan="2">
-	  <a href="definitions.php"><b>Basic Information &amp;<br>Definitions</b></a>
+	  <b><a href="definitions.php">Basic Information &amp;<br>Definitions</a></b>
 	</td>
 	<td align="center" valign="middle" width="180">
 	  <b><a href="trailer.php">Trailers </a></b>
@@ -63,14 +63,13 @@ DoPageHeader($pif);
       </tr>
       <tr>
 	<td align="center" valign="middle" width="300" colspan="2">
-	  <b><a href="series.php"><b>Convoy Index</b></a><br> by tractor/trailer</b>
+	  <b><a href="series.php">Convoy Index</a><br> by tractor/trailer</b>
 	</td>
 	<!--<td align="center" valign="middle" width="200" colspan="2">
-	  <b><b><a href="year.php"><b>Convoy Index</b></a><br> by year</b></b>
+	  <b><a href="year.php">Convoy Index</a><br>by year</b>
 	</td>-->
 	<td align="center" valign="middle" width="300" colspan="2">
-	  <a href="ids.php" style="font-weight: bold">Convoy Index </a><br>
-	  <span style="font-weight: bold">by ID</span>
+	  <b><a href="ids.php">Convoy Index </a><br>by ID</b>
 	</td>
       </tr>
       <tr>
@@ -81,10 +80,10 @@ DoPageHeader($pif);
       </tr>
       <tr>
 	<td align="center" valign="middle" width="300" colspan="2">
-	  <b><a href="updates.php"><b>Updates</b></a></b><br>The history of these pages
+	  <b><a href="updates.php">Updates</a></b><br>The history of these pages
 	</td>
 	<td align="center" valign="middle" width="300" colspan="2">
-	  <a href="TODO.php" style="font-weight: bold">Not Covered </a><br>Some of the things not yet documented
+	  <b><a href="TODO.php">Not Covered </a></b><br>Some of the things not yet documented
 	</td>
       </tr>
     </tbody>
