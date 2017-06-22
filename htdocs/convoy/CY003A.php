@@ -16,9 +16,9 @@ function body() {
             'tdt' => 'black, beige containers, UNIROYAL labels',
 	    'add' => [
 ['<b>Container Colors from left to right: <br>Brown, Tan, Beige &amp;<br> Cream</b>',
-'<img src="/pic/set/convoy/m_cy003a_box2.jpg">'],
+'<img src="/pic/set/convoy/m_cy003a-box2.jpg">'],
 ['This series has both Peterbilt and Mack cabs in it and the Uniroyal containers could any one of four different colors.',
-'<img src="/pic/set/convoy/m_cy003a_box1.jpg"']],
+'<img src="/pic/set/convoy/m_cy003a-box1.jpg"']],
         ],
 // 2. MB106 cab in red, chrome exhausts, amber windows, beige containers, black trailer, "Uniroyal" labels, England
 	['var' => '02a', 'mfg' => 'England', 'liv' => 'Uniroyal',

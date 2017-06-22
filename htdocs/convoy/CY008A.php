@@ -132,7 +132,7 @@ function body() {
 	['var' => '21a', 'mfg' => 'Thailand', 'liv' => 'Matchbox', 'rar' => '5',
             'cdt' => 'white with MATCHBOX tampo',
             'tdt' => 'white container with white roof and doors, MATCHBOX/UNIVERSAL GROUP tampo',
-	    'add' => [['Other side', '<img src="/pic/set/convoy/m_cy008a_21a2.jpg">']],
+	    'add' => [['Other side', '<img src="/pic/set/convoy/m_cy008a-21a2.jpg">']],
 	],
 // 22. MB45-C cab in white with "K" tampo, red container, roof and doors with black base, Thailand, "K-Line" tampo (US)
 	['var' => '22a', 'mfg' => 'Thailand', 'liv' => 'K-Line',
