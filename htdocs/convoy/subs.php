@@ -21,8 +21,8 @@ function show($array, $key, $defaults) {
 }
 
 function show_pic($mod, $var, $pfx, $crd='') {
-    $filename = strtolower("/pic/set/convoy/" . $pfx . "_" . $mod . "_" . $var . ".jpg");
-    echo strtolower('<a href="/cgi-bin/upload.cgi?d=lib/convoy&n=' . $mod . '_' . $var . '">');
+    $filename = strtolower("/pic/set/convoy/" . $pfx . "_" . $mod . "-" . $var . ".jpg");
+    echo strtolower('<a href="/cgi-bin/upload.cgi?d=lib/set/convoy&n=' . $mod . '_' . $var . '">');
     if (file_exists('.' . $filename)) {
 	echo '<img src="' . $filename . '">';
 	if ($crd) {

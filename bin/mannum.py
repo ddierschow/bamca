@@ -540,7 +540,7 @@ class MannoFile(object):
 
     # ----- vehicle types ---------------------------------------
 
-    def get_vt_model_table(self, pif, mdict):
+    def get_vt_model_table(self, pif, mdict, flago):
         img = [mbdata.IMG_SIZ_SMALL + '_' + mdict['id']]
         if mdict.get('picture_id'):
 	    img = [mbdata.IMG_SIZ_SMALL + '_' + mdict['picture_id']]
@@ -548,7 +548,16 @@ class MannoFile(object):
             if s.startswith('same as '):
                 img.append(mbdata.IMG_SIZ_SMALL + '_' + s[8:])
 	lnk = 'single.cgi?id=%(id)s' % mdict
-        mdict['name'] = pif.render.format_link(lnk, mdict['id'] + '<br>' + mdict['rawname'])
+        mdict['flag'] = mdict.get('country', '') + ' '
+	if mdict.get('country') in flago:
+	    mdict['flag'] += pif.render.format_image_flag(mdict['country'], flago[mdict['country']])
+	elif mdict['unlicensed'] == '-':
+	    mdict['flag'] = pif.render.format_image_art('mbx.gif')
+	mdict['makename'] = ' - '.join([
+	    pif.render.format_link("http://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
+	    for x in pif.dbh.fetch_casting_makes(mdict['id'])
+	])
+        mdict['name'] = pif.render.format_link(lnk, mdict['id'] + '<br>' + mdict['rawname'] + '<br>' + mdict['flag'] + '<br>' + mdict['makename'])
         mdict['img'] = pif.render.format_link(lnk, pif.render.format_image_required(img, None, made=mdict['made']))
         mdict['sel'] = pif.render.format_checkbox('vt_' + mdict['id'],
                 [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:13])],
@@ -560,19 +569,21 @@ class MannoFile(object):
         mdict['sel'] += 'country: ' + pif.render.format_text_input('co_' + mdict['id'], 2, 2, value=mdict['country'])
 	return mdict
 
-    def show_vt_model_table(self, pif, mdict):
-        return vt_fmtb % self.get_vt_model_table(pif, mdict)
+    def show_vt_model_table(self, pif, mdict, flago):
+        return vt_fmtb % self.get_vt_model_table(pif, mdict, flago)
 
     def show_section_vehicle_type(self, pif, sect):
+	flago = mflags.FlagList()
         sect['cols'] = len(vt_cols)
         ostr = '<tr><th colspan=%(cols)d id="%(id)s">%(name)s</a></th></tr>\n' % sect
         ostr += vt_fmth % dict(vt_cols) + '\n'
         for mod in sect['model_ids']:
-            ostr += self.show_vt_model_table(pif, self.mdict[mod]) + '\n'
+            ostr += self.show_vt_model_table(pif, self.mdict[mod], flago) + '\n'
         return ostr
 
     def show_section_vehicle_type_template(self, pif, sect):
-	sect['entry'] = [self.get_vt_model_table(pif, self.mdict[mod]) for mod in sect['model_ids']]
+	flago = mflags.FlagList()
+	sect['entry'] = [self.get_vt_model_table(pif, self.mdict[mod], flago) for mod in sect['model_ids']]
         return sect
 
     def write_vehicle_types(self, pif):
@@ -583,6 +594,7 @@ class MannoFile(object):
 	for key in pif.form.keys(start='vm_'):
 	    #print key[3:], 'make', pif.form.get_str(key), '<br>'
 	    pif.dbh.write_casting(values={'make': pif.form.get_str(key)}, id=key[3:])
+	    pif.dbh.update_casting_make(key[3:], pif.form.get_str(key), verbose=True)
 	for key in pif.form.keys(start='co_'):
 	    #print key[3:], 'country', pif.form.get_str(key), '<br>'
 	    pif.dbh.write_casting(values={'country': pif.form.get_str(key)}, id=key[3:])

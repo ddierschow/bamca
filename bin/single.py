@@ -232,7 +232,7 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations
 	    links.append('')
             prodstar = 'fa-star white'
 	    prod = pic
-            prod += ' <a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fa fa-upload"></i></a>' % (pdir.replace('pic', 'lib/prod'), pic, pic, urllib.quote(pif.request_uri))
+            prod += ' <a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fa fa-upload"></i></a>' % (pdir.replace('pic', 'lib'), pic, pic, urllib.quote(pif.request_uri))
             prodpic = pif.render.find_image_path(pic, pdir=pdir)
             if lm_pic_id:
                 prod += ' <a href="%s&useprev=2"><i class="fa fa-step-backward red"></i></a>' % pif.request_uri

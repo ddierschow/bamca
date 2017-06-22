@@ -799,6 +799,11 @@ class DBHandler(object):
 	values = {'make_id': make_id, 'casting_id': mod_id, 'flags': 0 if makes else 2}
         return self.write('casting_make', values=values, newonly=True, tag='AddCastingMake', verbose=verbose)
 
+    def update_casting_make(self, mod_id, make_id, verbose=False):
+	makes = self.fetch_casting_makes(mod_id, verbose=verbose)
+	values = {'make_id': make_id, 'casting_id': mod_id, 'flags': 0 if makes else 2}
+        return self.write('casting_make', values=values, tag='UpdateCastingMake', verbose=verbose)
+
     def delete_casting_make(self, mod_id, make_id=None, verbose=False):
 	where = {'casting_id': mod_id}
 	if make_id:
