@@ -383,7 +383,7 @@ table_info = {
     'pack': {
         'id': ['id'],
 	'extends': {'base_id': 'id/id'},
-        'columns': ['id', 'page_id', 'section_id', 'region', 'end_year', 'layout', 'product_code', 'material', 'country', 'note'],
+        'columns': ['id', 'var', 'page_id', 'section_id', 'region', 'end_year', 'layout', 'product_code', 'material', 'country', 'note'],
         'add': {
                 'pack': [],
                 'pack_model': ['pack_id/id'],

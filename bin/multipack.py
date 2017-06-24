@@ -59,6 +59,7 @@ def make_page_list(pif):
 # ---- pack list ------------------------------------------------------
 
 def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose=False):
+    # need to adapt this for id-var
     pif.render.set_button_comment(pif)
     years = set()
     regions = set()
@@ -240,21 +241,22 @@ def imgsizes(pif, pdir, pic_id):
 
 
 def distill_models(pif, pack, page_id):
-    model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], page_id=page_id)
+    pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
+    model_list = pif.dbh.fetch_pack_models(pack_id=pack_id, page_id=page_id)
     pack['pic'] = ''
-    #for pic in glob.glob(os.path.join(config.IMG_DIR_PROD_PACK, '?_' + pack['id'] + '.jpg')):
-    #pic = pif.render.find_image_path(pack['id'], pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
+    #for pic in glob.glob(os.path.join(config.IMG_DIR_PROD_PACK, '?_' + pack_id + '.jpg')):
+    #pic = pif.render.find_image_path(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
     #pack['pic'] += imglib.format_image_star(pif, pic)
-    pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack['id'])
-    linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack['id'])
+    pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack_id)
+    linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
     pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
-    if ''.join(pif.render.find_image_file(pack['id'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):
+    if ''.join(pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):
 	pack['thumb'] += '<i class="fa fa-star"></i>'
     pmodels = {}
 
-    for mod in [x for x in model_list if x['pack.id'] == pack['id']]:
+    for mod in [x for x in model_list if x['pack.id'] == pack_id]:
         mod = pif.dbh.modify_man_item(mod)
-        sub_ids = [None, '', pack['id'], pack['id'] + '.' + str(mod['pack_model.display_order'])]
+        sub_ids = [None, '', pack_id, pack_id + '.' + str(mod['pack_model.display_order'])]
         if mod['vs.sub_id'] in sub_ids:
             mod['imgl'] = [mbdata.IMG_SIZ_SMALL + '_' + mod['id'], mod['id'], mod['pack_model.mod_id']]
             for s in mod['descs']:
@@ -288,9 +290,10 @@ def distill_models(pif, pack, page_id):
 
 #'columns': ['id', 'page_id', 'section_id', 'name', 'first_year', 'end_year', 'region', 'layout', 'product_code', 'material', 'country'],
 def show_pack(pif, pack, picsize):
-    ostr = pif.render.format_image_required(pack['id'], largest=picsize)
+    pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
+    ostr = pif.render.format_image_required(pack['id'], vars=pack['var'], largest=picsize)
     if pif.is_allowed('a'):  # pragma: no cover
-        ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % ('lib/prod/packs', pack['id'], ostr)
+        ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % ('lib/prod/packs', pack_id, ostr)
     else:
         ostr = '<a href="upload.cgi">%s</a>' % (ostr)
     pack['country'] = mbdata.get_country(pack['country'])
