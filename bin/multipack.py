@@ -15,7 +15,7 @@ import useful
 pack_layouts = {
     '1s': [1, 1, 1, 4],
     '2h': [2, 2, 1, 4],
-    '2v': [2, 1, 2, 2],
+    '2v': [2, 1, 2, 3],
     '3h': [3, 3, 1, 4],
     '3v': [2, 1, 3, 2],
     '4h': [4, 4, 1, 4],
@@ -50,7 +50,7 @@ def make_page_list(pif):
     llineup = {'id': 'main', 'name': '', 'section': lsec}
     for page in pages:
         page = pif.dbh.depref('page_info', page)
-        if not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_HIDDEN):
+        if '.' in page['id'] and (not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_HIDDEN) or pif.render.is_beta):
             txt = models.add_icons(pif, page['id'][6:], '', '') + '<center>' + page['title'] + '</center>'
             entries.append({'text': pif.render.format_link('?page=' + page['id'][page['id'].find('.') + 1:], txt)})
     pif.render.format_matrix_for_template(llineup)
@@ -67,12 +67,16 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
     title = pif.form.search('title')
 
     sections = pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': pif.page_id}))
+    sec_id = sections[0]['id']
     packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
     cols = ['name', 'year', 'product_code']
     heads = ['Name', 'Year', 'Product Code']
     if verbose:
 	cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'pic', 'material', 'stars', 'rel']
 	heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Pic', 'Mat', 'Models', 'Related']
+    elif sections[0]['flags'] & pif.dbh.FLAG_SECTION_SHOW_IDS:
+	cols = ['id'] + cols + ['regionname']
+	heads = ['ID'] + heads + ['Region']
     else:
 	cols += ['regionname']
 	heads += ['Region']
@@ -80,13 +84,18 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
     heads += ['Note']
     heads = dict(zip(cols, heads))
 
+    pack_ids_found = []
     llineup = dict(section=[])
     for lsection in sections:
 	if sec and lsection['id'] != sec:
 	    continue
 	entries = list()
 	for pack in packs:
+	    pack['longid'] = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
 	    if pack['section_id'] == lsection['id']:
+		if not verbose and pack['id'] in pack_ids_found:
+		    continue
+		pack_ids_found.append(pack['id'])
 		years.add(pack['first_year'])
 		regions.add(pack['region'])
 		pack['name'] = pack['rawname'].replace(';', ' ')
@@ -123,6 +132,8 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
 	'years': sorted(years),
 	'regions': [(x, mbdata.regions[x]) for x in sorted(regions)],
 	'llineup': llineup,
+	'section_id': sec_id,
+	'num': 2 if sec_id == '2packs' else 10 if sec_id == '10packs' else 5,
 	#'lid': calc_pack_select(pif, packs),
     }
     return pif.render.format_template('packlist.html', **context)
@@ -140,7 +151,7 @@ def modify_pack_admin(pif, pack):
 	else:
 	    stars += '<i class="fa fa-star black"></i> '
     pack['stars'] = stars
-    pack['edlink'] = '<a href="mass.cgi?verbose=1&type=pack&section_id=%(section_id)s&pack=%(id)s&num=">%(id)s</a>' % pack
+    pack['edlink'] = '<a href="mass.cgi?verbose=1&type=pack&section_id=%(section_id)s&pack=%(id)s&var=%(var)s&num=">%(longid)s</a>' % pack
     relateds = pif.dbh.fetch_packs_related(pack['id'])
     pack['rel'] = ' '.join(sorted([x['pack.id'] for x in relateds]))
 
@@ -151,58 +162,59 @@ def do_single_pack(pif, pid):
     packs = pif.dbh.fetch_pack(pid)
     if not packs:
 	raise useful.SimpleError("That pack doesn't seem to exist.")
-    pack = packs[0]
-    pif.render.hierarchy_append('', pack['base_id.rawname'])
+    pif.render.hierarchy_append('', packs[0]['base_id.rawname'])
 
-    pack_id = pack['pack.id']
-    db_relateds = pif.dbh.fetch_packs_related(pack_id)
-    relateds = [
-	{
-	    'link': pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'], r['base_id.rawname']),
-	    'product_code': r['pack.product_code'],
-	    'region': mbdata.regions.get(r['pack.region'], ''),
-	    'country': mbdata.get_country(r['pack.country']),
-	    'material': mbdata.materials.get(r['pack.material'], ''),
-	    'description': r['base_id.description'],
-	}
-	for r in db_relateds
-    ]
+    llineup = dict(section=[], tail=[''], id='')
+    for pack in packs:
+	pack_id = pack['pack.id']
+	pack['longid'] = pack_id + ('-' + pack['pack.var'] if pack['pack.var'] else '')
+	db_relateds = pif.dbh.fetch_packs_related(pack_id)
+	relateds = [
+	    {
+		'link': pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'], r['base_id.rawname']),
+		'product_code': r['pack.product_code'],
+		'region': mbdata.regions.get(r['pack.region'], ''),
+		'country': mbdata.get_country(r['pack.country']),
+		'material': mbdata.materials.get(r['pack.material'], ''),
+		'description': r['base_id.description'],
+	    }
+	    for r in db_relateds
+	]
 
-    tcomments = set()
-    pack.update({key[key.find('.') + 1:]: pack[key] for key in pack})
-    pack['name'] = pack['rawname'].replace(';', ' ')
+	tcomments = set()
+	pack.update({key[key.find('.') + 1:]: pack[key] for key in pack})
+	pack['name'] = pack['rawname'].replace(';', ' ')
 
-    pmodels = distill_models(pif, pack, pif.page_id)
-    if pack['layout'].isdigit():
-	layout = [int(x) for x in pack['layout']]
-    elif not pmodels:
-	layout = pack_layouts['1s']
-    else:
-	layout = pack_layouts.get(pack['layout'], [4, 4, 1, 4])
-    if len(layout) == 2:
-	layout[3] = 1
-    if len(layout) == 3:
-	layout[4] = 4 - (layout[0] - layout[1])
+	pmodels = distill_models(pif, pack, pif.page_id)
+	if pack['layout'].isdigit():
+	    layout = [int(x) for x in pack['layout']]
+	elif not pmodels:
+	    layout = pack_layouts['1s']
+	else:
+	    layout = pack_layouts.get(pack['layout'], [4, 4, 1, 4])
+	if len(layout) == 2:
+	    layout[3] = 1
+	if len(layout) == 3:
+	    layout[4] = 4 - (layout[0] - layout[1])
 
-    pif.render.comment('pack:', pack)
-    entries = [{'text': show_pack(pif, pack, pack_pic_size[layout[3]]), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
-    for mod in sorted(pmodels.keys()):
-        pif.render.comment("do_single_pack mod", pmodels[mod])
+	pif.render.comment('pack:', pack)
+	entries = [{'text': show_pack(pif, pack, pack_pic_size[layout[3]]), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
+	for mod in sorted(pmodels.keys()):
+	    pif.render.comment("do_single_pack mod", pmodels[mod])
 
-        if not pmodels[mod].get('id'):
-            pmodels[mod]['no_casting'] = 1
-            tcomments.add('m')
-        else:
-            if pmodels[mod]['imgstr'].find('-') < 0:
-                tcomments.add('i')
-            if not pmodels[mod].get('vs.var_id'):
-                pmodels[mod]['no_variation'] = 1
-                tcomments.add('v')
+	    if not pmodels[mod].get('id'):
+		pmodels[mod]['no_casting'] = 1
+		tcomments.add('m')
+	    else:
+		if pmodels[mod]['imgstr'].find('-') < 0:
+		    tcomments.add('i')
+		if not pmodels[mod].get('vs.var_id'):
+		    pmodels[mod]['no_variation'] = 1
+		    tcomments.add('v')
 
-        entries.append({'text': show_pack_model(pif, pmodels[mod]), 'display_id': 1})
+	    entries.append({'text': show_pack_model(pif, pmodels[mod]), 'display_id': 1})
 
-    lsec = dict(id='', columns=layout[0], anchor=pack['id'], range=[{'entry': entries}])
-    llineup = dict(section=[lsec], tail=[''], id='')
+	llineup['section'].append(dict(id='', columns=layout[0], anchor=pack['id'], range=[{'entry': entries}]))
 
     # left bar
     left_bar_content = ''
@@ -212,15 +224,15 @@ def do_single_pack(pif, pid):
         left_bar_content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pack_id})
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
         left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % config.IMG_DIR_PROD_PACK
-        left_bar_content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (pack['section_id'], pack['id'])
-        left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack['id'])
+        left_bar_content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (packs[0]['section_id'], pack_id)
+        left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack_id)
         left_bar_content += '</center>\n'
 
     pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
     pif.render.format_matrix_for_template(llineup)
     context = {
-	'title': pack['name'],
-	'note': pack['note'],
+	'title': packs[0]['name'],
+	'note': packs[0]['note'],
 	'type_id': pif.page_name,
 	'icon_id': '',#pack_id,
 	'vehicle_type': '',
@@ -254,7 +266,7 @@ def distill_models(pif, pack, page_id):
 	pack['thumb'] += '<i class="fa fa-star"></i>'
     pmodels = {}
 
-    for mod in [x for x in model_list if x['pack.id'] == pack_id]:
+    for mod in model_list:
         mod = pif.dbh.modify_man_item(mod)
         sub_ids = [None, '', pack_id, pack_id + '.' + str(mod['pack_model.display_order'])]
         if mod['vs.sub_id'] in sub_ids:
@@ -291,11 +303,15 @@ def distill_models(pif, pack, page_id):
 #'columns': ['id', 'page_id', 'section_id', 'name', 'first_year', 'end_year', 'region', 'layout', 'product_code', 'material', 'country'],
 def show_pack(pif, pack, picsize):
     pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
-    ostr = pif.render.format_image_required(pack['id'], vars=pack['var'], largest=picsize)
+    ostr = pif.render.format_image_required(pack_id, largest=picsize)
     if pif.is_allowed('a'):  # pragma: no cover
         ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % ('lib/prod/packs', pack_id, ostr)
     else:
         ostr = '<a href="upload.cgi">%s</a>' % (ostr)
+    # Ideally this would come from section.flags but we don't have that here.
+    # So this is a giant FAKE OUT
+    if pack['var']:
+	ostr = '<b>' + pack['id'] + '-' + pack['var'] + '</b><br>' + ostr
     pack['country'] = mbdata.get_country(pack['country'])
     pack['material'] = mbdata.materials.get(pack['material'], '')
     if pack['product_code']:

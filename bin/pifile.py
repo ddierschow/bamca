@@ -232,6 +232,7 @@ class PageInfoFile(object):
 	self.render.is_viewer = self.is_allowed('v')
         if 'REQUEST_METHOD' not in os.environ:  # not apache!
 	    useful.header_done(is_web=False)
+	self.duplicate_form = self.form.has('token') and not self.dbh.insert_token(self.form.get_str('token'))
 
     def set_server_env(self):
         self.server_name = os.environ.get('SERVER_NAME', 'unset.server.name')

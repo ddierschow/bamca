@@ -18,6 +18,10 @@ def mass(pif):
     pif.restrict('am')
     pif.render.set_page_extra(pif.render.reset_button_js + pif.render.toggle_display_js)
 
+#    if not pif.dbh.insert_token(pif.form.get_str('token')):
+#	print 'duplicate form submission detected'
+#	return
+
     print pif.form, '<hr>'
     mass_type = pif.form.get_str('type')
     return dict(mass_mains_list).get(mass_type, mass_mains_hidden.get(mass_type, mass_main))(pif)
@@ -642,13 +646,16 @@ def add_pack(pif):
 
 def add_pack_ask(pif):
     pid = pif.form.get_str('id')
+    if not pid:
+	pid = pif.form.get_str('section_id')
     if '.' in pid:
 	pid = pid[pid.find('.') + 1:]
     header = '<form action="mass.cgi">' + pif.render.format_form_token()
     entries = [
 	{'title': 'Section ID:', 'value': pif.render.format_text_input("section_id", 12, 12, value=pid)},
 	{'title': 'Pack ID:', 'value': pif.render.format_text_input("pack", 12, 12)},
-	{'title': 'Number of Models:', 'value': pif.render.format_text_input("num", 4, 4)},
+	{'title': 'Var ID:', 'value': pif.render.format_text_input("var", 12, 12)},
+	{'title': 'Number of Models:', 'value': pif.render.format_text_input("num", 4, 4, value=pif.form.get_str('num'))},
 	{'title': '', 'value': pif.render.format_button_input()},
     ]
     footer = pif.render.format_hidden_input({'type': 'pack'})
@@ -663,12 +670,14 @@ pack_sec = {
     'lic5packs' : 'X.64',
     'launcher' : 'X.66',
     '10packs' : 'X.65',
+    '2packs' : 'X.66',
     'rwgs' : 'X.62',
     'sfgs' : 'X.62',
     'rwps' : 'X.61',
 }
 def add_pack_form(pif):
     pack_id = pif.form.get_str('pack')
+    long_pack_id = pif.form.get_str('pack') + ('-' + pif.form.get_str('var') if pif.form.get_str('var') else '')
 
     section_id = pif.form.get_str('section_id')
     if section_id not in pack_sec:
@@ -676,7 +685,9 @@ def add_pack_form(pif):
     year = pack_id[:4]
     if not year.isdigit():
 	year = '0000'
-    pack = pif.dbh.fetch_pack(id=pack_id)
+    base_id = pif.dbh.fetch_base_id(id=pack_id)
+    base_id = base_id[0] if base_id else []
+    pack = pif.dbh.fetch_pack(id=pack_id, var=pif.form.get_str('var'))
     pack_img = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
 
     header = '<hr>\n'
@@ -685,19 +696,21 @@ def add_pack_form(pif):
     header += '<input type="hidden" name="verbose" value="1">\n'
     header += '<input type="hidden" name="type" value="pack">\n'
 
+    if base_id:
+	header += id_attributes(pif, 'base_id', base_id)
     if pack:
 	pack = pack[0]
-	for f in pif.dbh.table_info['pack']['id']:
-	    header += '<input type="hidden" name="o_pack_%s" value="%s">\n' % (f, pack.get('pack.' + f, ''))
+	header += id_attributes(pif, 'pack', pack)
     else:
 	pack = {
-	    'base_id.id': pack_id,
-	    'base_id.first_year': year,
-	    'base_id.model_type': 'MP',
-	    'base_id.rawname': '',
-	    'base_id.description': '',
-	    'base_id.flags': 0,
+	    'base_id.id': base_id['base_id.id'] if base_id else pack_id,
+	    'base_id.first_year': base_id['base_id.first_year'] if base_id else year,
+	    'base_id.model_type': base_id['base_id.model_type'] if base_id else 'MP',
+	    'base_id.rawname': base_id['base_id.rawname'] if base_id else '',
+	    'base_id.description': base_id['base_id.description'] if base_id else '',
+	    'base_id.flags': base_id['base_id.flags'] if base_id else 0,
 	    'pack.id': pack_id,
+	    'pack.var': pif.form.get_str('var'),
 	    'pack.page_id': 'packs.' + section_id,
 	    'pack.section_id': section_id,
 	    'pack.region': 'W',
@@ -742,7 +755,8 @@ def add_pack_form(pif):
     llistix['section'][-1]['header'] = 'in use: %s<br>\n' % ', '.join(x_linmods) + llistix['section'][-1]['header']
 
     # editor
-    llistix['section'].append(add_pack_model(pif, pack))
+    useful.write_message('add_pack_model', pack, long_pack_id)
+    llistix['section'].append(add_pack_model(pif, pack, long_pack_id))
 
     # related
     relateds = pif.dbh.fetch_packs_related(pack_id)
@@ -760,15 +774,17 @@ def add_pack_form(pif):
     return pif.render.format_template('simplelistix.html', llineup=llistix)
 
 
-def add_pack_model(pif, pack):
+def add_pack_model(pif, pack, long_pack_id):
     # there may be a better way to do this.
     cols = ['mod', 'var', 'disp', 'edit']
     pmodels = {x + 1: {'pack_model.display_order': x + 1} for x in range(pif.form.get_int('num'))}
     if pack.get('base_id.id'):
-	model_list = pif.dbh.fetch_pack_models(pack_id=pack['pack.id'], page_id=pack.get('pack.page_id'))
+	model_list = pif.dbh.fetch_pack_models(pack_id=long_pack_id, page_id=pack.get('pack.page_id'))
 
-	for mod in pif.dbh.modify_man_items([x for x in model_list if x['pack.id'] == pack['base_id.id']]):
-	    sub_ids = [None, '', pack['base_id.id'], pack['base_id.id'] + '.' + str(mod['pack_model.display_order'])]
+	#for mod in pif.dbh.modify_man_items([x for x in model_list if x['pack_model.pack_id'] == long_pack_id]):
+	for mod in pif.dbh.modify_man_items(model_list):
+	    useful.write_message('add_pack_model', mod)
+	    sub_ids = [None, '', long_pack_id, long_pack_id + '.' + str(mod['pack_model.display_order'])]
 	    if mod['vs.sub_id'] in sub_ids:
 		mod['vars'] = []
 		if not pmodels.get(mod['pack_model.display_order'], {}).get('pack_model.mod_id'):
@@ -779,10 +795,10 @@ def add_pack_model(pif, pack):
     entries = [
 	{
 	    'mod': pif.render.format_hidden_input({'pm.id.%s' % key: mod.get('pack_model.id', '0'),
-			'pm.pack_id.%s' % key: mod.get('pack_model.pack_id', '')}) +
+			'pm.pack_id.%s' % key: long_pack_id}) +
 		   pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''), mod.get('pack_model.mod_id', '')) + ' ' +
 	           pif.render.format_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
-	    'var': 'var ' + pif.render.format_text_input("pm.var_id.%s" % key, 20, 20, value='/'.join(list(set(mod.get('vars', ''))))) +
+	    'var': 'var ' + pif.render.format_text_input("pm.var_id.%s" % key, 80, 20, value='/'.join(list(set(mod.get('vars', ''))))) +
 		    ' (' + str(mod.get('pack_model.var_id', '')) + ')',
 	    'disp': 'disp ' + pif.render.format_text_input("pm.display_order.%s" % key, 2, 2, value=mod.get('pack_model.display_order', '')),
 	    'edit': pif.render.format_button('edit', link=pif.dbh.get_editor_link('pack_model',
@@ -792,13 +808,14 @@ def add_pack_model(pif, pack):
     return dict(columns=cols, range=[{'entry': entries}], noheaders=True, header='pack_model<br>')
 
 def add_pack_delete(pif):
-    #print 'delete base_id', pif.form.get_str('base_id.id'), '<br>'
-    pif.dbh.delete_base_id({'id': pif.form.get_str('base_id.id')})
-    #print 'delete pack', pif.form.get_str('pack.id'), '<br>'
-    pif.dbh.delete_pack(pif.form.get_str('pack.id'))
-    pif.dbh.delete_pack_models(pif.form.get_str('pack.page_id'), pif.form.get_str('pack.id'))
-    #print 'delete lineup_model', pif.form.get_str('lineup_model.id'), '<br>'
-    pif.dbh.delete_lineup_model({'id': pif.form.get_int('lineup_model.id')})
+    if not pif.duplicate_form:
+	#print 'delete base_id', pif.form.get_str('base_id.id'), '<br>'
+	pif.dbh.delete_base_id({'id': pif.form.get_str('base_id.id')})
+	#print 'delete pack', pif.form.get_str('pack.id'), '<br>'
+	pif.dbh.delete_pack(pif.form.get_str('pack.id'))
+	pif.dbh.delete_pack_models(pif.form.get_str('pack.page_id'), pif.form.get_str('pack.id'))
+	#print 'delete lineup_model', pif.form.get_str('lineup_model.id'), '<br>'
+	pif.dbh.delete_lineup_model({'id': pif.form.get_int('lineup_model.id')})
 
 
 def get_correct_model_id(pif, mod_id):
@@ -807,18 +824,32 @@ def get_correct_model_id(pif, mod_id):
 
 
 def add_pack_save(pif):
-    #print pif.form.get_form(), '<br>'
+    pack_id = pif.form.get_str('pack.id') + ('-' + pif.form.get_str('pack.var') if pif.form.get_str('pack.var') else '')
+    useful.write_message(pack_id)
 
     mods = [x[6:] for x in pif.form.keys(start='pm.id.')]
     pms = [
 	{
 	    'id': pif.form.get_int('pm.id.' + mod),
-	    'pack_id': pif.form.get_str('pack.id'),
+	    'pack_id': pack_id,
 	    'mod_id': get_correct_model_id(pif, pif.form.get_str('pm.mod_id.' + mod)),
 	    'var_id': pif.form.get_str('pm.var_id.' + mod),
 	    'display_order': pif.form.get_int('pm.display_order.' + mod),
 	}
 	for mod in mods]
+    useful.write_message('pms', pms)
+    useful.write_message('pack', pif.dbh.make_values('pack', pif.form, 'pack.'))
+    useful.write_message('base_id', pif.dbh.make_values('base_id', pif.form, 'base_id.'))
+    useful.write_message('o_pack_id', pif.form.has('o_pack_id'), pif.form.get_str('o_pack_id'))
+    useful.write_message('o_base_id_id', pif.form.has('o_base_id_id'), pif.form.get_str('o_base_id_id'))
+
+    if pif.duplicate_form:
+	return
+
+    if pif.form.has('o_base_id_id'):  # update existing records
+	pif.dbh.update_base_id(pif.form.get_str('o_base_id_id'), {x: pif.form.get_str('base_id.' + x) for x in pif.dbh.table_info['base_id']['columns']})
+    else:
+	pif.dbh.add_new_base_id(pif.dbh.make_values('base_id', pif.form, 'base_id.'))
 
     if pif.form.has('o_pack_id'):  # update existing records
 	pif.dbh.update_pack_models(pms)
@@ -832,13 +863,11 @@ def add_pack_save(pif):
 	pif.dbh.update_pack(pif.form.get_str('o_pack_id'), {x: pif.form.get_str('pack.' + x) for x in p_table_info['columns']})
 
 	p_table_info = pif.dbh.table_info['base_id']
-	pif.dbh.update_base_id(pif.form.get_str('o_pack_id'), {x: pif.form.get_str('base_id.' + x) for x in p_table_info['columns']})
 
     else:  # add new records
 	pif.dbh.add_new_pack_models(pms)
 	pif.dbh.update_variation_select_pack(pms, pif.form.get_str('pack.page_id'), pif.form.get_str('o_pack_id'))
 	pif.dbh.add_new_pack(pif.dbh.make_values('pack', pif.form, 'pack.'))
-	pif.dbh.add_new_base_id(pif.dbh.make_values('base_id', pif.form, 'base_id.'))
 
     # now do lineup_model separately
     if not pif.form.get_int('nope'):

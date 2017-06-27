@@ -544,6 +544,7 @@ FLAG_MODEL_BASEPLATE_VISIBLE            =256
 FLAG_SECTION_HIDDEN                     =  1
 FLAG_SECTION_DEFAULT_IDS                =  2
 FLAG_SECTION_NO_FIRSTS                  =  4
+FLAG_SECTION_SHOW_IDS                   =  8
 FLAG_SECTION_HIDE_IMAGE                 = 32
 
 FLAG_MAKE_PRIMARY                       =  2

@@ -1071,6 +1071,13 @@ def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
     pif.dbh.recalc_description(mod_id)
 
     
+def list_variations(pif, mod_id=None, *args, **kwargs):
+    if not mod_id:
+	return
+    for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
+	pif.render.message('%5s: %s' % (variation['var'], variation['text_description']))
+
+    
 def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
     if not mod_id:
 	return
@@ -1099,6 +1106,7 @@ def command_help(pif, *args):
     pif.render.message("  m for move: old_mod_id old_var_id new_mod_id [new_var_id]")
     pif.render.message("  i for info: fields mod_id var_id")
     pif.render.message("  v for value: mod_id var_id-or-default-or-all attribute value")
+    pif.render.message("  l for list: mod_id")
 
 
 command_lookup = {
@@ -1111,6 +1119,7 @@ command_lookup = {
     'f': run_search_command,
     'i': info,
     'v': add_value,
+    'l': list_variations,
 }
 
 

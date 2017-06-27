@@ -1061,8 +1061,11 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     #- pack
 
-    def fetch_pack(self, id):
-        return self.fetch('pack,base_id', where="pack.id='%s' and base_id.id='%s'" % (id, id), tag='Pack')
+    def fetch_pack(self, id, var=''):
+	wheres = ["pack.id='%s'" % id, "pack.id=base_id.id"]
+	if var:
+	    wheres.append("pack.var='%s'" %var)
+        return self.fetch('pack,base_id', where=wheres, tag='Pack')
 
     def fetch_packs(self, page_id='', year='', region=''):
         wheres = ["base_id.id=pack.id"]
@@ -1117,75 +1120,21 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 #from page_info left outer join style on page_info.id=style.page_id
 #where page_info.id='newpage';
 
-    '''
-select
-casting.id, casting.first_year, casting.scale, casting.vehicle_type, casting.country, casting.rawname, casting.description,
-casting.make, casting.flags, casting.section_id, casting.model_type,
-matrix_model.id, matrix_model.mod_id, matrix_model.section_id, matrix_model.display_order, matrix_model.page_id,
-matrix_model.range_id, matrix_model.name, matrix_model.subname, matrix_model.description,
-v.text_description, v.picture_id, v.var, vs.ref_id
-from matrix_model
-left join casting on (casting.id=matrix_model.mod_id)
-left join variation_select vs on (vs.ref_id='matrix.codered') and vs.mod_id=matrix_model.mod_id
-left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var
-where matrix_model.page_id='matrix.codered'
-
-select
-pack.id,
-pack.page_id, pack.section_id, pack.name, pack.year, pack.region, pack.layout, pack.product_code, pack.material, pack.country,
-pack_model.mod_id, pack_model.pack_id,
-casting.id, casting.rawname,
-vs.ref_id, vs.mod_id, vs.var_id, v.text_description, v.picture_id
-from pack, pack_model
-left join casting on (casting.id=pack_model.mod_id)
-left join variation_select vs on (vs.ref_id='pack.5pack.bea01') and vs.mod_id=pack_model.mod_id
-left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var
-where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='bea01';
-
-'''
-
-    def fetch_pack_models(self, pack_id='', year='', region='', page_id='', sub_id=''):
-
-        wheres = ['pack.id=pack_model.pack_id']
+    # Note: pack_model.id is NOT necessarily pack.id!
+    def fetch_pack_models(self, pack_id='', page_id='', verbose=False):
+        wheres = ["pack_model.pack_id='" + pack_id + "'"]
         cols = [
             'base_id.id', 'base_id.first_year', 'base_id.flags', 'base_id.model_type', 'base_id.rawname', 'base_id.description',
-            'pack.id', 'pack.page_id', 'pack.section_id', 'pack.name', 'pack.year', 'pack.region', 'pack.layout',
-            'pack.product_code', 'pack.material', 'pack.country',
             'pack_model.id', 'pack_model.mod_id', 'pack_model.pack_id', 'pack_model.var_id', 'pack_model.display_order',
             'casting.id', 'casting.first_year', 'casting.scale', 'casting.model_type', 'casting.vehicle_type', 'casting.country',
             'casting.rawname', 'casting.description', 'casting.make', 'casting.section_id',
             'vs.ref_id', 'vs.sub_id', 'vs.mod_id', 'vs.var_id', 'v.text_description', 'v.picture_id']
-        if pack_id:
-            wheres.append("pack.id='" + pack_id + "'")
-        if year:
-            wheres.append("pack.year='" + year + "'")
-        if region:
-            wheres.append("pack.region='" + region + "'")
-        froms = "pack, pack_model " + \
+        froms = "pack_model " + \
                 "left join base_id on pack_model.mod_id=base_id.id " + \
                 "left join casting on pack_model.mod_id=casting.id " + \
                 "left join variation_select vs on (vs.ref_id='%s' and vs.sub_id like '%s%%' and vs.mod_id=pack_model.mod_id)" % (page_id, pack_id)
-        if page_id:
-            if pack_id:
-                froms += " and vs.ref_id='%s' and vs.sub_id like '%s%%'" % (page_id, pack_id)
-            else:
-                froms += " and vs.ref_id='%s'" % page_id
         froms += " left join variation v on (vs.mod_id=v.mod_id and vs.var_id=v.var)"
-        return self.fetch(froms, columns=cols, where=" and ".join(wheres), tag='PackModels')
-
-        pack_model_query = '''
-select
-pack.page_id, pack.section_id, pack.name, pack.year, pack.region, pack.layout, pack.product_code, pack.material, pack.country,
-pack_model.mod_id, pack_model.pack_id,
-casting.id, casting.rawname,
-vs.ref_id, vs.mod_id, vs.var_id, v.text_description, v.picture_id
-from casting, pack, pack_model
-left join variation_select vs on (vs.ref_id='%s.%s' and vs.mod_id=pack_model.mod_id)
-left join variation v on (vs.mod_id=v.mod_id and vs.var_id=v.var)
-where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%s'
-'''
-	# turn this into a fetch
-        return self.dbi.rawquery(pack_model_query % (page_id, pack_id, pack_id))
+        return self.fetch(froms, columns=cols, where=" and ".join(wheres), tag='PackModels', verbose=verbose)
 
     def fetch_pack_model_appearances(self, mod_id):
         return self.fetch(
@@ -1193,7 +1142,7 @@ where pack.id=pack_model.pack_id and pack_model.mod_id=casting.id and pack.id='%
 	    columns=['pack.id', 'base_id.id', 'base_id.rawname', 'base_id.first_year', 'pack.page_id', 'pack.region', 'pack.layout', 'page_info.title', 'pack.section_id', 'section.name'],
 	    where="pack.id=base_id.id and pack_model.mod_id='%s' and pack_model.pack_id=pack.id and page_info.id=pack.page_id and pack.page_id=section.page_id and section.id=pack.section_id" % mod_id,
 	    tag='PackModelAppearances')
-
+ 
     def delete_pack_models(self, ref_id, pack_id):
         self.delete('pack_model', "pack_id='%s'" % pack_id)
         self.delete('variation_select', where="ref_id='%s' and sub_id='%s'" % (ref_id, pack_id))
