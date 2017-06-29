@@ -132,6 +132,14 @@ it is also useful for targeting FF-only code */
 
 .stat {font-style: italic; font-size: small;}
 
+.width_u {width:  50px;}
+.width_t {width: 100px;}
+.width_s {width: 200px;}
+.width_c {width: 300px;}
+.width_m {width: 400px;}
+.width_l {width: 600px;}
+.width_h {width: 800px;}
+
 .modalbutton {cursor: pointer;}
  /* The Modal (background) */
 .modal {

@@ -198,7 +198,9 @@ def do_single_pack(pif, pid):
 	    layout[4] = 4 - (layout[0] - layout[1])
 
 	pif.render.comment('pack:', pack)
-	entries = [{'text': show_pack(pif, pack, pack_pic_size[layout[3]]), 'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
+	entries = [{'text': show_pack(pif, pack, pack_pic_size[layout[3]]),
+	    'class': 'width_' + pack_pic_size[layout[3]],
+	    'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
 	for mod in sorted(pmodels.keys()):
 	    pif.render.comment("do_single_pack mod", pmodels[mod])
 
@@ -254,12 +256,12 @@ def imgsizes(pif, pdir, pic_id):
 
 def distill_models(pif, pack, page_id):
     pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
-    model_list = pif.dbh.fetch_pack_models(pack_id=pack_id, page_id=page_id)
+    model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], pack_var=pack['var'], page_id=page_id)
     pack['pic'] = ''
     #for pic in glob.glob(os.path.join(config.IMG_DIR_PROD_PACK, '?_' + pack_id + '.jpg')):
     #pic = pif.render.find_image_path(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
     #pack['pic'] += imglib.format_image_star(pif, pic)
-    pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack_id)
+    pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack_id.lower())
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
     pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
     if ''.join(pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):

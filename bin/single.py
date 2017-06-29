@@ -180,9 +180,10 @@ def show_code2_appearances(pif, mod_id, vscounts):
 
 def show_pack_appearances(pif, packs):
     # doesn't do pagename properly
-    return [show_link("packs.cgi?page=%s&id=%s" % (pack['pack.page_id'], pack['base_id.id']),
+    pack_d = {x['pack.id']: x for x in packs}
+    return [show_link("packs.cgi?page=%s&id=%s" % (pack['pack.page_id'], pack['pack.id']),
             [pack['base_id.rawname'], pack['section.name'], mbdata.regions.get(pack['pack.region'], 'Worldwide'), pack['base_id.first_year']])
-	    for pack in packs]
+	    for pack_id, pack in sorted(pack_d.items())]
 
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')

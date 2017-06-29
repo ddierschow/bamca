@@ -1120,23 +1120,30 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 #from page_info left outer join style on page_info.id=style.page_id
 #where page_info.id='newpage';
 
-    # Note: pack_model.id is NOT necessarily pack.id!
-    def fetch_pack_models(self, pack_id='', page_id='', verbose=False):
-        wheres = ["pack_model.pack_id='" + pack_id + "'"]
+    def fetch_pack_models(self, pack_id='', pack_var='', page_id='', verbose=False):
+	long_pack_id = pack_id + ('-' + pack_var if pack_var else '')
+        wheres = ["pack_model.pack_id='" + pack_id + "'", "pack_model.pack_var='" + pack_var + "'"]
         cols = [
             'base_id.id', 'base_id.first_year', 'base_id.flags', 'base_id.model_type', 'base_id.rawname', 'base_id.description',
-            'pack_model.id', 'pack_model.mod_id', 'pack_model.pack_id', 'pack_model.var_id', 'pack_model.display_order',
+            'pack_model.id', 'pack_model.mod_id', 'pack_model.pack_id', 'pack_model.pack_var', 'pack_model.var_id', 'pack_model.display_order',
             'casting.id', 'casting.first_year', 'casting.scale', 'casting.model_type', 'casting.vehicle_type', 'casting.country',
             'casting.rawname', 'casting.description', 'casting.make', 'casting.section_id',
             'vs.ref_id', 'vs.sub_id', 'vs.mod_id', 'vs.var_id', 'v.text_description', 'v.picture_id']
         froms = "pack_model " + \
                 "left join base_id on pack_model.mod_id=base_id.id " + \
                 "left join casting on pack_model.mod_id=casting.id " + \
-                "left join variation_select vs on (vs.ref_id='%s' and vs.sub_id like '%s%%' and vs.mod_id=pack_model.mod_id)" % (page_id, pack_id)
+                "left join variation_select vs on (vs.ref_id='%s' and vs.sub_id='%s' and vs.mod_id=pack_model.mod_id)" % (page_id, long_pack_id)
         froms += " left join variation v on (vs.mod_id=v.mod_id and vs.var_id=v.var)"
         return self.fetch(froms, columns=cols, where=" and ".join(wheres), tag='PackModels', verbose=verbose)
 
     def fetch_pack_model_appearances(self, mod_id):
+	wheres = ["pack.id=base_id.id",
+		"pack_model.mod_id='%s'" % mod_id,
+		"pack_model.pack_id=pack.id",
+		"page_info.id=pack.page_id",
+		"pack.page_id=section.page_id",
+		"section.id=pack.section_id",
+	]
         return self.fetch(
 	    'pack, pack_model, page_info, base_id, section',
 	    columns=['pack.id', 'base_id.id', 'base_id.rawname', 'base_id.first_year', 'pack.page_id', 'pack.region', 'pack.layout', 'page_info.title', 'pack.section_id', 'section.name'],

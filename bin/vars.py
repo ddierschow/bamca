@@ -150,7 +150,14 @@ def show_appearances(pif, mod_id, var_id, pics=False):
                 else:
                     ostr += '<li>' + pif.render.format_link("matrix.cgi?page=%s" % vs['variation_select.ref_id'], vs['page_info.title']) + '\n'
             elif vs['variation_select.ref_id'].startswith('packs.'):
-                ostr += '<li>' + pif.render.format_link("packs.cgi?page=%s&id=%s" % (vs['variation_select.ref_id'], vs['variation_select.sub_id']), "%(page_info.title)s: %(base_id.rawname)s (%(base_id.first_year)s)" % vs) + '\n'
+		# bugly.  for 2packs, this doesn't work so we have to work around it.
+		if not vs['pack.id']:
+		    pack_id, pack_var = vs['variation_select.sub_id'].split('-') if '-' in vs['variation_select.sub_id'] else (vs['variation_select.sub_id'], '')
+		    pack = pif.dbh.fetch_pack(pack_id, pack_var)
+		    if pack:
+			vs.update(pack[0])
+		ostr += '<li>' + pif.render.format_link("packs.cgi?page=%s&id=%s" % (vs['pack.page_id'], vs['pack.id']),
+		    "%(page_info.title)s: %(base_id.rawname)s (%(base_id.first_year)s)" % vs) + '\n'
             elif vs['variation_select.ref_id'].startswith('year.') and vs['lineup_model.region']:
                 #lineup.cgi?year=2001&region=U#71
                 vs['region'] = mbdata.regions.get(vs['lineup_model.region'], 'Worldwide')

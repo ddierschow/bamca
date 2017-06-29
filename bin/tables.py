@@ -403,7 +403,7 @@ table_info = {
     #pack_model
     'pack_model': {
         'id': ['id'],
-        'columns': ['id', 'pack_id', 'mod_id', 'var_id', 'flags', 'display_order'],
+        'columns': ['id', 'pack_id', 'pack_var', 'mod_id', 'var_id', 'flags', 'display_order'],
         'clinks': {
                 'id': {'tab': 'pack_model', 'id': ['id/id']},
                 'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},

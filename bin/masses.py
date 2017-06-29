@@ -688,7 +688,7 @@ def add_pack_form(pif):
     base_id = pif.dbh.fetch_base_id(id=pack_id)
     base_id = base_id[0] if base_id else []
     pack = pif.dbh.fetch_pack(id=pack_id, var=pif.form.get_str('var'))
-    pack_img = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
+    pack_img = pif.render.find_image_file(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
 
     header = '<hr>\n'
     header += str(pif.form) + '<hr>\n'
@@ -725,9 +725,9 @@ def add_pack_form(pif):
     header += pif.render.format_button("upload", "upload.cgi?d=.%s&n=%s" % (config.IMG_DIR_PROD_PACK, pack_id))
     header += '%(pack.page_id)s/%(pack.id)s<br>' % pack
     header += '/'.join(pack_img) + '<br>'
-    header += '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (pack_img + (pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g'),))
+    header += '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (pack_img + (pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g'),))
     header += '<a href="imawidget.cgi?d=.%s&f=%s.jpg">%s</a><br>' % (config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
-    header += pif.render.format_image_required(pack_id, pdir=config.IMG_DIR_PROD_PACK) + '<br>'
+    header += pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK) + '<br>'
 
     pack_num = int(pack['pack.note'][2:-1]) if pack['pack.note'].startswith('(#') else 0
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
@@ -755,7 +755,7 @@ def add_pack_form(pif):
     llistix['section'][-1]['header'] = 'in use: %s<br>\n' % ', '.join(x_linmods) + llistix['section'][-1]['header']
 
     # editor
-    useful.write_message('add_pack_model', pack, long_pack_id)
+    #useful.write_message('add_pack_model', pack, long_pack_id)
     llistix['section'].append(add_pack_model(pif, pack, long_pack_id))
 
     # related
@@ -779,11 +779,10 @@ def add_pack_model(pif, pack, long_pack_id):
     cols = ['mod', 'var', 'disp', 'edit']
     pmodels = {x + 1: {'pack_model.display_order': x + 1} for x in range(pif.form.get_int('num'))}
     if pack.get('base_id.id'):
-	model_list = pif.dbh.fetch_pack_models(pack_id=long_pack_id, page_id=pack.get('pack.page_id'))
+	model_list = pif.dbh.fetch_pack_models(pack_id=pack['pack.id'], pack_var=pack['pack.var'], page_id=pack.get('pack.page_id'))
 
 	#for mod in pif.dbh.modify_man_items([x for x in model_list if x['pack_model.pack_id'] == long_pack_id]):
 	for mod in pif.dbh.modify_man_items(model_list):
-	    useful.write_message('add_pack_model', mod)
 	    sub_ids = [None, '', long_pack_id, long_pack_id + '.' + str(mod['pack_model.display_order'])]
 	    if mod['vs.sub_id'] in sub_ids:
 		mod['vars'] = []
