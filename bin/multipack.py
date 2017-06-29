@@ -307,7 +307,7 @@ def show_pack(pif, pack, picsize):
     pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
     ostr = pif.render.format_image_required(pack_id, largest=picsize)
     if pif.is_allowed('a'):  # pragma: no cover
-        ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % ('lib/prod/packs', pack_id, ostr)
+        ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % ('lib/prod/pack', pack_id, ostr)
     else:
         ostr = '<a href="upload.cgi">%s</a>' % (ostr)
     # Ideally this would come from section.flags but we don't have that here.
