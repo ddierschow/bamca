@@ -420,7 +420,7 @@ def edit_multiple(pif):
     elif sec_id == 'new':
         linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_NEW)
     elif sec_id == 'nonf':
-        linklines = pif.dbh.fetch_link_lines(where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and (flags & 32)=0")
+        linklines = pif.dbh.fetch_link_lines(where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and page_id != 'links.trash' and (flags & 32)=0")
     elif pif.form.get_str('stat'):
 	if pif.form.get_str('stat') == 'None':
 	    linklines = pif.dbh.fetch_link_lines(where="last_status is NULL", order='id')
@@ -461,6 +461,7 @@ def edit_choose(pif):
 	'None': '(Untested)',
 	'H200': '(Good)',
 	'H302': '(Moved)',
+	'H400': '(Bad Request)',
 	'H403': '(Forbidden)',
 	'H404': '(Not Found)',
 	'H410': '(Gone)',
