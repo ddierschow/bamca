@@ -848,8 +848,8 @@ class DBHandler(object):
         cols.extend(['lineup_model.id', 'lineup_model.mod_id', 'lineup_model.number', 'lineup_model.style_id', 'lineup_model.region', 'lineup_model.year', 'lineup_model.name', 'lineup_model.picture_id', 'lineup_model.flags', 'lineup_model.base_id'])
         cols.extend(['base_id.id', 'base_id.first_year', 'base_id.rawname', 'base_id.description', 'base_id.flags', 'base_id.model_type'])
         cols.extend(['casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make', 'casting.section_id'])
-        cols.extend(['pack.id', 'pack.page_id', 'pack.section_id', 'pack.name', 'pack.year', 'pack.region', 'pack.note'])
-        cols.extend(['publication.id', 'publication.first_year', 'publication.flags', 'publication.model_type', 'publication.country', 'publication.rawname', 'publication.description', 'publication.section_id'])
+        cols.extend(['pack.id', 'pack.page_id', 'pack.section_id', 'pack.region', 'pack.note'])
+        cols.extend(['publication.id', 'publication.country', 'publication.section_id'])
         cols.extend(['page_info.id', 'page_info.flags', 'page_info.format_type', 'page_info.title'])
         table = "lineup_model"
         table += " left join base_id on base_id.id=lineup_model.mod_id"
@@ -872,8 +872,7 @@ class DBHandler(object):
     def fetch_lineup_models_by_rank(self, rank, syear, eyear):
         cols = [
             'base_id.id', 'base_id.first_year', 'base_id.rawname', 'base_id.description', 'base_id.flags', 'base_id.model_type',
-            'casting.id', 'casting.first_year', 'casting.scale', 'casting.vehicle_type', 'casting.country',
-            'casting.make', 'casting.section_id',
+            'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make', 'casting.section_id',
             'lineup_model.id', 'lineup_model.mod_id', 'lineup_model.number', 'lineup_model.style_id', 'lineup_model.page_id',
             'lineup_model.region', 'lineup_model.year', 'lineup_model.name', 'lineup_model.picture_id',
             'v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id']
@@ -948,7 +947,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             'matrix_model.id', 'matrix_model.mod_id', 'matrix_model.flags', 'matrix_model.section_id',
             'matrix_model.display_order', 'matrix_model.page_id', 'matrix_model.range_id', 'matrix_model.name',
             'matrix_model.subname', 'matrix_model.description', 'matrix_model.shown_id',
-	    'pack.id', 'pack.page_id', 'pack.section_id', 'pack.name',
+	    'pack.id', 'pack.page_id', 'pack.section_id',
 	]
         table = "matrix_model"
         cols.extend(['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id', 'vs.category'])
@@ -1126,8 +1125,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         cols = [
             'base_id.id', 'base_id.first_year', 'base_id.flags', 'base_id.model_type', 'base_id.rawname', 'base_id.description',
             'pack_model.id', 'pack_model.mod_id', 'pack_model.pack_id', 'pack_model.pack_var', 'pack_model.var_id', 'pack_model.display_order',
-            'casting.id', 'casting.first_year', 'casting.scale', 'casting.model_type', 'casting.vehicle_type', 'casting.country',
-            'casting.rawname', 'casting.description', 'casting.make', 'casting.section_id',
+            'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make', 'casting.section_id',
             'vs.ref_id', 'vs.sub_id', 'vs.mod_id', 'vs.var_id', 'v.text_description', 'v.picture_id']
         froms = "pack_model " + \
                 "left join base_id on pack_model.mod_id=base_id.id " + \
