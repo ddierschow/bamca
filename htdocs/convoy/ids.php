@@ -93,7 +93,7 @@ $entries = [
     ['i' => 'CY037A', 'c' => ['MB214','MB308'], 't' => 'Racing Transporter', 'y' => '1993', 'n' => 'Ford Aeromax Transporter',],
     ['i' => 'CY038A', 'c' => ['MB045'], 't' => 'Container', 'y' => '1993', 'n' => 'Kenworth Container Truck',],
     ['i' => 'CY039A', 'c' => ['MB214','MB308'], 't' => 'Box', 'y' => '1994', 'n' => 'Ford Aeromax Box Truck',],
-    ['i' => 'CY047A', 'c' => ['MCI'], 't' => 'none', 'y' => '1999', 'n' => 'MCI Coach',],
+    ['i' => 'CY047A', 'c' => ['CY047'], 't' => 'none', 'y' => '1999', 'n' => 'MCI Coach',],
     ['i' => 'CY104A', 'c' => ['MB103'], 't' => 'Superstar Transporter', 'y' => '1989', 'n' => 'Kenworth Superstar Transporter',],
     ['i' => 'CY104B', 'c' => ['MB147'], 't' => 'Box', 'y' => '1997', 'n' => 'Scania Box Truck',],
     ['i' => 'CY105A', 'c' => ['MB045','MB103'], 't' => 'Box', 'y' => '1989', 'n' => 'Kenworth Gas Truck',],

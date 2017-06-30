@@ -7,19 +7,21 @@ reflecting models later than that.  I will add more as I get to them.<p>
 
 The following models are missing from these pages.  As I can compile information on them, I will add them.<p>
 
-<h3>ADT01 KENWORTH RACING TRANSPORTER, issued 1998 (WR)</h3>
-<i>NOTE: All models with metal chassis 8 container with black metal base 8 chrome wheels with rubber tires,</i>
+<h3>CONVOYS</h3>
+
+<h4>ADT01 KENWORTH RACING TRANSPORTER, issued 1998 (WR)</h4>
+<i>NOTE: All models with metal chassis 8 container with black metal base 8 chrome wheels with rubber tires,</i><br>
 1. Orange-yellow cab and chassis, orange-yellow container, "Caterpillar" tampo (WR)<br>
 2. White cab, silver-gray chassis, green container, "Skoal Bandit Racing" tampo, sealed in plexibox with matching car(WR)<br>
 3. Red cab, silver-gray chassis, red container, "Budweiser King of Beers Racing" tampo, sealed in plexibox with matching car (WR)<br>
 4. Lemon cab, red chassis and container, "Kellogg's Racing" tampo, sealed in plexibox with matching car (WR)<br>
-<h3>ADT02 FORD AEROMAX RACING TRANSPORTER, issued 1998 (WR)</h3>
+<h4>ADT02 FORD AEROMAX RACING TRANSPORTER, issued 1998 (WR)</h4>
 <i>NOTE: All models with metal chassis and container with black metal base and chrome wheels with rubber tires.</i><br>
 1. Blue cab and chassis, blue container, "McDonald's Racing Team-Mac Tonight" tampo, sealed in plexibox with matching car (WR)<br>
 2. Red and black cab, red chassis and container, "McDonald's Racing Team" tampo, sealed in plexibox with matching car (WR)<br>
 3. Dark blue cab, white chassis and container, "Miller Lite" tampo, sealed in plexibox with matching car (WR)<br>
 
-<h3>MLBPA97 FORD AEROMAX TEAM MATES DOUBLE TANDEMS, issued 1998 (WR)</h3>
+<h4>MLBPA97 FORD AEROMAX TEAM MATES DOUBLE TANDEMS, issued 1998 (WR)</h4>
 <i>NOTE: All models with silver-gray cab chassis and tandem coupling hitch, chrome interior, clear windows, and chrome disc with rubber tires.</i><br>
 1. Black and orange cab, black front container with orange roof and "Orioles" tampo; white rear container with orange roof and "Cal Ripken, Jr. 8" tampo (WR)<br>
 2. Black and orange cab, black front container with black roof and "Giants" tampo; white rear container with orange roof and "Barry Bonds 25" tampo (WR)<br>
@@ -30,14 +32,33 @@ The following models are missing from these pages.  As I can compile information
 7. Blue and red cab, blue front container with blue roof and "Braves" tampo; white rear container with red roof and "Greg Maddux 31" tampo (WR)<br>
 8. Dark blue and silver-gray cab, dark blue front container with dark blue roof and "Mariners" tampo; white rear container with silver-gray roof and "Ken Griffey, Jr. 24" tampo (WR)<br>
 
-<h3>35236 POLICE K-9 UNIT, issued 1998 (RT)</h3>
+<h4>BUDWEISER RIGS, issued 1998</h4>
+DYM36670 Peterbilt - Budweiser<br>
+DYM36671 Kenworth - Michelob<br>
+DYM36672 Mack CH600 - Bud Lite<br>
+DYM36674 Ford Aeromax - O'Doul's<br>
+DYM36675 Kenworth Aerodyne - Busch<br>
+DYM36677 Peterbilt - Bud Ice<br>
+
+<h4>EXCLUSIVE EDITIONS, issued 1999</h4>
+DYM36097 Ford Aeromax Box Truck - Jack Daniel's<br>
+DYM36838 Kenworth Tanker - Gulf<br>
+
+<h4>COKE VINTAGE SMALL TRACTOR TRAILERS, issued 2000</h4>
+DYM96654 1939 Peterbilt- Baseball<br>
+DYM96656 1939 Peterbilt- Bowling<br>
+DYM96658 1939 Peterbilt - Sprite Boy<br>
+
+<h3>REAL TALKING</h3>
+
+<h4>35236 POLICE K-9 UNIT, issued 1998 (RT)</h4>
 1. Blue MB41-D Kenworth cab, blue container with silver-gray base, red dome lights, "Police K-9 Search Unit" labels (RT)<br>
 
-<h3>35237 LAUNCH CONTROL, issued 1998 (RT)</h3>
+<h4>35237 LAUNCH CONTROL, issued 1998 (RT)</h4>
 1. Red MB45-C Kenworth cab, gray container with black base, red dome lights, "Launch Control" labels (RT)<br>
 <i>NOTE: Above two models from Real Talkin' series issued only with a serial number.</i><br>
 
-<h3>TALKING BASKETBALL TRUCKS, issued 1999 </h3>
+<h4>TALKING BASKETBALL TRUCKS, issued 1999 </h4>
 MB045 Kenworth COE cab with:<br>
 36367 Celtics<br>
 36368 Lakers<br>
@@ -46,12 +67,14 @@ MB045 Kenworth COE cab with:<br>
 36371 Bulls<br>
 36372 Detroit Pistons<br>
 
-<h3>VINTAGE BIG RIG CABS, issued 1999</h3>
+<h3>DINKY VINTAGE</h3>
+
+<h4>VINTAGE BIG RIG CABS, issued 1999</h4>
 DYM35214 1956 Mack B<br>
 DYM35216 1948 Diamond T<br>
 DYM35217 1939 Peterbilt<br>
 
-<h3>CLASSIC 1950'S AUTOMOBILIA, issued 1999</h3>
+<h4>CLASSIC 1950'S AUTOMOBILIA, issued 1999</h4>
 DYM35265 1956 Mack - Pennzoil<br>
 DYM35266 1956 Mack-Texaco<br>
 DYM35267 1939 Peterbilt - Pep Boys<br>
@@ -59,21 +82,9 @@ DYM35268 1956 Mack - Champion<br>
 DYM35269 1939 Peterbilt- Michelin<br>
 DYM35270 1939 Peterbilt- Sinclair<br>
 
-<h3>BUDWEISER RIGS, issued 1998</h3>
-DYM36670 Peterbilt - Budweiser<br>
-DYM36671 Kenworth - Michelob<br>
-DYM36672 Mack CH600 - Bud Lite<br>
-DYM36674 Ford Aeromax - O'Doul's<br>
-DYM36675 Kenworth Aerodyne - Busch<br>
-DYM36677 Peterbilt - Bud Ice<br>
+<h3>OTHER</h3>
 
-<h3>EXCLUSIVE EDITIONS, issued 1999</h3>
-DYM36097 Ford Aeromax Box Truck - Jack Daniel's<br>
-DYM36838 Kenworth Tanker - Gulf<br>
-DYM36840 1957 Citroen 2CV - yellow and black<br>
-DYM37798 1953 Buick Skylark - light green<br>
-
-<h3>TRACTOR TRAILERS, issued 1999/2000</h3>
+<h4>TRACTOR TRAILERS, issued 1999/2000</h4>
 DYM34557 Mack B56 - McDonald's<br>
 DYM37040 Peterbilt - Harley Davidson<br>
 DYM37796 Mack - Matchbox Collectibles<br>
@@ -87,13 +98,13 @@ DYM38337 1939 Peterbilt - Campbell's Soups<br>
 DYM92058 1939 Peterbilt- Hershey's<br>
 DYM92127 Peterbilt - Matchbox Collectibles with 2 originals<br>
 
-<h3>KINGS OF THE ROAD, issued 1999</h3>
+<h4>KINGS OF THE ROAD, issued 1999</h4>
 DYM38007 Ford Aeromax - Roadway<br>
 DYM38008 Ford Aeromax - Consolidated Freightways<br>
 DYM38009 Ford Aeromax - Overnite<br>
 DYM38010 Kenworth Aerodyne - Yellow Freight<br>
 
-<h3>HERSHEY'S SMALL TRACTOR TRAILERS, issued 2000</h3>
+<h4>HERSHEY'S SMALL TRACTOR TRAILERS, issued 2000</h4>
 DYM92167 Valentine Greetings<br>
 DYM92168 Happy Easter<br>
 DYM92169 Mother's Day<br>
@@ -101,18 +112,13 @@ DYM92171 Independence Day<br>
 DYM92172 Halloween<br>
 DYM92173 Season's Greetings<br>
 
-<h3>COKE VINTAGE SMALL TRACTOR TRAILERS, issued 2000</h3>
-DYM96654 1939 Peterbilt- Baseball<br>
-DYM96656 1939 Peterbilt- Bowling<br>
-DYM96658 1939 Peterbilt - Sprite Boy<br>
-
-<h3>EXCLUSIVE EDITIONS and STAND ALONE ISSUES, issued 2000/2001</h3>
+<h4>EXCLUSIVE EDITIONS and STAND ALONE ISSUES, issued 2000/2001</h4>
 38045 Mack B56 Trailer Truck - Yesteryear Design Team<br>
 92174 Kenworth Tanker-Texaco<br>
 92554 Peterbilt - Seasons Greetings Coca Cola<br>
 96769 Mack B-56 Flat Bed - Jack Daniel's<br>
 
-<h3>OTHER CONVOYS MENTIONED BY MBXFORUM</h3>
+<h4>OTHER CONVOYS MENTIONED BY MBXFORUM</h4>
 PS001 - Articulated Truck, from Container Port playset<br>
 CY002C - Kenworth Conventional Car Transporter, part of Superfast Minis line<br>
 CY008C - Kenworth C.O.E. Box Truck with Sound - probably 35237 above<br>
@@ -136,9 +142,9 @@ CY062A - Scania T142 Box Truck - currently part of CY016A<br>
 CY063A - DAF Box Truck - currently part of CY025A<br>
 CY064A - Mercedes Benz Actros Box Truck - currently part of CY009C<br>
 CY065A - Kenworth C.O.E. Box Truck with Sound - MBA Talking Rigs above<br>
-CY101A - Kenworth T600 Box Car Cooler<br>
-CY102A - Ford Aeromax Box Car Cooler<br>
-CY103A - Ford Aeromax Double Trailer<br>
+CY101A - Kenworth T600 Box Car Cooler - ADT01 above<br>
+CY102A - Ford Aeromax Box Car Cooler - ADT02 above<br>
+CY103A - Ford Aeromax Double Trailer - MLBPA97 above<br>
 CY104B - Kenworth Conventional  Superstar Transporter with <br>
 CY105B - Kenworth C.O.E. Aerodyne<br>
 CY116B - Ford Aeromax Tanker<br>
@@ -146,7 +152,7 @@ DY01 - Mack B61 SMMT 1956<br>
 DY02 - Peterbilt SMTT 1939<br>
 DY03 - Kenworth C.O.E. Gas Tanker<br>
 
-<h3>SUPER CONVOYS</h3>
+<h4>SUPER CONVOYS</h4>
 MBSC001A - DL 2000 Conventional Cab Pipe Truck<br>
 MBSC001B - DL 2000 Conventional Cab Low Loader Spool Hauler<br>
 MBSC002A - MBX RIG I Cab-Over  Box Truck<br>
@@ -174,7 +180,7 @@ MBSC007A - MEGA TON Fire Truck<br>
 MBSC008A - Ford C-900 Hopper Trailer<br>
 MBSC008B - Ford C-900 Dry Bulk Hauler<br>
 
-<h3>MATCHBOX COLLECTIBLES SUPER RIGS</h3>
+<h4>MATCHBOX COLLECTIBLES SUPER RIGS</h4>
 Many of these are mentioned above.<p>
 
 <b>DAF</b><br>
@@ -235,7 +241,7 @@ Many of these are mentioned above.<p>
 3. (DYM38050). Coca Cola Work Refreshed <br>
 
 <p>
-<h3>LONG TERM PLANS</h3>
+<h4>LONG TERM PLANS</h4>
 Eventually all of the information on these pages will become part of the
 BAMCA database.  At that point they will be searchable and will be integrated
 better with other models, including links between component models and between
