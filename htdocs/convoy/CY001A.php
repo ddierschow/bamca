@@ -4,7 +4,7 @@ $subtitle = 'CY001A';
 $desc = "Kenworth COE Auto Transporters";
 $year = '1982';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'Car Transporter',
+$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'CYT09',
     'mfg' => 'England', 'liv' => 'none', 'cod' => '1',
 ];
 

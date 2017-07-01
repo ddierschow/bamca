@@ -4,7 +4,7 @@ $subtitle = 'CY110A';
 $desc = "Kenworth Superstar Transporter";
 $year = '1992';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'Superstar Transporter', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'CYT18', 'cod' => '1'];
 
 include "cypage.php";
 

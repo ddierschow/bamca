@@ -4,7 +4,7 @@ $subtitle = 'CY009B';
 $desc = "Matchbox Kenworth T2000 Box";
 $year = '2000';
 
-$defaults = ['mod' => $subtitle, 'tlr' => 'Box', 'mfg' => 'China', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'tlr' => 'CYT04', 'mfg' => 'China', 'cod' => '1'];
 
 include "cypage.php";
 

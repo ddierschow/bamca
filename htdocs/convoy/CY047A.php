@@ -3,7 +3,7 @@ $subtitle = 'CY047A';
 $desc = "MCI Coach";
 $year = '1999';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'CY047', 'tlr' => 'no separate trailer', 'mfg' => '', 'cod' => '1', 'tdt' => ''];
+$defaults = ['mod' => $subtitle, 'cab' => 'CY047', 'tlr' => 'CY047', 'mfg' => '', 'cod' => '1', 'tdt' => ''];
 
 include "cypage.php";
 

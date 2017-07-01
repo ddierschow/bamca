@@ -5,7 +5,7 @@ $desc = "Peterbilt Boat";
 $year = '1982';
 
 $defaults = ['mod' => $subtitle,
-	    'cab' => 'MB103', 'tlr' => 'Lowboy with Boat', 'mfg' => 'England',
+	    'cab' => 'MB103', 'tlr' => 'CYT08', 'mfg' => 'England',
 	    'liv' => 'none', 'cod' => '1',
 ];
 

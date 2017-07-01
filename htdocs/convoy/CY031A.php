@@ -4,7 +4,7 @@ $subtitle = 'CY031A';
 $desc = "Mack CH600 Pipe Truck";
 $year = '1992';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB202', 'tlr' => 'Pipe Trailer', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB202', 'tlr' => 'CYT05', 'cod' => '1'];
 
 include "cypage.php";
 

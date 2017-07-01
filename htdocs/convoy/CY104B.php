@@ -4,7 +4,7 @@ $subtitle = 'CY104B';
 $desc = "Scania Box Truck";
 $year = '1997';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB147', 'tlr' => 'Box', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB147', 'tlr' => 'CYT04', 'cod' => '1'];
 
 include "cypage.php";
 

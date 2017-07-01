@@ -6,7 +6,7 @@ $desc = "Kenworth Conventional Box Trailer";
 $year = '1982';
 
 $defaults = ['mod' => $subtitle,
-	    'cab' => 'MB103', 'tlr' => 'Box', 'mfg' => 'England', 'cod' => '1',
+	    'cab' => 'MB103', 'tlr' => 'CYT04', 'mfg' => 'England', 'cod' => '1',
 ];
 
 include "cypage.php";

@@ -4,7 +4,7 @@ $subtitle = 'CY011A';
 $desc = "Kenworth Helicopter Transporters";
 $year = '1983';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'Lowboy with Helicopter', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'CYT07', 'cod' => '1'];
 
 include "cypage.php";
 

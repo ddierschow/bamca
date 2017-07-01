@@ -3,7 +3,7 @@ $subtitle = 'CY120A';
 $desc = "DAF Space Cab with Fishbelly";
 $year = '2007';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB702', 'tlr' => 'Fishbelly', 'mfg' => 'Thailand', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB702', 'tlr' => 'CYT28', 'mfg' => 'Thailand', 'cod' => '1'];
 
 include "cypage.php";
 

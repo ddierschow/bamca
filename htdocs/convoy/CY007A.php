@@ -6,7 +6,7 @@ $desc = "Peterbilt &amp; Kenworth Tanker Trailer";
 $year = '1982';
 
 $defaults = ['mod' => $subtitle,
-	    'cab' => 'MB106', 'tlr' => 'Tanker', 'mfg' => 'England',
+	    'cab' => 'MB106', 'tlr' => 'CYT06', 'mfg' => 'England',
 	    'liv' => 'SuperGas', 'cod' => '1',
 	    'cdt' => 'black with yellow and orange SUPERGAS tampo, amber windows',
 	    'tdt' => 'black base, yellow tank, SUPERGAS labels',

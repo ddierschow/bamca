@@ -34,7 +34,7 @@ provide another example with more variations.<br>
     start_table();
     show_header("Series: CY009A - Kenworth Aerodyne Conventional Cab with Box Trailer");
     show_convoy_corner(['mod' => 'CY009A', 'var' => '29a',
-	'cab' => 'MB103', 'tlr' => 'Box', 'mfg' => 'Thailand',
+	'cab' => 'MB103', 'tlr' => 'CYT04', 'mfg' => 'Thailand',
 	'liv' => 'Skittles', 'cod' => '1', 'rar' => '',
 	'cdt' => 'red',
 	'tdt' => "red container and base, Thailand, SKITTLES labels",
@@ -142,7 +142,7 @@ history about the specific model.<br>
     start_table();
     show_header("Series: CY017 - Scania T 142 Cab with Tanker Trailer");
     show_convoy_corner(['mod' => 'CY017A', 'var' => '08a',
-	'cab' => 'MB147', 'tlr' => 'Tanker', 'mfg' => 'Thailand',
+	'cab' => 'MB147', 'tlr' => 'CYT06', 'mfg' => 'Thailand',
 	'liv' => 'Feoso', 'cod' => '1', 'rar' => '',
 	'cdt' => 'white, dark gray chassis, black base',
 	'tdt' => 'white tank, dark gray base, FEOSO tampo',

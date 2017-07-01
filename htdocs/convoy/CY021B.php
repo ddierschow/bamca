@@ -12,7 +12,7 @@ function body() {
 
     show_table([
 // 1. Bright blue cab with black chassis and chrome base, blue trailer, yellow plane with three black jets tempa, "Mattel" & China (ROW)
-	['var' => '01a', 'cab' => 'MB147', 'tlr' => 'Airplane Transporter', 'mfg' => 'China, MATTEL',
+	['var' => '01a', 'cab' => 'MB147', 'tlr' => 'CYT12', 'mfg' => 'China, MATTEL',
 	    'liv' => 'none', 'cod' => '1', 'rar' => '3',
             'cdt' => 'bright blue with black chassis, chrome base',
             'tdt' => 'blue trailer, yellow plane with three black jets tempa',

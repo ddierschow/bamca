@@ -4,7 +4,7 @@ $subtitle = 'CY022A';
 $desc = "DAF Boat Transporter";
 $year = '1987';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB183', 'tlr' => 'Boat Transporter', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB183', 'tlr' => 'CYT14', 'cod' => '1'];
 
 include "cypage.php";
 

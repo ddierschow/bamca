@@ -4,7 +4,7 @@ $subtitle = 'CY008A';
 $desc = "Kenworth COE Box Trailer";
 $year = '1982';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'Box',
+$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'CYT04',
 	    'mfg' => 'England', 'cod' => '1',
 ];
 include "cypage.php";

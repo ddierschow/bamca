@@ -128,7 +128,7 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolD3"><?php link_if_exists('CY026A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesent seriescolFA"><?php link_if_exists('CY018B'); ?></td>
-      <td class="seriesent seriescolKO"><?php link_if_exists('CY009A'); ?> </td>
+      <td class="seriesent seriescolKO"><?php link_if_exists('CY003A'); ?> </td>
       <td class="seriesent seriescolKC"><?php link_if_exists('CY003A'); ?></td>
       <td class="seriesempty"></td>
       <td class="seriesempty"></td>

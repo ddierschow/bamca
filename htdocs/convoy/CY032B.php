@@ -4,7 +4,7 @@ $subtitle = 'CY032B';
 $desc = "Peterbilt with Lowboy trailer";
 $year = '1998';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB307', 'tlr' => 'Lowboy with Bulldozer', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB307', 'tlr' => 'CYT07', 'cod' => '1'];
 
 include "cypage.php";
 

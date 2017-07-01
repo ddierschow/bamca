@@ -4,7 +4,7 @@ $subtitle = 'CY803A';
 $desc = "Scan Low Loader";
 $year = '1992';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB147', 'tlr' => 'Lowboy with Cargo Truck', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB147', 'tlr' => 'CYT07', 'cod' => '1'];
 
 include "cypage.php";
 

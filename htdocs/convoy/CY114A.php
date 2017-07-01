@@ -3,7 +3,7 @@ $subtitle = 'CY114A';
 $desc = "Tractor Cab with Finshbelly";
 $year = '2005';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB664', 'tlr' => 'Fishbelly', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB664', 'tlr' => 'CYT28', 'cod' => '1'];
 
 include "cypage.php";
 

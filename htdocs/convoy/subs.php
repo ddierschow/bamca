@@ -71,6 +71,50 @@ function show_cab($mod) {
     }
 }
 
+function show_trailer($mod) {
+    $trailers = [
+//	'MB425' => 'Mercedes-Benz Actros',
+	'CYT01' => 'Flat Bed',
+	'CYT02' => 'Double Container',
+	'CYT03' => 'Covered',
+	'CYT04' => 'Container',
+	'CYT05' => 'Pipe Transporter',
+	'CYT06' => 'Tanker',
+	'CYT07' => 'Low Loader',
+	'CYT08' => 'Low Loader with Boat',
+	'CYT09' => 'Auto Transporter',
+	'CYT10' => 'Rocket Transporter',
+	'CYT11' => 'Horse Box',
+	'CYT12' => 'Airplane Transporter',
+	'CYT13' => 'Fire Ladder',
+	'CYT14' => 'Boat Transporter',
+	'CYT15' => 'Tracking',
+	'CYT16' => 'Tipper',
+	'CYT17' => 'Racing Transporter',
+	'CYT18' => 'Superstar Transporter',
+	'CYT19' => 'Airplane Transporter V2',
+	'CYT20' => 'Emergency Center',
+	'CYT21' => 'Helicopter Transporter',
+	'CYT22' => 'Ultra Container',
+	'CYT23' => 'Ultra Tanker',
+	'CYT24' => 'Racing Cooler',
+	'CYT25' => 'Short Container',
+	'CYT26' => 'Dinky Heritage Box',
+	'CYT27' => "Real Talkin' Box",
+	'CYT28' => 'Fishbelly',
+	'CYT29' => 'Tanker V2',
+	'CYT30' => 'Flat Bed V2',
+	'CY010' => 'Racing transporter, part of cab casting',
+	'CY030' => 'none',
+	'CY047' => 'none',
+    ];
+//    echo '<a href="/cgi-bin/single.cgi?id=' . $mod . '">' . $mod . '</a>';
+//    if (isset($cabs[$mod])) {
+//	echo ' - ' . $cabs[$mod];
+//    }
+    echo arr_get($trailers, $mod, $mod);
+}
+
 function start_table() {
     echo "<table class=\"outertable\">\n  <tbody>\n";
 }
@@ -87,7 +131,7 @@ function show_convoy_corner($cy) {
       <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
     </tr>
     <tr>
-      <td class="enthead">Trailer</td><td class="entval"><?php echo arr_get2($cy, 'tlr', $defaults); ?></td>
+      <td class="enthead">Trailer</td><td class="entval"><?php show_trailer(arr_get2($cy, 'tlr', $defaults)); ?></td>
     </tr>
     <tr>
       <td class="enthead">Manufacture</td><td class="entval"><?php show($cy, 'mfg', $defaults); ?></td>
@@ -137,7 +181,7 @@ function show_convoy_wide($cy) {
       <td class="enthead">Cab Detail</td><td class="entval" colspan="2"><?php show($cy, 'cdt', $defaults); ?></td>
     </tr>
     <tr>
-      <td class="enthead">Trailer</td><td class="entval"><?php echo arr_get2($cy, 'tlr', $defaults); ?></td>
+      <td class="enthead">Trailer</td><td class="entval"><?php show_trailer(arr_get2($cy, 'tlr', $defaults)); ?></td>
       <td class="enthead">Trailer Detail</td><td class="entval" colspan="2"><?php show($cy, 'tdt', $defaults); ?></td>
     </tr>
     <tr>
@@ -182,7 +226,7 @@ $rows += count(arr_get($cy, 'add', []));
       <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
     </tr>
     <tr>
-      <td class="enthead">Trailer</td><td class="entval"><?php echo arr_get2($cy, 'tlr', $defaults); ?></td>
+      <td class="enthead">Trailer</td><td class="entval"><?php show_trailer(arr_get2($cy, 'tlr', $defaults)); ?></td>
     </tr>
     <tr>
       <td class="enthead">Manufacture</td><td class="entval"><?php show($cy, 'mfg', $defaults); ?></td>

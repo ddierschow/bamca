@@ -4,7 +4,7 @@ $subtitle = 'CY111A';
 $desc = "Team Transporter";
 $year = '1989';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'CY010', 'tlr' => 'Racing transporter, part of cab casting', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'CY010', 'tlr' => 'CY010', 'cod' => '1'];
 
 include "cypage.php";
 

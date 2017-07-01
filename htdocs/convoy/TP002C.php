@@ -4,7 +4,7 @@ $subtitle = 'TP002C';
 $desc = "Leyland Articulated Petrol Tanker";
 $year = '1981';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'T9CO', 'tlr' => 'Tanker', 'mfg' => 'England', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'T9CO', 'tlr' => 'CYT06', 'mfg' => 'England', 'cod' => '1'];
 
 include "cypage.php";
 

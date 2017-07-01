@@ -11,7 +11,7 @@ include "cypage.php";
 function body() {
     show_table([
 // 1. Red cab, red carriage with red trailer base; SB37-A Hawk with roundels & white stripe livery 
-	['var' => '01a', 'cab' => 'MB183', 'tlr' => 'Modified Aircraft Transporter', 'mfg' => 'Thailand',
+	['var' => '01a', 'cab' => 'MB183', 'tlr' => 'CYT19', 'mfg' => 'Thailand',
 	    'liv' => 'Royal Air Force', 'cod' => '1', 'rar' => '3',
             'cdt' => 'red',
             'tdt' => 'red carriage with red trailer base, SB37A Hawk with roundels and white stripe livery',

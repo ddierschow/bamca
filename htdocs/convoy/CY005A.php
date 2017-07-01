@@ -5,7 +5,7 @@ $desc = "Kenworth or Peterbilt with Covered Trailer";
 $year = '1982';
 
 $defaults = ['mod' => $subtitle, 'var' => '01a',
-	    'cab' => 'MB106', 'tlr' => 'Covered', 'cod' => '1',
+	    'cab' => 'MB106', 'tlr' => 'CYT03', 'cod' => '1',
 ];
 
 include "cypage.php";

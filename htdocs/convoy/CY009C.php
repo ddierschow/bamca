@@ -4,7 +4,7 @@ $subtitle = 'CY009C';
 $desc = "Actros Container Truck";
 $year = '2001';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB425', 'tlr' => 'Box', 'mfg' => 'China', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB425', 'tlr' => 'CYT04', 'mfg' => 'China', 'cod' => '1'];
 
 include "cypage.php";
 

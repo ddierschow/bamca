@@ -5,7 +5,7 @@ $desc = "Peterbilt Tracking";
 $year = '1985';
 
 $defaults = ['mod' => $subtitle,
-	    'cab' => 'MB106', 'tlr' => 'Tracking', 'mfg' => 'Macau',
+	    'cab' => 'MB106', 'tlr' => 'CYT15', 'mfg' => 'Macau',
 	    'liv' => 'NASA', 'cod' => '1', 'rar' => '2',
 	];
 include "cypage.php";

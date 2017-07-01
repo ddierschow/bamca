@@ -4,7 +4,7 @@ $subtitle = 'CY030A';
 $desc = "Grove AT1000 Crane";
 $year = '1992';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'CY030', 'tlr' => 'Crane, part of cab casting', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'CY030', 'tlr' => 'CY030', 'cod' => '1'];
 
 include "cypage.php";
 

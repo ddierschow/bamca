@@ -4,7 +4,7 @@ $subtitle = 'CY109A';
 $desc = "Ford Aeromax Superstar Transporter";
 $year = '1991';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB214', 'tlr' => 'Superstar Transporter', 'cod' => '2'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB214', 'tlr' => 'CYT18', 'cod' => '2'];
 
 include "cypage.php";
 

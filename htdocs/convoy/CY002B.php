@@ -11,7 +11,7 @@ include "cypage.php";
 function body() {
     show_table([
 // 1. Black cab with white tempa with clear windows & chrome base, chrome plastic rocket, black trailer, 8-spoke wheels, China casting (GR)
-	['var' => '01a', 'cab' => 'MB432', 'tlr' => 'Rocket Transporter', 'mfg' => 'China',
+	['var' => '01a', 'cab' => 'MB432', 'tlr' => 'CYT10', 'mfg' => 'China',
 	    'liv' => 'none', 'cod' => '1', 'rar' => '',
             'cdt' => 'black, white stripes, silver base, exhaust, and trim',
             'tdt' => 'black with chrome rocket',

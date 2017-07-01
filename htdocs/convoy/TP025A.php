@@ -4,7 +4,7 @@ $subtitle = 'TP025A';
 $desc = "Peterbilt Pipe Truck";
 $year = '1979';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'T9CC', 'tlr' => 'Pipe Trailer', 'mfg' => 'England', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'T9CC', 'tlr' => 'CYT05', 'mfg' => 'England', 'cod' => '1'];
 
 include "cypage.php";
 

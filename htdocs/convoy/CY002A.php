@@ -4,7 +4,7 @@ $subtitle = 'CY002A';
 $desc = "Kenworth Rocket Transporters";
 $year = '1982';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'Rocket Transporter', 'liv' => 'none', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB045', 'tlr' => 'CYT10', 'liv' => 'none', 'cod' => '1'];
 
 include "cypage.php";
 
@@ -12,7 +12,7 @@ function body() {
     show_table([
 // 1. Silver-gray cab with tempa on front, chrome exhausts, white SB-SB Space Shuttle, England casting (GS)
 	['var' => '01a', 'mfg' => 'England',
-	    'tlr' => 'Low Loader with Space Shuttle',
+	    'tlr' => 'CYT07',
 	    'cdt' => 'silver-gray cab with tampo on front, chrome exhausts',
 	    'tdt' => 'white Skybusters Space Shuttle',
 	],

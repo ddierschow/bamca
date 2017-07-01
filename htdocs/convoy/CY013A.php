@@ -5,7 +5,7 @@ $desc = "Articulated Fire Ladder";
 $year = '1984';
 
 $defaults = ['mod' => $subtitle,
-	    'cab' => 'MI724', 'tlr' => 'Fire Ladder', 'mfg' => 'England',
+	    'cab' => 'MI724', 'tlr' => 'CYT13', 'mfg' => 'England',
 	    'liv' => 'Fire Dept.', 'cod' => '1',
 ];
 

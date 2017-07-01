@@ -4,7 +4,7 @@ $subtitle = 'CY028A';
 $desc = "Mack Double Container Truck";
 $year = '1990';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB202', 'tlr' => 'Double Container', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB202', 'tlr' => 'CYT02', 'cod' => '1'];
 
 include "cypage.php";
 

@@ -4,7 +4,7 @@ $subtitle = 'CY004B';
 $desc = "Scania Box Truck";
 $year = '1985';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB147', 'tlr' => 'Box', 'mfg' => 'England',
+$defaults = ['mod' => $subtitle, 'cab' => 'MB147', 'tlr' => 'CYT04', 'mfg' => 'England',
 	    'liv' => 'Ansett', 'cod' => '1',
 ];
 

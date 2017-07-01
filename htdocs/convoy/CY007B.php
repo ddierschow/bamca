@@ -5,7 +5,7 @@ $desc = "Ford Aeromax Tanker";
 $year = '1998';
 
 $defaults = ['mod' => $subtitle,
-	    'cab' => 'MB308', 'tlr' => 'Tanker', 'mfg' => 'China',
+	    'cab' => 'MB308', 'tlr' => 'CYT06', 'mfg' => 'China',
 	    'liv' => 'none', 'cod' => '1',
 	];
 

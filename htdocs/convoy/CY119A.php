@@ -3,7 +3,7 @@ $subtitle = 'CY119A';
 $desc = "Tractor Cab with Flat Bed V2";
 $year = '2007';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB664', 'tlr' => 'Flat Bed V2', 'mfg' => 'Thailand',
+$defaults = ['mod' => $subtitle, 'cab' => 'MB664', 'tlr' => 'CYT30', 'mfg' => 'Thailand',
 	    'liv' => 'none', 'cod' => '1', 'rar' => ''];
 
 include "cypage.php";

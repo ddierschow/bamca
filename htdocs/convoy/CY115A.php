@@ -3,7 +3,7 @@ $subtitle = 'CY115A';
 $desc = "Ford Aeromax with Fishbelly";
 $year = '2005';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB214', 'tlr' => 'Fishbelly', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB214', 'tlr' => 'CYT28', 'cod' => '1'];
 
 include "cypage.php";
 

@@ -4,7 +4,7 @@ $subtitle = 'CY039A';
 $desc = "Aeromax Box Trailer";
 $year = '1994';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB214', 'tlr' => 'Box', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'MB214', 'tlr' => 'CYT04', 'cod' => '1'];
 
 include "cypage.php";
 

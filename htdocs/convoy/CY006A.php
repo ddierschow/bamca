@@ -4,7 +4,7 @@ $subtitle = 'CY006A';
 $desc = "Kenworth Horse Box";
 $year = '1982';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'MB103', 'tlr' => 'Horse Box',
+$defaults = ['mod' => $subtitle, 'cab' => 'MB103', 'tlr' => 'CYT11',
 	    'cod' => '1',
             'cdt' => 'green with yellow and black stripes',
             'tdt' => 'beige, silver-gray base, green doors, BLUE GRASS FARMS tampo',

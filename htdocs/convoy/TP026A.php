@@ -4,7 +4,7 @@ $subtitle = 'TP026A';
 $desc = "Leyland Boat Transporters";
 $year = '1981';
 
-$defaults = ['mod' => $subtitle, 'cab' => 'T9CO', 'tlr' => 'Boat Transporter', 'mfg' => 'England', 'cod' => '1'];
+$defaults = ['mod' => $subtitle, 'cab' => 'T9CO', 'tlr' => 'CYT08', 'mfg' => 'England', 'cod' => '1'];
 
 include "cypage.php";
 
