@@ -22,7 +22,7 @@ function show($array, $key, $defaults) {
 
 function show_pic($mod, $var, $pfx, $crd='') {
     $filename = strtolower("/pic/set/convoy/" . $pfx . "_" . $mod . "-" . $var . ".jpg");
-    echo strtolower('<a href="/cgi-bin/upload.cgi?d=lib/set/convoy&n=' . $mod . '_' . $var . '">');
+    echo strtolower('<a href="/cgi-bin/upload.cgi?d=lib/set/convoy&n=' . $mod . '-' . $var . '">');
     if (file_exists('.' . $filename)) {
 	echo '<img src="' . $filename . '">';
 	if ($crd) {
@@ -37,7 +37,7 @@ function show_pic($mod, $var, $pfx, $crd='') {
     echo "\n";
 }
 
-function show_cab($mod) {
+function show_cab($mod, $var) {
     $cabs = [
 	'MB425' => 'Mercedes-Benz Actros',
 	'MB725' => 'Mercedes-Benz Actros',
@@ -66,6 +66,9 @@ function show_cab($mod) {
 	'T9CO' => 'Leyland Cabover',
     ];
     echo '<a href="/cgi-bin/single.cgi?id=' . $mod . '">' . $mod . '</a>';
+    if ($var) {
+	echo '-<a href="/cgi-bin/vars.cgi?mod=' . $mod . '&var=' . $var . '">' . $var . '</a>';
+    }
     if (isset($cabs[$mod])) {
 	echo ' - ' . $cabs[$mod];
     }
@@ -128,7 +131,7 @@ function show_convoy_corner($cy) {
       <td class="entpic" rowspan="7"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm', arr_get($cy, 'crd', '')); ?></td>
     </tr>
     <tr>
-      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
+      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', '')); ?></td>
     </tr>
     <tr>
       <td class="enthead">Trailer</td><td class="entval"><?php show_trailer(arr_get2($cy, 'tlr', $defaults)); ?></td>
@@ -177,7 +180,7 @@ function show_convoy_wide($cy) {
       <td class="entpic" colspan="4"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'h', arr_get($cy, 'crd', '')); ?></td>
     </tr>
     <tr>
-      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
+      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', '')); ?></td>
       <td class="enthead">Cab Detail</td><td class="entval" colspan="2"><?php show($cy, 'cdt', $defaults); ?></td>
     </tr>
     <tr>
@@ -223,7 +226,7 @@ $rows += count(arr_get($cy, 'add', []));
       <td class="entpic" rowspan="<?php echo $rows; ?>"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm', arr_get($cy, 'crd', '')); ?></td>
     </tr>
     <tr>
-      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults)); ?></td>
+      <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', '')); ?></td>
     </tr>
     <tr>
       <td class="enthead">Trailer</td><td class="entval"><?php show_trailer(arr_get2($cy, 'tlr', $defaults)); ?></td>

@@ -12,12 +12,12 @@ function body() {
     show_table([
 // 1. Red cab & trailer, white tank, green windows, "Exxon" labels
 	['var' => '01a', 'liv' => 'Exxon',
-            'cdt' => 'red, green windows',
+            'cdt' => 'red, green windows', 'cvr' => '01',
             'tdt' => 'red, whtie tank, EXXON labels',
 	],
 // 2. Red cab & trailer, white tank, amber windows, "Exxon" labels
 	['var' => '02a', 'liv' => 'Exxon',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cvr' => '02',
             'tdt' => 'red, whtie tank, EXXON labels',
 	],
     ]);

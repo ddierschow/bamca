@@ -6,17 +6,20 @@ $year = '2001';
 
 $defaults = ['mod' => $subtitle];
 
+$models = [
+// 1. Green and white cab with silver-gray chassis, green and white tank with silver-gray chassis, "BP" tempa, 8-spoke wheels
+    ['var' => '01a',
+	'cab' => 'MB183', 'tlr' => 'CYT06', 'mfg' => 'China',
+	'liv' => 'BP', 'cod' => '1', 'rar' => '2',
+	'cdt' => 'green and white, silver-gray chassis', 'cva' => '',
+	'tdt' => 'silver-gray with green and white tank, 8 spoke wheels, BP tampo',
+    ],
+];
+
 include "cypage.php";
 
 function body() {
-    show_table([
-// 1. Green and white cab with silver-gray chassis, green and white tank with silver-gray chassis, "BP" tempa, 8-spoke wheels
-	['var' => '01a',
-	    'cab' => 'MB183', 'tlr' => 'CYT06', 'mfg' => 'China',
-	    'liv' => 'BP', 'cod' => '1', 'rar' => '2',
-            'cdt' => 'green and white, silver-gray chassis',
-            'tdt' => 'silver-gray with green and white tank, 8 spoke wheels, BP tampo',
-	],
-    ]);
+    global $models;
+    show_table($models);
 }
 ?>

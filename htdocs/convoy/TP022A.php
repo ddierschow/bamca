@@ -12,57 +12,57 @@ function body() {
     show_table([
 // 1. Bronze cab, beige containers, amber windows, "OCL" labels
 	['var' => '01a', 'liv' => 'OCL',
-            'cdt' => 'bronze, amber windows',
+            'cdt' => 'bronze, amber windows', 'cva' => '01',
             'tdt' => 'beige containers, OCL labels',
 	],
 // 2. Bronze cab, cream containers, amber windows, "OCL" labels
 	['var' => '02a', 'liv' => 'OCL',
-            'cdt' => 'bronze, amber windows',
+            'cdt' => 'bronze, amber windows', 'cva' => '01',
             'tdt' => 'cream containers, OCL labels',
 	],
 // 3. Bronze cab, milky white containers, amber windows, "OCL" labels
 	['var' => '03a', 'liv' => 'OCL',
-            'cdt' => 'bronze, amber windows',
+            'cdt' => 'bronze, amber windows', 'cva' => '01',
             'tdt' => 'milky white containers, OCL labels',
 	],
 // 4. Bronze cab, beige containers, no windows, "OCL" labels
 	['var' => '04a', 'liv' => 'OCL',
-            'cdt' => 'Bronze, no windows',
+            'cdt' => 'bronze, no windows',
             'tdt' => 'beige containers, OCL labels',
 	],
 // 5. Red cab, beige containers, amber windows, "OCL" labels
 	['var' => '05a', 'liv' => 'OCL',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cva' => '03',
             'tdt' => 'beige containers, OCL labels',
 	],
 // 6. Red cab, light yellow containers, amber windows, "OCL" labels
 	['var' => '06a', 'liv' => 'OCL',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cva' => '03',
             'tdt' => 'light yellow containers, OCL labels',
 	],
 // 7. Red cab, milky white containers, amber windows, "OCL" labels
 	['var' => '07a', 'liv' => 'OCL',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cva' => '03',
             'tdt' => 'milky white containers, OCL labels',
 	],
 // 8. Red cab, light blue containers, amber windows, "Sealand" labels
 	['var' => '08a', 'liv' => 'Sealand',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cva' => '03',
             'tdt' => 'light blue containers, SEALAND labels',
 	],
 // 9. Red cab, red containers, amber windows, "IMYK" labels
 	['var' => '09a', 'liv' => 'IMYK',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cva' => '03',
             'tdt' => 'red containers, IMYK labels',
 	],
 // 10. Dark green cab, beige containers, amber windows, "OCL" labels
 	['var' => '10a', 'liv' => 'OCL',
-            'cdt' => 'dark green, amber windows',
+            'cdt' => 'dark green, amber windows', 'cva' => '05',
             'tdt' => 'beige containers, OCL labels',
 	],
 // 11. Dark green cab, orange containers, amber windows, "OCL" labels
 	['var' => '11a', 'liv' => 'OCL',
-            'cdt' => 'dark green, amber windows',
+            'cdt' => 'dark green, amber windows', 'cva' => '05',
             'tdt' => 'orange containers, OCL labels',
 	],
     ]);

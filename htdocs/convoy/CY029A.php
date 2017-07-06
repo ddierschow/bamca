@@ -6,15 +6,18 @@ $year = '1991';
 
 $defaults = ['mod' => $subtitle, 'cab' => 'MB202', 'tlr' => 'CYT12'];
 
+$models = [
+// 1. Red cab, black chassis, white carriage with black trailer, red plane with "Red Rebels" tampo 
+    ['var' => '01a', 'mfg' => 'Thailand', 'liv' => 'Red Rebels', 'cod' => '1',
+	'cdt' => 'red, black chassis', 'cva' => '10',
+	'tdt' => 'black with white carriage, red plane with RED REBELS tampo',
+    ],
+];
+
 include "cypage.php";
 
 function body() {
-    show_table([
-// 1. Red cab, black chassis, white carriage with black trailer, red plane with "Red Rebels" tampo 
-	['var' => '01a', 'mfg' => 'Thailand', 'liv' => 'Red Rebels', 'cod' => '1',
-            'cdt' => 'red, black chassis',
-            'tdt' => 'black with white carriage, red plane with RED REBELS tampo',
-	],
-    ]);
+    global $models;
+    show_table($models);
 }
 ?>

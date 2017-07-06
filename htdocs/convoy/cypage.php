@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<?php if (!isset($argv)) { ?><!DOCTYPE html>
 <html>
 <?php
 chdir('..');
@@ -31,4 +31,4 @@ The Matchbox Convoy Project - <?php echo $subtitle; ?> - Under Construction<br>
 <?php DoTextButtonLink('back', '/convoy/series.php'); ?> to the Convoy Index Page
 </div>
 </body>
-</html>
+</html><?php } ?>

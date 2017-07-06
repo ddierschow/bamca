@@ -6,16 +6,19 @@ $year = '1993';
 
 $defaults = ['mod' => $subtitle];
 
-include "cypage.php";
-
-function body() {
-    show_table([
+    $models = [
 // 1. MB45-C cab in black, black container, "Matchbox Racing 5" labels 
 	['var' => '01a', 'cab' => 'MB045', 'tlr' => 'CYT17', 'mfg' => 'Macau',
 	    'liv' => 'Matchbox', 'cod' => '1', 'rar' => '',
-            'cdt' => 'black',
+            'cdt' => 'black', 'cva' => '069',
             'tdt' => 'black container, MATCHBOX RACING 5 labels',
 	],
-    ]);
+    ];
+
+include "cypage.php";
+
+function body() {
+    global $models;
+    show_table($models);
 }
 ?>

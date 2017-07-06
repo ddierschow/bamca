@@ -5,18 +5,21 @@ $year = '2007';
 
 $defaults = ['mod' => $subtitle, 'cab' => 'MB702', 'tlr' => 'CYT28', 'mfg' => 'Thailand', 'cod' => '1'];
 
+$models = [
+    ['var' => '01a', 'liv' => 'Wheaties',
+	'cdt' => 'white', 'cva' => '02',
+	'tdt' => 'white',
+    ],
+    ['var' => '02a', 'liv' => 'Simpson Racing',
+	'cdt' => 'red', 'cva' => '04',
+	'tdt' => 'silver-gray',
+    ],
+];
+
 include "cypage.php";
 
 function body() {
-    show_table([
-	['var' => '01a', 'liv' => 'Wheaties',
-            'cdt' => 'white',
-            'tdt' => 'white',
-	],
-	['var' => '02a', 'liv' => 'Simpson Racing',
-            'cdt' => 'red',
-            'tdt' => 'silver-gray',
-	],
-    ]);
+    global $models;
+    show_table($models);
 }
 ?>

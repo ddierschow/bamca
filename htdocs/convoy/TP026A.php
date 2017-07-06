@@ -14,12 +14,12 @@ function body() {
     show_table([
 // 1. Blue cab, green windows, silver-gray trailer, beige & red boat
 	['var' => '01a', 'liv' => 'none',
-            'cdt' => 'blue, green windows',
+            'cdt' => 'blue, green windows', 'cva' => '04',
             'tdt' => 'silver-gray, beige and red boat',
 	],
 // 2. Blue cab, amber windows, silver-gray trailer, beige & rec boat
 	['var' => '02a', 'liv' => 'none',
-            'cdt' => 'blue, amber windows',
+            'cdt' => 'blue, amber windows', 'cva' => '03',
             'tdt' => 'silver-gray, beige and rec boat',
 	],
     ]);

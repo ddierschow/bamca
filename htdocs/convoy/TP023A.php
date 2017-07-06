@@ -12,12 +12,12 @@ function body() {
     show_table([
 // 1. Red cab, amber windows, solid lettered "Firestone" labels
 	['var' => '01a', 'liv' => 'Firestone',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cva' => '03',
             'tdt' => 'red and white, solid lettered FIRESTONE labels',
 	],
 // 2. Red cab, amber windows, outlined lettered "Firestone" labels
 	['var' => '02a', 'liv' => 'Firestone',
-            'cdt' => 'red, amber windows',
+            'cdt' => 'red, amber windows', 'cva' => '03',
             'tdt' => 'red and white, outline lettered FIRESTONE labels',
 	],
 // 3. Red cab, no windows, outlined lettered "Firestone" labels

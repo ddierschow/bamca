@@ -6,17 +6,20 @@ $year = '1990';
 
 $defaults = ['mod' => $subtitle];
 
+$models = [
+// 1. Pink cab, gray tipper with black base, "Readymix" tempa (AU)
+    ['var' => '01a',
+	'cab' => 'MB106', 'tlr' => 'CYT16', 'mfg' => 'Thailand',
+	'liv' => 'Readymix', 'cod' => '1', 'rar' => '2',
+	'cdt' => 'pink', 'cva' => '50',
+	'tdt' => 'gray tipper with black base, READYMIX tampo',
+    ],
+];
+
 include "cypage.php";
 
 function body() {
-    show_table([
-// 1. Pink cab, gray tipper with black base, "Readymix" tempa (AU)
-	['var' => '01a',
-	    'cab' => 'MB106', 'tlr' => 'CYT16', 'mfg' => 'Thailand',
-	    'liv' => 'Readymix', 'cod' => '1', 'rar' => '2',
-            'cdt' => 'pink',
-            'tdt' => 'gray tipper with black base, READYMIX tampo',
-	],
-    ]);
+    global $models;
+    show_table($models);
 }
 ?>

@@ -438,9 +438,9 @@ The Matchbox Convoy Project - Series Index
       <td class="seriesent seriescolMA"><?php link_if_exists('CY033A'); ?></td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0"><img src="/pic/man/t_mb045.jpg" width="60" height="36"><br>MB045</td>
+      <td class="seriescol00 ids0"><img src="/pic/man/t_mb103.jpg" width="60" height="36"><br>MB103</td>
       <td class="seriescol00 ids0"><img src="/pic/man/t_cyt11.jpg"><br>Horse Box</td>
-      <td class="seriesent seriescolKO"><?php link_if_exists('CY006A'); ?></td>
+      <td class="seriesent seriescolKC"><?php link_if_exists('CY006A'); ?></td>
     </tr>
     <tr>
       <td class="seriescol00 ids1"><img src="/pic/man/t_mb106.jpg" width="60" height="36"><br>MB106</td>

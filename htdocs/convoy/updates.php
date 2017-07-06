@@ -19,6 +19,7 @@ Information<br>
 </div>
 
 <div align="left">
+July 2, 2017 - Started adding cab variation numbers.  Fixed several errors found in some of the index pages.<br>
 June 16, 2017 - My first pass on rewriting these pages is mostly done.  There will be much more to do in the future but
 I feel things are complete enough to publish them.  Added TODO list.<br>
 June 14, 2017 - Added CY047A.<br>
