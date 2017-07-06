@@ -191,6 +191,8 @@ def show_detail(pif, field, attributes, variation, attr_pics={}, ran_id='', phot
 		'new': pif.render.format_select("phcred." + variation['var'], photogs, selected=variation.get('_credit', ''))}
     title = attributes[field]['title']
     value = variation.get(field, '')
+    if field == 'category':
+	value = ', '.join([mbdata.categories.get(x, x) for x in value.split()])
     modals = ''
     title_modal = show_detail_modal(pif, attr_pics.get(field, {}), variation['mod_id'])
     if title_modal:
@@ -565,7 +567,7 @@ class VarSearchForm(object):
     def read(self, form):
 	self.attrs = {key: form.get_str(key) for key in self.attributes}
 	self.attrq = dict()
-	for attr in self.attributes:
+	for attr in self.attributes.keys() + ['text_note']:
 	    if form.has(attr):
 		self.attrq[attr] = form.search(attr)
 	self.nots = {key: form.get_bool('not_' + key) for key in self.attributes}
@@ -591,6 +593,7 @@ class VarSearchForm(object):
 	pif.render.comment("attributes", self.attributes)
 
 	entries = [{'title': self.attributes[x]['title'], 'value': pif.render.format_text_input(x, 64, 64)} for x in desc_attributes]
+	entries.append({'title': 'Note', 'value': pif.render.format_text_input('text_note', 64, 64)})
 	entries.append({'title': '', 'value': pif.render.format_checkbox('ci', [(1, 'Case insensitive')])})
 	lsections = [dict(columns=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True, footer='<br>')]
 
@@ -628,8 +631,8 @@ class VarSearchForm(object):
 	lsections.append(dict(columns=['title', 'value', 'not'], range=[{'entry': entries}], note='', noheaders=True))
 	return dict(section=lsections)
 
-    def cate_match(self, model, code):
-	category = model['_catlist'] = model.get('category', '').split()
+    def cate_match(self, var, code):
+	category = var['_catlist'] = var.get('category', '').split()
 	if not category:
 	    category = ['MB']
 	search_not = self.nots['category']
@@ -639,59 +642,81 @@ class VarSearchForm(object):
 	    retval = (self.cateq in category) or (self.cateq == 'MB' and not category)
 	    if search_not:
 		retval = not retval
+	#useful.write_message('cate_match', var['var'], retval, self.cateq, code)
 	return retval
 
     def wheel_match(self, var):
-	return (not self.wheelq) or var['wheels'] == self.wheelq or var['text_wheels'] == self.wheelq
+	retval = (not self.wheelq) or var['wheels'] == self.wheelq or var['text_wheels'] == self.wheelq
+	#useful.write_message('wheel_match', var['var'], retval)
+	return retval
 
     def search_match(self, var):
 	if not self.sobj:
+	    #useful.write_message('search_match', var['var'], True, self.sobj)
 	    return True
 	for k in var:
-	    if k in desc_attributes and useful.search_match(self.sobj, var[k]):
+	    if k in desc_attributes + ['text_note'] and useful.search_match(self.sobj, var[k]):
+		#useful.write_message('search_match', var['var'], True, self.sobj, k)
 		return True
+	#useful.write_message('search_match', var['var'], False, 'final')
 	return False
 
     def desc_match(self, var):
 	if not self.attrq:
+	    #useful.write_message('desc_match', var['var'], True, self.attrq, 'no attrq')
 	    return True
 	for attr in self.attrq:
-	    var_val = var.get(attr, '')
+	    var_val = var.get('note', '') if attr == 'text_note' else var.get(attr, '')
 	    query_val = ' '.join(self.attrq.get(attr, []))
-	    if attr in desc_attributes:
+	    if attr in desc_attributes + ['text_note']:
+		attrval = var['note' if attr == 'text_note' else attr]
 		for obj in self.attrq[attr]:
-		    if not self.ci and var[attr].find(obj) < 0:
+		    if not self.ci and attrval.find(obj) < 0:
+			#useful.write_message('desc_match', var['var'], False, self.attrq, self.ci, attrval, '-', obj)
 			return False
-		    if self.ci and var[attr].lower().find(obj.lower()) < 0:
+		    if self.ci and attrval.lower().find(obj.lower()) < 0:
+			#useful.write_message('desc_match', var['var'], False, self.attrq, self.ci, attrval, '-', obj)
 			return False
+	#useful.write_message('desc_match', var['var'], True, self.attrq, 'final')
 	return True
 
     def field_match(self, var):
 	if not self.attrq:
+	    #useful.write_message('field_match', var['var'], True, 'no attrq')
 	    return True
 	for attr in self.attrq:
-	    search_not = self.nots[attr]
+	    search_not = self.nots.get(attr)
 	    var_val = var.get(attr, '')
 	    query_val = ' '.join(self.attrq.get(attr, []))
-	    if attr == 'category':
-		continue
-	    elif attr in desc_attributes:
+	    if attr in desc_attributes + ['text_note', 'category']:
 		continue
 	    elif var_val == query_val and search_not:
+		#useful.write_message('field_match', var['var'], False, var_val, query_val, 'neg')
 		return False
 	    elif var_val != query_val and not search_not:
+		#useful.write_message('field_match', var['var'], False, var_val, query_val, 'pos')
 		return False
+	#useful.write_message('field_match', var['var'], True, self.attrq, 'final')
 	return True
 
-    def model_match(self, model, code):
-	    return ((not self.varl or (model['var'] in self.varl)) and
-			(self.with_pics and model['_has_pic'] or self.without_pics and not model['_has_pic']) and
-                        self.cate_match(model, code) and
-                        self.search_match(model) and
-                        self.wheel_match(model) and
-			(not self.wheelq or var['wheels'] == self.wheelq or var['text_wheels'] == self.wheelq) and
-                        self.desc_match(model) and
-                        self.field_match(model))
+    def id_match(self, var):
+	retval = (not self.varl or (var['var'] in self.varl))
+	#useful.write_message('id_match', var['var'], retval, self.varl)
+	return retval
+
+    def pic_match(self, var):
+	retval = True # (self.with_pics and var['_has_pic'] or self.without_pics and not var['_has_pic'])
+	return retval
+
+    def model_match(self, var, code):
+	#useful.write_message('model_match', 'attrq', self.attrq)
+	return (self.id_match(var) and
+		self.pic_match(var) and
+		self.cate_match(var, code) and
+		self.search_match(var) and
+		self.wheel_match(var) and
+		self.desc_match(var) and
+		self.field_match(var))
 
     def show_search_object(self):
 	ostr = 'Selected models' if self.varl else 'All models'
