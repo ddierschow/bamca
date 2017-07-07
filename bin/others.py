@@ -118,7 +118,7 @@ def ads(pif):
     pif.render.set_button_comment(pif)
 
     pic_dir = config.IMG_DIR_ADS
-    lib_dir = config.LIB_DIR + '/ads'
+    lib_dir = config.LIB_DIR + '/pub/ads'
     ranges = []
 
     def fmt_cy(ent):

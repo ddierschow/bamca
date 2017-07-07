@@ -358,36 +358,33 @@ def edit_single(pif):
     for col in table_info['columns']:
 	col_long = 'link_line.' + col
 	coltype = descs.get(col).get('type', 'unknown')
+	value = useful.printablize(link.get(col_long, ''))
 	entries.append({'text': col})
-	entries.append({'text': '<a href="%s">%s</a>' % (link.get(col_long, ''), link.get(col_long, ''))
-			if col == 'url' else link[col_long]})
+#	entries.append({'text': '<a href="%s">%s</a>' % (link.get(col_long, ''), link.get(col_long, ''))
+#			if col == 'url' else link[col_long]})
+	entries.append({'text': '<a href="%s">%s</a>' % (value, value) if col == 'url' else value})
 	if col in table_info.get('readonly', []):
-	    cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, link[col_long])
+	    cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
 #       elif col == 'page_id':
-#           cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, link[col_long])
+#           cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
 	elif col == 'section_id':
-	    cell = pif.render.format_select('section_id', [('', 'Please choose one from the list')] + listCats, selected=link[col_long])
+	    cell = pif.render.format_select('section_id', [('', 'Please choose one from the list')] + listCats, selected=value)
 	elif col == 'flags':
 	    cell = pif.render.format_checkbox("flags", flag_check_names, useful.bit_list(link[col_long]))
 	elif col == 'country':
-	    cell = pif.render.format_select_country('country', link[col_long])
+	    cell = pif.render.format_select_country('country', value)
 	elif col == 'link_type':
-	    cell = pif.render.format_select(col, link_type_names, selected=link[col_long])
+	    cell = pif.render.format_select(col, link_type_names, selected=value)
 	elif col == 'associated_link':
-	    cell = pif.render.format_select(col, asslinks, selected=link[col_long])
+	    cell = pif.render.format_select(col, asslinks, selected=value)
 	elif coltype.startswith('varchar('):
 	    colwidth = int(coltype[8:-1])
-	    cell = pif.render.format_text_input(col, colwidth, 64, value=link[col_long])
+	    cell = pif.render.format_text_input(col, colwidth, 64, value=value)
 	elif coltype.startswith('int('):
 	    if link[col_long] is None:
-		link[col_long] = 0
+		value = 0
 	    colwidth = int(coltype[4:-1])
-	    val = link[col_long]
-	    if isinstance(val, str) and val.isdigit():
-		val = str(int(val))
-	    elif not val:
-		val = ''
-	    cell = pif.render.format_text_input(col, colwidth, value=val)
+	    cell = pif.render.format_text_input(col, colwidth, value=value)
 	else:
 	    cell = coltype
 	entries.append({'text': cell})
@@ -495,7 +492,7 @@ def edit_choose(pif):
 @basics.web_page
 def edit_links(pif):
     pif.render.print_html()
-    if pif.form.get_str('id'):
+    if pif.form.get_str('id') or pif.form.get_bool('add'):
 	return edit_single(pif)
     elif pif.form.has_any(['as', 'sec', 'stat', 'page']):
 	return edit_multiple(pif)

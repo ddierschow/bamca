@@ -916,6 +916,7 @@ def main(pif):
     if not man:
         man_id = var = ''
     elif var:
+	var = mbdata.normalize_var_id(man, var)
         pif.render.title = '%(casting_type)s %(id)s: %(name)s' % man
         pif.render.title += ' - Variation ' + var
     elif man_id:

@@ -10,7 +10,7 @@ import useful
 
 
 
-def show_list(title, tdir, fl):
+def show_list(title, tdir, fl, view=False):
     if not fl:
         return ''
     #mlen = reduce(lambda x, y: max(x, len(y)), fl, 0)
@@ -37,7 +37,10 @@ def show_list(title, tdir, fl):
             elif (perms & 5) == 0:
                 ostr += '%s<br>\n' % f
             elif ext in imglib.itypes:
-                ostr += '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
+		if view:
+		    ostr += '<a href="/%s/%s">%s</a><br>\n' % (tdir, f, f)
+		else:
+		    ostr += '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
             else:
                 ostr += '<a href="../%s">%s</a><br>\n' % (tdir + '/' + f, f)
         ostr += "</td>\n"
@@ -54,7 +57,7 @@ def show_dir(pif, tform):
     #dl, gl, ol, sl, xl = imglib.get_dir(tform.tdir)
     files = imglib.get_dir(tform.tdir, name_has=tform.has)
 
-    ostr += show_list(files['titles']['dir'], tform.tdir, files['dir'])
+    ostr += show_list(files['titles']['dir'], tform.tdir, files['dir'], tform.view)
 
     if files['graf']:
         if tform.graf:
@@ -70,12 +73,12 @@ def show_dir(pif, tform):
                     ostr += '<a href="../%s">%s</a><br>\n' % (tform.tdir + '/' + f, f)
             ostr += '<br><hr>\n'
         else:
-            ostr += show_list(files['titles']['graf'], tform.tdir, files['graf'])
+            ostr += show_list(files['titles']['graf'], tform.tdir, files['graf'], tform.view)
 
-    ostr += show_list(files['titles']['log'], tform.tdir, files['log'])
-    ostr += show_list(files['titles']['dat'], tform.tdir, files['dat'])
-    ostr += show_list(files['titles']['exe'], tform.tdir, files['exe'])
-    ostr += show_list(files['titles']['other'], tform.tdir, files['other'])
+    ostr += show_list(files['titles']['log'], tform.tdir, files['log'], tform.view)
+    ostr += show_list(files['titles']['dat'], tform.tdir, files['dat'], tform.view)
+    ostr += show_list(files['titles']['exe'], tform.tdir, files['exe'], tform.view)
+    ostr += show_list(files['titles']['other'], tform.tdir, files['other'], tform.view)
 
     if pif.render.is_admin:
 	ostr += '<a href="upload.cgi?d=%s">%s</a>\n' % (tform.tdir, pif.render.format_button('upload'))
@@ -395,6 +398,7 @@ class TraverseForm(object):
 	#h = 0  # pif.form.get_int('h')
 	self.sorty = pif.form.get_int('sort')
 	#pif.render.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.form.get_str("d", '.'), pif.form.get_str("d", '.'))
+	self.view = pif.form.get_bool("v")
 	self.graf = pif.form.get_int("g")
 	self.fnam = pif.form.get_str("f")
 	self.patt = pif.form.get_str("p")
