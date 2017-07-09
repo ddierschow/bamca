@@ -967,7 +967,7 @@ of Matchbox International Ltd. and are used with permission.
 	    ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
-    def format_matrix_for_template(self, llineup):
+    def format_matrix_for_template(self, llineup, flip=False):
 	maxes = {'s': 0, 'r': 0, 'e': 0}
 	#self.comment_dict('lineup', llineup)
 	rows = sc = 0
@@ -981,6 +981,8 @@ of Matchbox International Ltd. and are used with permission.
 		icol = ec = 0
 		spans = [[0, 0]] * ncols
 		entries = list()
+		if flip:
+		    ran['entry'] = useful.reflect(ran.get('entry', []), ncols, {})
 		for ent in ran.get('entry', []):
 		    ec += 1
 		    if icol == 0:

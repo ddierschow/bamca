@@ -571,6 +571,14 @@ class DBHandler(object):
                 #varrec.update(detrecs.get(varrec['variation.var'], {}))
         return varrecs
 
+    def fetch_variations_by_date(self, dt):
+        varrecs = self.fetch('variation,base_id', where="base_id.id=variation.mod_id and variation.date='%s'" % dt, order='variation.mod_id, variation.var', tag='VariationsByDate')
+        return varrecs
+
+    def fetch_variation_dates(self, yr=None):
+	where = ("date like '%%/ %s%%'" % yr) if yr else ''
+        return self.dbi.select('variation', ['date', 'count(*)'], where=where, group='date', order='date', tag='VariationDates')
+
     def fetch_variation(self, mod_id, var):
         varrecs = self.fetch('variation', where="mod_id='%s' and var='%s'" % (mod_id, var), tag='Variation')
 	if varrecs:

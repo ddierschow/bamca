@@ -92,6 +92,8 @@ def run_search(pif):
     pif.render.hierarchy_append(pif.request_uri, 'Model Search')
     mods = None
     pif.render.print_html()
+    if pif.form.has('date'):
+	return date_search(pif, pif.form.get_str('dt'), pif.form.get_str('yr'))
     if pif.form.has('query'):
         targ = pif.form.get_str('query')
         pif.render.title = 'Models matching name: ' + targ
@@ -118,6 +120,35 @@ def run_search(pif):
 	llineup = create_lineup(pif, mods)
 
     pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup)
+
+
+def date_search(pif, dt=None, yr=None):
+    llineup = {'columns': 4}
+    lsec = {}
+    lran = {'entry': []}
+    if dt:
+	vars = pif.dbh.fetch_variations_by_date(dt)
+	for var in vars:
+	    lran['entry'].append({'text': '<input type="checkbox"> ' +
+		pif.render.format_link(
+		'/cgi-bin/vars.cgi?mod=%s&var=%s' % (var['variation.mod_id'], var['variation.var']),
+		'%s-%s %s<br>%s' % (var['variation.mod_id'], var['variation.var'], var['base_id.rawname'], var['variation.text_description']))
+	    })
+	lsec['columns'] = 3
+    else:
+	dates = pif.dbh.fetch_variation_dates(yr=yr)
+	for dt in dates:
+	    if dt['date']:
+		lran['entry'].append({'text': pif.render.format_link(
+		    '/cgi-bin/msearch.cgi?date=1&dt=%s' % dt['date'],
+		    '%s (%s)' % (dt['date'], dt['count(*)']))})
+	lsec['columns'] = 6
+    lsec['range'] = [lran]
+    llineup['section'] = [lsec]
+    llineup['footer'] = '<hr><form action="/cgi-bin/msearch.cgi">Year = /<input type="hidden" name="date" value="1"><input type="text" name="yr"> <input type="submit" name="submit" value="GO" class="textbutton"></form>\n'
+    llineup['footer'] += '''<form action="/cgi-bin/msearch.cgi">Mod ID: <input type="text" name="id" size="12"> Var ID: <input type="text" name="var" size="12"> <input type="submit" name="submit" value="GO" class="textbutton"></form>\n'''
+    pif.render.format_matrix_for_template(llineup, flip=True)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
