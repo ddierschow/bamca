@@ -691,7 +691,7 @@ def correct_region(region, year):
     elif region == 'A':
         if year >= 2002:  # is this correct?
             region = 'U'
-        elif year not in (2000, 2001):
+        elif year not in (1981, 1987, 1991, 1992, 1993, 1997, 2000, 2001):
             region = 'R'
     elif region == 'L':
         if year < 2008 or year > 2011:
