@@ -5,7 +5,7 @@ style|.section|bgc,#99CCCC|bw,1px|p,4px|bc,#000000
 style|.cell,0|bgc,#CCFFFF|bw,1px|p,4px|bc,#000000|ta,center|va,middle
 style|.cell,1|bgc,#CCFFFF|bw,1px|p,4px|bc,#000000
 style|.hcell,1|bgc,#CCFFFF|bw,1px|p,4px|bc,#000000|ta,center|fw,bold
-title|Bay Area <img src="../gfx/matchboxb.gif" alt="Matchbox"> Collectors' Association<p>Club Calendar
+title|Bay Area <img src="../gfx/matchboxb.gif" alt="Matchbox" class="mblogo"> Collectors' Association<p>Club Calendar
 tail|effort|contact
 h||Date|Event|Cost
 

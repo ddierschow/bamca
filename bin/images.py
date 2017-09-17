@@ -59,7 +59,7 @@ def picker(pif, fn):
     print '<a href="?d=%s">%s</a> / ' % (pif.render.pic_dir, pif.render.pic_dir)
     print '<a href="/%s/%s">%s</a>' % (pif.render.pic_dir, fn, fn)
     print '<hr>'
-    print '<form action="upload.cgi">' + pif.render.format_form_token()
+    print '<form action="upload.cgi">' + pif.create_token()
 
     imglib.ActionForm(pif).read(pif.form).write(pif, fn)
 
@@ -107,13 +107,14 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
 		break
 	if found:
 	    break
-    print url, '<br>'
+    useful.write_message(url, '<br>')
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
     try:
         up = urllib2.urlopen(url).read()
     except:
-        useful.show_error()
+        if useful.is_header_done():
+	    useful.show_error()
         return "Error encountered!  File not uploaded."
     if not fn:
         fn = url[url.rfind('/') + 1:].lower()
@@ -346,7 +347,7 @@ def show_editor(pif, eform, pdir=None, fn=None):
         useful.warn('%s not found.' % full_path)
         return
 
-    print '<hr><form action="imawidget.cgi" name="myForm">' + pif.render.format_form_token()
+    print '<hr><form action="imawidget.cgi" name="myForm">' + pif.create_token()
     #imglib.ActionForm(pif).read(pif.form).write(pif, fn)
     x, y = eform.write(pif, pdir, fn)
     full_path = os.path.join(pdir, fn)
@@ -366,7 +367,7 @@ def show_editor(pif, eform, pdir=None, fn=None):
 
 def show_redoer(pif, eform):
     if not eform.repl:
-	print '<form action="imawidget.cgi" name="myForm">' + pif.render.format_form_token()
+	print '<form action="imawidget.cgi" name="myForm">' + pif.create_token()
 	#print '<input type="text" value="" name="q" id="q">'
 	eform.write(pif, edit=False)
 	#print 'Bounds:', pif.render.format_text_input('q', 20, value=pif.form.get_str('q'))
@@ -877,7 +878,7 @@ class StitchForm(object):
     def write(self, pif):
 	header = str(self.fsl) + '<br>'
 
-	header += '''<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">\n''' + pif.render.format_form_token()
+	header += '''<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">\n''' + pif.create_token()
 	header += pif.render.format_hidden_input({'fc': self.file_count + 1})
 	columns = ['name', 'image']
 	print header
@@ -992,7 +993,7 @@ class StitchForm(object):
 	show_picture(pif, f, d)
 	orig = input_files[0][input_files[0].rfind('/') + 1:]
 	print '<br><form>Final resting place:'
-	print pif.render.format_form_token()
+	print pif.create_token()
 	print pif.render.format_text_input('o', 80, value='%s' % input_files[0])
 	print pif.render.format_hidden_input({'f': '%s/%s' % (d, f)})
 	for fn in input_files:
@@ -1120,8 +1121,8 @@ def bits_main(pif):
         '2002': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '2002', 'r': 'ur'},
         '2003': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '2003', 'r': 'ur'},
         '2004': {'d': '.' + config.IMG_DIR_PROD_MT_LAUREL, 'p': '2004', 'r': 'ur'},
-        '2008': {'d': '.' + config.IMG_DIR_PROD_MATTEL, 'p': '2008', 'r': 'u'},
-        '2009': {'d': '.' + config.IMG_DIR_PROD_MATTEL, 'p': '2009', 'r': 'u'},
+        '2008': {'d': '.' + config.IMG_DIR_PROD_EL_SEG, 'p': '2008', 'r': 'u'},
+        '2009': {'d': '.' + config.IMG_DIR_PROD_EL_SEG, 'p': '2009', 'r': 'u'},
     }
 
     colors = {True: "#CCCCCC", False: "#FFFFFF"}
@@ -1255,7 +1256,7 @@ def show_library_dir(pif, tdir, grafs=0):
     print '<a href="upload.cgi?d=%s&m=%s">%s</a>' % (tdir, tdir[7:], pif.render.format_button('upload'))
 
     if files['graf']:
-        print '<form action="traverse.cgi">' + pif.render.format_form_token()
+        print '<form action="traverse.cgi">' + pif.create_token()
         print '<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tdir, pif.render.format_button('show all pictures'))
         print 'Pattern <input type="text" name="p">'
         print '<input type="hidden" name="d" value="%s">' % tdir
@@ -1289,7 +1290,7 @@ def library_img(args, base=''):
 
 def show_library_imgs(pif, patt):
     print '<hr>'
-    print '<form action="traverse.cgi" method="post">' + pif.render.format_form_token()
+    print '<form action="traverse.cgi" method="post">' + pif.create_token()
     plist = patt.split(',')
     for pent in plist:
         flist = useful.read_dir(pent, pif.render.pic_dir)

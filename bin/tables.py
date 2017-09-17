@@ -6,7 +6,7 @@ table_info = {
     #page_info
     'page_info': {
         'id': ['id'],
-        'columns': ['id', 'flags', 'health', 'format_type', 'title', 'pic_dir', 'tail', 'description', 'note'],
+        'columns': ['id', 'flags', 'format_type', 'title', 'pic_dir', 'tail', 'description', 'note'],
         'clinks': {
                 'id': {'tab': 'page_info', 'id': ['id/id']},
         },
@@ -262,7 +262,7 @@ table_info = {
     #counter
     'counter': {
         'id': ['id'],
-        'columns': ['id', 'value', 'timestamp'],
+        'columns': ['id', 'value', 'timestamp', 'health'],
         'clinks': {
                 'id': {'tab': 'counter', 'id': ['id/id']},
         },
@@ -329,7 +329,7 @@ table_info = {
     #lineup_model
     'lineup_model': {
         'id': ['id'],
-        'columns': ['id', 'base_id', 'mod_id', 'number', 'flags', 'style_id', 'picture_id', 'region', 'year', 'name', 'page_id'],
+        'columns': ['id', 'base_id', 'mod_id', 'number', 'display_order', 'flags', 'style_id', 'picture_id', 'region', 'year', 'name', 'page_id'],
         'clinks': {
                 'id': {'tab': 'lineup_model', 'id': ['id/id']},
                 'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},
@@ -371,11 +371,11 @@ table_info = {
         },
     },
     #user
-    'user': {
+    'buser.user': {
         'id': ['id'],
         'columns': ['id', 'name', 'passwd', 'privs', 'email', 'state', 'vkey'],
         'clinks': {
-                'id': {'tab': 'user', 'id': ['id/id']},
+                'id': {'tab': 'buser.user', 'id': ['id/id']},
         },
         'readonly': ['id'],
     },
@@ -524,6 +524,18 @@ table_info = {
                 'photographer_id': {'tab': 'photographer', 'id': ['id/photographer_id']},
         },
     },
+    #category
+    'category': {
+	'id': ['id'],
+	'columns': ['id', 'name', 'flags', 'image'],
+	'add': {
+		'category': ['id/id'],
+	},
+        'tlinks': [
+	],
+        'clinks': {
+        },
+    },
 
 }
 for key in table_info:
@@ -531,38 +543,41 @@ for key in table_info:
 
 #-
 
-FLAG_MODEL_NOT_MADE                     =  1
-FLAG_MODEL_CODE_2                       =  2
-FLAG_MODEL_NO_VARIATION                 =  4
-FLAG_MODEL_NO_ID                        =  8
-FLAG_MODEL_SHOW_ALL_VARIATIONS          = 16
-FLAG_MODEL_HIDE_IMAGE                   = 32
-FLAG_MODEL_NO_SPECIFIC_MODEL            = 64
-FLAG_MODEL_REVISED_CASTING              =128
-FLAG_MODEL_BASEPLATE_VISIBLE            =256
+FLAG_MODEL_NOT_MADE                     =   1
+FLAG_MODEL_CODE_2                       =   2
+FLAG_MODEL_NO_VARIATION                 =   4
+FLAG_MODEL_NO_ID                        =   8
+FLAG_MODEL_SHOW_ALL_VARIATIONS          =  16
+FLAG_MODEL_HIDE_IMAGE                   =  32
+FLAG_MODEL_NO_SPECIFIC_MODEL            =  64
+FLAG_MODEL_CASTING_REVISED              = 128
+FLAG_MODEL_VARIATION_VERIFIED           = 128
+FLAG_MODEL_BASEPLATE_VISIBLE            = 256
 
-FLAG_SECTION_HIDDEN                     =  1
-FLAG_SECTION_DEFAULT_IDS                =  2
-FLAG_SECTION_NO_FIRSTS                  =  4
-FLAG_SECTION_SHOW_IDS                   =  8
-FLAG_SECTION_HIDE_IMAGE                 = 32
+FLAG_SECTION_HIDDEN                     =   1
+FLAG_SECTION_DEFAULT_IDS                =   2
+FLAG_SECTION_NO_FIRSTS                  =   4
+FLAG_SECTION_SHOW_IDS                   =   8
+FLAG_SECTION_HIDE_IMAGE                 =  32
 
-FLAG_MAKE_PRIMARY                       =  2
+FLAG_MAKE_PRIMARY                       =   2
 
-FLAG_PAGE_INFO_HIDDEN                   =  1
-FLAG_PAGE_INFO_HIDE_TITLE               =  2
-FLAG_PAGE_INFO_UNROLL_MODELS            =  4
+FLAG_CATEGORY_INDEXED                   =   4
 
-FLAG_LINK_LINE_HIDDEN                   =  1
-FLAG_LINK_LINE_RECIPROCAL               =  2
-FLAG_LINK_LINE_PAYPAL                   =  4
-FLAG_LINK_LINE_INDENTED                 =  8
-FLAG_LINK_LINE_FORMAT_LARGE             = 16
-FLAG_LINK_LINE_NOT_VERIFIABLE           = 32
-FLAG_LINK_LINE_ASSOCIABLE               = 64
-FLAG_LINK_LINE_NEW                      =128
+FLAG_PAGE_INFO_HIDDEN                   =   1
+FLAG_PAGE_INFO_HIDE_TITLE               =   2
+FLAG_PAGE_INFO_UNROLL_MODELS            =   4
 
-FLAG_ITEM_HIDDEN                        =  1
+FLAG_LINK_LINE_HIDDEN                   =   1
+FLAG_LINK_LINE_RECIPROCAL               =   2
+FLAG_LINK_LINE_PAYPAL                   =   4
+FLAG_LINK_LINE_INDENTED                 =   8
+FLAG_LINK_LINE_FORMAT_LARGE             =  16
+FLAG_LINK_LINE_NOT_VERIFIABLE           =  32
+FLAG_LINK_LINE_ASSOCIABLE               =  64
+FLAG_LINK_LINE_NEW                      = 128
+
+FLAG_ITEM_HIDDEN                        =   1
 
 #-
 

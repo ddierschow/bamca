@@ -160,7 +160,7 @@ class Presentation(object):
 	base = [] if nobase else ['']
 	vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
 
-        self.comment("find_image_file", fnames, vars, prefix, suffix, pdir)
+        self.comment("find_image_file", 'f:', fnames, 'v:', vars, 'p:', prefix, 's:', suffix, 'd:', pdir)
         for var in vars:
             for fname in fnames:
                 fname = useful.clean_name(fname.replace('/', '_'))
@@ -501,8 +501,8 @@ of Matchbox International Ltd. and are used with permission.
 
     #---- forms
 
-    def format_form_token(self, name="token"):
-	return '<input type="hidden" name="%s" value="%s">\n' % (name, useful.generate_token(6))
+    def format_form_token(self, token, name="token"):
+	return '<input type="hidden" name="%s" value="%s">\n' % (name, token)
 
     def format_checkbox(self, name, options, checked=[], sep='\n'):
         #self.comment('format_checkbox', name, options, checked)
@@ -1114,7 +1114,8 @@ of Matchbox International Ltd. and are used with permission.
 	    'extra': self.extra,
 	    'comment_button': self.comment_button,
 	    'footer': self.footer,
-	    'token': self.format_form_token(),
+	    'bamcamark': 'bamca_sm.gif',
+	    'token': self.format_form_token(useful.generate_token(6)),
 	}
 	output = useful.render_template(template, page=page_info, config_context=config, **kwargs)
 	if self.unittest:

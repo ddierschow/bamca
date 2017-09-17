@@ -57,13 +57,13 @@ def get_casting_id(id):
     return id
 
 
-def create_var_lineup(mods, var_id):
+def create_var_lineup(pif, mods, var_id):
     llineup = {'columns': 4}
     lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lran = {'entry': []}
     for mod in mods:
-	var = pif.dbh.fetch_variation_query_by_id(mod['base_id.id'], var_id)
-	lran['entry'].append({'text': vars.add_model_var_table_pic_link(pif, var)})
+	for var in pif.dbh.fetch_variation_query_by_id(mod['id'], var_id):
+	    lran['entry'].append({'text': vars.add_model_var_table_pic_link(pif, var)})
     lsec['range'] = [lran]
     lsec['columns'] = 4
     llineup['section'] = [lsec]
@@ -127,15 +127,21 @@ def date_search(pif, dt=None, yr=None):
     llineup = {'columns': 4}
     lsec = {}
     lran = {'entry': []}
+    llineup['header'] = llineup['footer'] = ''
     if dt:
 	vars = pif.dbh.fetch_variations_by_date(dt)
 	for var in vars:
-	    lran['entry'].append({'text': '<input type="checkbox"> ' +
+	    checked = ['1'] if var['variation.flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else []
+	    mvid = "%s-%s" % (var['variation.mod_id'], var['variation.var'])
+	    lran['entry'].append({'text': pif.render.format_hidden_input({'v.' + mvid: '1'}) +
+		pif.render.format_checkbox('c.' + mvid, [('1', '',)], checked=checked, sep='\n') +
 		pif.render.format_link(
 		'/cgi-bin/vars.cgi?mod=%s&var=%s' % (var['variation.mod_id'], var['variation.var']),
-		'%s-%s %s<br>%s' % (var['variation.mod_id'], var['variation.var'], var['base_id.rawname'], var['variation.text_description']))
+		'%s %s<br>%s' % (mvid, var['base_id.rawname'], var['variation.text_description']))
 	    })
 	lsec['columns'] = 3
+	llineup['header'] += '<form action="/cgi-bin/mass.cgi?type=dates" method="post">'
+	llineup['footer'] += pif.render.format_button_input() + '</form>'
     else:
 	dates = pif.dbh.fetch_variation_dates(yr=yr)
 	for dt in dates:
@@ -146,7 +152,8 @@ def date_search(pif, dt=None, yr=None):
 	lsec['columns'] = 6
     lsec['range'] = [lran]
     llineup['section'] = [lsec]
-    llineup['footer'] = '<hr><form action="/cgi-bin/msearch.cgi">Year = /<input type="hidden" name="date" value="1"><input type="text" name="yr"> <input type="submit" name="submit" value="GO" class="textbutton"></form>\n'
+    llineup['footer'] += '<hr>'
+    llineup['footer'] += '<form action="/cgi-bin/msearch.cgi">Year = /<input type="hidden" name="date" value="1"><input type="text" name="yr"> <input type="submit" name="submit" value="GO" class="textbutton"></form>\n'
     llineup['footer'] += '''<form action="/cgi-bin/msearch.cgi">Mod ID: <input type="text" name="id" size="12"> Var ID: <input type="text" name="var" size="12"> <input type="submit" name="submit" value="GO" class="textbutton"></form>\n'''
     pif.render.format_matrix_for_template(llineup, flip=True)
     return pif.render.format_template('simplematrix.html', llineup=llineup)

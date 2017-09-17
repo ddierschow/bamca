@@ -37,6 +37,7 @@ admin_cols = [
         ['country', 'CC'],
         ['make', 'Make'],
 	['varids', 'Vars'],
+	['varl', 'VarL'],
 	['notes', 'Nt'],
 	['de', 'De'],
 	['fo', 'Fo'],
@@ -78,6 +79,7 @@ picture_cols = [
         ['nl', 'Name'],
         ['first_year', 'Year'],
         ['credit', 'Cr'],
+        ['credvars', 'CrV'],
         [mbdata.IMG_SIZ_LARGE + '_', 'L'],
         [mbdata.IMG_SIZ_MEDIUM + '_', 'M'],
         [mbdata.IMG_SIZ_SMALL + '_', 'S'],
@@ -325,7 +327,10 @@ class MannoFile(object):
 	td = {x[5:7]: 0 for x in texts}
         fy = ly = None
 	id_set = set()
+	varl = 0
         for var in mvars:
+	    if var.get('vs'):
+		varl += 1
 	    var_id = var['variation.var']
 	    if var_id[0].isdigit():
 		while not var_id[-1].isdigit():
@@ -357,7 +362,8 @@ class MannoFile(object):
 	for key in td:
 	    td[key] = '<i class="fa fa-star %s"></i>' % ('gray' if not len(mvars) else
                     'green' if td[key] == len(mvars) else ('red' if not td[key] else 'orange'))
-        td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-', 'varids': varids})
+	varl = '<a href="vars.cgi?list=1&mod=%s"><span class="%s">%d/%d</span></a>' % (mod_id, 'ok' if varl == len(mvars) else 'no', varl, len(mvars))
+        td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-', 'varids': varids, 'varl': varl})
         return td
 
     def get_admin_entries(self, pif, model_ids):
@@ -377,7 +383,7 @@ class MannoFile(object):
 		'notes': 'N' if mdict['notes'] else '',
 		'vid': '<a href="vars.cgi?mod=%(id)s">%(id)s</a>' % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
-	    if mdict['flags'] & pif.dbh.FLAG_MODEL_REVISED_CASTING:
+	    if mdict['flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
 		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fa fa-circle green"></i><nobr>'
 	    mdict.update(self.show_list_var_info(pif, mdict['id']))
 	    if not mdict['vehicle_type']:
@@ -474,6 +480,7 @@ class MannoFile(object):
     def get_picture_model_entries(self, pif, model_ids):
 	photogs = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_models('.' + config.IMG_DIR_MAN)}
 	for mod in model_ids:
+	    vcredits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod)}
 	    mdict = self.mdict[mod]
 	    mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
 	    mdict.update({'img': self.show_list_pic(pif, ['', '.' + config.IMG_DIR_MAN], mdict['id'], mbdata.IMG_SIZ_SMALL)[1],
@@ -489,6 +496,7 @@ class MannoFile(object):
 		self.totals[ipix]['have'] += founds[ipix]
 		self.totals[ipix]['total'] += needs[ipix]
 	    mdict.update(dict(zip(var_pic_keys, single.fmt_var_pics(founds, needs))))
+	    mdict['credvars'] = '<span class="%s">%d/%d</span>' % ('ok' if len(vcredits) == founds[0] else 'no', len(vcredits), founds[0])
 	    if not mdict['made']:
 		mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
 	    mdict['d_'] = single.fmt_var_pic(*self.show_attr_pics(pif, mod))
@@ -648,23 +656,39 @@ class MannoFile(object):
 	secs = self.run_thing(pif, self.show_section_man2json)
 	return json.dumps(secs)
 
-    mime_types = {
-	'csv': 'text/csv',
-	'jsn': 'application/json',
-    }
+    # ----- text ------------------------------------------------
+
+    def show_section_text_list(self, pif, sect):
+	field_keys = ["man", "mack", "year", "scale", "name", "notes"]
+        ret = list()
+        for mod_id in sect['model_ids']:
+            mod = self.mdict[mod_id]
+	    #aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
+	    #mack_nums = ','.join(single.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
+            ret.append(dict(zip(field_keys,
+		       [mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])))
+        return ret
+
+    def run_text_list(self, pif):
+	secs = self.run_thing(pif, self.show_section_text_list)
+	fmt = '[_] %(man)-8s  %(name)-48s  %(year)s\n'
+	#'scale': '', 'name': 'Chevrolet K-1500 Pick-up', 'notes': 'modified MB953', 'year': '2015', 'mack': '', 'man': 'MB1000'},
+	return ''.join([''.join([fmt % y for y in x]) for x in secs])
+
     formatters = {
-	'csv': run_man2csv_out,
-	'jsn': run_man2json_out,
-	'adl': run_admin_list_template,
-	'lnl': run_links_list_template,
-	'pxl': run_picture_list_template,
-	'ckl': run_checklist_template,
-	'thm': run_thumbnails_template,
-	'vtl': run_vehicle_type_list_template,
+	mbdata.LISTTYPE_CSV: run_man2csv_out,
+	mbdata.LISTTYPE_JSON: run_man2json_out,
+	mbdata.LISTTYPE_ADMIN: run_admin_list_template,
+	mbdata.LISTTYPE_LINK: run_links_list_template,
+	mbdata.LISTTYPE_PICTURE: run_picture_list_template,
+	mbdata.LISTTYPE_CHECKLIST: run_checklist_template,
+	mbdata.LISTTYPE_THUMBNAIL: run_thumbnails_template,
+	mbdata.LISTTYPE_VEHICLE_TYPE: run_vehicle_type_list_template,
+	mbdata.LISTTYPE_TEXT: run_text_list,
     }
 
     def format_output(self, pif, listtype):
-	pif.render.print_html(self.mime_types.get(listtype, 'text/html'))
+	pif.render.print_html(mbdata.get_mime_type(listtype))
 	return self.formatters.get(listtype, MannoFile.run_manno_template)(self, pif)
 
 
@@ -685,20 +709,17 @@ def main(pif):
     manf = MannoFile(pif)
     #manf = MannoFile(pif, withaliases=True)
     return manf.format_output(pif, listtype)
-    mime_types = {
-	'csv': 'text/csv',
-	'jsn': 'application/json',
-    }
-    pif.render.print_html(mime_types.get(listtype))
+    pif.render.print_html(mbdata.get_mime_type(listtype))
     formatters = {
-	'csv': manf.run_man2csv_out,
-	'jsn': manf.run_man2json_out,
-	'adl': manf.run_admin_list_template,
-	'lnl': manf.run_links_list_template,
-	'pxl': manf.run_picture_list_template,
-	'ckl': manf.run_checklist_template,
-	'thm': manf.run_thumbnails_template,
-	'vtl': manf.run_vehicle_type_list_template,
+	mbdata.LISTTYPE_CSV: manf.run_man2csv_out,
+	mbdata.LISTTYPE_JSON: manf.run_man2json_out,
+	mbdata.LISTTYPE_ADMIN: manf.run_admin_list_template,
+	mbdata.LISTTYPE_LINK: manf.run_links_list_template,
+	mbdata.LISTTYPE_PICTURE: manf.run_picture_list_template,
+	mbdata.LISTTYPE_CHECKLIST: manf.run_checklist_template,
+	mbdata.LISTTYPE_THUMBNAIL: manf.run_thumbnails_template,
+	mbdata.LISTTYPE_VEHICLE_TYPE: manf.run_vehicle_type_list_template,
+	mbdata.LISTTYPE_TEXT: manf.run_text_list,
     }
     return formatters.get(listtype, manf.run_manno_template)(pif)
 
@@ -774,7 +795,7 @@ def run_text_search(pif, *args):
     mods = [pif.dbh.modify_man_item(x) for x in search_name(pif, args)]
     mods.sort(key=lambda x: x['id'])
     for mod in mods:
-        pif.render.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod)
+	print_model(pif, mod)
 
 
 def add_attributes(pif, mod_id=None, *attr_list):
@@ -843,9 +864,53 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
         os.rename(pic, pic_new)
 
 
+def print_model(pif, mod):
+    if mod['description']:
+	pif.render.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)-36s|%(description)s' % mod)
+    else:
+	pif.render.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod)
+
+
+def casting_info(pif, mod_id):
+    mod = pif.dbh.fetch_casting(mod_id)
+    print_model(pif, mod)
+'''
+    'casting_type': 'Casting',
+    'country': 'GB',
+    'description': '',
+    'descs': [],
+    'filename': 'mb138',
+    'first_year': '1984',
+    'flags': 0L,
+    'iconname': ['Jaguar XK 120'],
+    'id': 'MB138',
+    'link': 'single.cgi?id',
+    'linkid': 'MB138',
+    'made': True,
+    'make': 'jag'
+    'model_type': 'SF',
+    'name': 'Jaguar XK 120',
+    'notmade': '',
+    'rawname': 'Jaguar XK 120',
+    'scale': '1:57',
+    'section_id': 'man',
+    'shortname': 'Jaguar XK 120',
+    'unlicensed': ' ',
+    'variation_digits': 2,
+    'vars': 62L,
+    'vehicle_make.company_name': 'Jaguar',
+    'vehicle_make.flags': 0L,
+    'vehicle_make.id': 'jag',
+    'vehicle_make.name': 'Jaguar',
+    'vehicle_type': '2d',
+    'visual_id': 'MB-138',
+'''
+
+
 def command_help(pif, *args):
     pif.render.message("./mannum.py [f|d|r|a|c] ...")
     pif.render.message("  f for find: search-criterion")
+    pif.render.message("  i for info: mod_id")
     pif.render.message("  d for delete: mod_id")
     pif.render.message("  r for rename: old_mod_id new_mod_id")
     pif.render.message("  a for add attributes: mod_id attribute_name ...")
@@ -859,6 +924,7 @@ command_lookup = {
     'c': clone_attributes,
     'a': add_attributes,
     'l': list_attributes,
+    'i': casting_info,
 }
 
 

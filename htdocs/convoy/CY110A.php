@@ -29,12 +29,12 @@ $models = [
 // NOTE: Versions 4-6 with rubber tires and antennas cast
 // 4. Green cab, green container, "Mayflower" tempa (PC)
     ['var' => '04a', 'cab' => 'MB309', 'mfg' => 'Macau', 'liv' => 'Mayflower',
-	'cdt' => 'green', 'cva' => '',
+	'cdt' => 'green', 'cva' => '084',
 	'tdt' => "green container, MAYFLOWER tempa",
     ],
 // 5. Black cab, black container, "Jiffy Lube-Drive In Drive Out Drive On" tempa (PC)
     ['var' => '05a', 'cab' => 'MB309', 'mfg' => 'Macau', 'liv' => 'Jiffy Lube',
-	'cdt' => 'black', 'cva' => '',
+	'cdt' => 'black', 'cva' => 'F01',
 	'tdt' => "black container, JIFFY LUBE-DRIVE IN DRIVE OUT DRIVE ON tempa",
     ],
 // 6. Gray cab, white container, "Snap-On" tempa (PC)

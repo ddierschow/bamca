@@ -1,3 +1,20 @@
+# mcc started sprinig 1966
+Matchbox Collector Club|3|3,4
+Matchbox Collector Club|4|1-4
+Matchbox Collector Club|5|1-4
+Matchbox Collector Club|6|1-4
+Matchbox Collector Club|7|2-4
+Matchbox Collector Club|8|1-4
+Matchbox Collector Club|0|1-4
+Matchbox Collector Club|10|1-4
+Matchbox Collector Club|11|1-4
+Matchbox Collector Club|12|1-4
+Matchbox Collector Club|13|1-4
+Matchbox Collector Club|14|1-4
+Matchbox Collector Club|15|1-4
+Matchbox Collector Club|16|1-2
+Matchbox Collector Club 1995|0|8,9,11-14,25
+Matchbox Collector|0|1-3
 UK Matchbox Club|5|1-6
 UK Matchbox Club|6|1-6
 UK Matchbox Club|7|1-6
@@ -13,13 +30,14 @@ MICA|8|1,2,4,5
 MICA|9|1,4,5,6
 MICA|10|1-6
 MICA|11|1-6
-MICA|12|1
-MICA|13|2,6
+MICA|12|1-6
+MICA|13|1-6
 MICA|14|1,2,4,5,6
 MICA|15|1,2,3,5,6
 MICA|16|1,2,4,5,6
 MICA|17|2
-# aim starting june 1970
+NAMICA|11|3
+# aim starting may 1970
 AIM|3|1,3,4,6,8,10,11
 AIM|4|1-6,8-12
 AIM|5|1-12
@@ -62,8 +80,8 @@ Matchbox USA|21|1-12
 Matchbox USA|22|1-12
 Matchbox USA|23|1-12
 Matchbox USA|24|1-12
-Matchbox USA|25|1-10,12
-Matchbox USA|26|1,3-12
+Matchbox USA|25|1-12
+Matchbox USA|26|1-12
 Matchbox USA|27|1-12
 Matchbox USA|28|1-12
 Matchbox USA|29|1-2
@@ -73,9 +91,11 @@ Matchbox USA|32|
 Matchbox USA|33|9-10
 Matchbox USA|34|3-5
 Matchbox USA|35|
-Matchbox USA|36|
-Matchbox USA|37|
-Matchbox USA|38|
+Matchbox USA|36|5-11
+Matchbox USA|37|1-5,8-12
+Matchbox USA|38|1-6,8,10-12
+Matchbox USA|39|1-5,7-9,12
+Matchbox USA|40|
 
 # mbusa missing
 # 1977 all
@@ -83,11 +103,33 @@ Matchbox USA|38|
 # 1979 all
 # 1980 january february march may june
 # 1981 june through december
-# 2002 june september
 # 2009 all
 # 2010 all
 # 2011 january february march june july august september
 # 2012 all
 # 2013 all
-# 2014 all
 # 2015 january february
+# 2016 february april 
+# 2017 january
+
+# aim missing
+# may 1970 to april 1972
+# june september december 1972
+# january april november 1973
+# june august october 1986
+# april 1987
+# march 1988 onward
+# aim starting may 1970
+
+# mica missing
+# 1-1, 2, 4
+# 2-3
+# 7-6
+# 8-3, 6
+# 9-2, 3
+# 12-2, 3, 4, 5, 6
+# 13-1, 3, 4, 5
+# 14-3
+# 15-4
+# 16-3
+# 17-1, 3 onward

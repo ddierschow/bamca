@@ -19,7 +19,7 @@ $models = [
     ],
 // 3. Yellow cab with black chassis, chrome base, chrome tank with dark green base, "Shell" tampo, antennas cast, rubber tires, China (PC)
     ['var' => '03a', 'cab' => 'MB311', 'mfg' => 'China', 'liv' => '',
-	'cdt' => 'yellow with black chassis, chrome base', 'cva' => '',
+	'cdt' => 'yellow with black chassis, chrome base', 'cva' => 'F01',
 	'tdt' => 'chrome tank with dark green base, SHELL tampo',
     ],
 // 4. White cab with gray chassis, gray base, white tank with gray base, "Shell" tampo, 8-spoke wheels, "Mattel" and China (ROW)

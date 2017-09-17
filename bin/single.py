@@ -151,6 +151,7 @@ def reduce_variations(pif, mod_id, vars):
             #vard[vtd][0].append(pif.render.format_link('vars.cgi?mod=%s&var=%s' % (mod_id, var['v.var']), var['v.var']))
 	    vard[vtd][0].append(var['v.var'])
 	    vard[vtd][1].append(var['v.picture_id'] if var['v.picture_id'] else var['v.var'])
+    useful.write_comment('single.reduce_variations', vars, vard)
     return sorted([[
 	sorted(vard[vtd][0]),
 	pif.render.find_alt_image_path(
@@ -217,11 +218,11 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations
         links.append('<a href="vsearch.cgi?ask=1&id=%s">Search</a>' % mod_id)
         links.append('<a href="pics.cgi?m=%s">Pictures</a>' % mod_id.lower())
         links.append('<a href="edlinks.cgi?page=single.%s">Links</a>' % mod_id)
-    if os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower())):
+    if os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower())):
 	if pif.is_allowed('v'):  # pragma: no cover
-	    links.append('<a href="traverse.cgi?d=%s">Library</a>' % useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()))
+	    links.append('<a href="traverse.cgi?d=%s">Library</a>' % useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
 	if pif.is_allowed('a'):  # pragma: no cover
-	    links.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id.lower()))
+	    links.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()), mod_id.replace('/', '_').lower()))
 
     ostr = ''
     if pif.is_allowed('a'):  # pragma: no cover

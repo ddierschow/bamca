@@ -87,7 +87,7 @@ def biblio(pif):
     if page_info.get('lastsort'):
 	sortkey.append(page_info.get('lastsort'))
     if sortkey:
-        table.sort(key=lambda x: [x[y] for y in sortkey])
+        table.sort(key=lambda x: [x[y] for y in sortkey if y in lsection['columns']])
 
     def bib_field(fdict, field):
 	cont = str(fdict.get(field, '&nbsp'))

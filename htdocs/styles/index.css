@@ -11,7 +11,7 @@ a:hover      {color: #FFFF00;}
 .special a {color: #FFFF00;}
 .special td {border-width: 1px; border-style: solid; background-color: #000000;}
 
-.database {border-width: 1px; border-style: solid; padding: 2px 8px 2px 8px; font-size: x-large;}
+.database {border-width: 1px; border-style: solid; padding: 2px 8px 2px 8px; font-size: xx-large; background-color: #000000;}
 
 .share  {background-color: #3333FF; color: #FFFFFF;border-color: #FFFFFF;}
 .share:link    {color: #FFFFFF; background-color: #3333FF; border-color: #FFFFFF;}

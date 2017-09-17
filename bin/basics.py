@@ -219,7 +219,7 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 # Decorator that wraps web page mains.
 def web_page(main_fn):
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
-	useful.write_comment('PID', os.getpid())
+	#useful.write_comment('PID', os.getpid())
         pif = None
         try:
             import pifile
@@ -227,6 +227,8 @@ def web_page(main_fn):
                 pif = page_id
             else:
                 pif = get_page_info(page_id, form_key, defval, args, dbedit)
+	    if '/etc/passwd' in os.environ.get('QUERY_STRING', '') or '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower():
+		raise useful.Redirect('http://www.nsa.gov/')
         except SystemExit:
             pass
 	except useful.SimpleError as e:
@@ -242,6 +244,11 @@ def web_page(main_fn):
 	    str_tb = write_traceback_file(pif)
             handle_exception(pif, True)
             return
+	except useful.Redirect as e:
+	    if not useful.is_header_done():
+		pif.render.print_html()
+	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
+	    return
         except:
             handle_exception(pif)
             return

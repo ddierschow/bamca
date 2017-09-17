@@ -54,12 +54,12 @@ $models = [
     ],
 // 8. MB43-D cab in black with yellow and red "Z" tempa, clear windows, orange-yellow tank, black trailer base, "Supergas" tempa, Macau
     ['var' => '08a', 'mfg' => 'Macau', 'liv' => 'SuperGas',
-	'cdt' => 'black with yellow and red Z tampo, clear windows', 'cva' => '',
+	'cdt' => 'black with yellow and red Z tampo, clear windows', 'cva' => '27a',
 	'tdt' => 'black trailer base, orange yellow tank, SUPERGAS tampo',
     ],
 // 9. MB43-D cab in red with "Getty" tempa, clear windows, chrome tank, pearly silver trailer base, "Getty" tempa, Macau
     ['var' => '09a', 'mfg' => 'Macau', 'liv' => 'Getty',
-	'cdt' => 'red with GETTY tampo, clear windows', 'cva' => '',
+	'cdt' => 'red with GETTY tampo, clear windows', 'cva' => '28a',
 	'tdt' => 'pearly silver trailer base, chrome tank, GETTY tampo',
     ],
 // 10. MB43-D cab in silver-gray with "Arco" tempa, clear windows, chrome tank, silver-gray trailer base, "Arco" tempa, China, rubber tires, antennas cast (PC)

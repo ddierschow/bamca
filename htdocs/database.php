@@ -6,6 +6,7 @@ include "config.php";
 $pif = GetPageInfo("database");
 DoHead($pif);
 $isadmin = CheckPerm('a');
+$pif['isadmin'] = $isadmin;
 //$isadmin = 0;
 $pif['hierarchy'][0] = ['/', 'Home'];
 $pif['hierarchy'][1] = ['/database.php', 'Database'];
@@ -13,9 +14,6 @@ $answer = Fetch("select min(year), max(year), max(number) from lineup_model", $p
 $LINE_YEAR_START = $answer[0][0];
 $LINE_YEAR_END = $answer[0][1];
 $MAX_NUMBER = $answer[0][2];
-$answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
-$MAN_YEAR_START = $answer[0][0];
-$MAN_YEAR_END = $answer[0][1];
 
 $sections = array();
 $sections[] = array("tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi");
@@ -142,7 +140,7 @@ function Checks($input, $name, $values, $sep='<br>') {
 
 // required: fn tag scr name  optional: reset
 function Section($args) {
-    global $isadmin;
+    global $pif;
 
     echo "\n<tr><td><br></td></tr>\n<tr>\n  <td class=\"$args[tag]_head sel_head\">\n";
     if (isset($args['scr'])) {
@@ -155,11 +153,11 @@ function Section($args) {
     echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"$args[tag]_body sel_body\">\n";
     if (isset($args['scr'])) {
 	echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".<p>\n\n";
-	call_user_func($args['fn']);
+	call_user_func($args['fn'], $pif);
 	echo "<br>\n";
 	DoTextButtonSubmit("SEE THE MODELS", "submit");
 	DoTextButtonReset($args['tag'], arr_get($args, 'reset', ''));
-	if ($isadmin)
+	if ($pif['isadmin'])
 	    Checks('checkbox', 'verbose', [['1', '<i>Verbose</i>']], ''); 
 	echo "\n</form>\n\n";
     }
@@ -172,10 +170,11 @@ function ChooseRegion($nrows) {
     $regions = [
 	    ['U', 'USA', 1],
 	    ['R', 'International'],
+	    ['J', 'Japan (1977-1992)'],
 	    ['L', 'Latin America (2008-2011)'],
 	    ['B', 'UK (2000, 2001)'],
 	    ['D', 'Germany (1999-2001)'],
-	    ['A', 'Australia (2000, 2001)']
+	    ['A', 'Australia (1981, 1987, 1991-1993, 1997, 2000, 2001)']
 	];
     echo "    <td rowspan=\"$nrows\">Region:</td>\n";
     echo "    <td rowspan=\"$nrows\">\n";
@@ -189,7 +188,7 @@ function RegionNote() {
 
 //---- beginning of sections -------------------------------------
 
-function SectionID() {
+function SectionID($pif) {
     echo "\n<table>\n <tr>\n";
     echo "  <td class=\"idtab\">See specific manufacturing ID:</td><td><input type=\"text\" name=\"id\" id=\"idId\" value=\"\" size=\"12\"></td>\n";
     echo " </tr><tr>\n";
@@ -197,16 +196,16 @@ function SectionID() {
     echo "</td>\n </tr>\n</table>\n";
 }
 
-function SectionYear() {
-    global $LINE_YEAR_START, $LINE_YEAR_END, $isadmin;
+function SectionYear($pif) {
+    global $LINE_YEAR_START, $LINE_YEAR_END;
 
     echo "\n<table>\n <tr>\n  <td>Year: </td>\n";
     SelectYear('year', 'yearYear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
-    HorzSpacer(3);
-    ChooseRegion(2);
-    echo "  </td>\n";
-    HorzSpacer(3);
-    echo "  <td rowspan=\"3\">\n";
+    HorzSpacer(4);
+    ChooseRegion(3);
+    #echo "  </td>\n";
+    HorzSpacer(4);
+    echo "  <td rowspan=\"4\">\n";
     $ptypes = [
 	["man", "Main line models", 1],
 	["series", "Series", 1],
@@ -218,21 +217,34 @@ function SectionYear() {
 	["pub", "Publications", 1]
     ];
     Checks('checkbox', 'lty', $ptypes);
+    echo "  </td>\n</tr>\n<tr><td>\n";
+    if ($pif['isadmin']) {
+	echo " List type:</td><td width=\"180\">\n";
+	$sl = [[64, '', 'Normal'], [0, 'txt', 'Text'], [0, 'ckl', 'Checklist'], [0, 'csv', 'CSV'], [0, 'jsn', 'JSON']];
+	if ($pif['isadmin'])
+	    $sl[] = [0, 'lrg', 'Large'];
+	    $sl[] = [0, 'myr', 'Multi-Year'];
+	Select('listtype', 'yrList', $sl);
+    } else {
+	echo " </td><td width=\"180\">\n";
+    }
     echo "  </td>\n</tr>\n<tr><td colspan=\"2\" rowspan=\"2\">\n";
-    if ($isadmin) {
-	echo "<p>\n<i>Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
+    if ($pif['isadmin']) {
+	echo "<p>\n<i>";
+	#echo "Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
 	Checks('checkbox', 'unroll', [['1', 'Unroll']], '<p>');
-	Checks('checkbox', 'large', [['1', 'Large']], '');
+	#Checks('checkbox', 'large', [['1', 'Large']], '');
+	echo "</i>";
     }
     echo " </td></tr>\n<tr>";
     RegionNote();
     echo " </tr>\n</table>\n";
 }
 
-function SectionRank() {
-    global $LINE_YEAR_START, $LINE_YEAR_END, $MAX_NUMBER, $isadmin;
+function SectionRank($pif) {
+    global $LINE_YEAR_START, $LINE_YEAR_END, $MAX_NUMBER;
 
-    echo "<input type=\"hidden\" name=\"n\" value=\"1\">";
+    echo "<input type=\"hidden\" name=\"byrank\" value=\"1\">";
     echo "<table>\n <tr>\n  <td height=\"32\">Lineup number:<br>(1-$MAX_NUMBER)\n  </td>";
     ChooseNum('num', 'rankSNum', 3, 1, $MAX_NUMBER);
     HorzSpacer(1);
@@ -241,11 +253,11 @@ function SectionRank() {
     HorzSpacer(2);
     ChooseRegion(3);
     echo "</tr><tr>\n<td>\n";
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	echo "<i>Ending number:<br>\n(1-$MAX_NUMBER)</i>\n";
     }
     echo "  </td>\n";
-    if ($isadmin)
+    if ($pif['isadmin'])
 	ChooseNum('enum', 'rankENum', 3, 1, $MAX_NUMBER);
     else
 	echo "  <td></td>\n";
@@ -253,7 +265,7 @@ function SectionRank() {
     echo "  <td style=\"text-align: right;\">End year:</td>\n";
     SelectYear('eyear', 'rankEyear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
     echo " </tr>\n <tr>\n  <td colspan=\"6\" rowspan=\"2\">\n";
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	echo "<br><i>\n";
 	Checks('checkbox', 'large', [['1', 'Large']]);
 	Checks('checkbox', 'prodpic', [['1', 'Product Pics']], '');
@@ -264,16 +276,18 @@ function SectionRank() {
     echo " </tr>\n</table>";
 }
 
-function SectionManno() {
-    global $MAN_YEAR_START, $MAN_YEAR_END, $isadmin;
+function SectionManno($pif) {
+    $answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
+    $MAN_YEAR_START = $answer[0][0];
+    $MAN_YEAR_END = $answer[0][1];
 
     echo "<table>\n <tr>\n  <td colspan=\"7\">\n";
-    if ($isadmin)
+    if ($pif['isadmin'])
 	$q = "select 0, id, name from section where page_id like 'man%' order by display_order";
     else
 	$q = "select 0, id, name from section where page_id='manno' order by display_order";
     FetchSelect('section', 'manSection', 'range', $q, [[0, 'all', 'All Ranges']]);
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	echo "<i>\n";
 	Checks('checkbox', 'nodesc', [['1', 'No Notes']]);
 	echo "</i>\n";
@@ -286,13 +300,13 @@ function SectionManno() {
     echo "</td>\n<td>starting at:</td>\n";
     ChooseNum("start", "manStart", 4, 1, "document.getElementById('manEnd').value", 1, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	HorzSpacer(1);
 	echo "   <td>Start year:</td>\n";
 	SelectYear('syear', 'manSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
     }
     echo " </tr>\n <tr><td colspan=\"2\">";
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	echo "<i>";
 	Checks('checkbox', 'large', [['1', 'Large']], '');
 	echo "</i>";
@@ -301,15 +315,16 @@ function SectionManno() {
     echo "  <td>ending at:</td>\n";
     ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 1499, 1499, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	HorzSpacer(1);
 	echo "<td>End year:</td>\n";
 	SelectYear('eyear', 'manEyear', $MAN_YEAR_END + 1, $MAN_YEAR_START, $MAN_YEAR_END);
     }
     echo " </tr>\n <tr><td colspan=\"4\">List type:\n";
     $sl = [[64, '', 'Normal'], [0, 'ckl', 'Checklist'], [0, 'thm', 'Thumbnails'], [0, 'csv', 'CSV'], [0, 'jsn', 'JSON']];
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	$sl = array_merge($sl, [[0, 'adl', 'Admin List'], [0, 'pxl', 'Picture List'], [0, 'lnl', 'Links List'], [0, 'vtl', 'Vehicle Type']]);
+	$sl[] = [0, 'txt', 'Text List'];
     }
     Select('listtype', 'selList', $sl);
 
@@ -317,16 +332,16 @@ function SectionManno() {
     echo "Filter by vehicle type:\n<table class=\"types\">";
     echo " <tr>\n  <td class=\"tdboth\" colspan=\"2\">Every vehicle has one of these.</td>\n";
     echo "  <td class=\"tdboth\" colspan=\"2\">Vehicle may have up to two of these.</td>\n";
-    if ($isadmin)
+    if ($pif['isadmin'])
 	echo "  <td class=\"tdboth\" colspan=\"2\"><i>Filter by picture type.</i></td>\n";
     echo " </tr>";
 
     function YNMCell($arr, $pref) {
-	global $isadmin;
+	global $pif;
 
 	echo "  <td class=\"tdleft\"><b>$arr[1]</b></td>\n";
 //        echo "  <td class=\"tdmiddle\">";
-//	if ($isadmin)
+//	if ($pif['isadmin'])
 //	    echo "<i>$arr[0]</i>";
 //	echo "  </td>\n";
 	echo "  <td class=\"tdright\">";
@@ -384,7 +399,7 @@ function SectionManno() {
 	echo(" <tr>\n");
 	YNMCell($a[$k], 'type_');
 	YNMCell($b[$k], 'type_');
-	if ($isadmin) {
+	if ($pif['isadmin']) {
 	    if (isset($c[$k]))
 		YNMCell($c[$k], 'add_');
 	    else
@@ -395,7 +410,7 @@ function SectionManno() {
     echo "</table>\n";
 }
 
-function SectionMack() {
+function SectionMack($pif) {
     global $MAX_NUMBER;
 
     echo "<table>\n <tr>\n  <td>\n";
@@ -417,7 +432,7 @@ function SectionMack() {
     echo " </tr>\n</table>\n";
 }
 
-function SectionMakes() {
+function SectionMakes($pif) {
     echo "Choose a make:<br>\n<table><tr><td>\n";
     Checks('radio', 'make', [['unk', 'unknown', 1], ['unl', 'unlicensed']]);
     Checks('radio', 'make', [['text', 'Specific make:']], '');
@@ -426,15 +441,13 @@ function SectionMakes() {
     echo " </tr></table>\n";
 }
 
-function SectionSearch() {
+function SectionSearch($pif) {
     echo "<table><tr><td>\n";
     echo "Search the casting information for: <input type=\"text\" name=\"query\">\n";
     echo "</td></tr></table>\n";
 }
 
-function SectionVSearch() {
-    global $isadmin;
-
+function SectionVSearch($pif) {
     echo "Search the variation information for models containing the following.<p>\n";
     echo "<table><tr>\n";
     HorzSpacer(6);
@@ -450,7 +463,7 @@ function SectionVSearch() {
     echo "<tr><td>Interior:</td><td><input type=\"text\" name=\"interior\"></td></tr>\n";
     echo "<tr><td>Wheels:</td><td><input type=\"text\" name=\"wheels\"></td></tr>\n";
     echo "<tr><td>Windows:</td><td><input type=\"text\" name=\"windows\"></td></tr>\n";
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	echo "<tr><td></td><td><i>Area:</i></td><td><input type=\"text\" name=\"area\"></td></tr>\n";
 	echo "<tr><td></td><td><i>Category:</i></td><td><input type=\"text\" name=\"cat\"></td></tr>\n";
 	echo "<tr><td></td><td><i>Date:</i></td><td><input type=\"text\" name=\"date\"></td></tr>\n";
@@ -458,7 +471,7 @@ function SectionVSearch() {
     echo "</table>\n";
 }
 
-function SectionPacks() {
+function SectionPacks($pif) {
     echo "<table><tr><td>\n";
     FetchSelect('sec', 'packPage', 'pack type', "select flags, id, name from section where page_id like 'packs.%' and not (flags & 1) order by name");
     echo "</td></tr><tr><td>\n";
@@ -466,7 +479,7 @@ function SectionPacks() {
     echo "</td></tr></table>\n";
 }
 
-function SectionSets() {
+function SectionSets($pif) {
     echo "<table><tr><td>\n";
     FetchSelect('page', 'setsPage', 'set', "select flags, id, title, description from page_info where format_type='matrix' order by description");
     echo "</td></tr></table>\n";
@@ -474,9 +487,7 @@ function SectionSets() {
 
 
 function Quote($x) { return "'" . $x . "'"; }
-function SectionBoxes() {
-    global $isadmin;
-
+function SectionBoxes($pif) {
     $examples = array('A' => 'rw01a', 'B' => 'rw02a', 'C' => 'rw03b', 'D' => 'rw04c', 'E' => 'rw05d', 'F' => 'rw06d',
 		      'G' => 'sf11a', 'H' => 'sf13b', 'I' => 'sf15b', 'J' => 'sf16a', 'K' => 'sf19c', 'L' => 'sf21c');
     $qex = implode(', ', array_map("Quote", array_values($examples)));
@@ -521,7 +532,7 @@ EOT;
     $sl[] = [0, 'all', 'All'];
     Select('style', 'boxStyle', $sl, 'onkeyup="boxExample();" onchange="boxExample();" onmouseup="boxExample();"', "boxExample();");
     echo "  </td>\n";
-    if ($isadmin) {
+    if ($pif['isadmin']) {
 	echo "  <td>\n";
 	Checks('checkbox', 'c', [['1', '<i>Compact</i>']], '');
 	echo "  </td>\n  <td></td>";
@@ -529,14 +540,14 @@ EOT;
     echo " </tr>\n</table>\n";
 }
 
-function SectionCode2() {
+function SectionCode2($pif) {
     echo "<table><tr><td>\n";
     echo "Choose a type of Code 2 model:\n";
     FetchSelect('section', 'code2Section', 'range', "select flags, id, name from section where page_id='code2' order by display_order", [[0, '', 'All Sections']]);
     echo "</td></tr></table>\n";
 }
 
-function SectionOther() {
+function SectionOther($pif) {
     global $IMG_DIR_ART, $pages;
     echo "<div class='paget'>\n";
     foreach ($pages as $page) {

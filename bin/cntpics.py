@@ -85,8 +85,10 @@ def get_year(pif, region, year):
         pif.render.pic_dir = config.IMG_DIR_PROD_TYCO
     elif year < 2005:
         pif.render.pic_dir = config.IMG_DIR_PROD_MT_LAUREL
+    elif year < 2016:
+        pif.render.pic_dir = config.IMG_DIR_PROD_EL_SEG
     else:
-        pif.render.pic_dir = config.IMG_DIR_PROD_MATTEL
+        pif.render.pic_dir = config.IMG_DIR_PROD_MWORLD
     return lineup.picture_count(pif, region, str(year))
 
 

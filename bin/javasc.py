@@ -54,15 +54,12 @@ function maplink($arr)
     foreach ($arr as $d)
     {
         $url .= $to . $d[0];
-        if (!$d[1])
-        {
+        if (!$d[1]) {
         }
-        else if (!$v)
-        {
+        else if (!$v) {
             $v .= $k;
         }
-        else
-        {
+        else {
             $v .= ',' . $k;
         }
         $k += 1;

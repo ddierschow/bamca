@@ -295,7 +295,7 @@ $models = [
     ],
 // 50. White cab, white container, black base, "Penn State Nittany Lions-Happy Valley Express" labels (WR)
     ['var' => '50a', 'mfg' => 'Thailand', 'liv' => 'Penn State',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => 'F06',
 	'tdt' => "white container, black base, PENN STATE NITTANY LIONS-HAPPY VALLEY EXPRESS labels",
 	'nts' => 'Manufactured for White Rose',
     ],
@@ -436,12 +436,12 @@ $models = [
     ],
 // 74. White cab, white container, black base, "Veh Vereinigte Getran-keebetriebe Cottbus" labels (C2)
     ['var' => '74a', 'mfg' => 'Thailand', 'liv' => '',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => 'F06',
 	'tdt' => "white container, black base, VEH VEREINIGTE GETRAN-KEEBETRIEBE COTTBUS labels",
     ],
 // 75. White cab, white container, black base, "8th European MICA Convention" labels (C2)
     ['var' => '75a', 'mfg' => 'Thailand', 'liv' => 'MICA',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => 'F06',
 	'tdt' => "white container, black base, 8TH EUROPEAN MICA CONVENTION labels",
     ],
 ];

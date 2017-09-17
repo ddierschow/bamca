@@ -7,7 +7,7 @@ $year = '1985';
 $defaults = ['mod' => $subtitle,
 	    'cab' => 'MB147', 'tlr' => 'CYT04', 'mfg' => 'Macau',
 	    'liv' => '7 Up', 'cod' => '1', 'rar' => '2',
-            'cdt' => 'white, green chassis', 'cva' => '',
+            'cdt' => 'white, green chassis',
             'tdt' => 'white container with black base, 7 UP (towards rear) labels',
 	];
 

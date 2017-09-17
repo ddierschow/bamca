@@ -12,12 +12,14 @@ m|  1|  2|1974| 1:147|Fuso Hato Bus
 m|  1|  3|1986| 1:145|Hino Grandview Bus
 m|  1|  4|2000| 1:156|Mitsubishi Fuso Aero Queen
 m|  1|  5|2008| 1:156|Mitsubishi Fuso Aero Queen
+m|  1|  6|2017|  1:63|Nissan X-TRAIL Fire and Command Vehicle
 
 m|  2|  1|1970|  1:62|Toyota Corona Mark II 1900HT SL
 m|  2|  2|1975|  1:60|Toyota Land Cruiser FJ40V
 m|  2|  3|1979|  1:96|Tadano Rough Terrain Crane TR151S
 m|  2|  4|2004|      |Mitsubishi Fuso Canter Tow Truck
 m|  2|  5|2011|  1:77|F1741WZ Asphalt Finisher
+m|  2|  6|2017|  1:62|Subaru WRX S4 masked patrol car
 
 m|  3|  1|1970|  1:66|Toyota Crown Super Deluxe
 m|  3|  2|1974| 1:110|Isuzu Fire Engine
@@ -50,6 +52,7 @@ m|  6|  6|2001|  1:33|Honda Super Cub
 m|  6|  7|2007|  1:33|Honda Little Cub
 m|  6|  8|2011|      |Isuzu Elf
 m|  6|  9|2013|  1:62|Audi R8
+m|  6| 10|2017|  1:60|Subaru BRZ
 
 m|  7|  1|1970|  1:60|Honda 1300 Coupe
 m|  7|  2|1975| 1:127|Mitsubishi Fuso Panel Van
@@ -67,6 +70,7 @@ m|  8|  5|2002|  1:62|Nissan Skyline V35
 m|  8|  6|2007|  1:57|Nissan Pino
 m|  8|  7|2010|  1:64|Nissan Fuga
 m|  8|  8|2013|  1:68|Nissan Cima
+m|  8|  9|2015|  1:56|Suzuki Alto
 
 m|  9|  1|1971|  1:54|Subaru R2
 m|  9|  2|1974| 1:103|Komatsu Power Shovel 15HT
@@ -94,6 +98,7 @@ m| 12|  3|1978| 1:120|Toyota Forklift FD 200
 m| 12|  4|2006|  1:64|Nissan Paramedic
 m| 12|  5|2010|  1:68|Nissan March
 m| 12|  6|2013|  1:65|Toyota Porte
+m| 12|  7|2015|  1:65|Toyota Alphard
 
 m| 13|  1|1971|  1:59|Mitsubishi Galant Hardtop GS
 m| 13|  2|1975|      |Sunflower
@@ -104,12 +109,15 @@ m| 13|  6|1988|  1:65|Nissan Cedric Y31
 m| 13|  7|1996|      |Rescue Work Car
 m| 13|  8|2006| 1:159|Morita Airport Crash Tender MAF-125A
 m| 13|  9|2011|      |Mitsubishi Fuso Canter
+m| 13| 10|2015|  1:59|Lexus RC F
 
 m| 14|  1|1971|  1:62|Nissan Laurel 2000GX
 m| 14|  2|1975| 1:153|Toyota Diesel Car Transporter
 m| 14|  3|1988|  1:78|Isuzu Elf Carcarrier
 m| 14|  4|1997|      |Mitsubishi Super Great Car Carrier
 m| 14|  5|2008| 1:142|Komatsu Landmine Deminer D85MS
+m| 14|  6|2014|  1:69|Formula Renault 3.5
+m| 14|  7|2016|  1:63|Suzuki Escudo
 
 m| 15|  1|1971|  1:60|Toyota Corona 1700HT SL
 m| 15|  2|1976|  1:56|Nissan Sunny Coupe Racing
@@ -135,6 +143,7 @@ m| 17|  6|1990|  1:65|Toyota Celsior
 m| 17|  7|2001|  1:65|Toyota Celsior
 m| 17|  8|2008|  1:63|Nissan Cube
 m| 17|  9|2012|  1:58|Nissan March Patrol Car
+m| 17| 10|2016|  1:61|BMW i8
 
 m| 18|  1|1971|  1:54|Honda Tn360 Truck
 m| 18|  2|1974|  1:62|Nissan Bluebird U 2000GT-X
@@ -164,7 +173,7 @@ m| 20|  7|1995|  1:60|Nissan Skyline GT-R R33
 m| 20|  8|1999|  1:62|Nissan Skyline GT-R R34
 m| 20|  9|2005|  1:57|Daihatsu Move Custom
 m| 20| 10|2009|  1:60|Honda Insight
-m| 20| 11|2013|      |Honda N Box
+m| 20| 11|2013|  1:58|Honda N Box
 
 m| 21|  1|1971|  1:62|Datsun Skyline 2000GT
 m| 21|  2|1975|  1:62|Datsun Skyline 2000GT Racing
@@ -173,6 +182,8 @@ m| 21|  4|1983|  1:50|Subaru 360
 m| 21|  5|1997|  1:64|Honda Stepwagon
 m| 21|  6|2006|  1:64|Honda Step Wagon
 m| 21|  7|2010|  1:64|Honda Step Wagon
+m| 21|  8|2014|  1:63|Nissan X-TRAIL
+m| 21|  9|2017|  1:57|Abarth 124 spider
 
 m| 22|  1|1971|      |Nissan R-382
 m| 22|  2|1980|  1:90|Nissan Diesel Condor Fire Truck
@@ -180,6 +191,7 @@ m| 22|  3|1983|  1:60|Nissan Pulsar Exa
 m| 22|  4|1987| 1:120|Nissan Diesel Fire Ladder
 m| 22|  5|2009|  1:60|Nissan Note
 m| 22|  6|2011|  1:88|Mercedes-Benz Unimog
+m| 22|  7|2017|  1:88|Mercedes-Benz Unimog Snow Removal Car
 
 m| 23|  1|1971|  1:58|Toyota 7
 m| 23|  2|1980|  1:51|Honda Sports 800M
@@ -190,6 +202,7 @@ m| 23|  6|2002|  1:62|Nissan Skyline Safety Car
 m| 23|  7|2007|  1:57|Toyota Probox Voluntary Security Car
 m| 23|  8|2011|  1:68|Mitsubishi RVR
 m| 23|  9|2013|  1:59|Mitsubishi Mirage
+m| 23| 10|2016|  1:62|Nissan GT-R
 
 m| 24|  1|1971|  1:68|Toyota Hiace Truck
 m| 24|  2|1975|      |Hino Semi Trailer Panel Van
@@ -213,6 +226,7 @@ m| 26|  4|1982|  1:72|Isuzu Elf Ts30 Crane
 m| 26|  5|1991|      |Exploration Bus (Lion Bus)
 m| 26|  6|2009|  1:65|Shimajiro Car
 m| 26|  7|2013|  1:67|Tokai University Solar Car Tokai Challenger
+m| 26|  8|2016|  1:57|Mazda Roadster
 
 m| 27|  1|1971|  1:65|Toyota Crown Fire Chief
 m| 27|  2|1972|  1:65|Toyota Crown Fire Chief
@@ -223,7 +237,7 @@ m| 27|  6|2000|  1:60|Toyota Will Vi
 m| 27|  7|2004|  1:64|Mitsubishi Grandis
 m| 27|  8|2007|  1:63|Toyota Corolla Axio
 m| 27|  9|2010|  1:64|Nissan Juke
-m| 27| 10|2013|  1:69|Nissan NV350 caravan Fire Command Vehicle
+m| 27| 10|2013|  1:69|Nissan NV350 Caravan Fire Command Vehicle
 
 m| 28|  1|1971|  1:65|Toyota Crown Taxi
 m| 28|  2|1972|  1:65|Toyota Crown Taxi
@@ -234,6 +248,7 @@ m| 28|  6|1988|  1:63|Toyota Road Maintenance
 m| 28|  7|2004|  1:65|Honda Elysion
 m| 28|  8|2009|  1:60|Toyoda iQ
 m| 28|  9|2013| 1:174|John Deere Combine 9670STS
+m| 28| 10|2015|  1:71|Yanmar Combine YH 590
 
 m| 29|  1|1972| 1:110|Hino Fire Truck
 m| 29|  2|1975| 1:125|Hino Fire Truck

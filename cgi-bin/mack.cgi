@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import lineup
-lineup.mack_lineup('mack')
+import cmackl
+cmackl.mack_lineup('mack')

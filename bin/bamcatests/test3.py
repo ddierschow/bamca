@@ -18,11 +18,6 @@ class TestOther(unittest.TestCase):
 #    images.Tumblr('editor')
 #    images.UploadMain('editor')
 
-    def test_L2(self):
-	import lineup
-	pif = basics.get_page_info('editor', args="verbose=0")
-	self.assertTrue(lineup.text_main(pif, 1991, 'U') != '')
-
     def test_Lineup(self):
 	import lineup
         self.assertTrue(lineup.main('year', 'year', args='verbose=0') is None)
@@ -38,10 +33,13 @@ class TestOther(unittest.TestCase):
         self.assertTrue(lineup.main('year', 'year', args='year=2013 region=U submit=1 verbose=1') is None)
 	pif = basics.get_page_info('editor', args="verbose=0")
 	#self.assertTrue(lineup.text_main(pif) != '')
-	self.assertTrue(lineup.picture_count(pif, 'U', 2012) != None)
-        self.assertTrue(lineup.mack_lineup('mack', args='see_the_models=1 verbose=1') is None)
+	#self.assertTrue(lineup.picture_count(pif, 'U', 2012) != None)
         self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U enum= eyear=1980 submit=1') is None)
         self.assertTrue(lineup.main('year', 'year', args='n=1 num=5 syear=1971 region=U prodpic=1 enum=15 eyear=1980 submit=1') is None)
+
+    def test_Mack(self):
+	import cmackl
+        self.assertTrue(cmackl.mack_lineup('mack', args='see_the_models=1 verbose=1') is None)
 
     def test_Links(self):
 	import tlinks
@@ -142,7 +140,7 @@ class TestOther(unittest.TestCase):
 	self.assertTrue(single.show_single('single', args="id=RW01d") != '')
 	self.assertTrue(single.show_single('single', args="id=MB366 dir=pic/series pic=00l002 ref=matrix.mb2000 sub=") != '')
 	self.assertTrue(single.show_single('single', args="id=SF02b") != '')
-	self.assertTrue(single.show_single('single', args="id=MB700 dir=pic/mattel pic=2006u57 ref=year.2006 sub=") != '')
+	self.assertTrue(single.show_single('single', args="id=MB700 dir=pic/elseg pic=2006u57 ref=year.2006 sub=") != '')
 	self.assertTrue(single.show_single('single', args="id=MB109") != '')
 
 #    def test_Tomica(self):

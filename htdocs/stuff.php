@@ -30,7 +30,7 @@ if ($pif['is_beta'])
 else
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'beta', 'url' => "http://beta.bamca.org/stuff.php"));
 
-$newerrors = Fetch("select id,health from page_info where not health=0", $pif);
+$newerrors = Fetch("select id,health from counter where not health=0", $pif);
 $errcounter = 0;
 foreach ($newerrors as $ent)
     $errcounter = $errcounter + $ent[1];

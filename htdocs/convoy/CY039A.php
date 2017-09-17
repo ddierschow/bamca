@@ -70,7 +70,7 @@ $models = [
     ],
 // 13. White cab and chassis, white container and base, "Nothing Else Is A Pepsi" labels, China
     ['var' => '013a', 'mfg' => 'China', 'liv' => 'Pepsi', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '088',
+	'cdt' => 'white', 'cva' => '',
 	'tdt' => 'white, NOTHING ELSE IS A PEPSI labels',
     ],
 // 14. Black cab with blue chassis, blue container with black base, "Oreo" labels, China
@@ -150,7 +150,7 @@ $models = [
     ],
 // 29. White cab, black chassis, white container and base, "K-B Toys" tampo, China, rubber tires, antennas cast (GC)
     ['var' => '029a', 'cab' => 'MB308', 'mfg' => 'China', 'liv' => 'K-B', 'rar' => '2',
-	'cdt' => 'white, black chassis', 'cva' => '',
+	'cdt' => 'white, black chassis', 'cva' => '093',
 	'tdt' => 'white, K-B TOYS tampo',
     ],
 // 30. White cab and chassis, white container and base, "Super Pretzel" labels, China (US)(OP)
@@ -160,12 +160,12 @@ $models = [
     ],
 // 31. White cab, black chassis, white container and base, "Midas Auto Systems Experts" tampo, China, rubber tires, antennas cast (PC)
     ['var' => '031a', 'cab' => 'MB308', 'mfg' => 'China', 'liv' => 'Midas', 'rar' => '2',
-	'cdt' => 'white, black chassis', 'cva' => '',
+	'cdt' => 'white, black chassis', 'cva' => '091',
 	'tdt' => 'white, MIDAS AUTO SYSTEMS EXPERTS tampo',
     ],
 // 32. Blue cab, black chassis, blue container and base, "Goodyear #1 in Tires" tampo, China, rubber tires, antennas cast (PC)
     ['var' => '032a', 'cab' => 'MB308', 'mfg' => 'China', 'liv' => 'Goodyear', 'rar' => '2',
-	'cdt' => 'blue, black chassis', 'cva' => '',
+	'cdt' => 'blue, black chassis', 'cva' => '090',
 	'tdt' => 'blue, GOODYEAR #1 IN TIRES tampo',
     ],
 // 33. White cab and chassis, white container and base, "Mobile Process Technology" tampo, China (ASAP)
@@ -205,27 +205,27 @@ $models = [
     ],
 // 40. White cab and chassis, white container and base, "Rite Screen" tampo, China (ASAP)
     ['var' => '040a', 'mfg' => 'China', 'liv' => 'Rite Screen', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, RITE SCREEN tampo',
     ],
 // 41. White cab and chassis, white container and base, "Ml Metals" tampo, China (ASAP)
     ['var' => '041a', 'mfg' => 'China', 'liv' => 'M1 Metals', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, ML METALS tampo',
     ],
 // 42. White cab and chassis, white container and base, "Ml Plastics" tampo, China (ASAP)
     ['var' => '042a', 'mfg' => 'China', 'liv' => 'M1 Plastics', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, ML PLASTICS tampo',
     ],
 // 43. White cab and chassis, white container and base, "Ml Home Products" tampo, China (ASAP)
     ['var' => '043a', 'mfg' => 'China', 'liv' => 'M1 Home Products', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, ML HOME PRODUCTS tampo',
     ],
 // 44. Bright blue cab and chassis, bright blue container and base, "Toys R Us-50 Years Forever Fun" labels, China, rubber tires, antennas cast (TRU-PC)
     ['var' => '044a', 'cab' => 'MB308', 'mfg' => 'China', 'liv' => 'Toys R Us', 'rar' => '2',
-	'cdt' => 'bright blue', 'cva' => '',
+	'cdt' => 'bright blue', 'cva' => '099',
 	'tdt' => 'bright blue, TOYS R US-50 YEARS FOREVER FUN labels',
     ],
 // 45. Red cab, black chassis, red container and base, "Coca Cola" with Santa Claus labels, China (US)
@@ -235,7 +235,7 @@ $models = [
     ],
 // 46. White cab and chassis, white container and base, "Simplot" tampo, China (ASAP)
     ['var' => '046a', 'mfg' => 'China', 'liv' => 'Simplot', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, SIMPLOT tampo',
     ],
 // 47. White cab, black chassis, white container and base, "Vons Seafood" labels, China (US)
@@ -245,7 +245,7 @@ $models = [
     ],
 // 48. White cab, black chassis, powder blue container, white base, "Coca Cola" labels, China and "Mattel"
     ['var' => '048a', 'mfg' => 'China, MATTEL', 'liv' => 'Coca-Cola', 'rar' => '2',
-	'cdt' => 'white, black chassis', 'cva' => '',
+	'cdt' => 'white, black chassis', 'cva' => '089',
 	'tdt' => 'powder blue container, white base, COCA COLA labels',
     ],
 // 49. Dark purple body, white chassis, white container and chassis, "Taco Bell" labels, China and "Mattel"
@@ -265,57 +265,57 @@ $models = [
     ],
 // 52. White cab and chassis, white container and chassis, "Oh What those Oats can do!" tampo, China (ASAP)
     ['var' => '052a', 'mfg' => 'China', 'liv' => '', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, OH WHAT THOSE OATS CAN DO! tampo',
     ],
 // 53. White cab and chassis, white container and chassis, "At A Glance-Millennium" labels, China (ASAP)
     ['var' => '053a', 'mfg' => 'China', 'liv' => '', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, AT A GLANCE-MILLENNIUM labels',
     ],
 // 54. White cab and chassis, white container and chassis, "Ian Patrick Mullaney...has rolled in early" (right side only) tampo, China (ASAP)
     ['var' => '054a', 'mfg' => 'China', 'liv' => '', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, IAN PATRICK MULLANEY...HAS ROLLED IN EARLY (right side only) tampo',
     ],
 // 55. White cab and chassis, white container and base, "Alaska Airlines" tampo, China (ASAP)
     ['var' => '055a', 'mfg' => 'China', 'liv' => 'Alaska Airlines', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, ALASKA AIRLINES tampo',
     ],
 // 56. White cab and chassis, white container and base, "RCA-changing entertainment again" tampo, China (ASAP)
     ['var' => '056a', 'mfg' => 'China', 'liv' => 'RCA', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, RCA-CHANGING ENTERTAINMENT AGAIN tampo',
     ],
 // 57. White cab and chassis, white container and base, "Mervyn's Community Closest" labels, China (ASAP)
     ['var' => '057a', 'mfg' => 'China', 'liv' => "Mervyn's", 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => "white, MERVYN'S COMMUNITY CLOSEST labels",
     ],
 // 58. White cab and chassis, white container and base, "The Pepsi Bottling Company" (blue background) labels, China (ASAP)
     ['var' => '058a', 'mfg' => 'China', 'liv' => 'Pepsi', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, THE PEPSI BOTTLING COMPANY (blue background) labels',
     ],
 // 59. White cab and chassis, white container and base, "The Pepsi Bottling Company" (white background) labels, China (ASAP)
     ['var' => '059a', 'mfg' => 'China', 'liv' => 'Pepsi', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, THE PEPSI BOTTLING COMPANY (white background) labels',
     ],
 // 60. White cab and chassis, white container and base, "Ceco Door Products" labels, China (ASAP)
     ['var' => '060a', 'mfg' => 'China', 'liv' => 'Ceco', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, CECO DOOR PRODUCTS labels',
     ],
 // 61. White cab and chassis, white container and base, "Parcel Direct" labels, China (ASAP)
     ['var' => '061a', 'mfg' => 'China', 'liv' => 'Parcel Direct', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, PARCEL DIRECT labels',
     ],
 // 62. White cab and chassis, white container and base, "Black Dog DVD Express" (left side only) tampo, China (ASAP)
     ['var' => '062a', 'mfg' => 'China', 'liv' => 'Black Dog', 'cod' => '2', 'rar' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => '089',
 	'tdt' => 'white, BLACK DOG DVD EXPRESS (left side only) tampo',
     ],
 // 63. Orange and blue cab, blue chassis, white container and base, "Roadway" tampo, China (ASAP)

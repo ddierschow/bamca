@@ -782,6 +782,7 @@ class ActionForm(object):
 	self.cpmv = form.get_str('cpmv', 'c')
 	self.mv = self.cpmv == 'm'
 	self.archive = form.get_bool('archive')
+	self.fixed = form.get_bool('fixed')
 	self.delete = form.get_bool('delete')
 	self.selcat = form.get_bool('selcat')
 	self.dest = form.get_str('moveto')
@@ -826,6 +827,10 @@ class ActionForm(object):
 	    useful.file_delete(from_path)
 	elif self.archive:
 	    useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
+	    ret['fn'] = ''
+	elif self.fixed:
+	    useful.file_mover(from_path, os.path.join(tdir, 'fixed', fn), mv=True)
+	    ret['fn'] = ''
 	elif self.rename:
 	    if not self.nname:
 		useful.warn('What? (rename, no name)')
@@ -957,7 +962,8 @@ class ActionForm(object):
 
     sel_moveto = [
 	['', ''],
-	['.' + config.IMG_DIR_PROD_MATTEL,     config.IMG_DIR_PROD_MATTEL],
+	['.' + config.IMG_DIR_PROD_MWORLD,     config.IMG_DIR_PROD_MWORLD],
+	['.' + config.IMG_DIR_PROD_EL_SEG,     config.IMG_DIR_PROD_EL_SEG],
 	['.' + config.IMG_DIR_PROD_MT_LAUREL,  config.IMG_DIR_PROD_MT_LAUREL],
 	['.' + config.IMG_DIR_PROD_TYCO,       config.IMG_DIR_PROD_TYCO],
 	['.' + config.IMG_DIR_PROD_UNIV,       config.IMG_DIR_PROD_UNIV],

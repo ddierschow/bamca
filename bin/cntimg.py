@@ -20,7 +20,8 @@ def blisters(fl):
     return cnt
 
 
-def castings(fl):
+def count_castings(fl):
+    global castings
     fn_re = re.compile('[a-z]_(?P<c>[a-z0-9]*)(-[a-z0-9]*)?\.')
     cnt = 0
     for fn in fl:
@@ -44,30 +45,31 @@ def zero(fl):
 
 @basics.command_line
 def count(pif):
+    global castings
     castings = [x['id'].lower() for x in pif.dbh.dbi.select('casting', ['id'])]
 
     dirs = [
-        ('acc',     count_all),
-        ('add',     castings),
-        ('ads',     count_all),
-        ('blister', count_all),
-        ('box',     count_all),
-        ('errors',  count_all),
-        ('flags',   count_all),
-        ('gfx',     zero),  # not considered part of the collection
-        ('king',    count_all),
-        ('lesney',  count_all),
-        ('man',     castings),
-        ('man/var', castings),
-        ('mattel',  blisters),
-        ('mcoll',   count_all),
-        ('packs',   count_all),
-        ('pages',   zero),
-        ('prem',    count_all),
-        ('series',  count_all),
-        ('sky',     count_all),
-        ('tyco',    blisters),
-        ('univ',    blisters),
+        ('set/acc',     count_all),
+        ('man/add',     count_castings),
+        ('pub/ads',     count_all),
+        ('pub/blister', count_all),
+        ('pub/box',     count_all),
+        ('set/error',   count_all),
+        ('flags',       count_all),
+        ('gfx',         zero),  # not considered part of the collection
+        ('set/king',    count_all),
+        ('set/lesney',  count_all),
+        ('man',         count_castings),
+        ('man/var',     count_castings),
+        ('prod/mattel', blisters),
+        ('set/mcoll',   count_all),
+        ('prod/pack',   count_all),
+        ('pages',       zero),
+        ('prod/prem',   count_all),
+        ('prod/series', count_all),
+        ('set/sky',     count_all),
+        ('prod/tyco',   blisters),
+        ('prod/univ',   blisters),
     ]
 
     t = 0

@@ -13,7 +13,12 @@ class MatrixFile(object):
     def __init__(self, pif):
         self.tables = []
         self.text = []
+	if pif.form.has('page'):
+	    self.from_file(pif)
+	elif pif.form.has('cat'):
+	    self.from_cat(pif)
 
+    def from_file(self, pif):
         mats = pif.dbh.fetch_sections({'page_id': pif.page_id})
         ents = pif.dbh.fetch_matrix_models_variations(pif.page_id)
         for mat in mats:
@@ -85,6 +90,86 @@ class MatrixFile(object):
                     pif.render.comment('        entry:', ent)
             self.tables.append(mat)
         self.tables.sort(key=lambda x: x['display_order'])
+
+    def from_cat(self, pif):
+	cat_id = pif.form.get_str('cat')
+        ents = pif.dbh.fetch_variations_by_category(cat_id)
+        mat = { # maybe make this the section for page_id='matrix'?
+	    'id': 'cat',
+	    'page_id': 'matrix',
+	    'display_order': 0,
+	    'category': mbdata.categories.get(cat_id),
+	    'flags': 0,
+	    'name': '',
+	    'columns': 4,
+	    'start': 0,
+	    'pic_dir': 'pic/prod/cat',
+	    'disp_format': '',
+	    'link_format': '',
+	    'img_format': '',
+	    'note': '',
+	}
+#	ffmt = {'link': mat['link_format'], 'disp': mat['disp_format'], 'img': mat['img_format']}
+	mat['text'] = ''
+	mat['ents'] = {}
+	range_id = 1
+	pif.render.comment('matrix section:', mat)
+	for ent in ents:
+	    ent.setdefault('vs.ref_id', '')
+	    ent.setdefault('vs.sub_id', '')
+	    ent['id']              = ent['vs.id']
+	    ent['mod_id']          = ent['v.mod_id']
+	    ent['section_id']      = mat['id']
+	    ent['display_order']   = 0
+	    ent['page_id']         = 'matrix'
+	    ent['range_id']        = range_id
+	    ent['flags']           = 0
+	    ent['shown_id']        = ''
+	    ent['name']            = ent['base_id.rawname']
+	    ent['subname']         = ''
+	    ent['subnames']        = []
+	    ent['sub_id']          = ''
+	    ent['model_type']      = ent['base_id.model_type']
+	    ent.setdefault('pack.page_id', '')
+	    ent['description']     = []
+	    range_id += 1
+	    if ent.get('sub_id') and ent.get('vs.sub_id') and ent['sub_id'] != ent['vs.sub_id']:
+		continue
+	    if ent.get('v.text_description'):
+		ent['description'].append(ent['v.text_description'])
+	    ent['description'] = filter(None, ent['description'])
+	    ent['disp_id'] = ''
+	    ent['image'] = ''
+	    ent['link'] = ''
+	    ent['pdir']         = mat['pic_dir']
+	    if not ent['pdir']:
+		ent['pdir'] = pif.render.pic_dir
+	    if ent['model_type'] == 'MP':
+		ent['image'] = \
+			pif.render.format_image_optional(ent['mod_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True)
+#	    elif ent['range_id'] and ffmt['img']:
+#		ent['image'] = \
+#			pif.render.format_image_required([useful.clean_name(ffmt['img'] % ent['range_id'], '/')])
+	    elif ent.get('v.picture_id'):
+		ent['image'] = \
+			pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.picture_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
+	    elif ent.get('v.var'):
+		ent['image'] = \
+			pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.var'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
+#	    if ent['range_id'] and ffmt['disp']:
+#		ent['disp_id'] = ent['range_id']
+#	    if ent['range_id'] and ffmt['link']:
+#		if '%' in ffmt['link']:
+#		    ent['link'] = useful.clean_name(ffmt['link'] % ent['range_id'], '/')
+#		else:
+#		    ent['link'] = useful.clean_name(ffmt['link'], '/')
+	    mat['ents'].setdefault(ent['range_id'], list())
+	    mat['ents'][ent['range_id']].append(ent)
+	    ent['disp_format'] = mat['disp_format']
+	    pif.render.comment('        entry:', ent)
+	self.tables.append(mat)
+        self.tables.sort(key=lambda x: x['display_order'])
+
 
     def matrix(self, pif):
         llineup = {'id': pif.page_name, 'section': [], 'note': '\n'.join(self.text), 'columns': 4, 'tail': ''}
@@ -253,15 +338,14 @@ def select_matrix(pif):
 
 @basics.web_page
 def main(pif):
+    # want to add making a matrix by variation.category
     pif.render.print_html()
-    matf = None
-    if pif.form.has('page'):
-        matf = MatrixFile(pif)
+    matf = MatrixFile(pif)
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/matrix.cgi', 'Series')
     pif.render.hierarchy_append('/cgi-bin/matrix.cgi?page=%s' % pif.form.get_str('page'), pif.render.title)
-    if matf:
+    if matf.tables:
         llineup = matf.matrix(pif)
 	pif.render.format_matrix_for_template(llineup)
 	return pif.render.format_template('matrix.html', llineup=llineup)

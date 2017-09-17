@@ -5,13 +5,13 @@ $desc = "Ford Aeromax Tanker";
 $year = '1998';
 
 $defaults = ['mod' => $subtitle,
-	    'cab' => 'MB308', 'tlr' => 'CYT06', 'mfg' => 'China',
+	    'cab' => 'MB214', 'tlr' => 'CYT06', 'mfg' => 'China',
 	    'liv' => 'none', 'cod' => '1',
 	];
 
 $models = [
 // 1. Bright blue cab with black chassis, chrome tank with blue chassis, "Exxon" tempa, antennas cast, rubber tires (PC)
-    ['var' => '01a', 'liv' => 'Exxon', 'rar' => '2',
+    ['var' => '01a', 'cab' => 'MB308', 'liv' => 'Exxon', 'rar' => '2',
 	'cdt' => 'blue with black chassis', 'cva' => '',
 	'tdt' => 'blue with chrome tank, EXXON tampo',
     ],

@@ -89,7 +89,7 @@ class DB(object):
 
     def login(self, name, passwd):
         if self.db:
-            res, desc, lid = self.execute('''select id, privs from user where name = '%s' and passwd = PASSWORD('%s')''' %
+            res, desc, lid = self.execute('''select id, privs from buser.user where name = '%s' and passwd = PASSWORD('%s')''' %
                                           (name, passwd))
             if res:
                 return res[0][0], res[0][1]
@@ -97,7 +97,7 @@ class DB(object):
 
     def createuser(self, name, passwd, email, vkey):
         if self.db:
-            query = '''insert user (name, passwd, privs, email, state, vkey) values ('%s', PASSWORD('%s'), '', '%s', 0, '%s')''' % \
+            query = '''insert buser.user (name, passwd, privs, email, state, vkey) values ('%s', PASSWORD('%s'), '', '%s', 0, '%s')''' % \
                     (name, passwd, email, vkey)
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query)

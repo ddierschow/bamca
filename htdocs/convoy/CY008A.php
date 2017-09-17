@@ -233,7 +233,7 @@ $models = [
     ],
 
     ['var' => 'D01a', 'mfg' => 'China', 'liv' => 'Burger King',
-	'cdt' => 'red, BURGER KING', 'cva' => '',
+	'cdt' => 'red, BURGER KING', 'cva' => '083',
 	'tdt' => 'white roof, container, doors and base, CELEBRATING 20 YEARS 1980-2000 PGT labels',
     ],
     ['var' => 'D02a', 'mfg' => 'China', 'liv' => 'Polinas', 'cod' => '2',

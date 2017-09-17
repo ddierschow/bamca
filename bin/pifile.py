@@ -101,6 +101,12 @@ class BaseForm(object):
         except:
             return str(defval)
 
+    def get_stru(self, key, defval=''):
+	return self.get_str(key, defval).upper()
+
+    def get_strl(self, key, defval=''):
+	return self.get_str(key, defval).lower()
+
     def get_id(self, key, limit=99, defval=''):
         try:
             return useful.clean_id(str(self.form[key][:limit]))
@@ -273,6 +279,10 @@ class PageInfoFile(object):
         elif not form_key and self.form.has('page'):
             return self.form.get_str('page')
         return page_id
+
+    def create_token(self, name="token"):
+	token = self.dbh.create_token()
+	return self.render.format_form_token(token, name)
 
     # -- access control -------------------------------------------------
 

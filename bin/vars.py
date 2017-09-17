@@ -17,7 +17,7 @@ hidden_attributes = id_attributes + ['imported', 'flags']
 detail_attributes = ['base', 'body', 'interior', 'windows']
 
 list_columns = ['ID', 'Description', 'Details', 'Picture', 'Notes']
-detail_columns = ['ID', 'Description', 'Ty', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Ba', 'Bo', 'In', 'Wh', 'Wi']
+detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Ba', 'Bo', 'In', 'Wh', 'Wi']
 
 DISPLAY_TYPE_GRID = 'g'
 DISPLAY_TYPE_LIST = 'l'
@@ -385,6 +385,8 @@ def swap_variations(pif, mod_id=None, var1=None, var2=None, *args, **kwargs):
 
 
 def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_id):  # pragma: no cover
+    if old_mod_id.lower() == new_mod_id.lower() and old_var_id.lower() == new_var_id.lower():
+	return
     patt1 = useful.relpath('.', config.IMG_DIR_VAR, '?_%s-%s.*' % (old_mod_id.lower(), old_var_id.lower()))
     patt2 = useful.relpath('.', config.IMG_DIR_VAR, '%s-%s.*' % (old_mod_id.lower(), old_var_id.lower()))
     pics = glob.glob(patt1.lower()) + glob.glob(patt2.lower())
@@ -457,11 +459,18 @@ def do_var_detail(pif, model, attributes, prev, credits, photogs):
     def mk_star(has_thing):
 	return '<i class="fa fa-star %s"></i>' % ('green' if has_thing else 'white')
 
+    varsel = pif.dbh.fetch_variation_selects(model['mod_id'], model['var'])
     phcred = credits.get(('%(mod_id)s-%(var)s' % model).lower(), '')
     ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = single.calc_var_pics(pif, model)
+    cat_v = set(model['category'].split())
+    cat_vs = set([x['variation_select.category'] for x in varsel])
+    cat = ' '.join(cat_v)
+    if cat_v != cat_vs:
+	cat += '/' + ' '.join(cat_vs)
     row = {
 	'ID': pif.render.format_link('?edit=1&mod=%s&var=%s' % (model['mod_id'], model['var']), model['var'].upper()),
 	'Description': model['text_description'],
+	'Cat': cat,
 	'Ty': var_types.get(ty_var, ty_var),
 	'Cr': phcred,
 	'Pic': model['picture_id'],
@@ -572,10 +581,11 @@ class VarSearchForm(object):
 		self.attrq[attr] = form.search(attr)
 	self.nots = {key: form.get_bool('not_' + key) for key in self.attributes}
 	self.ci = form.get_bool('ci')
-	self.c1 = form.get_bool('c1')
+	self.c1 = form.get_bool('c1') or not form.get_bool('hc')
+	self.c2 = form.get_bool('c2') or not form.get_bool('hc')
 	self.cateq = form.get_str('category', '')
-	self.with_pics = form.get_str('pic') != '0'
-	self.without_pics = form.get_str('pic') != '1'
+	self.with_pics = form.get_bool('pic1') or not form.get_bool('hc')
+	self.without_pics = form.get_bool('pic0') or not form.get_bool('hc')
 	self.varl = form.get_str("v")
 	self.wheelq = form.get_str("var.wheels")
 	self.sobj = form.search("var.s")
@@ -583,10 +593,24 @@ class VarSearchForm(object):
 	self.is_detail = form.has('vdet')
 	self.recalc = form.has('recalc')
 	self.verbose = form.get_bool('verbose')
-	self.codes = [1]
-	if not self.c1:
+	self.codes = []
+	if self.c1:
+	    self.codes.append(1)
+	if self.c2:
 	    self.codes.append(2)
 	#useful.write_message(str(self.__dict__))
+	self.all = (
+	    not self.attrq and
+	    #self.ci = form.get_bool('ci')
+	    #self.c1 = form.get_bool('c1')
+	    not self.cateq and
+	    self.with_pics and
+	    self.without_pics and
+	    not self.varl and
+	    not self.wheelq and
+	    not self.sobj and
+	    self.codes == [1, 2]
+	)
 	return self
 
     def write(self, pif, values={}):
@@ -600,10 +624,11 @@ class VarSearchForm(object):
 	entries = []
 	for key in sorted(set(self.attributes.keys()) - set(hidden_attributes) - set(desc_attributes)):
 	    if key == 'category':
-		cates = [('', '')] + [(x, mbdata.categories.get(x, x)) for x in values[key]]
+		cates = [('', '')] + [(x, mbdata.categories.get(x, x)) for x in values.get(key, [])]
 		cates.sort(key=lambda x: x[1])
 		value = pif.render.format_button_up_down_select(key, -1) + pif.render.format_select(key, cates, id=key) + \
-			'&nbsp;' + pif.render.format_checkbox('c1', [(1, 'Code 1 only')])
+			'&nbsp;' + pif.render.format_checkbox('c1', [(1, 'Show Code 1')], checked=[1]) + \
+			'&nbsp;' + pif.render.format_checkbox('c2', [(2, 'Show Code 2')], checked=[2])
 	    elif not any(values.get(key, [])):
 		continue
 	    else:
@@ -624,7 +649,9 @@ class VarSearchForm(object):
 	    'title': '&nbsp;',
 	    'value': pif.render.format_button_input("filter", "submit") + '\n' +
 		     ((pif.render.format_button_input("list") + '\n') if pif.is_allowed('a') else '') +
-		     pif.render.format_button_reset('vars'),
+		     pif.render.format_button_reset('vars') + pif.render.format_hidden_input({'hc': 1}) +
+		    '&nbsp;' + pif.render.format_checkbox('pic1', [(1, 'With Pictures')], checked=[1]) +
+		    '&nbsp;' + pif.render.format_checkbox('pic0', [(1, 'Without Pictures')], checked=[1]),
 	    'not': '&nbsp;'
 	})
 
@@ -705,7 +732,7 @@ class VarSearchForm(object):
 	return retval
 
     def pic_match(self, var):
-	retval = True # (self.with_pics and var['_has_pic'] or self.without_pics and not var['_has_pic'])
+	retval = (self.with_pics and var['_has_pic'] or self.without_pics and not var['_has_pic'])
 	return retval
 
     def model_match(self, var, code):
@@ -733,31 +760,27 @@ class VarSearchForm(object):
 	wheels = list()
 
 	cates = set()
-	codes = [1]
-	if not self.c1:
-	    codes.append(2)
-	for code in codes:
-	    for key in mvars:
-		variation = mvars[key]
-		variation['references'] = ' '.join(list(set(self.selects.get(key, []))))
-		category = variation['_catlist'] = variation.get('category', '').split()
-		if not category:
-		    category = ['MB']
-		for c in category:
-		    cates.add(c)
-		if variation.get('wheels') not in wheels:
-		    wheels.append(variation.get('wheels'))
-		if variation.get('text_wheels') not in wheels:
-		    wheels.append(variation.get('text_wheels'))
-		for key in variation:
-		    if key in desc_attributes:
-			continue
-		    values.setdefault(key, [])
-		    newvalue = variation[key]
-		    if not newvalue:
-			newvalue = ''
-		    if newvalue not in values[key]:
-			values[key].append(newvalue)
+	for key in mvars:
+	    variation = mvars[key]
+	    variation['references'] = ' '.join(list(set(self.selects.get(key, []))))
+	    category = variation['_catlist'] = variation.get('category', '').split()
+	    if not category:
+		category = ['MB']
+	    for c in category:
+		cates.add(c)
+	    if variation.get('wheels') not in wheels:
+		wheels.append(variation.get('wheels'))
+	    if variation.get('text_wheels') not in wheels:
+		wheels.append(variation.get('text_wheels'))
+	    for key in variation:
+		if key in desc_attributes:
+		    continue
+		values.setdefault(key, [])
+		newvalue = variation[key]
+		if not newvalue:
+		    newvalue = ''
+		if newvalue not in values[key]:
+		    values[key].append(newvalue)
 
 	self.form_values = values
 	self.form_wheels = wheels
@@ -960,7 +983,7 @@ def add_model_var_table_pic_link(pif, mdict):
     #mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
     mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
     ostr = '  <center><table class="entry"><tr><td><center><font face="Courier">%(v.mod_id)s-%(v.var)s</font></br>\n' % mdict
-    ostr += '   <a href="%(link)s">%(img)s<br><b>%(casting.name)s</b></a>\n' % mdict
+    ostr += '   <a href="%(link)s">%(img)s<br><b>%(base_id.rawname)s</b></a>\n' % mdict
     #ostr += "   <br><i>%(v.text_description)s</i>\n" % mdict
     ostr += '<table class="vartable">'
     ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % mdict['v.text_description']
@@ -1104,11 +1127,18 @@ def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
     pif.dbh.recalc_description(mod_id)
 
     
-def list_variations(pif, mod_id=None, *args, **kwargs):
+def list_variations(pif, mod_id=None, var_id=None, *args, **kwargs):
     if not mod_id:
 	return
-    for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
-	pif.render.message('%5s: %s' % (variation['var'], variation['text_description']))
+    if var_id:
+	var = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))
+	if var:
+	    fmt = pif.dbh.preformat_results(var[0].items())
+	    for item in sorted(var[0].items()):
+		print fmt % item
+    else:
+	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
+	    pif.render.message('%5s: %s' % (variation['var'], variation['text_description']))
 
     
 def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):

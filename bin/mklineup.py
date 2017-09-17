@@ -12,7 +12,7 @@ import mbdata
 
 # hardcoded values:
 regions = ['U', 'R']
-picdir = 'pic/prod/mattel'
+picdir = 'pic/prod/mworld'
 
 
 def raw_insert(pif, table, data):
@@ -26,7 +26,6 @@ def add_page(pif, year):
     raw_insert(pif, 'page_info', {
         'id': 'year.' + year,
         'flags': 0,
-        'health': 0,
         'format_type': 'lineup',
         'title': 'Matchbox %s Lineup' % year,
         'pic_dir': picdir,

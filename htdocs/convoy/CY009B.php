@@ -10,17 +10,17 @@ $defaults = ['mod' => $subtitle, 'tlr' => 'CYT04', 'mfg' => 'China', 'cod' => '1
 $models = [
 // 1. Red cab with chrome base, clear windows, white container, roof & rear doors, white trailer chassis, "McDonald's" labels 
     ['var' => '01a', 'cab' => 'MB432', 'liv' => "McDonald's", 'rar' => '2',
-	'cdt' => 'red with black chassis, chrome base and interior, clear windows', 'cva' => '',
+	'cdt' => 'red with black chassis, chrome base and interior, clear windows', 'cva' => '07',
 	'tdt' => "white container, chassis, roof and rear doors, MCDONALD'S labels",
     ],
 // 2. Silver-gray cab with gray base, yellow windows, brown container, roof and rear doors, brown trailer chassis, "Hershey's King Size" labels 
     ['var' => '02a', 'cab' => 'MB432', 'liv' => "Hershey", 'rar' => '2',
-	'cdt' => 'silver-gray with gray base, yellow windows', 'cva' => '',
+	'cdt' => 'silver-gray with gray base, yellow windows', 'cva' => '06',
 	'tdt' => "brown container, roof and rear doors, brown chassis, HERSHEY'S KING SIZE labels",
     ],
 // 3. Red cab with black base, clear windows, black container and rear doors with red roof, black trailer chassis, "McDonald's" labels (ROW)
     ['var' => '03a', 'cab' => 'MB432', 'liv' => "McDonald's", 'rar' => '2',
-	'cdt' => 'red with black base, clear windows', 'cva' => '',
+	'cdt' => 'red with black base, clear windows', 'cva' => '07',
 	'tdt' => "black container and rear doors with red roof, black chassis, MCDONALD'S labels",
     ],
 // 4. Red cab with chrome base, clear windows, red container and rear doors with red roof, black trailer chassis, "The Pause that Refreshes-Coca Cola" tempa, chrome disc with rubber tires (PC)

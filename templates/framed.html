@@ -5,16 +5,14 @@
 <div class="leftbarcontent">
 {%- if base_id or type_id or vehicle_type %}
 {%- if type_id %}{{ render.format_image_art(type_id) }}<p>{% endif %}
-{%- if base_id %}{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_ICON, prefix='i_', suffix='.gif', also={'class':'centered'})  }}<p>{% endif %}
+{%- if base_id %}{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_ICON, prefix='i_', suffix='.gif', also={'class':'centered'}) }}<p>{% endif %}
 {% for vtype in vehicle_type %}
-{{ render.format_image_optional(vtype, '', '.' + config.IMG_DIR_ART, suffix='.gif', also={'class':'centered'})  }}<p>
+{{ render.format_image_optional(vtype, '', '.' + config.IMG_DIR_ART, suffix='.gif', also={'class':'centered'}) }}<p>
 {% endfor %}
 <p>{% endif %}
 {{ content }}
 </div>
-<div class="bamcamark">
-<img src="/pic/gfx/bamca_sm.gif">
-</div>
+<div class="bamcamark"><img src="/pic/gfx/{{ page.bamcamark }}"></div>
 </td>
 {%- endmacro %}
 

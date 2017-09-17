@@ -18,7 +18,7 @@ user_cols = [('id', 'Id'), ('name', 'User Name'), ('privs', 'Priveleges'), ('sta
 def print_users(pif):
     entries = []
     for user in pif.dbh.fetch_users():
-        pif.dbh.depref('user', user)
+        pif.dbh.depref('buser.user', user)
 	user['name'] = '<a href="user.cgi?id=%s">%s</a>' % (user['id'], user['name'])
 	entries.append(user)
 
@@ -33,7 +33,7 @@ def print_user_form(pif, id):
     if not users:
 	return print_users(pif)
 
-    user = pif.dbh.depref('user', users[0])
+    user = pif.dbh.depref('buser.user', users[0])
     cols = ['title', 'value']
     heads = dict(zip(cols, ['Titles', 'Values']))
     entries = []
@@ -52,7 +52,7 @@ def print_user_form(pif, id):
 
     lrange = dict(entry=entries, note='')
     lsection = dict(columns=cols, headers=heads, range=[lrange], note='')
-    llineup = dict(section=[lsection], header='<form name="userform">' + pif.render.format_form_token(),
+    llineup = dict(section=[lsection], header='<form name="userform">' + pif.create_token(),
 	footer=pif.render.format_button_input("save changes", "submit") + ' -' + pif.render.format_button_reset("userform") + '</form>')
     return pif.render.format_template('simplelistix.html', llineup=llineup)
 
@@ -160,7 +160,7 @@ def verify(pif, name, vkey):
     userrec = pif.dbh.fetch_user(vkey=vkey, name=name)
     if userrec:
         userrec = userrec[0]
-        id = userrec['user.id']
+        id = userrec['buser.user.id']
         pif.dbh.update_user(id, state=1)
         useful.warn("Your account has been verified!  Now please log in.<br><hr>")
 	raise useful.Redirect("/cgi-bin/login.cgi")
@@ -209,6 +209,10 @@ def change_password_main(pif):
 
 # ------
 
+@basics.command_line
+def commands(pif):
+    print pif.dbh.fetch_users()
+
 
 if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()
+    commands(dbedit='')

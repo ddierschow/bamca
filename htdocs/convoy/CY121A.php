@@ -7,12 +7,12 @@ $defaults = ['mod' => $subtitle, 'cab' => 'MB725', 'tlr' => 'CYT30', 'cod' => '1
 
 $models = [
     ['var' => '01a', 'mfg' => 'Thailand',
-	'cdt' => '', 'cva' => '01',
-	'tdt' => '',
+	'cdt' => 'yellow and orange', 'cva' => '01',
+	'tdt' => 'silver-gray',
     ],
     ['var' => '02a', 'mfg' => 'Thailand',
-	'cdt' => '', 'cva' => '',
-	'tdt' => '',
+	'cdt' => 'white and blue', 'cva' => '',
+	'tdt' => 'blue',
     ],
 ];
 

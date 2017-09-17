@@ -122,11 +122,19 @@ def is_good(fname, v=True):
         if v:
             write_comment("is_good B", os.getcwd(), fname)
         return False
-    if not os.path.exists(fname):
-        if v:
-            write_comment("is_good N", os.getcwd(), fname)
-        return False
-    st = os.stat(fname)
+    try:
+	if not os.path.exists(fname):
+	    if v:
+		write_comment("is_good N", os.getcwd(), fname)
+	    return False
+    except:
+	write_comment("is_good X1", os.getcwd(), fname)
+	return False
+    try:
+	st = os.stat(fname)
+    except:
+	write_comment("is_good X2", os.getcwd(), fname)
+	return False
     if (st[stat.ST_MODE] & 0x004) == 0:
         if v:
             write_comment("is_good S", os.getcwd(), fname)
@@ -225,7 +233,10 @@ def reflect(in_iter, columns, pad=None):
     if nents < columns:
 	return in_iter
     colsize = (len(in_iter) - 1) / columns + 1
-    return itertools.chain(*itertools.izip_longest(*[in_iter[x:x + colsize] for x in range(0, len(in_iter), colsize)], fillvalue=pad))
+    return itertools.chain(*itertools.izip_longest(*[in_iter[x:x + colsize] for x in range(0,
+	colsize * columns,
+	#len(in_iter),
+	colsize)], fillvalue=pad))
 
 
 # sobj is a list of word-like things, targ is a string

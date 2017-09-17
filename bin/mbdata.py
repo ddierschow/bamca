@@ -1,4 +1,5 @@
 import re
+import useful
 
 verno = ' abcdefghijklmnopqrstuvwxyz'
 
@@ -25,7 +26,7 @@ regionparents = {
     'B': 'R',
     'D': 'R',
     'A': 'R',
-    'J': 'W',
+    'J': 'R',
     'L': 'W',
 }
 
@@ -43,158 +44,164 @@ lineup_types = [
 ]
 
 ''' unidentified
-HP - heroes?
-MP-1
+HP - True Heroes
 MSN
+SW - kingsize only
+KP - kingsize only
+MX - kingsize only
+SC - skybusters only
+CLR - yy only
 '''
 
 categories = {
-    '(IC)'  : 'Intercom City',
-    '10P'   : '10-Pack',
-    '3P'    : '3-Pack',
-    '50P'   : '50th Anniversary Collection',
-    '5P'    : '5-Pack',
-    '60'    : '60th Anniversary',
-    '75C'   : '75 Challenge',
-    'A'     : 'Accessories',
-    'AA'    : 'Across America',
-    'AFL'   : 'Australian Football League',
-    'AP'    : 'Action Pack',
-    'ARL'   : 'Australian Rugby League',
-    'ASAP'  : '[Code 2] ASAP Promotional',
-    'ASP'   : 'Action System Pack',
-    'AVN'   : 'Avon',
-    'AW'    : 'Around the World',
-    'BB'    : 'Best of British',
-    'BH'    : 'Matchbox 50th Birthday',
-    'BJ'    : 'Barrett-Jackson',
-    'BK'    : 'Battle Kings',
-    'BLK'   : 'Blank for Code 2 Use',
-    'BOB'   : 'Best of British',
-    'BOI'   : 'Best of International',
-    'BOM'   : 'Best of Muscle',
-    'BON'   : 'Bonus',
-    'BS'    : 'Brroomstick',
-    'C2'    : '[Code 2]',
-    'CA'    : 'Cartoon Characters',
-    'CAT'   : 'Caterpillar',
-    'CC'    : 'Collectors Choice',
-    'CCI'   : '[Code 2] Color Comp Promotional',
-    'CCY'   : 'Collectible Convoy',
-    'CDR'   : 'CD Rom',
-    'CF'    : 'Commando',
-    'CK'    : 'Coca-Cola',
-    'CKP'   : 'Coca-Cola Premiere',
-    'CL'    : 'Club Models',
-    'CNS'   : 'Connoisseur Set',
-    'COL'   : 'Matchbox Collectibles',
-    'CQ'    : '[Code 2] Conquer',
-    'CR'    : 'Code Red',
-    'CRO'   : 'Crocodile Hunter',
-    'CS'    : 'Construction',
-    'CY'    : 'Convoy',
-    'DARE'  : 'D.A.R.E.',
-    'DM'    : 'Dream Machines',
-    'DT'    : 'Days of Thunder',
-    'DVD'   : 'DVD',
-    'DY'    : 'Dinky',
-    'EE'    : 'European Edition',
-    'ELC'   : 'Early Learning Center',
-    'ELV'   : 'Elvis Presley Collection',
-    'EM'    : 'Emergency',
-    'F1'    : 'Formula 1',
-    'FAS'   : 'Michael Fischer-Art',
-    'FC'    : 'Feature Cars',
-    'FE'    : 'First Edition',
-    'FM'    : 'Farming',
-    'FOR'   : 'Ford Anniversary',
-    'FP'    : 'Ford Anniversary',
-    'G'     : 'Gift Set',
-    'GC'    : 'Gold Collection',
-    'GF'    : 'Graffic Traffic',
-    'GS'    : 'Gift Set',
-    'GW'    : 'Giftware',
-    'HD'    : 'Harley Davidson',
+    '10P'   : "10-Pack",
+    '2K'    : "2000 Logo",
+    '3P'    : "3-Pack",
+    '50P'   : "50th Anniversary Collection",
+    '5P'    : "5-Pack",
+    '60'    : "60th Anniversary",
+    '75C'   : "75 Challenge",
+    'A'     : "Accessories",
+    'AA'    : "Across America",
+    'AFL'   : "Australian Football League",
+    'AP'    : "Action Pack",
+    'ARL'   : "Australian Rugby League",
+    'ASAP'  : "[Code 2] ASAP Promotional",
+    'ASP'   : "Action System Pack",
+    'AVN'   : "Avon",
+    'AW'    : "Around the World",
+    'BH'    : "Matchbox 50th Birthday",
+    'BJ'    : "Barrett-Jackson",
+    'BK'    : "Battle Kings",
+    'BLK'   : "Blank for Code 2 Use",
+    'BO'    : "Best of ...",
+    'BOB'   : "Best of British",
+    'BOI'   : "Best of International",
+    'BOM'   : "Best of Muscle",
+    'BON'   : "Bonus",
+    'BS'    : "Brroomstick",
+    'C2'    : "[Code 2]",
+    'CA'    : "Cartoon Characters",
+    'CAT'   : "Caterpillar",
+    'CC'    : "Collectors Choice",
+    'CCH'   : "Color Changers",
+    'CCI'   : "[Code 2] Color Comp Promotional",
+    'CCY'   : "Collectible Convoy",
+    'CDR'   : "CD Rom",
+    'CF'    : "Commando",
+    'CK'    : "Coca-Cola",
+    'CKP'   : "Coca-Cola Premiere",
+    'CL'    : "Club Models",
+    'CNS'   : "Connoisseur Set",
+    'COL'   : "Matchbox Collectibles",
+    'CQ'    : "[Code 2] Conquer",
+    'CR'    : "Code Red",
+    'CRO'   : "Crocodile Hunter",
+    'CS'    : "Construction",
+    'CY'    : "Convoy",
+    'DARE'  : "D.A.R.E.",
+    'DM'    : "Dream Machines",
+    'DT'    : "Days of Thunder",
+    'DVD'   : "DVD",
+    'DY'    : "Dinky",
+    'EE'    : "European Edition",
+    'ELC'   : "Early Learning Center",
+    'ELV'   : "Elvis Presley Collection",
+    'EM'    : "Emergency",
+    'F1'    : "Formula 1",
+    'FAS'   : "Michael Fischer-Art",
+    'FC'    : "Feature Cars",
+    'FE'    : "First Edition",
+    'FM'    : "Farming",
+    'FP'    : "Ford Anniversary",
+    'G'     : "Gift Set", # G == GS
+    'GC'    : "Gold Collection",
+    'GF'    : "Graffic Traffic",
+    'GS'    : "Gift Set",
+    'GT'    : 'Budget Range / SuperGT',
+    'GW'    : "Giftware",
+    'HC'    : "Hero City Logo",
+    'HD'    : "Harley Davidson",
     'HNH'   : "Hitch 'n' Haul",
-    'HR'    : 'Heroes',
-    'HS'    : 'Hot Stocks',
-    'HT'    : 'Hunt',
-    'IC'    : 'Intercom City',
-    'IG'    : 'Inaugural Collection',
-    'IN'    : 'Indy',
-    'JB'    : 'James Bond',
-    'JL'    : 'Justice League',
-    'JR'    : 'Jurassic Park',
-    'JW'    : 'Jurassic World',
-    'K'     : 'Super Kings (King Size)',
-    'LA'    : 'Launcher',
-    'LE'    : 'Limited Edition Set',
-    'LES'   : 'Lesney Edition',
-    'LL'    : 'My First Matchbox (Live & Learn)',
-    'LP'    : 'Launcher Pack',
-    'LR'    : 'Lightning',
-    'LT'    : 'Lasertronic (Siren Force, Light & Sound)',
-    'LW'    : 'Laser Wheels',
-    'MB'    : 'Matchbox 1-75 (1-100) basic range',
-    'MBR'   : 'Micro Brewery',
-    'MC'    : 'Motor City',
-    'MCC'   : 'My Classic Car',
-    'MD'    : 'Superfast Minis',
-    'MLB'   : 'Major League Baseball (USA)',
-    'MNS'   : 'Monsters',
-    'MO'    : 'Matchbox Originals',
-    'MP'    : 'Multipack',
-    'MS'    : 'Monsters',
-    'MT'    : 'Matchcaps',
-    'MU'    : 'Masters of the Universe',
-    'NBA'   : 'National Basketball Association (USA)',
-    'NBL'   : 'National Basketball League (AUS)',
-    'NC'    : '[Code 2] Nutmeg Collectibles',
-    'NFL'   : 'National Football League (USA)',
-    'NHL'   : 'National Hockey League (USA)',
-    'NM'    : 'Nigel Mansell',
-    'NR'    : 'Neon Racers',
-    'NSF'   : 'New Superfast',
-    'OS'    : 'Osbournes',
-    'P'     : 'Pre-production',
-    'PB'    : 'Pleasant Books',
-    'PC'    : 'Premiere Collection',
-    'PG'    : 'Power Grabs',
-    'PR'    : 'Promotional',
-    'PRC'   : 'Premiere Concept',
-    'PS'    : 'Playset',
-    'PVB'   : 'Pleasant Valley Books',
-    'PZ'    : 'Puzzle',
-    'RB'    : 'Road Blasters',
-    'RT'    : 'Real Talkin',
-    'SB'    : 'Skybusters',
-    'SCC'   : 'Super Color Changers',
-    'SCD'   : 'Scooby Doo',
-    'SCS'   : 'Showcase Collection',
-    'SF'    : 'Superfast',
-    'SFA'   : 'Superfast America',
-    'SH'    : 'Showcase',
-    'SNL'   : 'Saturday Night Live',
-    'SOC'   : 'Stars of Germany (Stars of Cars)',
-    'SOG'   : 'Stars of Germany (Stars of Cars)',
-    'SS'    : 'Showstoppers (Motor Show)',
-    'ST'    : 'Super Trucks',
-    'STR'   : 'Star Car',
-    'TC'    : 'Team Convoy (Team Matchbox)',
-    'TF'    : 'Toy Fair',
-    'TH'    : 'Triple Heat',
-    'TN'    : 'Then & Now',
-    'TP'    : 'Twin Pack (Action System, Adventure Pack)',
-    'TV'    : 'TV Tie-In',
-    'TVP'   : 'TV-related Premiere',
-    'TX'    : 'Texaco Collection',
-    'TXP'   : 'Texaco',
-    'UC'    : 'Ultra Collection',
-    'WB'    : 'Warner Brothers',
-    'WC'    : 'World Class',
-    'WR'    : '[Code 2] White Rose Collectibles',
-    'YF'    : '[Code 2] York Fair',
-    'YST'   : 'Yesteryear Train Set',
+    'HP'    : 'True Heroes',
+    'HR'    : "Heroes",
+    'HS'    : "Hot Stocks",
+    'HT'    : "Hunt",
+    'IC'    : "Intercom City",
+    'IG'    : "Inaugural Collection",
+    'IN'    : "Indy",
+    'JB'    : "James Bond",
+    'JEE'   : "Jeep",
+    'JL'    : "Justice League",
+    'JR'    : "Jurassic Park",
+    'JW'    : "Jurassic World",
+    'K'     : "Super Kings (King Size)",
+    'LE'    : "Limited Edition Set",
+    'LES'   : "Lesney Edition",
+    'LL'    : "My First Matchbox (Live & Learn)",
+    'LP'    : "Launcher Pack",
+    'LR'    : "Lightning",
+    'LRV'   : "Land Rover",
+    'LT'    : "Lasertronic (Siren Force, Light & Sound)",
+    'LW'    : "Laser Wheels",
+    'MB'    : "Matchbox 1-75 (1-100) basic range",
+    'MBR'   : "Micro Brewery",
+    'MC'    : "Motor City",
+    'MCC'   : "My Classic Car",
+    'MD'    : "Superfast Minis",
+    'MLB'   : "Major League Baseball (USA)",
+    'MNS'   : "Monsters",
+    'MO'    : "Matchbox Originals",
+    'MP'    : "Multipack",
+    'MT'    : "Matchcaps",
+    'MU'    : "Masters of the Universe",
+    'NBA'   : "National Basketball Association (USA)",
+    'NBL'   : "National Basketball League (AUS)",
+    'NC'    : "[Code 2] Nutmeg Collectibles",
+    'NFL'   : "National Football League (USA)",
+    'NHL'   : "National Hockey League (USA)",
+    'NM'    : "Nigel Mansell",
+    'NP'    : "National Parks",
+    'NR'    : "Neon Racers",
+    'NSF'   : "New Superfast",
+    'OS'    : "Osbournes",
+    'P'     : "Pre-production",
+    'PC'    : "Premiere Collection",
+    'PG'    : "Power Grabs",
+    'PR'    : "Promotional",
+    'PRC'   : "Premiere Concept",
+    'PS'    : "Playset",
+    'PVB'   : "Pleasant Valley Books",
+    'PZ'    : "Puzzle",
+    'RB'    : "Road Blasters",
+    'RT'    : "Real Talkin",
+    'SB'    : "Skybusters",
+    'SCC'   : "Super Color Changers",
+    'SCD'   : "Scooby Doo",
+    'SCS'   : "Showcase Collection",
+    'SF'    : "Superfast",
+    'SFA'   : "Superfast America",
+    'SNL'   : "Saturday Night Live",
+    'SOC'   : "Stars of Germany (Stars of Cars)",
+    'SOG'   : "Stars of Germany (Stars of Cars)",
+    'SS'    : "Showstoppers (Motor Show)",
+    'ST'    : "Super Trucks",
+    'STR'   : "Star Car",
+    'TC'    : "Team Convoy (Team Matchbox)",
+    'TF'    : "Toy Fair",
+    'TH'    : "Triple Heat",
+    'TN'    : "Then & Now",
+    'TP'    : "Twin Pack (Action System, Adventure Pack)",
+    'TV'    : "TV Tie-In",
+    'TVP'   : "TV-related Premiere",
+    'TX'    : "Texaco Collection",
+    'UC'    : "Ultra Collection",
+    'WB'    : "Warner Brothers",
+    'WC'    : "World Class",
+    'WR'    : "[Code 2] White Rose Collectibles",
+    'YF'    : "[Code 2] York Fair",
+    'YST'   : "Yesteryear Train Set",
+
 }
 code2_categories = ['ASAP', 'CCI', 'CQ', 'NC', 'WR', 'YF', 'C2']
 
@@ -209,151 +216,13 @@ code2_names = {
 }
 
 cat_arts = {
-#    '(IC)'  : 'Intercom City',
-#    '10P'   : '10-Pack',
-#    '3P'    : '3-Pack',
-#    '50P'   : '50th Anniversary Collection',
-#    '5P'    : '5-Pack',
-#    '60'    : '60th Anniversary',
-#    '75C'   : '75 Challenge',
-#    'A'     : 'Accessories',
-#    'AA'    : 'Across America',
-#    'AFL'   : 'Australian Football League',
-#    'AP'    : 'Action Pack',
-#    'ARL'   : 'Australian Rugby League',
-#    'ASAP'  : '[Code 2] ASAP Promotional',
-#    'ASP'   : 'Action System Pack',
-#    'AVN'   : 'Avon',
-#    'AW'    : 'Around the World',
-#    'BB'    : 'Best of British',
-#    'BH'    : 'Matchbox 50th Birthday',
-#    'BJ'    : 'Barrett-Jackson',
-#    'BK'    : 'Battle Kings',
-#    'BLK'   : 'Blank for Code 2 Use',
-#    'BOB'   : 'Best of British',
-#    'BOI'   : 'Best of International',
-#    'BOM'   : 'Best of Muscle',
-#    'BON'   : 'Bonus',
-#    'BS'    : 'Brroomstick',
-#    'C2'    : '[Code 2]',
-#    'CA'    : 'Cartoon Characters',
     'CAT'   : 'caterpillar-sm.gif',
-#    'CC'    : 'Collectors Choice',
-#    'CCI'   : '[Code 2] Color Comp Promotional',
-#    'CCY'   : 'Collectible Convoy',
-#    'CDR'   : 'CD Rom',
-#    'CF'    : 'Commando',
-#    'CK'    : 'Coca-Cola',
-#    'CKP'   : 'Coca-Cola Premiere',
-#    'CL'    : 'Club Models',
-#    'CNS'   : 'Connoisseur Set',
     'COL'   : 'collectibles-sm.gif',
-#    'CQ'    : '[Code 2] Conquer',
-#    'CR'    : 'Code Red',
-#    'CRO'   : 'Crocodile Hunter',
-#    'CS'    : 'Construction',
-#    'CY'    : 'Convoy',
     'DARE'  : 'dare-sm.gif',
-#    'DM'    : 'Dream Machines',
-#    'DT'    : 'Days of Thunder',
-#    'DVD'   : 'DVD',
-#    'DY'    : 'Dinky',
-#    'EE'    : 'European Edition',
-#    'ELC'   : 'Early Learning Center',
-#    'ELV'   : 'Elvis Presley Collection',
-#    'EM'    : 'Emergency',
-#    'F1'    : 'Formula 1',
-#    'FAS'   : 'Michael Fischer-Art',
-#    'FC'    : 'Feature Cars',
-#    'FE'    : 'First Edition',
-#    'FM'    : 'Farming',
-#    'FOR'   : 'Ford Anniversary',
-#    'FP'    : 'Ford Anniversary',
-#    'G'     : 'Gift Set',
-#    'GC'    : 'Gold Collection',
-#    'GF'    : 'Graffic Traffic',
-#    'GS'    : 'Gift Set',
-#    'GW'    : 'Giftware',
-#    'H'     : 'Heroes',
-#    'HD'    : 'Harley Davidson',
-#    'HNH'   : "Hitch 'n' Haul",
-#    'HR'    : 'Heroes',
-#    'HS'    : 'Hot Stocks',
-#    'HT'    : 'Hunt',
-#    'IC'    : 'Intercom City',
-#    'IG'    : 'Inaugural Collection',
-#    'IN'    : 'Indy',
-#    'JB'    : 'James Bond',
-#    'JL'    : 'Justice League',
     'JR'    : 'jurassic_park-sm.gif',
-#    'K'     : 'Super Kings (King Size)',
-#    'LA'    : 'Launcher',
-#    'LE'    : 'Limited Edition Set',
-#    'LES'   : 'Lesney Edition',
-#    'LL'    : 'My First Matchbox (Live & Learn)',
-#    'LP'    : 'Launcher Pack',
-#    'LR'    : 'Lightning',
-#    'LT'    : 'Lasertronic (Siren Force, Light & Sound)',
-#    'LW'    : 'Laser Wheels',
-#    'MB'    : 'Matchbox 1-75 (1-100) basic range',
-#    'MBR'   : 'Micro Brewery',
-#    'MC'    : 'Motor City',
-#    'MCC'   : 'My Classic Car',
-#    'MD'    : 'Superfast Minis',
-#    'MLB'   : 'Major League Baseball (USA)',
     'MO'    : 'originals-sm.gif',
-#    'MP'    : 'Multipack',
-#    'MS'    : 'Monsters',
-#    'MT'    : 'Matchcaps',
-#    'MU'    : 'Masters of the Universe',
-#    'NBA'   : 'National Basketball Association (USA)',
-#    'NBL'   : 'National Basketball League (AUS)',
-#    'NC'    : '[Code 2] Nutmeg Collectibles',
-#    'NFL'   : 'National Football League (USA)',
-#    'NHL'   : 'National Hockey League (USA)',
-#    'NM'    : 'Nigel Mansell',
-#    'NR'    : 'Neon Racers',
-#    'NSF'   : 'New Superfast',
-#    'OS'    : 'Osbournes',
-#    'P'     : 'Pre-production',
-#    'PB'    : 'Pleasant Books',
     'PC'    : 'premiere-sm.gif',
-#    'PG'    : 'Power Grabs',
-#    'PR'    : 'Promotional',
-#    'PRC'   : 'Premiere Concept',
-#    'PS'    : 'Playset',
-#    'PVB'   : 'Pleasant Valley Books',
-#    'PZ'    : 'Puzzle',
-#    'RB'    : 'Road Blasters',
-#    'RT'    : 'Real Talkin',
-#    'SB'    : 'Skybusters',
-#    'SCC'   : 'Super Color Changers',
-#    'SCD'   : 'Scooby Doo',
-#    'SCS'   : 'Showcase Collection',
-#    'SF'    : 'Superfast',
-#    'SFA'   : 'Superfast America',
-#    'SH'    : 'Showcase',
-#    'SNL'   : 'Saturday Night Live',
-#    'SOC'   : 'Stars of Germany (Stars of Cars)',
-#    'SOG'   : 'Stars of Germany (Stars of Cars)',
-#    'SS'    : 'Showstoppers (Motor Show)',
-#    'ST'    : 'Super Trucks',
-#    'STR'   : 'Star Car',
-#    'TC'    : 'Team Convoy (Team Matchbox)',
-#    'TF'    : 'Toy Fair',
-#    'TH'    : 'Triple Heat',
-#    'TN'    : 'Then & Now',
-#    'TP'    : 'Twin Pack (Action System, Adventure Pack)',
-#    'TV'    : 'TV Tie-In',
-#    'TVP'   : 'TV-related Premiere',
-#    'TX'    : 'Texaco Collection',
-#    'TXP'   : 'Texaco',
-#    'UC'    : 'Ultra Collection',
-#    'WB'    : 'Warner Brothers',
     'WC'    : 'worldclass-sm',
-#    'WR'    : '[Code 2] White Rose Collectibles',
-#    'YF'    : '[Code 2] York Fair',
-#    'YST'   : 'Yesteryear Train Set',
 }
 
 
@@ -612,12 +481,13 @@ IMG_SIZ_GIGANTIC = 'g'
 IMG_SIZ_HUGE = 'h'
 IMG_SIZ_LARGE = 'l'
 IMG_SIZ_MEDIUM = 'm'
-IMG_SIZ_PETITE = 'c'
+IMG_SIZ_PETITE = 'p'
+IMG_SIZ_COMPACT = 'c'
 IMG_SIZ_SMALL = 's'
 IMG_SIZ_TINY = 't'
-image_size_names = ["micro", "tiny", "small", "compact", "medium", "large", "huge", "gigantic", "enormous"]
-image_size_types = ['u', 't', 's', 'c', 'm', 'l', 'h', 'g', 'e']
-image_size_sizes = [(50, 30), (100,  60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480), (1000, 600), (1200, 720)]
+image_size_names = ["micro", "tiny", "small", "petit", "compact", "medium", "large", "huge", "gigantic", "enormous"]
+image_size_types = ['u', 't', 's', 'p', 'c', 'm', 'l', 'h', 'g', 'e']
+image_size_sizes = [(50, 30), (100,  60), (200, 120), (300, 180), (300, 180), (400, 240), (600, 360), (800, 480), (1000, 600), (1200, 720)]
 
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
@@ -685,6 +555,7 @@ model_icons = {
     "x": "i_taxi",
 }
 
+# not complete
 model_small_icons = {
     "a": "fa-plane",
     "o": "fa-ship",
@@ -746,6 +617,7 @@ materials = {
     'T': 'plastic tube',
     'W': 'window box',
     'X': 'box',
+    'L': 'lucite box',
     '': 'unknown',
 }
 
@@ -761,6 +633,27 @@ arts = {
     'Jurassic Park': 'jurassic_park-sm.gif',
     'Originals': 'originals-sm.gif',
     'Premieres': 'premiere-sm.gif',
+    'Color Changers': 'colorchangers-sm.gif',
+}
+
+
+LISTTYPE_NORMAL = ''
+LISTTYPE_LARGE = 'lrg'
+LISTTYPE_CHECKLIST = 'ckl'
+LISTTYPE_THUMBNAIL = 'thm'
+LISTTYPE_TEXT = 'txt'
+LISTTYPE_CSV = 'csv'
+LISTTYPE_JSON = 'jsn'
+LISTTYPE_ADMIN = 'adl'
+LISTTYPE_PICTURE = 'pxl'
+LISTTYPE_LINK = 'lnl'
+LISTTYPE_VEHICLE_TYPE = 'vtl'
+LISTTYPE_MULTIYEAR = 'myr'
+
+mime_types = {
+    LISTTYPE_CSV: 'text/csv',
+    LISTTYPE_JSON: 'application/json',
+    LISTTYPE_TEXT: 'text/plain',
 }
 
 
@@ -773,6 +666,41 @@ areas = {
     'ROW': 'Rest of World',
     'LA': "Latin America",
 }
+
+# ----------------------------------------------------------------------
+
+def get_mime_type(listtype):
+    return mime_types.get(listtype, 'text/html')
+
+
+def correct_year(year):
+    if isinstance(year, str):
+        year = int(''.join(filter(lambda x: x.isdigit(), year[:4])))
+    return year
+
+
+def correct_region(region, year):
+    if year < 1971:
+        region = 'W'
+    elif region == 'D':
+        if year not in (1999, 2000, 2001):
+            region = 'R'
+    elif region == 'B':
+        if year not in (2000, 2001):
+            region = 'R'
+    elif region == 'A':
+        if year >= 2002:  # is this correct?
+            region = 'U'
+        elif year not in (2000, 2001):
+            region = 'R'
+    elif region == 'L':
+        if year < 2008 or year > 2011:
+            region = 'R'
+    elif region == 'J':
+        if year < 1977 or year > 1992:
+            region = 'R'
+    return region
+
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_number(cid):
@@ -810,7 +738,6 @@ def get_country_codes():
 
 def get_country(cc2):
     return get_countries().get(cc2, '')
-
 
 
 starting_digits_re = re.compile('\d*')

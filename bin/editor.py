@@ -17,7 +17,7 @@ def editor_start(pif):
     if pif.form.get_bool('clear'):
         pif.dbh.clear_health()
 
-    errs = pif.dbh.fetch_pages("health!=0")
+    errs = pif.dbh.fetch_counters("health!=0")
     if errs:
         useful.warn('<hr>', "<b>Errors found:<br><ul>",
 	    '\n'.join(["<li>" + err['page_info.id'] for err in errs]),
@@ -48,7 +48,7 @@ def show_table(pif):
 
     table_info = pif.dbh.get_table_info(pif.form.get_str('table'))
     dats = []
-    if not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
 	print 'duplicate form submission detected'
     elif pif.form.has('save'):
         pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
@@ -132,7 +132,7 @@ def show_single(pif, table_info, dats):
     header = '<b>' + table_info['name'] + '</b>'
     header += pif.render.format_button('show all', "?table=" + table_info['name'])
     header += '<form action="/cgi-bin/editor.cgi">\n'
-    header += pif.render.format_form_token()
+    header += pif.create_token()
     header += '<input type="hidden" name="verbose" value="1">\n'
     header += '<input type="hidden" name="table" value="%s">\n' % table_info['name']
     for f in table_info['id']:
@@ -374,8 +374,8 @@ def show_counters(pif):
     if revorder:
         res.reverse()
 
-    columns = ['id', 'value', 'timestamp']
-    headers = dict(zip(columns, ['ID', 'Value', 'Timestamp']))
+    columns = ['id', 'value', 'timestamp', 'health']
+    headers = dict(zip(columns, ['ID', 'Value', 'Timestamp', 'Health']))
     lsection = dict(columns=columns, range=[{'entry': useful.printablize(res)}], note='',
 	headers={col: pif.render.format_link('?s=' + col +
 	'&r=1' if col == sortorder and not revorder else '', headers[col]) for col in columns})

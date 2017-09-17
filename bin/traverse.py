@@ -84,7 +84,7 @@ def show_dir(pif, tform):
 	ostr += '<a href="upload.cgi?d=%s">%s</a>\n' % (tform.tdir, pif.render.format_button('upload'))
 
     if files['graf']:
-        ostr += '<form action="traverse.cgi">\n' + pif.render.format_form_token()
+        ostr += '<form action="traverse.cgi">\n' + pif.create_token()
         ostr += '<a href="traverse.cgi?g=1&d=%s">%s</a> or \n' % (tform.tdir, pif.render.format_button('show all pictures'))
         ostr += 'Pattern <input type="text" name="p">\n'
         ostr += '<input type="hidden" name="d" value="%s">\n' % tform.tdir
@@ -163,7 +163,7 @@ def flist_sort(flist, tform):
 
 def show_imgs(pif, tform):
     print '<hr>'
-    print '<form action="traverse.cgi" method="post">' + pif.render.format_form_token()
+    print '<form action="traverse.cgi" method="post">' + pif.create_token()
     plist = tform.patt.split(',')
     if tform.mss:
 	print 'Credit ' + pif.render.format_text_input('credit', 4)
@@ -284,6 +284,8 @@ def show_file(pif, tform):
     print pif.render.format_button('delete', link=pif.request_uri + '&delete=1&act=1')
     if os.path.exists(os.path.join(tform.tdir, 'archive')):
 	print pif.render.format_button('archive', link=pif.request_uri + '&archive=1&act=1')
+    if os.path.exists(os.path.join(tform.tdir, 'fixed')):
+	print pif.render.format_button('fixed', link=pif.request_uri + '&fixed=1&act=1')
     root, ext = useful.root_ext(tform.fnam)
     if ext in imglib.itypes:
 #       if tform.tdir.startswith('..'):

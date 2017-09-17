@@ -15,7 +15,7 @@ $models = [
     ],
 // 2. White cab with black chassis, blue flatbed with white containers, "American Airlines" tampo, antennas cast, rubber tires, China (PC)
     ['var' => '02a', 'cab' => 'MB308', 'mfg' => 'China', 'liv' => 'American Airlines',
-	'cdt' => 'white, black chassis', 'cva' => '',
+	'cdt' => 'white, black chassis', 'cva' => 'F03',
 	'tdt' => 'blue flatbed, white containers, AMERICAN AIRLINES tampo',
     ],
 // 3. Orange cab with black chassis, black flatbed with white containers, "U-Haul" labels, antennas cast, rubber tires, China (PC)

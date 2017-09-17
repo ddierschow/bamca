@@ -27,7 +27,7 @@ $rows = count($larr);
  <tr>
   <td rowspan="<?php echo $rows + 3; ?>" class="boxvs"></td>
   <td colspan="3" class="boxin boxtitle">
-   Bay Area <img src="<?php echo $IMG_DIR_ART; ?>/matchboxb.gif" alt="[Matchbox]" style="vertical-align: baseline;"> Collectors' Association Website</td>
+   Bay Area <img src="<?php echo $IMG_DIR_ART; ?>/matchboxb.gif" alt="[Matchbox]" class="mblogo"> Collectors' Association Website</td>
   <td rowspan="<?php echo $rows + 3; ?>" class="boxvs"></td>
  </tr>
 

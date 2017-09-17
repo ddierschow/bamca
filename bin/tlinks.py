@@ -351,7 +351,7 @@ def edit_single(pif):
     asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)]
     descs = pif.dbh.describe_dict('link_line')
 
-    header = '<form>' + pif.render.format_form_token()
+    header = '<form>' + pif.create_token()
     header += '<input type="hidden" name="o_id" value="%s">\n' % link['link_line.id']
 
     entries = []
@@ -475,8 +475,8 @@ def edit_choose(pif):
 	'U8': '(No DNS)',
 	'exc': '(Exception)',
     }
-    link_statuses = sorted(pif.dbh.fetch_link_statuses())
-    link_statuses = [str(x['last_status']) for x in link_statuses]
+    link_statuses = pif.dbh.fetch_link_statuses()
+    link_statuses = {str(x['last_status']): x['count(*)'] for x in link_statuses}
     #'link_statuses': ["%s (%s)" % (x, reasons.get(x, 'Unknown')) for x in sorted(pif.dbh.fetch_link_statuses())],
     context = {
 	'sections': sorted(pif.dbh.fetch_sections(where="page_id like 'links%'"),

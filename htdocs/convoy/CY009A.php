@@ -96,7 +96,7 @@ $models = [
     ],
 // 17. MB103 cab in white, white container, "Merry Christmas 1988 MICA Members" with calendar roof label (C2)
     ['var' => '17a', 'mfg' => 'Macau', 'liv' => 'MICA', 'cod' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => 'F06',
 	'tdt' => "white container, MERRY CHRISTMAS 1988 MICA MEMBERS with calendar roof label",
     ],
 // 18. MB103 cab in blue, blue container, "Mitre 10" tampo, Macau (AU)
@@ -111,7 +111,7 @@ $models = [
     ],
 // 20. MB103 cab in white, white container, "Merry Christmas MICA Members 1990" labels with calendar roof label (C2)
     ['var' => '20a', 'mfg' => 'Macau', 'liv' => 'MICA', 'cod' => '2',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => 'F06',
 	'tdt' => "white container, MERRY CHRISTMAS MICA MEMBERS 1990 labels with calendar roof label",
     ],
 // 21. MB103 cab in black, black container, "Midnight X-Press" tampo, Thailand
@@ -211,7 +211,7 @@ $models = [
     ],
 // 40. MB103 cab in white, green container, yellow base, China and "Mattel", "Kellogg's Corn Flakes" labels (ROW)
     ['var' => '40a', 'mfg' => 'China, MATTEL', 'liv' => "Kellog's", 'rar' => '4',
-	'cdt' => 'white', 'cva' => '',
+	'cdt' => 'white', 'cva' => 'F06',
 	'tdt' => "green container, yellow base, KELLOGG'S CORN FLAKES labels",
     ],
 // 41. MB103 cab in black, black container and base, China, "18th Annual Matchbox USA Convention and Toy Show" labels (C2)

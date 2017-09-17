@@ -24,6 +24,7 @@ DoPageHeader($pif);
  <li><a href="/pages/faq.php">The BAMCA <b>FAQ</b></a>
  <li><a href="/pages/contact.html">How to <b>Contact</b> or join BAMCA</a>
  <li><a href="/pages/about.php"><b>About</b> This Website</a>
+ <li><a href="/pages/club.php"><b>History</b> of BAMCA</a>
  <li><a href="/cgi-bin/calendar.cgi">The BAMCA <b>Calendar</b></a>
  <li><a href="/cgi-bin/biblio.cgi?page=bayarea">A list of places to find die-cast in the <b>Bay Area</b></a>
  </ul>

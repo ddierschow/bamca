@@ -45,11 +45,11 @@ $models = [
     ],
 
     ['var' => '08a', 'mfg' => 'China', 'liv' => 'Planters',
-	'cdt' => 'blue, black chassis', 'cva' => '',
+	'cdt' => 'blue, black chassis', 'cva' => '35',
 	'tdt' => 'blue container with blue base, PLANTERS labels',
     ],
     ['var' => '09a', 'cab' => 'MB311', 'mfg' => 'China', 'liv' => 'Haagen-Daz',
-	'cdt' => '', 'cva' => '',
+	'cdt' => '', 'cva' => '36',
 	'tdt' => '',
     ],
     ['var' => '10a', 'mfg' => 'China', 'liv' => 'Matchbox',

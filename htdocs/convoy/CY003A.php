@@ -99,7 +99,7 @@ $models = [
     ],
 // 18. MB103 cab in red, chrome exhausts and antennas, clear windows, black containers, yellow trailer, "Matchbox" tampo, China, rubber tires (PC)
     ['var' => '18a', 'cab' => 'MB310', 'mfg' => 'China', 'liv' => 'Matchbox',
-	'cdt' => 'red, chrome exhausts and antennas, clear windows', 'cva' => '',
+	'cdt' => 'red, chrome exhausts and antennas, clear windows', 'cva' => '139',
 	'tdt' => 'yellow, black containers, MATCHBOX tampo',
     ],
 ];
