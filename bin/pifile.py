@@ -204,6 +204,7 @@ class PageInfoFile(object):
         self.request_uri = os.environ.get('REQUEST_URI', 'unknown')
         self.remote_host = os.environ.get('REMOTE_HOST', 'host_unset')
         self.remote_addr = os.environ.get('REMOTE_ADDR', '127.0.0.1')
+        self.is_web = 'REQUEST_METHOD' in os.environ  # is apache!
         self.set_server_env()
 	self.log = logger.Logger()
         self.format_type = 'python'
@@ -236,7 +237,7 @@ class PageInfoFile(object):
 	self.render.is_moderator = self.is_allowed('m')
 	self.render.is_user = self.is_allowed('u')
 	self.render.is_viewer = self.is_allowed('v')
-        if 'REQUEST_METHOD' not in os.environ:  # not apache!
+        if not self.is_web:
 	    useful.header_done(is_web=False)
 	self.duplicate_form = self.form.has('token') and not self.dbh.insert_token(self.form.get_str('token'))
 

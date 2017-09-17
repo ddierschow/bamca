@@ -41,7 +41,7 @@ class Security(object):
         self.htdocs_path = os.environ['DOCUMENT_ROOT']
         self.root = os.environ['SERVER_NAME'].split('.')[0]
         self.version = os.environ['BAMCA_VERSION']
-        if self.root == 'beta':
+        if os.environ['BAMCA_BETA'] == '1':
             self.is_beta = True
 
     def set_env(self, siteid):

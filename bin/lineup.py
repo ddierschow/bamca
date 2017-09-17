@@ -131,29 +131,44 @@ def create_lineup(pif, mods, year, lsec):
     ]
 
     # 3. put it in a usable order
-    mods.sort(key=lambda x: (x['lineup_model.number'], x['lineup_model.display_order'],
-	    0 if (is_extra or not x['vs.sub_id'] or x['vs.sub_id'].isdigit()) else regions.index(x['vs.sub_id']),))
+    def mod_sort_key(x):
+	return (x['lineup_model.number'], x['lineup_model.display_order'],
+	    0 if (is_extra or x['vs.sub_id'].isdigit()) else regions.index(x['vs.sub_id']),)
+
+    mods.sort(key=mod_sort_key)
 
     # 4. traverse region tree to figure out variation(s)
     for curmod in modlist:
-        set_vars(mods, curmod, region, ref_id)
+	fdebug = False#not pif.is_web and curmod['number'] == 37
+        set_vars(mods, curmod, regions, ref_id, fdebug)
 
     # 5. declare victory and grab a beer
     return modlist
 
 
-def set_vars(rmods, curmod, regions, ref_id):
+def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
     '''Given a model and a lineup, try to figure out where to
     insert that model into the lineup.  This is not easy.'''
-    for region in regions:
+    if fdebug:
+	print regions, ref_id
+	print 'CURMOD:', curmod
 	for rmod in rmods:
-	    quittable = False
 	    if rmod['lineup_model.number'] == curmod['number'] and rmod['lineup_model.display_order'] == curmod['display_order']:
+		print 'RMOD:', rmod['lineup_model.number'], rmod['lineup_model.display_order'], rmod['vs.ref_id'], rmod['vs.sub_id'], rmod['v.var'], rmod['v.text_description'], rmod['v.picture_id']
+
+    quittable = False
+    for region in regions:
+	if fdebug:
+	    print 'CHECK', region
+	for rmod in rmods:
+	    if rmod['lineup_model.number'] == curmod['number'] and rmod['lineup_model.display_order'] == curmod['display_order'] and rmod['vs.sub_id'] == region:
 		# add to cvarlist
 		for var in curmod['cvarlist']:
 		    if rmod['v.var'] in var['var_ids']:
 			break  # "I seen the airport."
 		    elif rmod['v.text_description'] == var['desc']:
+			if fdebug:
+			    print 'UPDATE', rmod['v.var'], rmod['v.text_description']
 			var['var_ids'].append(rmod['v.var'])
 			pic_id = rmod['v.picture_id'] if rmod['v.picture_id'] else rmod['v.var']
 			if pic_id not in var['picture_ids']:
@@ -165,11 +180,13 @@ def set_vars(rmods, curmod, regions, ref_id):
 		    curmod['cvarlist'].append({'var_ids': [rmod['v.var']], 'desc': rmod.get('v.text_description', ''),
 					       'picture_ids': [pic_id], 'vars': rmod['v.var']})
 		    curmod['sub_id'] = rmod['vs.sub_id']
+		    if fdebug:
+			print 'ADD', rmod['v.var'], rmod['v.text_description']
 
-		if rmod['vs.sub_id'] == region:
-		    quittable = True
-		elif quittable:
-		    break
+		    if rmod['vs.sub_id'] == region:
+			quittable = True
+	if quittable:
+	    break
 
 
 def get_man_sections(pif, year, region, section_types):
@@ -420,7 +437,6 @@ def year_lineup_main(pif, listtype):
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (year, region))
 
     mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types)
-    llineup = {'id': 'year', 'section': [], 'name': '', 'tail': []}
 
     # now that we have our sections calculated, format them.
     if listtype == mbdata.LISTTYPE_CSV:
@@ -825,20 +841,12 @@ def cklup(pif):
 	for mod in sec['mods']:
 	    print '   ', mod['number'], mod['display_order'], mod['name']
 
-def show_lineup(pif):
-    # probably not functional
-    year = pif.argv[1]
-    reg = pif.argv[2].upper()
-    llineup = run_file(pif, '', reg, year, dict(mbdata.lineup_types.keys()))
-    for sec in llineup['section']:
-	useful.write_message(sec['name'])
-	for ran in sec['range']:
-	    for ent in ran['entry']:
-		if len(pif.argv) == 3 or str(ent['shown_id']) in pif.argv[3:]:
-		    useful.write_message(ent['shown_id'], ent['name'])
-		    for var in ent['vars']:
-			useful.write_message('    ', var[1])
-	useful.write_message('')
+
+def show_lineup(pif, year, region):
+    section_types = dict(mbdata.lineup_types).keys()
+    mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types)
+    llineup = {'id': 'year', 'section': [], 'name': '', 'tail': []}
+    print render_lineup_text(pif, mainsec, secs, xsecs)
 
 
 def clone_lineup(pif, year, old_region, new_region=''):
