@@ -875,9 +875,13 @@ class DBHandler(object):
         self.dbi.count(page_id)
 
     #- lineup_model
+    def fetch_lineup_limits(self):
+	#ranswer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
+	return self.fetch('lineup_model', columns=['min(year)', 'max(year)', 'max(number)'],
+			  one=True, tag='FetchLineupLimits', verbose=False)
 
     def make_lineup_item(self, rec):
-	result = {col: rec.get('lineup_model.' + col) for col in self.get_table_info('lineup_model')['columns']}
+	result = {col: rec.get('lineup_model.' + col, '') for col in self.get_table_info('lineup_model')['columns']}
 	result.update(self.copykeys('base_id', rec))
 	result.update(self.copykeys('casting', rec))
 	result.update(self.copykeys('pack', rec))
@@ -1296,8 +1300,8 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     #- photographer
 
-    def get_photographers(self):
-	return self.fetch('photographer', tag='Photographers')
+    def get_photographers(self, notflags=0):
+	return self.fetch('photographer', where='(flags & %d) = 0' % notflags, tag='Photographers')
 
     #- photo_credit
 

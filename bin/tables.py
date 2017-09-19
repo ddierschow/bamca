@@ -500,7 +500,7 @@ table_info = {
     #photographer
     'photographer': {
 	'id': ['id'],
-	'columns': ['id', 'name', 'url'],
+	'columns': ['id', 'name', 'url', 'flags'],
         'ask': ['id'],
 	'add': {
 		'photo_credit': ['photographer_id/id'],

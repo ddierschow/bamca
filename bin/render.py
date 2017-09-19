@@ -58,6 +58,7 @@ class Presentation(object):
 	#useful.html_done = False
 	self.new_cookie = None
 	self.footer = ''
+	self.bamcamark = 'bamca_sm.gif'
 #       if self.verbose:
 #           import datetime
 #           self.dump_file = open(os.path.join(config.LOG_ROOT, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
@@ -634,11 +635,12 @@ of Matchbox International Ltd. and are used with permission.
 	self.comment_button = '<div class="comment_box">' + ostr + '</div>'
 
     def set_footer(self, new_footer):
-	if self.footer:
-	    self.footer += '<br>'
-        if isinstance(new_footer, list):
-	    new_footer = '<br>'.join(new_footer)
-	self.footer += new_footer
+	if new_footer:
+	    if self.footer:
+		self.footer += '<br>'
+	    if isinstance(new_footer, list):
+		new_footer = '<br>'.join(new_footer)
+	    self.footer += new_footer
 
     #---- images
 
@@ -1114,7 +1116,7 @@ of Matchbox International Ltd. and are used with permission.
 	    'extra': self.extra,
 	    'comment_button': self.comment_button,
 	    'footer': self.footer,
-	    'bamcamark': 'bamca_sm.gif',
+	    'bamcamark': self.bamcamark,
 	    'token': self.format_form_token(useful.generate_token(6)),
 	}
 	output = useful.render_template(template, page=page_info, config_context=config, **kwargs)

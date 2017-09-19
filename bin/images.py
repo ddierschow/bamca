@@ -587,7 +587,7 @@ class EditForm(imglib.ActionForm):
 	    print pif.render.format_checkbox("save", [(1, "Save")], presets.get("save", []))
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
-	photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers()]
+	photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
 	print 'Credit', pif.render.format_select('credit', photogs, selected=self.credit)
 	print 'Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q])
 	print '<br><span id="ima_info"></span>&nbsp;'

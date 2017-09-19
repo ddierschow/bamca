@@ -83,7 +83,7 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .bottombar   {background-color: #CCCC99; text-align: left; height: 44px; display: table; position: relative; width: 100%;}
 .bottombar2  {background-color: #CCCC99; text-align: left; height: 44px; position: relative;}
 foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; vertical-align: middle;}
-.bamcamark   {position: absolute; left: 0; bottom: 0; padding: 6px 32px;}
+.bamcamark   {position: absolute; left: 0; bottom: 0; padding: 6px 22px;}
 .footer      {margin-left: 132px; width: 600px;}
 /* position: absolute; display: table-cell; text-align: left; height: 44px; left: 132px; bottom: 0; vertical-align: middle; */
 .comment_button   {height: 44px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}
