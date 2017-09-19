@@ -135,7 +135,7 @@ def create_lineup(pif, mods, year, lsec):
     # 3. put it in a usable order
     def mod_sort_key(x):
 	return (x['lineup_model.number'], x['lineup_model.display_order'],
-	    0 if (is_extra or x['vs.sub_id'].isdigit()) else regions.index(x['vs.sub_id']),)
+	    0 if (is_extra or x['vs.sub_id'] is None or x['vs.sub_id'].isdigit()) else regions.index(x['vs.sub_id']),)
 
     mods.sort(key=mod_sort_key)
 
@@ -604,8 +604,6 @@ def run_ranks(pif, mnum, region, syear, eyear):
             mdict['disp_format'] = '%s.'
             mdict['pdir'] = pdir
             mdict['anchor'] = '%d' % mdict['number']
-            #mdict['number'] = mnum
-	    #mdict['region'] = region
 	    mdict = calc_lineup_model(pif, lsec, mdict['year'], region, mdict)
             mdict['displayed_id'] = str(mdict['year'])
 	    ent = render_lineup_model(pif, mdict, comments)
