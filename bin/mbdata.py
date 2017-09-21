@@ -3,7 +3,7 @@ import useful
 
 verno = ' abcdefghijklmnopqrstuvwxyz'
 
-regionlist = ['W', 'U', 'R', 'A', 'B', 'D', 'L']
+regionlist = ['W', 'U', 'R', 'A', 'B', 'D', 'L', 'J']
 
 regions = {
     'W': "Worldwide",
@@ -699,6 +699,8 @@ def correct_region(region, year):
     elif region == 'J':
         if year < 1977 or year > 1992:
             region = 'R'
+    elif region == 'W' or region not in ['R', 'U']:
+	region = ''
     return region
 
 

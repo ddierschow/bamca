@@ -197,6 +197,8 @@ def get_man_sections(pif, year, region, section_types):
     if not pif.render.is_beta:
         wheres.append("not flags & %d" % pif.dbh.FLAG_SECTION_HIDDEN)
     secs = pif.dbh.depref('section', pif.dbh.fetch_sections(wheres))
+    if not secs:
+	raise useful.SimpleError("""I'm sorry, that lineup was not found.  Please use your "BACK" button or try something else.""")
 
     xsecs = [x for x in secs if x['id'].startswith('X') and x['category'] in section_types]
     secs = [x for x in secs if not x['id'].startswith('X')]
@@ -213,8 +215,11 @@ def get_man_sections(pif, year, region, section_types):
 
 def create_lineup_sections(pif, year, region, section_types):
     year = mbdata.correct_year(year)
+    region = mbdata.correct_region(region, year)
+    if not region:
+	raise useful.SimpleError("""I'm sorry, that lineup was not found.  Please use your "BACK" button or try something else.""")
 
-    region, mainsec, secs, xsecs = get_man_sections(pif, year, mbdata.correct_region(region, year), section_types)
+    region, mainsec, secs, xsecs = get_man_sections(pif, year, region, section_types)
 
     # generate main section
     mainsec.update({
@@ -444,7 +449,7 @@ def year_lineup_main(pif, listtype):
 	section_types = dict(mbdata.lineup_types).keys()
 
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (year, region),
-        str(year) + ' ' + mbdata.regions.get(region))
+        str(year) + ' ' + mbdata.regions.get(region, ''))
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (year, region))
 
     mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types)
