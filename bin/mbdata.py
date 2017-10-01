@@ -587,6 +587,15 @@ model_small_icons = {
 }
 
 
+comment_name = {
+    'd': 'nonspecific',
+    'm': 'no_casting',
+    'i': 'no_picture',
+    'v': 'no_variation',
+    'c': 'product_pic',
+    'n': 'not_released',
+}
+
 comment_designation = {
     'd': '<i class="fa fa-star blue"></i> - specific model not determined',
     'm': '<i class="fa fa-star green"></i> - casting information not available',

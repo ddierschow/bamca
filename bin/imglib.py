@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import datetime, os, stat, subprocess, sys, time
+import datetime, glob, os, stat, subprocess, sys, time
 import config
 from PIL import Image, ImageDraw
 import imicon
@@ -1062,7 +1062,7 @@ def get_dir(tdir, name_has=''):
                 files['log'].append(f)
             elif ext in image_inputter:
                 files['graf'].append(f)
-            elif stat.S_IMODE(perms) & stat.S_IXUSR:
+            elif stat.S_IMODE(perms) & stat.S_IXUSR or ext in ['html', 'php']:
                 files['exe'].append(f)
             else:
                 files['other'].append(f)
@@ -1123,3 +1123,14 @@ def update_presets(pdir, values):
 	presets = read_presets(pdir)
 	presets.update(values)
 	write_presets(pdir, presets)
+
+
+def promote_picture(pif, mod_id, var_id):
+	credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s.*' % (mod_id.lower(), var_id.lower()))
+	pif.render.message('promoting picture for', mod_id, 'var', var_id, 'to', credit['photographer.id'])
+	for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
+	    ofn = pic[pic.rfind('/') + 1:]
+	    nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
+	    useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
+	# transfer credit
+	pif.dbh.write_photo_credit(credit['photographer.id'], config.IMG_DIR_MAN[1:], mod_id)

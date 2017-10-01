@@ -792,7 +792,7 @@ def imawidget_main(pif):
 	    show_editor(pif, eform)
         elif eform.mass:
             if eform.man and eform.var:
-                print pif.render.format_button("promote", 'vars.cgi?mod=%s&var=%s&promote=1' % (eform.man, eform.var))
+                print pif.render.format_button("promote", 'editor.cgi?mod=%s&var=%s&promote=1' % (eform.man, eform.var))
             largest = eform.mass_resize(pif, "from library")
         elif eform.wipe:
             eform.save_presets()

@@ -246,7 +246,7 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations
                     prodstar = 'fa-star black'
                 else:
                     prodstar = 'fa-star red'
-                prod += ' <a href="imawidget.cgi?act=1&d=./%s&f=%s&delete=1"><i style="fa fa-remove"></i></a>' % (pdir, prodpic[prodpic.rfind('/') + 1:])
+                prod += ' <a href="imawidget.cgi?act=1&d=./%s&f=%s&delete=1"><i class="fa fa-remove"></i></a>' % (pdir, prodpic[prodpic.rfind('/') + 1:])
             else:
                 prod += ' <a href="%s&useprev=1"><i class="fa fa-step-backward"></i></a>' % pif.request_uri
 	    links.append(prod)

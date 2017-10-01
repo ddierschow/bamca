@@ -14,6 +14,7 @@ test:
 deploy: clean
 	$(GIT) reset --hard HEAD
 	$(GIT) pull
+	./updcommits.py
 
 clean:
 	$(RM) -f *~ *.pyc

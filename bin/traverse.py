@@ -29,7 +29,7 @@ def show_list(title, tdir, fl, view=False):
             if f[0] == '.':
                 ostr += '<i>%s</i><br>\n' % f
             elif stat.S_ISDIR(perms):
-                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s">%s</a><br>\n' % (tdir + '/' + f, f)
+                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s">%s/</a><br>\n' % (tdir + '/' + f, f)
             elif tdir.startswith('../'):
                 ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
             elif f[-4:] == '.dat':
@@ -271,13 +271,7 @@ def do_masses(pif, tform):
     var_id = pif.form.get('msspromote')
     if var_id:
 	mod_id = eform.calc_man()
-	pif.render.message('promoting picture for var', var_id, '<br>')
-	for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
-	    ofn = pic[pic.rfind('/') + 1:]
-	    nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
-	    useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
-	# transfer credit
-	pif.dbh.write_photo_credit(pif.form.get_str('credit'), config.IMG_DIR_MAN[1:], mod_id)
+	imglib.promote_picture(pif, mod_id, var_id)
 
 
 def show_file(pif, tform):
@@ -301,7 +295,9 @@ def show_file(pif, tform):
             if fil[i].startswith('uri = '):
                 fil[i] = """uri = <a href="%s">%s</a>\n""" % (fil[i][9:-4], fil[i][9:-4])
                 break
-        print '<br>'.join(fil)
+	print '<pre>'
+        print ''.join(fil)
+	print '</pre>'
 	print '</div>'
     else:
         print '<p>'

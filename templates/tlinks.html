@@ -4,10 +4,10 @@
 <hr>
 <center>This page is maintained by <em>Dean Dierschow</em>.<br>
 <nobr><i class="fa fa-star"></i> Dean's Recommendations</nobr>
-<span class="blue">&#x26ab;</span>
+<span class="blue">&#x25cf;</span>
 <nobr><i class="fa fa-refresh"></i> Reciprocal Link</nobr>
 {% if comment %}
-<span class="blue">&#x26ab;</span>
+<span class="blue">&#x25cf;</span>
 <nobr><i class="fa fa-comment-o"></i> Comment on this link</nobr>
 {% endif %}
 </center>
@@ -18,18 +18,17 @@
 {% if linktype == 'b' %}<i class="fa fa-exclamation-triangle red"></i>
 {% elif linktype == 'f' %}<i class="fa fa-folder-o"></i>
 {% elif linktype == 'g' %}
-{% elif linktype == 'l' %}<span class="blue">&#x26ab;</span>
+{% elif linktype == 'l' %}<span class="blue">&#x25cf;</span>
 {% elif linktype == 'n' %}&nbsp;
 {% elif linktype == 'p' %}
 {% elif linktype == 's' %}<i class="fa fa-star"></i>
 {% elif linktype == 't' %}
-{% elif linktype == 'x' %}<i class="fa fa-trash"></i>
+{% elif linktype == 'x' %}&#x1F5D1;</i>
 {% endif %}
 {% endmacro %}
 
 {% macro showlink(ent) %}
 <div class="link{% if ent.indent %}-indent{% endif %}">
-{% if ent.comment %}<a href="?id={{ ent.id}}"><i class="fa fa-comment-o"></i></a>{% endif %}
 {% if ent.linktype %}{{ showbullet(ent.linktype) }}{% endif %}
 {{ ent.text }}
 {% if ent.large %}
@@ -37,6 +36,7 @@
 <div class="link-desc">
 {% endif %}
 {{ ent.desc|join('<br>') }}
+{% if ent.comment %}<a href="?id={{ ent.id}}"> <i class="fa fa-comment-o ltgray"></i></a>{% endif %}
 </div>
 {% endmacro %}
 
@@ -44,6 +44,13 @@
 
 <div class="linkspage">
 {{ llineup.name }}
+{% if sections|length > 1 %}
+<div class="maintable"><center><ul class="header-links">
+{% for sec in sections %}
+ <li class="header-link-item"><a href="#{{ sec.id }}" class="textbutton">&nbsp;{{ sec.name }}&nbsp;</a></li>
+{% endfor %}
+</ul></center></div>
+{% endif %}
 {% for sec in llineup.section %}
 {{ render.fmt_anchor(sec.anchor) }}
 {% if sec.name %}<h3>{{ sec.name }}</h3><p>{% endif %}

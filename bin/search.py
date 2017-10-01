@@ -96,9 +96,11 @@ def run_search(pif):
 	return date_search(pif, pif.form.get_str('dt'), pif.form.get_str('yr'))
     if pif.form.has('query'):
         targ = pif.form.get_str('query')
+        firstyear = pif.form.get_int('syear', 1)
+        lastyear = pif.form.get_int('eyear', 9999)
         pif.render.title = 'Models matching name: ' + targ
         mods = search_name(pif)
-        mods = filter(lambda x: x['section.page_id'] in ('manls', 'manno'), [pif.dbh.modify_man_item(x) for x in mods])
+        mods = [pif.dbh.modify_man_item(x) for x in mods if x['section.page_id'] in ('manls', 'manno') and int(x['base_id.first_year']) >= firstyear and int(x['base_id.first_year']) <= lastyear]
     elif pif.form.has('id'):
         targ = pif.form.get_str('id')
         mods = search_id(pif)

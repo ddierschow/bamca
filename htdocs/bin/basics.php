@@ -233,6 +233,28 @@ function Fetch($query, $pif) {
     return $ret;
 }
 
+function DoShowHideJavascript($expand, $collapse) {
+?>
+<script type="text/javascript">
+function toggle_visibility(tbid,lnkid)
+{
+ if (document.getElementById(lnkid).value == "<?php echo $collapse; ?>")
+ {
+  document.getElementById(tbid).style.display = "none";
+  document.getElementById(lnkid).value = "<?php echo $expand; ?>";
+  document.getElementById(lnkid).innerHTML = "<?php echo $expand; ?>";
+ }
+ else
+ {
+  document.getElementById(tbid).style.display = "table";
+  document.getElementById(lnkid).value = "<?php echo $collapse; ?>";
+  document.getElementById(lnkid).innerHTML = "<?php echo $collapse; ?>";
+ }
+}
+</script>
+<?php
+}
+
 function DoResetJavascript() {
     echo "<script  language=\"Javascript\">
 function ResetForm(which){

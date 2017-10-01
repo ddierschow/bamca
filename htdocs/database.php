@@ -14,6 +14,9 @@ $answer = Fetch("select min(year), max(year), max(number) from lineup_model", $p
 $LINE_YEAR_START = $answer[0][0];
 $LINE_YEAR_END = $answer[0][1];
 $MAX_NUMBER = $answer[0][2];
+$answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
+$MAN_YEAR_START = $answer[0][0];
+$MAN_YEAR_END = $answer[0][1];
 
 $sections = array();
 $sections[] = array("tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi");
@@ -40,6 +43,7 @@ $pages[] = array("title" => "Ads", "desc" => "Matchbox advertising", "url" => '/
 //prepro.cgi pub.cgi library.cgi package.cgi
 
 DoResetJavascript();
+DoShowHideJavascript('+', '-');
 DoIncDecJavascript();
 DoPageHeader($pif);
 
@@ -84,17 +88,19 @@ function ChooseNum($name, $id, $width, $minval, $maxval, $defval='', $js="", $cl
 }
 
 function SelectYear($name, $id, $defval, $min, $max) {
-    $sl = [];
+    echo "  <td class=\"updown\">\n";
+    echo "   <select name=\"$name\" id=\"$id\"";
+    echo ">\n";
     $yr = $max;
     while ($yr >= $min) {
-	$sel = 0;
+	echo "   <option value=\"" . $yr . "\"";
 	if ($yr == $defval)
-	    $sel = 64;
-	$sl[] = [$sel, $yr, $yr];
+	    echo " selected";
+	echo ">" . $yr . "\n";
 	$yr = $yr - 1;
     }
-    echo "  <td class=\"updown\">\n";
-    Select($name, $id, $sl);
+    echo "   </select>\n";
+    incrsel($id, -1, '');
     echo "  </td>\n";
 }
 
@@ -277,10 +283,7 @@ function SectionRank($pif) {
 }
 
 function SectionManno($pif) {
-    $answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
-    $MAN_YEAR_START = $answer[0][0];
-    $MAN_YEAR_END = $answer[0][1];
-
+    global $MAN_YEAR_START, $MAN_YEAR_END;
     echo "<table>\n <tr>\n  <td colspan=\"7\">\n";
     if ($pif['isadmin'])
 	$q = "select 0, id, name from section where page_id like 'man%' order by display_order";
@@ -329,7 +332,8 @@ function SectionManno($pif) {
     Select('listtype', 'selList', $sl);
 
     echo "  </td>\n </tr>\n</table>\n";
-    echo "Filter by vehicle type:\n<table class=\"types\">";
+    echo '<button type="submit" value="+" name="+" class="textbutton" style="width: 16px;" onclick="toggle_visibility(\'ynm\',\'ynm_l\'); return false;" id="ynm_l">+</button>';
+    echo " Filter by vehicle type:\n<table class=\"types\" id=\"ynm\">";
     echo " <tr>\n  <td class=\"tdboth\" colspan=\"2\">Every vehicle has one of these.</td>\n";
     echo "  <td class=\"tdboth\" colspan=\"2\">Vehicle may have up to two of these.</td>\n";
     if ($pif['isadmin'])
@@ -442,33 +446,49 @@ function SectionMakes($pif) {
 }
 
 function SectionSearch($pif) {
+    global $MAN_YEAR_START, $MAN_YEAR_END;
     echo "<table><tr><td>\n";
-    echo "Search the casting information for: <input type=\"text\" name=\"query\">\n";
-    echo "</td></tr></table>\n";
+    echo "Search the casting information for:</td><td><input type=\"text\" name=\"query\">\n";
+    echo " </td>";
+    echo "<tr>\n";
+    echo " <tr><td style=\"text-align: right;\">\nStart year:\n  </td>\n";
+    SelectYear('syear', 'searchSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
+    echo " </td><tr>\n";
+    echo " <tr><td style=\"text-align: right;\">End year:</td>\n";
+    SelectYear('eyear', 'searchEyear', $MAN_YEAR_END, $MAN_YEAR_START, $MAN_YEAR_END);
+    echo "</tr></table>\n";
 }
 
 function SectionVSearch($pif) {
     echo "Search the variation information for models containing the following.<p>\n";
     echo "<table><tr>\n";
-    HorzSpacer(6);
+    HorzSpacer(2);
+    echo "<td>\n";
+    echo "<table><tr>\n";
     echo "<td>Casting name:</td><td><input type=\"text\" name=\"casting\"></td><td width=\"16\">\n";
     echo "<td>\n";
     Checks('checkbox', 'codes', [['1', 'Code 1 Models', 1]], '');
     echo "</td></tr>\n";
-    echo "<tr><td>Base:</td><td><input type=\"text\" name=\"base\"></td><td></td>\n";
+    echo "<tr><td>Body:</td><td><input type=\"text\" name=\"body\"></td><td></td>\n";
     echo "<td>\n";
     Checks('checkbox', 'codes', [['2', 'Code 2 Models', 1]], '');
+    echo "</td></tr></table>\n";
     echo "</td></tr>\n";
-    echo "<tr><td>Body:</td><td><input type=\"text\" name=\"body\"></td></tr>\n";
+    echo "<tr><td>\n";
+    echo '<button type="submit" value="+" name="vsct" class="textbutton" style="width: 16px;" onclick="toggle_visibility(\'vsc\',\'vsc_l\'); return false;" id="vsc_l">+</button>';
+    echo "\nOther search criteria:<br>\n";
+    echo "<table id=\"vsc\">\n";
+    echo "<tr><td>Base:</td><td><input type=\"text\" name=\"base\"></td></tr>\n";
     echo "<tr><td>Interior:</td><td><input type=\"text\" name=\"interior\"></td></tr>\n";
     echo "<tr><td>Wheels:</td><td><input type=\"text\" name=\"wheels\"></td></tr>\n";
     echo "<tr><td>Windows:</td><td><input type=\"text\" name=\"windows\"></td></tr>\n";
     if ($pif['isadmin']) {
-	echo "<tr><td></td><td><i>Area:</i></td><td><input type=\"text\" name=\"area\"></td></tr>\n";
-	echo "<tr><td></td><td><i>Category:</i></td><td><input type=\"text\" name=\"cat\"></td></tr>\n";
-	echo "<tr><td></td><td><i>Date:</i></td><td><input type=\"text\" name=\"date\"></td></tr>\n";
+	echo "<tr><td><i>Area:</i></td><td><input type=\"text\" name=\"area\"></td></tr>\n";
+	echo "<tr><td><i>Category:</i></td><td><input type=\"text\" name=\"cat\"></td></tr>\n";
+	echo "<tr><td><i>Date:</i></td><td><input type=\"text\" name=\"date\"></td></tr>\n";
     }
-    echo "</table>\n";
+    echo "</td></tr></table>\n";
+    echo "</td></tr></table>\n";
 }
 
 function SectionPacks($pif) {

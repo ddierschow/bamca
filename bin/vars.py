@@ -4,6 +4,7 @@ import copy, glob, os, re
 
 import basics
 import config
+import imglib
 import mbdata
 import models
 import single
@@ -69,7 +70,7 @@ def show_variation_editor(pif, man, var_id, edit=False, addnew=False):
 	footer += pif.render.format_button_reset('vars')
 	footer += pif.render.format_button("delete", 'vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id))
 	footer += pif.render.format_button("remove_picture", 'vars.cgi?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
-	footer += pif.render.format_button("promote", '?mod=%s&var=%s&promote=1' % (mod_id, var_id))
+	footer += pif.render.format_button("promote", 'editor.cgi?mod=%s&var=%s&promote=1' % (mod_id, var_id))
 
     photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers()]
     pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
@@ -400,14 +401,6 @@ def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_i
 	{'name': '%s-%s' % (new_mod_id.lower(), new_var_id.lower())},
 	pif.dbh.make_where({'name': '%s-%s' % (old_mod_id.lower(), old_var_id.lower()), 'path': config.IMG_DIR_VAR[1:]}),
 	modonly=True, tag='RenamePictures')
-
-
-def promote_picture(pif, mod_id, var_id):  # pragma: no cover
-    pif.render.message('promoting picture for var', var_id, '<br>')
-    for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
-        ofn = pic[pic.rfind('/') + 1:]
-        nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
-        useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
 
 
 def remove_picture(pif, mod_id, var_id):  # pragma: no cover
@@ -965,7 +958,7 @@ def main(pif):
     elif pif.form.has("rmpic"):
         remove_picture(pif, man_id, var)
     elif pif.form.has("promote"):
-        promote_picture(pif, man_id, var)
+        imglib.promote_picture(pif, man_id, var)
     elif not man:
 	raise useful.SimpleError("Can't find requested information.  Please try something else.")
 

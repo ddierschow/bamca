@@ -14,9 +14,9 @@ bottom = '''if __name__ == '__main__': # pragma: no cover
 '''
 
 if __name__ == '__main__':
-    import updcommits
-    updcommits.write_php_config_file()
-    updcommits.write_jinja2_config_file()
+#    import updcommits
+#    updcommits.write_php_config_file()
+#    updcommits.write_jinja2_config_file()
 
     import glob
     f = glob.glob('*.py')

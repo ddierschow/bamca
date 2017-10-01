@@ -120,6 +120,12 @@ it is also useful for targeting FF-only code */
 .see_the_faq:active  {color: #006600; background-color: #FFFF00; border-color: #006600;}
 .see_the_faq:hover   {color: #FFFF00; background-color: #006600; border-color: #FFFF00;}
 
+.maintable {width: 1024px; max-width: 1024px;}
+.header-links {width: 90%; padding: 0 0 0 0; text-align: center; font-size: 0;}
+.header-link-item {margin: 2px;
+    display: inline-block; /* an inline element that has all the benifits of a block element without being full width */
+    list-style-type: none; /* killing the bullet */
+}
 .framed {width: 1024px;}
 
 .red    {color: #FF0000;}
@@ -131,6 +137,7 @@ it is also useful for targeting FF-only code */
 .orange {color: #FF9900;}
 .yellow {color: #FFFF00;}
 .gray   {color: #999999;}
+.ltgray {color: #CCCCCC;}
 .bold   {font-weight: bold;}
 
 .stat {font-style: italic; font-size: small;}

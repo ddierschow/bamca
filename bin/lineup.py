@@ -330,7 +330,7 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
     return ostr
 
 
-def render_lineup_year(pif, mainsec, secs, xsecs, large=False):
+def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False):
     unroll = pif.form.get_bool('unroll')
     year = mainsec['year']
     region = mainsec['region']
@@ -354,23 +354,35 @@ def render_lineup_year(pif, mainsec, secs, xsecs, large=False):
     mainsec['range'] += xsecs
     llineup = {'id': 'year', 'section': [mainsec], 'name': '', 'tail': []}
 
+    llineup['comments'] = comments
     llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
-    footer = ''
     if large:
 	llineup['header'] = '<form action="mass.cgi" method="post">\n<input type="hidden" name="type" value="lineup_desc">\n' + pif.create_token()
 	llineup['footer'] = pif.render.format_button_input() + '</form>\n'
-    if year > mainsec['first_year']:
-       footer += pif.render.format_button("previous_year", link='?year=%s&region=%s' % (year - 1, region))
-    if year < mainsec['last_year']:
-       footer += pif.render.format_button("following_year", link='?year=%s&region=%s' % (year + 1, region))
-    pif.render.set_footer(footer)
 #    if pif.is_allowed('a'):  # pragma: no cover
 #        llineup['tail'][1] += '<br>multivars %s %s ' % (year, region) + ' '.join(multivars) + '<br>'
+    return llineup
 
+
+def render_lineup_year(pif, mainsec, secs, xsecs, large=False):
+    unroll = pif.form.get_bool('unroll')
+    footer = ''
+    year = mainsec['year']
+    region = mainsec['region']
+    llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False)
+#    if year > mainsec['first_year']:
+#       footer += pif.render.format_button("previous_year", link='?year=%s&region=%s' % (year - 1, pif.form.get_stru('region')))
+#    if year < mainsec['last_year']:
+#       footer += pif.render.format_button("following_year", link='?year=%s&region=%s' % (year + 1, pif.form.get_stru('region')))
+    pif.render.set_footer(footer)
     pif.render.format_matrix_for_template(llineup)
     if year >= 2001 and year <= 2005:
 	pif.render.bamcamark = 'bamca_sm2.gif'
-    return pif.render.format_template('lineup.html', llineup=llineup, large=large, unroll=unroll)
+    elif year <= 1969:
+	pif.render.bamcamark = 'bamca_sm3.gif'
+    elif year <= 1974:
+	pif.render.bamcamark = 'bamca_sm4.gif'
+    return pif.render.format_template('lineup.html', llineup=llineup, large=large, unroll=pif.form.get_bool('unroll'))
 
 
 def render_lineup_text(pif, mainsec, secs, xsecs):
@@ -870,6 +882,28 @@ def rank_lineup(pif, number, region, syear, eyear):
     print render_lineup_text(pif, llineup['section'][0], llineup['section'][1:], [])
 
 
+def list_lineups(pif):
+    section_types = ['man']#dict(mbdata.lineup_types).keys()
+    ctypes = sorted(mbdata.comment_name.keys())
+    regionlist = [x for x in mbdata.regionlist if x != 'W']
+    limits = pif.dbh.fetch_lineup_limits()
+    first_year = int(limits['min(year)'])
+    last_year = int(limits['max(year)'])
+    comments = set()
+    for year in range(first_year, last_year + 1):
+	regions = sorted(set([mbdata.correct_region(x, year) for x in regionlist]))
+	if not regions:
+	    regions = ['R', 'U']
+	for region in regions:
+	    mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types)
+	    llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs)
+	    comments |= llineup['comments']
+	    print year, region, ':', ' '.join([x if x in llineup['comments'] else ' ' for x in ctypes])
+    print
+    for comment in sorted(comments):
+	print comment, mbdata.comment_name[comment]
+
+
 def command_help(pif, *args):
     pif.render.message("./lineup.py [s|c] ...")
     pif.render.message("  s for show: year region [number]")
@@ -883,6 +917,7 @@ command_lookup = {
     'c': clone_lineup,
     'p': count_lineup,
     'r': rank_lineup,
+    'l': list_lineups,
 }
 
 

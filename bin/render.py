@@ -73,7 +73,8 @@ class Presentation(object):
         return "'<render.Presentation instance>'"
 
     def error_report(self):
-        return str(self.__dict__)
+	import pprint
+	return pprint.pformat(self.__dict__, indent=2, width=132)
 
     def set_page_info(self, res):
 	if res:
@@ -350,7 +351,7 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_shown_flags(self):
-	ball = '<span class="blue">&#x26ab;</span> '
+	ball = '<span class="blue">&#x25cf;</span> '
 	return '<center>\n' + \
 	    ball.join(['<nobr>%s %s</nobr> ' % (self.format_image_flag(x), self.flag_info[x][0]) for x in
 		sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'

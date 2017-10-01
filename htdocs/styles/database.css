@@ -1,6 +1,7 @@
 td {vertical-align: top;}
-.maintable {width: 1024px; max-width: 1024px;}
 .types td {vertical-align: middle;}
+#ynm {display: none;}
+#vsc {display: none;}
 
 .tdboth {border-style: solid; border-width: thin; padding-left: 4px; padding-right: 4px;}
 .tdleft {border-style: solid; border-width: thin 0 thin thin; padding-left: 4px; padding-right: 4px;}
@@ -11,12 +12,6 @@ td {vertical-align: top;}
 .sel_head {border-width: 1px; border-style: solid;}
 .sel_body {border-width: 1px; border-style: solid; padding: 8px;}
 .input_label {text-align: right;}
-
-.header-links {width: 90%; padding: 0 0 0 0; text-align: center; font-size: 0;}
-.header-link-item {margin: 2px;
-    display: inline-block; /* an inline element that has all the benifits of a block element without being full width */
-    list-style-type: none; /* killing the bullet */
-}
 
 .id_head       {background-color: #DDDDDD;}
 .id_body       {background-color: #F3F3F3;}

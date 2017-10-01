@@ -226,8 +226,6 @@ class PageInfoFile(object):
         self.dbh.dbi.nowrites = self.unittest
         self.log_start()
         page_info = self.dbh.fetch_page(self.page_id)
-#	useful.write_comment('page_id: %s' % str(self.page_id))
-#	useful.write_comment('page_info: %s' % str(page_info))
 	if not page_info:
 	    raise useful.SimpleError('Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id)
         self.render.set_page_info(page_info)
@@ -303,14 +301,9 @@ class PageInfoFile(object):
 
     # -- debugging and error handling -----------------------------------
 
-#    def dump(self, verbose=False):
-#        if self.render.verbose or verbose:
-#            print useful.dump_dict_comment('pifile', self.__dict__)
-#            print useful.dump_dict_comment('pifile.render', self.render.__dict__)
-#            print useful.dump_dict_comment('pifile.dbh', self.dbh.__dict__)
-
     def error_report(self):
-        ostr = 'pifile = ' + str(self.__dict__) + '\n'
+	import pprint
+        ostr = 'pifile = ' + pprint.pformat(self.__dict__, indent=2, width=132) + "\n"
         ostr += 'render = ' + self.render.error_report() + '\n'
         ostr += 'dbh = ' + self.dbh.error_report() + '\n'
         return ostr

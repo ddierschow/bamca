@@ -19,11 +19,7 @@ def links(pif):
     if pif.form.get_int('id'):
         link = pif.dbh.fetch_link_line(pif.form.get_int('id'))
 	if link:
-	    link = link[0]
-	    if link['page_id'] != 'links.toylinks':
-		pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
-	    pif.render.hierarchy_append('', 'Specific Link')
-	    return single_link(pif, link)
+	    return single_link(pif, link[0])
     pif.render.set_page_extra(pif.render.reset_button_js)
     if pif.page_id != 'links.toylinks':
 	pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
@@ -31,7 +27,13 @@ def links(pif):
 
 
 def single_link(pif, link):
-    return pif.render.format_template('tlink.html', link=link)
+    if link['page_id'] != 'links.toylinks':
+	pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
+    pif.render.hierarchy_append('', 'Specific Link')
+    extra = ''
+    if pif.is_allowed('m'):  # pragma: no cover
+	extra = '- ' + pif.render.format_button("edit", "edlinks.cgi?id=%s" % link['id'])
+    return pif.render.format_template('tlink.html', link=link, extra=extra)
 
 
 def link_page(pif):
@@ -56,7 +58,8 @@ def link_page(pif):
         lsec['range'] = [lran]
         llineup['section'].append(lsec)
 
-    return pif.render.format_template('tlinks.html', llineup=llineup, flags=pif.render.format_shown_flags())
+    return pif.render.format_template('tlinks.html', llineup=llineup, sections=sections,
+				      flags=pif.render.format_shown_flags())
 
 
 def generate_links(pif, links):
@@ -71,8 +74,8 @@ def make_link(pif, ent):
     lnk['indent'] = (ent['flags'] & pif.dbh.FLAG_LINK_LINE_INDENTED) != 0
     lnk['id'] = ent['id']
     cmd = ent['link_type']
+    lnk['comment'] = True
     if pif.is_allowed('m'):  # pragma: no cover
-	lnk['comment'] = True
 	if ent.get('last_status') == 'exc':
 	    cmd = 'b'
     lnk['linktype'] = cmd # linktypes.get(cmd)

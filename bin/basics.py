@@ -15,7 +15,7 @@ def get_page_info(page_id, form_key='', defval='', args='', dbedit=None):
 
 
 def write_traceback_file(pif):
-    import datetime, traceback
+    import datetime, pprint, traceback
     import config
     str_tb = traceback.format_exc()
     if pif and pif.unittest:
@@ -30,7 +30,7 @@ def write_traceback_file(pif):
               ' '.join([x.strip() for x in traceback.format_exception_only(sys.exc_type, sys.exc_value)]))
     erf.write("uri = '''%s'''\n" % os.environ.get('REQUEST_URI', ''))
     erf.write("tb = '''\n" + str_tb + "\n'''\n")
-    erf.write("env = '''" + str(os.environ) + "'''\n")
+    erf.write("env = " + pprint.pformat(os.environ, indent=2, width=132) + "\n")
     if pif:
         erf.write(pif.error_report())
     erf.close()

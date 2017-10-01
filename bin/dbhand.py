@@ -25,7 +25,8 @@ class DBHandler(object):
         return "'<dbhand.DBHandler instance>'"
 
     def error_report(self):
-        return str(self.__dict__) + '\n' + 'dbi = ' + str(self.dbi.__dict__)
+	import pprint
+	return pprint.pformat(self.__dict__, indent=2, width=132) + '\ndbi = ' + pprint.pformat(self.dbi.__dict__, indent=2, width=132)
 
     def set_verbose(self, flag):
         self.dbi.verbose = flag

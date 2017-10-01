@@ -3,6 +3,7 @@
 import copy, os, re, urllib2
 import basics
 import config
+import imglib
 import masses
 import mbdata
 import useful
@@ -38,6 +39,8 @@ def editor_main(pif):
     pif.render.print_html()
     pif.restrict('a')
     pif.render.set_page_extra(pif.render.reset_button_js)
+    if pif.form.get_str('promote'):
+	return imglib.promote_picture(pif, pif.form.get_str('mod'), pif.form.get_str('var'))
     if pif.form.get_str('table'):
 	return show_table(pif)
     return editor_start(pif)
