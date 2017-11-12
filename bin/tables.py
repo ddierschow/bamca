@@ -1,10 +1,11 @@
 #!/usr/local/bin/python
 
 # readonly hidden select checkbox
-# 'add' 'ask' 'clinks' 'columns' 'create' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
+# 'add' 'ask' 'clinks' 'columns' 'create' 'db' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
 table_info = {
     #page_info
     'page_info': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'flags', 'format_type', 'title', 'pic_dir', 'tail', 'description', 'note'],
         'clinks': {
@@ -24,6 +25,7 @@ table_info = {
     },
     #country
     'country': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'name', 'region'],
         'clinks': {
@@ -38,6 +40,7 @@ table_info = {
     },
     #section
     'section': {
+	'db': 'bamca',
         'id': ['id', 'page_id'],
         'columns': ['id', 'page_id', 'display_order', 'category', 'flags', 'name', 'columns', 'start', 'pic_dir', 'disp_format', 'link_format', 'img_format', 'note'],
         'clinks': {
@@ -64,6 +67,7 @@ table_info = {
     },
     #base_id
     'base_id': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'first_year', 'model_type', 'rawname', 'description', 'flags'],
         'clinks': {
@@ -91,6 +95,7 @@ table_info = {
     },
     #casting
     'casting': {
+	'db': 'bamca',
         'id': ['id'],
 	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'variation_digits'],
@@ -132,6 +137,7 @@ table_info = {
     },
     #casting_related
     'casting_related': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
         'clinks': {
@@ -147,6 +153,7 @@ table_info = {
     },
     #attribute
     'attribute': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'mod_id', 'attribute_name', 'definition', 'title', 'visual'],
         'clinks': {
@@ -169,6 +176,7 @@ table_info = {
     },
     #attribute_picture
     'attribute_picture': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'mod_id', 'attr_id', 'attr_type', 'picture_id', 'description'],
         'clinks': {
@@ -192,6 +200,7 @@ table_info = {
     },
     #variation
     'variation': {
+	'db': 'bamca',
         'id': ['mod_id', 'var'],
         'columns': ['mod_id', 'var', 'flags',
             'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows',
@@ -217,6 +226,7 @@ table_info = {
     },
     #detail
     'detail': {
+	'db': 'bamca',
         'id': ['mod_id', 'var_id', 'attr_id'],
         'columns': ['mod_id', 'var_id', 'attr_id', 'description'],
         'clinks': {
@@ -230,6 +240,7 @@ table_info = {
     },
     #wheel
     'wheel': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'description'],
         'create': {
@@ -238,6 +249,7 @@ table_info = {
     },
     #alias
     'alias': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'first_year', 'ref_id', 'section_id', 'type'],
         'clinks': {
@@ -253,6 +265,7 @@ table_info = {
     },
     #vehicle_type
     'vehicle_type': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'ch', 'name'],
         'clinks': {
@@ -261,6 +274,7 @@ table_info = {
     },
     #counter
     'counter': {
+	'db': 'buser',
         'id': ['id'],
         'columns': ['id', 'value', 'timestamp', 'health'],
         'clinks': {
@@ -269,6 +283,7 @@ table_info = {
     },
     #vehicle_make
     'vehicle_make': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'name', 'company_name', 'flags'],
         'clinks': {
@@ -281,6 +296,7 @@ table_info = {
     },
     #casting_make
     'casting_make': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'make_id', 'casting_id', 'flags'],
         'clinks': {
@@ -295,6 +311,7 @@ table_info = {
     },
     #matrix_model
     'matrix_model': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'base_id', 'page_id', 'section_id', 'display_order', 'range_id', 'mod_id', 'flags', 'shown_id', 'name', 'subname', 'description'],
         'clinks': {
@@ -313,6 +330,7 @@ table_info = {
     },
     #region
     'region': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'parent', 'name'],
         'clinks': {
@@ -328,6 +346,7 @@ table_info = {
     },
     #lineup_model
     'lineup_model': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'base_id', 'mod_id', 'number', 'display_order', 'flags', 'style_id', 'picture_id', 'region', 'year', 'name', 'page_id'],
         'clinks': {
@@ -345,6 +364,7 @@ table_info = {
     },
     #link_line
     'link_line': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'page_id', 'section_id', 'display_order', 'flags', 'associated_link', 'last_status', 'link_type', 'country', 'url', 'name', 'description', 'note'],
         'readonly': ['last_status'],
@@ -361,6 +381,7 @@ table_info = {
     },
     #blacklist
     'blacklist': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'reason', 'target'],
         'clinks': {
@@ -371,16 +392,18 @@ table_info = {
         },
     },
     #user
-    'buser.user': {
+    'user': {
+	'db': 'buser',
         'id': ['id'],
         'columns': ['id', 'name', 'passwd', 'privs', 'email', 'state', 'vkey'],
         'clinks': {
-                'id': {'tab': 'buser.user', 'id': ['id/id']},
+                'id': {'tab': 'user', 'id': ['id/id']},
         },
         'readonly': ['id'],
     },
     #pack
     'pack': {
+	'db': 'bamca',
         'id': ['id'],
 	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'var', 'page_id', 'section_id', 'region', 'end_year', 'layout', 'product_code', 'material', 'country', 'note'],
@@ -402,6 +425,7 @@ table_info = {
     },
     #pack_model
     'pack_model': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'pack_id', 'pack_var', 'mod_id', 'var_id', 'flags', 'display_order'],
         'clinks': {
@@ -417,6 +441,7 @@ table_info = {
     },
     #publication
     'publication': {
+	'db': 'bamca',
         'id': ['id'],
 	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'country', 'section_id'],
@@ -439,6 +464,7 @@ table_info = {
     },
     #variation_select
     'variation_select': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'ref_id', 'mod_id', 'var_id', 'sub_id', 'category'],
         'create': {
@@ -460,6 +486,7 @@ table_info = {
     },
     #box_type
     'box_type': {
+	'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'mod_id', 'box_type', 'pic_id', 'box_size', 'additional_text', 'bottom', 'sides', 'end_flap', 'model_name', 'year', 'notes'],
         'clinks': {
@@ -472,6 +499,7 @@ table_info = {
     },
     #book
     'book': {
+	'db': 'bamca',
         'id': ['id'],
 	'columns': ['id', 'author', 'title', 'publisher', 'year', 'isbn', 'flags', 'pic_id'],
         'ask': ['id'],
@@ -484,6 +512,7 @@ table_info = {
     },
     #bayarea
     'bayarea': {
+	'db': 'bamca',
         'id': ['id'],
 	'columns': ['id', 'name', 'address', 'city', 'state', 'phone', 'flags', 'url'],
         'ask': ['id'],
@@ -493,12 +522,15 @@ table_info = {
                 'id': {'tab': 'bayarea', 'id': ['id/id']},
         },
     },
+    #token
     'token': {
+	'db': 'buser',
 	'id': ['id'],
 	'columns': ['id', 'created'],
     },
     #photographer
     'photographer': {
+	'db': 'bamca',
 	'id': ['id'],
 	'columns': ['id', 'name', 'url', 'flags'],
         'ask': ['id'],
@@ -512,6 +544,7 @@ table_info = {
     },
     #photo_credit
     'photo_credit': {
+	'db': 'bamca',
 	'id': ['id'],
 	'columns': ['id', 'path', 'name', 'photographer_id'],
 	'add': {
@@ -526,6 +559,7 @@ table_info = {
     },
     #category
     'category': {
+	'db': 'bamca',
 	'id': ['id'],
 	'columns': ['id', 'name', 'flags', 'image'],
 	'add': {
@@ -536,10 +570,131 @@ table_info = {
         'clinks': {
         },
     },
-
+    #user_item
+    'user_item': {
+	'db': 'buser',
+	'id': ['id'],
+	'columns': ['id', 'user_id', 'base_id', 'flags', 'own_type', 'comment'],
+	'add': {
+		'user_item': ['id/id'],
+	},
+        'tlinks': [
+	],
+        'clinks': {
+        },
+        'ask': ['id', 'user_id', 'base_id'],
+    },
 }
 for key in table_info:
     table_info[key]['name'] = key
+
+#-
+
+class Results(object):
+
+    def __init__(self, table, results=None, single=False):
+	self._info = table_info[table]
+	self._results = None
+	self._single = single
+	self.receive(results)
+
+    def receive(self, records):
+	if records is not None:
+	    if self._results is None:
+		self._results = list()
+	    self._results += [Result(r, self.name) for r in records]
+
+    def tolist(self):
+	return [x.todict() for x in self._results]
+
+    @property
+    def first(self):
+	return self._results[0] if self._results else None
+
+    @property
+    def last(self):
+	return self._results[-1] if self._results else None
+
+    def __iter__(self):
+	for result in self._results:
+	    yield result
+
+    def __len__(self):
+	return len(self._results)
+
+    def __getattr__(self, key):
+	return self._info[key]
+
+    def __getattr__(self, key):
+	return self.first[key] if self._single and key not in self._info else self._info[key]
+
+    def __getitem__(self, key):
+	if self._single and key not in self._info:
+	    return self.first[key]
+	elif isinstance(key, int):
+	    return self._results[key]
+	return self._info[key]
+
+
+class Result(object):
+
+    def __init__(self, record=None, table=''):
+	self._table = table
+	self._record = {}
+	if record:
+	    for key, val in record.items():
+		if '.' in key:
+		    k1, k2 = key.split('.', 1)
+		    self._record.setdefault(k1, Result())
+		    self._record[k1][k2] = val
+		else:
+		    self._record[key] = val
+
+    def todict(self):
+	outd = dict()
+	outd.update(self._record[self._table])
+	outd.update({key: self._record[key] for key in self._record if key != self._table})
+	return outd
+
+    def keys(self):
+	return self._record.keys()
+
+    def __getattr__(self, key):
+	if '.' in key:
+	    k1, k2 = key.split('.', 1)
+	    return self._record[k1][k2]
+	elif key in self._record:
+	    return self._record[key]
+	raise AttributeError()
+
+    def __getitem__(self, key):
+	if '.' in key:
+	    k1, k2 = key.split('.', 1)
+	    return self._record[k1][k2]
+	elif key in self._record:
+	    return self._record[key]
+	return self._record[self._table][key]
+
+    def __setitem__(self, key, val):
+	if '.' in key:
+	    k1, k2 = key.split('.', 1)
+	    self._record[k1][k2] = val
+	elif key in self._record and isinstance(self._record[key], Result):
+	    self._record[self._table][key] = val
+	else:
+	    self._record[key] = val
+
+    def __repr__(self):
+	return self._table + ': ' + str(self._record)
+
+    def __str__(self):
+	return self._table + ': ' + str(self._record)
+
+    def setdefault(self, key, val):
+	self._record.setdefault(key, val)
+
+    def get(self, key, val=None):
+	return self._record.get(key, val)
 
 #-
 

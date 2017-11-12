@@ -148,13 +148,14 @@ function Checks($input, $name, $values, $sep='<br>') {
 function Section($args) {
     global $pif;
 
-    echo "\n<tr><td><br></td></tr>\n<tr>\n  <td class=\"$args[tag]_head sel_head\">\n";
     if (isset($args['scr'])) {
 	echo "<form action=\"/cgi-bin/$args[scr]\" method=\"get\" name=\"$args[tag]\" id=\"$args[tag]\">\n";
+	echo "<input type=\"submit\" name=\"submit\" value=\"submit\" class=\"textbutton\" style=\"visibility: hidden;\">\n";
     }
     else {
 	echo "<i id=\"$args[tag]\"></i>\n";
     }
+    echo "\n<tr><td><br></td></tr>\n<tr>\n  <td class=\"$args[tag]_head sel_head\">\n";
     echo "   <center><h2>$args[name]</h2></center>\n  </td>\n </tr>\n";
     echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"$args[tag]_body sel_body\">\n";
     if (isset($args['scr'])) {
@@ -165,11 +166,13 @@ function Section($args) {
 	DoTextButtonReset($args['tag'], arr_get($args, 'reset', ''));
 	if ($pif['isadmin'])
 	    Checks('checkbox', 'verbose', [['1', '<i>Verbose</i>']], ''); 
-	echo "\n</form>\n\n";
     }
     else
 	call_user_func($args['fn']);
     echo "  </td>\n </tr>\n";
+    if (isset($args['scr'])) {
+	echo "\n</form>\n\n";
+    }
 }
 
 function ChooseRegion($nrows) {

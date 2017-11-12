@@ -107,6 +107,9 @@ class BaseForm(object):
     def get_strl(self, key, defval=''):
 	return self.get_str(key, defval).lower()
 
+    def get_radio(self, key, value):
+	return self.get_str(key) == value
+
     def get_id(self, key, limit=99, defval=''):
         try:
             return useful.clean_id(str(self.form[key][:limit]))

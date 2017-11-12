@@ -57,7 +57,7 @@ def mack_lineup(pif):
 
     #mods.sort(key=lambda x: (x['mack_id_unf'][1], x['mack_id_unf'][0], x['mack_id_unf'][2]))
 
-    lsec = pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': pif.page_id})[0])
+    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lsec['range'] = [{'entry': mods}]
     llineup = {'section': [lsec]}
     pif.render.format_matrix_for_template(llineup)

@@ -24,12 +24,12 @@ def show_files(regions, files):
 
 def direct_files(pif, regions, files, dirs):
     for pg in pif.dbh.fetch_pages(where={'format_type': 'lineup'}, order='id'):
-	year = pg['page_info.id'][5:]
-	dirs[year] = pg['page_info.pic_dir']
-	imgs = glob.glob('%s/%s[%s][0-9][0-9].*' % (pg['page_info.pic_dir'], year, regions))
-	imgs += glob.glob('%s/%s[%s][0-9][0-9][0-9].*' % (pg['page_info.pic_dir'], year, regions))
+	year = pg.id[5:]
+	dirs[year] = pg.pic_dir
+	imgs = glob.glob('%s/%s[%s][0-9][0-9].*' % (pg.pic_dir, year, regions))
+	imgs += glob.glob('%s/%s[%s][0-9][0-9][0-9].*' % (pg.pic_dir, year, regions))
 	for im in imgs:
-	    im = im[len(pg['page_info.pic_dir']) + 1:]
+	    im = im[len(pg.pic_dir) + 1:]
 	    files.setdefault(im[4], dict())
 	    files[im[4]].setdefault(im[:4], list())
 	    files[im[4]][im[:4]].append(im[5:-4])

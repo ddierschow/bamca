@@ -56,7 +56,7 @@ def biblio(pif):
 
     page_info = biblios.get(pif.page_name, {})
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    lsection = pif.dbh.depref('section', sections[0]) if sections else dict(note='')
+    lsection = sections[0].todict() if sections else dict(note='')
     tab_name = page_info.get('tab', pif.page_name)
     row_links = page_info.get('links', {})
     table = pif.dbh.depref(tab_name, pif.dbh.fetch(tab_name, where='flags&1=0', tag='biblio', verbose=True))

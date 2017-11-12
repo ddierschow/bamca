@@ -120,6 +120,8 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
         fn = url[url.rfind('/') + 1:].lower()
     elif '.' not in fn:
         fn += url[url.rfind('.'):].lower()
+    if '?' in fn:
+	fn = fn[:fn.find('?')]
     fn = useful.file_save(pdir, fn, up, overwrite)
     file_log(pdir + '/' + fn, pdir)
     return fn
@@ -587,7 +589,7 @@ class EditForm(imglib.ActionForm):
 	    print pif.render.format_checkbox("save", [(1, "Save")], presets.get("save", []))
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
-	photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
+	photogs = [('', '')] + [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
 	print 'Credit', pif.render.format_select('credit', photogs, selected=self.credit)
 	print 'Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q])
 	print '<br><span id="ima_info"></span>&nbsp;'
@@ -1441,6 +1443,27 @@ def thumber_main(pif):
             imglib.export_file('tmp.gif'), stderr=open('/dev/null', 'w'), verbose=False)
 
     print outf
+
+
+# -- photographers
+
+@basics.web_page
+def photographers(pif):
+    pif.render.print_html()
+    photog_id = pif.form.get_str('id')
+    if photog_id:
+	columns = ['category', 'count']
+	entries = [{'category': imglib.img_dir_name.get('./' + x['path'], x['path']),
+		    'count': x['count']}
+			    for x in pif.dbh.fetch_photographer_category_counts(photog_id)]
+    else:
+	columns = ['name', 'count']
+	entries = [{'name': pif.render.format_link(x['photographer.url'], x['photographer.name']),
+		    'count': pif.render.format_link('?id=%s' % x['photographer.id'], str(x['count']))}
+			    for x in pif.dbh.fetch_photographer_counts()]
+    lsection = dict(columns=columns, range=[{'entry': entries}], note='', header='', footer='',
+		    headers=dict(zip(columns, [x.title() for x in columns])))
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]), nofooter=True)
 
 
 if __name__ == '__main__':  # pragma: no cover

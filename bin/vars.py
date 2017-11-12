@@ -72,7 +72,8 @@ def show_variation_editor(pif, man, var_id, edit=False, addnew=False):
 	footer += pif.render.format_button("remove_picture", 'vars.cgi?mod=%s&var=%s&rmpic=1' % (mod_id, var_id))
 	footer += pif.render.format_button("promote", 'editor.cgi?mod=%s&var=%s&promote=1' % (mod_id, var_id))
 
-    photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers()]
+    #photogs = [('', '')] + [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers()]
+    photogs = [('', '')] + [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
     pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
     img = ''.join([
         pif.render.format_image_required(mod_id, pdir=pdir, vars=pic_var, nobase=True, prefix=s)
@@ -317,7 +318,8 @@ def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, *
     verbose = False
     if pif.argv:
         pif.render.message('move_variation', old_mod_id, old_var_id, new_mod_id, new_var_id)
-        pif.dbh.dbi.verbose = verbose = True
+        verbose = True
+	pif.dbh.set_verbose(True)
     if old_mod_id == new_mod_id and old_var_id == new_var_id:
 	pif.render.message('no change')
         return
@@ -349,7 +351,6 @@ def copy_variation(pif, mod_id, old_var_id, new_var_id, *args, **kwargs):  # pra
     verbose = False
     if pif.argv:
         pif.render.message('copy_variation', mod_id, old_var_id, new_var_id)
-        #pif.dbh.dbi.verbose = verbose = True
     if old_var_id == new_var_id:
         return
 
@@ -366,7 +367,6 @@ def rename_variation(pif, mod_id=None, old_var_id=None, new_var_id=None, *args, 
     verbose = False
     if pif.argv:
         pif.render.message('rename_variation', mod_id, old_var_id, new_var_id)
-        #pif.dbh.dbi.verbose = verbose = True
     if old_var_id == new_var_id:
         return
     pif.dbh.update_variation({'var': new_var_id, 'imported_var': new_var_id}, {'mod_id': mod_id, 'var': old_var_id}, verbose=verbose)
@@ -411,6 +411,9 @@ def remove_picture(pif, mod_id, var_id):  # pragma: no cover
         pif.render.comment("delete", pic)
         pif.render.message("delete", pic, "<br>")
         os.unlink(pic)
+    cred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s' % (mod_id, var_id))
+    if cred:
+	pif.dbh.delete_photo_credit(cred['photo_credit.id'])
 
 
 def add_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no cover
@@ -870,7 +873,8 @@ def show_model(pif, model):
     vsform = VarSearchForm(pif, mod_id).read(pif.form)
     values = vsform.make_values(mvars)
     values['category'] = list(cates)
-    photogs = [('', '')] + [(x['photographer.id'], x['photographer.name']) for x in pif.dbh.get_photographers()]
+    #photogs = [('', '')] + [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers()]
+    photogs = [('', '')] + [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
     display_type = DISPLAY_TYPE_LIST if vsform.is_list else DISPLAY_TYPE_DETAIL if vsform.is_detail else DISPLAY_TYPE_GRID;
     llineup = do_model(pif, vsform, mvars, display_type, photogs)
     img = pif.render.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
@@ -1046,7 +1050,7 @@ def var_search(pif):
     llineup = {'note': '%d variations found matching search' % nmods, 'columns': 4, 'tail': ['', '']}
     start = pif.form.get_int('start')
     mods = mods[start:start + modsperpage]
-    lsec = pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': pif.page_id})[0])
+    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lran = {'entry': []}
     for mod in mods:
         mod['casting.name'] = mod['base_id.rawname'].replace(';', ' ')
@@ -1119,7 +1123,7 @@ def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
 	print pif.dbh.add_or_update_detail({'description': value, 'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=True)
     pif.dbh.recalc_description(mod_id)
 
-    
+
 def list_variations(pif, mod_id=None, var_id=None, *args, **kwargs):
     if not mod_id:
 	return
@@ -1133,7 +1137,138 @@ def list_variations(pif, mod_id=None, var_id=None, *args, **kwargs):
 	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
 	    pif.render.message('%5s: %s' % (variation['var'], variation['text_description']))
 
-    
+
+def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
+    # very similar to do_var_detail(pif, model, attributes, prev, credits, photogs)
+
+    def mk_star(has_thing):
+	return 'X' if has_thing else '-'
+
+    fmt_str = '%(ID)-12s %(Cat)-8s %(Ty)-5s %(Cr)-4s %(Pic)-5s|%(De)s %(Ba)s %(Bo)s %(In)s %(Wh)s %(Wi)s|%(T)s %(S)s %(M)s %(L)s|%(Description)s'
+    mod_ids = sorted(pif.dbh.fetch_casting_ids())
+    if not start:
+	start = mod_ids[0]
+	end = mod_ids[-1]
+    elif not end:
+	end = start
+    row = {
+	'ID': 'ID',
+	'Description': 'Description',
+	'Cat': 'Cat',
+	'Ty': 'Type',
+	'Cr': 'Cred',
+	'Pic': 'Pic',
+	'De': 'D',
+	'Ba': 'B',
+	'Bo': 'B',
+	'In': 'I',
+	'Wh': 'W',
+	'Wi': 'W',
+	'T': 'T',
+	'S': 'S',
+	'M': 'M',
+	'L': 'L',
+    }
+    pif.render.message(fmt_str % row)
+    for mod_id in mod_ids[mod_ids.index(start):mod_ids.index(end) + 1]:
+	pif.render.message('--------------------------------------+-----------+-------+-------------------------------------------')
+	mod = pif.dbh.fetch_casting(mod_id)
+	phcred = pif.dbh.fetch_photo_credit(path=config.IMG_DIR_MAN[1:], name=mod_id, verbose=False)
+	row = {
+	    'ID': mod['id'],
+	    'Description': mod['name'],
+	    'Cat': 'not made' if not mod['made'] else '',
+	    'Ty': mod['model_type'],
+	    'Cr': phcred['photographer.id'] if phcred else '',
+	    'Pic': '',
+	    'De': ' ',
+	    'Ba': ' ',
+	    'Bo': ' ',
+	    'In': ' ',
+	    'Wh': ' ',
+	    'Wi': ' ',
+	}
+	row.update(check_picture_sizes(config.IMG_DIR_MAN, mod_id + '.jpg', mk_star))
+	pif.render.message(fmt_str % row)
+	credits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod_id, verbose=False)}
+	for model in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
+	    pic_id = model['picture_id'] if model['picture_id'] else model['var']
+	    varsel = pif.dbh.fetch_variation_selects(model['mod_id'], model['var'])
+	    phcred = credits.get(('%s-%s' % (model['mod_id'], pic_id)).lower(), '')
+	    ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = single.calc_var_pics(pif, model)
+	    cat_v = set(model['category'].split())
+	    cat_vs = set([x['variation_select.category'] for x in varsel])
+	    cat = ' '.join(cat_v)
+	    if cat_v != cat_vs:
+		cat += '/' + ' '.join(cat_vs)
+	    row = {
+		'ID': model['mod_id'] + '-' + model['var'],
+		'Description': model['text_description'],
+		'Cat': cat,
+		'Ty': var_types.get(ty_var, ty_var),
+		'Cr': phcred,
+		'Pic': model['picture_id'],
+		'De': mk_star(has_de),
+		'Ba': mk_star(has_ba),
+		'Bo': mk_star(has_bo),
+		'In': mk_star(has_in),
+		'Wh': mk_star(has_wh),
+		'Wi': mk_star(has_wi),
+	    }
+	    row.update(check_picture_sizes(config.IMG_DIR_VAR, model['mod_id'] + '-' + pic_id + '.jpg', mk_star))
+#	    for sz in mbdata.image_size_types:
+#		row[sz.upper()] = mk_star(
+#		    os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + model['mod_id'] + '-' + pic_id + '.jpg').lower()))
+	    pif.render.message(fmt_str % row)
+
+
+def check_picture_sizes(pdir, root, mk_star):
+    return {sz.upper(): mk_star(os.path.exists(useful.relpath('.', pdir, sz + '_' + root).lower())) for sz in mbdata.image_size_types}
+
+
+def list_photo_credits(pif, photog_id=None):
+    start = end = None
+    photogs = [photog_id] if photog_id else sorted([x.photographer.id for x in pif.dbh.fetch_photographers()])
+    #photogs = [photog_id] if photog_id else sorted([x.photographer.id for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)])
+    totals = {x: 0 for x in photogs}
+    totals['mod_id'] = totals['main'] = totals['count'] = totals['model_type'] = ''
+    fmt_str = '%(mod_id)-6s %(model_type)2s %(main)-4s %(count)7s | ' + ' '.join(['%%(%s)7s' % x for x in photogs])
+    headers = {'mod_id': '', 'main': 'Main', 'count': 'Total', 'model_type': 'MT'}
+    headers.update({x: x for x in photogs})
+    pif.render.message(fmt_str % headers)
+    mod_ids = sorted(pif.dbh.fetch_casting_ids())
+    if not start:
+	start = mod_ids[0]
+	end = mod_ids[-1]
+    elif not end:
+	end = start
+    for mod_id in mod_ids[mod_ids.index(start):mod_ids.index(end) + 1]:
+	mod = pif.dbh.fetch_casting(mod_id)
+	main_phcred = pif.dbh.fetch_photo_credit(path=config.IMG_DIR_MAN[1:], name=mod_id, verbose=False)
+	credits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod_id, verbose=False)}
+	row = {x: 0 for x in photogs}
+	row['mod_id'] = mod_id
+	row['model_type'] = mod['model_type']
+	row['main'] = main_phcred['photographer.id'] if main_phcred else ''
+	row['count'] = 0
+	for model in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
+	    if model['picture_id']:
+		continue
+	    ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = single.calc_var_pics(pif, model)
+	    if var_types.get(ty_var, ty_var) == 'C2':
+		continue
+	    phcred = credits.get(('%s-%s' % (model['mod_id'], model['var'])).lower(), '')
+	    row['count'] += 1
+	    if phcred in photogs:
+		row[phcred] += 1
+		totals[phcred] += 1
+	for ph in photogs:
+	    if row[ph] == row['count']:
+		row[ph] = 'all'
+	pif.render.message(fmt_str % row)
+    pif.render.message(fmt_str % totals)
+
+
 def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
     if not mod_id:
 	return
@@ -1163,6 +1298,8 @@ def command_help(pif, *args):
     pif.render.message("  i for info: fields mod_id var_id")
     pif.render.message("  v for value: mod_id var_id-or-default-or-all attribute value")
     pif.render.message("  l for list: mod_id")
+    pif.render.message("  p for pictures: mod_id")
+    pif.render.message("  pc for photo credits")
 
 
 command_lookup = {
@@ -1176,6 +1313,8 @@ command_lookup = {
     'i': info,
     'v': add_value,
     'l': list_variations,
+    'p': list_variation_pictures,
+    'pc': list_photo_credits,
 }
 
 

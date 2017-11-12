@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import datetime, glob, os, stat
+import datetime, filecmp, glob, os, stat
 import basics
 import bfiles
 import config
@@ -90,13 +90,14 @@ def show_dir(pif, tform):
         ostr += '<input type="hidden" name="d" value="%s">\n' % tform.tdir
         ostr += '<input type="checkbox" name="du" value="1"> Dupes\n'
         ostr += '<input type="checkbox" name="co" value="1"> Compact\n'
-	if pif.render.is_admin:
-	    ostr += '<input type="checkbox" name="shc" value="1"> Categorize\n'
-	    ostr += '<input type="checkbox" name="mss" value="1"> Mass\n'
-	    ostr += '<input type="checkbox" name="shm" value="1"> Shelve\n'
-	    ostr += '<input type="checkbox" name="suf" value="1"> Resuffix\n'
-	    ostr += '<input type="checkbox" name="crd" value="1"> Credit\n'
         ostr += '<input type="checkbox" name="si" value="1"> Sized\n'
+	if pif.render.is_admin:
+	    ostr += '<br><input type="radio" name="lty" value="nrm" checked> Normal\n'
+	    ostr += '<input type="radio" name="lty" value="shc"> Categorize\n'
+	    ostr += '<input type="radio" name="lty" value="mss"> Mass\n'
+	    ostr += '<input type="radio" name="lty" value="shm"> Shelve\n'
+	    ostr += '<input type="radio" name="lty" value="suf"> Resuffix\n'
+	    ostr += '<input type="radio" name="lty" value="crd"> Credit\n'
         ostr += pif.render.format_button_input()
 	ostr += '<br>\n'
         ostr += 'Size X <input type="text" name="sx">\n'
@@ -105,11 +106,20 @@ def show_dir(pif, tform):
     return ostr
 
 
+def check_image(pif, targs, src):
+    ostr = '</td><td>'
+    ssize = os.stat(src).st_size
+    for tf in targs:
+	if tf[1] == ssize and filecmp.cmp(tf[0], src):
+	    ostr += tf[0][tf[0].rfind('/') + 1:] + '<br>'
+    return ostr
+
+
 imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="checkbox" name="mv" value="%(f)s %(b)s"> mv'''
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, cred=False):
+def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, cred=False, targs=[]):
     also = {'border': 0}
     if sx:
 	also['width'] = sx
@@ -127,8 +137,9 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
             continue
 	elif mss:
-            inp += '''<input type="text" name="var.%s"> var''' % arg
+            inp += '''<br><input type="text" name="var.%s"> var''' % arg
             ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
+	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg))
             continue
 	elif rsuf:
             inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
@@ -165,13 +176,14 @@ def show_imgs(pif, tform):
     print '<hr>'
     print '<form action="traverse.cgi" method="post">' + pif.create_token()
     plist = tform.patt.split(',')
+    img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss}
     if tform.mss:
 	print 'Credit ' + pif.render.format_text_input('credit', 4)
 	print '<br>'
+	img_args['targs'] = [(x, os.stat(x).st_size) for x in sorted(glob.glob('.' + config.IMG_DIR_VAR + '/l_' + tform.dirname + '-*.*'))]
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
         flist_sort(flist, tform)
-	img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss}
 	if tform.cred:
 	    img_args['cred'] = {x['photo_credit.name']: x['photographer.id'] for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
 	if tform.cpct:
@@ -196,17 +208,17 @@ def show_imgs(pif, tform):
     print '<input type="hidden" name="sc" value="1">'
     if tform.cate:
 	print '<input type="hidden" name="pre" value="">'
-	print '<input type="hidden" name="shc" value="1">'
+	print '<input type="hidden" name="lty" value="shc">'
     elif tform.shlv:
 	print '<input type="hidden" name="pre" value="man">'
-	print '<input type="hidden" name="shm" value="1">'
+	print '<input type="hidden" name="lty" value="shm">'
     elif tform.rsuf:
-	print '<input type="hidden" name="suf" value="1">'
+	print '<input type="hidden" name="lty" value="suf">'
     elif tform.mss:
-	print '<input type="hidden" name="mss" value="1">'
+	print '<input type="hidden" name="lty" value="mss">'
 	print 'promote <input type="text" name="msspromote">'
     elif tform.cred:
-	print '<input type="hidden" name="crd" value="1">'
+	print '<input type="hidden" name="lty" value="crd">'
     print pif.render.format_button_input()
     print '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.render.format_button('upload'))
     print '</form>'
@@ -389,6 +401,12 @@ class TraverseForm(object):
 
     def read(self, pif):
 	pif.render.pic_dir = self.tdir = pif.form.get_str('d', '.')
+	if self.tdir.endswith('/'):
+	    self.dirname = self.tdir[self.tdir[:-1].rfind('/') + 1:-1]
+	elif '/' in self.tdir:
+	    self.dirname = self.tdir[self.tdir.rfind('/') + 1:]
+	else:
+	    self.dirname = self.tdir
 	self.libl = pif.form.get_list(start='lib.', defval='')
 	self.renl = pif.form.get_list(start='ren.', defval='')
 	self.rsfx = pif.form.get_list(start='rsfx.', defval='')
@@ -404,11 +422,11 @@ class TraverseForm(object):
 	self.suff = pif.form.get_str("suff")
 	self.dups = pif.form.get_int("du")
 	self.cpct = pif.form.get_int("co")
-	self.mss = pif.form.get_int("mss")
-	self.shlv = pif.form.get_int("shm")
-	self.cred = pif.form.get_int("crd")
-	self.rsuf = pif.form.get_int("suf")
-	self.cate = pif.form.get_int("shc")
+	self.cate = pif.form.get_radio("lty", "shc")
+	self.mss = pif.form.get_radio("lty", "mss")
+	self.shlv = pif.form.get_radio("lty", "shm")
+	self.rsuf = pif.form.get_radio("lty", "suf")
+	self.cred = pif.form.get_radio("lty", "crd")
 	self.sizd = pif.form.get_int("si")
 	self.scrt = pif.form.get_int('sc')
 	self.act = pif.form.get_int('act')

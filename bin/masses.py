@@ -155,6 +155,7 @@ def add_lineup_ask(pif):
 
 
 def add_lineup_final(pif):
+    # "I think we could all do better." -- Jim Jeffries
     pif.dbh.dbi.insert_or_update('page_info',
     {
         'id': pif.form.get_str('page_id'),
@@ -245,7 +246,7 @@ def add_casting_main(pif):
     entries = [
 	{'title': "ID:", 'value': pif.render.format_text_input("id", 8, 8, value='')},
 	{'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4, value=pif.form.get_str('year'))},
-	{'title': 'Model Type:', 'value': pif.render.format_select('model_type', [x['model_type'] for x in pif.dbh.fetch_base_id_model_types()], selected='SF')},
+	{'title': 'Model Type:', 'value': pif.render.format_select('model_type', [x.model_type for x in pif.dbh.fetch_base_id_model_types()], selected='SF')},
 	{'title': 'Name:', 'value': pif.render.format_text_input("rawname", 80, 80, value='')},
 	{'title': 'Description:', 'value': pif.render.format_text_input("description", 80, 80, value='')},
 	{'title': 'Made:', 'value': pif.render.format_checkbox('notmade', [('not', 'not')])},
@@ -715,7 +716,6 @@ def add_pack_form(pif):
     if not year.isdigit():
 	year = '0000'
     base_id = pif.dbh.fetch_base_id(id=pack_id)
-    base_id = base_id[0] if base_id else []
     pack = pif.dbh.fetch_pack(id=pack_id, var=pif.form.get_str('var'))
     pack_img = pif.render.find_image_file(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
 
@@ -1452,7 +1452,6 @@ def add_matrix_form(pif):
     section_id = pif.form.get_str('section_id')
     page = pif.dbh.fetch_page(id=page_id)
     section = pif.dbh.fetch_section(page_id=page_id, sec_id=section_id)
-    page = page[0] if page else None
     category = ''
     useful.write_message('page', str(page))
     useful.write_message('section', str(section))

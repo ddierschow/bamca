@@ -46,12 +46,12 @@ def calc_var_pics(pif, var):
 
 	if any([var['manufacture'].startswith(x) for x in other_plants]):
 	    ty_var = 'p'
+	elif set(mbdata.code2_categories) & set(var['category'].split()):
+	    ty_var = '2'
 	elif var['var'].startswith('f'):
 	    ty_var = 'f'
 	elif not var['category']:
 	    ty_var = 'c'
-	elif set(mbdata.code2_categories) & set(var['category'].split()):
-	    ty_var = '2'
 	else:
 	    ty_var = '1'
     return ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi
@@ -417,7 +417,6 @@ def show_single(pif):
     sections_recs = pif.dbh.fetch_sections(where="page_id like 'year.%'")
     sections = {}
     for section in sections_recs:
-        section = pif.dbh.depref('section', section)
         if section['columns'] and not section['display_order']:
             sections.setdefault(section['page_id'][5:], [])
             sections[section['page_id'][5:]].append(section)
@@ -506,6 +505,7 @@ def show_single(pif):
 	'compares': make_compares(pif, mod_id),
 	'adds_box': models.show_adds(pif, mod_id),
 	'adds': adds,
+#	'group': pif.render.find_image_path(mod_id, prefix='g', pdir=config.IMG_DIR_ADD)
     }
     return pif.render.format_template('single.html', **context)
 

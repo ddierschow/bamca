@@ -9,9 +9,9 @@ $defaults = ['mod' => $subtitle, 'cab' => 'MB183', 'tlr' => 'CYT04', 'cod' => '1
 $models = [
 // 1. Yellow cab and chassis, yellow container with yellow base, "IPEC" tampo, Macau (AU issued as CY-9)
     ['var' => '01a', 'mfg' => 'Macau', 'liv' => 'IPEC',
-	'cdt' => 'yellow, yellow chassis', 'cva' => '01',
-	'tdt' => 'yellow container with yellow base, IPEC tampo',
-	'nts' => 'Also produced as CY009A Var 12a',
+	'cdt' => 'yellow, yellow chassis', 'cva' => '01', // white chassis?
+	'tdt' => 'yellow container with yellow base, IPEC tampo', // white base?
+	'nts' => 'Preproduction; also produced as CY009A Var 12a',
     ],
 // 2. Blue cab and chassis, blue container with blue base, "Crooke's Healthcare" tampo, Macau (UK)
     ['var' => '02a', 'mfg' => 'Macau', 'liv' => "Crooke's Healthcare",

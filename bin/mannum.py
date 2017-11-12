@@ -148,7 +148,6 @@ class MannoFile(object):
         self.slist = list()
         for section in slist:
             if section['section.page_id'] in self.plist and (not self.section or section['id'] == self.section):
-                section = pif.dbh.depref('section', section)
                 section.setdefault('model_ids', list())
                 self.sdict[section['id']] = section
                 self.slist.append(section)

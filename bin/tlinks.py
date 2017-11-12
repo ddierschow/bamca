@@ -42,7 +42,6 @@ def link_page(pif):
         sections = pif.dbh.fetch_sections({'page_id': pif.page_id, 'id': section_id})
     else:
         sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    sections = pif.dbh.depref('section', sections)
     linklines = pif.dbh.fetch_link_lines(pif.page_id, not_flags=pif.dbh.FLAG_ITEM_HIDDEN)
     linklines = pif.dbh.depref('link_line', linklines)
     linklines.sort(key=lambda x: int(x['display_order']))
@@ -53,7 +52,8 @@ def link_page(pif):
 
     llineup = {'id': pif.page_id, 'name': '', 'section': []}
     for lsec in sections:
-        lsec.update({'anchor': lsec['id'], 'columns': 1})
+        lsec['anchor'] = lsec['id']
+        lsec['columns'] = 1
         lran = {'id': 'range', 'name': '', 'entry': list(generate_links(pif, sect_links.get(lsec['id'], [])))}
         lsec['range'] = [lran]
         llineup['section'].append(lsec)
@@ -429,7 +429,7 @@ def edit_multiple(pif):
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
         section = pif.dbh.fetch_section(sec_id)
-        page_id = section['section.page_id']
+        page_id = section.page_id
     else:
         linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page'), order="display_order")
     pif.render.message(len(linklines), 'lines')
@@ -505,7 +505,7 @@ def edit_links(pif):
 # -- link checker
 
 def check_links(pif, sections=None, reject=[], retest=False, visible=False):
-    pif.dbh.dbi.verbose = True
+    pif.dbh.set_verbose(True)
     for sec in sections if sections else [None]:
         pif.dbh.clear_link_line_statuses(section=sec, where='last_status != "H200"' if retest else '')
         links = pif.dbh.fetch_link_lines(section=sec, where='last_status is NULL' if retest else '', order='id')
@@ -550,7 +550,7 @@ def check_link(pif, link, rejects=[], visible=False):
 
 def check_blacklisted_links(pif, sections=None):
     reject, banned = links.read_blacklist(pif)
-    pif.dbh.dbi.verbose = True
+    pif.dbh.set_verbose(True)
     for sec in sections if sections else [None]:
         for link in pif.dbh.fetch_link_lines(section=sec):
             link = pif.dbh.depref('link_line', link)

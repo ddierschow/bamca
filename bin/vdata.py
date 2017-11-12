@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: utf8 -*-
 
-import os, re, sys
+import functools, os, re, sys
 import basics
 import config
 import useful
@@ -27,6 +27,7 @@ ok_letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .,?
 
 # Decorator for reading data files
 def read_data_file(main_fn):
+    @functools.wraps(main_fn)
     def read_dat(fn):
         dat = open(useful.relpath(config.SRC_DIR, fn + '.dat')).readlines()
         dat = filter(lambda x: x and not x.startswith('#'), [ln.strip() for ln in dat])

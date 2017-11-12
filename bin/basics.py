@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import httplib, os, sys
+import functools, httplib, os, sys
 import MySQLdb
 import useful
 
@@ -218,6 +218,7 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 
 # Decorator that wraps web page mains.
 def web_page(main_fn):
+    @functools.wraps(main_fn)
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
 	#useful.write_comment('PID', os.getpid())
         pif = None
@@ -292,6 +293,7 @@ def web_page(main_fn):
 
 # Decorator that wraps command line mains.
 def command_line(main_fn):
+    @functools.wraps(main_fn)
     def call_main(page_id='cli', form_key='', defval='', args='', dbedit=None, switches='', options=''):
         pif = None
         try:
@@ -321,6 +323,7 @@ def command_line(main_fn):
 
 # Decorator for standalone (PIFless) command line mains.
 def standalone(main_fn):
+    @functools.wraps(main_fn)
     def call_main(switches="", options="", long_options={}, version="", short_help="", long_help="",
                   envar=None, noerror=False, defaults={}, doglob=False):
         try:

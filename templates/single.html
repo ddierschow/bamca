@@ -1,6 +1,14 @@
 {%- extends "framed.html" %}
 {%- import "showix.html" as showix -%}
 
+{%- block page_header_extra -%}
+{% if group %}
+<style>
+.mainpanel {background-image: url("/{{ group }}");}
+</style>
+{% endif %}
+{%- endblock page_header_extra -%}
+
 {%- macro show_boxes() %}
 {# showix.format_matrix(boxes_lineup, simple_formatter) #}
 {%- endmacro %}
@@ -12,7 +20,7 @@
 {% for ent in shadd.entry %}
 <td><center>
 {{ ent.img }}
-{% if ent.credit %}<div class="credit">Photo credit: {{ ent.credit }}</div>{% else %}<br>{% endif %}
+{% if ent.credit %}<div class="credit"> Photo credit: {{ ent.credit }} </div>{% else %}<br>{% endif %}
 {{ ent.desc }}</center>
 </td>
 {% if not (loop.index % shadd.columns) and not loop.last %}</tr><tr>{% endif %}
@@ -22,7 +30,7 @@
 {%- endmacro %}
 
 {%- macro show_model_links(sz='inset_m') %}
-<div class="inset {{ sz }}">
+<div class="inset {{ sz }} infopanel">
 <center><h3>Model-Related Links</h3></center>
 
 <center><b>
@@ -98,11 +106,11 @@
 <center><span class="modelnumber">{{ model.id }}</span><br>
 <table><tr><td>
 {{ model.img }}<br>
-<div class="credit">{% if model.credit %}Photo credit: {{ model.credit }}{% else %}&nbsp;{% endif %}</div>
+<div class="credit">{% if model.credit %} Photo credit: {{ model.credit }} {% else %}&nbsp;{% endif %}</div>
 </td></tr></table>
 <span class="info_name">{{ model.name }}</span>
-{%- for s in model.descs %}<br>{{ s }}{% endfor %}
-<table class="modelinfo"><tr>
+{%- for s in model.descs %}<br>{{ s }}{% endfor %}<p>
+<table class="modelinfo infopanel inset"><tr>
 {%- if model.makes %}<th>Make</th>{% endif %}
 {%- if model.scale %}<th>Scale</th>{% endif %}
 {%- if model.country %}<th>Country</th>{% endif %}
@@ -129,6 +137,7 @@
 {%- macro show_relateds() %}
 {%- if relateds %}
 <p>
+<div class="inset inset_m infopanel">
 <center><h3>Related Models</h3>
 {%- for related in relateds %}
 <span class="modelnumber">{{ related.id }}</span><br>
@@ -141,13 +150,14 @@
 {%- endfor %}
 </center>
 {%- endif %}
+</div>
 {%- endmacro %}
 
 {%- macro show_product_box() %}
 {%- if product_image or prod_title or variations %}
-<div class="inset inset_m">
+<div class="inset inset_m infopanel">
 {%- if product_image %}<center>{{ product_image }}
-<div class="credit">{% if product_img_credit %}Photo credit: {{ product_img_credit }}{% else %}&nbsp;{% endif %}</div>
+<div class="credit">{% if product_img_credit %} Photo credit: {{ product_img_credit }} {% else %}&nbsp;{% endif %}</div>
 </center><p>{% endif %}
 {%- if prod_title %}
 <center>{{ prod_title }}</center>
@@ -181,7 +191,7 @@
 
 {%- block frame_body_panel %}
 <center>
-<table cellspacing="8"><tr>
+<table class="mainpanel"><tr>
 
 {%- if (prod_title or variations or relateds) %}
 {%- if product_image %}

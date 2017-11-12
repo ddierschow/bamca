@@ -22,7 +22,6 @@ class MatrixFile(object):
         mats = pif.dbh.fetch_sections({'page_id': pif.page_id})
         ents = pif.dbh.fetch_matrix_models_variations(pif.page_id)
         for mat in mats:
-            mat = pif.dbh.depref('section', mat)
             ffmt = {'link': mat['link_format'], 'disp': mat['disp_format'], 'img': mat['img_format']}
             is_num_id = d_re.search(ffmt['disp']) or d_re.search(ffmt['link']) or d_re.search(ffmt['img'])
             mat['text'] = ''

@@ -42,14 +42,12 @@ pack_pic_size = 'tcmlh'
 
 def make_page_list(pif):
     pif.render.set_button_comment(pif)
-    pages = pif.dbh.fetch_pages("format_type='packs'")
-    pages.sort(key=lambda x: x['page_info.title'])
-    lsec = pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': 'packs'}))
+    pages = pif.dbh.fetch_pages("format_type='packs'", order='title')
+    lsec = pif.dbh.fetch_sections({'page_id': 'packs'})
     entries = list()
     lsec[0]['range'] = [{'entry': entries}]
     llineup = {'id': 'main', 'name': '', 'section': lsec}
     for page in pages:
-        page = pif.dbh.depref('page_info', page)
         if '.' in page['id'] and (not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_HIDDEN) or pif.render.is_beta):
             txt = models.add_icons(pif, page['id'][6:], '', '') + '<center>' + page['title'] + '</center>'
             entries.append({'text': pif.render.format_link('?page=' + page['id'][page['id'].find('.') + 1:], txt)})
@@ -66,7 +64,7 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
     has_note = False
     title = pif.form.search('title')
 
-    sections = pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': pif.page_id}))
+    sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
     sec_id = sections[0]['id']
     packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
     cols = ['name', 'year', 'product_code']
@@ -305,6 +303,8 @@ def distill_models(pif, pack, page_id):
 #'columns': ['id', 'page_id', 'section_id', 'name', 'first_year', 'end_year', 'region', 'layout', 'product_code', 'material', 'country'],
 def show_pack(pif, pack, picsize):
     pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
+    credit = pif.dbh.fetch_photo_credit(pif.render.pic_dir, pack_id, verbose=True)
+    pack['credit'] = credit['photographer.name'] if credit else ''
     ostr = pif.render.format_image_required(pack_id, largest=picsize)
     if pif.is_allowed('a'):  # pragma: no cover
         ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % ('lib/prod/pack', pack_id, ostr)
@@ -312,6 +312,8 @@ def show_pack(pif, pack, picsize):
         ostr = '<a href="upload.cgi">%s</a>' % (ostr)
     # Ideally this would come from section.flags but we don't have that here.
     # So this is a giant FAKE OUT
+    if pack['credit']:
+	ostr += '<div class="credit">Photo credit: %s</div>' % pack['credit']
     if pack['var']:
 	ostr = '<b>' + pack['id'] + '-' + pack['var'] + '</b><br>' + ostr
     pack['country'] = mbdata.get_country(pack['country'])

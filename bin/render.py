@@ -76,16 +76,14 @@ class Presentation(object):
 	import pprint
 	return pprint.pformat(self.__dict__, indent=2, width=132)
 
-    def set_page_info(self, res):
-	if res:
-	    row = res[0]
-            self.flags = row['page_info.flags'] or 0
-            self.format_type = row['page_info.format_type']
-            self.title = self.fmt_pseudo(row['page_info.title'])
-            self.pic_dir = row['page_info.pic_dir']
-            self.description = row['page_info.description']
-            self.note = self.fmt_pseudo(row['page_info.note'])
-            self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
+    def set_page_info(self, row):
+	self.flags = row['page_info.flags'] or 0
+	self.format_type = row['page_info.format_type']
+	self.title = self.fmt_pseudo(row['page_info.title'])
+	self.pic_dir = row['page_info.pic_dir']
+	self.description = row['page_info.description']
+	self.note = self.fmt_pseudo(row['page_info.note'])
+	self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
 
     def set_page_extra(self, extra):
 	self.extra += extra

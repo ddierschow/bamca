@@ -18,8 +18,7 @@ user_cols = [('id', 'Id'), ('name', 'User Name'), ('privs', 'Priveleges'), ('sta
 def print_users(pif):
     entries = []
     for user in pif.dbh.fetch_users():
-        pif.dbh.depref('buser.user', user)
-	user['name'] = '<a href="user.cgi?id=%s">%s</a>' % (user['id'], user['name'])
+	user['name'] = '<a href="user.cgi?id=%s">%s</a>' % (user.id, user.name)
 	entries.append(user)
 
     lrange = dict(entry=entries, note='')
@@ -33,7 +32,7 @@ def print_user_form(pif, id):
     if not users:
 	return print_users(pif)
 
-    user = pif.dbh.depref('buser.user', users[0])
+    #user = pif.dbh.depref('user', users[0])
     cols = ['title', 'value']
     heads = dict(zip(cols, ['Titles', 'Values']))
     entries = []
@@ -160,7 +159,7 @@ def verify(pif, name, vkey):
     userrec = pif.dbh.fetch_user(vkey=vkey, name=name)
     if userrec:
         userrec = userrec[0]
-        id = userrec['buser.user.id']
+        id = userrec['user.id']
         pif.dbh.update_user(id, state=1)
         useful.warn("Your account has been verified!  Now please log in.<br><hr>")
 	raise useful.Redirect("/cgi-bin/login.cgi")

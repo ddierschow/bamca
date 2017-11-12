@@ -67,13 +67,13 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .modelicons img {float: right;}
 .modelicons i {float: right;}
 .vartable    {width: 100%; text-align: center;}
-.varentry    {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFFFFF;}
+.varentry    {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFEEDD;}
 .credit      {font-style: italic; font-size: x-small; text-align: right;}
 
 .titlebar    {height: 66px; font-size: xx-large; background-color: #000066; color: #FFFFFF; text-align: center;
 	      vertical-align: middle;}
 
-.leftbar     {background-color: #006600; vertical-align: top; width: 132px; color: #FFFFFF; font-weight: bold; height: 100%; position: relative; padding-top: 16px; padding-bottom: 16px;}
+.leftbar     {background-color: #006600; vertical-align: top; width: 128px; color: #FFFFFF; font-weight: bold; height: 100%; position: relative; padding-top: 16px; padding-bottom: 16px;}
 .leftbarcontent {vertical-align: top; height: 100%; padding: 0 0 20px 0; text-align: center;}
 .leftbar a:link       {color: #FFFFFF; background-color: transparent; text-decoration: none;}
 .leftbar a:visited    {color: #CCCCCC; background-color: transparent; text-decoration: none;}
@@ -84,7 +84,9 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .bottombar2  {background-color: #CCCC99; text-align: left; height: 44px; position: relative;}
 foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; vertical-align: middle;}
 .bamcamark   {position: absolute; left: 0; bottom: 0; padding: 6px 22px;}
-.footer      {margin-left: 132px; width: 600px;}
+.mainpanel {background-repeat: no-repeat; background-position: center top; border-spacing: 8px;}
+.infopanel {background: rgba(255,255,255,0.85);}
+.footer      {margin-left: 128px; width: 600px;}
 /* position: absolute; display: table-cell; text-align: left; height: 44px; left: 132px; bottom: 0; vertical-align: middle; */
 .comment_button   {height: 44px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}
 

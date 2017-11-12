@@ -31,10 +31,11 @@ else
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'beta', 'url' => "http://beta.bamca.org/stuff.php"));
 
 $newerrors = Fetch("select id,health from counter where not health=0", $pif);
+$newerrors += Fetch("select id,health from buser.counter where not health=0", $pif);
 $errcounter = 0;
 foreach ($newerrors as $ent)
     $errcounter = $errcounter + $ent[1];
-$newusers = Fetch("select name from user where state=1 and privs=''", $pif);
+$newusers = Fetch("select name from buser.user where state=1 and privs=''", $pif);
 $newlinks = Fetch("select count(*) from link_line where ((flags&128)=128)", $pif);
 $commentfiles = glob("../../comments/comment.*");
 $imagefiles = glob("../../inc/*");

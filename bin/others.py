@@ -15,7 +15,7 @@ def create_section(pif, attribute_type):
 	mod['img'] = pif.render.format_link('/' + mod['img'], txt=mod['attribute_picture.description'])
 	return mod
 
-    lsec = pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': pif.page_id})[0])
+    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lsec['range'] = [{'entry':
 	[{'text': models.add_model_thumb_pic_link(pif, prep_mod(mod))} for mod in pif.dbh.fetch_attribute_pictures_by_type(attribute_type)]}]
     return lsec
@@ -66,7 +66,7 @@ def code2(pif):
     pif.render.set_button_comment(pif)
 
     llineup = {'section': []}
-    for lsec in pif.dbh.depref('section', pif.dbh.fetch_sections({'page_id': pif.page_id})):
+    for lsec in pif.dbh.fetch_sections({'page_id': pif.page_id}):
 	if not section_id or section_id == lsec['id']:
 	    if section_id:
 		pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % section_id, lsec['name'])
@@ -90,17 +90,17 @@ def code2_model(pif):
     mod = pif.dbh.modify_man_item(pif.dbh.fetch_casting(mod_id))
     img = pif.render.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
     header = '<center>%s<br><b>%s: %s</b></center><p>' % (img, mod['id'], mod['name'])
-    lsec = pif.dbh.depref('section', pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id))
+    lsec = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id)
     if not lsec:
 	raise useful.SimpleError('No models found.')
-    pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec['id'], lsec['name'])
+    pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec.id, lsec.name)
     pif.render.hierarchy_append('/cgi-bin/code2.cgi?mod_id=%s&cat=%s' % (mod['id'], cat_id), mod['id'])
     lsec['range'] = [{'entry': []}]
     mvars = pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id)
     for var in mvars:
 	useful.write_comment(var)
 	entry = {'text': models.add_model_var_pic_link(pif, pif.dbh.depref('v', var))}
-	lsec['range'][0]['entry'].append(entry)
+	lsec.range[0]['entry'].append(entry)
 
     llineup = {
 	'section': [lsec],

@@ -49,6 +49,39 @@ otypes = ['', 'bmp', 'gif', 'ico', 'jpg', 'png']
 s = '_abcdefghijklmnopqrstuvwxyz-'
 t = '0123456789012345678901234567'
 
+img_dir_name = {
+    '.' + config.IMG_DIR_ACC:             'Accessories',
+    '.' + config.IMG_DIR_ADD:             'Additional model pictures',
+    '.' + config.IMG_DIR_ADS:             'Advertising',
+    '.' + config.IMG_DIR_ART:             'Art',
+    '.' + config.IMG_DIR_BLISTER:         'Blister packs',
+    '.' + config.IMG_DIR_BOOK:            'Books',
+    '.' + config.IMG_DIR_BOX:             'Boxes',
+    '.' + config.IMG_DIR_CAT:             'Catalogs',
+    '.' + config.IMG_DIR_COLL_43:         '1:43 Collectibles',
+    '.' + config.IMG_DIR_CONVOY:          'Convoys',
+    '.' + config.IMG_DIR_ERRORS:          'Errors',
+    '.' + config.IMG_DIR_ICON:            'Icons',
+    '.' + config.IMG_DIR_KING:            'King Size',
+    '.' + config.IMG_DIR_LESNEY:          'Lesney',
+    '.' + config.IMG_DIR_MAKE:            'Makes',
+    '.' + config.IMG_DIR_MAN:             'Model Pictures',
+    '.' + config.IMG_DIR_PICS:            'Miscellaneous',
+    '.' + config.IMG_DIR_PROD_CODE_2:     'Code 2 Models',
+    '.' + config.IMG_DIR_PROD_COLL_64:    '1:64 Collectibles',
+    '.' + config.IMG_DIR_PROD_EL_SEG:     'Mattel El Segundo',
+    '.' + config.IMG_DIR_PROD_LRW:        'Lesney RW',
+    '.' + config.IMG_DIR_PROD_LSF:        'Lesney SF',
+    '.' + config.IMG_DIR_PROD_MT_LAUREL:  'Mattel Mt. Laurel',
+    '.' + config.IMG_DIR_PROD_MWORLD:     'Mattel Matchbox World',
+    '.' + config.IMG_DIR_PROD_PACK:       'Multi Packs',
+    '.' + config.IMG_DIR_PROD_SERIES:     'Series',
+    '.' + config.IMG_DIR_PROD_TYCO:       'Tyco',
+    '.' + config.IMG_DIR_PROD_UNIV:       'Universal',
+    '.' + config.IMG_DIR_SKY:             'Skybusters',
+    '.' + config.IMG_DIR_VAR:             'Variations',
+}
+
 
 
 def get_size(fn):
@@ -1126,11 +1159,12 @@ def update_presets(pdir, values):
 
 
 def promote_picture(pif, mod_id, var_id):
-	credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s.*' % (mod_id.lower(), var_id.lower()))
-	pif.render.message('promoting picture for', mod_id, 'var', var_id, 'to', credit['photographer.id'])
-	for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
-	    ofn = pic[pic.rfind('/') + 1:]
-	    nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
-	    useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
-	# transfer credit
+    credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s.*' % (mod_id.lower(), var_id.lower()))
+    pif.render.message('promoting picture for', mod_id, 'var', var_id, 'to', credit['photographer.id'] if credit else 'uncredited')
+    for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
+	ofn = pic[pic.rfind('/') + 1:]
+	nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
+	useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
+    # transfer credit
+    if credit:
 	pif.dbh.write_photo_credit(credit['photographer.id'], config.IMG_DIR_MAN[1:], mod_id)

@@ -167,7 +167,7 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 		# add to cvarlist
 		for var in curmod['cvarlist']:
 		    if rmod['v.var'] in var['var_ids']:
-			break  # "I seen the airport."
+			break  # "I seen the airport." -- Stephens
 		    elif rmod['v.text_description'] == var['desc']:
 			if fdebug:
 			    print 'UPDATE', rmod['v.var'], rmod['v.text_description']
@@ -196,7 +196,7 @@ def get_man_sections(pif, year, region, section_types):
     wheres = ["page_id='year.%s'" % year]
     if not pif.render.is_beta:
         wheres.append("not flags & %d" % pif.dbh.FLAG_SECTION_HIDDEN)
-    secs = pif.dbh.depref('section', pif.dbh.fetch_sections(wheres))
+    secs = pif.dbh.fetch_sections(wheres).tolist()
     if not secs:
 	raise useful.SimpleError("""I'm sorry, that lineup was not found.  Please use your "BACK" button or try something else.""")
 
@@ -493,7 +493,7 @@ def run_product_pics(pif, region):
         pages = filter(lambda x: x['page_info.id'] >= 'year.' + pif.form.get_str('syear'), pages)
     if pif.form.get_str('eyear'):
         pages = filter(lambda x: x['page_info.id'] <= 'year.' + pif.form.get_str('eyear'), pages)
-    pages = {x['page_info.id']: x for x in pages}
+    pages = {x['id']: x for x in pif.dbh.fetch_page_years()}
     gather_rank_pages(pif, pages, region)
     region_list = mbdata.get_region_tree(region)
 
@@ -506,13 +506,13 @@ def run_product_pics(pif, region):
         lmodlist = filter(lambda x: x['lineup_model.region'][0] in region_list, lmodlist)
         lmoddict = {x['lineup_model.number']: x for x in lmodlist}
         min_num = 1
-        max_num = pages[page]['max(lineup_model.number)']
+        max_num = pages[page]['max_lineup_number']
         if pif.form.get_str('num'):
             min_num = pif.form.get_int('num')
         if pif.form.get_str('enum'):
             max_num = pif.form.get_int('enum')
         lsec['columns'] = max(lsec['columns'], max_num + 1)
-        lran = {'id': pages[page]['page_info.id'], 'name': '', 'entry': [], 'note': '', 'graphics': []}
+        lran = {'id': pages[page]['id'], 'name': '', 'entry': [], 'note': '', 'graphics': []}
         ent = {
             'text': '<a href="?year=%s&region=%s&lty=all&submit=1">%s</a>' % (page[5:], region, page[5:]),
             'display_id': '1', 'style': ''
@@ -546,7 +546,7 @@ def run_product_pics(pif, region):
 def gather_rank_pages(pif, pages, region):
     # all this is to grab pic_dir and img_format from section.  that's it.
     region_list = mbdata.get_region_tree(region)
-    sections = [x for x in pif.dbh.depref('section', pif.dbh.fetch_sections(where="page_id like 'year.%'"))
+    sections = [x for x in pif.dbh.fetch_sections(where="page_id like 'year.%'")
 		if x['id'][0] in region_list]
     sections.sort(key=lambda x: x['start'], reverse=True)
     for rg in region_list:
@@ -565,7 +565,7 @@ def get_product_image(page, mnum):
         if page.get('section'):
 	    section = page['section'][0]
 	    #useful.write_comment('get_product_image section', section['page_id'], section['id'])
-	    return section['img_format'], page['page_info.pic_dir']
+	    return section['img_format'], page['pic_dir']
 	#useful.write_comment('get_product_image no section')
     #else:
 	#useful.write_comment('get_product_image no page')
@@ -602,7 +602,7 @@ def run_ranks(pif, mnum, region, syear, eyear):
         raise useful.SimpleError('Lineup number must be a number from 1 to 120.  Please back up and try again.')
     pif.render.comment('lineup.run_ranks', mnum, region, syear, eyear)
 
-    pages = {x['page_info.id']: x for x in pif.dbh.fetch_page_years()}
+    pages = {x['id']: x for x in pif.dbh.fetch_page_years()}
     gather_rank_pages(pif, pages, region)
 
     lmodlist = generate_rank_lineup(pif, mnum, region, syear, eyear)
@@ -686,7 +686,7 @@ def run_multi_file(pif, year, region, nyears):
         y += 1
 
     llineup = {'id': pif.page_id, 'section': [], 'name': ''}
-    lsec = pages[0]['sec']
+    lsec = pages.first['sec']
     lsec['columns'] = nyears
     lsec['id'] = 'lineup'
     lsec['range'] = []
@@ -706,7 +706,7 @@ def run_multi_file(pif, year, region, nyears):
                 mdict['pdir'] = pdir
                 mdict['anchor'] = '%d' % mdict['number']
 		#mdict['region'] = region
-		mdict = calc_lineup_model(pif, lsec, year + iyr, region, mdict)
+		mdict = calc_lineup_model(pif, pages[iyr]['sec'], year + iyr, region, mdict)
                 mdict['display_id'] = mdict.get('style_id', 0)
                 if int(year) + iyr == int(mdict['base_id.first_year']):
                     mdict['class'] = 'newcasting'
@@ -724,8 +724,7 @@ def run_multi_file(pif, year, region, nyears):
 
 def render_multiyear(pif, nyears=5):
     region = pif.form.get_stru('region')
-    year = pif.form.get_str('year')
-    year = mbdata.correct_year(year)
+    year = mbdata.correct_year(pif.form.get_str('year'))
     region = mbdata.correct_region(region, year)
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (year, region),
         "%s %s" % (year, mbdata.regions.get(region)))
