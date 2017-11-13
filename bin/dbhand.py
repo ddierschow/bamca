@@ -195,7 +195,7 @@ class DBHandler(object):
     #- page_info
 
     def fetch_page(self, id, verbose=False):
-        return tables.Results('page_info', self.fetch('page_info', where={'id': id}, tag='Page', verbose=verbose), single=True)
+        return tables.Results('page_info', self.fetch('page_info', where={'id': id}, tag='Page', verbose=verbose)).first
 
     def fetch_pages(self, where, columns=None, group=None, order=None):
         return tables.Results('page_info', self.fetch('page_info', columns=columns, where=where, group=group, order=order, tag='Pages'))
@@ -224,7 +224,7 @@ class DBHandler(object):
 	    wheres['page_id'] = page_id
 	if category:
 	    wheres['category'] = category
-        return tables.Results('section', self.fetch('section', where=wheres, tag='Section', verbose=verbose), single=True)
+        return tables.Results('section', self.fetch('section', where=wheres, tag='Section', verbose=verbose)).first
 
     def fetch_sections_by_page_type(self, page_type, sec_id=None, verbose=False):
 	where = 'section.page_id=page_info.id and page_info.format_type="%s"' % page_type
@@ -245,7 +245,7 @@ class DBHandler(object):
         return tables.Results('base_id', self.fetch('base_id', tag='BaseIDs'))
 
     def fetch_base_id(self, id):
-        return tables.Results('base_id', self.fetch('base_id', where="id='%s'" % id, tag='BaseID'), single=True)
+        return tables.Results('base_id', self.fetch('base_id', where="id='%s'" % id, tag='BaseID')).first
 
     def fetch_base_id_model_types(self):
 	return tables.Results('base_id', self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type', tag='BaseIdModelType'))

@@ -90,17 +90,17 @@ def code2_model(pif):
     mod = pif.dbh.modify_man_item(pif.dbh.fetch_casting(mod_id))
     img = pif.render.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
     header = '<center>%s<br><b>%s: %s</b></center><p>' % (img, mod['id'], mod['name'])
-    lsec = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id)
+    lsec = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id).todict()
     if not lsec:
 	raise useful.SimpleError('No models found.')
-    pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec.id, lsec.name)
+    pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec['id'], lsec['name'])
     pif.render.hierarchy_append('/cgi-bin/code2.cgi?mod_id=%s&cat=%s' % (mod['id'], cat_id), mod['id'])
     lsec['range'] = [{'entry': []}]
     mvars = pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id)
     for var in mvars:
 	useful.write_comment(var)
 	entry = {'text': models.add_model_var_pic_link(pif, pif.dbh.depref('v', var))}
-	lsec.range[0]['entry'].append(entry)
+	lsec['range'][0]['entry'].append(entry)
 
     llineup = {
 	'section': [lsec],

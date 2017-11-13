@@ -670,10 +670,10 @@ class Result(object):
     def __getitem__(self, key):
 	if '.' in key:
 	    k1, k2 = key.split('.', 1)
-	    return self._record[k1][k2]
-	elif key in self._record:
-	    return self._record[key]
-	return self._record[self._table][key]
+	    return object.__getattribute__(self, '_record')[k1][k2]
+	elif key in object.__getattribute__(self, '_record'):
+	    return object.__getattribute__(self, '_record')[key]
+	return object.__getattribute__(self, '_record')[self._table][key]
 
     def __setitem__(self, key, val):
 	if '.' in key:
