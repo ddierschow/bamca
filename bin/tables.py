@@ -590,12 +590,13 @@ for key in table_info:
 
 #-
 
+# the morphic way that this looked like Result if single=1 didn't work.
+# use .first instead.
 class Results(object):
 
-    def __init__(self, table, results=None, single=False):
+    def __init__(self, table, results=None):
 	self._info = table_info[table]
 	self._results = None
-	self._single = single
 	self.receive(results)
 
     def receive(self, records):
@@ -626,12 +627,10 @@ class Results(object):
 	return self._info[key]
 
     def __getattr__(self, key):
-	return self.first[key] if self._single and key not in self._info else self._info[key]
+	return self._info[key]
 
     def __getitem__(self, key):
-	if self._single and key not in self._info:
-	    return self.first[key]
-	elif isinstance(key, int):
+	if isinstance(key, int):
 	    return self._results[key]
 	return self._info[key]
 

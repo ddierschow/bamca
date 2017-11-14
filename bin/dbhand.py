@@ -272,13 +272,13 @@ class DBHandler(object):
         self.write('link_line', {'page_id': 'single.' + new_mod_id}, where="page_id='single.%s'" % old_mod_id, modonly=True)
 
     def update_base_id(self, id, values):
-        self.write('base_id', self.make_values('base_id', values), "id='%s'" % id, modonly=True)
+        return self.write('base_id', self.make_values('base_id', values), "id='%s'" % id, modonly=True)
 
     def add_new_base_id(self, values):
         return self.write('base_id', self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
 
     def delete_base_id(self, where):
-        self.delete('base_id', self.make_where(where))
+        return self.delete('base_id', self.make_where(where))
 
     #- alias
 
@@ -292,7 +292,7 @@ class DBHandler(object):
             wheres.append("base_id.model_type='%s'" % series)
         if style:
             wheres.append("box_type.box_type like '%s%%'" % style)
-        res = self.fetch('box_type,casting,base_id', where=['box_type.mod_id=casting.id'] + wheres, tag='CastingsByBox', verbose=0)
+        fet1 = self.fetch('box_type,casting,base_id', where=['box_type.mod_id=casting.id'] + wheres, tag='CastingsByBox', verbose=0)
 
         #ljoins = [('alias', "base_id.id=alias.ref_id")]  # and alias.section_id != ''")]
         wheres = ['box_type.mod_id=alias.id', 'alias.ref_id=casting.id'] + wheres
@@ -1502,26 +1502,27 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	# I apologize in advance for this function.
 	def fmt_desc(var, casting, field, verbose):
 
-	    def fmt_subdetail(var, fmt, verbose):
-		attr_name, fmt, default, fmt_prepend, fmt_append, is_opt = self.parse_detail_format(fmt)
-		if attr_name:
-		    if attr_name not in var:
-			if verbose:
-			    useful.write_message('!', attr_name)
-			return attr_name, ''
-		    value = var.get(attr_name)
-		    if not value or (is_opt and (value == 'no' or value == '-')):
-			return attr_name, default
-		fmt = fmt_prepend + ' ' + fmt + ' ' + fmt_append
-		return attr_name, fmt.strip()
+	    def fmt_detail(fmt):
 
-	    def fmt_detail(var, fmt, verbose):
+		def fmt_subdetail(fmt):
+		    attr_name, fmt, default, fmt_prepend, fmt_append, is_opt = self.parse_detail_format(fmt)
+		    if attr_name:
+			if attr_name not in var:
+			    if verbose:
+				useful.write_message('!', attr_name)
+			    return attr_name, ''
+			value = var.get(attr_name)
+			if not value or (is_opt and (value == 'no' or value == '-')):
+			    return attr_name, default
+		    fmt = fmt_prepend + ' ' + fmt + ' ' + fmt_append
+		    return attr_name, fmt.strip()
+
 		if fmt[0] == '@':
-		    return [fmt_subdetail(var, subformat, verbose) for subformat in fmt[1:].split('/')]
+		    return [fmt_subdetail(subformat) for subformat in fmt[1:].split('/')]
 		else:
-		    return fmt_subdetail(var, fmt, verbose)[1]
+		    return fmt_subdetail(fmt)[1]
 
-	    fmts = [y for y in [fmt_detail(var, x, verbose) for x in casting.get(field, '').split('|') if x] if y]
+	    fmts = [y for y in [fmt_detail(x) for x in casting.get(field, '').split('|') if x] if y]
 	    descs = []
 	    for fmt in fmts:
 		desc = ''
