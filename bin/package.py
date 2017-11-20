@@ -395,8 +395,8 @@ def single_box_type(pif):
 
 def get_box_image(pif, picroot, picsize=None, largest=mbdata.IMG_SIZ_PETITE, compact=False):
     if compact:
-	product_image = pif.render.find_image_path(picroot, prefix=picsize)
-	pic = imglib.format_image_star(pif, product_image, target_x=mbdata.imagesizes[picsize][0])
+	product_image_path, product_image_file = pif.render.find_image_file(picroot, prefix=picsize)
+	pic = imglib.format_image_star(pif, product_image_path, product_image_file, target_x=mbdata.imagesizes[picsize][0])
     elif picsize:
 	pic = pif.render.format_image_required(picroot, prefix=picsize)
     else:

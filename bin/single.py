@@ -9,6 +9,7 @@ import mflags
 import models
 import useful
 
+#http://beta.bamca.org/cgi-bin/single.cgi?dir=pic/prod/mworld&pic=2017u079&ref=year.2017&sub=67&id=MB895
 
 def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
     if not thismods:

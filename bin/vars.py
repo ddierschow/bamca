@@ -185,6 +185,8 @@ def show_appearances(pif, mod_id, var_id, pics=False):
 # ----- variation editor ----------------------------------
 
 def show_detail(pif, field, attributes, variation, attr_pics={}, ran_id='', photogs=[]):
+    if field.startswith('variation.'):  # not sure where this is coming from.
+	field = field[10:]
     if field == '_repic':
 	return {'field': '', 'title': 'Move pictures to', 'value': '',
 		'new': pif.render.format_text_input("repic." + variation['var'], 16, 16)}

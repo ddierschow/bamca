@@ -42,7 +42,7 @@ id_re = re.compile('(?P<a>[a-zA-Z]+)(?P<n>\d+)')
 def calc_lineup_model(pif, lsec, year, region, mdict):
     mdict.update({
 	'image_format': lsec['img_format'],
-	'anchor': 'X%d' if region.startswith('X') else '%d' % mdict['number'],
+	'anchor': '%s%d' % ('X' if region.startswith('X') else '', mdict['number']),
 	'class': '', 'product': '', 'prod_id': '', 'href': '',
 	'is_reused_product_picture': 0, 'is_product_picture': 0,
 	'displayed_id': '',  #'&nbsp;'
@@ -107,11 +107,10 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
     return mdict
 
 
-def create_lineup(pif, mods, year, lsec):
+def create_lineup(pif, mods, year, lsec, fdebug=False):
     region = lsec['id']
     is_extra = region.startswith('X')
     regions = [region] if is_extra else mbdata.get_region_tree(region) + ['']
-
 
     # 1. lay down model list from current region only.
     mods.sort(key=lambda x: (x['lineup_model.number'], x['lineup_model.display_order'],))
@@ -121,6 +120,7 @@ def create_lineup(pif, mods, year, lsec):
     foundlist = []
     for mod in mods:
 	if ((mod['lineup_model.number'], mod['lineup_model.display_order'],) not in foundlist and
+		(not mod['vs.sub_id'] or not mod['vs.sub_id'].isdigit() or int(mod['vs.sub_id']) == mod['lineup_model.number']) and
 		((is_extra and region == mod['lineup_model.region']) or not is_extra)):
 	     modlist.append(calc_lineup_model(pif, lsec, year, region, pif.dbh.make_lineup_item(mod)))
 	     foundlist.append((mod['lineup_model.number'], mod['lineup_model.display_order'],))
@@ -141,7 +141,6 @@ def create_lineup(pif, mods, year, lsec):
 
     # 4. traverse region tree to figure out variation(s)
     for curmod in modlist:
-	fdebug = False#not pif.is_web and curmod['number'] == 37
         set_vars(mods, curmod, regions, ref_id, fdebug)
 
     # 5. declare victory and grab a beer
@@ -152,21 +151,26 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
     '''Given a model and a lineup, try to figure out where to
     insert that model into the lineup.  This is not easy.'''
     if fdebug:
+	print '--------------------------------------------------------'
 	print 'SETVAR', regions, ref_id
 	print 'CURMOD:', curmod
 	for rmod in rmods:
 	    if rmod['lineup_model.number'] == curmod['number'] and rmod['lineup_model.display_order'] == curmod['display_order']:
-		print 'RMOD:', rmod['lineup_model.number'], rmod['lineup_model.display_order'], rmod['vs.ref_id'], rmod['vs.sub_id'], rmod['v.var'], rmod['v.text_description'], rmod['v.picture_id']
+		print 'RMOD:', rmod['lineup_model.number'], 'ord', rmod['lineup_model.display_order'], 'vs.ref_id', rmod['vs.ref_id'], 'vs.sub_id', rmod['vs.sub_id'], 'var', rmod['v.var'], rmod['v.text_description'], 'pic', rmod['v.picture_id']
 
     quittable = False
     for region in regions:
 	if fdebug:
 	    print 'CHECK', region
 	for rmod in rmods:
-	    if rmod['lineup_model.number'] == curmod['number'] and rmod['lineup_model.display_order'] == curmod['display_order'] and rmod['vs.sub_id'] == region:
+	    if (rmod['lineup_model.number'] == curmod['number'] and
+		    rmod['lineup_model.display_order'] == curmod['display_order'] and
+		    (rmod['vs.sub_id'] == region or rmod['vs.sub_id'] == str(curmod['number']))):
 		# add to cvarlist
 		for var in curmod['cvarlist']:
 		    if rmod['v.var'] in var['var_ids']:
+			if fdebug:
+			    print 'NO UPDATE'
 			break  # "I seen the airport." -- Stephens
 		    elif rmod['v.text_description'] == var['desc']:
 			if fdebug:
@@ -187,6 +191,8 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 
 		    if rmod['vs.sub_id'] == region:
 			quittable = True
+	    elif fdebug:
+		print 'NO ADD'
 	if quittable:
 	    break
     return curmod
@@ -213,7 +219,7 @@ def get_man_sections(pif, year, region, section_types):
     return region, lsecs[0], lsecs[1:] if 'man' in section_types else [], xsecs
 
 
-def create_lineup_sections(pif, year, region, section_types):
+def create_lineup_sections(pif, year, region, section_types, fdebug=False):
     year = mbdata.correct_year(year)
     region = mbdata.correct_region(region, year)
     if not region:
@@ -229,7 +235,7 @@ def create_lineup_sections(pif, year, region, section_types):
     })
 
     if 'man' in section_types:
-	modlist = create_lineup(pif, pif.dbh.fetch_lineup_models(year, region), year, mainsec)
+	modlist = create_lineup(pif, pif.dbh.fetch_lineup_models(year, region), year, mainsec, fdebug)
 
 	# carve up modlist by section
 	if secs:
@@ -369,7 +375,7 @@ def render_lineup_year(pif, mainsec, secs, xsecs, large=False):
     footer = ''
     year = mainsec['year']
     region = mainsec['region']
-    llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False)
+    llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs, large=large)
 #    if year > mainsec['first_year']:
 #       footer += pif.render.format_button("previous_year", link='?year=%s&region=%s' % (year - 1, pif.form.get_stru('region')))
 #    if year < mainsec['last_year']:
@@ -477,7 +483,7 @@ def year_lineup_main(pif, listtype):
 	return render_lineup_checklist(pif, mainsec, secs, xsecs)
     # normal and/or large
     return render_lineup_year(pif, mainsec, secs, xsecs,
-			      large=listtype == mbdata.LISTTYPE_LARGE)
+			      large=(listtype == mbdata.LISTTYPE_LARGE))
 
 #--------- prodpics --------------------------------
 
@@ -488,12 +494,10 @@ def run_product_pics(pif, region):
             ln = ln.strip().split()
             if len(ln) > 1 and ln[1] == region:
                 halfstars[ln[0]] = [int(x) for x in ln[2:]]
-    pages = pif.dbh.fetch_page_years()
-    if pif.form.get_str('syear'):
-        pages = filter(lambda x: x['page_info.id'] >= 'year.' + pif.form.get_str('syear'), pages)
-    if pif.form.get_str('eyear'):
-        pages = filter(lambda x: x['page_info.id'] <= 'year.' + pif.form.get_str('eyear'), pages)
-    pages = {x['id']: x for x in pif.dbh.fetch_page_years()}
+    syear = 'year.' + pif.form.get_str('syear', '0000')
+    eyear = 'year.' + pif.form.get_str('eyear', '9999')
+    pages = [x for x in pif.dbh.fetch_page_years() if x['page_info.id'] >= syear and x['page_info.id'] <= eyear]
+    pages = {x['id']: x for x in pages}
     gather_rank_pages(pif, pages, region)
     region_list = mbdata.get_region_tree(region)
 
@@ -524,14 +528,14 @@ def run_product_pics(pif, region):
             lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', pif.form.get_strl('region'))
             if pic_id:
                 lpic_id = pic_id = pic_id.replace('W', pif.form.get_stru('region'))
-                product_image = pif.render.find_image_path(pic_id, suffix='jpg', pdir=pdir)
+                product_image_path, product_image_file = pif.render.find_image_file(pic_id, suffix='jpg', pdir=pdir, largest='l')
             else:
                 lpic_id = ifmt % mnum
-                product_image = pif.render.find_image_path([ifmt % mnum], suffix='jpg', pdir=pdir)
+                product_image_path, product_image_file = pif.render.find_image_file([ifmt % mnum], suffix='jpg', pdir=pdir, largest='l')
 	    if not lmod or lmod.get('lineup_model.flags', 0) & pif.dbh.FLAG_MODEL_NOT_MADE:
 		pic_id = None
             lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (pdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
-	    istar = imglib.format_image_star(pif, product_image, pic_id, mnum in halfstars.get(page[5:], []))
+	    istar = imglib.format_image_star(pif, product_image_path, product_image_file, pic_id, mnum in halfstars.get(page[5:], []))
             ent = {
                 'text': pif.render.format_link(lnk, istar),
                 'display_id': str(int(mnum % 10 == 0 or page[-1] == '0'))
@@ -854,7 +858,7 @@ def cklup(pif):
 
 def year_lineup(pif, year, region):
     section_types = dict(mbdata.lineup_types).keys()
-    mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types)
+    mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types, fdebug=False)
     llineup = {'id': 'year', 'section': [], 'name': '', 'tail': []}
     print render_lineup_text(pif, mainsec, secs, xsecs)
 

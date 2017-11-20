@@ -634,6 +634,13 @@ class Results(object):
 	    return self._results[key]
 	return self._info[key]
 
+    def depref(self, tables):
+	if isinstance(tables, str):
+	    tables = tables.split(',')
+	for result in self._results:
+	    result.depref(tables)
+        return self
+
 
 class Result(object):
 
@@ -694,6 +701,19 @@ class Result(object):
 
     def get(self, key, val=None):
 	return self._record.get(key, val)
+
+    def depref(self, tables):
+	if isinstance(tables, str):
+	    tables = tables.split(',')
+	for table in tables:
+	    subrec = self.get(table, {})
+	    keys = list(self[table].keys())
+	    for key in keys:
+		if key not in self:
+		    self[key] = subrec[key]
+		if self[key] == subrec[key]:
+		    del subrec[key]
+        return self
 
 #-
 

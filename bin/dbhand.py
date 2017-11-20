@@ -149,7 +149,7 @@ class DBHandler(object):
 
     def depref(self, tables, results):
 	if isinstance(tables, str):
-	    tables = [tables]
+	    tables = tables.split(',')
 	if results is None:
 	    # Aw, come on.
 	    return None
@@ -160,7 +160,8 @@ class DBHandler(object):
 		    if key.startswith(table + '.'):
 			if not results.get(key[len(table) + 1:]):
 			    results[key[len(table) + 1:]] = results[key]
-			del results[key]
+			if results[key[len(table) + 1:]] == results[key]:
+			    del results[key]
         else:
             for result in results:
                 self.depref(tables, result)
@@ -418,6 +419,45 @@ class DBHandler(object):
 
     def modify_man_items(self, mods):
 	return [self.modify_man_item(mod) for mod in mods]
+
+    def make_man_item(self, mod):
+	# take a query result for casting et al and turn it into a dict
+	# not ready for primetime
+	mod_id = mod.base_id.id
+	result = {'make': '',
+		  'id': '',
+		  'name': '',
+		  'iconname': '',
+		  'unlicensed': '?',
+		  'description': '',
+		  'made': False,
+		  'visual_id': '',
+		  'link': "single.cgi?id",
+		  'filename': mod_id.lower(),
+		  'notmade': '' if mod['made'] else '*',
+		  'linkid': mod.get('mod_id', mod.get('id')),
+		  'descs': filter(lambda x: x, mod['description'].split(';')),
+		  'iconname': self.icon_name(mod.get('rawname', '')),
+		  'shortname': self.short_name(mod.get('rawname', '')),
+		  'casting_type': mbdata.model_types.get(mod.get('model_type', 'SF'), 'Casting'),
+	}
+	result.update(mod['casting'])
+	result.update(mod['publication'])
+	result.update(mod['base_id'])
+
+        if mod.get('id'):
+            mod['name'] = mod['rawname'].replace(';', ' ')
+            mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
+            mod['made'] = not (mod['flags'] & self.FLAG_MODEL_NOT_MADE)
+            mod['visual_id'] = self.default_id(mod['id'])
+	mod['filename'] = mod['id'].lower()
+        mod['notmade'] = '' if mod['made'] else '*'
+        mod['linkid'] = mod.get('mod_id', mod.get('id'))
+        mod['descs'] = filter(lambda x: x, mod['description'].split(';'))
+        mod['iconname'] = self.icon_name(mod.get('rawname', ''))
+        mod['shortname'] = self.short_name(mod.get('rawname', ''))
+        mod['casting_type'] = mbdata.model_types.get(mod.get('model_type', 'SF'), 'Casting')
+        return mod
 
     def modify_man_item(self, mod):
         mod = self.depref('casting', mod)

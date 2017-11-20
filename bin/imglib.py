@@ -1102,20 +1102,20 @@ def get_dir(tdir, name_has=''):
     return files
 
 
-def format_image_star(pif, image_path, pic_id='', halfstar=False, target_x=400, target_y=0):
-    return '<i class="fa fa-%s %s"></i>' % (image_star(image_path, pic_id, halfstar, target_x, target_y))
+def format_image_star(pif, image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):
+    return '<i class="fa fa-%s %s"></i>' % (image_star(image_path, image_file, pic_id, halfstar, target_x, target_y))
 
 
-def image_star(image_path, pic_id='', halfstar=False, target_x=400, target_y=0):
+def image_star(image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):
     pic = 'star-half-o' if halfstar else 'star'
     if pic_id is None:
         return 'star', 'white'
-    if not os.path.exists(image_path):
+    if not os.path.exists(os.path.join(image_path, image_file)):
         if pic_id:
             return pic, 'yellow'
         return 'star-o', 'black'
     try:
-        img = Image.open(image_path)
+        img = Image.open(os.path.join(image_path, image_file))
     except:
         return pic, 'yellow'
     ix, iy = img.size

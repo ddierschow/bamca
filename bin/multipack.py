@@ -257,8 +257,8 @@ def distill_models(pif, pack, page_id):
     model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], pack_var=pack['var'], page_id=page_id)
     pack['pic'] = ''
     #for pic in glob.glob(os.path.join(config.IMG_DIR_PROD_PACK, '?_' + pack_id + '.jpg')):
-    #pic = pif.render.find_image_path(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
-    #pack['pic'] += imglib.format_image_star(pif, pic)
+    #path, pic = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
+    #pack['pic'] += imglib.format_image_star(pif, path, pic)
     pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack_id.lower())
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
     pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
