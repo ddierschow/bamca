@@ -1,0 +1,32 @@
+img {border-width: 0; padding: 4px;}
+
+.tabt {list-style-type: none; padding: 0; display: table; width: 900px;}
+.tabc {
+    width: 290px; height: 168px; border: 1px solid black; display: table-cell; float: left; margin: 2px;
+    text-align: center;  /* align the inline(-block) elements horizontally */
+    font: 0/0 a;         /* remove the gap between inline(-block) elements */
+}
+.tabc:before {      /* create a full-height inline block pseudo-element */
+    display: inline-block; height: 100%; content: ' ';
+    vertical-align: middle; /* vertical alignment of the inline element */
+}
+.tabm {
+    display: inline-block; font-weight: bold; font-size: x-large;
+    vertical-align: middle;          /* vertical alignment of the inline element */
+}
+
+.ey  {background-color: #FFFFFF;}
+.mp  {background-color: #FFFF00;}
+.ks  {background-color: #3399FF;}
+.sk  {background-color: #6633CC;}
+.bk  {background-color: #99CC66;}
+.a2k {background-color: #FF9966;}
+.sea {background-color: #A3B2BB;}
+.cy  {background-color: #ADC2C6;}
+.rwr {background-color: #C9CD2D;}
+.lyy {background-color: #FFFF66;}
+.uyy {background-color: #C2C24E;}
+.dy  {background-color: #FFFFFF;}
+.c43 {background-color: #FFFF99;}
+.c72 {background-color: #99CCFF;}
+.acc {background-color: #000066; color: #FFFFFF; font-family: "Trebuchet MS", Ariel, Helvetica, sans-serif;}
