@@ -284,7 +284,7 @@ class UploadForm(object):
 		self.var_id if self.var_id else '-',
 		self.y if self.y else '-',
 		comment]) + '\n')
-	ostr = '<div class="warning">Thank you for submitting that file.</div><br>/n'
+	ostr = '<div class="warning">Thank you for submitting that file.</div><br>\n'
 	ostr += "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
 	return ostr
 
@@ -304,6 +304,7 @@ def upload_main(pif):
 	raise useful.Redirect('traverse.cgi?g=1&d=%s&man=%s&var=%s&suff=%s&has=%s' % (upform.tdir, upform.mod_id, upform.var_id, upform.suffix, upform.selsearch))
     elif upform.fimage:
 	if not pif.is_allowed('u'):
+	    pif.render.print_html()
 	    return upform.restricted_upload(pif)
 	fn = upform.save_uploaded_file()
 	upform.carbon_copy(fn)

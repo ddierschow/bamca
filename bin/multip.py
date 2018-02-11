@@ -67,11 +67,11 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
     sec_id = sections[0]['id']
     packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
-    cols = ['name', 'year', 'product_code']
-    heads = ['Name', 'Year', 'Product Code']
+    cols = ['pic', 'name', 'year', 'product_code']
+    heads = ['', 'Name', 'Year', 'Product Code']
     if verbose:
-	cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'pic', 'material', 'stars', 'rel']
-	heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Pic', 'Mat', 'Models', 'Related']
+	cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'material', 'stars', 'rel']
+	heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Mat', 'Models', 'Related']
     elif sections[0]['flags'] & pif.dbh.FLAG_SECTION_SHOW_IDS:
 	cols = ['id'] + cols + ['regionname']
 	heads = ['ID'] + heads + ['Region']
@@ -108,6 +108,7 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
 		pack['page'] = pif.form.get_str('page')
 		pack['regionname'] = mbdata.regions[pack['region']]
 		pack['name'] = '<a href="?page=%(page)s&id=%(id)s">%(name)s</a>' % pack
+		pack['pic'] = mbdata.comment_icon.get('c') if imgsizes(pif, config.IMG_DIR_PROD_PACK, pack['id'].lower()) else ''
 		has_note = has_note or bool(pack['note'])
 		if verbose:
 		    modify_pack_admin(pif, pack)
