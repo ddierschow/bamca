@@ -60,7 +60,7 @@ bin/bamcatests/test0.py
 .crcs
 notes/
 templates/config.html
-bin/environ.py
+bin/enviro.py
 htdocs/version.txt
 htdocs/announce.php
 htdocs/config.php

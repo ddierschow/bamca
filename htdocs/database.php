@@ -35,7 +35,7 @@ $sections[] = array("tag" => "plants", "name" => "Location of Manufacture", "fn"
 $sections[] = array("tag" => "other", "name" => "Other Database Pages", "fn" => 'SectionOther');
 
 $pages = array();
-$pages[] = array("title" => "About", "desc" => "About this website.", "url" => '/pages/about.php');
+$pages[] = array("title" => "About", "desc" => "About this website", "url" => '/pages/about.php');
 $pages[] = array("title" => "Toy Links", "desc" => "Links to other sites of interest", "url" => '/cgi-bin/links.cgi');
 $pages[] = array("title" => "Bibliograpy", "desc" => "Books relevant to collectors", "url" => '/cgi-bin/biblio.cgi');
 $pages[] = array("title" => "Comparisons", "desc" => "Between various Matchbox castings", "url" => '/cgi-bin/compare.cgi');
@@ -43,6 +43,7 @@ $pages[] = array("title" => "Errors", "desc" => "Matchbox manufacturing errors",
 $pages[] = array("title" => "Ads", "desc" => "Matchbox advertising", "url" => '/cgi-bin/ads.cgi');
 $pages[] = array("title" => "Customizations", "desc" => "Customizaed Matchbox toys", "url" => '/cgi-bin/custom.cgi');
 $pages[] = array("title" => "Photographers", "desc" => "Contributors to this site", "url" => '/cgi-bin/photogs.cgi');
+$pages[] = array("title" => "Other Products", "desc" => "A few other products from Matchbox", "url" => '/pages/other.php');
 //prepro.cgi pub.cgi library.cgi package.cgi
 
 DoResetJavascript();

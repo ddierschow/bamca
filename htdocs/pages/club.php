@@ -120,6 +120,14 @@ All new pictures added to the site are now also posted to our
 </tr>
 
 <tr>
+<th class="leftbar">2017</th>
+<td>
+Photographer credits were added to the site.  As the photographers were identified,
+credits were added to the pictures.
+</td>
+</tr>
+
+<tr>
 <th class="leftbar">The Future</th>
 <td>
 Going forward, there are many plans for things to add, but they require time, which
