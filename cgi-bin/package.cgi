@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import package
-package.blister('package', 'page', 'blister')
+import prints
+prints.blister('package', 'page', 'blister')

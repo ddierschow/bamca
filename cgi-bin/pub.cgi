@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import pub
-pub.publication('pub')
+import prints
+prints.publication('pub')

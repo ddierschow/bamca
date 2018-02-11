@@ -5,7 +5,7 @@ body {background-color: #FF8800;}
 .rh {background-color: #FFFFFF; color: #000000;}
 .eb {background-color: #DDDDAA; color: #000000;}
 
-body {background-image: url("/pic/gfx/bgmc.gif"); color: #FFFFFF; background-color: #663333;}
+body {background-image: url("/pic/bg/bgmc.gif"); color: #FFFFFF; background-color: #663333;}
 a:link {color: #6666FF;}
 a:visited {color: #FF6666;}
 .hcell {font-weight: bold; text-align: center;}

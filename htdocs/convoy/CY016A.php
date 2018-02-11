@@ -44,6 +44,10 @@ $models = [
 	'cdt' => 'white, black chassis,', 'cva' => '15',
 	'tdt' => 'white container with black base, WIMPEY tampo',
     ],
+    ['var' => '06b', 'mfg' => 'Thailand', 'liv' => 'Wimpey', 'rar' => '2',
+	'cdt' => 'white, black chassis,', 'cva' => '15',
+	'tdt' => 'white container with black base, WIMPEY tampo',
+    ],
 // 7. Red cab, white chassis, red container with white base, "Kentucky Fried Chicken" tampo, Macau (UK)
     ['var' => '07a', 'mfg' => 'Macau', 'liv' => 'KFC', 'rar' => '2',
 	'cdt' => 'red, white chassis', 'cva' => '13',
@@ -86,7 +90,6 @@ $models = [
     ],
 // 15. Yellow cab, white chassis, black base, yellow container and yellow base, "Weetabix" tampo, Macau (UK)
     ['var' => '15a', 'mfg' => 'Macau', 'liv' => 'Weetabix', 'rar' => '2',
-	'crd' => 'Picture from Simon Rogers - AU',
 	'cdt' => 'yellow, white chassis, black base', 'cva' => '30',
 	'tdt' => 'yellow container and yellow base, WEETABIX tampo',
 	'nts' => 'Reports of some models with red or blue doors on trailer and no printing on cab wind deflector.',
@@ -103,7 +106,6 @@ $models = [
     ],
 // 18. White cab, green chassis, white container with black base, "Merry Christmas 1989 MICA Members" with calendar roof label (C2)
     ['var' => '18a', 'mfg' => 'Thailand', 'liv' => 'MICA', 'cod' => '2', 'rar' => '3',
-	'crd' => 'Picture from Simon Rogers - AU',
 	'cdt' => 'white, green chassis', 'cva' => '04',
 	'tdt' => 'white container with black base, MERRY CHRISTMAS 1989 MIcA MEMBERS with calendar roof label',
     ],
@@ -144,7 +146,7 @@ $models = [
     ],
 
     ['var' => '26a', 'mfg' => 'China, MATTEL', 'liv' => 'Matchbox', 'rar' => '2',
-	'cdt' => 'dark yellow, orange chassis, orange plastic base, with silver grill guard and exhaust, clear windows, MATCHBOX 50TH ANNIVERSARY logo on sides', 'cva' => '',
+	'cdt' => 'dark yellow, orange chassis, orange plastic base, with silver grill guard and exhaust, colorless windows, MATCHBOX 50TH ANNIVERSARY logo on sides', 'cva' => '',
 	'tdt' => 'black base, yellow box, roof and doors, labels applied to sides',
     ],
 

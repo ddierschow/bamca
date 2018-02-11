@@ -51,6 +51,7 @@ to these new templates, and more will follow as I have time.
     6.6 published Sunday, 29 January 2017 at 12:01 AM PST
     6.7 published Sunday, 18 June 2017 at 12:01 AM PDT
     6.8 published Sunday, 18 September 2017 at 12:01 AM PDT
+    6.9 published Sunday, 11 February 2018 at 12:01 AM PDT
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
@@ -62,7 +63,6 @@ Current and planned projects:
    * Add more entries to the annual lineup pages
    * Allow multiple pictures per variation
    * Link related variations
-   * Rearrange MAN pictures into directories for model type
    * Add support for publications, playsets, packaging, etc.
    * Comparisons are getting better but still need work
    * Need to add support for packs limited to region

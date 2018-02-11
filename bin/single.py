@@ -39,6 +39,7 @@ def calc_var_pics(pif, var):
     has_in = 1 if len(var['text_interior']) > 0 else 0
     has_wh = 1 if len(var['text_wheels']) > 0 else 0
     has_wi = 1 if len(var['text_windows']) > 0 else 0
+    has_wt = 1 if len(var['text_with']) > 0 else 0
     ty_var = ''
     is_found = False
     if not var['picture_id']:
@@ -55,23 +56,24 @@ def calc_var_pics(pif, var):
 	    ty_var = 'c'
 	else:
 	    ty_var = '1'
-    return ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi
+    return ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt
 
 
 def count_list_var_pics(pif, mod_id):  # called from elsewhere
     vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
     needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
     found_c = found_f = found_a = found_1 = found_2 = found_p = 0
-    count_de = count_ba = count_bo = count_in = count_wh = count_wi = 0
+    count_de = count_ba = count_bo = count_in = count_wh = count_wi = count_wt = 0
 #    nf = []
     for var in vars:
-	ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = calc_var_pics(pif, var)
+	ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt = calc_var_pics(pif, var)
 	count_de += has_de
 	count_ba += has_ba
 	count_bo += has_bo
 	count_in += has_in
 	count_wh += has_wh
 	count_wi += has_wi
+	count_wt += has_wt
 	if not var['picture_id']:
     #        if not is_found:
     #            nf.append(var['var'])
@@ -95,7 +97,7 @@ def count_list_var_pics(pif, mod_id):  # called from elsewhere
 		found_1 += is_found
     return (found_a, found_c, found_1, found_2, found_f, found_p), \
 	   (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p), \
-	   (len(vars), count_de, count_ba, count_bo, count_in, count_wh, count_wi)
+	   (len(vars), count_de, count_ba, count_bo, count_in, count_wh, count_wi, count_wt)
 
 
 def show_list_var_pics(pif, mod_id):
@@ -201,7 +203,8 @@ def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
     return ['-'.join([str(y) for y in x]).upper() for x in mack_nums]
 
 
-def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations):
+def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations):
+    mod_id = model['id']
     links = []
     if pif.is_allowed('a'):  # pragma: no cover
         links.append('<a href="vars.cgi?recalc=1&mod=%s">Recalculate</a>' % mod_id)
@@ -257,12 +260,14 @@ def show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations
             links.append('<a href="vedit.cgi?d=src/mbxf&m=%(mod_id)s&f=%(imported_from)s">%(imported_from)s</a>' % vf)
 	var_pics, var_texts = show_list_var_pics(pif, mod_id)
         ostr += '<br>\n'.join(var_pics) + '<p>\n'
-	fmt_bad, _ = pif.dbh.check_description_formatting(mod_id)
+	fmt_bad, _, _ = pif.dbh.check_description_formatting(mod_id)
 	ostr += '<i class="fa fa-times red"></i>' if fmt_bad else '<i class="fa fa-check green"></i>'
+	ostr += '<br>'
 	for i_vt in range(1, len(var_texts)):
 	    vt = var_texts[i_vt]
-	    ostr += '<i title="%s" class="fa fa-star %s"></i>\n' % (mbdata.model_texts[i_vt - 1],
-                    'green' if vt == var_texts[0] else ('red' if not vt else 'yellow'))
+	    ostr += '<i title="%s" class="fa fa-star%s"></i>\n' % (mbdata.model_texts[i_vt - 1],
+		    '-o gray' if not model['format_' + mbdata.desc_attributes[i_vt - 1]] else
+                    (' green' if vt == var_texts[0] else (' red' if not vt else ' yellow')))
         ostr += '<p>\n'
         ostr += '<i class="fa %s"></i><p>\n' % prodstar
         var_ids = [x['v.var'] for x in raw_variations]
@@ -319,41 +324,59 @@ def show_lineup_appearances(pif, appearances):
     if not yd:
 	return {}
 
-    def entry(texts):
-	if not isinstance(texts, list):
-	    texts = [texts]
-	entries.extend([{'text': x} for x in texts])
-
     def show_lineup(appear):
 	return 'lineup.cgi?year=%(year)s&region=%(region)s&lty=all#%(number)s' % appear
 
     if 'X' in rs:  # not implemented yet  # pragma: no cover
 	#return {}
 
-	columns = 2
-	entry(['', 'Worldwide'])
+	columns = ['', 'W']
 	for yr in sorted(yd.keys()):
 	    if yd[yr].get('X'):
 		appear = yd[yr]['X'][0]
-		entry([str(yr),
-		    '<a href="lineup.cgi?year=%s&region=U&lty=all#X%s">%s</a>' % (appear['year'], appear['number'], 'X')])
+		entry = {'': '<b>%s</b>' % str(yr),
+			'W': '<a href="lineup.cgi?year=%s&region=U&lty=all#X%s">%s</a>' % (appear['year'], appear['number'], 'X')}
+	    entries.append(entry)
     else:
-	entry('')
-	for reg in rl:
-	    entry(mbdata.regions[reg])
-	columns = len(rl) + 1
+	columns = [''] + rl
 	for yr in sorted(yd.keys()):
-	    entry(str(yr))
-	    entry([', '.join([pif.render.format_link(show_lineup(appear), str(appear['number']))
-				    for appear in yd[yr][reg]]) if yd[yr].get(reg) else '&nbsp;'
-		for reg in rl])
+	    entry = {'': '<b>%s</b>' % str(yr)}
+	    for reg in rl:
+		entry[reg] = ', '.join([pif.render.format_link(show_lineup(appear), str(appear['number']))
+					for appear in yd[yr][reg]]) if yd[yr].get(reg) else '&nbsp;'
+	    entries.append(entry)
 
-    llineup = {'id': 'lappear', 'name': '', 'columns': columns, 'widthauto': True,
-	'section': [{'id': 'la', 'name': '', 'columns': columns,
+    llineup = {'id': 'lappear', 'name': '',
+	'section': [{'id': 'la', 'name': '', 'columns': columns, 'headers': mbdata.regions,
 	    'range': [{'entry': entries}],
 	}],
     }
-    return pif.render.format_matrix_for_template(llineup)
+    return llineup
+
+
+def make_plants(pif, mod_id, plants):
+    columns = []
+    headers = {}
+    entry = {}
+
+    for plant in plants:
+	if plant['manufacture'] == 'no origin':
+	    flag = ('none', pif.render.find_image_path('no', art=True),)
+	elif plant['manufacture'] == '':
+	    flag = ('unset', '')
+	else:
+	    flag = pif.render.show_flag(mbdata.plant_d[plant['manufacture']])
+	url = "/cgi-bin/vars.cgi?manufacture=%s&mod=%s" % (plant['manufacture'] if plant['manufacture'] else 'unset', mod_id)
+	columns.append(plant['manufacture'])
+	headers[plant['manufacture']] = pif.render.format_link(url, useful.img_src(flag[1], also={'title': plant['manufacture']}) if flag[1] else flag[0])
+	entry[plant['manufacture']] = pif.render.format_link(url, str(plant['count']))
+
+    llineup = {'id': 'lplants', 'name': '', 'shown': len(plants) > 0,
+	'section': [{'id': 'la', 'name': '', 'columns': columns, 'headers': headers,
+	    'range': [{'entry': [entry]}],
+	}],
+    }
+    return llineup
 
 
 img_re = re.compile('src="(?P<u>[^"]*)"')
@@ -477,6 +500,8 @@ def show_single(pif):
     adds = [make_boxes(pif, mod_id, boxstyles, aliases)] if boxstyles else []
     adds += models.make_adds(pif, mod_id)
 
+    plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))
+
     # ------- render ------------------------------------
 
     pif.render.set_button_comment(pif, 'id=%s&pic=%s&dir=%s&ref=%s' % (mod_id, pic, pdir, ref))
@@ -487,7 +512,7 @@ def show_single(pif):
 	'icon_id': mod_id if os.path.exists(useful.relpath('.', config.IMG_DIR_ICON, 'i_' + mod_id.lower() + '.gif')) else '',
 	'vehicle_type': [mbdata.model_icons.get(x) for x in model['vehicle_type']],
 	'rowspan': '4',
-	'left_bar_content': show_left_bar_content(pif, mod_id, ref, pic, pdir, lm_pic_id, raw_variations),
+	'left_bar_content': show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations),
 	'model': model,
 	'variations': variations,
 	'prod_title': prod_title,
@@ -506,10 +531,7 @@ def show_single(pif):
 	'compares': make_compares(pif, mod_id),
 	'adds_box': models.show_adds(pif, mod_id),
 	'adds': adds,
+	'plants': plants,
 #	'group': pif.render.find_image_path(mod_id, prefix='g', pdir=config.IMG_DIR_ADD)
     }
     return pif.render.format_template('single.html', **context)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

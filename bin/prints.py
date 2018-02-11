@@ -6,10 +6,11 @@ import bfiles
 import config
 import imglib
 import mbdata
+import models
 import useful
 
 
-# -- package
+# ----- package --------------------------------------------------------
 
 def tree_row(tree, text):
     return "%s%s\n<br>\n" % (tree, text)
@@ -87,7 +88,7 @@ def blister(pif):
     print do_tree_page(pif, dblist)
     print pif.render.format_tail()
 
-# -- boxart
+# ----- boxart ---------------------------------------------------------
 
 # id, mod_id, box_type, pic_id, box_size
 # additional_text, bottom, sides, end_flap, year, notes
@@ -561,37 +562,86 @@ def count_boxes(pif):
 
     return pr_count, im_count
 
+# ----- pub ------------------------------------------------------------
 
-@basics.command_line
-def commands(pif):
-    if not pif.argv:
-	basics.goaway()
+@basics.web_page
+def publication(pif):
+    pif.render.print_html()
+    pub_id = pif.form.get_str('id')
 
-    elif pif.argv[0] == 'c':
-	boxes = find_boxes(pif)
+    man = pif.dbh.fetch_publication(pub_id)
+    if not man:
+	raise useful.SimpleError("That publication was not found.")
+    man = man[0]
+    man['casting_type'] = 'Publication'
+    man['name'] = man['base_id.rawname'].replace(';', ' ')
+    imgs = pub_images(pif, pub_id)
 
-	for key in sorted(boxes.keys()):
-	    for picroot in get_pic_roots(boxes[key]['id'], boxes[key]['box_type.box_type'][0]):
-		print '%-9s' % picroot,
-		for picsize in 'mcs':
-		    img = pif.render.find_image_path(picroot, prefix=picsize + '_', pdir=config.IMG_DIR_BOX)
-		    if not img:
-			print '.',
+    left_bar_content = ''
+    if pif.is_allowed('a'):  # pragma: no cover
+        left_bar_content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
+        left_bar_content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link('publication', {'id': pub_id})
+        left_bar_content += '<a href="traverse.cgi?d=.%s">Library</a><br>\n' % config.IMG_DIR_CAT
+	left_bar_content += '<a href="upload.cgi?d=.%s&n=%s&c=%s">Product Upload</a><br>\n' % (config.IMG_DIR_CAT, pub_id, pub_id)
+
+    upper_box = ''
+    if imgs:
+	upper_box += pif.render.format_image_link_image(imgs[0], link_largest=mbdata.IMG_SIZ_LARGE)
+    else:
+	upper_box += pif.render.format_image_link_image(img, link_largest=mbdata.IMG_SIZ_LARGE)
+    if man['base_id.description']:
+	upper_box += '<br>' if upper_box else ''
+	upper_box += man['base_id.description']
+
+    lran = {'id': 'ran', 'entry':
+	[{'text': pif.render.format_image_link_image(img[img.rfind('/') + 1:])} for img in sorted(imgs)] if imgs else
+	[{'text': pif.render.format_image_link_image(pub_id)}]
+    }
+    llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran], 'columns': 4}], 'columns': 4}
+
+    pif.render.set_button_comment(pif, 'id=%s' % pub_id)
+    pif.render.format_matrix_for_template(llineup)
+    context = {
+	'title': man.get('name', ''),
+	'note': '',
+	'type_id': '',
+	#'icon_id': pub_id,
+	'vehicle_type': '',
+	'rowspan': 5 if upper_box else 4,
+	'left_bar_content': left_bar_content,
+	'upper_box': upper_box,
+	'llineup': llineup,
+    }
+    return pif.render.format_template('pub.html', **context)
+
+
+def pub_images(pif, id):
+    imgs = glob.glob(os.path.join(pif.render.pic_dir, '?_' + id.lower() + '_*.jpg'))
+    imgs = list(set([os.path.split(fn)[1][2:-4] for fn in imgs]))
+    imgs.sort()
+    return imgs
+
+# ----- command line ---------------------------------------------------
+
+def check_boxes(pif):
+    boxes = find_boxes(pif)
+
+    for key in sorted(boxes.keys()):
+	for picroot in get_pic_roots(boxes[key]['id'], boxes[key]['box_type.box_type'][0]):
+	    print '%-9s' % picroot,
+	    for picsize in 'mcs':
+		img = pif.render.find_image_path(picroot, prefix=picsize + '_', pdir=config.IMG_DIR_BOX)
+		if not img:
+		    print '.',
+		else:
+		    imginf = imglib.img_info(img)
+		    if imginf[1] < mbdata.imagesizes[picsize][0]:
+			print picsize,
 		    else:
-			imginf = imglib.img_info(img)
-			if imginf[1] < mbdata.imagesizes[picsize][0]:
-			    print picsize,
-			else:
-			    print picsize.upper(),
-		print
+			print picsize.upper(),
+	    print
 
-	check_database(pif)
-
-    elif pif.argv[0] == 'd':
-	dump_database(pif)
-
-    elif pif.argv[0] == 'b':
-	bluster_things(pif)
+    check_database(pif)
 
 
 def check_database(pif):
@@ -649,7 +699,7 @@ def dump_database(pif):
 # saving for later
 #select id, mod_id, box_type as typ, pic_id as p, box_size as z, year, additional_text as addl_text, bottom, sides, end_flap, model_name, notes from box_type;
 
-def bluster_things(pif):
+def blister_things(pif):
     dblist = bfiles.SimpleFile(useful.relpath(config.SRC_DIR, 'blister.dat'))
     for llist in dblist:
 	if llist[0] == 'm':
@@ -657,6 +707,18 @@ def bluster_things(pif):
 		print llist[3]
 
 
+cmds = [
+    ('c', check_boxes, "check boxes"),
+    ('d', dump_database, "dump database"),
+    ('b', blister_things, "blister things"),
+]
+
+
+@basics.command_line
+def commands(pif):
+    useful.cmd_proc(pif, './prints.py', cmds)
+
+# ----- ----------------------------------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
     commands(dbedit='')

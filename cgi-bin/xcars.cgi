@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import cars
-cars.cars_main('cars')
+import pxcars
+pxcars.cars_main('cars')

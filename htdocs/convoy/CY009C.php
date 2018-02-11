@@ -19,7 +19,7 @@ $models = [
 	'tdt' => 'red container with black chassis, COCA COLA HERBSTFREUDEN WARTEN AUF DICH! labels',
     ],
     ['var' => '03a', 'liv' => 'Michelin', 'rar' => '2',
-	'cdt' => 'blue cab, white chassis with yellow stripe, gray base, blue cab/chassis divider, white interior, clear windows, MICHELIN tampo', 'cva' => '',
+	'cdt' => 'blue cab, white chassis with yellow stripe, gray base, blue cab/chassis divider, white interior, colorless windows, MICHELIN tampo', 'cva' => '',
 	'tdt' => ' silver base, blue box, roof and doors, labels, nail head hitch pin',
     ],
 ];

@@ -9,7 +9,7 @@ $defaults = ['mod' => $subtitle, 'cab' => 'MB106', 'tlr' => 'CYT02', 'cod' => '1
 $models = [
 // 1. MB103 cab in red, chrome exhausts, clear windows, beige containers, black trailer, "Uniroyal" labels, England
     ['var' => '01a', 'cab' => 'MB103', 'mfg' => 'England', 'liv' => 'Uniroyal',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '011A',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '011A',
 	'tdt' => 'black, beige containers, UNIROYAL labels',
 	'add' => [
 ['<b>Container Colors from left to right: <br>Brown, Tan, Beige &amp;<br> Cream</b>',
@@ -24,32 +24,32 @@ $models = [
     ],
 // 3. MB106 cab in red, chrome exhausts, clear windows, beige containers, black trailer, "Uniroyal" labels, England
     ['var' => '03a', 'mfg' => 'England', 'liv' => 'Uniroyal',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '11A',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '11A',
 	'tdt' => 'black, beige containers, UNIROYAL labels',
     ],
 // 4. MB106 cab in red, chrome exhausts, clear windows, light tan containers, black trailer, "Uniroyal" labels, England
     ['var' => '04a', 'mfg' => 'England', 'liv' => 'Uniroyal',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '11A',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '11A',
 	'tdt' => 'black, light tan containers, UNIROYAL labels',
     ],
 // 5. MB106 cab in red, chrome exhausts, clear windows, beige containers, white trailer, "Uniroyal" labels, England
     ['var' => '05a', 'mfg' => 'England', 'liv' => 'Uniroyal',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '11A',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '11A',
 	'tdt' => 'white, beige containers, UNIROYAL labels',
     ],
 // 6. MB106 cab in red, chrome exhausts, clear windows, cream containers, white trailer, "Uniroyal" labels, England
     ['var' => '06a', 'mfg' => 'England', 'liv' => 'Uniroyal',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '11A',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '11A',
 	'tdt' => 'white, cream containers, UNIROYAL labels',
     ],
 // 7. MB103 cab in red, chrome exhausts, clear windows, beige containers, white trailer, "Uniroyal" labels, England
     ['var' => '07a', 'cab' => 'MB103', 'mfg' => 'England', 'liv' => 'Uniroyal',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '011A',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '011A',
 	'tdt' => 'white, beige containers, UNIROYAL labels',
     ],
 // 8. MB106 cab in red, chrome exhausts, clear windows, brown containers, black trailer, "Uniroyal" labels, England
     ['var' => '08a', 'mfg' => 'England', 'liv' => 'Uniroyal',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '11A',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '11A',
 	'tdt' => 'black, brown containers, UNIROYAL labels',
     ],
 // 9. MB045 cab in white, chrome exhausts, amber windows, beige containers, "Pepsi" labels, Macau
@@ -59,37 +59,37 @@ $models = [
     ],
 // 10. MB106 cab in black, chrome exhausts, clear windows, cream containers, "Pepsi" labels, England
     ['var' => '10a', 'mfg' => 'England', 'liv' => 'Pepsi',
-	'cdt' => 'black, chrome exhausts, clear windows', 'cva' => '01A',
+	'cdt' => 'black, chrome exhausts, colorless windows', 'cva' => '01A',
 	'tdt' => 'cream containers, PEPSI labels',
     ],
 // 11. MB106 cab in black, chrome exhausts, clear windows, cream containers, black trailer, "Federal Express" labels, Macau
     ['var' => '11a', 'mfg' => 'Macau', 'liv' => 'Federal Express',
-	'cdt' => 'black, chrome exhausts, clear windows', 'cva' => '01A',
+	'cdt' => 'black, chrome exhausts, colorless windows', 'cva' => '01A',
 	'tdt' => 'black, cream containers, FEDERAL EXPRESS labels',
     ],
 // 12. MB106 cab in white, chrome exhausts, clear windows, beige containers, black trailer, "Federal Express" labels, England
     ['var' => '12a', 'mfg' => 'England', 'liv' => 'Federal Express',
-	'cdt' => 'white, chrome exhausts, clear windows', 'cva' => '23A',
+	'cdt' => 'white, chrome exhausts, colorless windows', 'cva' => '23A',
 	'tdt' => 'black, beige containers, FEDERAL EXPRESS labels',
     ],
 // 13. MB106 cab in white, chrome exhausts, clear windows, white containers, black trailer, "Federal Express" tampo, Macau
     ['var' => '13a', 'mfg' => 'Macau', 'liv' => 'Federal Express',
-	'cdt' => 'white, chrome exhausts, clear windows', 'cva' => '25A',
+	'cdt' => 'white, chrome exhausts, colorless windows', 'cva' => '25A',
 	'tdt' => 'black, white containers, FEDERAL EXPRESS tampo',
     ],
 // 14. MB103 cab in red, chrome exhausts, clear windows, light tan containers, white trailer, "Mayflower" labels, England
     ['var' => '14a', 'cab' => 'MB103', 'mfg' => 'England', 'liv' => 'Mayflower', 'rar' => '5',
-	'cdt' => 'red, chrome exhausts, clear windows', 'cva' => '009',
+	'cdt' => 'red, chrome exhausts, colorless windows', 'cva' => '009',
 	'tdt' => 'white, light tan containers, MAYFLOWER labels',
     ],
 // 15. MB106 cab in white, gray exhausts, clear windows, white containers, black trailer, "Federal Express" tampo, Macau
     ['var' => '15a', 'mfg' => 'Macau', 'liv' => 'Federal Express',
-	'cdt' => 'white, gray exhausts, clear windows', 'cva' => '46',
+	'cdt' => 'white, gray exhausts, colorless windows', 'cva' => '46',
 	'tdt' => 'black, white containers, FEDERAL EXPRESS tampo',
     ],
 // 16. MB106 cab in white, gray exhausts, clear windows, white containers, black trailer, "Federal Express" tampo, Thailand
     ['var' => '16a', 'mfg' => 'Thailand', 'liv' => 'Federal Express',
-	'cdt' => 'white, gray exhausts, clear windows', 'cva' => '46',
+	'cdt' => 'white, gray exhausts, colorless windows', 'cva' => '46',
 	'tdt' => 'black, white containers, FEDERAL EXPRESS tampo',
     ],
 // 17. MB045 cab in white, chrome exhausts, amber windows, beige containers, black trailer, "Smith's Crisps" labels, Macau
@@ -99,7 +99,7 @@ $models = [
     ],
 // 18. MB103 cab in red, chrome exhausts and antennas, clear windows, black containers, yellow trailer, "Matchbox" tampo, China, rubber tires (PC)
     ['var' => '18a', 'cab' => 'MB310', 'mfg' => 'China', 'liv' => 'Matchbox',
-	'cdt' => 'red, chrome exhausts and antennas, clear windows', 'cva' => '139',
+	'cdt' => 'red, chrome exhausts and antennas, colorless windows', 'cva' => '139',
 	'tdt' => 'yellow, black containers, MATCHBOX tampo',
     ],
 ];

@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import mannum
-mannum.compare_main('compare')
+import others
+others.compare_main('compare')

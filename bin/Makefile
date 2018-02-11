@@ -6,7 +6,8 @@ all: configs test
 configs: ../templates/config.html ../htdocs/config.php
 
 ../templates/config.html ../htdocs/config.php: config.py
-	./updcommits.py
+	./filesys.py p
+	./filesys.py j
 
 test:
 	./check
@@ -14,7 +15,8 @@ test:
 deploy: clean
 	$(GIT) reset --hard HEAD
 	$(GIT) pull
-	./updcommits.py
+	./filesys.py p
+	./filesys.py j
 
 clean:
 	$(RM) -f *~ *.pyc

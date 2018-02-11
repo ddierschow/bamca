@@ -371,7 +371,7 @@ def edit_single(pif):
 #       elif col == 'page_id':
 #           cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
 	elif col == 'section_id':
-	    cell = pif.render.format_select('section_id', [('', 'Please choose one from the list')] + listCats, selected=value)
+	    cell = pif.render.format_select('section_id', listCats, selected=value, blank='Please choose one from the list')
 	elif col == 'flags':
 	    cell = pif.render.format_checkbox("flags", flag_check_names, useful.bit_list(link[col_long]))
 	elif col == 'country':
@@ -397,7 +397,7 @@ def edit_single(pif):
 	pif.render.format_button_input("delete"),
 	pif.render.format_button_input("test"),
 	pif.render.format_button_input("reject"),
-	pif.render.format_select('rejects_sec', [('', 'Please choose one from the list')] + listRejectCats),
+	pif.render.format_select('rejects_sec', listRejectCats, blank='Please choose one from the list'),
 	'</form>',
 	pif.render.format_button("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
     ])
@@ -429,7 +429,7 @@ def edit_multiple(pif):
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
         section = pif.dbh.fetch_section(sec_id)
-        page_id = section.page_id
+        page_id = section['page_id']
     else:
         linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page'), order="display_order")
     pif.render.message(len(linklines), 'lines')
@@ -547,6 +547,7 @@ def check_link(pif, link, rejects=[], visible=False):
 	if link.get('last_status') != lstatus:
 	    pif.dbh.update_link_line({'id': str(link['id']), 'last_status': lstatus})
 
+# ---- ----------------------------------------------------
 
 def check_blacklisted_links(pif, sections=None):
     reject, banned = links.read_blacklist(pif)
@@ -561,8 +562,7 @@ def check_blacklisted_links(pif, sections=None):
                     #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
 
 
-@basics.command_line
-def commands(pif):
+def update_links(pif):
     links = pif.dbh.fetch_link_lines()
     good_ids = [x for x in range(100, 3000)]
     bad_ids = []
@@ -576,6 +576,44 @@ def commands(pif):
     for ids in zip(good_ids, bad_ids):
 	print "update link_line set id=%d where id=%d;" % ids
 
+
+def cl_check_links(pif, *filelist):
+    retest = visible = False
+    if 'retest' in filelist:
+	retest = True
+	filelist.remove('retest')
+    if 'visible' in filelist:
+	visible = True
+	filelist.remove('visible')
+    check_links(pif, filelist, retest=retest, visible=visible)
+
+
+# an auto link updater would be nice.  this would be part of it.
+
+def import_psdc(pif):
+    import re
+    pref = 'http://www.publicsafetydiecast.com/'
+    u = urllib2.urlopen('http://www.publicsafetydiecast.com/Matchbox_MAN.htm').read()
+    u_re = re.compile('<a href="(?P<u>[^"]*)".*?<font.*?>(?P<i>.*?)<\/font>')
+    q = pif.dbh.fetch_link_lines(where='associated_link=365')
+    ul = list(set([x['link_line.url'] for x in q]))
+    pl = list(set(u_re.findall(u)))
+    for l in pl:
+        if not pref + l[0] in ul:
+            print l[1], pref + l[0]
+
+
+cmds = [
+    ('u', update_links, "update"),
+    ('c', cl_check_links, "check"),
+    ('b', check_blacklisted_links, 'check blacklist'),
+]
+
+@basics.command_line
+def commands(pif):
+    useful.cmd_proc(pif, './tlinks.py', cmds)
+
+# ---- ----------------------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
     commands(dbedit='')

@@ -93,7 +93,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
 
     if lsec['flags'] & pif.dbh.FLAG_SECTION_DEFAULT_IDS:
 	mdict['shown_id'] = pif.dbh.default_id(mdict['mod_id'])
-	disp_format = '%s.'
+	disp_format = '%s'
     else:
 	mdict['shown_id'] = mdict['number']
 	disp_format = lsec.get('disp_format', '')
@@ -153,7 +153,7 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
     if fdebug:
 	print '--------------------------------------------------------'
 	print 'SETVAR', regions, ref_id
-	print 'CURMOD:', curmod
+	print 'CURMOD:', useful.defang(curmod)
 	for rmod in rmods:
 	    if rmod['lineup_model.number'] == curmod['number'] and rmod['lineup_model.display_order'] == curmod['display_order']:
 		print 'RMOD:', rmod['lineup_model.number'], 'ord', rmod['lineup_model.display_order'], 'vs.ref_id', rmod['vs.ref_id'], 'vs.sub_id', rmod['vs.sub_id'], 'var', rmod['v.var'], rmod['v.text_description'], 'pic', rmod['v.picture_id']
@@ -163,9 +163,10 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 	if fdebug:
 	    print 'CHECK', region
 	for rmod in rmods:
-	    if (rmod['lineup_model.number'] == curmod['number'] and
-		    rmod['lineup_model.display_order'] == curmod['display_order'] and
-		    (rmod['vs.sub_id'] == region or rmod['vs.sub_id'] == str(curmod['number']))):
+	    if (region.startswith('X') or
+		    (rmod['lineup_model.number'] == curmod['number'] and
+		     rmod['lineup_model.display_order'] == curmod['display_order'] and
+		     (rmod['vs.sub_id'] == region or rmod['vs.sub_id'] == str(curmod['number'])))):
 		# add to cvarlist
 		for var in curmod['cvarlist']:
 		    if rmod['v.var'] in var['var_ids']:
@@ -195,6 +196,8 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 		print 'NO ADD'
 	if quittable:
 	    break
+    if fdebug:
+	print '<br>'
     return curmod
 
 
@@ -258,7 +261,7 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
     # generate extra sections
     lmods = pif.dbh.fetch_lineup_models(year, [x['id'] for x in xsecs])
     for sec in xsecs:
-	sec['mods'] = create_lineup(pif, lmods, year, sec)
+	sec['mods'] = create_lineup(pif, lmods, year, sec, fdebug)
 
     # just one more thing, ma'am
     limits = pif.dbh.fetch_lineup_limits()
@@ -470,7 +473,7 @@ def year_lineup_main(pif, listtype):
         str(year) + ' ' + mbdata.regions.get(region, ''))
     pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (year, region))
 
-    mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types)
+    mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types, fdebug=pif.form.get_bool('verbose'))
 
     # now that we have our sections calculated, format them.
     if listtype == mbdata.LISTTYPE_CSV:
@@ -623,7 +626,7 @@ def run_ranks(pif, mnum, region, syear, eyear):
             ifmt, pdir = get_product_image(pages.get(mdict.get('page_id', ''), {}), mnum)
             mdict['image_format'] = lsec['img_format'] = ifmt
             mdict['disp_format'] = '%s.'
-            mdict['pdir'] = pdir
+            lsec['pic_dir'] = pdir
             mdict['anchor'] = '%d' % mdict['number']
 	    mdict = calc_lineup_model(pif, lsec, mdict['year'], region, mdict)
             mdict['displayed_id'] = str(mdict['year'])
@@ -907,29 +910,197 @@ def list_lineups(pif):
 	print comment, mbdata.comment_name[comment]
 
 
-def command_help(pif, *args):
-    pif.render.message("./lineup.py [s|c] ...")
-    pif.render.message("  s for show: year region [number]")
-    pif.render.message("  c for clone: year old_region new_region")
-    pif.render.message("  p for count: year region")
-    pif.render.message("  r for ranks: number region syear eyear")
+# input file has new models in form:
+#1|MB1002|Heavy Railer|red/yellow
+# lineup_number | mod_id | mod_name | var_description
+
+# currently can't handle multiple variations of a particular number
+
+# hardcoded values:
+regions = ['U', 'R']
+picdir = 'pic/prod/mworld'
 
 
-command_lookup = {
-    's': year_lineup,
-    'c': clone_lineup,
-    'p': count_lineup,
-    'r': rank_lineup,
-    'l': list_lineups,
-}
+def raw_insert(pif, table, data):
+    pif.dbh.dbi.insert_or_update(
+    #print (
+	table, data
+    )
+
+
+def add_page(pif, year):
+    raw_insert(pif, 'page_info', {
+        'id': 'year.' + year,
+        'flags': 0,
+        'format_type': 'lineup',
+        'title': 'Matchbox %s Lineup' % year,
+        'pic_dir': picdir,
+        'tail': '',
+        'description': '',
+        'note': '',
+    })
+
+
+def add_section(pif, year, region):
+    raw_insert(pif, 'section', {
+        'id': region,
+        'page_id': 'year.' + year,
+        'display_order': 0,
+        'category': 'man',
+        'flags': 0,
+        'name': mbdata.regions[region],
+        'columns': 4,
+        'start': 0,
+        'pic_dir': '',
+        'disp_format': '%d.',
+        'link_format': pif.form.get_str('link_fmt'),
+        'img_format': '%s%s%%03d' % (year, region.lower()),
+        'note': '',
+    })
+
+
+def add_casting(pif, mod, year):
+    # base_id: id, first_year, model_type, rawname, description, flags
+    # casting: id, country, make, section_id
+    pif.dbh.add_new_base_id(
+    {
+	'id': mod[1],
+	'first_year': year,
+	'model_type': 'SF',
+	'rawname': mod[2],
+	'description': '',
+	'flags': 0,
+    })
+    pif.dbh.add_new_casting(
+    {
+	'id': mod[1],
+	'country': '',
+	'make': '',
+	'section_id': 'man3',
+	'notes': '',
+    })
+
+
+def add_variation(pif, mod, year):
+    var_id = 'Y' + year[2:]
+    var = {
+	'mod_id': mod[1],
+	'var': var_id,
+	'flags': 0,
+	'text_description': '',
+	'text_base': '',
+	'text_body': '',
+	'text_interior': '',
+	'text_wheels': '',
+	'text_windows': '',
+	'text_with': '',
+	'base': '',
+	'body': mod[3],
+	'interior': '',
+	'windows': '',
+	'manufacture': '',
+	'category': '',
+	'area': '',
+	'date': '',
+	'note': '',
+	'other': '',
+	'picture_id': '',
+	'imported': '',
+	'imported_from': 'file',
+	'imported_var': var_id,
+    }
+    #print ('variation', mod[1], var_id, var)
+    pif.dbh.insert_variation(mod[1], var_id, var, verbose=True)
+    pif.dbh.recalc_description(mod[1], showtexts=False, verbose=False)
+
+
+def add_lineup_model(pif, mod, year, region):
+    lin_id = '%s%s%03d' % (year, region, int(mod[0]))
+    # lineup_model
+    raw_insert(pif, 'lineup_model', {
+	'base_id': lin_id,
+	'mod_id': mod[1],
+	'number': mod[0],
+	'flags': 0,
+	'style_id': '',
+	'picture_id': '',
+	'region': region,
+	'year': year,
+	'name': mod[2],
+	'page_id': 'year.' + year,
+    })
+
+
+def add_variation_select(pif, mod, year, region):
+    raw_insert(pif, 'variation_select', {
+	'ref_id': 'year.' + year,
+	'mod_id': mod[1],
+	'var_id': 'Y' + year[2:],
+	'sub_id': '',
+    })
+
+
+def make_lineup(pif, year, fn):
+    inmods = [x.split('|') for x in open(fn).readlines()]
+    add_page(pif, year)
+    for region in regions:
+	add_section(pif, year, region)
+    for mod in inmods:
+	casting = pif.dbh.fetch_casting(mod[1])
+	if not casting:
+	    add_casting(pif, mod, year)
+	add_variation(pif, mod, year)
+	for region in regions:
+	    add_lineup_model(pif, mod, year, region)
+	add_variation_select(pif, mod, year, '')
+
+
+def check_lineup(pif, *args):
+    def do_lup(pif, year, region):
+	lup = lineup.run_file(pif, region, str(year))
+	totals['i'] += lup['var_info']['i']
+	totals['p'] += lup['var_info']['p']
+	print '%d  %s  %3d  %3d' % (year, region, lup['var_info']['i'], lup['var_info']['p'])
+
+    totals = {'i': 0, 'p': 0}
+
+    st = 1953
+    en = 2014
+    if args:
+        st = int(args[0])
+        if len(args) > 1:
+            en = int(args[1])
+        else:
+            en = st
+    for year in range(st, en + 1):
+        pif.page_id = 'year.%d' % year
+        lup = do_lup(pif, year, 'U')
+        if year >= 1982:
+            lup = do_lup(pif, year, 'R')
+        if year in (1999, 2000, 2001):
+            lup = do_lup(pif, year, 'D')
+        if year in (2000, 2001):
+            lup = do_lup(pif, year, 'B')
+            lup = do_lup(pif, year, 'A')
+        if year >= 2008 and year <= 2011:
+            lup = do_lup(pif, year, 'L')
+    print '        %4d %4d' % (totals['i'], totals['p'])
+
+
+cmds = [
+    ('s', year_lineup, "show: year region [number]"),
+    ('c', clone_lineup, "clone: year old_region new_region"),
+    ('p', count_lineup, "count: year region"),
+    ('r', rank_lineup, "ranks: number region syear eyear"),
+    ('l', list_lineups, "list lineups"),
+    ('m', make_lineup, "make lineup"),
+    ('x', check_lineup, "check lineup"),
+]
 
 
 @basics.command_line
 def commands(pif):
-    if pif.filelist:
-	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
-    else:
-	command_help(pif)
+    useful.cmd_proc(pif, './lineup.py', cmds)
 
 #---- ---------------------------------------
 

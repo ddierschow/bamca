@@ -213,5 +213,5 @@ foreach ($entries as $ent) {
   </tbody>
 </table>
 <font face="Arial" size="+1"><a href="index.php">Return to Front Page</a></font><br>
-</body>
+<?php DoFoot($pif); ?>
 </html>

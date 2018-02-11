@@ -1,11 +1,13 @@
-body {background-color: #D84905; color: #FFFFFF;}
-ul {font-size: x-large;}
-ul ul {font-size: large;}
+body {background-color: #D84905; background-image: url("/pic/bg/bg18.jpg");}
 
+body         {color: #FFFFFF;}
 a:link       {color: #FFFF00;}
 a:visited    {color: #FFFF66;}
 a:active     {color: #FFFF66;}
 a:hover      {color: #FFFF00;}
+
+ul {font-size: x-large;}
+ul ul {font-size: large;}
 
 .special {font-size: x-large;}
 .special a {color: #FFFF00;}
@@ -18,3 +20,9 @@ a:hover      {color: #FFFF00;}
 .share:visited {color: #FFFFFF; background-color: #3333FF; border-color: #FFFFFF;}
 .share:active  {color: #FFFFFF; background-color: #3333FF; border-color: #FFFFFF;}
 .share:hover   {color: #3333FF; background-color: #FFFFFF; border-color: #3333FF;}
+
+.banner {background-color: #D7350C; color: #FFFFFF; vertical-align: center;
+	border-collapse: collapse; border-color: #FFFFFF; border-width: 8px 0 8px 0; border-style: solid;}
+.banner img {padding: 0; margin: 0;}
+
+.index {background-color: #D84905;}

@@ -102,6 +102,10 @@ $models = [
 	'cdt' => 'black with HARLEY-DAVIDSON tampo', 'cva' => '067',
 	'tdt' => 'black container with black roof and doors, HARLEY-DAVIDSON labels',
     ],
+    ['var' => '17b', 'mfg' => 'Thailand', 'liv' => 'Harey-Davidson',
+	'cdt' => 'black with HARLEY-DAVIDSON tampo', 'cva' => '067',
+	'tdt' => 'black container with black roof and doors, HARLEY-DAVIDSON labels',
+    ],
 // 18. MB45-C cab in red with white band tampo, red container with red roof and doors, Thailand, "Nintendo" tampo
     ['var' => '18a', 'mfg' => 'Thailand', 'liv' => 'Nintendo',
 	'cdt' => 'red with white band tampo', 'cva' => '071PR',

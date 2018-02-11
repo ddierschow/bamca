@@ -495,5 +495,5 @@ Other cab/trailer combinations
 
 <br>
 <font face="Arial" size="+1"><a href="index.php">Return to Front Page</a></font><br>
-</body>
+<?php DoFoot($pif); ?>
 </html>

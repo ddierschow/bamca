@@ -1,4 +1,8 @@
 body {background-color: #FFFFCC;}
 .tb {border-width: 0; background-color: #FFFFCC; width: 1024px;}
 .sh {font-size: large;}
-.eb {border-width: 0; background-color: #FFFFCC;}
+.eb {border-width: 0;}
+.er {background-color: #FFFFCC;}
+
+.ln0 {background-color: #FFFFCC;}
+.ln1 {background-color: #FFFFDD;}

@@ -3,7 +3,7 @@
 
 """Variation Importer
 
-This module (with vdata) imports variations from the Word files
+This module (with vrdata) imports variations from the Word files
 that are kept on mbxforum.nl.
 
 This was grown over the course of several years, and at this point
@@ -24,8 +24,8 @@ import config
 import mbdata
 import tables
 import useful
-import vars
-import vdata
+import varias
+import vrdata
 
 IS_GOOD = 0
 IS_NO_MODEL = 1
@@ -45,7 +45,7 @@ file_list_class = {
     IS_DIFFERENT_NUMBER: 'different',
 }
 
-var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'category', 'area', 'date', 'note', 'manufacture',
+var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'category', 'area', 'date', 'note', 'manufacture', 'base_text',
                    'imported_from', 'imported_var']
 
 
@@ -182,9 +182,9 @@ def read_html_file(pif, vid, fdir, fn):
     if not modids:
         pass
     elif os.path.exists(fdir + '/' + fn + '.html'):
-        fitabs = vdata.get_html_tables(fdir + '/' + fn + '.html')
+        fitabs = vrdata.get_html_tables(fdir + '/' + fn + '.html')
     elif os.path.exists(fdir + '/' + fn + '.htm'):
-        fitabs = vdata.get_html_tables(fdir + '/' + fn + '.htm')
+        fitabs = vrdata.get_html_tables(fdir + '/' + fn + '.htm')
     return modids, fitabs
 
 
@@ -284,7 +284,7 @@ def check_file(pif, vid, fdir, fn):
                     if col != 'var' and row.get(col, '') != dbvar.get(col, ''):
                         #pif.render.comment('changed', col, row.get(col, ''), dbvar.get(col, ''))
                         varfile['stat'].add(IS_CHANGED)
-		if not vdata.compare_var_ids(dbvar['var'], row['var']) and row['var'][0] != 'f':
+		if not vrdata.compare_var_ids(dbvar['var'], row['var']) and row['var'][0] != 'f':
                 #if dbvar['var'] != row['var'] and row['var'][0] != 'f':
                     #pif.render.comment('diff#', dbvar['var'], row['var'])
                     varfile['stat'].add(IS_DIFFERENT_NUMBER)
@@ -391,8 +391,8 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         print "<td>%s</td>" % pif.render.format_text_input("title.%(id)d" % attr, 32, 32, attr["title"])
         print "<td>%s</td>" % pif.render.format_checkbox("visual.%(id)d" % attr, [(1, '')], [attr['visual']])
         print "<td>%s</td>" % pif.render.format_text_input("description.%(id)d" % attr, 64, 32, dets.get(attr["attribute_name"], ""))
-        print "<td>%s</td>" % (pif.render.format_button("delete", "?f=%s&delattr=%d" % (file_id, attr['id'])) +
-                               pif.render.format_button_input(bname="save", name='renattr.%d' % attr['id']))
+        print "<td>%s</td>" % pif.render.format_button_input(bname="save", name='renattr.%d' % attr['id'])
+        print "<td>%s</td>" % pif.render.format_button("delete", "?f=%s&delattr=%d" % (file_id, attr['id']))
         print "</tr>"
         var_desc[attr["attribute_name"]] = attr["definition"]
     for attr in common_attrs:
@@ -409,6 +409,9 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
 	    print "<td>%s</td>" % ('X' if attr['visual'] else '')
         print "<td>%s</td>" % pif.render.format_text_input("description.%(id)d" % attr, 64, 32, dets.get(attr["attribute_name"], ""))
         print "<td>%s</td>" % pif.render.format_button_input(bname="save", name='renattr.%d' % attr['id'])
+        print "<td></td>"
+        print "<td>%s</td>" % pif.render.format_link('/cgi-bin/vedit.cgi', txt=pif.render.format_button(bname="none"),
+		args={'attribute_name.%s' % attr['id']: attr['attribute_name'], 'd': 'src/mbxf', 'description.%s' % attr['id']: 'none', 'f': file_id, 'm': mod_id, 'mod_id': mod_id, 'renattr.%s' % attr['id']: 'SAVE'})
         print "</tr>"
     cnt = 1
     for hdr in hdrs:
@@ -443,7 +446,7 @@ def show_base_id(pif, mod):
     print "</form>"
 
 
-def show_casting(pif, mod):
+def show_casting(pif, mod, file_id):
     # casting form
     print "<h3>Casting</h3>"
     casting_info = pif.dbh.describe_dict('casting')
@@ -465,7 +468,9 @@ def show_casting(pif, mod):
     print pif.render.format_button_input('save', 'save casting')
     print "</form>"
 
-    fmt_invalid, messages =  pif.dbh.check_description_formatting(mod['id'], '<br>')
+    fmt_invalid, messages, missing =  pif.dbh.check_description_formatting(mod['id'], '<br>')
+    for attr in missing:
+        print pif.render.format_button("add", "?f=%s&m=%s&addattr=%s" % (file_id, mod['id'], attr)), attr, '<br>'
     if fmt_invalid:
 	print messages
     print '<br>'
@@ -566,7 +571,7 @@ def show_model_table(pif, varfile, fitab):
     show_base_id(pif, mod)
 
     # casting form
-    show_casting(pif, mod)
+    show_casting(pif, mod, varfile['filename'])
 
     # attributes form
     show_attrs(pif, varfile['filename'], mod, fitab['gridhead'], varfile['var_desc'])
@@ -616,7 +621,7 @@ def show_variations(pif, varfile, fitab, mod_id):
         print '<input type="hidden" name="%s.orignum" value="%s">' % (rec['var'], dbvar.get('var'))
         if dbvar.get('var'):
             print '<a href="/cgi-bin/vars.cgi?mod=%s&edit=1&var=%s" style="color: %s">%s</a>' % \
-                  (mod_id, dbvar['var'], text_color[vdata.compare_var_ids(rec['var'], dbvar.get('var'))], rec['var'])
+                  (mod_id, dbvar['var'], text_color[vrdata.compare_var_ids(rec['var'], dbvar.get('var'))], rec['var'])
         else:
             print rec['var']
         #if os.path.exists(pic):
@@ -676,7 +681,7 @@ def char_test(fidet):
     noch = []
     if fidet:
 	for ch in fidet:
-	    if ch not in vdata.ok_letters:
+	    if ch not in vrdata.ok_letters:
 		noch.append(ord(ch))
 	if noch:
 	    print '<br>', noch
@@ -708,11 +713,12 @@ def handle_form(pif):
         return
 
     pif.dbh.set_verbose(True)
-    vid = vdata.VariationImportData()
+    vid = vrdata.VariationImportData()
     vid.verbose = pif.render.verbose
     nvars = list()
     file_dir = pif.form.get_str('d', 'src/mbxf')
 
+    print pif.form, '<br>'
     if pif.form.has("recalc"):  # doesn't really fit the pattern
         print "recalc<br>"
         for k in pif.form.keys(end='.var'):
@@ -848,7 +854,7 @@ def do_action(pif, mod_id):
         orphans = pif.form.get_list('orphan', list())
         for var_id in orphans:
             print 'deleting', mod_id, var_id, '<br>'
-            vars.delete_variation(pif, mod_id, var_id)
+            varias.delete_variation(pif, mod_id, var_id)
     elif pif.form.has("delete_all"):
         print "delete all<br>"
         pif.dbh.delete_detail(where={"mod_id": mod_id})
@@ -857,17 +863,14 @@ def do_action(pif, mod_id):
         print "delattr<br>"
         pif.dbh.delete_attribute({"id": pif.form.get_str('delattr')})
         pif.dbh.delete_detail({"attr_id": pif.form.get_str('delattr')})
+    elif pif.form.has("addattr"):
+        print "addattr<br>"
+	print 'adding', mod_id, pif.form.get_str('addattr')
+	print pif.dbh.insert_attribute(mod_id, pif.form.get_str('addattr')), '<br>'
     elif pif.form.has("fix_numbers"):
         print "fix numbers<br>"
         for k in pif.form.keys(end='.orignum'):
-	    # somewhere right around here we want to use vdata.compare_var_ids
+	    # somewhere right around here we want to use vrdata.compare_var_ids
             if pif.form.get_str(k) != k[0:-8]:
                 retvar = -999
-                vars.rename_variation(pif, mod_id, pif.form.get_str(k), k[0:-8])
-
-
-# ----- ----------------------------------------------------------------
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()
+                varias.rename_variation(pif, mod_id, pif.form.get_str(k), k[0:-8])

@@ -13,36 +13,38 @@ td {vertical-align: top;}
 .sel_body {border-width: 1px; border-style: solid; padding: 8px;}
 .input_label {text-align: right;}
 
-.id_head       {background-color: #DDDDDD;}
-.id_body       {background-color: #F3F3F3;}
-.year_head     {background-color: #FFFF5A;}
-.year_body     {background-color: #FFFFCC;}
-.rank_head     {background-color: #B0B0FF;}
-.rank_body     {background-color: #E0E0FF;}
-.manno_head    {background-color: #AAFFAA;}
-.manno_body    {background-color: #E0FFE0;}
-.mack_head     {background-color: #88FFFF;}
-.mack_body     {background-color: #CCFFFF;}
-.makes_head    {background-color: #FF88FF;}
-.makes_body    {background-color: #FFCCFF;}
-.search_head   {background-color: #FFBBAA;}
-.search_body   {background-color: #FFE8E0;}
-.vsearch_head  {background-color: #FFC888;}
-.vsearch_body  {background-color: #FFEEDD;}
-.packs_head    {background-color: #CCFF66;}
-.packs_body    {background-color: #E0FFB0;}
-.sets_head     {background-color: #CC88FF;}
-.sets_body     {background-color: #EECCFF;}
-.boxes_head    {background-color: #88CCFF;}
-.boxes_body    {background-color: #CCD8FF;}
-.code2_head    {background-color: #88FFCC;}
-.code2_body    {background-color: #CCFFD8;}
-.other_head    {background-color: #000000; color: #FFFFFF;}
-.other_body    {background-color: #999999;}
-.new3_head     {background-color: #FF6666;}
-.new3_body     {background-color: #FFCCCC;}
-.new4_head     {background-color: #FF99CF;}
-.new4_body     {background-color: #FFCCE8;}
+.id_head       {background-color: #CCC;}
+.id_body       {background-color: #EEE;}
+.year_head     {background-color: #FF5;}
+.year_body     {background-color: #FFC;}
+.rank_head     {background-color: #AAF;}
+.rank_body     {background-color: #DDF;}
+.manno_head    {background-color: #AFA;}
+.manno_body    {background-color: #DFD;}
+.mack_head     {background-color: #8FF;}
+.mack_body     {background-color: #CFF;}
+.makes_head    {background-color: #F8F;}
+.makes_body    {background-color: #FCF;}
+.search_head   {background-color: #FBA;}
+.search_body   {background-color: #FED;}
+.vsearch_head  {background-color: #FC8;}
+.vsearch_body  {background-color: #FEC;}
+.packs_head    {background-color: #CF6;}
+.packs_body    {background-color: #DFA;}
+.sets_head     {background-color: #C8F;}
+.sets_body     {background-color: #ECF;}
+.boxes_head    {background-color: #8CF;}
+.boxes_body    {background-color: #CDF;}
+.code2_head    {background-color: #8FC;}
+.code2_body    {background-color: #CFD;}
+.plants_head   {background-color: #F88;}
+.plants_body   {background-color: #FCC;}
+.new4_head     {background-color: #F9C;}
+.new4_body     {background-color: #FCE;}
+.new5_head     {background-color: #FC0;}
+.new5_body     {background-color: #FEB;}
+.other_head    {background-color: #000; color: #FFF;}
+.other_body    {background-color: #999;}
 
 .hspacer {width: 20px;}
 

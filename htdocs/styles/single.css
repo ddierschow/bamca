@@ -1,7 +1,13 @@
 body {background-color: #EEEEEE;}
 /* #img    {margin-left: auto; margin-right: auto; display: block;} */
 
-.eb {text-align: center;}
+h2 {font-size: x-large; font-weight: bold; text-align: center; margin: 0 0 0 0;}
+h3 {font-size: large; font-weight: bold; text-align: center; margin: 0 0 0 0;}
+h4 {font-size: medium; font-weight: bold; text-align: center; margin: 0 0 0 0;}
+h5 {font-size: small; font-weight: bold; text-align: center; margin: 0 0 0 0;}
+
+.eh {font-size: small;}
+.eb {font-size: small; text-align: center;}
 
 .ok {color: #FFFFFF;}
 .no {color: #FFFF99;}
@@ -14,6 +20,8 @@ body {background-color: #EEEEEE;}
 .inset_s {width: 208px; margin: 0 auto;}
 .inset_m {width: 408px; margin: 0 auto;}
 .inset_l {width: 608px; margin: 0 auto;}
+.tb_la {width: auto;}
+.eh_la {width: 50px;}
 
 .panel_1 {width: 444px;}
 .panel_2 {width: 890px;}

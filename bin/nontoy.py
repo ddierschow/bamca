@@ -169,7 +169,3 @@ def calendar(pif):
 	lsection['range'].append(lrange)
 
     return pif.render.format_template('simplelistix.html', llineup=llistix)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

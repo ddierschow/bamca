@@ -63,6 +63,5 @@ DoPageHeader($pif);
 </table>
 
 
-<?php DoPageFooter($pif); ?>
-</body>
+<?php DoPageFooter($pif); DoFoot($pif); ?>
 </html>

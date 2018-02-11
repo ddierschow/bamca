@@ -200,7 +200,3 @@ class Font(object):
 
     def get(self, key, defval=None):
         return self.chars.get(key, defval)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

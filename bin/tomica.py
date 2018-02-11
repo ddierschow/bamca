@@ -213,7 +213,3 @@ def main(pif):
         run_file(pif, manf, year=pif.form.get_str('year'))
         #print pif.render.format_matrix(llineup)
     print pif.render.format_tail()
-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

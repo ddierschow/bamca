@@ -18,6 +18,10 @@ class TestOther(unittest.TestCase):
 #    images.Tumblr('editor')
 #    images.UploadMain('editor')
 
+    def test_Others(self):
+	import others
+        self.assertTrue(others.compare_main('compare', args='verbose=1') != '')
+
     def test_Lineup(self):
 	import lineup
         self.assertTrue(lineup.main('year', 'year', args='verbose=0') is None)
@@ -57,7 +61,6 @@ class TestOther(unittest.TestCase):
 
     def test_Manno(self):
 	import mannum
-        self.assertTrue(mannum.compare_main('compare', args='verbose=1') != '')
         self.assertTrue(mannum.main('manno', args='section=all listtype= range=all start=1 syear=1953 end=999 eyear=2015 type_a=y type_9=n type_o=m type_c=m type_b=m type_i=m type_2=m type_d=m type_e=m type_j=m type_1=m type_g=m type_r=m type_f=m type_4=m type_m=m type_u=m type_p=m type_z=m type_l=m type_t=m type_8=m type_v=m type_h=m type_5=m type_x=m submit=1') != '')
         self.assertTrue(mannum.main('manno', args='section=wr listtype= range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
         self.assertTrue(mannum.main('manno', args='section=sf listtype= range=some start=5 syear=1972 end=9 eyear=1974 nodesc=1 submit=1') != '')
@@ -96,9 +99,9 @@ class TestOther(unittest.TestCase):
 	self.assertTrue(matrix.main('matrix', 'page', args='verbose=1') != '')
 
     def test_Multipack(self):
-	import multipack
-	self.assertTrue(multipack.do_page('packs', 'page', args="verbose=1") != '')
-	self.assertTrue(multipack.do_page('packs', 'page', args="page=5packs id=2000p55alu") != '')
+	import multip
+	self.assertTrue(multip.do_page('packs', 'page', args="verbose=1") != '')
+	self.assertTrue(multip.do_page('packs', 'page', args="page=5packs id=2000p55alu") != '')
 
     def test_Nontoy(self):
 	import nontoy
@@ -108,10 +111,10 @@ class TestOther(unittest.TestCase):
 #    nontoy.Publication('pub')
 
     def test_Package(self):
-	import package
-	#self.assertTrue(package.blister('package', 'page', 'blister', args="verbose=1") != '')
-#    package.blister('package', 'page', 'blister')
-#    package.show_boxes('boxart')
+	import prints
+	#self.assertTrue(prints.blister('package', 'page', 'blister', args="verbose=1") != '')
+#    prints.blister('package', 'page', 'blister')
+#    prints.show_boxes('boxart')
 
     def test_Search(self):
 	import search
@@ -153,18 +156,18 @@ class TestOther(unittest.TestCase):
 #    user.LogoutMain('user')
 
     def test_Vars(self):
-	import vars
-	self.assertTrue(vars.main('vars', args="mod=MB786") != '')
-	self.assertTrue(vars.main('vars', args="mod=MB001 var=08") != '')
-	self.assertTrue(vars.main('vars', args="mod=MB320 var=06a") != '')
-	self.assertTrue(vars.main('vars', args="mod=SF75a list=1") != '')
-	self.assertTrue(vars.main('vars', args="mod=MB741 var=01") != '')
-	self.assertTrue(vars.run_search('search', args="casting=austin codes=1 base= codes=2 body=green interior= wheels= windows= cat= submit=1") != '')
+	import varias
+	self.assertTrue(varias.main('vars', args="mod=MB786") != '')
+	self.assertTrue(varias.main('vars', args="mod=MB001 var=08") != '')
+	self.assertTrue(varias.main('vars', args="mod=MB320 var=06a") != '')
+	self.assertTrue(varias.main('vars', args="mod=SF75a list=1") != '')
+	self.assertTrue(varias.main('vars', args="mod=MB741 var=01") != '')
+	self.assertTrue(varias.run_search('search', args="casting=austin codes=1 base= codes=2 body=green interior= wheels= windows= cat= submit=1") != '')
 
     def test_Vedit(self):
-	import vedit
-	self.assertTrue(vedit.handle_form('vars', args="d=src/mbxf s=MW990 n=100") != '')
-	self.assertTrue(vedit.handle_form('vars', args="d=src/mbxf f=MW713") != '')
+	import vredit
+	self.assertTrue(vredit.handle_form('vars', args="d=src/mbxf s=MW990 n=100") != '')
+	self.assertTrue(vredit.handle_form('vars', args="d=src/mbxf f=MW713") != '')
 
 if __name__ == '__main__': # pragma: no cover
     unittest.main()

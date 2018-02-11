@@ -59,11 +59,11 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .beta {width: 100%; background-image: url("/pic/gfx/beta.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
 
 .modeltop    {width: 100%;}
-.modelnumber {text-align: center; font-size: medium; font-weight: bold; font-family: monospace; height: 16px; width: 20%;}
-.modelstars  {width: 40%;}
+.modelnumber {text-align: center; font-size: medium; font-weight: bold; font-family: monospace; height: 16px; width: 24%;}
+.modelstars  {width: 38%;}
 .modelstars img {float: left;}
 .modelstars i {float: left;}
-.modelicons  {width: 40%;}
+.modelicons  {width: 38%;}
 .modelicons img {float: right;}
 .modelicons i {float: right;}
 .vartable    {width: 100%; text-align: center;}
@@ -168,25 +168,11 @@ it is also useful for targeting FF-only code */
 }
 
 /* Modal Content/Box */
-.modal-content {
-    background-color: #fefefe;
+.modal-content {background-color: #fefefe; padding: 20px; border: 1px solid #888;
     margin: 15% auto; /* 15% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
     width: 80%; /* Could be more or less, depending on screen size */
 }
 
 /* The Close Button */
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
+.close {color: #aaa; float: right; font-size: 28px; font-weight: bold; color: #FF0000;}
+.close:hover, .close:focus {color: #990000; text-decoration: none; cursor: pointer;}

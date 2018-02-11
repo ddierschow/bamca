@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import vedit
-vedit.handle_form('vars', dbedit='am')
+import vredit
+vredit.handle_form('vars', dbedit='am')

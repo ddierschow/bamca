@@ -34,13 +34,15 @@ $models = [
     ],
 // 6. MB45-C cab in green, gray exhausts, yellow trailer with black base, "Eurobran" tampo, Macau casting (MC)
     ['var' => '06a', 'mfg' => 'Macau', 'liv' => 'Eurobran',
-	'crd' => 'Charles Linsenbarth',
+	'cdt' => 'green, gray exhausts', 'cva' => '054',
+	'tdt' => 'yellow trailer with black base, EUROBRAN tampo',
+    ],
+    ['var' => '06b', 'mfg' => 'Thailand', 'liv' => 'Eurobran',
 	'cdt' => 'green, gray exhausts', 'cva' => '054',
 	'tdt' => 'yellow trailer with black base, EUROBRAN tampo',
     ],
 // 7. MB45-C cab in yellow, gray exhausts, yellow trailer with black base, "Taylor Woodrow" tampo, Macau casting 
     ['var' => '07a', 'mfg' => 'Macau', 'liv' => 'Taylor Woodrow',
-	'crd' => 'Simon Rogers',
 	'cdt' => 'yellow, gray exhausts', 'cva' => '052',
 	'tdt' => 'yellow trailer with black base, TAYLOR WOODROW tampo',
     ],

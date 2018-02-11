@@ -1,12 +1,10 @@
 #!/usr/local/bin/python
 
-import datetime, glob, logging, os, re, stat, subprocess, sys, time, traceback, urllib, urllib2
-from PIL import Image
+import glob, logging, os, re, stat, sys, time, traceback, urllib, urllib2
 import basics
 import bfiles
 import config
 import imglib
-import imicon
 import javasc
 import mbdata
 import tumblr
@@ -28,6 +26,13 @@ images.bits_main
 
 descriptions_file = os.path.join(config.LOG_ROOT, 'descr.log')
 
+auto_credits = [
+	('mbx-u.com', 'MBXU'),
+	('publicsafetydiecast.com', 'PSDC'),
+	('chezbois.com', 'LW'),
+	('cfalkensteiner.com', 'CF'),
+]
+
 # -- common
 
 def file_log(fn, tdir):
@@ -35,7 +40,6 @@ def file_log(fn, tdir):
     logging.getLogger('file').info('%s %s' % (tdir, fn))
 
 def upload_log(url, pdir):
-    #open(os.path.join(config.LOG_ROOT, 'upload.log'), 'a').write(datetime.datetime.now().strftime('%Y%m%d.%H%M%S') + ' %s %s\n' % (url, pdir))
     logging.getLogger('upload').info('%s %s' % (pdir, url))
 
 
@@ -81,6 +85,7 @@ def show_var_info(pif, mod_id, var_id):
             ostr += '<li>interior: %s\n' % var['text_interior']
             ostr += '<li>wheels: %s\n' % var['text_wheels']
             ostr += '<li>windows: %s\n' % var['text_windows']
+            ostr += '<li>with: %s\n' % var['text_with']
             ostr += '</ul><hr>\n'
     return ostr
 
@@ -305,10 +310,10 @@ def upload_main(pif):
 	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s&credit=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix, ''))
     elif upform.url:
 	credit = ''
-	if 'mbx-u.com' in upform.url:
-	    credit = 'MBXU'
-	elif 'publicsafetydiecast.com' in upform.url:
-	    credit = 'PSDC'
+	for ac in auto_credits:
+	    if ac[0] in upform.url:
+		credit = ac[1]
+		break
 	fn = upform.grab_url_pic(pif)
 	upform.carbon_copy(fn)
 	raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s&credit=%s' % (upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix, credit))
@@ -589,8 +594,9 @@ class EditForm(imglib.ActionForm):
 	    print pif.render.format_checkbox("save", [(1, "Save")], presets.get("save", []))
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
-	photogs = [('', '')] + [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
-	print 'Credit', pif.render.format_select('credit', photogs, selected=self.credit)
+	photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
+	print pif.render.format_link('/cgi-bin/mass.cgi?type=photogs', 'Credit')
+	print pif.render.format_select('credit', photogs, selected=self.credit, blank='')
 	print 'Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q])
 	print '<br><span id="ima_info"></span>&nbsp;'
 	print pif.render.format_hidden_input({'cc': presets.get('cc', '')})
@@ -607,16 +613,13 @@ class EditForm(imglib.ActionForm):
 	    else:
 		nname = self.fn + '_s'
 	pth = os.path.join(self.tdir, nname)
-	if isinstance(ofi, Image.Image):
-	    ofi.save(pth)
-	else:
-	    open(pth, "w").write(ofi)
+	imglib.simple_save(ofi, pth)
 	file_log(nname, self.tdir)
 	print 'saving to', pth, '(%d, %d)<br>' % (imglib.get_size(pth))
 	return nname
 
     def save_presets(self):
-	if self.save and os.path.exists(os.path.join(self.tdir, '.ima')):
+	if self.save: # and os.path.exists(os.path.join(self.tdir, '.ima')):
 	    presets = {
 		"unlv": [int(self.unlv)],
 		"unlh": [int(self.unlh)],
@@ -1087,9 +1090,7 @@ def get_man_dict(pif):
     return mans
 
 
-@basics.command_line
-def icon_main(pif):
-
+def icon_main(pif, mod_ids):
     title = pif.switch['b'][-1] if pif.switch['b'] else 'mb2'
     mandict = pif.dbh.fetch_casting_dict()
 
@@ -1099,8 +1100,8 @@ def icon_main(pif):
             if pif.switch['n']:
                 name = pif.switch['n'][-1].split(';')
             create_icon(pif, man, name, title)
-    elif pif.filelist:
-        for man in pif.filelist:
+    elif mod_ids:
+        for man in mod_ids:
 	    man = man.lower()
             if man in mandict:
                 name = mandict[man]['iconname']
@@ -1447,24 +1448,248 @@ def thumber_main(pif):
 
 # -- photographers
 
+def credit_show(pif, cred):
+    url = ''
+    if cred['photo_credit.path'] == 'pic/man':
+	url = 'single.cgi?id=%s' % cred['photo_credit.name']
+    elif cred['photo_credit.path'] == 'pic/man/var':
+	url = 'vars.cgi?mod=%s&var=%s' % tuple(cred['photo_credit.name'].split('-', 1))
+    elif cred['photo_credit.path'] == 'pic/man/add':
+	url = 'single.cgi?id=%s' % cred['photo_credit.name'][2:].split('-', 1)[0]
+    elif cred['photo_credit.path'] in [
+	    'pic/prod/lrw', 'pic/prod/lsf', 'pic/prod/univ', 'pic/prod/tyco',
+	    'pic/prod/mtlaurel', 'pic/prod/elseg', 'pic/prod/mworld']:
+	name = cred['photo_credit.name'][2:] if cred['photo_credit.name'][1] == '_' else cred['photo_credit.name']
+	url = 'lineup.cgi?year=%s&region=%s&lty=all#%s' % (name[:4], name[4].upper(), int(name[5:]))
+    #elif cred['photo_credit.path'] == 'pic/set/convoy':
+    return '<div class="entry">%s</div>' % (
+	pif.render.format_link(url,
+	    pif.render.format_image_required(cred['photo_credit.name'], pdir=cred['photo_credit.path'], made=True,
+		largest=mbdata.IMG_SIZ_LARGE, preferred=mbdata.IMG_SIZ_SMALL, also={'width': 200}))
+    )
+
+def photog_ind(pif, photog):
+    return '<div class="entry"><span class="name">%s</span><br><a href="photogs.cgi?id=%s">%s<br>%d credit%s</a></div>' % (
+	pif.render.format_link(photog['photographer.url'], photog['photographer.name']), photog['photographer.id'],
+	pif.render.format_image_required(photog['c.name'], pdir=photog['c.path'], made=True,
+					 largest=mbdata.IMG_SIZ_LARGE, preferred=mbdata.IMG_SIZ_SMALL, also={'width': 200}),
+	photog['count'], 's' if photog['count'] != 1 else ''
+    )
+
 @basics.web_page
 def photographers(pif):
     pif.render.print_html()
     photog_id = pif.form.get_str('id')
+    header = footer = ''
+    pif.render.hierarchy_append('/', 'Home')
+    pif.render.hierarchy_append('/database.php', 'Database')
+    pif.render.hierarchy_append('/cgi-bin/photogs.cgi', 'Photographers')
     if photog_id:
-	columns = ['category', 'count']
-	entries = [{'category': imglib.img_dir_name.get('./' + x['path'], x['path']),
-		    'count': x['count']}
-			    for x in pif.dbh.fetch_photographer_category_counts(photog_id)]
+	photog = pif.dbh.fetch_photographer_counts(photog_id).first
+	pif.render.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog.photographer.name)
+	pif.render.title = photog.photographer.name
+	page = pif.form.get_int('p')
+	entries = [{'text': credit_show(pif, x)} for x in pif.dbh.fetch_photo_credits_page(photog_id, page=page)]
+	if page > 0:
+	    footer += pif.render.format_button('previous', link='photogs.cgi?id=%s&p=%d' % (photog_id, page - 1))
+	if (page + 1) * 100 < photog['count']:
+	    if footer:
+		footer += ' - '
+	    footer += pif.render.format_button('next', link='photogs.cgi?id=%s&p=%d' % (photog_id, page + 1))
+	header += '%s credit%s' % (photog['count'], 's' if photog.count != 1 else '')
+	if photog["count"] > 100:
+	    header += ' - Page %d' % (page + 1)
+	if photog.photographer.url:
+	    header += ' - ' + pif.render.format_button('visit website', link=photog.photographer.url)
     else:
-	columns = ['name', 'count']
-	entries = [{'name': pif.render.format_link(x['photographer.url'], x['photographer.name']),
-		    'count': pif.render.format_link('?id=%s' % x['photographer.id'], str(x['count']))}
-			    for x in pif.dbh.fetch_photographer_counts()]
-    lsection = dict(columns=columns, range=[{'entry': entries}], note='', header='', footer='',
-		    headers=dict(zip(columns, [x.title() for x in columns])))
-    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]), nofooter=True)
+	entries = [{'text': photog_ind(pif, x)} for x in pif.dbh.fetch_photographer_counts()]
+    lsection = dict(range=[{'entry': entries}])
+    llineup = {'section': [lsection], 'header': header, 'footer': footer}
+    return pif.render.format_template('simplematrix.html', nofooter=True,
+	llineup=pif.render.format_matrix_for_template(llineup)
+    )
 
+# -- commands
+
+def add_credits(pif, photographer_id, *args):
+    for fn in args:
+	if not '/' in fn:
+	    print 'must have path:', fn
+	else:
+	    pif.dbh.write_photo_credit(photographer_id, ddir, *fn.rsplit('/', 1))
+
+
+
+
+def ren(cas, ov, nv):
+    fl = glob.glob(os.path.join(pth, '?_' + cas + '-' + ov + '.jpg'))
+    for fn in fl:
+        nn = fn[:fn.rfind('-')] + '-' + nv + '.jpg'
+        print 'ren', fn, nn
+        if not os.path.exists(nn):
+            os.rename(fn, nn)
+
+
+def fix_pix(pif, *caslist):
+    pth = '.' + config.IMG_DIR_VAR
+    piclist = []
+    casvars = {}
+
+    for pic in glob.glob(os.path.join(pth, '*.jpg')):
+        pic = pic[len(pth) + 1:-4]
+        if pic[1] != '_' and pic.find('-') < 0:
+            print 'bad:', pic
+            continue
+        pic = pic[2:]
+        cas, var = pic.split('-', 1)
+        casvars.setdefault(cas, [])
+        casvars[cas].append(var)
+
+    if not caslist:
+	caslist = sorted(casvars.keys())
+
+    for cas in caslist:
+        dbvars = pif.dbh.fetch_variations(cas)
+	casvar = casvars.get(cas, [])
+        #print cas, [x['variation.var'].lower() for x in dbvars]
+        for var in casvars[cas]:
+            #print ' ', var
+            found = False
+            for dbvar in dbvars:
+                if dbvar['variation.var'].lower() == var:
+                    found = True
+                    #print '    Ok', cas, var
+                    break  # ok!
+                if ('0' + dbvar['variation.var']).lower() == var:
+                    ren(cas, var, var[1:])
+                    found = True
+                    break
+                if ('00' + dbvar['variation.var']).lower() == var:
+                    ren(cas, var, var[2:])
+                    found = True
+                    break
+            if not found:
+                if os.path.exists('.' + useful.relpath(config.LIB_MAN_DIR, cas)):
+                    for src in glob.glob(os.path.join(pth, '?_' + cas + '-' + var + '.jpg')):
+                        if not os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, cas + src[src.rfind('/'):])):
+                            print 'should rename', src, useful.relpath('.', config.LIB_MAN_DIR, cas + src[src.rfind('/'):])
+                            #os.rename(src, useful.relpath('.', config.LIB_MAN_DIR, cas + src[src.rfind('/'):]))
+                else:
+                    print '    Bad var:', cas, var, [x['variation.var'] for x in dbvars]
+
+	    for dbvar in dbvars:
+		if not dbvar['variation.picture_id']:
+		    fn = dbvar['variation.mod_id'] + '-' +  dbvar['variation.var'] + '.jpg'
+		    ensmallen('.' + config.IMG_DIR_VAR, fn)
+
+
+def ensmallen(pdir, fn):
+    ipth = useful.relpath(pdir, 's_' + fn).lower()
+    opth = useful.relpath(pdir, 't_' + fn).lower()
+    if os.path.exists(ipth) and not os.path.exists(opth):
+	print 'ensmallen', fn
+	pipes = [['/usr/local/bin/jpegtopnm'], ["/usr/local/bin/pamscale", "-xsize", str(100)], ['/usr/local/bin/pnmtojpeg']]
+	open(opth, 'w').write(imglib.pipe_chain(open(ipth), pipes))
+
+#---- count ---------------------------------
+
+def count_blisters(fl):
+    fn_re = re.compile('[0-9][0-9][a-z][0-9][0-9]*\.')
+    cnt = 0
+    for fn in fl:
+        m = fn_re.match(fn)
+        if m:
+            pass  # print fn, 'yes'
+            cnt += 1
+        else:
+            pass  # print fn, '-'
+    return cnt
+
+
+def count_castings(fl):
+    global castings
+    fn_re = re.compile('[a-z]_(?P<c>[a-z0-9]*)(-[a-z0-9]*)?\.')
+    cnt = 0
+    for fn in fl:
+        m = fn_re.match(fn)
+        if m:
+            pass  # print fn, m.group('c')
+            if m.group('c') in castings:
+                cnt += 1
+        else:
+            pass  # print fn, '-'
+    return cnt
+
+
+def count_all(fl):
+    return len(fl)
+
+
+def zero(fl):
+    return 0
+
+
+def count_images(pif):
+    print "This has not been rewritten to match the moved directories."
+    global castings
+    castings = [x['id'].lower() for x in pif.dbh.dbi.select('casting', ['id'])]
+
+    dirs = [
+	(IMG_DIR_ACC,            count_all),
+	(IMG_DIR_ADD,            zero),
+	(IMG_DIR_ADS,            zero),
+	(IMG_DIR_ART,            zero),
+	(IMG_DIR_BLISTER,        count_all),
+	(IMG_DIR_BOOK,           zero),
+	(IMG_DIR_BOX,            zero),
+	(IMG_DIR_CAT,            zero),
+	(IMG_DIR_PROD_CODE_2,    count_all),
+	(IMG_DIR_COLL_43,        zero),
+	(IMG_DIR_PROD_COLL_64,   count_all),
+	(IMG_DIR_CONVOY,         zero),
+	(IMG_DIR_ERRORS,         zero),
+	(IMG_DIR_ICON,           zero),
+	(IMG_DIR_KING,           zero),
+	(IMG_DIR_LESNEY,         zero),
+	(IMG_DIR_PROD_LRW,       count_blisters),
+	(IMG_DIR_PROD_LSF,       count_blisters),
+	(IMG_DIR_MAKE,           zero),
+	(IMG_DIR_MAN,            count_castings),
+	(IMG_DIR_PROD_MWORLD,    count_blisters),
+	(IMG_DIR_PROD_EL_SEG,    count_blisters),
+	(IMG_DIR_PROD_MT_LAUREL, count_blisters),
+	(IMG_DIR_PROD_PACK,      zero),
+	(IMG_DIR_PICS,           zero),
+	(IMG_DIR_PROD_SERIES,    count_all),
+	(IMG_DIR_SKY,            count_all),
+	(IMG_DIR_PROD_TYCO,      count_blisters),
+	(IMG_DIR_PROD_UNIV,      count_blisters),
+	(IMG_DIR_VAR,            count_castings),
+    ]
+
+    t = 0
+    for dirpath, counter in dirs:
+        fl = os.listdir('.' + dirpath)
+        dt = counter(filter(lambda x: x.endswith('.jpg'), fl))
+        dt += counter(filter(lambda x: x.endswith('.gif'), fl))
+        print dirpath, dt
+        t += dt
+    print t
+
+#---- ---------------------------------------
+
+cmds = {
+    ('i', icon_main, "icon: [-a] [-b banner] [-n name] mod_id ..."),
+    ('a', add_credits, "add credit: photog picture ..."),
+    ('f', fix_pix, "fix pix: mod_id ..."),
+    ('c', count_images, "count"),
+}
+
+@basics.command_line
+def commands(pif):
+    useful.cmd_proc(pif, './images.py', cmds)
+
+#---- ---------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
-    icon_main(switches='av', options='bn')
+    commands(dbedit='', switches='av', options='bn')

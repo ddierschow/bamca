@@ -37,6 +37,10 @@ $models = [
 	'cdt' => 'turquoise, black chassis, white splash tampo', 'cva' => '56',
 	'tdt' => 'black, boat with white deck and hull and two-tone blue tampo',
     ],
+    ['var' => '06b', 'mfg' => 'Macau, MATTEL', 'liv' => 'none',
+	'cdt' => 'turquoise, black chassis, white splash tampo', 'cva' => '56',
+	'tdt' => 'black, boat with white deck and hull and two-tone blue tampo',
+    ],
 ];
 
 include "cypage.php";

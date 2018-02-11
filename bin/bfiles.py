@@ -57,7 +57,10 @@ class ArgList():
 
 class ArgFile():
     def __init__(self, fname):
+	if fname.startswith('/'):
+	    fname = fname[1:]
         self.filename = fname
+	useful.write_comment('trying to open', fname)
         self.set_globals()
         try:
             self.handle = open(fname)
@@ -234,7 +237,3 @@ class SimpleFile(ArgFile):
     def parse_else(self, llist):
         llist.rewind()
         self.dblist.append(llist)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

@@ -8,16 +8,22 @@ DoHead($pif);
 DoPageHeader($pif);
 ?> 
 
-<table width="1024">
-<tr><td colspan=4 width=1024>
-<img src="/pic/gfx/bamca-banner.gif">
+<table width="1024" class="banner">
+<tr><td class="bannercell" width="406">
+<img src="/pic/gfx/bamcabay.gif">
+</td>
+<td class="bannercell">
+<center><img src="/pic/gfx/bannertitle.gif"></center>
 </td></tr>
+</table>
 
+<table width="1024">
 <tr><td width="50">&nbsp;</td>
 <td valign="top">
 
 <?php include "announce.php";?>
 
+<table class="index"><tr><td>
 <ul>
 <li>Information about BAMCA, the Bay Area Matchbox Collectors Association
  <ul>
@@ -32,7 +38,7 @@ DoPageHeader($pif);
 <li>Information about Matchbox Toys
  <ul>
  <li style="margin: 3px 0 3px 0"><a class="database" href="/database.php">Matchbox Model <b>Database</b></a>
- <li><a href="/models.php">Matchbox <b>Model</b> Pages for all ranges
+ <li><a href="/pages/lsm.php">Matchbox Model Pages for <b>Large Scale</b> Ranges
  <li><a href="/convoy/">Matchbox <b>Convoy</b> Project
  <li><a href="/cgi-bin/ads.cgi">Matchbox <b>Advertisements</b> from over the years</a>
  <li><a href="/cgi-bin/errors.cgi">Matchbox <b>Errors</b> in packaging and manufacturing</a>
@@ -50,6 +56,7 @@ DoPageHeader($pif);
      <a href="/cgi-bin/addlink.cgi"><b>Suggest</b> a Link!</a>
  </ul>
 </ul>
+</td></tr></table>
 
 </td>
 <td width="50">&nbsp;</td>
@@ -72,7 +79,7 @@ echo '<br><center>3 of ' . count($pf) . " pictures</center>\n";
 <center><font color=#FFFFFF>
 BAMCA is a private club and is not affiliated with Tyco Toys, Inc. or
 Matchbox Toys (USA) Ltd.<br>
-Matchbox® and the Matchbox logo are registered trademarks
+Matchbox&reg; and the Matchbox logo are registered trademarks
 of Matchbox International Ltd. and are used with permission.
 </font></center>
 </td></tr></table></center>
@@ -89,7 +96,6 @@ of Matchbox International Ltd. and are used with permission.
 
 <?php
 DoPageFooter($pif);
+DoFoot($pif);
 ?>
-
-</body>
 </html>

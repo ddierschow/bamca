@@ -61,5 +61,5 @@ an email address, we will try to respond.
 DoPageFooter($pif);
 ?>
 
-</body>
+<?php DoFoot($pif); ?>
 </html>

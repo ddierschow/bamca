@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import package
-package.box_main('boxart')
+import prints
+prints.box_main('boxart')

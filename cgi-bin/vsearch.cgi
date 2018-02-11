@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import vars
-vars.run_search('search')
+import varias
+varias.run_search('search')

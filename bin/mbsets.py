@@ -212,8 +212,3 @@ def sets_main(pif):
         return do_set(pif, setfile, pif.form.get_str('set'))
     else:
         return select_set(pif)
-
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

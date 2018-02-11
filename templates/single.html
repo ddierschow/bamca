@@ -31,27 +31,24 @@
 
 {%- macro show_model_links(sz='inset_m') %}
 <div class="inset {{ sz }} infopanel">
-<center><h3>Model-Related Links</h3></center>
-
-<center><b>
-<a href="vars.cgi?mod={{ model.id }}">Variations ({{ model.vars }})</a>
-<br><a href="upload.cgi?m={{ model.id }}&y={{ product_pic }}">Upload a Picture</a>
-{% for compare in compares %}
-<br>{{ compare }}
-{% endfor %}
-</b></center>
+<h3>Model-Related Links</h3>
 <p>
+<h4><a href="vars.cgi?mod={{ model.id }}">Variations ({{ model.vars }})</a>
+- <a href="vsearch.cgi?ask=1&id={{ model.id }}">Search</a></h4>
+<h4><a href="upload.cgi?m={{ model.id }}&y={{ product_pic }}">Upload a Picture</a></h4><p>
+{% for compare in compares %}
+<h4>{{ compare }}</h4>
+{% endfor %}
 
 {%- if baseplates %}{#- not currently implemented #}
-<center><h3>Base Plate Name{{ render.plural(baseplates) }}</h3>
+<center><h4>Base Plate Name{{ render.plural(baseplates) }}</h4>
 {{ showix.format_brlist(baseplates) }}
 </center><p>
 {%- endif %}
 
-{%- if appearances %}
-{{ showix.format_matrix(appearances, simple_formatter) }}
-<p>
-{%- endif %}
+{%- if plants.shown -%}{{ show_plants() }}{%- endif -%}
+
+{%- if appearances %}<center><b>Annual Lineups</b><p>{{ showix.format_listix(appearances) }}</center><p>{%- endif %}
 
 {%- if matrixes %}
 <center><b>Series Appearances</b></center><p>
@@ -134,9 +131,29 @@
 </tr></table></center>
 {%- endmacro %}
 
+{%- macro show_plants() %}
+<p>
+<center>
+<h4>Variations by Manufacturing Location</h4><p>
+{#<table class="modelinfo">
+<tr>
+{%- for plant in plants -%}
+<td>{{ plant.flag }}</td>
+{%- endfor %}
+</tr>
+<tr>
+{%- for plant in plants -%}
+<td>{{ plant.count }}</td>
+{%- endfor %}
+</tr>
+<tr>
+</table>#}
+{{ showix.format_listix(plants) }}
+</center><p>
+{%- endmacro %}
+
 {%- macro show_relateds() %}
 {%- if relateds %}
-<p>
 <div class="inset inset_m infopanel">
 <center><h3>Related Models</h3>
 {%- for related in relateds %}
@@ -160,11 +177,12 @@
 <div class="credit">{% if product_img_credit %} Photo credit: {{ product_img_credit }} {% else %}&nbsp;{% endif %}</div>
 </center><p>{% endif %}
 {%- if prod_title %}
-<center>{{ prod_title }}</center>
+<h5>{{ prod_title }}</h5>
 {%- endif %}
 {%- if variations %}
-<center><h3>Variations for This Product</h3>
-<!-- variations {{ variations }} -->
+<p>
+<h3>Variations for This Product</h3>
+<center><!-- variations {{ variations }} -->
 <table class="vartable">
 {%- for varset in variations %}
 <tr><td>
@@ -178,6 +196,7 @@
 </table></center>
 {%- endif %}
 </div>
+<p>
 {%- endif %}
 {%- endmacro %}
 

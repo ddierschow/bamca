@@ -158,7 +158,8 @@ class DB(object):
                 return [dict(zip(desc_cols, x)) for x in res]
         return list()
 
-    def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, outcols=None, tag='', verbose=None):
+    def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, outcols=None, limit=None,
+	       tag='', verbose=None):
         if self.db:
             query = 'select '
             if tag:
@@ -175,6 +176,8 @@ class DB(object):
                 query += ''' group by %s''' % group
             if order:
                 query += ''' order by %s''' % order
+	    if limit:
+		query += ''' limit %s''' % limit
 	    #useful.write_comment(query)
             res, desc, lid = self.execute(query, args, verbose=verbose)
             if not cols:
@@ -309,7 +312,3 @@ class DB(object):
                 self.execute('commit')
             return res
         return list()
-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

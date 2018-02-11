@@ -4,7 +4,7 @@ import basics
 import mflags
 import models
 import useful
-import vars
+import varias
 
 def search_name(pif):
     return pif.dbh.fetch_casting_list(where=["base_id.rawname like '%%%s%%'" % x for x in pif.form.search('query')], verbose=True)
@@ -63,7 +63,7 @@ def create_var_lineup(pif, mods, var_id):
     lran = {'entry': []}
     for mod in mods:
 	for var in pif.dbh.fetch_variation_query_by_id(mod['id'], var_id):
-	    lran['entry'].append({'text': vars.add_model_var_table_pic_link(pif, var)})
+	    lran['entry'].append({'text': varias.add_model_var_table_pic_link(pif, var)})
     lsec['range'] = [lran]
     lsec['columns'] = 4
     llineup['section'] = [lsec]
@@ -159,7 +159,3 @@ def date_search(pif, dt=None, yr=None):
     llineup['footer'] += '''<form action="/cgi-bin/msearch.cgi">Mod ID: <input type="text" name="id" size="12"> Var ID: <input type="text" name="var" size="12"> <input type="submit" name="submit" value="GO" class="textbutton"></form>\n'''
     pif.render.format_matrix_for_template(llineup, flip=True)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

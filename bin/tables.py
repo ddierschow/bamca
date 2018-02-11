@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 # readonly hidden select checkbox
-# 'add' 'ask' 'clinks' 'columns' 'create' 'db' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
+# 'add' 'ask' 'clinks' 'columns' 'create' 'db' 'defaults' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
 table_info = {
     #page_info
     'page_info': {
@@ -22,6 +22,10 @@ table_info = {
                 'id': 'newpage',
         },
         'ask': ['id', 'format_type'],
+	'defaults': {
+		'flags': 0,
+		'health': 0,
+        },
     },
     #country
     'country': {
@@ -99,8 +103,8 @@ table_info = {
         'id': ['id'],
 	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'variation_digits'],
-	'extra_columns': ['notes',
-	    'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels'],
+	'extra_columns': ['notes', 'format_description',
+	    'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels', 'format_with'],
         'clinks': {
                 'id': {'tab': 'casting', 'id': ['id/id']},
                 'country': {'tab': 'country', 'id': ['id/country']},
@@ -134,12 +138,22 @@ table_info = {
                 'id': 'unset',
         },
         'ask': ['id', 'make', 'section_id'],
+	'defaults': {
+		'flags': 0,
+		'format_description': '&body',
+		'format_body': '&body',
+		'format_interior': '&interior',
+		'format_windows': '&windows',
+		'format_base': '&base|&manufacture|&base_text',
+		'format_wheels': '&wheels',
+		'variation_digits': 2,
+	},
     },
     #casting_related
     'casting_related': {
 	'db': 'bamca',
         'id': ['id'],
-        'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
+        'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description', 'flags'],
         'clinks': {
                 'id': {'tab': 'casting_related', 'id': ['id/id']},
                 'model_id': {'tab': 'base_id', 'id': ['id/model_id']},
@@ -203,16 +217,18 @@ table_info = {
 	'db': 'bamca',
         'id': ['mod_id', 'var'],
         'columns': ['mod_id', 'var', 'flags',
-            'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows',
-            'base', 'body', 'interior', 'windows',
-            'manufacture', 'category', 'area', 'date', 'note', 'picture_id', 'imported', 'imported_from', 'imported_var'],
+		'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with',
+		'base', 'body', 'interior', 'windows',
+		'manufacture', 'base_text', 'category', 'area', 'date', 'note', 'picture_id',
+		'imported', 'imported_from', 'imported_var'],
         'titles': ['Model ID', 'Variation ID', 'Flags',
-            'Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows',
-            'Base', 'Body', 'Interior', 'Windows',
-            'Manufacture', 'Category', 'Area', 'Date', 'Note', 'Other', 'Picture ID', 'Imported', 'Imported From', 'Imported Var'],
+		'Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With',
+		'Base', 'Body', 'Interior', 'Windows',
+		'Manufacture', 'Base Text', 'Category', 'Area', 'Date', 'Note', 'Other', 'Picture ID',
+		'Imported', 'Imported From', 'Imported Var'],
         'clinks': {
-                'var': {'tab': 'variation', 'id': ['mod_id/mod_id', 'var/var']},
-                'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
+		'var': {'tab': 'variation', 'id': ['mod_id/mod_id', 'var/var']},
+		'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
         },
         'tlinks': [
                 {'tab': 'detail', 'id': ['mod_id/mod_id', 'var_id/var'], 'ref': {'attr_id': ['attribute', 'id', 'attribute_name']}},
@@ -532,7 +548,7 @@ table_info = {
     'photographer': {
 	'db': 'bamca',
 	'id': ['id'],
-	'columns': ['id', 'name', 'url', 'flags'],
+	'columns': ['id', 'name', 'url', 'flags', 'example_id'],
         'ask': ['id'],
 	'add': {
 		'photo_credit': ['photographer_id/id'],
@@ -541,6 +557,9 @@ table_info = {
         'tlinks': [
                 {'tab': 'photo_credit', 'id': ['id/photographer_id']},
         ],
+        'clinks': {
+                'id': {'tab': 'photo_credit', 'id': ['example_id/id']},
+        },
     },
     #photo_credit
     'photo_credit': {
@@ -608,6 +627,9 @@ class Results(object):
     def tolist(self):
 	return [x.todict() for x in self._results]
 
+    def __str__(self):
+	return str(self.tolist())
+
     @property
     def first(self):
 	return self._results[0] if self._results else None
@@ -658,43 +680,49 @@ class Result(object):
 
     def todict(self):
 	outd = dict()
-	outd.update(self._record[self._table])
-	outd.update({key: self._record[key] for key in self._record if key != self._table})
+	outd.update(self._record[object.__getattribute__(self, '_table')])
+	outd.update({key: self._record[key] for key in self._record if key != object.__getattribute__(self, '_table')})
 	return outd
 
     def keys(self):
 	return self._record.keys()
 
     def __getattr__(self, key):
+	rec = object.__getattribute__(self, '_record')
+	tab = object.__getattribute__(self, '_table')
 	if '.' in key:
 	    k1, k2 = key.split('.', 1)
-	    return self._record[k1][k2]
-	elif key in self._record:
-	    return self._record[key]
+	    return rec[k1][k2]
+	elif key in rec:
+	    return rec[key]
+	elif key in rec.get(tab, {}).keys():
+	    return rec[tab][key]
 	raise AttributeError()
 
     def __getitem__(self, key):
+	rec = object.__getattribute__(self, '_record')
+	tab = object.__getattribute__(self, '_table')
 	if '.' in key:
 	    k1, k2 = key.split('.', 1)
-	    return object.__getattribute__(self, '_record')[k1][k2]
-	elif key in object.__getattribute__(self, '_record'):
-	    return object.__getattribute__(self, '_record')[key]
-	return object.__getattribute__(self, '_record')[self._table][key]
+	    return rec[k1][k2]
+	elif key in rec:
+	    return rec[key]
+	return rec[tab][key]
 
     def __setitem__(self, key, val):
 	if '.' in key:
 	    k1, k2 = key.split('.', 1)
 	    self._record[k1][k2] = val
 	elif key in self._record and isinstance(self._record[key], Result):
-	    self._record[self._table][key] = val
+	    self._record[tab][key] = val
 	else:
 	    self._record[key] = val
 
     def __repr__(self):
-	return self._table + ': ' + str(self._record)
+	return object.__getattribute__(self, '_table') + ': ' + str(self._record)
 
     def __str__(self):
-	return self._table + ': ' + str(self._record)
+	return object.__getattribute__(self, '_table') + ': ' + str(self._record)
 
     def setdefault(self, key, val):
 	self._record.setdefault(key, val)
@@ -717,43 +745,39 @@ class Result(object):
 
 #-
 
-FLAG_MODEL_NOT_MADE                     =   1
-FLAG_MODEL_CODE_2                       =   2
-FLAG_MODEL_NO_VARIATION                 =   4
-FLAG_MODEL_NO_ID                        =   8
-FLAG_MODEL_SHOW_ALL_VARIATIONS          =  16
-FLAG_MODEL_HIDE_IMAGE                   =  32
-FLAG_MODEL_NO_SPECIFIC_MODEL            =  64
-FLAG_MODEL_CASTING_REVISED              = 128
-FLAG_MODEL_VARIATION_VERIFIED           = 128
-FLAG_MODEL_BASEPLATE_VISIBLE            = 256
+FLAG_MODEL_NOT_MADE                     = 0x0001
+FLAG_MODEL_CODE_2                       = 0x0002
+FLAG_MODEL_NO_VARIATION                 = 0x0004
+FLAG_MODEL_NO_ID                        = 0x0008
+FLAG_MODEL_SHOW_ALL_VARIATIONS          = 0x0010
+FLAG_MODEL_HIDE_IMAGE                   = 0x0020
+FLAG_MODEL_NO_SPECIFIC_MODEL            = 0x0040
+FLAG_MODEL_CASTING_REVISED              = 0x0080
+FLAG_MODEL_VARIATION_VERIFIED           = 0x0080
+FLAG_MODEL_BASEPLATE_VISIBLE            = 0x0100
 
-FLAG_SECTION_HIDDEN                     =   1
-FLAG_SECTION_DEFAULT_IDS                =   2
-FLAG_SECTION_NO_FIRSTS                  =   4
-FLAG_SECTION_SHOW_IDS                   =   8
-FLAG_SECTION_HIDE_IMAGE                 =  32
+FLAG_SECTION_HIDDEN                     = 0x0001
+FLAG_SECTION_DEFAULT_IDS                = 0x0002
+FLAG_SECTION_NO_FIRSTS                  = 0x0004
+FLAG_SECTION_SHOW_IDS                   = 0x0008
+FLAG_SECTION_HIDE_IMAGE                 = 0x0020
 
-FLAG_MAKE_PRIMARY                       =   2
+FLAG_MAKE_PRIMARY                       = 0x0002
+FLAG_CASTING_RELATED_SHARED             = 0x0002
 
-FLAG_CATEGORY_INDEXED                   =   4
+FLAG_CATEGORY_INDEXED                   = 0x0004
 
-FLAG_PAGE_INFO_HIDDEN                   =   1
-FLAG_PAGE_INFO_HIDE_TITLE               =   2
-FLAG_PAGE_INFO_UNROLL_MODELS            =   4
+FLAG_PAGE_INFO_HIDDEN                   = 0x0001
+FLAG_PAGE_INFO_HIDE_TITLE               = 0x0002
+FLAG_PAGE_INFO_UNROLL_MODELS            = 0x0004
 
-FLAG_LINK_LINE_HIDDEN                   =   1
-FLAG_LINK_LINE_RECIPROCAL               =   2
-FLAG_LINK_LINE_PAYPAL                   =   4
-FLAG_LINK_LINE_INDENTED                 =   8
-FLAG_LINK_LINE_FORMAT_LARGE             =  16
-FLAG_LINK_LINE_NOT_VERIFIABLE           =  32
-FLAG_LINK_LINE_ASSOCIABLE               =  64
-FLAG_LINK_LINE_NEW                      = 128
+FLAG_LINK_LINE_HIDDEN                   = 0x0001
+FLAG_LINK_LINE_RECIPROCAL               = 0x0002
+FLAG_LINK_LINE_PAYPAL                   = 0x0004
+FLAG_LINK_LINE_INDENTED                 = 0x0008
+FLAG_LINK_LINE_FORMAT_LARGE             = 0x0010
+FLAG_LINK_LINE_NOT_VERIFIABLE           = 0x0020
+FLAG_LINK_LINE_ASSOCIABLE               = 0x0040
+FLAG_LINK_LINE_NEW                      = 0x0080
 
-FLAG_ITEM_HIDDEN                        =   1
-
-#-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass
+FLAG_ITEM_HIDDEN                        = 0x0001

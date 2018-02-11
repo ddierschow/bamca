@@ -23,7 +23,7 @@ a:hover      {color: #CC0000; background-color: transparent; text-decoration: un
 .serieshead {vertical-align: top; text-align: center;}
 .seriesempty {background-color: #D3D3D3; text-align: center;}
 .seriescol00 {vertical-align: middle; text-align: center; height: 64px;}
-.seriesent {vertical-align: middle; text-align: center; font-weight: bold; width: 60px; height: 75px; line-height: 14px;}
+.seriesent {vertical-align: middle; text-align: center; font-weight: bold; width: 60px; height: 75px; line-height: 14px; font-size: 14px;}
 .seriescolAC {background-color: #CCFF99;}
 .seriescolD3 {background-color: #CCFFFF;}
 .seriescolDS {background-color: #FF99CC;}

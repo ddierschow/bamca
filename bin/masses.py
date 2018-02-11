@@ -22,7 +22,7 @@ def mass(pif):
 #	print 'duplicate form submission detected'
 #	return
 
-    print pif.form, '<hr>'
+#    print pif.form, '<hr>'
     mass_type = pif.form.get_str('type')
     return dict(mass_mains_list).get(mass_type, mass_mains_hidden.get(mass_type, mass_main))(pif)
 
@@ -251,7 +251,7 @@ def add_casting_main(pif):
 	{'title': 'Description:', 'value': pif.render.format_text_input("description", 80, 80, value='')},
 	{'title': 'Made:', 'value': pif.render.format_checkbox('notmade', [('not', 'not')])},
 	{'title': 'Country:', 'value': pif.render.format_select_country('country')},
-	{'title': 'Make:', 'value': pif.render.format_select('make', [('', ''), ('unl', 'MBX')] + [(x['vehicle_make.id'], x['vehicle_make.name']) for x in pif.dbh.fetch_vehicle_makes()])},
+	{'title': 'Make:', 'value': pif.render.format_select('make', [('unl', 'MBX')] + [(x['vehicle_make.id'], x['vehicle_make.name']) for x in pif.dbh.fetch_vehicle_makes()], blank='')},
 	{'title': 'Section:', 'value': pif.render.format_select('section_id', [(x['section.id'], x['section.name']) for x in pif.dbh.fetch_sections(where="page_id like 'man%'")], selected=pif.form.get_str('section_id'))},
 	{'title': '', 'value': pif.render.format_button_input('save')},
     ]
@@ -418,7 +418,7 @@ def add_var_info(pif):
 	    if var:
 		print '<td class="eb">%s</td>' % val
 	    print '<td class="eb">%s</td></tr>' % (
-		pif.render.format_select(col, [('', '')] + sorted(mbdata.categories.items()), val) if col == 'category' else
+		pif.render.format_select(col, sorted(mbdata.categories.items()), val, blank='') if col == 'category' else
 		pif.render.format_text_input(col, 64, 32, value=val))
 	else:
 	    print '<tr><td class="eb" colspan="%s"></td></tr>' % (3 if var else 2)
@@ -466,6 +466,7 @@ def add_var_final(pif):
 
 
 def show_all_casting_related(pif):
+    useful.write_message('show_all_casting_related')
     print pif.render.format_head()
     # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
     print 'show_all_casting_related', pif.form, '<br>'
@@ -526,6 +527,7 @@ def show_all_casting_related(pif):
 
 
 def edit_casting_related_ask(pif):
+    useful.write_message('edit_casting_related_ask')
     header = '<form action="mass.cgi">' + pif.create_token()
     entries = [
 	{'title': 'Model:', 'value': pif.render.format_text_input("mod_id", 16, 16)},
@@ -539,6 +541,7 @@ def edit_casting_related_ask(pif):
 
 
 def edit_casting_related(pif):
+    useful.write_message('edit_casting_related')
     if pif.form.has('show_all'):
 	return show_all_casting_related(pif)
     if not pif.form.has('mod_id'):
@@ -559,6 +562,7 @@ def edit_casting_related(pif):
 		   'model_id': pif.form.get_str('m' + root),
 		   'related_id': pif.form.get_str('r' + root),
 		   'description': pif.form.get_str('d' + root),
+		   'flags': pif.form.get_str('f' + root, '0'),
 		   'section_id': section_id,
 		   'picture_id': '',
 	    }
@@ -596,8 +600,10 @@ def edit_casting_related(pif):
 	for tag, key, wid in [
 		('m', 'casting_related.model_id', 12),
 		('r', 'casting_related.related_id', 12),
-		('d', 'casting_related.description', 256)]:
-	    print '<td>', pif.render.format_text_input('%s.%s' % (tag, num), wid, min(wid, 64), value=cr.get(key, '')), '</td>'
+		('d', 'casting_related.description', 256),
+		('f', 'casting_related.flags', 4),
+	    ]:
+	    print '<td>', pif.render.format_text_input('%s.%s' % (tag, num), wid, min(wid, 64), value=str(cr.get(key, '0' if tag == 'f' else ''))), '</td>'
 
     print '<form name="edit" method="post" action="mass.cgi">' + pif.create_token()
     print '<table border=1>'
@@ -609,30 +615,30 @@ def edit_casting_related(pif):
 	print '<tr>'
 	print '<td>%s %s</td>' % (num, section_id)
 	if rel_id in crd_r:
-	    print '<td colspan=3>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_r[rel_id]['base_id.id'], crd_r[rel_id]['base_id.rawname'])
+	    print '<td colspan=4>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_r[rel_id]['base_id.id'], crd_r[rel_id]['base_id.rawname'])
 	    if crd_r[rel_id]['base_id.flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
 		revised.append(str(num))
 	else:
-	    print '<td colspan=3></td>'
+	    print '<td colspan=4></td>'
 	print '<td>%s</td>' % (num + 1)
 	if rel_id in crd_m:
-	    print '<td colspan=3>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_m[rel_id]['base_id.id'], crd_m[rel_id]['base_id.rawname'])
+	    print '<td colspan=4>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_m[rel_id]['base_id.id'], crd_m[rel_id]['base_id.rawname'])
 	    if crd_m[rel_id]['base_id.flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
 		revised.append(str(num + 1))
 	else:
-	    print '<td colspan=3></td>'
+	    print '<td colspan=4></td>'
 	print '</tr>'
 	print '<tr>'
 	print '<td>%s</td>' % pif.render.format_checkbox('rev', [(str(num), 'R')], checked=revised)
 	if rel_id in crd_r:
-	    print '<td colspan=3>%s</td>' % pif.render.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
+	    print '<td colspan=4>%s</td>' % pif.render.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
 	else:
-	    print '<td colspan=3></td>'
+	    print '<td colspan=4></td>'
 	print '<td>%s</td>' % pif.render.format_checkbox('rev', [(str(num + 1), 'R')], checked=revised)
 	if rel_id in crd_m:
-	    print '<td colspan=3>%s</td>' % pif.render.format_image_required(rel_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
+	    print '<td colspan=4>%s</td>' % pif.render.format_image_required(rel_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
 	else:
-	    print '<td colspan=3></td>'
+	    print '<td colspan=4></td>'
 	print '</tr>'
 	print '<tr>'
 	if rel_id in crd_m:
@@ -742,6 +748,7 @@ def add_pack_form(pif):
 	    'pack.var': pif.form.get_str('var'),
 	    'pack.page_id': 'packs.' + section_id,
 	    'pack.section_id': section_id,
+	    'pack.end_year': year,
 	    'pack.region': 'W',
 	    'pack.layout': '5v',
 	    'pack.product_code': '',
@@ -1625,6 +1632,201 @@ def add_matrix_save(pif):
 
     #print pif.render.format_link("matrixs.cgi?page=%s&id=%s" % (pif.form.get_str('matrix.section_id'), pif.form.get_str('matrix.id')), "matrix")
 
+# ------- attr_pics ------------------------------------------------
+
+def add_attr_pics(pif):
+    if pif.form.has('save'):
+	add_attr_pics_save(pif)
+    elif pif.form.get_str('attr_type'):
+	return add_attr_pics_form(pif)
+    return add_attr_pics_ask(pif)
+
+
+def add_attr_pics_ask(pif):
+    header = '<form action="mass.cgi">' + pif.create_token()
+    entries = [
+	{'title': 'Type:', 'value': pif.render.format_select('attr_type', mbdata.image_adds_list, blank='')},
+	{'title': '', 'value': pif.render.format_button_input() + ' ' +
+		pif.render.format_button('customs', link='/cgi-bin/custom.cgi') + ' ' +
+		pif.render.format_button('errors', link='/cgi-bin/errors.cgi') + ' ' +
+		pif.render.format_button('prepros', link='/cgi-bin/prepro.cgi')}
+    ]
+    footer = pif.render.format_hidden_input({'type': 'attrpics'})
+    footer += pif.render.format_hidden_input({'verbose': '1'})
+    footer += "</form>"
+    lsection = dict(columns=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True, header=header, footer=footer)
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]), nofooter=True)
+
+
+def add_attr_pics_form(pif):
+    pref = pif.form.get_str('attr_type')
+    photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
+    credits = {x['photo_credit.name']: x['photo_credit.photographer_id'] for x in
+		    pif.dbh.fetch_photo_credits(path=config.IMG_DIR_ADD[1:])}
+    fl, rl = get_attr_pics(pif, pref)
+
+    def attr_pic_rec(rec, recid):
+	img = pref + '_' + rec['mod_id'].lower()
+	if rec['picture_id']:
+	    img += '-' + rec['picture_id']
+	return {
+	    'pic':
+		pif.render.format_link('upload.cgi?m=%s&suff=%s&d=%s' %
+			(rec['mod_id'], rec['picture_id'], '.' + config.IMG_DIR_ADD),
+		    pif.render.fmt_img(img, alt='', pdir=config.IMG_DIR_ADD, required=True)),
+	    'desc': pif.render.format_link('single.cgi?id=%s' % rec['mod_id'], rec['mod_id']) + ' ' +
+		pif.render.format_button('edit', link=pif.dbh.get_editor_link('attribute_picture', {'id': recid})) + '<br>' +
+		pif.render.format_text_input('pic_id.%s' % recid, maxlength=4, showlength=4, value=rec['picture_id']) + ' ' +
+		pif.render.format_checkbox('do.%s' % recid, [('1', 'save')], checked=rec['do']) +
+		pif.render.format_checkbox('rm.%s' % recid, [('1', 'del')]) + '<br>' +
+		pif.render.format_hidden_input({'mod_id.%s' % recid: rec['mod_id'], 'img.%s' % recid: img}) + '<br>' +
+		pif.render.format_text_input('desc.%s' % recid, maxlength=128, showlength=40, value=rec['description']) + '<br>' +
+		'Credit: ' + pif.render.format_select('crd.%s' % recid, photogs, selected=credits.get(img), blank=''),
+	}
+
+
+    header = '<hr>\n'
+    header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
+    header += pif.render.format_hidden_input({'verbose': 1, 'type': 'attrpics', 'attr_type': pref})
+
+    llistix = {'section': [], 'note': header}
+    entries = [attr_pic_rec(rec, rec['id']) for rec in rl]
+    lsec = dict(columns=['pic', 'desc'], range=[{'entry': entries}], noheaders=True)
+    llistix['section'].append(lsec)
+
+    entries = [attr_pic_rec(rec, 'n%s' % num) for num, rec in fl]
+    lsec = dict(columns=['pic', 'desc'], range=[{'entry': entries}], noheaders=True)
+    llistix['section'].append(lsec)
+
+    footer = ''
+    footer += pif.render.format_button_input("save")
+    footer += '</form>'
+    llistix['section'][-1]['footer'] = footer
+
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+
+def get_attr_pics(pif, pref):
+    filelist = os.listdir('.' + config.IMG_DIR_ADD)
+    filelist = sorted(list(set([x for x in filelist if x.startswith(pref + '_') and x.endswith('.jpg')])))
+    rl = []
+
+    pics = pif.dbh.fetch_attribute_pictures_by_type(pref)
+    for pic in pics:
+	if not pic.get('base_id.id'):
+	    print pic,'<br>'
+	    continue
+	if pic['attribute_picture.picture_id']:
+	    pic_name = '%s_%s-%s.jpg' % (pic['attribute_picture.attr_type'], pic['base_id.id'].lower(), pic['attribute_picture.picture_id'])
+	else:
+	    pic_name = '%s_%s.jpg' % (pic['attribute_picture.attr_type'], pic['base_id.id'].lower())
+	rec = {'mod_id': pic['base_id.id'], 'attr_id': pic['attribute_picture.attr_id'], 'attr_type': pref, 'picture_id': pic['attribute_picture.picture_id'], 'description': pic['attribute_picture.description'], 'id': pic['attribute_picture.id'], 'do': ['1']}
+	rl.append(rec)
+	if pic_name in filelist:
+	    filelist.remove(pic_name)
+	else:
+	    pass#print 'no pic for', pic_name
+    rl.sort(key=lambda x: (x['mod_id'].lower(), x['picture_id'],))
+    num = 1
+    fl = []
+    for fn in filelist:
+	if fn.startswith(pref + '_') and fn.endswith('.jpg'):
+	    fn = fn[2:-4]
+	    mod_id, pic_id = fn.split('-', 1) if '-' in fn else [fn, '']
+	    base_id = pif.dbh.fetch_base_id(mod_id)
+	    if base_id:
+		mod_id = base_id['base_id.id']
+# look mod_id up to get casing
+	    rec = {'mod_id': mod_id, 'attr_id': 0, 'attr_type': pref, 'picture_id': pic_id, 'description': '', 'do': []}
+	    fl.append((num, rec,))
+	    num += 1
+    return fl, rl
+
+
+def add_attr_pics_save(pif):
+    add_dir = '.' + config.IMG_DIR_ADD
+    pref = pif.form.get_str('attr_type')
+    for apid in pif.form.roots(start='mod_id.'):
+	inp = pif.form.get_dict(end='.' + apid)
+	oimg = pif.form.get_str('img.' + apid)
+	nimg = pref + '_' + inp['mod_id'].lower()
+	if inp['pic_id']:
+	    nimg += '-' + inp['pic_id']
+	print apid, inp, nimg
+	rec = {'mod_id':  pif.form.get_str('mod_id.' + apid), 'picture_id': pif.form.get_str('pic_id.' + apid),
+		'description': pif.form.get_str('desc.' + apid), 'attr_id': 0, 'attr_type': pref,
+	}
+
+	if pif.form.get_bool('rm.' + apid):
+	    print 'del', pif.dbh.delete_attribute_picture(apid)
+	if pif.form.get_bool('do.' + apid):
+	    if apid.startswith('n'):
+		print 'add', pif.dbh.add_attribute_picture(rec)
+	    else:
+		print 'upd', pif.dbh.update_attribute_picture(rec, apid)
+
+	if oimg != nimg and not os.path.exists(add_dir + '/' + nimg + '.jpg'):
+	    useful.file_mover(add_dir + '/' + oimg + '.jpg', add_dir + '/' + nimg + '.jpg', mv=True)
+	    if pif.form.get_str('crd.' + apid, config.IMG_DIR_ADD[1:], oimg):
+		print 'crd', pif.dbh.delete_photo_credit(config.IMG_DIR_ADD[1:], oimg)
+
+	if pif.form.get_str('crd.' + apid):
+	    print 'crd', pif.dbh.write_photo_credit(pif.form.get_str('crd.' + apid), config.IMG_DIR_ADD[1:], oimg)
+
+	print '<br>'
+
+# ------- photogs --------------------------------------------------
+
+def photogs_main(pif):
+    if pif.form.has('save'):
+	add_photogs_save(pif)
+    return add_photogs_form(pif)
+
+
+def add_photogs_form(pif):
+    pref = pif.form.get_str('attr_type')
+    photographers = sorted(pif.dbh.fetch_photographers(), key=lambda x: x['photographer.name'])
+
+    def photog_rec(rec):
+	recid = rec['id']
+	return {
+	    'X': pif.render.format_checkbox('X.%s' % recid, [('1', '')], checked='1' if not rec['flags'] & pif.dbh.FLAG_ITEM_HIDDEN else ''),
+	    'id': pif.render.format_text_input('id.%s' % recid, maxlength=4, showlength=4, value=rec['id']),
+	    'name': pif.render.format_text_input('name.%s' % recid, maxlength=32, showlength=32, value=rec['name']),
+	    'url': pif.render.format_text_input('url.%s' % recid, maxlength=128, showlength=64, value=rec['url']),
+	}
+
+
+    header = '<hr>\n'
+    header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
+    header += pif.render.format_hidden_input({'verbose': 1, 'type': 'photogs'})
+
+    footer = ''
+    footer += pif.render.format_button_input("save")
+    footer += pif.render.format_button('add', link='/cgi-bin/editor.cgi?table=photographer&id=&add=1')
+    footer += '</form>'
+
+    entries = [photog_rec(rec) for rec in photographers]
+    lsec = dict(columns=['X', 'id', 'name', 'url'], range=[{'entry': entries}], noheaders=True, footer=footer)
+    llistix = {'section': [lsec], 'note': header}
+
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+
+def add_photogs_save(pif):
+    for phid in pif.form.roots(start='id.'):
+	inp = pif.form.get_dict(end='.' + phid)
+	flags = pif.dbh.FLAG_ITEM_HIDDEN if inp.get('X') else 0
+	print phid, inp, flags
+	rec = {
+	    'id': inp['id'],
+	    'name': inp['name'],
+	    'url': inp['url'],
+	    'flags': flags,
+	}
+
+	print '<br>'
+
 
 # ------- ----------------------------------------------------------
 
@@ -1639,16 +1841,14 @@ mass_mains_list = [
     ('book', add_book),
     ('ads', add_ads),
     ('matrix', add_matrix),
+    ('attrpics', add_attr_pics),
 ]
 
 mass_mains_hidden = {
     'lineup_desc': lineup_desc_main,
     'dates': dates_main,
+    'photogs': photogs_main,
 }
 
 def mass_sections(pif):
     return '\n'.join([pif.render.format_button(section[0], link='?type=' + section[0]) for section in mass_mains_list])
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

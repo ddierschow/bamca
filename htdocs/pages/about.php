@@ -107,5 +107,5 @@ of Matchbox International Ltd. and are used with permission.
 <img src="/pic/flags/gb.gif" alt="UK" label="UK">
 <img src="/pic/flags/us.gif" alt="USA" label="USA">
 
-</body>
+<?php DoFoot($pif); ?>
 </html>

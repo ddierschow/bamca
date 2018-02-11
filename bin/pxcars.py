@@ -72,8 +72,3 @@ def cars_main(pif):
     print pif.render.format_head()
     render_cars(pif, db)
     print pif.render.format_tail()
-
-# ------- ----------------------------------------------------------
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

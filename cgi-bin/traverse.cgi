@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import traverse
-traverse.main('editor', dbedit='am')
+import filsys
+filsys.main('editor', dbedit='am')

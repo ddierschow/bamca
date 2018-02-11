@@ -73,7 +73,8 @@ function DBQuery($dbi, $query) {
 }
 
 function DBClose($dbi) {
-    mysql_close($dbi);
+    if ($dbi)
+	mysql_close($dbi);
 }
 
 function GetPageInfo($page_id) {
@@ -95,7 +96,7 @@ function GetPageInfo($page_id) {
 	$nl = explode(',', trim($c));
 	$pif[$nl[0]] = $nl[1];
     }
-    $dbi = DBConnect($pif);
+    $pif['dbi'] = $dbi = DBConnect($pif);
     if (!$dbi)
 	return $pif;
     $q = "select page_info.format_type,page_info.title,page_info.pic_dir,page_info.tail,page_info.flags from page_info where page_info.id='" . $page_id . "'";
@@ -118,7 +119,6 @@ function GetPageInfo($page_id) {
     $bad_ip = DBQuery($dbi, "select count(*) from blacklist where reason='ip' and target='" . getenv('REMOTE_ADDR') . "'");
     $pif['bad_ip'] = $bad_ip[0][0];
     $pif['messages'] = '';
-    mysql_close($dbi);
     return $pif;
 }
 
@@ -156,7 +156,7 @@ function DoPageHeader($pif) {
     $id = CheckID();
     echo '<table width="1024" class="body">' . "\n";
     if ($id > 0) {
-	$username = Fetch('select name from user where id=' . $id, $pif);
+	$username = Fetch('select name from buser.user where id=' . $id, $pif);
 	$username = $username[0][0];
 	echo '<tr><td class="loginbar">Welcome back, ' . $username . '! ('.$id.')';
 	DoTextButtonLink('log_out', "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
@@ -185,6 +185,11 @@ function DoPageFooter($pif) {
     if ($pif['is_beta'])
 	echo "<tr><td height=24 background=\"http://" . $pif['host'] . "/pic/gfx/beta.gif\">&nbsp;</td></tr>\n";
     echo "</table>\n";
+}
+
+function DoFoot($pif) {
+    echo "</body>\n";
+    DBClose($pif['dbi']);
 }
 
 function DoTextButton($buttext, $classname="textbutton") {
@@ -225,11 +230,10 @@ function BarFile($fname, $prefix) {
 
 function Fetch($query, $pif) {
     $ret = array();
-    $dbi = DBConnect($pif);
+    $dbi = $pif['dbi'];
     if (!$dbi)
 	return $ret;
     $ret = DBQuery($dbi, $query);
-    DBClose($dbi);
     return $ret;
 }
 

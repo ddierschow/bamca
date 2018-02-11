@@ -17,6 +17,10 @@ $models = [
 	'cdt' => 'yellow, blue chassis with black base', 'cva' => '35',
 	'tdt' => 'yellow canopy with blue sides on pearly silver base, MICHELIN tampo', 
     ],
+    ['var' => '02b', 'mfg' => 'Thailand', 'liv' => 'Michelin',
+	'cdt' => 'yellow, blue chassis with black base', 'cva' => '35',
+	'tdt' => 'yellow canopy with blue sides on pearly silver base, MICHELIN tampo', 
+    ],
 ];
 
 include "cypage.php";

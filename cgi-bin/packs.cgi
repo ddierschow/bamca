@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import multipack
-multipack.do_page('packs', 'page', dbedit='am')
+import multip
+multip.do_page('packs', 'page', dbedit='am')

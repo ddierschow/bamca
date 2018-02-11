@@ -84,6 +84,10 @@ def printablize(lord):
     return lord
 
 
+def defang(thing):
+    return str(thing).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+
 def root_ext(fn):
     '''Split fn into root and ext.  In this case, ext has no dot.
 
@@ -488,10 +492,6 @@ def read_comments():
     return comments
 
 
-def defang(msg):
-    return str(msg).replace('<', '&lt;').replace('>', '&gt;')
-
-
 def render_template(template, **kwargs):
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
     tpl = env.get_template(template)
@@ -537,7 +537,17 @@ def url_fetch(url, data=None):
 	time.sleep(2)
     return img
 
-#---- -------------------------------------------------------------------
 
-if __name__ == '__main__':  # pragma: no cover
-    pass
+def command_help(script, cmds):
+    # cmds is list of (cmd, function, help message)
+    write_message("./%s [%s] ..." % (script, '|'.join([x[0] for x in cmds])))
+    for cmd in cmds:
+	write_message("  %s for %s" % (cmd[0], cmd[2]))
+
+
+def cmd_proc(pif, script, cmds):
+    if pif.filelist:
+	lup = {x[0]: x[1] for x in cmds}
+	lup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
+    else:
+	command_help(script, cmds)

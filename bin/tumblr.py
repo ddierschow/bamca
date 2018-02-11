@@ -42,7 +42,3 @@ class tumblr(object):
     def create_video(self, **kwargs):
         # caption embed data
 	return self.client.create_video(self.name, **kwargs)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

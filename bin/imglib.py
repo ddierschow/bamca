@@ -49,39 +49,33 @@ otypes = ['', 'bmp', 'gif', 'ico', 'jpg', 'png']
 s = '_abcdefghijklmnopqrstuvwxyz-'
 t = '0123456789012345678901234567'
 
-img_dir_name = {
-    '.' + config.IMG_DIR_ACC:             'Accessories',
-    '.' + config.IMG_DIR_ADD:             'Additional model pictures',
-    '.' + config.IMG_DIR_ADS:             'Advertising',
-    '.' + config.IMG_DIR_ART:             'Art',
-    '.' + config.IMG_DIR_BLISTER:         'Blister packs',
-    '.' + config.IMG_DIR_BOOK:            'Books',
-    '.' + config.IMG_DIR_BOX:             'Boxes',
-    '.' + config.IMG_DIR_CAT:             'Catalogs',
-    '.' + config.IMG_DIR_COLL_43:         '1:43 Collectibles',
-    '.' + config.IMG_DIR_CONVOY:          'Convoys',
-    '.' + config.IMG_DIR_ERRORS:          'Errors',
-    '.' + config.IMG_DIR_ICON:            'Icons',
-    '.' + config.IMG_DIR_KING:            'King Size',
-    '.' + config.IMG_DIR_LESNEY:          'Lesney',
-    '.' + config.IMG_DIR_MAKE:            'Makes',
-    '.' + config.IMG_DIR_MAN:             'Model Pictures',
-    '.' + config.IMG_DIR_PICS:            'Miscellaneous',
-    '.' + config.IMG_DIR_PROD_CODE_2:     'Code 2 Models',
-    '.' + config.IMG_DIR_PROD_COLL_64:    '1:64 Collectibles',
-    '.' + config.IMG_DIR_PROD_EL_SEG:     'Mattel El Segundo',
-    '.' + config.IMG_DIR_PROD_LRW:        'Lesney RW',
-    '.' + config.IMG_DIR_PROD_LSF:        'Lesney SF',
-    '.' + config.IMG_DIR_PROD_MT_LAUREL:  'Mattel Mt. Laurel',
-    '.' + config.IMG_DIR_PROD_MWORLD:     'Mattel Matchbox World',
-    '.' + config.IMG_DIR_PROD_PACK:       'Multi Packs',
-    '.' + config.IMG_DIR_PROD_SERIES:     'Series',
-    '.' + config.IMG_DIR_PROD_TYCO:       'Tyco',
-    '.' + config.IMG_DIR_PROD_UNIV:       'Universal',
-    '.' + config.IMG_DIR_SKY:             'Skybusters',
-    '.' + config.IMG_DIR_VAR:             'Variations',
-}
+img_dir_name = {'.' + x: y for x, y in mbdata.img_dir_name.items()}
 
+movetos = [
+    config.IMG_DIR_PROD_MWORLD,
+    config.IMG_DIR_PROD_EL_SEG,
+    config.IMG_DIR_PROD_MT_LAUREL,
+    config.IMG_DIR_PROD_TYCO,
+    config.IMG_DIR_PROD_UNIV,
+    config.IMG_DIR_PROD_LSF,
+    config.IMG_DIR_PROD_LRW,
+    config.IMG_DIR_LESNEY,
+    config.IMG_DIR_ACC,
+    config.IMG_DIR_ADS,
+    config.IMG_DIR_BLISTER,
+    config.IMG_DIR_BOX,
+    config.IMG_DIR_BOOK,
+    config.IMG_DIR_CAT,
+    config.IMG_DIR_PROD_CODE_2,
+    config.IMG_DIR_COLL_43,
+    config.IMG_DIR_CONVOY,
+    config.IMG_DIR_ERRORS,
+    config.IMG_DIR_KING,
+    config.IMG_DIR_PROD_PACK,
+    config.IMG_DIR_PROD_COLL_64,
+    config.IMG_DIR_PROD_SERIES,
+    config.IMG_DIR_SKY,
+]
 
 
 def get_size(fn):
@@ -946,79 +940,12 @@ class ActionForm(object):
 	    pif.dbh.write_photo_credit(pif.form.get_str('credit'), to_dir, to_name)
 	return ret
 
-    sel_cat = [
-	['unsorted',    'unsorted'],
-	['acc',         'Accessories'],
-	['ads',         'Advertising'],
-	['bigmx',       'BigMX'],
-	['blister',     'Blister'],
-	['box',         'Box'],
-	['cat',         'Catalogs'],
-	['cc',          'Carrying Case'],
-	['coll',        'Collectibles'],
-	['commando',    'Commando'],
-	['copies',      'Copies'],
-	['convoy',      'Convoys'],
-	['disp',        'Displays'],
-	['e',           'Early'],
-	['game',        'Games'],
-	['gs',          'Giftsets'],
-	['gw',          'Giftware'],
-	['ks',          'Kings'],
-	['mattel',      'Mattel'],
-	['moko',        'Moko'],
-	['mult',        'Multiples'],
-	['mw',          'Motorways'],
-	['o',           'Other'],
-	['orig',        'Originals'],
-	['packs',       'Packs'],
-	['prem',        'Premieres'],
-	['proto',       'Prototypes'],
-	['ps',          'Play Sets'],
-	['rb',          'Roadblasters'],
-	['robotech',    'RoboTech'],
-	['rt',          'Real Talkin'],
-	['ry',          'Roadway'],
-	['sb',          'Sky Busters'],
-	['supergt',     'SuperGT'],
-	['tp',          'TwinPacks'],
-	['tyco',        'Tyco'],
-	['wd',          'Walt Disney'],
-	['wr',          'White Rose'],
-	['zing',        'Zings'],
-    ]
-
     def picture_prefixes(self):
-	return [('', ''), ('n', 'no prefix')] + \
+	return [('n', 'no prefix')] + \
 		[('s' + x[0], x[1]) for x in zip(mbdata.image_size_types, mbdata.image_size_names)] + \
 		[('t' + x[0], x[1]) for x in zip(mbdata.image_adds_types, mbdata.image_adds_names)]
 
-    sel_moveto = [
-	['', ''],
-	['.' + config.IMG_DIR_PROD_MWORLD,     config.IMG_DIR_PROD_MWORLD],
-	['.' + config.IMG_DIR_PROD_EL_SEG,     config.IMG_DIR_PROD_EL_SEG],
-	['.' + config.IMG_DIR_PROD_MT_LAUREL,  config.IMG_DIR_PROD_MT_LAUREL],
-	['.' + config.IMG_DIR_PROD_TYCO,       config.IMG_DIR_PROD_TYCO],
-	['.' + config.IMG_DIR_PROD_UNIV,       config.IMG_DIR_PROD_UNIV],
-	['.' + config.IMG_DIR_PROD_LSF,        config.IMG_DIR_PROD_LSF],
-	['.' + config.IMG_DIR_PROD_LRW,        config.IMG_DIR_PROD_LRW],
-	['.' + config.IMG_DIR_LESNEY,          config.IMG_DIR_LESNEY],
-	['.' + config.IMG_DIR_ACC,             config.IMG_DIR_ACC],
-	['.' + config.IMG_DIR_ADS,             config.IMG_DIR_ADS],
-	['.' + config.IMG_DIR_BLISTER,         config.IMG_DIR_BLISTER],
-	['.' + config.IMG_DIR_BOX,             config.IMG_DIR_BOX],
-	['.' + config.IMG_DIR_BOOK,            config.IMG_DIR_BOOK],
-	['.' + config.IMG_DIR_CAT,             config.IMG_DIR_CAT],
-	['.' + config.IMG_DIR_PROD_CODE_2,     config.IMG_DIR_PROD_CODE_2],
-	['.' + config.IMG_DIR_COLL_43,         config.IMG_DIR_COLL_43],
-	['.' + config.IMG_DIR_CONVOY,          config.IMG_DIR_CONVOY],
-	['.' + config.IMG_DIR_ERRORS,          config.IMG_DIR_ERRORS],
-	['.' + config.IMG_DIR_KING,            config.IMG_DIR_KING],
-	['.' + config.IMG_DIR_PROD_PACK,       config.IMG_DIR_PROD_PACK],
-	['.' + config.IMG_DIR_PROD_COLL_64,    config.IMG_DIR_PROD_COLL_64],
-	['.' + config.IMG_DIR_PROD_SERIES,     config.IMG_DIR_PROD_SERIES],
-	['.' + config.IMG_DIR_SKY,             config.IMG_DIR_SKY],
-    ]
+    sel_moveto = [('.' + x, x,) for x in movetos]
 
     def write(self, pif, fn):
 #	root, ext = useful.root_ext(fn.strip())
@@ -1054,16 +981,16 @@ class ActionForm(object):
 	    print 'Man: <input type="text" size="12" name="man" value="%s">' % self.man #get_man(pif)
 	    print pif.render.format_button_up_down('man')
 	    print pif.render.format_button_input('move to library', 'lib')
-	    print 'Category:', pif.render.format_select('cat', self.sel_cat, self.cat)
+	    print 'Category:', pif.render.format_select('cat', mbdata.img_sel_cat, self.cat)
 	    print pif.render.format_button_input('move to bin', 'mvbin')
 	    print pif.render.format_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))])
 	    print '<input type=checkbox name="inc" value="1"> increment name'
 	    print '<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var
-	    print 'Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref)
+	    print 'Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref, blank='')
 	    print 'Suffix: <input type="text" size="5" name="suff" value="%s">' % self.suff
 	    print pif.render.format_button_input('select to casting', 'select')
-	    print 'Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest)
-	    useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
+	    print 'Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest, blank='')
+	    #useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
 	    print pif.render.format_button_input('select to category', 'selcat')
 	    print '<br>'
 
@@ -1168,3 +1095,10 @@ def promote_picture(pif, mod_id, var_id):
     # transfer credit
     if credit:
 	pif.dbh.write_photo_credit(credit['photographer.id'], config.IMG_DIR_MAN[1:], mod_id)
+
+
+def simple_save(ofi, opth):
+    if isinstance(ofi, Image.Image):
+	ofi.save(opth)
+    else:
+	open(opth, "w").write(ofi)

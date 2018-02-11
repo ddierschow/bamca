@@ -16,7 +16,7 @@ import useful
 # and it sets DOCUMENT_ROOT and SERVER_NAME if this is being run
 # from the command line.  Since those change based on environment,
 # environ.py has not been checked into github.
-import environ
+import enviro
 
 class BaseForm(object):
     def __init__(self, cgi_form=None, args=None, initform=None):
@@ -313,8 +313,3 @@ class PageInfoFile(object):
 
     def show_error(self):
 	useful.show_error()
-
-#---- -------------------------------------------------------------------
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

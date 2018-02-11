@@ -20,13 +20,15 @@ function show($array, $key, $defaults) {
     echo arr_get2($array, $key, $defaults, '');
 }
 
-function show_pic($mod, $var, $pfx, $crd='') {
-    $filename = strtolower("/pic/set/convoy/" . $pfx . "_" . $mod . "-" . $var . ".jpg");
+function show_pic($mod, $var, $pfx) {
+    global $credits;
+    $filename = strtolower($mod . "-" . $var);
+    $filepath = strtolower("/pic/set/convoy/" . $pfx . "_" . $filename . ".jpg");
     echo strtolower('<a href="/cgi-bin/upload.cgi?d=lib/set/convoy&n=' . $mod . '-' . $var . '">');
-    if (file_exists('.' . $filename)) {
-	echo '<img src="' . $filename . '">';
-	if ($crd) {
-	    echo '<br>Photo credit: ' . $crd;
+    if (file_exists('.' . $filepath)) {
+	echo '<img src="' . $filepath . '">';
+	if (array_key_exists($filename, $credits)) {
+	    echo '<br><i>Photo credit: ' . $credits[$filename] . '</i>';
 	}
     }
     else {
@@ -128,7 +130,7 @@ function show_convoy_corner($cy) {
   <tr><td><table class="cytable">
     <tr>
       <td class="enthead">Variation</td><td class="entval"><?php echo $cy['var']; ?></td>
-      <td class="entpic" rowspan="7"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm', arr_get($cy, 'crd', '')); ?></td>
+      <td class="entpic" rowspan="7"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm'); ?></td>
     </tr>
     <tr>
       <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', '')); ?></td>
@@ -177,7 +179,7 @@ function show_convoy_wide($cy) {
       <td class="enthead">Code</td><td class="entval"><?php show($cy, 'cod', $defaults); ?></td>
     </tr>
     <tr>
-      <td class="entpic" colspan="4"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'h', arr_get($cy, 'crd', '')); ?></td>
+      <td class="entpic" colspan="4"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'h'); ?></td>
     </tr>
     <tr>
       <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', '')); ?></td>
@@ -223,7 +225,7 @@ $rows += count(arr_get($cy, 'add', []));
   <tr><td><table class="cytable">
     <tr>
       <td class="enthead">Variation</td><td class="entval"><?php echo $cy['var']; ?></td>
-      <td class="entpic" rowspan="<?php echo $rows; ?>"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm', arr_get($cy, 'crd', '')); ?></td>
+      <td class="entpic" rowspan="<?php echo $rows; ?>"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm'); ?></td>
     </tr>
     <tr>
       <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', '')); ?></td>
@@ -302,5 +304,14 @@ function show_tmtc($prod) {
 	    show_convoy_tall($model);
 	}
     }
+}
+
+function fetch_cy_credits($pif) {
+    $cq = Fetch('select photo_credit.path,photo_credit.name,photographer.id,photographer.name from photo_credit,photographer where photo_credit.photographer_id=photographer.id and photo_credit.path="pic/set/convoy"', $pif);
+    $credits = array();
+    foreach ($cq as $credit) {
+	$credits[$credit[1]] = $credit[3];
+    }
+    return $credits;
 }
 ?>

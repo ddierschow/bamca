@@ -1,8 +1,11 @@
 #!/usr/local/bin/python
 
+
+import os
 import basics
 import config
 import imglib
+import mbdata
 import mflags
 import models
 import useful
@@ -140,27 +143,76 @@ def add_casting_make(pif, mod_id, make_id):
     make = pif.dbh.fetch_vehicle_make(make_id)
     if make:
 	print make['vehicle_make.name']
-	pif.dbh.add_casting_make(mod_id, make_id)
+	print pif.dbh.add_casting_make(mod_id, make_id)
 	mod = pif.dbh.fetch_casting(mod_id)
 	if not mod['make']:
-	    pif.dbh.write_casting({'make': make_id}, mod_id)
+	    print pif.dbh.write_casting({'make': make_id}, mod_id)
+    elif make_id == 'unl':
+	print 'Unlicensed'
+	print pif.dbh.add_casting_make(mod_id, make_id)
+	mod = pif.dbh.fetch_casting(mod_id)
+	if not mod['make']:
+	    print pif.dbh.write_casting({'make': make_id}, mod_id)
+    else:
+	print make_id, 'not found'
 
 
 def delete_casting_make(pif, mod_id, make_id):
     pif.dbh.delete_casting_make(mod_id, make_id=None)
 
 
-def process_graphics(pif):
-    for make in pif.dbh.fetch_vehicle_makes():
-	mk = make['vehicle_make.id']
-	print mk
-	pth = '.' + config.IMG_DIR_MAKE + '/t_' + mk + '.gif'
-	ofi = imglib.pipe_chain(open(pth),
-		imglib.import_file(pth) +
-		imglib.resize(x=50) +
-		imglib.export_file('.gif', '.gif'),
-		stderr=open('/dev/null', 'w'))
-	open('.' + config.IMG_DIR_MAKE + '/u_' + mk + '.gif', 'w').write(ofi)
+def unhide_makes(pif, *args):
+    # if any casting for a make has a section that is shown, unhide the make
+    makes = args if args else [x['vehicle_make.id'] for x in pif.dbh.fetch_vehicle_makes()]
+#    count_shown_q = '''
+#	select count(*) from casting,casting_make,section where
+#	casting.section_id=section.id and section.page_id='manno' and 
+#	casting_make.casting_id=casting.id and casting_make.make_id='%s'
+#    '''
+#    res = pif.dbh.raw_execute(count_shown_q)
+    for make_id in makes:
+	res = pif.dbh.fetch('casting,casting_make,section', columns='count(*) as c', one=True,
+		where="casting.section_id=section.id and section.page_id='manno' and casting_make.casting_id=casting.id and casting_make.make_id='%s'" % make_id
+	)
+	make = pif.dbh.depref('vehicle_make', pif.dbh.fetch_vehicle_make(make_id))
+	flag = 0 if res['c'] else pif.dbh.FLAG_ITEM_HIDDEN
+	print make, flag
+
+
+def check_makes(pif, *args):
+    # if any casting for a make has a section that is shown, unhide the make
+    makes = pif.dbh.depref('vehicle_make', pif.dbh.fetch_vehicle_makes())
+    makes_d = {x['id']: x for x in makes}
+    makes_l = args if args else sorted(makes_d.keys())
+
+    for make_id in makes_l:
+	if make_id in ('unk', 'unl'):
+	    continue
+	if make_id in makes_d:
+	    make = makes_d[make_id]
+	    if not make['name']:
+		print make_id, 'no name'
+	    if not make['company_name']:
+		print make_id, 'no company name'
+	    if not os.path.exists('.' + config.IMG_DIR_MAKE + '/t_' + make_id + '.gif'):
+		print make_id, 'no large logo'
+	    if not os.path.exists('.' + config.IMG_DIR_MAKE + '/u_' + make_id + '.gif'):
+		print make_id, 'no small logo'
+	else:
+	    print make_id, 'not found'
+
+
+def microize(pif, *args):
+    makes = args if args else [x['vehicle_make.id'] for x in pif.dbh.fetch_vehicle_makes()]
+    for make_id in makes:
+	if make_id in ('unk', 'unl'):
+	    continue
+	fpth = pif.render.find_image_path(make_id, largest='t', pdir=config.IMG_DIR_MAKE)
+	if fpth:
+	    oname = 'u_' + make_id + '.gif'
+	    ofi = imglib.shrinker(fpth, oname, (0, 0, 100, 60), mbdata.imagesizes['u'], [])
+	    opth = os.path.join('.' + config.IMG_DIR_MAKE, oname)
+	    imglib.simple_save(ofi, opth)
 
 
 def find_make(pif, make_id):
@@ -170,34 +222,26 @@ def find_make(pif, make_id):
 
 
 def create_make(pif, make_id, name, company=''):
-    pif.dbh.add_vehicle_make(make_id, name, company)
-    os.copy('.' + config.IMG_DIR_MAKE + '/t_unk.gif', '.' + config.IMG_DIR_MAKE + '/t_' + make_id + '.gif')
+    make = pif.dbh.fetch_vehicle_make(make_id)
+    if not make:
+	print pif.dbh.add_vehicle_make(make_id, name, company)
+	#os.copy('.' + config.IMG_DIR_MAKE + '/t_unk.gif', '.' + config.IMG_DIR_MAKE + '/t_' + make_id + '.gif')
 
 
-def command_help(pif, *args):
-    pif.render.message("./vmakes.py [d|a] ...")
-    pif.render.message("  d for delete: mod_id make_id")
-    pif.render.message("  a for add attributes: mod_id make_id")
-    pif.render.message("  g for process graphics")
-    pif.render.message("  f for find: make_id")
-    pif.render.message("  c for create make: make_id, make_name, company")
-
-
-command_lookup = {
-    'd': delete_casting_make,
-    'a': add_casting_make,
-    'g': process_graphics,
-    'f': find_make,
-    'c': create_make,
-}
+cmds = [
+    ('d', delete_casting_make, "delete casting make: mod_id make_id"),
+    ('a', add_casting_make, "add casting make: mod_id make_id"),
+    ('f', find_make, "find: make_id"),
+    ('c', create_make, "create make: make_id, make_name, company"),
+    ('m', microize, "microize [id...]"),
+    ('u', unhide_makes, "unhide [id...]"),
+    ('x', check_makes, "check [id...]"),
+]
 
 
 @basics.command_line
 def commands(pif):
-    if pif.filelist:
-	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
-    else:
-	command_help(pif)
+    useful.cmd_proc(pif, './vmakes.py', cmds)
 
 #---- ---------------------------------------
 

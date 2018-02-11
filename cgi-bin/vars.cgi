@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import vars
-vars.main('vars', dbedit='am')
+import varias
+varias.main('vars', dbedit='am')

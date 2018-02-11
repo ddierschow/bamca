@@ -1,3 +1,4 @@
+import config
 import re
 import useful
 
@@ -30,7 +31,7 @@ regionparents = {
     'L': 'W',
 }
 
-model_texts = ['Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows']
+model_texts = ['Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With']
 
 lineup_types = [
     ("man", "Main line models"),
@@ -380,6 +381,7 @@ countries = [
     ('LI', "Liechtenstein"),
     ('LT', "Lithuania"),
     ('LU', "Luxembourg"),
+    ('MO', "Macau"),
     ('MK', "Macedonia"),
     ('MG', "Madagascar"),
     ('MW', "Malawi"),
@@ -493,11 +495,15 @@ imagesizes = dict(zip(image_size_types, image_size_sizes))
 
 image_adds_names = ["advertisement", "baseplate", "comparison", "custom", "detail", "error", "interior", "prototype", "real", "box", "group"]
 image_adds_types = ['f', 'b', 'z', 'a', 'd', 'e', 'i', 'p', 'r', 'x', 'g']
+image_adds_list = zip(image_adds_types, image_adds_names)
 
-model_type_chars = "aob2e1r4uztv59cidjgfmpl8hx"
+model_type_chars_1 = "aonb2e1r4uztv5"
+model_type_chars_2 = "9cidjgfqmpl8hx"
+model_type_chars = model_type_chars_1 + model_type_chars_2
 vehicle_types = {
     "a": "aircraft",
     "o": "boat",
+    "n": "building",
     "b": "bus",
     "2": "coupe",
     "e": "equipment",
@@ -517,6 +523,7 @@ vehicle_types = {
     "j": "fantasy",
     "g": "farm",
     "f": "fire",
+    "q": "horse-drawn",
     "m": "military",
     "p": "pick-up",
     "l": "police",
@@ -528,6 +535,7 @@ vehicle_types = {
 model_icons = {
     "a": "i_air",
     "o": "i_boat",
+    "n": "i_build",
     "b": "i_bus",
     "2": "i_coupe",
     "e": "i_equip",
@@ -547,6 +555,7 @@ model_icons = {
     "j": "i_fant",
     "g": "i_farm",
     "f": "i_fire",
+    "q": "i_horse",
     "m": "i_mil",
     "p": "i_pickup",
     "l": "i_police",
@@ -616,6 +625,9 @@ comment_icon = {
 }
 
 
+desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
+
+
 packsize = {'2': '2', '3': '3', '4': '4', '5': '5', '8': '8', 't': '10', 'w': '20'}
 
 
@@ -644,6 +656,19 @@ arts = {
     'Premieres': 'premiere-sm.gif',
     'Color Changers': 'colorchangers-sm.gif',
 }
+
+
+model_adds = [
+    # prefix, title, separator, columns
+    ["b_", "Sample Base%(s)s", "<p>", 1],
+    ["d_", "Detail%(s)s", " ", 1],
+    ["i_", "Interior%(s)s", "<p>", 1],
+    ["p_", "Prototype%(s)s or Preproduction Model%(s)s", "<p>", 1],
+    ["r_", "Real Vehicle Example%(s)s", "<p>", 1],
+    ["a_", "Customization%(s)s", "<p>", 2],
+    ["f_", "Advertisement%(s)s", "<p>", 1],
+    ["e_", "Error Model%(s)s", "<p>", 1],
+]
 
 
 LISTTYPE_NORMAL = ''
@@ -675,6 +700,100 @@ areas = {
     'ROW': 'Rest of World',
     'LA': "Latin America",
 }
+
+plants = (
+    ('Brazil', 'BR'),
+    ('Bulgaria', 'BG'),
+    ('China', 'CN'),
+    ('England', 'GB'),
+    ('Hong Kong', 'HK'),
+    ('Hungary', 'HU'),
+    ('Japan', 'JP'),
+    ('Macau', 'MO'),
+    ('Thailand', 'TH'),
+    ('no origin', 'none'),
+    ('unset', ''),
+)
+plant_d = dict(plants)
+
+img_dir_name = {
+    config.IMG_DIR_ACC:             'Accessories',
+    config.IMG_DIR_ADD:             'Additional model pictures',
+    config.IMG_DIR_ADS:             'Advertising',
+    config.IMG_DIR_ART:             'Art',
+    config.IMG_DIR_BLISTER:         'Blister packs',
+    config.IMG_DIR_BOOK:            'Books',
+    config.IMG_DIR_BOX:             'Boxes',
+    config.IMG_DIR_CAT:             'Catalogs',
+    config.IMG_DIR_COLL_43:         '1:43 Collectibles',
+    config.IMG_DIR_CONVOY:          'Convoys',
+    config.IMG_DIR_ERRORS:          'Errors',
+    config.IMG_DIR_ICON:            'Icons',
+    config.IMG_DIR_KING:            'King Size',
+    config.IMG_DIR_LESNEY:          'Lesney',
+    config.IMG_DIR_MAKE:            'Makes',
+    config.IMG_DIR_MAN:             'Model Pictures',
+    config.IMG_DIR_PICS:            'Miscellaneous',
+    config.IMG_DIR_PROD_CODE_2:     'Code 2 Models',
+    config.IMG_DIR_PROD_COLL_64:    '1:64 Collectibles',
+    config.IMG_DIR_PROD_EL_SEG:     'Mattel El Segundo',
+    config.IMG_DIR_PROD_LRW:        'Lesney RW',
+    config.IMG_DIR_PROD_LSF:        'Lesney SF',
+    config.IMG_DIR_PROD_MT_LAUREL:  'Mattel Mt. Laurel',
+    config.IMG_DIR_PROD_MWORLD:     'Mattel Matchbox World',
+    config.IMG_DIR_PROD_PACK:       'Multi Packs',
+    config.IMG_DIR_PROD_SERIES:     'Series',
+    config.IMG_DIR_PROD_TYCO:       'Tyco',
+    config.IMG_DIR_PROD_UNIV:       'Universal',
+    config.IMG_DIR_SKY:             'Skybusters',
+    config.IMG_DIR_VAR:             'Variations',
+}
+
+# not included: man/ mbusa/ mbxf/ old/ pics/ prod/ set/ submitted/ tilley/ tomica/ trash/
+img_sel_cat = [
+    ('unsorted',    'unsorted'),
+    ('acc',         'Accessories'),
+    ('ads',         'Advertising'),
+    ('bigmx',       'BigMX'),
+    ('blister',     'Blister'),
+    ('box',         'Box'),
+    ('cat',         'Catalogs'),
+    ('cc',          'Carrying Case'),
+    ('coll',        'Collectibles'),
+    ('commando',    'Commando'),
+    ('copies',      'Copies'),
+    ('convoy',      'Convoys'),
+    ('custom',      'Customs'),
+    ('disp',        'Displays'),
+    ('docs',        'Documents'),
+    ('early',       'Early'),
+    ('game',        'Games'),
+    ('gfx',         'Grafix'),
+    ('gs',          'Giftsets'),
+    ('gw',          'Giftware'),
+    ('ks',          'Kings'),
+    ('mattel',      'Mattel'),
+    ('moko',        'Moko'),
+    ('mult',        'Multiples'),
+    ('mw',          'Motorways'),
+    ('other',       'Other'),
+    ('orig',        'Originals'),
+    ('packs',       'Packs'),
+    ('prem',        'Premieres'),
+    ('proto',       'Prototypes'),
+    ('ps',          'Play Sets'),
+    ('rb',          'Roadblasters'),
+    ('robotech',    'RoboTech'),
+    ('rt',          'Real Talkin'),
+    ('ry',          'Roadway'),
+    ('sb',          'Sky Busters'),
+    ('supergt',     'SuperGT'),
+    ('tp',          'TwinPacks'),
+    ('tyco',        'Tyco'),
+    ('wd',          'Walt Disney'),
+    ('wr',          'White Rose'),
+    ('zing',        'Zings'),
+]
 
 # ----------------------------------------------------------------------
 
@@ -759,7 +878,3 @@ def normalize_var_id(mod, var_id):
 	digs = starting_digits_re.match(var_id).end()
 	var_id = '0' * (mod.get('casting.variation_digits', mod.get('variation_digits', 2)) - digs) + var_id
     return var_id
-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

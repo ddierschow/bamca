@@ -19,6 +19,7 @@ Information<br>
 </div>
 
 <div align="left">
+February 11, 2017 - Revised a lot of entries for consistancy.  Added a few reported variations.  Moved picture credits into database.<br>
 July 2, 2017 - Started adding cab variation numbers.  Fixed several errors found in some of the index pages.<br>
 June 16, 2017 - My first pass on rewriting these pages is mostly done.  There will be much more to do in the future but
 I feel things are complete enough to publish them.  Added TODO list.<br>

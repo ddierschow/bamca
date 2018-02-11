@@ -63,7 +63,7 @@
  </tr>
 {%- endif %}
 {%- for entry in range.entry %}
-<tr class="er">
+<tr class="er ln{{ loop.cycle('1', '0') }}">
 {%- for col in section.columns %}
   <td class="{{ render.class_id('eb', range.get('styles', {}).get(col, '1')) }}">{{ entry[col] or '&nbsp;' }}</td>
 {%- endfor %}
@@ -132,6 +132,7 @@
 {%- endfor -%}
 {%- endfor %}
 </table>
+{%- if section.footer %}{{ section.footer }}{% endif %}
 {%- endfor %}
 {%- if lmatrix.tail %}
 <table class="tb_tail tb">

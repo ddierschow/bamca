@@ -49,6 +49,10 @@ $models = [
 	'cdt' => 'dark blue with PETERBILT and bolt tampo, gray exhausts', 'cva' => '49',
 	'tdt' => 'dark blue container with pearly silver base, MB TV NEWS tampo',
     ],
+    ['var' => '07b', 'mfg' => 'Thailand', 'liv' => 'Matchbox', 'rar' => '2',
+	'cdt' => 'dark blue with PETERBILT and bolt tampo, gray exhausts', 'cva' => '49',
+	'tdt' => 'dark blue container with pearly silver base, MB TV NEWS tampo',
+    ],
 // 8. Dark blue cab with "Peterbilt" and bolt tampo, gray exhausts, dark blue container with pearly silver base, "MB TV News" tampo, Thailand
     ['var' => '08a', 'mfg' => 'Thailand', 'liv' => 'Matchbox', 'rar' => '2',
 	'cdt' => 'dark blue with PETERBILT and bolt tampo, gray exhausts', 'cva' => '49',

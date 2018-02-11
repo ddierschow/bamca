@@ -3,7 +3,7 @@
 import os, sys
 import Cookie
 import Crypto.Cipher.DES
-import environ
+import enviro
 
 
 class Security(object):

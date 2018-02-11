@@ -349,6 +349,3 @@ def main(pif):
 	pif.render.format_matrix_for_template(llineup)
 	return pif.render.format_template('matrix.html', llineup=llineup)
     return pif.render.format_template('matrixsel.html', llineup=select_matrix(pif))
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

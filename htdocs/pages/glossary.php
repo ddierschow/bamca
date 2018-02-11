@@ -243,5 +243,5 @@ individuals or organization.</dt>
 </dl>
 
 
-</body>
+<?php DoFoot($pif); ?>
 </html>

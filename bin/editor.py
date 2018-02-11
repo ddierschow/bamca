@@ -21,7 +21,7 @@ def editor_start(pif):
     errs = pif.dbh.fetch_counters("health!=0")
     if errs:
         useful.warn('<hr>', "<b>Errors found:<br><ul>",
-	    '\n'.join(["<li>" + err['page_info.id'] for err in errs]),
+	    '\n'.join(["<li>" + err['counter.id'] for err in errs]),
 	    "</ul></b>", pif.render.format_button('clear', '?clear=1'))
 
     context = {
@@ -387,9 +387,6 @@ def show_counters(pif):
 
 # ------- ----------------------------------------------------------
 
-def command_help(pif, *args):
-    pif.render.message("./editor.py [i] ...")
-
 
 desc_cols = ['Field', 'Type', 'Null', 'Key', 'Default', 'Extra']
 def command_info(pif):
@@ -407,16 +404,13 @@ def command_info(pif):
 	print
 
 
-command_lookup = {
-    'i': command_info,
-}
+cmds = [
+    ('i', command_info, "info"),
+]
 
 @basics.command_line
 def commands(pif):
-    if pif.filelist:
-	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
-    else:
-	command_help()
+    useful.cmd_proc(pif, './editor.py', cmds)
 
 # ------- ----------------------------------------------------------
 

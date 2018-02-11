@@ -232,16 +232,6 @@ def add_icons(pif, type_id, base_id, vehicle_type):
     return ostr
 
 
-mod_adds = [
-    ["b_", "Sample Base%(s)s", "<p>", 1],
-    ["d_", "Detail%(s)s", " ", 1],
-    ["i_", "Interior%(s)s", "<p>", 1],
-    ["p_", "Prototype%(s)s or Preproduction Model%(s)s", "<p>", 1],
-    ["r_", "Real Vehicle Example%(s)s", "<p>", 1],
-    ["a_", "Customization%(s)s", "<p>", 2],
-    ["f_", "Advertisement%(s)s", "<p>", 1],
-    ["e_", "Error Model%(s)s", "<p>", 1],
-]
 var_adds = [
     ["b_", "Base%(s)s", "<p>", 1],
     ["d_", "Detail%(s)s", " ", 1],
@@ -257,7 +247,7 @@ def show_adds(pif, mod_id, var_id=''):
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
-    adds = var_adds if var_id else mod_adds
+    adds = var_adds if var_id else mbdata.model_adds
     ostr = ''
     for add in adds:
         imgs = pif.render.find_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
@@ -289,7 +279,7 @@ def make_adds(pif, mod_id, var_id=''):
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
-    adds = var_adds if var_id else mod_adds
+    adds = var_adds if var_id else mbdata.model_adds
     outd = []
     for add in adds:
         imgs = pif.render.find_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
@@ -320,7 +310,10 @@ def add_model_thumb_pic_link(pif, mdict):
 	ostr += '<span class="modelname">'
 	ostr += pif.render.format_link('single.cgi?id=%s' % mdict['id'], mdict['id'] + ': ' + mdict['name'])
 	ostr += '</span><br>\n'
-    ostr += '<span class="info">See: %s</span>' % mdict['img']
+    img = mdict['img']
+    if isinstance(img, list):
+	img = '<ul>%s</ul>' % ('\n'.join(['<li>' + x for x in img]))
+    ostr += '<span class="info">See: %s</span>' % img
     ostr += '</td></tr></table>\n'
     return ostr
 
@@ -329,7 +322,7 @@ def add_model_var_pic_link(pif, vdict):
     vdict['link'] = 'vars.cgi?mod=%s&var=%s' % (vdict['mod_id'], vdict['var'].upper())
     vdict['categories'] = ''
     pic_id = vdict['picture_id'] if vdict['picture_id'] else vdict['var']
-    img = pif.render.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL)
+    img = pif.render.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN)
     vdict['img'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
 
     return '''
@@ -339,7 +332,3 @@ def add_model_var_pic_link(pif, vdict):
 <tr><td class="varentry"><i>%(text_description)s</i></td></tr>
 </table>
 ''' % vdict
-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

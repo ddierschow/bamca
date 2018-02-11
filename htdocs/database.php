@@ -31,6 +31,7 @@ $sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'Se
 $sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
 $sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();');
 $sections[] = array("tag" => "code2", "name" => "Code 2 Models", "fn" => 'SectionCode2', "scr" => "code2.cgi");
+$sections[] = array("tag" => "plants", "name" => "Location of Manufacture", "fn" => 'SectionPlant', "scr" => "plants.cgi");
 $sections[] = array("tag" => "other", "name" => "Other Database Pages", "fn" => 'SectionOther');
 
 $pages = array();
@@ -40,6 +41,8 @@ $pages[] = array("title" => "Bibliograpy", "desc" => "Books relevant to collecto
 $pages[] = array("title" => "Comparisons", "desc" => "Between various Matchbox castings", "url" => '/cgi-bin/compare.cgi');
 $pages[] = array("title" => "Errors", "desc" => "Matchbox manufacturing errors", "url" => '/cgi-bin/errors.cgi');
 $pages[] = array("title" => "Ads", "desc" => "Matchbox advertising", "url" => '/cgi-bin/ads.cgi');
+$pages[] = array("title" => "Customizations", "desc" => "Customizaed Matchbox toys", "url" => '/cgi-bin/custom.cgi');
+$pages[] = array("title" => "Photographers", "desc" => "Contributors to this site", "url" => '/cgi-bin/photogs.cgi');
 //prepro.cgi pub.cgi library.cgi package.cgi
 
 DoResetJavascript();
@@ -64,7 +67,7 @@ foreach ($sections as $sec) {
 echo "</table>\n";
 PageFooter();
 
-echo "</body>\n";
+DoFoot($pif);
 
 //---- support functions -----------------------------------------
 
@@ -149,15 +152,15 @@ function Section($args) {
     global $pif;
 
     if (isset($args['scr'])) {
-	echo "<form action=\"/cgi-bin/$args[scr]\" method=\"get\" name=\"$args[tag]\" id=\"$args[tag]\">\n";
+	echo "<form action=\"/cgi-bin/{$args['scr']}\" method=\"get\" name=\"{$args['tag']}\" id=\"{$args['tag']}\">\n";
 	echo "<input type=\"submit\" name=\"submit\" value=\"submit\" class=\"textbutton\" style=\"visibility: hidden;\">\n";
     }
     else {
-	echo "<i id=\"$args[tag]\"></i>\n";
+	echo "<i id=\"{$args['tag']}\"></i>\n";
     }
-    echo "\n<tr><td><br></td></tr>\n<tr>\n  <td class=\"$args[tag]_head sel_head\">\n";
-    echo "   <center><h2>$args[name]</h2></center>\n  </td>\n </tr>\n";
-    echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"$args[tag]_body sel_body\">\n";
+    echo "\n<tr><td><br></td></tr>\n<tr>\n  <td class=\"{$args['tag']}_head sel_head\">\n";
+    echo "   <center><h2>{$args['name']}</h2></center>\n  </td>\n </tr>\n";
+    echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"{$args['tag']}_body sel_body\">\n";
     if (isset($args['scr'])) {
 	echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".<p>\n\n";
 	call_user_func($args['fn'], $pif);
@@ -168,7 +171,7 @@ function Section($args) {
 	    Checks('checkbox', 'verbose', [['1', '<i>Verbose</i>']], ''); 
     }
     else
-	call_user_func($args['fn']);
+	call_user_func($args['fn'], $pif);
     echo "  </td>\n </tr>\n";
     if (isset($args['scr'])) {
 	echo "\n</form>\n\n";
@@ -358,6 +361,7 @@ function SectionManno($pif) {
     $a = [
 	["a", "aircraft"],
 	["o", "boat"],
+	["n", "building"],
 	["b", "bus"],
 	["2", "coupe"],
 	["e", "equipment"],
@@ -378,6 +382,7 @@ function SectionManno($pif) {
 	["j", "fantasy"],
 	["g", "farm"],
 	["f", "fire"],
+	["q", "horse-drawn"],
 	["m", "military"],
 	["p", "pick-up"],
 	["l", "police"],
@@ -395,12 +400,13 @@ function SectionManno($pif) {
 	['i', 'interior'],
 	['p', 'prototype'],
 	['r', 'real'],
-	['x', 'box']
+	['x', 'box'],
+	['g', 'group']
     ];
     $d = [
-	10 => ['s', 'small'],
-	11 => ['m', 'medium'],
-	12 => ['l', 'large'],
+	11 => ['s', 'small'],
+	12 => ['m', 'medium'],
+	13 => ['l', 'large'],
     ];
     foreach(array_keys($a) as $k) {
 	echo(" <tr>\n");
@@ -567,6 +573,27 @@ function SectionCode2($pif) {
     echo "<table><tr><td>\n";
     echo "Choose a type of Code 2 model:\n";
     FetchSelect('section', 'code2Section', 'range', "select flags, id, name from section where page_id='code2' order by display_order", [[0, '', 'All Sections']]);
+    echo "</td></tr></table>\n";
+}
+
+function SectionPlant($pif) {
+    echo "<table><tr><td>\n";
+    echo "Choose a location of manufacture:\n";
+    $sl = [
+	[64, '', 'Please select a location'],
+	[0,  'BR', 'Brazil'],
+	[0,  'BU', 'Bulgaria'],
+	[0,  'CN', 'China'],
+	[0,  'GB', 'England'],
+	[0,  'HK', 'Hong Kong'],
+	[0,  'HU', 'Hungary'],
+	[0,  'JP', 'Japan'],
+	[0,  'MO', 'Macau'],
+	[0,  'TH', 'Thailand'],
+	[0,  'none', 'no origin'],
+	[0,  'unset', 'location unknown or not yet set']
+    ];
+    Select('id', 'plant', $sl);
     echo "</td></tr></table>\n";
 }
 

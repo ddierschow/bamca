@@ -16,7 +16,7 @@ $models = [
 	'tdt' => 'silver-gray, boat with light orange hull and green windows',
     ],
 // 2. Light orange cab, boat with dark orange hull & green windows, silver-gray trailer, England casting 
-    ['var' => '02a', 'mfg' => 'England', 'crd' => 'Keith Borden',
+    ['var' => '02a', 'mfg' => 'England',
 	'cdt' => 'light orange', 'cva' => '005B',
 	'tdt' => 'silver-gray, boat with dark orange hull and green windows',
     ],
@@ -31,14 +31,14 @@ $models = [
 	'tdt' => 'silver-gray, boat with light orange hull and green windows',
     ],
 // 5. Dark orange cab, boat with dark orange hull & red windows, silver-gray trailer, England casting 
-    ['var' => '05a', 'mfg' => 'England', 'crd' => 'Keith Borden',
+    ['var' => '05a', 'mfg' => 'England',
 	'cdt' => 'dark orange', 'cva' => '006B',
 	'tdt' => 'silver-gray, boat with dark orange hull and red windows',
     ],
 // 6. Dark orange cab, boat with dark orange hull & clear windows, silver-gray trailer, England casting 
     ['var' => '06a', 'mfg' => 'England',
 	'cdt' => 'dark orange', 'cva' => '006B',
-	'tdt' => 'silver-gray, boat with dark orange hull and clear windows',
+	'tdt' => 'silver-gray, boat with dark orange hull and colorless windows',
     ],
 // 7. Dark orange cab, boat with dark orange hull & green windows, pearly silver trailer, Macau casting 
     ['var' => '07a', 'mfg' => 'Macau',
@@ -49,6 +49,10 @@ $models = [
     ['var' => '08a', 'mfg' => 'Macau',
 	'cdt' => 'very light orange', 'cva' => '016BA',
 	'tdt' => 'pearly silver, boat with dark orange hull and green windows',
+    ],
+    ['var' => '08b', 'mfg' => 'Macau',
+	'cdt' => 'very light orange', 'cva' => '016BA',
+	'tdt' => 'pearly silver, boat with dark orange hull and colorless windows',
     ],
 ];
 

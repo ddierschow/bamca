@@ -6,7 +6,7 @@ import config
 import imglib
 import lineup
 import mbdata
-import package
+import prints
 
 
 # Start here
@@ -175,7 +175,8 @@ def count_from_file(fpath, tag, fld, pdir):
     return im_count
 
 
-if __name__ == '__main__':  # pragma: no cover
+@basics.command_line
+def main(pif):
     pif = basics.get_page_info('editor')
 
     count = 0
@@ -198,3 +199,7 @@ if __name__ == '__main__':  # pragma: no cover
 
     print
     report('total', count)
+
+
+if __name__ == '__main__':  # pragma: no cover
+    main()

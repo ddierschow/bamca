@@ -27,7 +27,3 @@ class FlagList(object):
 
     def __getitem__(self, code):
         return self.lookup.get(code, '')
-
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

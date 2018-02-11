@@ -349,5 +349,5 @@ The Matchbox Convoy Project - Basic Information<br>
 <font size="+3"><font face="Arial"><br>
 <a href="index.php">Return to Index</a><br>
 </font></font></div>
-</body>
+<?php DoFoot($pif); ?>
 </html>

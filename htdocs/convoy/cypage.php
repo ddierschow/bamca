@@ -13,6 +13,7 @@ DoHead($pif);
   <meta name="description" content="<?php echo $desc; ?>">
 <?php
 DoPageHeader($pif);
+$credits = fetch_cy_credits($pif);
 ?>
 
 The Matchbox Convoy Project - <?php echo $subtitle; ?> - Under Construction<br>
@@ -30,5 +31,5 @@ The Matchbox Convoy Project - <?php echo $subtitle; ?> - Under Construction<br>
 <div class="backlink">
 <?php DoTextButtonLink('back', '/convoy/series.php'); ?> to the Convoy Index Page
 </div>
-</body>
+<?php DoFoot($pif); ?>
 </html><?php } ?>

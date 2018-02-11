@@ -20,6 +20,7 @@ NoAccess($pif, 'a', 'stuff.php');
 $links = Fetch("select section_id,link_type,name,url from link_line where page_id='links.stuff' order by display_order", $pif);
 $cols = Fetch("select id,start,category from section where page_id='links.stuff' order by display_order", $pif);
 $sections = array();
+$sections['l4'] = array(); # temporary until we have at least one l4 link.
 foreach ($links as $ent) {
     if (!isset($sections[$ent[0]]))
 	$sections[$ent[0]] = array();
@@ -146,5 +147,5 @@ if (count($newusers) > 0)
 <?php DoPageFooter($pif); ?>
 <img src="/pic/gfx/hruler1024.gif">
 
-</body>
+<?php DoFoot($pif); ?>
 </html>

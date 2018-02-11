@@ -138,7 +138,8 @@ class Presentation(object):
 		retfiles.extend(glob.glob(useful.relpath('.', pdir, fname + '.' + sfx))) # + glob.glob(os.path.join(pdir, fname.lower() + '.' + sfx)))
 	return retfiles
 
-    def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
+    def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None, pdir=None, art=False):
+	self.comment('START find_image_file', fnames, 'vars', vars, 'nobase', nobase, 'prefix', prefix, 'suffix', suffix, 'largest', largest, 'preferred', prefix, 'pdir', pdir, 'art', art)
         if not fnames:
             self.comment('find_image_file ret', '')
             return ('', '')
@@ -161,6 +162,7 @@ class Presentation(object):
 	vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
 
         self.comment("find_image_file", 'f:', fnames, 'v:', vars, 'p:', prefix, 's:', suffix, 'd:', pdir)
+	fimg = fdir = ''
         for var in vars:
             for fname in fnames:
                 fname = useful.clean_name(fname.replace('/', '_'))
@@ -173,35 +175,44 @@ class Presentation(object):
                     csuffix = suffix
 
                 for pfx in prefix + ['']:
-                    if pfx and not pfx.endswith('_'):
-                        pfx += '_'
-                    for suf in csuffix:
-                        suf = '.' + suf
-                        if var:
-                            img = self.fmt_img_file_check(pdirvar, pfx + fname + '-' + var + suf)
-                            if img:
-                                self.comment('find_image_file ret', img)
-                                return pdirvar, img
-                            img = self.fmt_img_file_check(pdirvar, (pfx + fname + '-' + var + suf).lower())
-                            if img:
-                                self.comment('find_image_file ret', img)
-                                return pdirvar, img
-                        else:
-                            img = self.fmt_img_file_check(pdir, pfx + fname + suf)
-                            if img:
-                                self.comment('find_image_file ret', img)
-                                return pdir, img
-                            img = self.fmt_img_file_check(pdir, (pfx + fname + suf).lower())
-                            if img:
-                                self.comment('find_image_file ret', img)
-                                return pdir, img
-        self.comment('find_image_file ret', '')
+		    rdir, rimg = self.find_prefixed_image(fname, pdir, pdirvar, pfx, csuffix, var)
+		    if rimg:
+			if not preferred or preferred == pfx:
+			    return rdir, rimg
+			fdir, fimg = rdir, rimg
+	self.comment('find_image_file ret', fdir, fimg)
+	return fdir, fimg
+
+    def find_prefixed_image(self, fname, pdir, pdirvar, pfx, csuffix, var):
+	if pfx and not pfx.endswith('_'):
+	    pfx += '_'
+	for suf in csuffix:
+	    suf = '.' + suf
+	    self.comment('find_prefixed_image trying', pdir, pfx + fname + suf)
+	    if var:
+		img = self.fmt_img_file_check(pdirvar, pfx + fname + '-' + var + suf)
+		if img:
+		    self.comment('find_prefixed_image ret', img)
+		    return pdirvar, img
+		img = self.fmt_img_file_check(pdirvar, (pfx + fname + '-' + var + suf).lower())
+		if img:
+		    self.comment('find_prefixed_image ret', img)
+		    return pdirvar, img
+	    else:
+		img = self.fmt_img_file_check(pdir, pfx + fname + suf)
+		if img:
+		    self.comment('find_prefixed_image ret', img)
+		    return pdir, img
+		img = self.fmt_img_file_check(pdir, (pfx + fname + suf).lower())
+		if img:
+		    self.comment('find_prefixed_image ret', img)
+		    return pdir, img
         return ('', '')
 
-    def find_image_path(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, pdir=None, art=False):
+    def find_image_path(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None, pdir=None, art=False):
 	if not fnames:
 	    return ''
-	return os.path.join(*self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir, art=art))
+	return os.path.join(*self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, preferred=preferred, pdir=pdir, art=art))
 
     def find_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('find_image_list', fn, alt, wc, prefix, suffix, pdir)
@@ -333,7 +344,7 @@ class Presentation(object):
         if self.tail.get('disclaimer'):
             ostr += '''<hr>
 BAMCA is a private club and is not affiliated with Tyco Toys, Inc. or Matchbox
-Toys (USA) Ltd.  Matchbox and the Matchbox logo are registered trademarks
+Toys (USA) Ltd.  Matchbox&reg; and the Matchbox logo are registered trademarks
 of Matchbox International Ltd. and are used with permission.
 <hr><p>
 '''
@@ -517,13 +528,15 @@ of Matchbox International Ltd. and are used with permission.
 	    if option else sep for option in options]
 
     def format_select_country(self, name, selected='', id=None):
-        return self.format_select(name, [('', '')] + mbdata.countries, selected='', id=None)
+        return self.format_select(name, mbdata.countries, selected='', id=None, blank='')
 
-    def format_select(self, name, options, selected='', id=None):
+    def format_select(self, name, options, selected='', blank=None, id=None):
         ostr = '<select name="%s"' % name
         if id:
             ostr += ' id="%s"' % id
 	ostr += '>\n'
+	if blank is not None:
+            ostr += '<option value=""%s>%s\n' % (' SELECTED' if selected == '' else '', blank)
         for option in options:
             if isinstance(option, str):
                 option = (option, option)
@@ -662,8 +675,8 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_optional(self, fnames, alt='', prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False, largest=None):
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad, largest=largest)
 
-    def format_image_required(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True, largest=None):
-        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True, largest=largest)
+    def format_image_required(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True, largest=None, preferred=None):
+        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True, largest=largest, preferred=preferred)
 
     def format_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
@@ -750,8 +763,8 @@ of Matchbox International Ltd. and are used with permission.
         self.comment("fmt_img_check", pth)
 	return pth if useful.is_good(pth, v=self.verbose) else ''
 
-    def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, also={}, made=True, required=False, pad=False, art=False):
-        img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, pdir=pdir, art=art)
+    def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, preferred=None, also={}, made=True, required=False, pad=False, art=False):
+        img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, preferred=preferred, pdir=pdir, art=art)
 	return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required, unknown=fnames and 'unknown' in fnames, pad=pad)
 
     def find_alt_image_path(self, img, prefix='', largest=None, made=True, required=False, unknown=False):
@@ -1122,8 +1135,3 @@ of Matchbox International Ltd. and are used with permission.
 	if self.unittest:
 	    return "[redacted]"
 	return output
-
-#---- -------------------------------------------------------------------
-
-if __name__ == '__main__':  # pragma: no cover
-    pass

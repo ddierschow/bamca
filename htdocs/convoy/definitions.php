@@ -215,5 +215,5 @@ contrasting color for easy identification.</font><br>
 </div>
 </div>
 </div>
-</body>
+<?php DoFoot($pif); ?>
 </html>

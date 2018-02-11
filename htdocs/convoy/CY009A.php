@@ -17,11 +17,11 @@ $models = [
     ],
 // 2. MB103 cab in black, clear windows, black container, "Midnight X-Press" labels, England
     ['var' => '02a', 'mfg' => 'England', 'liv' => 'Midnight X-Press',
-	'cdt' => 'black, clear windows', 'cva' => '004',
+	'cdt' => 'black, colorless windows', 'cva' => '004',
 	'tdt' => "black container, MIDNIGHT X-PRESS labels",
     ],
     ['var' => '02b', 'mfg' => 'England', 'liv' => 'Midnight X-Press',
-	'cdt' => 'black, clear windows', 'cva' => '004',
+	'cdt' => 'black, colorless windows', 'cva' => '004',
 	'tdt' => "black container, MIDNIGHT X-PRESS labels (reversed)",
     ],
 // 3. MB045 cab in black, amber windows, black container, "Midnight X-Press" tampo, England
@@ -31,6 +31,10 @@ $models = [
     ],
 // 4. MB103 cab in black, black container, "Midnight X-Press" tampo, Macau
     ['var' => '04a', 'mfg' => 'Macau', 'liv' => 'Midnight X-Press',
+	'cdt' => 'black', 'cva' => '004',
+	'tdt' => "black container, MIDNIGHT X-PRESS tampo",
+    ],
+    ['var' => '04b', 'mfg' => 'Thailand', 'liv' => 'Midnight X-Press',
 	'cdt' => 'black', 'cva' => '004',
 	'tdt' => "black container, MIDNIGHT X-PRESS tampo",
     ],

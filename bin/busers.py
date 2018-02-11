@@ -208,9 +208,19 @@ def change_password_main(pif):
 
 # ------
 
+def user_list(pif):
+    print pif.dbh.fetch_users()
+
+
+
+cmds = [
+    ('l', user_list, "list users"),
+]
+
+
 @basics.command_line
 def commands(pif):
-    print pif.dbh.fetch_users()
+    useful.cmd_proc(pif, './busers.py', cmds)
 
 
 if __name__ == '__main__':  # pragma: no cover

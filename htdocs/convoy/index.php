@@ -103,5 +103,5 @@ All comments, or questions should be addressed to <a href="mailto:staff@bamca.or
 <i>Life is too short not to play with toys.</i>
       </div>
     </div>
-  </body>
+<?php DoFoot($pif); ?>
 </html>

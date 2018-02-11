@@ -401,8 +401,3 @@ def do_page(pif):
 		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     else:
         return make_page_list(pif)
-
-# ---------------------------------------------------------------------
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.goaway()

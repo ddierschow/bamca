@@ -8,10 +8,16 @@ import mflags
 import models
 import single
 import useful
-import vars
+import varias
+
+# API
+#  main
+#  play_main
 
 # This file could use a complete rewrite.
 # Add: order by
+
+man_sections = ['manno', 'manls', 'manunf']
 
 #---- manlist stuff -------------------------
 
@@ -46,7 +52,28 @@ admin_cols = [
 	['in', 'In'],
 	['wh', 'Wh'],
 	['wi', 'Wi'],
+	['w/', 'W/'],
         #['description', 'Description'],
+        #['mydesc', 'Mine'],
+]
+admin2_cols = [
+        ['own', 'X'],
+        ['vid', 'ID'],
+        ['unlicensed', ''],
+        ['nl', 'Name'],
+        ['first_year', 'Year'],
+        ['fvyear', 'First'],
+        ['lvyear', 'Last'],
+        ['scale', 'Scale'],
+        ['alias', 'Aliases'],
+        ['rel', 'Rel'],
+        ['vehicle_type', 'VT'],
+        ['country', 'CC'],
+        ['make', 'Make'],
+	['varids', 'Vars'],
+	['varl', 'VarL'],
+        ['description', 'Description'],
+	['notes', 'Nt'],
         #['mydesc', 'Mine'],
 ]
 links_cols = [
@@ -114,7 +141,7 @@ prefixes = [  # need to phase this out somehow
         ['z_', '.' + config.IMG_DIR_ADD],
         ['icon', '.' + config.IMG_DIR_ICON],
 ]
-format_attributes = ['format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels']
+format_attributes = ['format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels', 'format_with']
 
 #---- the manno object ----------------------
 
@@ -131,7 +158,7 @@ class MannoFile(object):
         self.vehtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
         self.addtypes = {'y': "", 'n': "", 'm': "".join(mbdata.image_adds_types)}
         self.pictypes = {'y': "", 'n': "", 'm': "sml"}
-        self.plist = ['manno', 'manls']  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
+        self.plist = man_sections  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
         if pif.form.get_str('section', 'all') != 'all':
             slist = pif.dbh.fetch_sections({'id': pif.form.get_str('section')})  #, 'page_id': pif.page_id})
         else:
@@ -320,10 +347,12 @@ class MannoFile(object):
 
     # ----- admin -----------------------------------------------
 
-    def show_list_var_info(self, pif, mod_id):
-        mvars = pif.dbh.fetch_variations(mod_id)
-	texts = ['text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows']
-	td = {x[5:7]: 0 for x in texts}
+    def show_list_var_info(self, pif, mdict):
+        mvars = pif.dbh.fetch_variations(mdict['id'])
+	fields = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
+	keys = ['de', 'ba', 'bo', 'in', 'wh', 'wi', 'w/']
+	t2k = dict(zip(fields, keys))
+	td = {x: 0 for x in keys}
         fy = ly = None
 	id_set = set()
 	varl = 0
@@ -335,9 +364,11 @@ class MannoFile(object):
 		while not var_id[-1].isdigit():
 		    var_id = var_id[:-1]
 		id_set.add(int(var_id))
-	    for txt in texts:
-		if var['variation.' + txt]:
-		    td[txt[5:7]] += 1
+	    for txt in fields:
+		if not mdict['format_' + txt]:
+		    td[t2k[txt]] = None
+		elif var['variation.text_' + txt] or not mdict['format_' + txt]:
+		    td[t2k[txt]] += 1
             dt = var['variation.date'].split('/')
             if len(dt) > 1:
                 yr = dt[1].strip()
@@ -359,9 +390,9 @@ class MannoFile(object):
 	else:
 	    varids = '-'
 	for key in td:
-	    td[key] = '<i class="fa fa-star %s"></i>' % ('gray' if not len(mvars) else
-                    'green' if td[key] == len(mvars) else ('red' if not td[key] else 'orange'))
-	varl = '<a href="vars.cgi?list=1&mod=%s"><span class="%s">%d/%d</span></a>' % (mod_id, 'ok' if varl == len(mvars) else 'no', varl, len(mvars))
+	    td[key] = '<i class="fa fa-star%s"></i>' % ('-o gray' if not len(mvars) or td[key] is None else
+                    ' green' if td[key] == len(mvars) else (' red' if not td[key] else ' orange'))
+	varl = '<a href="vars.cgi?list=1&mod=%s"><span class="%s">%d/%d</span></a>' % (mdict['id'], 'ok' if varl == len(mvars) else 'no', varl, len(mvars))
         td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-', 'varids': varids, 'varl': varl})
         return td
 
@@ -384,10 +415,10 @@ class MannoFile(object):
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
 	    if mdict['flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
 		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fa fa-circle green"></i><nobr>'
-	    mdict.update(self.show_list_var_info(pif, mdict['id']))
+	    mdict.update(self.show_list_var_info(pif, mdict))
 	    if not mdict['vehicle_type']:
 		mdict['vehicle_type'] = '<i class="fa fa-ban red"></i>'
-	    fmt_bad, _ = pif.dbh.check_description_formatting(mdict['id'])
+	    fmt_bad, _, _ = pif.dbh.check_description_formatting(mdict['id'])
 	    mdict['fo'] = '<i class="fa fa-times red"></i>' if fmt_bad else ''
 	    makes = pif.dbh.fetch_casting_makes(mod)
 	    mdict['make'] = '<br>'.join([
@@ -401,10 +432,11 @@ class MannoFile(object):
 	    yield mdict
 
     def get_section_admin(self, pif, sect):
-        sect['columns'] = [x[0] for x in admin_cols]
-        sect['headers'] = dict(admin_cols)
+	cols = admin2_cols if pif.form.get_bool('t') else admin_cols
+        sect['columns'] = [x[0] for x in cols]
+        sect['headers'] = dict(cols)
         sect['range'] = [{'entry': self.get_admin_entries(pif, sect['model_ids']),
-	    'styles': {x[0]: x[0] for x in admin_cols},
+	    'styles': {x[0]: x[0] for x in cols},
 	}]
         return sect
 
@@ -567,10 +599,10 @@ class MannoFile(object):
         mdict['name'] = pif.render.format_link(lnk, mdict['id'] + '<br>' + mdict['rawname'] + '<br>' + mdict['flag'] + '<br>' + mdict['makename'])
         mdict['img'] = pif.render.format_link(lnk, pif.render.format_image_required(img, None, made=mdict['made']))
         mdict['sel'] = pif.render.format_checkbox('vt_' + mdict['id'],
-                [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:13])],
+                [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])],
                 checked=mdict['vehicle_type']) + '<br>'
         mdict['sel'] += pif.render.format_checkbox('vt_' + mdict['id'],
-                [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[13:])],
+                [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[14:])],
                 checked=mdict['vehicle_type']) + '<br>'
         mdict['sel'] += 'make: ' + pif.render.format_text_input('vm_' + mdict['id'], 3, 3, value=mdict['make'])
         mdict['sel'] += 'country: ' + pif.render.format_text_input('co_' + mdict['id'], 2, 2, value=mdict['country'])
@@ -708,19 +740,6 @@ def main(pif):
     manf = MannoFile(pif)
     #manf = MannoFile(pif, withaliases=True)
     return manf.format_output(pif, listtype)
-    pif.render.print_html(mbdata.get_mime_type(listtype))
-    formatters = {
-	mbdata.LISTTYPE_CSV: manf.run_man2csv_out,
-	mbdata.LISTTYPE_JSON: manf.run_man2json_out,
-	mbdata.LISTTYPE_ADMIN: manf.run_admin_list_template,
-	mbdata.LISTTYPE_LINK: manf.run_links_list_template,
-	mbdata.LISTTYPE_PICTURE: manf.run_picture_list_template,
-	mbdata.LISTTYPE_CHECKLIST: manf.run_checklist_template,
-	mbdata.LISTTYPE_THUMBNAIL: manf.run_thumbnails_template,
-	mbdata.LISTTYPE_VEHICLE_TYPE: manf.run_vehicle_type_list_template,
-	mbdata.LISTTYPE_TEXT: manf.run_text_list,
-    }
-    return formatters.get(listtype, manf.run_manno_template)(pif)
 
 #---- play ----------------------------------
 
@@ -733,43 +752,6 @@ def play_main(pif):
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
-#---- compare -------------------------------
-
-@basics.web_page
-def compare_main(pif):
-    pif.render.print_html()
-    csecs = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    llineup = {'section': []}
-    for sec in csecs:
-
-	cmods = pif.dbh.fetch_casting_related_compares(section_id=sec['section.id'])
-	cmods.sort(key=lambda x: x['c2.first_year'])
-	lsec = {'name': sec['section.name'], 'note': sec['section.note'], 'range': []}
-	llineup['section'].append(lsec)
-        modsets = {}
-        for mod in [m for m in cmods if m['cr.section_id'] == sec['section.id']]:
-	    mod['name'] = mod['c2.rawname'].replace(';', ' ')
-	    mod['model_id'] = mod['cr.related_id']
-            modsets.setdefault(mod['cr.model_id'], [])
-	    img = pif.render.format_image_optional(mod['cr.model_id'] + ('-%s' % mod['cr.picture_id'] if mod['cr.picture_id'] else ''),
-			prefix='z_', nopad=True)
-            modsets[mod['cr.model_id']].append((mod['model_id'], mod['name'], mod['cr.description'].split(';'), img))
-
-        for main_id in sorted(modsets.keys()):
-            modset = modsets[main_id]
-            names = list()
-            for id, name, descs, img in modset:
-                if name not in names:
-                    names.append(name)
-	    lran = {'name': ', '.join(names), 'entry': []}
-	    lsec['range'].append(lran)
-            for id, name, descs, img in modset:
-		lent = [models.add_model_pic_link_short(pif, id),
-			filter(None, descs), img]
-		lran['entry'].append(lent)
-
-    return pif.render.format_template('compare.html', lcompare=llineup)
-
 #---- commands ------------------------------
 
 
@@ -779,7 +761,7 @@ def delete_casting(pif, *args, **kwargs):
 
 
 def search_name(pif, targ):
-    sections = ['manno', 'manls']
+    sections = man_sections
     fields = ['base_id.rawname'] #, 'base_id.id']
     where = ["%s like '%%%s%%'" % (y, x) for x in targ for y in fields]
     ret = list()
@@ -863,6 +845,29 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
         os.rename(pic, pic_new)
 
 
+def copy_casting(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
+    if not old_mod_id or not new_mod_id:
+	return
+
+    if pif.dbh.fetch_base_id(new_mod_id) or pif.dbh.fetch_casting(new_mod_id):
+	print new_mod_id, "exists"
+	return
+
+    cas = pif.dbh.fetch_casting_raw(old_mod_id)
+    bid = pif.dbh.fetch_base_id(old_mod_id).todict()
+    if not cas or not bid:
+	print old_mod_id, "does not exist"
+	return
+    cas = pif.dbh.depref('casting', cas)
+    cas['id'] = bid['id'] = new_mod_id
+
+    # copy base_id casting attributes
+    pif.render.message("copy", old_mod_id, new_mod_id)
+    print 'base_id', pif.dbh.add_new_base_id(bid)
+    print 'casting', pif.dbh.add_new_casting(cas)
+    clone_attributes(pif, old_mod_id, new_mod_id)
+
+
 def print_model(pif, mod):
     if mod['description']:
 	pif.render.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)-36s|%(description)s' % mod)
@@ -906,35 +911,234 @@ def casting_info(pif, mod_id):
 '''
 
 
-def command_help(pif, *args):
-    pif.render.message("./mannum.py [f|d|r|a|c] ...")
-    pif.render.message("  f for find: search-criterion")
-    pif.render.message("  i for info: mod_id")
-    pif.render.message("  d for delete: mod_id")
-    pif.render.message("  r for rename: old_mod_id new_mod_id")
-    pif.render.message("  a for add attributes: mod_id attribute_name ...")
-    pif.render.message("  c for clone attributes: old_mod_id new_mod_id")
+def update_descriptions(pif, *args):
+    count = 0
+    showtexts = verbose = False
+    #verbose = True
+    #showtexts = True
+    if not args:
+        castings = [x['id'] for x in pif.dbh.dbi.select('casting', verbose=False)]
+    elif args[0][0] >= 'a':
+        castings = [x['id'] for x in pif.dbh.dbi.select('casting', where="section_id='%s'" % pif.filelist[0], verbose=False)]
+    else:
+        castings = args
+        verbose = True
+    for casting in castings:
+        #sys.stdout.write(casting + ' ')
+        sys.stdout.flush()
+	print casting,
+        fmt_invalid, messages, missing = pif.dbh.check_description_formatting(casting)
+        if fmt_invalid:
+            print '*'
+	    if verbose:
+		print messages
+            count += 1
+        else:
+            print
+        pif.dbh.recalc_description(casting, showtexts, verbose)
+    print
+    print count, "to go *"
 
 
-command_lookup = {
-    'd': delete_casting,
-    'r': rename_base_id,
-    'f': run_text_search,
-    'c': clone_attributes,
-    'a': add_attributes,
-    'l': list_attributes,
-    'i': casting_info,
-}
+def check_castings(pif, *args):
+    mods = pif.dbh.depref('casting', pif.dbh.fetch_casting_list())
+    mods_d = {x['id']: x for x in mods}
+    mods_l = args if args else sorted(mods_d.keys())
+    vt1 = set(mbdata.model_type_chars_1)
+    vt2 = set(mbdata.model_type_chars_2)
+    for mod_id in mods_l:
+	mod = mods_d.get(mod_id)
+	if not mod:
+	    print mod_id, 'not found'
+	    continue
+	if not mod['vehicle_type']:
+	    print mod_id, 'has blank vt'
+	elif len(set(mod['vehicle_type']) & vt1) not in (1, 2):
+	    print mod_id, 'has bad vt 1 :', set(mod['vehicle_type']) & vt1
+	if len(set(mod['vehicle_type']) & vt2) > 2:
+	    print mod_id, 'has bad vt 2 :', set(mod['vehicle_type']) & vt2
+	if set(mod['vehicle_type']) - (vt1 | vt2):
+	    print mod_id, 'has vt with bad chars :', set(mod['vehicle_type']) - (vt1 | vt2)
+
+
+def fix_formats(pif):
+    for cas in pif.dbh.fetch_casting_list():
+	print cas['casting.id']
+	if cas['casting.format_description'] == '':
+	    print '  desc'
+	    pif.dbh.write_casting({'format_description': '&body|&tampo'}, cas['casting.id'])
+	if cas['casting.format_body'] == '':
+	    print '  body'
+	    pif.dbh.write_casting({'format_body': '*body|*tampo'}, cas['casting.id'])
+	if cas['casting.format_interior'] == '':
+	    print '  int'
+	    pif.dbh.write_casting({'format_interior': '&interior'}, cas['casting.id'])
+	if cas['casting.format_windows'] == '':
+	    print '  windows'
+	    pif.dbh.write_casting({'format_windows': '&windows'}, cas['casting.id'])
+	if cas['casting.format_base'] == '':
+	    print '  base'
+	    pif.dbh.write_casting({'format_base': '&base|&manufacture'}, cas['casting.id'])
+	if cas['casting.format_wheels'] == '':
+	    print '  wheels'
+	    pif.dbh.write_casting({'format_wheels': '&wheels'}, cas['casting.id'])
+
+
+
+def ck_model(pif, mod):
+    # formerly regions S, M and J were excluded, but there are no longer any entries with these regions.
+    yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s'" % mod)[0]
+    yrs = [x[0] for x in yrs]
+    yrs.sort()
+
+    sel = pif.dbh.dbi.execute("select distinct ref_id from variation_select where mod_id='%s'" % mod)[0]
+    sel = [x[0][:9] for x in sel]
+
+    missing = []
+    for yr in yrs:
+        if not 'year.' + yr in sel:
+            missing.append(yr)
+    bad = []
+    for pg in sel:
+        if pg.startswith('year.') and not pg[5:9] in yrs:
+            bad.append(pg)
+    return missing, bad
+
+
+def show_list_var_pics(pif, mod_id):
+    vars = pif.dbh.fetch_variations(mod_id)
+    cpics = cfound = pics = found = 0
+    for var in vars:
+        var = pif.dbh.depref('variation', var)
+        if var['var'].startswith('f') or mbdata.categories.get(var['category'], '').startswith('['):
+            continue
+        elif not var['picture_id']:
+            fn = mod_id + '-' + var['var']
+            pid = var['var']
+        elif var['picture_id'] == var['var']:
+            fn = mod_id + '-' + var['picture_id']
+            pid = var['picture_id']
+        else:
+            continue
+	pic_path = pif.render.find_image_file(fnames=fn, vars=pid, prefix=mbdata.IMG_SIZ_SMALL)
+        pics += 1
+        if not var['category']:
+            cpics += 1
+#        print '<!--', config.IMG_DIR_MAN + '/var/' + fn + '.jpg', '-->'
+        #if os.path.exists(config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'):
+	if pic_path:
+            found += 1
+            if not var['category']:
+                cfound += 1
+    af = '%d/%d' % (found, pics)
+    cf = '%d/%d' % (cfound, cpics)
+    if found == pics:
+        af = '--'
+    if cfound == cpics:
+        cf = '--'
+    return af, cf
+
+
+def check_core(pif, *specs):
+
+    sw = []
+    if specs[0][0] == '0':
+        sw = list(specs[0][1:])
+        specs = specs[1:]
+
+    for spec in specs:
+        mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
+        mods = [x[0] for x in mods]
+        mods.sort()
+
+        for mod in mods:
+            missing, bad = ck_model(pif, mod)
+            af, cf = show_list_var_pics(pif, mod)
+
+            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
+                print mod,
+            if 'p' in sw or af != '--' or cf != '--':
+                print af, cf,
+            if missing:
+                print 'needs', ' '.join(missing),
+
+            if bad:
+                print 'has bad', ' '.join(bad),
+
+            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
+                print
+
+
+# currently produces duplicates
+
+def add_casting_related(pif, *mod_ids):
+    mod_ids = list(mod_ids)
+    section = pif.switch['s']
+    section = section[-1] if section else 'single'
+    while mod_ids:
+	curr_id = mod_ids.pop(0)
+	rels = [x['casting_related.related_id'] for x in pif.dbh.fetch_casting_relateds(curr_id, section_id=section)]
+	for mod_id in mod_ids:
+	    if mod_id not in rels:
+		print "insert into casting_related (model_id, related_id, section_id) values ('%s', '%s', '%s');" % (curr_id, mod_id, section)
+		if not pif.dbh.fetch_casting_relateds(mod_id, curr_id, section_id=section):
+		    print "insert into casting_related (model_id, related_id, section_id) values ('%s', '%s', '%s');" % (mod_id, curr_id, section)
+
+
+def check_casting_related(pif):
+    section = pif.switch['s']
+    section = section[-1] if section else 'single'
+    crs = pif.dbh.fetch_casting_relateds(section_id=section)
+    mods = []
+    rels = {}
+    for cr in crs:
+	m = cr['casting_related.model_id']
+	r = cr['casting_related.related_id']
+	mods.append((m, r))
+	rels.setdefault(m, set([m]))
+	rels[m].add(r)
+
+    # check that if a is related to b, then b is related to a
+    cnt = 0
+    for mod in mods:
+	if (tuple(reversed(mod)) not in mods):
+	    print mod
+	    cnt += 1
+    print cnt, 'of', len(mods)
+
+    # check groups of relateds to make sure they all relate to each other
+    added = set()
+    for m in rels:
+	for r in rels[m]:
+	    for mod in rels[m] - rels[r]:
+		if (r, mod,) not in added:
+		    print "insert into casting_related (model_id, related_id, section_id) values ('%s', '%s', '%s');" % (r, mod, section)
+		    added.add((r, mod,))
+
+
+cmds = [
+    ('d', delete_casting, "delete: mod_id"),
+    ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
+    ('c', copy_casting, "copy: old_mod_id new_mod_id"),
+    ('s', run_text_search, "search: search-criterion"),
+    ('ca', clone_attributes, "clone attributes: old_mod_id new_mod_id"),
+    ('a', add_attributes, "add attributes: mod_id attribute_name ..."),
+    ('l', list_attributes, "list attributes: mod_id"),
+    ('i', casting_info, "info: mod_id"),
+    ('u', update_descriptions, "update descriptions: ..."),
+    ('x', check_castings, "check castings: mod_id ..."),
+    ('f', fix_formats, "fix formats"),
+    ('cc', check_core, "check core: mod_id ..."),
+    ('crc', check_casting_related, "check casting_related"),
+    ('cra', add_casting_related, "add casting_related [-s section] mod_id mod_id ..."),
+]
 
 
 @basics.command_line
 def commands(pif):
-    if pif.filelist:
-	command_lookup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
-    else:
-	command_help(pif)
+    useful.cmd_proc(pif, './mannum.py', cmds)
 
 #---- ---------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
-    commands(dbedit='')
+    commands(dbedit='', options='s')
