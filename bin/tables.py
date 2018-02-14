@@ -376,7 +376,7 @@ table_info = {
         'add': {
                 'lineup_model': [],
         },
-        'ask': ['id', 'year', 'number', 'mod_id'],
+        'ask': ['id', 'year', 'region', 'number', 'mod_id'],
     },
     #link_line
     'link_line': {

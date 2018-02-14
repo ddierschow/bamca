@@ -588,21 +588,6 @@ def cl_check_links(pif, *filelist):
     check_links(pif, filelist, retest=retest, visible=visible)
 
 
-# an auto link updater would be nice.  this would be part of it.
-
-def import_psdc(pif):
-    import re
-    pref = 'http://www.publicsafetydiecast.com/'
-    u = urllib2.urlopen('http://www.publicsafetydiecast.com/Matchbox_MAN.htm').read()
-    u_re = re.compile('<a href="(?P<u>[^"]*)".*?<font.*?>(?P<i>.*?)<\/font>')
-    q = pif.dbh.fetch_link_lines(where='associated_link=365')
-    ul = list(set([x['link_line.url'] for x in q]))
-    pl = list(set(u_re.findall(u)))
-    for l in pl:
-        if not pref + l[0] in ul:
-            print l[1], pref + l[0]
-
-
 cmds = [
     ('u', update_links, "update"),
     ('c', cl_check_links, "check"),

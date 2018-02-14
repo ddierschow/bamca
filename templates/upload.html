@@ -85,7 +85,16 @@
   <td class="eb_0 eb">Comment</td>
   <td class="eb_1 eb"><input name="c" type="text" size="80" maxlength="80" value=""></td>
  </tr>
-{%- if not restrict and not form.mass -%}
+{%- if restrict -%}
+ <tr>
+  <td class="eb_0 eb">Photo Credit</td>
+  <td class="eb_1 eb"><input name="cred" type="text" size="80" maxlength="80" value=""></td>
+ </tr>
+ <tr>
+  <td class="eb_0 eb">Uploaded By</td>
+  <td class="eb_1 eb"><input name="who" type="text" size="80" maxlength="80" value=""></td>
+ </tr>
+{%- elif not form.mass -%}
  <tr>
   <td class="eb_0 eb">Choose from library</td>
   <td class="eb_1 eb">

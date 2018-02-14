@@ -15,10 +15,12 @@ import useful
 # X.02 | Catalogs                               | pub      |
 # X.03 | Advertisements                         | pub      |
 # X.11 | Series                                 | series   |
+# X.17 | Promotional                            | promo    |
 # X.21 | Early Lesney Toys                      | ks       |
 # X.22 | Major Packs                            | ks       |
 # X.23 | King Size                              | ks       |
 # X.24 | Real Working Rigs                      | ks       |
+# X.25 | Super Rigs                             | ks       |
 # X.31 | Models of Yesteryear                   | yy       |
 # X.41 | Accessory Packs                        | acc      |
 # X.51 | Buildings                              | bld      |
@@ -1087,6 +1089,23 @@ def check_lineup(pif, *args):
     print '        %4d %4d' % (totals['i'], totals['p'])
 
 
+def show_sections(pif):
+    import tables
+    secs = pif.dbh.depref('section', pif.dbh.fetch('section', where='page_id like "year.%" and id like "X.%"'))
+    sec_ids = set()
+    pages = {}
+    for sec in secs:
+	sec['showflag'] = '-' if sec['flags'] & 1 else 'X'
+	sec_ids.add(sec['id'][2:])
+	pages.setdefault(sec['page_id'][5:], dict())
+	pages[sec['page_id'][5:]][sec['id'][2:]] = sec
+    sec_ids = sorted(sec_ids)
+    print 'page |', ' | '.join(sec_ids), '|'
+    print '-----+' + len(sec_ids) * '----+'
+    for page_id in sorted(pages):
+	print page_id, '|', ' | '.join([pages[page_id].get(sec_id, {}).get('showflag', ' ') + ' ' for sec_id in sec_ids]) + ' |'
+
+
 cmds = [
     ('s', year_lineup, "show: year region [number]"),
     ('c', clone_lineup, "clone: year old_region new_region"),
@@ -1095,6 +1114,7 @@ cmds = [
     ('l', list_lineups, "list lineups"),
     ('m', make_lineup, "make lineup"),
     ('x', check_lineup, "check lineup"),
+    ('s', show_sections, "show sections"),
 ]
 
 

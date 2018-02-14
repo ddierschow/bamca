@@ -659,7 +659,7 @@ class DBHandler(object):
         return varrecs
 
     def fetch_variation_dates(self, yr=None):
-	where = ("date like '%%/ %s%%'" % yr) if yr else ''
+	where = ("date like '%s%%'" % yr) if yr else ''
         return self.dbi.select('variation', ['date', 'count(*)'], where=where, group='date', order='date', tag='VariationDates')
 
     def fetch_variation(self, mod_id, var):

@@ -172,6 +172,8 @@ class UploadForm(object):
 	self.suffix = pif.form.get_str('suff')
 	self.scrape = pif.form.get_str('s')
 	self.comment = pif.form.get_str('c')
+	self.who = pif.form.get_str('who')
+	self.cred = pif.form.get_str('cred')
 	self.select = pif.form.get_str('select')
 	self.selsearch = pif.form.get_str('selsearch')
 	self.replace = pif.form.get_bool('replace') and pif.is_allowed('ma')
@@ -276,14 +278,18 @@ class UploadForm(object):
 	print pif.render.format_tail()
 
     def thanks(self, pif, fn):
-	comment = '-'
+	cred = who = comment = '-'
 	if self.comment:
 	    comment = re.compile(r'\s\s*').sub(' ', self.comment)
+	if self.cred:
+	    cred = re.compile(r'\s\s*').sub(' ', self.cred)
+	if self.who:
+	    who = re.compile(r'\s\s*').sub(' ', self.who)
 	open(descriptions_file, 'a+').write('\t'.join([fn,
 		self.mod_id if self.mod_id else '-',
 		self.var_id if self.var_id else '-',
 		self.y if self.y else '-',
-		comment]) + '\n')
+		comment, cred, who]) + '\n')
 	ostr = '<div class="warning">Thank you for submitting that file.</div><br>\n'
 	ostr += "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
 	return ostr

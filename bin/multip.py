@@ -224,7 +224,7 @@ def do_single_pack(pif, pid):
 	left_bar_content += '<br><center>'
         left_bar_content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pack_id})
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
-        left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % config.IMG_DIR_PROD_PACK
+        left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % config.IMG_DIR_PROD_PACK.replace('/pic/', '/lib/')
         left_bar_content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (packs[0]['section_id'], pack_id)
         left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack_id)
         left_bar_content += '</center>\n'
