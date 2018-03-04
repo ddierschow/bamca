@@ -11,7 +11,9 @@ site could be recreated.
 
 Please note that this was written by one person, and was never
 intended to be shared or passed on, so the documentation is rare
-to nonexistant.  I will be fixing that as I can.
+to nonexistant.  I will be fixing that as I can.  It was also
+written over the course of many years and represents much of my
+learning process.
 
 Milestones:
 
