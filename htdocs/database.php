@@ -29,6 +29,7 @@ $sections[] = array("tag" => "search", "name" => "Text Search", "fn" => 'Section
 $sections[] = array("tag" => "vsearch", "name" => "Variation Text Search", "fn" => 'SectionVSearch', "scr" => "vsearch.cgi");
 $sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi");
 $sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
+$sections[] = array("tag" => "cats", "name" => "Categories", "fn" => 'SectionCats', "scr" => "matrix.cgi");
 $sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();');
 $sections[] = array("tag" => "code2", "name" => "Code 2 Models", "fn" => 'SectionCode2', "scr" => "code2.cgi");
 $sections[] = array("tag" => "plants", "name" => "Location of Manufacture", "fn" => 'SectionPlant', "scr" => "plants.cgi");
@@ -152,14 +153,15 @@ function Checks($input, $name, $values, $sep='<br>') {
 function Section($args) {
     global $pif;
 
+
     if (isset($args['scr'])) {
-	echo "<form action=\"/cgi-bin/{$args['scr']}\" method=\"get\" name=\"{$args['tag']}\" id=\"{$args['tag']}\">\n";
+	echo "<form action=\"/cgi-bin/{$args['scr']}\" method=\"get\" name=\"{$args['tag']}\">\n";
 	echo "<input type=\"submit\" name=\"submit\" value=\"submit\" class=\"textbutton\" style=\"visibility: hidden;\">\n";
     }
     else {
 	echo "<i id=\"{$args['tag']}\"></i>\n";
     }
-    echo "\n<tr><td><br></td></tr>\n<tr>\n  <td class=\"{$args['tag']}_head sel_head\">\n";
+    echo "\n<tr><td><br></td></tr>\n<tr id=\"{$args['tag']}\">\n  <td class=\"{$args['tag']}_head sel_head\">\n";
     echo "   <center><h2>{$args['name']}</h2></center>\n  </td>\n </tr>\n";
     echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"{$args['tag']}_body sel_body\">\n";
     if (isset($args['scr'])) {
@@ -512,6 +514,12 @@ function SectionPacks($pif) {
 function SectionSets($pif) {
     echo "<table><tr><td>\n";
     FetchSelect('page', 'setsPage', 'set', "select flags, id, title, description from page_info where format_type='matrix' order by description");
+    echo "</td></tr></table>\n";
+}
+
+function SectionCats($pif) {
+    echo "<table><tr><td>\n";
+    FetchSelect('cat', 'catsPage', 'category', "select flags, id, name from category where flags & 4 order by name");
     echo "</td></tr></table>\n";
 }
 

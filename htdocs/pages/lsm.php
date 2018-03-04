@@ -49,6 +49,7 @@ show_div('acc', $mans . 'acc',    'acc-s.gif', 'ACCESSORIES');
 echo "</div>\n";
 echo "</center>\n\n";
 
+DoButtonComment($pif);
 DoPageFooter($pif);
 DoFoot($pif);
 ?>

@@ -130,40 +130,8 @@ credits were added to the pictures.
 <tr>
 <th class="leftbar">The Future</th>
 <td>
-Going forward, there are many plans for things to add, but they require time, which
-is in short supply.  We'll do them when we can.  The most pressing
-projects are to fill in more variation and product pictures, and
-to add more models and products to the database.
-<p>
-
-Current and planned projects:
-<ul>
-<li>Add support for publications, playsets, packaging, large scale models, etc.
-<li>Allow multiple pictures per variation
-<li>Link related variations
-<li>Add more comparison entries
-<li>Add support for packs limited to region
-<li>Add more entries to the annual lineup pages
-<li>Add support for multiple castings at a number in a year (the 1969SE problem)
-<li>Add a blog link for posting textual updates (notes, minutes, etc)
-</ul>
-
-...BIG things:
-<ul>
-<li>Convert more rendering code to Jinja2
-<li>Add an API
-<li>Create a mobile-frendly site
-<li>Redesign the database schema
-</ul>
-
-Projects independent of software version:
-<ul>
-<li>Incorporate the missing variations from Charlie
-<li>Build out data for related castings
-<li>Add larger-scale castings
-<li>Document the BAMCA library
-<li>Add more pictures!
-</ul>
+There's still much to do.  If you want to find out more, or how to contribute,
+look at our <a href="status.html">website status page</a>.
 </td>
 </tr>
 
@@ -179,5 +147,7 @@ Projects independent of software version:
 This page is maintained by members of BAMCA.
 <a href="faq.php">See here for information on contacting us.</a>
 
-</body>
+<?php
+DoButtonComment($pif);
+DoFoot($pif); ?>
 </html>

@@ -71,6 +71,11 @@ class BaseForm(object):
         if key in self.form:
             del self.form[key]
 
+    def change_key(self, oldkey, newkey):
+	if oldkey in self.form:
+	    self.form[newkey] = self.form[oldkey]
+	    self.delete(oldkey)
+
     def has(self, key):
         return key in self.form
 

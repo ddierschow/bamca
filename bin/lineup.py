@@ -1001,7 +1001,7 @@ def add_variation(pif, mod, year):
 	'interior': '',
 	'windows': '',
 	'manufacture': '',
-	'category': '',
+#	'category': '',
 	'area': '',
 	'date': '',
 	'note': '',

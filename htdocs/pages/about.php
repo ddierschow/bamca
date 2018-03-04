@@ -81,11 +81,25 @@ foreach ($larr as $ent) {
 </table>
 
 <hr>
+
 <div class="black">
 BAMCA is a private club and is not affiliated with Tyco Toys, Inc. or Matchbox
 Toys (USA) Ltd.  Matchbox&reg; and the Matchbox logo are registered trademarks
 of Matchbox International Ltd. and are used with permission.
 </div>
+
+<hr>
+
+<?php include "pages/credits.php"; ?>
+
+<hr>
+
+<div class="infopanel">
+If you'd like to know about the current status of the website, or how to contribute, please look at our <a href="status.php">status page</a>.
+If you'd like to find out more about the history of the club and the website, look at the <a href="club.php">club history page</a>.
+And, we do have a <a href="faq.php">Frequently Asked Questions</a> page available as well.
+</div>
+
 <hr>
 
 <img src="/pic/flags/au.gif" alt="Australia" label="Australia">
@@ -107,5 +121,7 @@ of Matchbox International Ltd. and are used with permission.
 <img src="/pic/flags/gb.gif" alt="UK" label="UK">
 <img src="/pic/flags/us.gif" alt="USA" label="USA">
 
-<?php DoFoot($pif); ?>
+<?php
+DoButtonComment($pif);
+DoFoot($pif); ?>
 </html>

@@ -70,6 +70,11 @@ foreach ($pics as $r)
 ';
 echo '<br><center>3 of ' . count($pf) . " pictures</center>\n";
 ?> 
+<br>
+
+<div class="status">
+<a href="/pages/status.php">Status of the Website</a>
+</div>
 
 </td>
 </tr>

@@ -80,7 +80,9 @@ class DBHandler(object):
         self.dbi.execute('commit', tag=tag)
 	return ret
 
-    def make_columns(self, tab, name='', extras=False):
+    def make_columns(self, tab='', name='', tabs=[], extras=False):
+	if tabs:
+	    return reduce(lambda x,y: x+y, [self.make_columns(x) for x in tabs], list())
         if tab not in self.table_info:
 	    raise ValueError('unknown table: ' + tab)
 	name = name if name else tab
@@ -635,7 +637,7 @@ class DBHandler(object):
         return self.fetch('variation', where="mod_id='%s' and var='%s'" % (mod_id, var_id), tag='VariationBare')
 
     def fetch_variations(self, mod_id, nodefaults=False):
-	vsrecs = self.fetch('variation_select', where=["mod_id='%s'" % mod_id, #"variation_select.category=category.name"
+	vsrecs = self.fetch('variation_select,category', where=["mod_id='%s'" % mod_id, "variation_select.category=category.id"
 	    ])
         varrecs = self.fetch('variation',
 	    where=["variation.mod_id='%s'" % mod_id,
@@ -730,7 +732,9 @@ class DBHandler(object):
     def fetch_variations_by_category(self, category, verbose=False):
 	# if the same cat appears in 2 vs's, this should only produce one var.  not sure it does right now.
 	# dammit this is producing vs's, not vars.  gotta fix that.
-        cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'vs.id', 'vs.ref_id', 'vs.sub_id', 'vs.category'] + self.make_columns('casting') + self.make_columns('base_id')
+        cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'v.date']
+	cols += self.make_columns('variation_select', 'vs')
+	cols += self.make_columns(tabs=['casting', 'base_id'])
         table = "variation_select vs"
 	where = "vs.category='%s'" % category
         table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
@@ -793,14 +797,18 @@ class DBHandler(object):
             wheres.append("variation_select.var_id='%s'" % var_id)
         left_joins = [("pack", "variation_select.sub_id=pack.id")]
         left_joins += [("base_id", "pack.id=base_id.id")]
+        left_joins += [("category", "variation_select.category=category.id")]
         left_joins += [("lineup_model", "lineup_model.mod_id=variation_select.mod_id and lineup_model.page_id=variation_select.ref_id")]
         return self.fetch('variation_select,page_info', left_joins=left_joins, where=wheres, tag='VariationSelects', verbose=0)
 
-    def fetch_variation_select_counts(self, mod_id):
-        wheres = ["variation_select.mod_id='%s'" % mod_id]
-	columns = ['variation_select.mod_id', 'variation_select.category', 'count(*)']
-        return self.fetch('variation_select', where=wheres, tag='VariationSelectCounts', verbose=0,
-		columns=columns, group='variation_select.category', order='variation_select.category')
+    def fetch_variation_select_counts(self, mod_id=None, by_ref=False):
+        wheres = ['variation_select.category=category.id']
+	if mod_id:
+	    wheres + ["variation_select.mod_id='%s'" % mod_id]
+	columns = ['variation_select.mod_id', 'variation_select.ref_id', 'variation_select.category', 'count(*)', 'category.name', 'category.flags']
+	group_by = 'variation_select.category,variation_select.ref_id' if by_ref else 'variation_select.category'
+        return self.fetch('variation_select,category', where=wheres, tag='VariationSelectCounts', verbose=0,
+		columns=columns, group=group_by, order='variation_select.category')
 
     def fetch_variation_select_refs(self):
 	return self.fetch('variation_select', columns=['ref_id'], group='ref_id', tag='VarSelRefs')
@@ -1113,16 +1121,10 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     # Have to change this to: select matrix_model outer join casting outer join variation_select.
     def fetch_matrix_models_variations(self, page_id, section=None):
-        cols = [
-            'base_id.id', 'base_id.first_year', 'base_id.model_type', 'base_id.rawname', 'base_id.description', 'base_id.flags',
-            'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make', 'casting.section_id',
-            'matrix_model.id', 'matrix_model.mod_id', 'matrix_model.flags', 'matrix_model.section_id',
-            'matrix_model.display_order', 'matrix_model.page_id', 'matrix_model.range_id', 'matrix_model.name',
-            'matrix_model.subname', 'matrix_model.description', 'matrix_model.shown_id',
-	    'pack.id', 'pack.page_id', 'pack.section_id',
-	]
         table = "matrix_model"
-        cols.extend(['v.text_description', 'v.picture_id', 'v.var', 'vs.ref_id', 'vs.sub_id', 'vs.category'])
+        cols = self.make_columns(tabs=['base_id', 'casting', 'matrix_model', 'pack'])
+        cols.extend(['v.text_description', 'v.picture_id', 'v.var'])
+        cols.extend(self.make_columns('variation_select', 'vs'))
         table += " left join base_id on (base_id.id=matrix_model.mod_id)"
         table += " left join casting on (casting.id=matrix_model.mod_id)"
         table += " left join pack on (pack.id=matrix_model.mod_id)"
@@ -1508,8 +1510,15 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     #- category
 
+    def fetch_category(self, cat_id):
+        return tables.Results('category', self.fetch('category', where="id='%s'" % cat_id, tag="FetchCat")).first
+
     def fetch_categories(self):
-	return self.fetch('category')
+	cols = self.make_columns('category') + ['count(*) as count']
+        rows = self.fetch('category,variation_select', where='category.id=variation_select.category',
+			  columns=cols, group='variation_select.category', tag='FetchCats')
+        return tables.Results('category', rows)
+	#return tables.Results('category', self.fetch('category', tag="FetchCats"))
 
     def insert_category(self, cat, name, flags=0):
 	return self.write('category', values={'id': cat, 'name': name, 'flags': flags}, newonly=True, tag='WriteCat')

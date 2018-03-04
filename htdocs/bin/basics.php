@@ -334,4 +334,16 @@ function LinksList($links, $star, $preface='', $post='', $prefix='') {
     if ($post)
 	echo $post . "\n";
 }
+
+
+function DoButtonComment($pif, $args='') {
+    if ($args)
+	$args = 'page_id=' . $pif['page_id'] . '&' . $args;
+    else
+	$args = 'page_id=' . $pif['page_id'];
+    echo '<div class="comment_box">';
+    DoTextButtonLink('comment on<br>this page', "/pages/comment.php?" . $args);
+    echo "</div>\n";
+}
+
 ?>

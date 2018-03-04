@@ -48,11 +48,11 @@ def calc_var_pics(pif, var):
 
 	if any([var['manufacture'].startswith(x) for x in other_plants]):
 	    ty_var = 'p'
-	elif set(mbdata.code2_categories) & set(var['category'].split()):
+	elif any([x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2 for x in var['vs']]):
 	    ty_var = '2'
 	elif var['var'].startswith('f'):
 	    ty_var = 'f'
-	elif not var['category']:
+	elif any([x['variation_select.category'] == 'MB' for x in var['vs']]):
 	    ty_var = 'c'
 	else:
 	    ty_var = '1'
@@ -176,10 +176,9 @@ def show_series_appearances(pif, matrixes):
 
 
 def show_code2_appearances(pif, mod_id, vscounts):
-    vscounts = dict([(x['variation_select.category'], x['count(*)']) for x in vscounts])
-    code2s = {x: vscounts.get(x, 0) for x in mbdata.code2_categories}
-    return [show_link('code2.cgi?mod_id=%s&cat=%s' % (mod_id, x), ['%s (%d variation%s)' % (mbdata.code2_names[x], code2s[x], 's' if code2s[x] != 1 else '')])
-		for x in mbdata.code2_categories if vscounts.get(x)]
+    return [show_link('code2.cgi?mod_id=%s&cat=%s' % (mod_id, x['variation_select.category']),
+			['%s (%d variation%s)' % (x['category.name'], x['count(*)'], 's' if x['count(*)'] != 1 else '')])
+		for x in vscounts if x['count(*)'] and x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2]
 
 
 def show_pack_appearances(pif, packs):

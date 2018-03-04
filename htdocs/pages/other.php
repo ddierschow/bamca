@@ -16,6 +16,7 @@ DoPageHeader($pif);
 
 <a href=".."><div class="textbutton">BACK</div> to the main index.</a>
 
-<?php DoFoot($pif); ?>
-
+<?php
+DoButtonComment($pif);
+DoFoot($pif); ?>
 </html>

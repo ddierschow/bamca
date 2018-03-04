@@ -388,5 +388,7 @@ to try again.
 
 </table>
 
-<?php DoFoot($pif); ?>
+<?php
+DoButtonComment($pif);
+DoFoot($pif); ?>
 </html>

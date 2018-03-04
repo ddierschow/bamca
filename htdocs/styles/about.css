@@ -22,3 +22,5 @@ img     {border-width: 0;}
 .c1 {width: 224px; text-align: center;}
 .c2 {width: 470px;}
 .c3 {width: 170px; background-image: url("/pic/gfx/boxmokoles.gif"); background-position: center center; background-repeat: no-repeat;}
+
+.infopanel {background-color: #FFFFFF; color: #000000; padding: 8px; border-color: #000000; border-width: thin; border-style: solid;}

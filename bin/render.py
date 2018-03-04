@@ -672,11 +672,11 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_as_link(self, fnames, txt, pdir=None, also={}):
         return self.format_link('../' + self.find_image_path(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
 
-    def format_image_optional(self, fnames, alt='', prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False, largest=None):
-        return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad, largest=largest)
+    def format_image_optional(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None, also={}, nopad=False, largest=None):
+        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, pad=not nopad, largest=largest)
 
-    def format_image_required(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, also={}, made=True, largest=None, preferred=None):
-        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, made=made, required=True, largest=largest, preferred=preferred)
+    def format_image_required(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None, also={}, nopad=False, made=True, largest=None, preferred=None):
+        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, pad=not nopad, made=made, required=True, largest=largest, preferred=preferred)
 
     def format_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)

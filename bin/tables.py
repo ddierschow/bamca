@@ -219,13 +219,13 @@ table_info = {
         'columns': ['mod_id', 'var', 'flags',
 		'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with',
 		'base', 'body', 'interior', 'windows',
-		'manufacture', 'base_text', 'category', 'area', 'date', 'note', 'picture_id',
-		'imported', 'imported_from', 'imported_var'],
+		'manufacture', 'base_text', 'area', 'date', 'note', 'picture_id',
+		'imported', 'imported_from', 'imported_var', 'category'],
         'titles': ['Model ID', 'Variation ID', 'Flags',
 		'Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With',
 		'Base', 'Body', 'Interior', 'Windows',
-		'Manufacture', 'Base Text', 'Category', 'Area', 'Date', 'Note', 'Other', 'Picture ID',
-		'Imported', 'Imported From', 'Imported Var'],
+		'Manufacture', 'Base Text', 'Area', 'Date', 'Note', 'Other', 'Picture ID',
+		'Imported', 'Imported From', 'Imported Var', 'category'],
         'clinks': {
 		'var': {'tab': 'variation', 'id': ['mod_id/mod_id', 'var/var']},
 		'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
@@ -588,6 +588,7 @@ table_info = {
 	],
         'clinks': {
         },
+        'ask': ['id', 'name'],
     },
     #user_item
     'user_item': {
@@ -760,7 +761,7 @@ FLAG_SECTION_HIDDEN                     = 0x0001
 FLAG_SECTION_DEFAULT_IDS                = 0x0002
 FLAG_SECTION_NO_FIRSTS                  = 0x0004
 FLAG_SECTION_SHOW_IDS                   = 0x0008
-FLAG_SECTION_HIDE_IMAGE                 = 0x0020
+FLAG_SECTION_HIDE_IMAGE                 = 0x0010
 
 FLAG_MAKE_PRIMARY                       = 0x0002
 FLAG_CASTING_RELATED_SHARED             = 0x0002

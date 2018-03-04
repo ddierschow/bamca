@@ -14,9 +14,12 @@ import useful
 
 
 '''  API
+images.EditForm
+images.grab_url_file
 images.image_main
 images.imawidget_main
 images.library_main
+images.photographers
 images.pictures_main
 images.stitch_main
 images.thumber_main
@@ -41,6 +44,19 @@ def file_log(fn, tdir):
 
 def upload_log(url, pdir):
     logging.getLogger('upload').info('%s %s' % (pdir, url))
+
+def get_next_upload_filename():
+    descrips = open(descriptions_file).readlines()
+    fn = 1
+    if descrips:
+	fn = len(descrips) + 1
+#	ln = descrips[-1].split()[0]
+#	for iln in range(0, len(ln)):
+#	    if not ln[iln].isdigit():
+#		ln = ln[:iln]
+#		break
+#	fn = int(ln) + 1
+    return '%09d' % fn
 
 
 # for things out of http space:
@@ -254,18 +270,9 @@ class UploadForm(object):
 
     def restricted_upload(self, pif):
 	print pif.render.format_head()
-	useful.header_done()
 	direc = config.INC_DIR
-	descrips = open(descriptions_file).readlines()
-	fn = 1
-	if descrips:
-	    ln = descrips[-1].split()[0]
-	    for iln in range(0, len(ln)):
-		if not ln[iln].isdigit():
-		    ln = ln[:iln]
-		    break
-	    fn = int(ln) + 1
-	fn = '%09d' % fn
+	useful.header_done()
+	fn = get_next_upload_filename()
 	if self.url:
 	    fn = grab_url_file(self.url, direc, fn)
 	    print self.thanks(pif, fn)
@@ -1493,6 +1500,8 @@ def photographers(pif):
     pif.render.hierarchy_append('/cgi-bin/photogs.cgi', 'Photographers')
     if photog_id:
 	photog = pif.dbh.fetch_photographer_counts(photog_id).first
+	if not photog:
+	    raise useful.SimpleError('That photographer was not found.')
 	pif.render.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog.photographer.name)
 	pif.render.title = photog.photographer.name
 	page = pif.form.get_int('p')

@@ -173,123 +173,125 @@ def check_attribute_pictures(pif, *filelist):
 
 
 
-def run_models(pif, mods):
-    upics = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
-    mods = [x[0] for x in mods]
-    mods.sort()
-
-    for mod in mods:
-        uf, af, mf, cf, sf = show_list_var_pics(pif, mod)
-        if (not pif.switch['q']) and \
-           (not pif.switch['s'] or sf[2] < 100) and \
-           (not pif.switch['c'] or cf[2] < 100) and \
-           (not pif.switch['m'] or mf[2] < 100) and \
-           (not pif.switch['a'] or af[2] < 100):
-            print '%-8s%5d | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%%' % ((mod, uf) + af + mf + cf + sf)
-
-        upics += uf
-        spics += sf[1]
-        spfnd += sf[0]
-        cpics += cf[1]
-        cpfnd += cf[0]
-        mpics += mf[1]
-        mpfnd += mf[0]
-        apics += af[1]
-        apfnd += af[0]
-
-    return upics, spics, spfnd, cpics, cpfnd, mpics, mpfnd, apics, apfnd
-
-
-def show_list_var_pics(pif, mod_id):
-    upics = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
-    varsels = pif.dbh.fetch_variation_selects(mod_id)
-    varsel = {}
-    for vs in varsels:
-        varsel.setdefault(vs['variation_select.ref_id'], [])
-        varsel[vs['variation_select.ref_id']].append(vs['variation_select.var_id'])
-    spics = len(varsel.keys())
-
-    vars = pif.dbh.fetch_variations(mod_id)
-    for var in vars:
-        isorig = 1
-        fn = mod_id + '-' + var['variation.var']
-        if var['variation.picture_id']:
-            fn = mod_id + '-' + var['variation.picture_id']
-            isorig = 0
-        fn = '.' + config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'
-        apics += 1
-        if not var['variation.var'].startswith('f'):
-            if not mbdata.categories.get(var['variation.category'], '').startswith('['):
-                mpics += 1
-            if not var['variation.category']:
-                cpics += 1
-#        print '<!--', config.IMG_DIR_MAN + '/var/' + fn + '.jpg', '-->'
-        if os.path.exists(fn):
-            apfnd += 1
-            upics += isorig
-            if not var['variation.var'].startswith('f'):
-                if not mbdata.categories.get(var['variation.category'], '').startswith('['):
-                    mpfnd += 1
-                if not var['variation.category']:
-                    cpfnd += 1
-            for vs in varsel:
-                if var['variation.var'] in varsel[vs]:
-                    spfnd += 1
-                    varsel[vs] = []
-    if verbose:
-        print ' '.join(filter(lambda x: varsel[x], varsel))
-    return upics, format_calc(apfnd, apics), format_calc(mpfnd, mpics), format_calc(cpfnd, cpics), format_calc(spfnd, spics)
-
-
-def format_calc(found, pics):
-    if 0:  # found == pics:
-        return (found, pics, '--')
-    if pics:
-        return (found, pics, 100 * found / pics)
-    return (0, 0, 100)
-
-
-def old_ckcas(pif):
-
-    upics = nmods = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
-
-    if pif.switch['v']:
-        verbose = True
-    if pif.filelist:
-        for spec in pif.filelist:
-            mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
-            nmods += len(mods)
-            uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
-
-            upics += uf
-            spics += sp
-            spfnd += sf
-            cpics += cp
-            cpfnd += cf
-            mpics += mp
-            mpfnd += mf
-            apics += ap
-            apfnd += af
-
-    else:
-        mods = pif.dbh.dbi.execute("select distinct id from casting")[0]
-        nmods += len(mods)
-        uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
-
-        upics += uf
-        spics += sp
-        spfnd += sf
-        cpics += cp
-        cpfnd += cf
-        mpics += mp
-        mpfnd += mf
-        apics += ap
-        apfnd += af
-
-    print
-    print '%7d %5d  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%' % \
-          ((nmods, upics) +
-           format_calc(apfnd, apics) + format_calc(mpfnd, mpics) + format_calc(cpfnd, cpics) + format_calc(spfnd, spics))
+#def run_models(pif, mods):
+#    upics = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
+#    mods = [x[0] for x in mods]
+#    mods.sort()
+#
+#    for mod in mods:
+#        uf, af, mf, cf, sf = show_list_var_pics(pif, mod)
+#        if (not pif.switch['q']) and \
+#           (not pif.switch['s'] or sf[2] < 100) and \
+#           (not pif.switch['c'] or cf[2] < 100) and \
+#           (not pif.switch['m'] or mf[2] < 100) and \
+#           (not pif.switch['a'] or af[2] < 100):
+#            print '%-8s%5d | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%%' % ((mod, uf) + af + mf + cf + sf)
+#
+#        upics += uf
+#        spics += sf[1]
+#        spfnd += sf[0]
+#        cpics += cf[1]
+#        cpfnd += cf[0]
+#        mpics += mf[1]
+#        mpfnd += mf[0]
+#        apics += af[1]
+#        apfnd += af[0]
+#
+#    return upics, spics, spfnd, cpics, cpfnd, mpics, mpfnd, apics, apfnd
+#
+#
+## oh FFS fix this.
+#def show_list_var_pics(pif, mod_id):
+#    # a = all, u = unique, s = w/ selects, c = core, m = code2?
+#    upics = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
+#    varsels = pif.dbh.fetch_variation_selects(mod_id)
+#    varsel = {}
+#    for vs in varsels:
+#        varsel.setdefault(vs['variation_select.ref_id'], [])
+#        varsel[vs['variation_select.ref_id']].append(vs['variation_select.var_id'])
+#    spics = len(varsel.keys())
+#
+#    vars = pif.dbh.fetch_variations(mod_id)
+#    for var in vars:
+#        isorig = 1
+#        fn = mod_id + '-' + var['variation.var']
+#        if var['variation.picture_id']:
+#            fn = mod_id + '-' + var['variation.picture_id']
+#            isorig = 0
+#        fn = '.' + config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'
+#        apics += 1
+#        if not var['variation.var'].startswith('f'):
+#            if not mbdata.categories.get(var['variation.category'], '').startswith('['):
+#                mpics += 1
+#            if not var['variation.category']:
+#                cpics += 1
+##        print '<!--', config.IMG_DIR_MAN + '/var/' + fn + '.jpg', '-->'
+#        if os.path.exists(fn):
+#            apfnd += 1
+#            upics += isorig
+#            if not var['variation.var'].startswith('f'):
+#                if not mbdata.categories.get(var['variation.category'], '').startswith('['):
+#                    mpfnd += 1
+#                if not var['variation.category']:
+#                    cpfnd += 1
+#            for vs in varsel:
+#                if var['variation.var'] in varsel[vs]:
+#                    spfnd += 1
+#                    varsel[vs] = []
+#    if verbose:
+#        print ' '.join(filter(lambda x: varsel[x], varsel))
+#    return upics, format_calc(apfnd, apics), format_calc(mpfnd, mpics), format_calc(cpfnd, cpics), format_calc(spfnd, spics)
+#
+#
+#def format_calc(found, pics):
+#    if 0:  # found == pics:
+#        return (found, pics, '--')
+#    if pics:
+#        return (found, pics, 100 * found / pics)
+#    return (0, 0, 100)
+#
+#
+#def old_ckcas(pif):
+#
+#    upics = nmods = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
+#
+#    if pif.switch['v']:
+#        verbose = True
+#    if pif.filelist:
+#        for spec in pif.filelist:
+#            mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
+#            nmods += len(mods)
+#            uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
+#
+#            upics += uf
+#            spics += sp
+#            spfnd += sf
+#            cpics += cp
+#            cpfnd += cf
+#            mpics += mp
+#            mpfnd += mf
+#            apics += ap
+#            apfnd += af
+#
+#    else:
+#        mods = pif.dbh.dbi.execute("select distinct id from casting")[0]
+#        nmods += len(mods)
+#        uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
+#
+#        upics += uf
+#        spics += sp
+#        spfnd += sf
+#        cpics += cp
+#        cpfnd += cf
+#        mpics += mp
+#        mpfnd += mf
+#        apics += ap
+#        apfnd += af
+#
+#    print
+#    print '%7d %5d  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%' % \
+#          ((nmods, upics) +
+#           format_calc(apfnd, apics) + format_calc(mpfnd, mpics) + format_calc(cpfnd, cpics) + format_calc(spfnd, spics))
 
 def check_castings(pif):
     #pif.form.set_val('section', 'all')
@@ -317,12 +319,57 @@ def check_castings(pif):
     print ''.join(disp)
 
 
+def show_categories(pif):
+    vsels = pif.dbh.fetch_variation_select_counts(by_ref=True)
+    refs = {}
+    for vs in vsels:
+	refs.setdefault(vs['variation_select.category'], set())
+	if vs['variation_select.ref_id'] and vs['variation_select.category'] != 'MB':
+	    refs[vs['variation_select.category']].add(vs['variation_select.ref_id'])
+    cats = pif.dbh.fetch_categories()
+    catl = [(x.id, x.name, 'shown' if (x.flags & 4) else '', 'c2' if (x.flags & 2) else '', x.count, ' '.join(sorted(refs.get(x.id, [])))) for x in cats]
+    fmt = pif.dbh.preformat_results(catl)
+    for cat in catl:
+	print fmt % cat
+
+
+def check_var_vs_categories(pif):
+    wheres = ["variation_select.mod_id=variation.mod_id", "variation_select.var_id=variation.var"]
+    vars = {}
+    for vvs in pif.dbh.fetch('variation_select,variation', where=wheres, tag='VarVS'):
+	key = (vvs['variation.mod_id'], vvs['variation.var'],)
+	vars.setdefault(key, dict())
+	vars[key]['vc'] = set(vvs['variation.category'].split(' ')) if vvs['variation.category'] else set()
+	vars[key].setdefault('vsc', set())
+	vars[key]['vsc'].add(vvs['variation_select.category'])
+    vl = [key + (' '.join(sorted(vars[key]['vc'])), ' '.join(sorted(vars[key]['vsc'])),) for key in sorted(vars.keys()) if vars[key]['vc'] - vars[key]['vsc']]
+    fmt = pif.dbh.preformat_results(vl)
+    for v in vl:
+	print fmt % v
+
+
+def cat2matrix(pif, cat, page_id):
+    #id base_id section_id display_order page_id range_id mod_id flags shown_id name subname description
+    wheres = ["vs.mod_id=v.mod_id", "vs.var_id=v.var", "v.mod_id=b.id", "vs.category='%s'" % cat]
+    seen = set()
+    vars = {}
+    print "base_id|section_id|display_order|page_id|range_id|mod_id|flags|shown_id|name|subname|description"
+    fmt = "%s|%s|%2s|%s|%2s|%s|%s|%s|%s|%s|%s"
+    ran_id = 1
+    for vvs in pif.dbh.fetch('variation_select vs,variation v,base_id b', where=wheres, tag='VarVSCat'):
+	iam = (vvs['v.mod_id'], vvs['v.text_description'])
+	if iam not in seen:
+	    print fmt % ("", cat.lower() + vvs['v.date'][2:4], ran_id, page_id, ran_id, vvs['v.mod_id'], 0, "", vvs['b.rawname'], '', vvs['v.text_description'])
+	    ran_id += 1
+	    seen.add(iam)
+
+
 # variation fns to correllate category entries between variation and variation_select.
 # variation.category is the old version and cannot be properly joined against.
 # variation_select.category is the new version which should be able to replace it.
 # vs.category will be useful without vs.ref_id and vs.sub_id so the rest of the site needs to tolerate that.
 
-def check_categories(pif):
+def check_vs_categories(pif):
     #check_vs(pif)
     long_form(pif)
     #correllation(pif)
@@ -341,17 +388,22 @@ def check_vs(pif):
 
 def long_form(pif):
     print 'long form'
-    res = pif.dbh.raw_execute('''select v.category,v.mod_id,v.var,vs.category,vs.ref_id,vs.sub_id,vs.id from variation v,variation_select vs where 
-v.category != vs.category and
-v.category != '' and
-v.mod_id=vs.mod_id and
-v.var=vs.var_id
-''')
-    fmt = pif.dbh.preformat_results(res[0])
-    for ent in res[0]:
-	vc, vsc = ent[0], ent[3]
-	if vsc != 'MB' and vsc not in vc.split():
-	    print fmt % ent
+    vs = {}
+    for res in pif.dbh.raw_execute('''select mod_id, var_id, category from variation_select''')[0]:
+	vs.setdefault(res[0], dict())
+	vs[res[0]].setdefault(res[1], set())
+	vs[res[0]][res[1]].add(res[2])
+    v = []
+    for res in pif.dbh.raw_execute('''select mod_id,var,category from variation''')[0]:
+	if res[2]:
+	    vc = set(res[2].split(' '))
+	    vsc = vs.get(res[0], {}).get(res[1], set())
+	    if vc - vsc:
+		vsc = ' '.join(sorted(vs.get(res[0], {}).get(res[1], [])))
+		v.append(res + (vsc,))
+    fmt = pif.dbh.preformat_results(v)
+    for ent in v:
+	print fmt % ent
     print
 
 
@@ -373,6 +425,165 @@ v.var=vs.var_id
     print vc, '/', vsc
     print
 
+''' unidentified
+HP - True Heroes
+MSN
+SW - kingsize only
+KP - kingsize only
+MX - kingsize only
+SC - skybusters only
+CLR - yy only
+'''
+
+categories = {
+    '10P'   : "10-Pack",
+    '2K'    : "2000 Logo",
+    '3P'    : "3-Pack",
+    '50P'   : "50th Anniversary Collection",
+    '5P'    : "5-Pack",
+    '60'    : "60th Anniversary",
+    '75C'   : "75 Challenge",
+    'A'     : "Accessories",
+    'AA'    : "Across America",
+    'AFL'   : "Australian Football League",
+    'AP'    : "Action Pack",
+    'ARL'   : "Australian Rugby League",
+    'ASAP'  : "[Code 2] ASAP Promotional",
+    'ASP'   : "Action System Pack",
+    'AVN'   : "Avon",
+    'AW'    : "Around the World",
+    'BH'    : "Matchbox 50th Birthday",
+    'BJ'    : "Barrett-Jackson",
+    'BK'    : "Battle Kings",
+    'BLK'   : "Blank for Code 2 Use",
+    'BO'    : "Best of ...",
+    'BOB'   : "Best of British",
+    'BOI'   : "Best of International",
+    'BOM'   : "Best of Muscle",
+    'BON'   : "Bonus",
+    'BS'    : "Brroomstick",
+    'C2'    : "[Code 2]",
+    'CA'    : "Cartoon Characters",
+    'CAT'   : "Caterpillar",
+    'CC'    : "Collectors Choice",
+    'CCH'   : "Color Changers",
+    'CCI'   : "[Code 2] Color Comp Promotional",
+    'CCY'   : "Collectible Convoy",
+    'CDR'   : "CD Rom",
+    'CF'    : "Commando",
+    'CK'    : "Coca-Cola",
+    'CKP'   : "Coca-Cola Premiere",
+    'CL'    : "Club Models",
+    'CNS'   : "Connoisseur Set",
+    'COL'   : "Matchbox Collectibles",
+    'CQ'    : "[Code 2] Conquer",
+    'CR'    : "Code Red",
+    'CRO'   : "Crocodile Hunter",
+    'CS'    : "Construction",
+    'CY'    : "Convoy",
+    'DARE'  : "D.A.R.E.",
+    'DM'    : "Dream Machines",
+    'DT'    : "Days of Thunder",
+    'DVD'   : "DVD",
+    'DY'    : "Dinky",
+    'EE'    : "European Edition",
+    'ELC'   : "Early Learning Center",
+    'ELV'   : "Elvis Presley Collection",
+    'EM'    : "Emergency",
+    'F1'    : "Formula 1",
+    'FAS'   : "Michael Fischer-Art",
+    'FC'    : "Feature Cars",
+    'FE'    : "First Edition",
+    'FM'    : "Farming",
+    'FP'    : "Ford Anniversary",
+    'G'     : "Gift Set", # G == GS
+    'GC'    : "Gold Collection",
+    'GF'    : "Graffic Traffic",
+    'GS'    : "Gift Set",
+    'GT'    : 'Budget Range / SuperGT',
+    'GW'    : "Giftware",
+    'HC'    : "Hero City Logo",
+    'HD'    : "Harley Davidson",
+    'HNH'   : "Hitch 'n' Haul",
+    'HP'    : 'True Heroes',
+    'HR'    : "Heroes",
+    'HS'    : "Hot Stocks",
+    'HT'    : "Hunt",
+    'IC'    : "Intercom City",
+    'IG'    : "Inaugural Collection",
+    'IN'    : "Indy",
+    'JB'    : "James Bond",
+    'JEE'   : "Jeep",
+    'JL'    : "Justice League",
+    'JR'    : "Jurassic Park",
+    'JW'    : "Jurassic World",
+    'K'     : "Super Kings (King Size)",
+    'LE'    : "Limited Edition Set",
+    'LES'   : "Lesney Edition",
+    'LL'    : "My First Matchbox (Live & Learn)",
+    'LP'    : "Launcher Pack",
+    'LR'    : "Lightning",
+    'LRV'   : "Land Rover",
+    'LT'    : "Lasertronic (Siren Force, Light & Sound)",
+    'LW'    : "Laser Wheels",
+    'MB'    : "Matchbox 1-75 (1-100) basic range",
+    'MBR'   : "Micro Brewery",
+    'MC'    : "Motor City",
+    'MCC'   : "My Classic Car",
+    'MD'    : "Superfast Minis",
+    'MLB'   : "Major League Baseball (USA)",
+    'MNS'   : "Monsters",
+    'MO'    : "Matchbox Originals",
+    'MP'    : "Multipack",
+    'MT'    : "Matchcaps",
+    'MU'    : "Masters of the Universe",
+    'NBA'   : "National Basketball Association (USA)",
+    'NBL'   : "National Basketball League (AUS)",
+    'NC'    : "[Code 2] Nutmeg Collectibles",
+    'NFL'   : "National Football League (USA)",
+    'NHL'   : "National Hockey League (USA)",
+    'NM'    : "Nigel Mansell",
+    'NP'    : "National Parks",
+    'NR'    : "Neon Racers",
+    'NSF'   : "New Superfast",
+    'OS'    : "Osbournes",
+    'P'     : "Pre-production",
+    'PC'    : "Premiere Collection",
+    'PG'    : "Power Grabs",
+    'PR'    : "Promotional",
+    'PRC'   : "Premiere Concept",
+    'PS'    : "Playset",
+    'PVB'   : "Pleasant Valley Books",
+    'PZ'    : "Puzzle",
+    'RB'    : "Road Blasters",
+    'RT'    : "Real Talkin",
+    'SB'    : "Skybusters",
+    'SCC'   : "Super Color Changers",
+    'SCD'   : "Scooby Doo",
+    'SCS'   : "Showcase Collection",
+    'SF'    : "Superfast",
+    'SFA'   : "Superfast America",
+    'SNL'   : "Saturday Night Live",
+    'SOC'   : "Stars of Germany (Stars of Cars)",
+    'SOG'   : "Stars of Germany (Stars of Cars)",
+    'SS'    : "Showstoppers (Motor Show)",
+    'ST'    : "Super Trucks",
+    'STR'   : "Star Car",
+    'TC'    : "Team Convoy (Team Matchbox)",
+    'TF'    : "Toy Fair",
+    'TH'    : "Triple Heat",
+    'TN'    : "Then & Now",
+    'TP'    : "Twin Pack (Action System, Adventure Pack)",
+    'TV'    : "TV Tie-In",
+    'TVP'   : "TV-related Premiere",
+    'TX'    : "Texaco Collection",
+    'UC'    : "Ultra Collection",
+    'WB'    : "Warner Brothers",
+    'WC'    : "World Class",
+    'WR'    : "[Code 2] White Rose Collectibles",
+    'YF'    : "[Code 2] York Fair",
+    'YST'   : "Yesteryear Train Set",
+}
 
 def correllation(pif):
     print 'correllation'
@@ -384,12 +595,12 @@ def correllation(pif):
     for cat in pif.dbh.raw_execute('select distinct category from variation_select')[0]:
 	vs_cats.add(cat[0])
     db_cats = {x['category.id']: x['category.name'] for x in pif.dbh.fetch_categories()}
-    mb_cats = mbdata.categories.keys()
+    mb_cats = categories.keys()
     print 'in var but not in databse:', vr_cats - set(db_cats.keys())
     print 'in vs but not in databse:', vs_cats - set(db_cats.keys())
     print 'in database but not in list:', set(db_cats.keys()) - set(mb_cats)
     for cat in set(mb_cats) - set(db_cats.keys()):
-	print "insert into category (id, name, flags, image) values ('%s', '%s', 0, '');" % (cat, mbdata.categories[cat])
+	print "insert into category (id, name, flags, image) values ('%s', '%s', 0, '');" % (cat, categories[cat])
     print
 
 
@@ -796,7 +1007,10 @@ cmds = [
     ('bid', check_base_id, "check base_id"),
     ('add', check_attribute_pictures, "check attr_pics"),
     ('cas', check_castings, "check castings"),
-    ('cat', check_categories, "check_categories"),
+    ('cat', show_categories, "show_categories"),
+    ('vvscat', check_var_vs_categories, "check_var_vs_categories"),
+    ('vscat', check_vs_categories, "check_vs_categories"),
+    ('cat2mat', cat2matrix, "cat2matrix: cat"),
     ('cred', check_photo_credits, "check_photo_credits"),
     ('lnk', check_single_links, "check_single_links"),
     ('img', check_images, "check_images"),

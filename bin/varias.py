@@ -12,7 +12,7 @@ import useful
 
 
 id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic', '_credit']
-note_attributes = ['manufacture', 'area', 'category', 'date', 'note']
+note_attributes = ['manufacture', 'area', 'date', 'note', 'category']
 internal_desc_attributes = ['description', 'base', 'body', 'interior', 'windows']
 desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
 text_attributes = ['text_' + x for x in desc_attributes]
@@ -32,6 +32,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
     if not man:
         raise useful.SimpleError("That casting was not found.")
     mod_id = man['id']
+    man.setdefault('_catdefs', dict())
     libdir = useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower())
 
     varrecs, detrecs = pif.dbh.fetch_variation_deconstructed(mod_id, var_id, nodefaults=False)
@@ -105,7 +106,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
 	    {'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
 	])
     for lran in ranges:
-	lran['entry'] = show_details(pif, lran['_attrs'], vsform.attributes, variation, attr_pics, ran_id=lran['id'], photogs=photogs)
+	lran['entry'] = show_details(pif, lran['_attrs'], vsform.attributes, man, variation, attr_pics, ran_id=lran['id'], photogs=photogs)
     lsec['range'] = ranges
     llistix = {'id': 'single', 'section': [lsec]}
 
@@ -177,6 +178,8 @@ def show_appearances(pif, mod_id, var_id, pics=False):
                     pass
                 elif not vs['variation_select.sub_id'] or vs['variation_select.sub_id'] == vs.get('lineup_model.region'):
                     ostr += '<li>' + pif.render.format_link("lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s&lty=all#%(lineup_model.number)s" % vs, "%(lineup_model.year)s %(region)s lineup number %(lineup_model.number)s" % vs) + '\n'
+	    elif vs.get('category.flags', 0) & pif.dbh.FLAG_CATEGORY_INDEXED:
+		ostr += '<li>' + pif.render.format_link("matrix.cgi?cat=%(category.id)s" % vs, vs['category.name'])
             elif pif.is_allowed('a'):  # pragma: no cover
                 ostr += '<li><i>ref_id = ' + str(vs['variation_select.ref_id'])
                 if vs['variation_select.sub_id']:
@@ -187,7 +190,7 @@ def show_appearances(pif, mod_id, var_id, pics=False):
 
 # ----- variation editor ----------------------------------
 
-def show_detail(pif, field, attributes, variation, attr_pics={}, ran_id='', photogs=[]):
+def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='', photogs=[]):
     if field.startswith('variation.'):  # not sure where this is coming from.
 	field = field[10:]
     if field == '_repic':
@@ -199,7 +202,7 @@ def show_detail(pif, field, attributes, variation, attr_pics={}, ran_id='', phot
     title = attributes[field]['title']
     value = variation.get(field, '')
     if field == 'category':
-	value = ', '.join([mbdata.categories.get(x, x) for x in value.split()])
+	value = ', '.join([model['_catdefs'].get(x, {}).get('name', x) for x in value.split()])
     modals = ''
     title_modal = show_detail_modal(pif, attr_pics.get(field, {}), variation['mod_id'])
     if title_modal:
@@ -262,8 +265,8 @@ def show_var_image(pif, attr_pic, img, title, caption='', var_img_credit=''):
     return ostr
 
 
-def show_details(pif, data, attributes, variation, attr_pics={}, ran_id='', photogs=[]):
-    return [show_detail(pif, d, attributes, variation, attr_pics, ran_id=ran_id, photogs=photogs) for d in data if d in variation or d.startswith('_')]
+def show_details(pif, data, attributes, model, variation, attr_pics={}, ran_id='', photogs=[]):
+    return [show_detail(pif, d, attributes, model, variation, attr_pics, ran_id=ran_id, photogs=photogs) for d in data if d in variation or d.startswith('_')]
 
 
 def save_variation(pif, mod_id, var_id):
@@ -390,12 +393,14 @@ class VarSearchForm(object):
 	    {'title': pif.dbh.table_info['variation']['titles'][x]}
 		for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
 	attributes['references'] = {'title': 'References', 'definition': 'varchar(256)'}
+	attributes['category'] = {'title': 'Category', 'definition': 'varchar(256)'}
 	for vardesc in pif.dbh.describe('variation'):
 	    if vardesc['field'] in attributes:
 		attributes[vardesc['field']]['definition'] = vardesc['type']
 	self.attributes = attributes
 
 	var_selects = pif.dbh.depref('variation_select', pif.dbh.fetch_variation_selects(mod_id))
+	self.catdefs = {x['category.id']: {'name': x['category.name'], 'image': x['category.image'], 'flags': x['category.flags']} for x in var_selects}
 	selects = dict()
 	for var_sel in var_selects:
 	    selects.setdefault(var_sel['var_id'], [])
@@ -463,7 +468,7 @@ class VarSearchForm(object):
 	entries = []
 	for key in sorted(set(self.attributes.keys()) - set(hidden_attributes) - set(text_attributes)):
 	    if key == 'category':
-		cates = [('', '')] + [(x, mbdata.categories.get(x, x)) for x in values.get(key, [])]
+		cates = [('', '')] + [(x, self.catdefs.get(x, {'name': x})['name']) for x in values.get(key, [])]
 		cates.sort(key=lambda x: x[1])
 		value = pif.render.format_button_up_down_select(key, -1) + pif.render.format_select(key, cates, id=key) + \
 			'&nbsp;' + pif.render.format_checkbox('c1', [(1, 'Show Code 1')], checked=[1]) + \
@@ -585,7 +590,7 @@ class VarSearchForm(object):
     def show_search_object(self):
 	ostr = 'Selected models' if self.varl else 'All models'
 	if self.cateq:
-	    ostr +=  ' in ' +  mbdata.categories.get(self.cateq, self.cateq)
+	    ostr +=  ' in ' +  self.catdefs[self.cateq]['name']
 	if self.wheelq:
 	    ostr += ' with ' + self.wheelq + " wheels"
 	if self.attrq:
@@ -600,11 +605,11 @@ class VarSearchForm(object):
 	for key in mvars:
 	    variation = mvars[key]
 	    variation['references'] = ' '.join(list(set(self.selects.get(key, []))))
-	    category = variation['_catlist'] = variation.get('category', '').split()
-	    if not category:
-		category = ['MB']
-	    for c in category:
-		cates.add(c)
+#	    category = variation['_catlist'] = variation.get('category', '').split()
+#	    if not category:
+#		category = ['MB']
+#	    for c in category:
+#		cates.add(c)
 	    if variation.get('wheels') not in wheels:
 		wheels.append(variation.get('wheels'))
 	    if variation.get('text_wheels') not in wheels:
@@ -669,11 +674,12 @@ def do_var_detail(pif, model, var, credits):
 
 def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
     pic_id = var['picture_id']
-    cats = [mbdata.categories.get(x, x) for x in var['_catlist']]
+    cats = [model['_catdefs'][x]['name'] for x in sorted(set(var['_catlist']))]
 
     descs = list()
     dets = list()
     note_text = ''
+    note_text += attributes['category']['title'] + ': ' + ', '.join(cats) + '<br>'
     for d in sorted(var.keys()):
 	if d.startswith('_') or d == 'text_description' or not var[d]:
 	    pass
@@ -681,10 +687,7 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
 	    descs.append(d)
 	elif d in note_attributes:
 	    if var[d]:
-		if d == 'category':
-		    note_text += attributes[d]['title'] + ': ' + ', '.join(cats) + '<br>'
-		else:
-		    note_text += attributes[d]['title'] + ': ' + var[d] + '<br>'
+		note_text += attributes[d]['title'] + ': ' + var[d] + '<br>'
 	elif d not in hidden_attributes:
 	    dets.append(d)
     if pif.is_allowed('a'):  # pragma: no cover
@@ -853,14 +856,13 @@ def save_model(pif, mod_id):
 	pif.dbh.write_photo_credit(phcred, config.IMG_DIR_MAN[1:], mod_id)
 
 
-def mangle_variation(pif, variation):
-    category = variation['_catlist'] = variation.get('category', '').split()
-    if not category:
-	category = variation['_catlist'] = ['MB']
+def mangle_variation(pif, model, variation):
+    category = variation['_catlist'] = sorted(set([x['variation_select.category'] for x in variation['vs']]))
+    model['_catdefs'].update({x['category.id']: {'name': x['category.name'], 'image': x['category.image'], 'flags': x['category.flags']} for x in variation['vs']})
     #variation['area'] = ', '.join([mbdata.regions.get(x, x) for x in variation.get('area', '').split(';')])
-    variation['_code'] = 2 if (set(mbdata.code2_categories) & set(category)) else 1
+    variation['_code'] = 2 if any([x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2 for x in variation['vs']]) else 1
     variation['link'] = '?mod=%s&var=%s' % (variation['mod_id'], variation['var'])
-    variation['categories'] =  ' - '.join([pif.render.format_image_art(mbdata.cat_arts.get(x), desc=mbdata.categories.get(x, x)) for x in variation['_catlist']])
+    variation['categories'] =  ' - '.join([pif.render.format_image_art(model['_catdefs'][x]['image'], desc=model['_catdefs'][x]['name']) for x in variation['_catlist']])
     pic_id = variation['picture_id']
 
     img = pif.render.find_image_path([variation['mod_id']], nobase=True, vars=pic_id if pic_id else variation['var'], prefix=mbdata.IMG_SIZ_SMALL)
@@ -873,20 +875,22 @@ def mangle_variation(pif, variation):
 
 def show_model(pif, model):
     mod_id = model['id']
-    cates = {'MB'}
+    model['_catdefs'] = dict()
+    cates = set()
     mvars = dict()
     fvars = dict()
     libdir = useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()) if pif.is_allowed('u') else ('.' + config.INC_DIR)
     uplink = 'upload.cgi?d=%(_dir)s&m=%(mod_id)s&v=%(var)s' if pif.is_allowed('u') else 'upload.cgi?m=%(mod_id)s&v=%(var)s'
     vsform = VarSearchForm(pif, mod_id).read(pif.form)
     for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
-	variation = mangle_variation(pif, variation)
+	variation = mangle_variation(pif, model, variation)
 	variation['_dir'] = libdir
 	variation['_lnk'] = uplink % variation
 	cates.update(variation['_catlist'])
 	mvars[variation['var']] = variation
 	if vsform.model_match(variation):
 	    fvars[variation['var']] = variation
+    #vsform.catdefs = model['_catdefs']
 
     form_values = vsform.make_values(mvars)
     form_values['category'] = list(cates)
@@ -1446,7 +1450,12 @@ def check_variation_select(pif):
 	print r
 
     print 'missing variations'
-    res = pif.dbh.raw_execute('''select mod_id, var_id, id from variation_select where (mod_id, var_id) not in (select mod_id, var from variation);''')
+    res = pif.dbh.raw_execute('''select * from variation_select where (mod_id, var_id) not in (select mod_id, var from variation);''')
+    for r in res[0]:
+	print r
+
+    print 'missing categories'
+    res = pif.dbh.raw_execute('''select * from variation_select where cateogory not in (select id from category);''')
     for r in res[0]:
 	print r
 
@@ -1522,6 +1531,7 @@ def get_vars(pif, mod_ids):
 
 
 def check_var_data(pif):
+    db_cats = set([x['category.id'] for x in pif.dbh.fetch_categories()])
     variation_id_sets = create_var_id_sets(pif)
     mods = pif.dbh.fetch_casting_list()
     mods.sort(key=lambda x: x['casting.id'])
@@ -1542,8 +1552,11 @@ def check_var_data(pif):
 	for var in varlist:
 	    vid = var['variation.var']
 	    nid = mbdata.normalize_var_id(mod, vid)
+	    cats = set(var['variation.category'].split())
 	    if nid != vid:
 		print '*** id mismatch', mod_id, vid, nid
+	    if cats - db_cats:
+		print 'cat', mod_id, vid, var['variation.category']
 	    if not vid[0].isdigit():
 		continue
 	    while not vid[-1].isdigit():
@@ -1556,6 +1569,16 @@ def check_var_data(pif):
 		    missing.append(str(vid))
 	if missing:
 	    print mod_id, ':', ', '.join(missing)
+
+
+def show_cats(pif, *mod_ids):
+    fmt = '%-12s %-8s %-12s %-12s'
+    for mod_id in mod_ids:
+	vars = pif.dbh.fetch_variations(mod_id)
+	for var in vars:
+	    print fmt % (var['variation.mod_id'], var['variation.var'],
+		' '.join(sorted(var['variation.category'].split(' '))),
+		' '.join(sorted(set([x['variation_select.category'] for x in var['vs']]))))
 
 
 cmds = [
@@ -1576,6 +1599,7 @@ cmds = [
     ('ckvs', check_variation_select, "check variation select"),
     ('ckmd', check_mod_data, "check model data"),
     ('ckvd', check_var_data, "check variation data"),
+    ('cat', show_cats, "cats: mod_id ..."),
 ]
 
 

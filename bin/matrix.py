@@ -13,12 +13,15 @@ class MatrixFile(object):
     def __init__(self, pif):
         self.tables = []
         self.text = []
+	self.dates = set()
 	if pif.form.has('page'):
 	    self.from_file(pif)
 	elif pif.form.has('cat'):
 	    self.from_cat(pif)
 
     def from_file(self, pif):
+	pif.render.hierarchy_append('/cgi-bin/matrix.cgi', 'Series')
+	pif.render.hierarchy_append('/cgi-bin/matrix.cgi?page=%s' % pif.form.get_str('page'), pif.render.title)
         mats = pif.dbh.fetch_sections({'page_id': pif.page_id})
         ents = pif.dbh.fetch_matrix_models_variations(pif.page_id)
         for mat in mats:
@@ -92,12 +95,18 @@ class MatrixFile(object):
 
     def from_cat(self, pif):
 	cat_id = pif.form.get_str('cat')
+	cat = pif.dbh.fetch_category(cat_id)
+	if not cat:
+	    raise useful.SimpleError('Category not found. %s' % cat_id)
+	pif.render.title = cat.name
+	pif.render.hierarchy_append('/database.php#cats', 'By Categories')
+	pif.render.hierarchy_append('/cgi-bin/matrix.cgi?cat=%s' % cat_id, cat.name)
         ents = pif.dbh.fetch_variations_by_category(cat_id)
         mat = { # maybe make this the section for page_id='matrix'?
 	    'id': 'cat',
 	    'page_id': 'matrix',
 	    'display_order': 0,
-	    'category': mbdata.categories.get(cat_id),
+	    'category': cat['category.name'],
 	    'flags': 0,
 	    'name': '',
 	    'columns': 4,
@@ -113,9 +122,13 @@ class MatrixFile(object):
 	mat['ents'] = {}
 	range_id = 1
 	pif.render.comment('matrix section:', mat)
+	date_re = re.compile("^(?P<d>\d{4})")
 	for ent in ents:
 	    ent.setdefault('vs.ref_id', '')
 	    ent.setdefault('vs.sub_id', '')
+	    date_m = date_re.search(ent['v.date'])
+	    if date_m:
+		self.dates.add(date_m.group('d'))
 	    ent['id']              = ent['vs.id']
 	    ent['mod_id']          = ent['v.mod_id']
 	    ent['section_id']      = mat['id']
@@ -145,16 +158,16 @@ class MatrixFile(object):
 		ent['pdir'] = pif.render.pic_dir
 	    if ent['model_type'] == 'MP':
 		ent['image'] = \
-			pif.render.format_image_optional(ent['mod_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True)
+			pif.render.format_image_required(ent['mod_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True)
 #	    elif ent['range_id'] and ffmt['img']:
 #		ent['image'] = \
 #			pif.render.format_image_required([useful.clean_name(ffmt['img'] % ent['range_id'], '/')])
 	    elif ent.get('v.picture_id'):
 		ent['image'] = \
-			pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.picture_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
+			pif.render.format_image_required(ent['mod_id'] + '-' + ent['v.picture_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
 	    elif ent.get('v.var'):
 		ent['image'] = \
-			pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.var'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
+			pif.render.format_image_required(ent['mod_id'] + '-' + ent['v.var'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
 #	    if ent['range_id'] and ffmt['disp']:
 #		ent['disp_id'] = ent['range_id']
 #	    if ent['range_id'] and ffmt['link']:
@@ -167,8 +180,6 @@ class MatrixFile(object):
 	    ent['disp_format'] = mat['disp_format']
 	    pif.render.comment('        entry:', ent)
 	self.tables.append(mat)
-        self.tables.sort(key=lambda x: x['display_order'])
-
 
     def matrix(self, pif):
         llineup = {'id': pif.page_name, 'section': [], 'note': '\n'.join(self.text), 'columns': 4, 'tail': ''}
@@ -182,14 +193,23 @@ class MatrixFile(object):
                     section_name += '<br>' + img
             section = {'id': table['id'], 'name': section_name, 'range': [], 'anchor': table['id'], 'columns': table['columns'], 'anchor': table['id']}
             if pif.is_allowed('a'):  # pragma: no cover
-                section['name'] += " (%s/%s)" % (pif.page_id, section['id'])
+		if section['id'] == 'cat':
+		    dates = sorted(self.dates)
+		    if len(self.dates) == 1:
+			section['name'] += " %s" % dates[0]
+		    elif len(self.dates) > 1:
+			section['name'] += " %s-%s" % (dates[0], dates[-1])
+		else:
+		    section['name'] += " (%s/%s)" % (pif.page_id, section['id'])
                 if pif.form.has('large'):
                     section['columns'] = 1
             ran = {'entry': []}
             range_ids = table['ents'].keys()
             range_ids.sort(key=lambda x: table['ents'][x][0]['display_order'])
             for range_id in range_ids:
-                if pif.render.flags & pif.dbh.FLAG_PAGE_INFO_UNROLL_MODELS:
+		if section['id'] == 'cat':
+		    ran['entry'].append(self.add_cell(pif, table['ents'][range_id], table, comments))
+                elif pif.render.flags & pif.dbh.FLAG_PAGE_INFO_UNROLL_MODELS:
                     for ent in table['ents'][range_id]:
                         if ent.get('sub_id'):
                             mods = self.find_matrix_variations([ent], pif.page_id, [ent['sub_id']])
@@ -216,7 +236,7 @@ class MatrixFile(object):
         if mods:
             return mods
         mod = copy.deepcopy(ents[0])
-        mod['description'] = mod['matrix_model.description'].split(';')
+        mod['description'] = mod.get('matrix_model.description', '').split(';')
         mod['vs.ref_id'] = ''
         mod['vs.sub_id'] = ''
         mod['v.picture_id'] = None
@@ -255,7 +275,7 @@ class MatrixFile(object):
             ent['no_casting'] = 1
             ent['picture_only'] = 1
         else:
-            if not ent.get('vs.ref_id'):
+            if not ent.get('vs.var_id'):
                 comments.add('v')
                 ent['no_variation'] = 1
             if not varimage:
@@ -294,7 +314,7 @@ class MatrixFile(object):
         ent['descriptions'] = filter(None, ent['description'])
         if ent['descriptions'] and (not ent['flags'] & tables.FLAG_MODEL_NO_VARIATION):
             pass
-        elif ent['matrix_model.description']:
+        elif ent.get('matrix_model.description', ''):
             ent['descriptions'] = ent['matrix_model.description'].split(';')
 
         ent['anchor'] = '%s' % ent['number']
@@ -337,13 +357,10 @@ def select_matrix(pif):
 
 @basics.web_page
 def main(pif):
-    # want to add making a matrix by variation.category
-    pif.render.print_html()
-    matf = MatrixFile(pif)
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/matrix.cgi', 'Series')
-    pif.render.hierarchy_append('/cgi-bin/matrix.cgi?page=%s' % pif.form.get_str('page'), pif.render.title)
+    pif.render.print_html()
+    matf = MatrixFile(pif)
     if matf.tables:
         llineup = matf.matrix(pif)
 	pif.render.format_matrix_for_template(llineup)

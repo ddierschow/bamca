@@ -1010,7 +1010,14 @@ def show_list_var_pics(pif, mod_id):
     cpics = cfound = pics = found = 0
     for var in vars:
         var = pif.dbh.depref('variation', var)
-        if var['var'].startswith('f') or mbdata.categories.get(var['category'], '').startswith('['):
+	code2 = False
+	core = False
+	for vs in var['vs']:
+	    if vs['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2:
+		code2 = True
+	    if vs['category.id'] == 'MB':
+		core = True
+        if var['var'].startswith('f') or code2:
             continue
         elif not var['picture_id']:
             fn = mod_id + '-' + var['var']
@@ -1022,13 +1029,13 @@ def show_list_var_pics(pif, mod_id):
             continue
 	pic_path = pif.render.find_image_file(fnames=fn, vars=pid, prefix=mbdata.IMG_SIZ_SMALL)
         pics += 1
-        if not var['category']:
+        if core:
             cpics += 1
 #        print '<!--', config.IMG_DIR_MAN + '/var/' + fn + '.jpg', '-->'
         #if os.path.exists(config.IMG_DIR_MAN + '/var/s_' + fn.lower() + '.jpg'):
 	if pic_path:
             found += 1
-            if not var['category']:
+            if core:
                 cfound += 1
     af = '%d/%d' % (found, pics)
     cf = '%d/%d' % (cfound, cpics)

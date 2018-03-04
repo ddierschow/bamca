@@ -242,6 +242,7 @@ individuals or organization.</dt>
 <dd>An acronym used to describe the metal compound that a lot of diecast vehicles are currently made from; stands for Zinc, Aluminium, Magnesium And Copper</dd>
 </dl>
 
-
-<?php DoFoot($pif); ?>
+<?php
+DoButtonComment($pif);
+DoFoot($pif); ?>
 </html>

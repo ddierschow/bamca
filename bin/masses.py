@@ -411,6 +411,7 @@ def add_var_info(pif):
 	    'imported_var': var_id,
 	    'date': pif.form.get_str('date')
     }
+    cats = [(x['category.id'], x['category.name'],) for x in pif.dbh.fetch_categories()]
     for col in var_id_columns + [None] + var_attr_columns + attr_names + [None] + var_data_columns:
 	if col:
 	    val = var.get(col) if var.get(col) else defs.get(col, '')
@@ -418,7 +419,7 @@ def add_var_info(pif):
 	    if var:
 		print '<td class="eb">%s</td>' % val
 	    print '<td class="eb">%s</td></tr>' % (
-		pif.render.format_select(col, sorted(mbdata.categories.items()), val, blank='') if col == 'category' else
+		pif.render.format_select(col, sorted(cats), val, blank='') if col == 'category' else
 		pif.render.format_text_input(col, 64, 32, value=val))
 	else:
 	    print '<tr><td class="eb" colspan="%s"></td></tr>' % (3 if var else 2)

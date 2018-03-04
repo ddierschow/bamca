@@ -1,9 +1,10 @@
 #!/usr/local/bin/python
 
-import glob, os
+import datetime, glob, os, pprint, re
 import basics
 import bfiles
 import config
+import images
 import javasc
 import useful
 
@@ -12,6 +13,7 @@ import useful
 # -- biblio
 
 map_url = '''https://www.google.com/maps/place/'''
+squish_re = re.compile(r'\s\s*')
 
 biblios = {
     'biblio': {
@@ -169,3 +171,56 @@ def calendar(pif):
 	lsection['range'].append(lrange)
 
     return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+
+@basics.web_page
+def submit_comment(pif):
+    pif.render.print_html()
+    print pif.render.format_head()
+    useful.write_message(pif.form)
+    ostr = "I am sending this comment for you. "
+
+    fname = pif.form.get_str('pic.name')
+    fimage = pif.form.get_str('pic')
+    pif.form.delete('pic')
+    pif.form.change_key('page', 'page_id')
+    fn = "../../comments/comment." + datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
+
+    ostr += "<dl><dt>My Subject</dt><dd>" + pif.form.get_str('mysubject') + "</dd>\n"
+    ostr += "<dl><dt>My Comment</dt><dd>" + pif.form.get_str('mycomment') + "</dd>\n"
+    ostr += "<dt>My Name</dt><dd>" + pif.form.get_str('myname') + "</dd>\n"
+    ostr += "<dt>My Email</dt><dd>" + pif.form.get_str('myemail') + "</dd></dl>\n"
+
+    if fimage:
+	ostr += "<dt>Relevant File</dt><dd>" + fname + "<br>\n"
+	direc = config.INC_DIR
+	descriptions_file = config.LOG_ROOT + '/descr.log'
+	dest_filename = images.get_next_upload_filename()
+	dest_filename = useful.file_save(direc, dest_filename, fimage)
+	images.file_log(direc + '/' + dest_filename, direc)
+
+        cred = who = comment = '-'
+	if pif.form.get_str('mycomment'):
+            comment = squish_re.sub(' ', pif.form.get_str('mycomment'))
+        if pif.form.get_str('credit'):
+            cred = squish_re.sub(' ', pif.form.get_str('credit'))
+	if pif.form.get_str('myname'):
+            who = squish_re.sub(' ', pif.form.get_str('myname'))
+        open(descriptions_file, 'a+').write('\t'.join([dest_filename,
+                '-',
+                '-',
+                '-',
+                comment, cred, who]) + '\n')
+        ostr = '<div class="warning">Thank you for submitting that file.</div><br>\n'
+        ostr += "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
+
+
+	ostr += "</dd></dl>\n";
+
+    fh = open(fn, "w")
+    fh.write("_POST\n\n" + pprint.pformat(pif.form, indent=2, width=132) + "\n\n");
+    fh.write("REMOTE_ADDR=" + os.getenv('REMOTE_ADDR') + "\n");
+#else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE)) {
+#    echo 'Whoa there.  This is not the correct place to submit links.  Please use the "Suggest a Link" page on the main index.' . "\n
+    ostr += "Thanks for sending that.  Now please use the BACK button on your browser to return to where you were.";
+    return ostr
