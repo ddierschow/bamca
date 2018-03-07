@@ -3,6 +3,7 @@
 body    {background-color: #CCCC99; color: #FFFFFF;}
 table   {border-collapse: collapse; border-width: 0px; margin-right: auto; margin-left: auto;}
 img     {border-width: 0;}
+a       {font-weight: bold;}
 
 .boxend {background-color: #000033; width: 100%; height: 200px;}
 .boxin  {background-color: #FFFF00; color: #000000;}

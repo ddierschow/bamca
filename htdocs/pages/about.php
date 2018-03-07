@@ -97,6 +97,9 @@ of Matchbox International Ltd. and are used with permission.
 <div class="infopanel">
 If you'd like to know about the current status of the website, or how to contribute, please look at our <a href="status.php">status page</a>.
 If you'd like to find out more about the history of the club and the website, look at the <a href="club.php">club history page</a>.
+Feel free to check out our <a href="http://blog.bamca.org/">blog</a>,
+our <a href="http://bamca.tumblr.com/">Tumblr</a>,
+and our <a href="https://www.facebook.com/Bay-Area-Matchbox-Collectors-Association-BAMCA-106213056100271/">FaseBook page</a>.
 And, we do have a <a href="faq.php">Frequently Asked Questions</a> page available as well.
 </div>
 

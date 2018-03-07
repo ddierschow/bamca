@@ -8,6 +8,15 @@ DoHead($pif);
 DoPageHeader($pif);
 ?> 
 
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.12';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
 <table width="1024" class="banner">
 <tr><td class="bannercell" width="406">
 <img src="/pic/gfx/bamcabay.gif">
@@ -24,8 +33,7 @@ DoPageHeader($pif);
 <?php include "announce.php";?>
 
 <table class="index"><tr><td>
-<ul>
-<li>Information about BAMCA, the Bay Area Matchbox Collectors Association
+<h2>Information about BAMCA, the Bay Area Matchbox Collectors Association</h2>
  <ul>
  <li><a href="/pages/faq.php">The BAMCA <b>FAQ</b></a>
  <li><a href="/pages/contact.html">How to <b>Contact</b> or join BAMCA</a>
@@ -35,7 +43,7 @@ DoPageHeader($pif);
  <li><a href="/cgi-bin/biblio.cgi?page=bayarea">A list of places to find die-cast in the <b>Bay Area</b></a>
  </ul>
 
-<li>Information about Matchbox Toys
+<h2>Information about Matchbox Toys</h2>
  <ul>
  <li style="margin: 3px 0 3px 0"><a class="database" href="/database.php">Matchbox Model <b>Database</b></a>
  <li><a href="/pages/lsm.php">Matchbox Model Pages for <b>Large Scale</b> Ranges
@@ -47,7 +55,7 @@ DoPageHeader($pif);
  <li><a href="/pages/mbhistory.html"><b>History</b> of Matchbox</a>
  </ul>
 
-<li>Other Toy Information
+<h2>Other Toy Information</h2>
  <ul>
  <li><a href="/pages/glossary.php">A <b>Glossary</b> of Toy Collecting Terms</a>
  <li><a href="/cgi-bin/biblio.cgi">A <b>Bibliography</b> of Toy Collecting Books</a>
@@ -55,7 +63,6 @@ DoPageHeader($pif);
  <li><a href="/cgi-bin/links.cgi">Dean's Awesome Toy <b>Links</b> Pages</a> -
      <a href="/cgi-bin/addlink.cgi"><b>Suggest</b> a Link!</a>
  </ul>
-</ul>
 </td></tr></table>
 
 </td>
@@ -93,10 +100,12 @@ of Matchbox International Ltd. and are used with permission.
 </td></tr></table>
 <p>
 <table class="loginbar" width=1024><tr><td>
-<iframe src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.bamca.org%2F&amp;layout=button_count&amp;show_faces=false&amp;width=100&amp;action=like&amp;font=arial&amp;colorscheme=light&amp;height=24" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:90px; height:24px; vertical-align: middle;" allowTransparency="true"></iframe>
-<a name="fb_share" type="button" class="textbutton share" href="http://www.facebook.com/sharer.php">Share</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
-<a href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271"><img src="/pic/gfx/fb_visit.gif" border="0" /></a>
+<div class="fb-like" data-href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271" data-width="100" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="false"></div>
+<a href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271"><div class="textbutton facebook"><i class="fa fa-facebook-square"></i> FACEBOOK</div></a>
+<a name="fb_share" type="button" class="textbutton facebook" href="http://www.facebook.com/sharer.php">Share</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
 <?php DoTextButtonLink('see_the_faq', "/pages/faq.php", "textbutton see_the_faq"); ?>
+<?php DoTextButtonLink('blog', "http://blog.bamca.org/"); ?>
+<a href="http://bamca.tumblr.com/"><div class="textbutton"><i class="fa fa-tumblr-square"></i> TUMBLR</div></a>
 </td></tr></table>
 
 <?php

@@ -128,10 +128,17 @@ credits were added to the pictures.
 </tr>
 
 <tr>
+<th class="leftbar">2018</th>
+<td>
+A <a href="http://blog.bamca.org/">blog</a> was added to the site.
+</td>
+</tr>
+
+<tr>
 <th class="leftbar">The Future</th>
 <td>
 There's still much to do.  If you want to find out more, or how to contribute,
-look at our <a href="status.html">website status page</a>.
+look at our <a href="status.php">website status page</a>.
 </td>
 </tr>
 

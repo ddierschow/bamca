@@ -153,19 +153,22 @@ function Checks($input, $name, $values, $sep='<br>') {
 function Section($args) {
     global $pif;
 
-
+    echo "\n<tr><td>";
+    echo "\n<br></td></tr>\n<tr id=\"{$args['tag']}\">\n  <td class=\"{$args['tag']}_head sel_head\">\n";
+    echo "   <center><h2>{$args['name']}</h2></center>\n  </td>\n </tr>\n";
+    echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"{$args['tag']}_body sel_body\">\n";
     if (isset($args['scr'])) {
 	echo "<form action=\"/cgi-bin/{$args['scr']}\" method=\"get\" name=\"{$args['tag']}\">\n";
-	echo "<input type=\"submit\" name=\"submit\" value=\"submit\" class=\"textbutton\" style=\"visibility: hidden;\">\n";
     }
     else {
 	echo "<i id=\"{$args['tag']}\"></i>\n";
     }
-    echo "\n<tr><td><br></td></tr>\n<tr id=\"{$args['tag']}\">\n  <td class=\"{$args['tag']}_head sel_head\">\n";
-    echo "   <center><h2>{$args['name']}</h2></center>\n  </td>\n </tr>\n";
-    echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"{$args['tag']}_body sel_body\">\n";
     if (isset($args['scr'])) {
-	echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".<p>\n\n";
+	echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".\n";
+	if (isset($args['scr'])) {
+	    echo "<form action=\"/cgi-bin/{$args['scr']}\" method=\"get\" name=\"{$args['tag']}\">\n";
+	}
+	echo "<p>\n";
 	call_user_func($args['fn'], $pif);
 	echo "<br>\n";
 	DoTextButtonSubmit("SEE THE MODELS", "submit");
@@ -175,10 +178,10 @@ function Section($args) {
     }
     else
 	call_user_func($args['fn'], $pif);
-    echo "  </td>\n </tr>\n";
     if (isset($args['scr'])) {
 	echo "\n</form>\n\n";
     }
+    echo "  </td>\n </tr>\n";
 }
 
 function ChooseRegion($nrows) {
