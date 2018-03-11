@@ -22,6 +22,29 @@ def count_tables(pif):
 		print ' ', col
 
 
+def check_schema(pif):
+    check_schema_db(pif, 'bamca')
+    check_schema_db(pif, 'buser')
+
+
+def check_schema_db(pif, db):
+    tablelist = pif.dbh.dbi.execute('show tables in %s' % db)
+    for table in tablelist[0]:
+        table = table[0]
+        print db, table, ':',
+        if table in pif.dbh.table_info:
+            desc = pif.dbh.dbi.execute('desc %s.%s' % (db, table))
+            dbcols = set([x[0] for x in desc[0]])
+            ticols = set(pif.dbh.table_info[table]['columns'] + pif.dbh.table_info[table].get('extra_columns', []))
+            if dbcols != ticols:
+                print "differ"
+		print "  db:", sorted(dbcols - ticols)
+		print "  ti:", sorted(ticols - dbcols)
+            else:
+                print "same"
+        else:
+            print "missing from table_info"
+
 
 # ------- check tables -------------------------------------------------
 
@@ -1002,6 +1025,7 @@ def check_var_data(pif, id_list):
 
 cmds = [
     ('c', count_tables, "count tables: [-v]"),
+    ('sch', check_schema, "check schema"),
     ('tab', check_tables, "check tables: [table ...]"),
     ('dup', check_dups, "check duplicates"),
     ('bid', check_base_id, "check base_id"),

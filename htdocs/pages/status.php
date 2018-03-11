@@ -9,6 +9,14 @@ DoHead($pif);
 DoPageHeader($pif);
 ?>
 
+<?php
+$version = '';
+include "version.txt";
+if ($version) {
+    echo "Current Release Version: " . $version . "<p>";
+}
+?>
+
 <h2 class="section">There are Several Projects Going On</h2>
 
 Going forward, there are many plans for things to add, but they require time, which
