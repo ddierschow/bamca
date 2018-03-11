@@ -804,7 +804,7 @@ class DBHandler(object):
     def fetch_variation_select_counts(self, mod_id=None, by_ref=False):
         wheres = ['variation_select.category=category.id']
 	if mod_id:
-	    wheres + ["variation_select.mod_id='%s'" % mod_id]
+	    wheres += ["variation_select.mod_id='%s'" % mod_id]
 	columns = ['variation_select.mod_id', 'variation_select.ref_id', 'variation_select.category', 'count(*)', 'category.name', 'category.flags']
 	group_by = 'variation_select.category,variation_select.ref_id' if by_ref else 'variation_select.category'
         return self.fetch('variation_select,category', where=wheres, tag='VariationSelectCounts', verbose=0,
