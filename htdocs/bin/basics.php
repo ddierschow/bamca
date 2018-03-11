@@ -187,6 +187,14 @@ function DoPageFooter($pif) {
     echo "</table>\n";
 }
 
+//<tr><td class="bottombar2" colspan="2">
+//<div class="bamcamark">
+//<img src="/pic/gfx/bamca_sm.gif">
+//</div>
+//<div class="comment_box"><a href="../pages/comment.php?page=single&id=MB001&pic=&dir=&ref="><div onsubmit="this.disabled=true;" class="textbutton comment">COMMENT ON<BR>THIS PAGE</div></a>
+//</div>
+//</td></tr>
+
 function DoFoot($pif) {
     echo "</body>\n";
     DBClose($pif['dbi']);

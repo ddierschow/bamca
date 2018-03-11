@@ -1,26 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head><meta charset="UTF-8">
-<title>BAMCA History</title>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<script src="https://use.fontawesome.com/a21dc93072.js"></script>
-<link rel="icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
-<link rel="shortcut icon" href="http://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="/styles/main.css" type="text/css">
-<link rel="stylesheet" href="/styles/fonts.css" type="text/css">
-<link rel="stylesheet" href="/styles/club.css" type="text/css">
-</head>
+<?php
+chdir('..');
+include "bin/basics.php";
+include "config.php";
+$pif = GetPageInfo("status");
+$pif['title'] = 'Bay Area <img src="/pic/gfx/matchboxw.gif" class="mblogo"> Collectors Association History';
+DoHead($pif);
+DoPageHeader($pif);
+?>
 
-<body>
-
-<div class="hier">
-<a href="/">Home</a> <i class="fa fa-chevron-right"></i>
-<a href="/pages/club.php">BAMCA History</a> <i class="fa fa-chevron-right"></i>
-</div>
-
-<table class="framed"><tr>
-<td class="titlebar" colspan="2">Bay Area <img src="/pic/gfx/matchboxw.gif" class="mblogo"> Collectors' Association History</td>
-</tr>
+<table class="framed">
 
 <tr>
 <th class="leftbar">1971</th>
@@ -142,13 +132,7 @@ look at our <a href="status.php">website status page</a>.
 </td>
 </tr>
 
-<tr><td class="bottombar2" colspan="2">
-<div class="bamcamark">
-<img src="/pic/gfx/bamca_sm.gif">
-</div>
-<div class="comment_box"><a href="../pages/comment.php?page=single&id=MB001&pic=&dir=&ref="><div onsubmit="this.disabled=true;" class="textbutton comment">COMMENT ON<BR>THIS PAGE</div></a>
-</div>
-</td></tr></table>
+</table>
 <hr>
 
 This page is maintained by members of BAMCA.

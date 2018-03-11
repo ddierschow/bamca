@@ -55,6 +55,11 @@ of what it will look like.
 Another unbegun division of the website.  Perhaps to be based off of Alexander Veitch's work, if he will
 give me permission to use it.
 
+<li><h4>The Originals Project</h4>
+
+Several years ago, a user named Marcel wrote an excellent history of Matchbox Originials.
+He sent me a copy of it but so far I haven't gotten to integrating it.  I really need to.
+
 <li><h4>The Credits Project</h4>
 
 This is mostly done, I just need to add credits where they are known but
@@ -148,10 +153,14 @@ in a MySQL database, and the repository resides at GitHub.
 These skills would be intrinsic to most of the work going on here.
 Front-end help to make the site look snazzier would also be welcome.
 
+<li>Even bug reports help!  If you see anything wrong, either with the information, or a picture,
+or a bug in the programming, please let me know.  Hit the "comment" button on the relevant page,
+or on the main index, or send an email to "bugs@bamca.org".  I'll get on it as quickly as I can.
+
 </ul>
 
 <h4>Contact me by using the "COMMENT ON THIS PAGE" button, or by sending an email to 
-<b>volunteer@bamca.org</b>.  I'll respond as soon as I can.</h4>
+<b>volunteer@bamca.org</b>, and I'll respond soon.</h4>
 
 <?php
 DoButtonComment($pif);
