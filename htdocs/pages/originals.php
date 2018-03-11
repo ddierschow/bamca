@@ -9,7 +9,7 @@ DoHead($pif);
 DoPageHeader($pif);
 
 function PicLink($pic) {
-    echo '<a href="/pic/set/orig/' . $pic . '.jpg"><img src="/pic/set/orig/p_' . $pic . '.jpg" title="' . $pic . '"></a>';
+    echo '<a href="/pic/set/orig/' . $pic . '.jpg" target="_blank"><img src="/pic/set/orig/p_' . $pic . '.jpg"></a>';
 }
 ?>
 
@@ -90,11 +90,11 @@ South Africa; 15,000 to the USA and 10,000 to Australia.
 The set of painted models duly went on sale in November 1987. Using
 their original "Matchbox" Series numbers the five models were:
 <ul>
-<li>No.1 Aveling Barford Road Roller -- green
-<li>No.2 Massey Harris Tractor -- red
-<li>No.3 London Bus -- "Buy Matchbox Series"
-<li>No.7 Horse-drawn Milk Float -- orange
-<li>No.9 Dennis F.2 Fire Engine -- red with red escape wheels
+<li><a href="/cgi-bin/single.cgi?id=MX101">MX-101</a> No.7 Horse-drawn Milk Float -- orange
+<li><a href="/cgi-bin/single.cgi?id=MX102">MX-102</a> No.5 London Bus -- "Buy Matchbox Series"
+<li><a href="/cgi-bin/single.cgi?id=MX103">MX-103</a> No.4 Massey Harris Tractor -- red
+<li><a href="/cgi-bin/single.cgi?id=MX104">MX-104</a> No.1 Aveling Barford Road Roller -- green
+<li><a href="/cgi-bin/single.cgi?id=MX105">MX-105</a> No.9 Dennis F.2 Fire Engine -- red with red escape wheels
 </ul>
 
 All five models were painted in the same colour schemes as they had
@@ -267,11 +267,11 @@ A very fragile item so watch out when buying from overseas.
 
 In 1993 five new models were released. Series II comprised:
 <ul>
-<li>MX-106 No.6 Quarry Truck -- blue &amp; grey
-<li>MX-107 No.13 Wreck Truck -- red &amp; yellow
-<li>MX-108 No.19 MGA -- green
-<li>MX-109 No.26 Cement Mixer Truck -- orange &amp; grey
-<li>MX-110 No.32 Jaguar XK 140 -- black
+<li><a href="/cgi-bin/single.cgi?id=MX106">MX-106</a> No.6 Quarry Truck -- blue &amp; grey
+<li><a href="/cgi-bin/single.cgi?id=MX107">MX-107</a> No.13 Wreck Truck -- red &amp; yellow
+<li><a href="/cgi-bin/single.cgi?id=MX108">MX-108</a> No.19 MGA -- green
+<li><a href="/cgi-bin/single.cgi?id=MX109">MX-109</a> No.26 Cement Mixer Truck -- orange &amp; grey
+<li><a href="/cgi-bin/single.cgi?id=MX110">MX-110</a> No.32 Jaguar XK 140 -- black
 </ul>
 
 <?php PicLink('series2'); ?>
@@ -279,11 +279,11 @@ In 1993 five new models were released. Series II comprised:
 
 The range was increased in 1994 with the release of Series III;
 <ul>
-<li>MX-111 No.11 Road Tanker -- powder blue
-<li>MX-112 No.12 Land Rover -- green
-<li>MX-113 No.17 Removal Van -- blue
-<li>MX-114 No.18 Caterpillar Bulldozer -- yellow &amp; red
-<li>MX-115 No.52 Maserati Racer -- red
+<li><a href="/cgi-bin/single.cgi?id=MX111">MX-111</a> No.11 Road Tanker -- powder blue
+<li><a href="/cgi-bin/single.cgi?id=MX112">MX-112</a> No.12 Land Rover -- green
+<li><a href="/cgi-bin/single.cgi?id=MX113">MX-113</a> No.17 Removal Van -- blue
+<li><a href="/cgi-bin/single.cgi?id=MX114">MX-114</a> No.18 Caterpillar Bulldozer -- yellow &amp; red
+<li><a href="/cgi-bin/single.cgi?id=MX115">MX-115</a> No.52 Maserati Racer -- red
 </ul>
 
 The factory encountered production problems with the bulldozer model
@@ -559,6 +559,9 @@ for the Harrogate Fair which I think was in February 1953.
 <p>
 
 Marcel
+<p>
+
+<a href="/cgi-bin/manno.cgi?section=orig">See the list of Matchbox Originals models on the BAMCA site here.</a>
 
 <?php
 DoButtonComment($pif);

@@ -60,6 +60,12 @@ give me permission to use it.
 Several years ago, a user named Marcel wrote an excellent history of Matchbox Originials.
 He sent me a copy of it but so far I haven't gotten to integrating it.  I really need to.
 
+<li><h4>The Ephemera Project</h4>
+
+Advertisements, catalogs, posters, packaging -- all forms of printed items made by
+Matchbox is of interest to collectors.  I'd like to add more of these to the
+database.
+
 <li><h4>The Credits Project</h4>
 
 This is mostly done, I just need to add credits where they are known but

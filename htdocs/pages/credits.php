@@ -15,6 +15,8 @@ Most of the data for our database has come from:
 <li>David Tilley
 <li>Christian Falkensteiner
 <li>John Nijhuis
+<li>Marcel Colijn
+<li>Scott Mace
 </ul>
 
 <h3>Pictures</h3>
