@@ -1,0 +1,7 @@
+a {border-width: 1px;}
+img {vertical-align: top; margin: 4px;}
+img {border-color: #000000; border-width: 2px; border-style: solid;}
+a:link       {border-color: #0000FF;}
+a:visited    {border-color: #000099;}
+a:active     {border-color: #009900;}
+a:hover      {border-color: #000099;}
