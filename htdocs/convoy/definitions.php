@@ -15,6 +15,7 @@ DoHead($pif);
   <meta name="description" content="<?php echo $desc; ?>">
 <?php
 DoPageHeader($pif);
+$credits = fetch_cy_credits($pif);
 ?>
 
 The Matchbox Convoy Project - Definitions<br>
