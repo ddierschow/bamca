@@ -199,7 +199,7 @@ def add_model_table_list_entry_dict(pif, mdict):
 	mdict['lname'] = mdict['shortname']
 	if mdict.get('link'):
 	    mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(lname)s</a>' % mdict
-	mdict['box_sm'] = '<i class="fa fa-square-o"></i>'
+	mdict['box_sm'] = '<i class="far fa-square"></i>'
     return mdict
 
 

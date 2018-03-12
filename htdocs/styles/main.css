@@ -63,9 +63,8 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .modelstars  {width: 38%;}
 .modelstars img {float: left;}
 .modelstars i {float: left;}
-.modelicons  {width: 38%;}
+.modelicons  {width: 38%; text-align: right;}
 .modelicons img {float: right;}
-.modelicons i {float: right;}
 .vartable    {width: 100%; text-align: center;}
 .varentry    {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFEEDD;}
 .credit      {font-style: italic; font-size: x-small; text-align: right;}
@@ -121,6 +120,12 @@ it is also useful for targeting FF-only code */
 .see_the_faq:visited {color: #006600; background-color: #FFFF00; border-color: #006600;}
 .see_the_faq:active  {color: #006600; background-color: #FFFF00; border-color: #006600;}
 .see_the_faq:hover   {color: #FFFF00; background-color: #006600; border-color: #FFFF00;}
+
+.site_status  {background-color: #FF0000; color: #FFFFFF;border-color: #FFFFFF;}
+.site_status:link    {color: #FFFFFF; background-color: #FF0000; border-color: #FFFFFF;}
+.site_status:visited {color: #FFFFFF; background-color: #FF0000; border-color: #FFFFFF;}
+.site_status:active  {color: #FFFFFF; background-color: #FF0000; border-color: #FFFFFF;}
+.site_status:hover   {color: #FF0000; background-color: #FFFFFF; border-color: #FF0000;}
 
 .maintable {width: 1024px; max-width: 1024px;}
 .header-links {width: 90%; padding: 0 0 0 0; text-align: center; font-size: 0;}

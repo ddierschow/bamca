@@ -563,8 +563,8 @@ of Matchbox International Ltd. and are used with permission.
     #---- buttons
 
     def format_button_up_down(self, field):
-        but_inc = '''<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>'''
-        but_dec = '''<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>'''
+        but_inc = '''<div class="textbutton textupdown"><i class="fas fa-angle-up bold" title="UP"></i></div>'''
+        but_dec = '''<div class="textbutton textupdown"><i class="fas fa-angle-down bold" title="DOWN"></i></div>'''
         ostr = ''
         ostr += '''<a onclick="incrfield(%s, 1);">%s</a>''' % (field, but_inc)
         ostr += '''<a onclick="incrfield(%s,-1);">%s</a>''' % (field, but_dec)
@@ -572,10 +572,10 @@ of Matchbox International Ltd. and are used with permission.
 
     def format_button_up_down_select(self, id, vl=1):
         ostr = ''
-        but_max = '''<div class="textbutton textupdown"><i class="fa fa-angle-double-up bold" title="TOP"></i></div>'''
-        but_inc = '''<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>'''
-        but_dec = '''<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>'''
-        but_min = '''<div class="textbutton textupdown"><i class="fa fa-angle-double-down bold" title="BOTTOM"></i></div>'''
+        but_max = '''<div class="textbutton textupdown"><i class="fas fa-angle-double-up bold" title="TOP"></i></div>'''
+        but_inc = '''<div class="textbutton textupdown"><i class="fas fa-angle-up bold" title="UP"></i></div>'''
+        but_dec = '''<div class="textbutton textupdown"><i class="fas fa-angle-down bold" title="DOWN"></i></div>'''
+        but_min = '''<div class="textbutton textupdown"><i class="fas fa-angle-double-down bold" title="BOTTOM"></i></div>'''
         if vl > 0:
             ostr += "<a onclick=\"settsel('%s');\">%s</a>\n" % (id, but_max)
             ostr += "<a onmousedown=\"toggleOnSel('%s', 1);\" onmouseup=\"toggleOff();\">%s</a>\n" % (id, but_inc)
@@ -708,7 +708,7 @@ of Matchbox International Ltd. and are used with permission.
 	ostr = '''<script>var sel_%s = new imageselector("%s", %s);</script>\n''' % (select_id, select_id, str(pics))
 	for num in range(len(pics)):
 	    ostr += "<a onclick=\"sel_%s.select(%d);\" id=\"%s_%s\">%s</a>\n" % (select_id, num, select_id, num,
-		'<i class="fa fa-circle%s green"></i>' % ('-o' if num else '')
+		'<i class="fa%s fa-circle green"></i>' % ('r' if num else 's')
 	    )
 	return ostr
 

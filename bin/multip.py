@@ -142,13 +142,13 @@ def modify_pack_admin(pif, pack):
     stars = ''
     for mod in sorted(pmodels.keys()):
 	if not pmodels[mod].get('id'):
-	    stars += '<i class="fa fa-star green"></i> '
+	    stars += '<i class="fas fa-star green"></i> '
 	elif not pmodels[mod].get('vs.var_id'):
-	    stars += '<i class="fa fa-star red"></i> '
+	    stars += '<i class="fas fa-star red"></i> '
 	elif pmodels[mod]['imgstr'].find('-') < 0:
-	    stars += '<i class="fa fa-star yellow"></i> '
+	    stars += '<i class="fas fa-star yellow"></i> '
 	else:
-	    stars += '<i class="fa fa-star black"></i> '
+	    stars += '<i class="fas fa-star black"></i> '
     pack['stars'] = stars
     pack['edlink'] = '<a href="mass.cgi?verbose=1&type=pack&section_id=%(section_id)s&pack=%(id)s&var=%(var)s&num=">%(longid)s</a>' % pack
     relateds = pif.dbh.fetch_packs_related(pack['id'])
@@ -262,9 +262,9 @@ def distill_models(pif, pack, page_id):
     #pack['pic'] += imglib.format_image_star(pif, path, pic)
     pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack_id.lower())
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
-    pack['thumb'] = '<i class="fa fa-%s"></i>' % ('check-square-o' if linmod else 'square-o')
+    pack['thumb'] = '<i class="far fa-%s"></i>' % ('check-square' if linmod else 'square')
     if ''.join(pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):
-	pack['thumb'] += '<i class="fa fa-star"></i>'
+	pack['thumb'] += '<i class="fas fa-star"></i>'
     pmodels = {}
 
     for mod in model_list:

@@ -100,12 +100,13 @@ of Matchbox International Ltd. and are used with permission.
 </td></tr></table>
 <p>
 <table class="loginbar" width=1024><tr><td>
-<div class="fb-like" data-href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271" data-width="100" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="false"></div>
-<a href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271"><div class="textbutton facebook"><i class="fa fa-facebook-square"></i> FACEBOOK</div></a>
+<div class="textbutton fb-like" data-href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271" data-width="100" data-layout="button_count" data-action="like" data-size="small" data-show-faces="false" data-share="false"></div>
+<a href="http://facebook.com/pages/Bay-Area-Matchbox-Collectors-Association/106213056100271"><div class="textbutton facebook"><i class="fab fa-facebook-square"></i> FACEBOOK</div></a>
 <a name="fb_share" type="button" class="textbutton facebook" href="http://www.facebook.com/sharer.php">Share</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
-<?php DoTextButtonLink('see_the_faq', "/pages/faq.php", "textbutton see_the_faq"); ?>
-<?php DoTextButtonLink('blog', "http://blog.bamca.org/"); ?>
-<a href="http://bamca.tumblr.com/"><div class="textbutton"><i class="fa fa-tumblr-square"></i> TUMBLR</div></a>
+<a href="/pages/faq.php"><div class="textbutton see_the_faq"><i class="fas fa-question-circle"></i> SEE THE FAQ</div></a>
+<a href="http://blog.bamca.org/"><div class="textbutton"><i class="fab fa-blogger"></i> BLOG</div></a>
+<a href="http://bamca.tumblr.com/"><div class="textbutton"><i class="fab fa-tumblr-square"></i> TUMBLR</div></a>
+<a href="/pages/status.php"><div class="textbutton site_status"><i class="fas fa-clipboard-list"></i> SITE STATUS</div></a>
 </td></tr></table>
 
 <?php

@@ -229,18 +229,18 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
 
     ostr = ''
     if pif.is_allowed('a'):  # pragma: no cover
-#<i class="fa fa-star white"></i>
-#<i class="fa fa-star-half-o white"></i>
-#<i class="fa fa-star-o white"></i>
+#<i class="fas fa-star white"></i>
+#<i class="fas fa-star-half-o white"></i>
+#<i class="fas fa-star-o white"></i>
         prodstar = 'fa-star-o black'
         if pic:
 	    links.append('')
             prodstar = 'fa-star white'
 	    prod = pic
-            prod += ' <a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fa fa-upload"></i></a>' % (pdir.replace('pic', 'lib'), pic, pic, urllib.quote(pif.request_uri))
+            prod += ' <a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fas fa-upload"></i></a>' % (pdir.replace('pic', 'lib'), pic, pic, urllib.quote(pif.request_uri))
             prodpic = pif.render.find_image_path(pic, pdir=pdir)
             if lm_pic_id:
-                prod += ' <a href="%s&useprev=2"><i class="fa fa-step-backward red"></i></a>' % pif.request_uri
+                prod += ' <a href="%s&useprev=2"><i class="fas fa-step-backward red"></i></a>' % pif.request_uri
             elif prodpic:
                 x, y = imglib.get_size(prodpic)
                 if x > 400:
@@ -249,9 +249,9 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
                     prodstar = 'fa-star black'
                 else:
                     prodstar = 'fa-star red'
-                prod += ' <a href="imawidget.cgi?act=1&d=./%s&f=%s&delete=1"><i class="fa fa-remove"></i></a>' % (pdir, prodpic[prodpic.rfind('/') + 1:])
+                prod += ' <a href="imawidget.cgi?act=1&d=./%s&f=%s&delete=1"><i class="fas fa-remove"></i></a>' % (pdir, prodpic[prodpic.rfind('/') + 1:])
             else:
-                prod += ' <a href="%s&useprev=1"><i class="fa fa-step-backward"></i></a>' % pif.request_uri
+                prod += ' <a href="%s&useprev=1"><i class="fas fa-step-backward"></i></a>' % pif.request_uri
 	    links.append(prod)
         links.append('')
         vfl = pif.dbh.fetch_variation_files(mod_id)
@@ -260,15 +260,15 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
 	var_pics, var_texts = show_list_var_pics(pif, mod_id)
         ostr += '<br>\n'.join(var_pics) + '<p>\n'
 	fmt_bad, _, _ = pif.dbh.check_description_formatting(mod_id)
-	ostr += '<i class="fa fa-times red"></i>' if fmt_bad else '<i class="fa fa-check green"></i>'
+	ostr += '<i class="fas fa-times red"></i>' if fmt_bad else '<i class="fas fa-check green"></i>'
 	ostr += '<br>'
 	for i_vt in range(1, len(var_texts)):
 	    vt = var_texts[i_vt]
-	    ostr += '<i title="%s" class="fa fa-star%s"></i>\n' % (mbdata.model_texts[i_vt - 1],
+	    ostr += '<i title="%s" class="fas fa-star%s"></i>\n' % (mbdata.model_texts[i_vt - 1],
 		    '-o gray' if not model['format_' + mbdata.desc_attributes[i_vt - 1]] else
                     (' green' if vt == var_texts[0] else (' red' if not vt else ' yellow')))
         ostr += '<p>\n'
-        ostr += '<i class="fa %s"></i><p>\n' % prodstar
+        ostr += '<i class="fas %s"></i><p>\n' % prodstar
         var_ids = [x['v.var'] for x in raw_variations]
         var_ids.sort()
         for var in var_ids:
@@ -277,9 +277,9 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
 		for sz in mbdata.image_size_types:
 		    if os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + mod_id + '-' + var + '.jpg').lower()):
 			ostr += sz.upper() + ' '
-		ostr += '<a href="vars.cgi?mod=%s&var=%s"><i class="fa fa-edit"></i></a>\n' % (mod_id, var)
-		ostr += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var, mod_id, var), '<i class="fa fa-upload"></i>') + '\n'
-		ostr += pif.render.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var), '<i class="fa fa-bars"></i>') + '\n'
+		ostr += '<a href="vars.cgi?mod=%s&var=%s"><i class="fas fa-edit"></i></a>\n' % (mod_id, var)
+		ostr += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var, mod_id, var), '<i class="fas fa-upload"></i>') + '\n'
+		ostr += pif.render.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var), '<i class="fas fa-bars"></i>') + '\n'
             ostr += '<br>\n'
     ostr = '<br>\n'.join(links) + '<p>\n' + ostr
     return ostr

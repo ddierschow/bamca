@@ -86,8 +86,8 @@ def make_link(pif, ent):
 def format_entry(pif, ent):
     dictFlag = {
             '': ('o', pif.render.format_image_art('wheel.gif', also={'class': 'dlm'})),
-            'Reciprocal': ('Reciprocal', '<i class="fa fa-refresh dlm"></i>'),
-            'PayPal': ('Accepts PayPal', '<i class="fa fa-paypal dlm"></i>'),
+            'Reciprocal': ('Reciprocal', '<i class="fas fa-refresh dlm"></i>'),
+            'PayPal': ('Accepts PayPal', '<i class="fab fa-paypal dlm"></i>'),
     }
     is_large = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
     url = ent['url']

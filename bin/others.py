@@ -189,7 +189,7 @@ def ads(pif):
 	if cmt:
 	    ostr += ' ' + cmt
 	ostr += cyflag
-	ostr += (' ' + pif.render.format_link('edlinks.cgi?id=%s' % ent['id'], '<i class="fa fa-edit"></i>')) if pif.is_allowed('ma') else ''
+	ostr += (' ' + pif.render.format_link('edlinks.cgi?id=%s' % ent['id'], '<i class="fas fa-edit"></i>')) if pif.is_allowed('ma') else ''
 	return ostr
 
     #id, page_id, section_id, display_order, flags, associated_link, last_status, link_type, country, url, name, description, note
@@ -210,17 +210,17 @@ def ads(pif):
 	    name += ' (' + ent['first_year'] + ')'
 	if pif.is_allowed('ma'):
 	    if ent.get('model_type'):
-		post += ' ' + pif.render.format_link(pif.dbh.get_editor_link('publication', {'id': ent['id']}), '<i class="fa fa-edit"></i>')
+		post += ' ' + pif.render.format_link(pif.dbh.get_editor_link('publication', {'id': ent['id']}), '<i class="fas fa-edit"></i>')
 	    else:
 		post += ' ' + pif.render.format_link(
 '/cgi-bin/mass.cgi?type=ads&id=%s&description=%s&year=%s&country=%s' % (ent['id'], urllib.quote_plus(ent['description']), ent.get('first_year', ''), cy)
-, '<i class="fa fa-plus-square-o"></i>'
+, '<i class="far fa-plus-square"></i>'
 )
 	    if os.path.exists(floc):
-		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (pdir, ent['id'] + '.jpg'), '<i class="fa fa-paint-brush"></i>')
+		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (pdir, ent['id'] + '.jpg'), '<i class="fas fa-paint-brush"></i>')
 	    elif os.path.exists(lloc):
-		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (pdir.replace('pic', 'lib'), ent['id'] + '.jpg'), '<i class="fa fa-paint-brush"></i>')
-	    post += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (lib_dir, ent['id'] + '.jpg'), '<i class="fa fa-upload"></i>')
+		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (pdir.replace('pic', 'lib'), ent['id'] + '.jpg'), '<i class="fas fa-paint-brush"></i>')
+	    post += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (lib_dir, ent['id'] + '.jpg'), '<i class="fas fa-upload"></i>')
 	    name = ent['id'] + ' - ' + name
 	files.append(ent['id'] + '.jpg')
 	if os.path.exists(floc):

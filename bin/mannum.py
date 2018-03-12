@@ -390,8 +390,8 @@ class MannoFile(object):
 	else:
 	    varids = '-'
 	for key in td:
-	    td[key] = '<i class="fa fa-star%s"></i>' % ('-o gray' if not len(mvars) or td[key] is None else
-                    ' green' if td[key] == len(mvars) else (' red' if not td[key] else ' orange'))
+	    td[key] = '<i class="%s"></i>' % ('far fa-star gray' if not len(mvars) or td[key] is None else
+                    'fas fa-star green' if td[key] == len(mvars) else ('fas fa-star red' if not td[key] else 'fas fa-star orange'))
 	varl = '<a href="vars.cgi?list=1&mod=%s"><span class="%s">%d/%d</span></a>' % (mdict['id'], 'ok' if varl == len(mvars) else 'no', varl, len(mvars))
         td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-', 'varids': varids, 'varl': varl})
         return td
@@ -414,12 +414,12 @@ class MannoFile(object):
 		'vid': '<a href="vars.cgi?mod=%(id)s">%(id)s</a>' % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
 	    if mdict['flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
-		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fa fa-circle green"></i><nobr>'
+		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fas fa-circle green"></i><nobr>'
 	    mdict.update(self.show_list_var_info(pif, mdict))
 	    if not mdict['vehicle_type']:
-		mdict['vehicle_type'] = '<i class="fa fa-ban red"></i>'
+		mdict['vehicle_type'] = '<i class="fas fa-ban red"></i>'
 	    fmt_bad, _, _ = pif.dbh.check_description_formatting(mdict['id'])
-	    mdict['fo'] = '<i class="fa fa-times red"></i>' if fmt_bad else ''
+	    mdict['fo'] = '<i class="fas fa-times red"></i>' if fmt_bad else ''
 	    makes = pif.dbh.fetch_casting_makes(mod)
 	    mdict['make'] = '<br>'.join([
 		pif.render.format_link("http://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])

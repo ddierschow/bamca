@@ -105,8 +105,8 @@ def biblio(pif):
 	edlink = ''
 	if field == 'title' and editable:
 	    if os.path.exists('.' + config.IMG_DIR_BOOK + '/' + fdict['pic_id'] + '.jpg'):
-		edlink += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fa fa-paint-brush"></i>')
-	    edlink += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fa fa-upload"></i>')
+		edlink += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-paint-brush"></i>')
+	    edlink += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-upload"></i>')
 
 	return pif.render.format_link(url, cont) + edlink
 

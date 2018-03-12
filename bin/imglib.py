@@ -1030,7 +1030,7 @@ def get_dir(tdir, name_has=''):
 
 
 def format_image_star(pif, image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):
-    return '<i class="fa fa-%s %s"></i>' % (image_star(image_path, image_file, pic_id, halfstar, target_x, target_y))
+    return '<i class="fas fa-%s %s"></i>' % (image_star(image_path, image_file, pic_id, halfstar, target_x, target_y))
 
 
 def image_star(image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):

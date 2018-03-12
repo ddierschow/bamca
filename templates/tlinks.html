@@ -3,25 +3,25 @@
 {% macro end_of_page(comment=False) %}
 <hr>
 <center>This page is maintained by <em>Dean Dierschow</em>.<br>
-<nobr><i class="fa fa-star"></i> Dean's Recommendations</nobr>
+<nobr><i class="fas fa-star"></i> Dean's Recommendations</nobr>
 <span class="blue">&#x25cf;</span>
-<nobr><i class="fa fa-refresh"></i> Reciprocal Link</nobr>
+<nobr><i class="fas fa-sync"></i> Reciprocal Link</nobr>
 {% if comment %}
 <span class="blue">&#x25cf;</span>
-<nobr><i class="fa fa-comment-o"></i> Comment on this link</nobr>
+<nobr><i class="far fa-comment"></i> Comment on this link</nobr>
 {% endif %}
 </center>
 {{ flags }}
 {% endmacro %}
 
 {% macro showbullet(linktype) %}
-{% if linktype == 'b' %}<i class="fa fa-exclamation-triangle red"></i>
-{% elif linktype == 'f' %}<i class="fa fa-folder-o"></i>
+{% if linktype == 'b' %}<i class="fas fa-exclamation-triangle red"></i>
+{% elif linktype == 'f' %}<i class="fas fa-folder"></i>
 {% elif linktype == 'g' %}
 {% elif linktype == 'l' %}<span class="blue">&#x25cf;</span>
 {% elif linktype == 'n' %}&nbsp;
 {% elif linktype == 'p' %}
-{% elif linktype == 's' %}<i class="fa fa-star"></i>
+{% elif linktype == 's' %}<i class="fas fa-star"></i>
 {% elif linktype == 't' %}
 {% elif linktype == 'x' %}&#x1F5D1;</i>
 {% endif %}
@@ -36,7 +36,7 @@
 <div class="link-desc">
 {% endif %}
 {{ ent.desc|join('<br>') }}
-{% if ent.comment %}<a href="?id={{ ent.id}}"> <i class="fa fa-comment-o ltgray"></i></a>{% endif %}
+{% if ent.comment %}<a href="?id={{ ent.id}}"> <i class="far fa-comment ltgray"></i></a>{% endif %}
 </div>
 {% endmacro %}
 

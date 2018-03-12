@@ -424,22 +424,22 @@ comment_name = {
 }
 
 comment_designation = {
-    'd': '<i class="fa fa-star blue"></i> - specific model not determined',
-    'm': '<i class="fa fa-star green"></i> - casting information not available',
-    'i': '<i class="fa fa-star"></i> - actual picture not available',
-    'v': '<i class="fa fa-star red"></i> - variation information not available',
-    'c': '<i class="fa fa-camera-retro"></i> - product example picture available',
-    'n': '<i class="fa fa-ban red"></i> - never released',
+    'd': '<i class="fas fa-star blue"></i> - specific model not determined',
+    'm': '<i class="fas fa-star green"></i> - casting information not available',
+    'i': '<i class="fas fa-star"></i> - actual picture not available',
+    'v': '<i class="fas fa-star red"></i> - variation information not available',
+    'c': '<i class="fas fa-camera-retro"></i> - product example picture available',
+    'n': '<i class="fas fa-ban red"></i> - never released',
 }
 
 comment_icon = {
-    'd': '<i class="fa fa-star blue"></i>',
-    'm': '<i class="fa fa-star green"></i>',
-    'i': '<i class="fa fa-star"></i>',
-    'v': '<i class="fa fa-star red"></i>',
-    'r': '<i class="fa fa-star yellow"></i>',
-    'c': '<i class="fa fa-camera-retro"></i>',
-    'n': '<i class="fa fa-ban red"></i>',
+    'd': '<i class="fas fa-star blue"></i>',
+    'm': '<i class="fas fa-star green"></i>',
+    'i': '<i class="fas fa-star"></i>',
+    'v': '<i class="fas fa-star red"></i>',
+    'r': '<i class="fas fa-star yellow"></i>',
+    'c': '<i class="fas fa-camera-retro"></i>',
+    'n': '<i class="fas fa-ban red"></i>',
 }
 
 

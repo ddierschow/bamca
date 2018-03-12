@@ -126,7 +126,8 @@ function DoHead($pif) {
     echo "<head><meta charset=\"UTF-8\">
 <title>" . $pif['title'] . "</title>
 <meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\">
-<script src=\"https://use.fontawesome.com/a21dc93072.js\"></script>
+<script defer src=\"https://use.fontawesome.com/releases/v5.0.8/js/all.js\"></script>
+<script defer src=\"https://use.fontawesome.com/releases/v5.0.8/js/v4-shims.js\"></script>
 <link rel=\"icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
 <link rel=\"shortcut icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
 <link rel=\"stylesheet\" href=\"/styles/main.css\" type=\"text/css\">
@@ -174,7 +175,7 @@ function DoPageHeader($pif) {
 	echo "<tr><td height=\"24\" class=\"beta\">&nbsp;</td></tr>\n";
     echo '<tr><td class="body">' . "\n";
     foreach ($pif['hierarchy'] as $hier) {
-	echo '<a href="' . $hier[0] . '">' . $hier[1] . "</a> <i class=\"fa fa-chevron-right\"></i>\n";
+	echo '<a href="' . $hier[0] . '">' . $hier[1] . "</a> <i class=\"fas fa-chevron-right\"></i>\n";
     }
     if (!($pif['flags'] & 2))
 	echo '<div class="title"><span class="titletext">' . $pif['title'] . "</span></div>\n";
@@ -278,10 +279,10 @@ function ResetForm(which){
 }
 
 function incrnum($id, $mn, $mx, $cl) {
-    $but_max = '<div class="textbutton textupdown"><i class="fa fa-angle-double-up bold" title="TOP"></i></div>';
-    $but_inc = '<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>';
-    $but_dec = '<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>';
-    $but_min = '<div class="textbutton textupdown"><i class="fa fa-angle-double-down bold" title="BOTTOM"></i></div>';
+    $but_max = '<div class="textbutton textupdown"><i class="fas fa-angle-double-up bold" title="TOP"></i></div>';
+    $but_inc = '<div class="textbutton textupdown"><i class="fas fa-angle-up bold" title="UP"></i></div>';
+    $but_dec = '<div class="textbutton textupdown"><i class="fas fa-angle-down bold" title="DOWN"></i></div>';
+    $but_min = '<div class="textbutton textupdown"><i class="fas fa-angle-double-down bold" title="BOTTOM"></i></div>';
     echo "<a onclick=\"" . $cl . "settnum('" . $id . "'," . $mx . ");\">" . $but_max . "</a>\n";
     echo "<a onclick=\"" . $cl . "\" onmousedown=\"toggleOnNum('" . $id . "',1," . $mn . "," . $mx . ");\" onmouseup=\"toggleOff();\">" . $but_inc . "</a>\n";
     echo "<a onclick=\"" . $cl . "\" onmousedown=\"toggleOnNum('" . $id . "',-1," . $mn . "," . $mx . ");\" onmouseup=\"toggleOff();\">" . $but_dec . "</a>\n";
@@ -289,10 +290,10 @@ function incrnum($id, $mn, $mx, $cl) {
 }
 
 function incrsel($id, $vl, $onchg="") {
-    $but_max = '<div class="textbutton textupdown"><i class="fa fa-angle-double-up bold" title="TOP"></i></div>';
-    $but_inc = '<div class="textbutton textupdown"><i class="fa fa-angle-up bold" title="UP"></i></div>';
-    $but_dec = '<div class="textbutton textupdown"><i class="fa fa-angle-down bold" title="DOWN"></i></div>';
-    $but_min = '<div class="textbutton textupdown"><i class="fa fa-angle-double-down bold" title="BOTTOM"></i></div>';
+    $but_max = '<div class="textbutton textupdown"><i class="fas fa-angle-double-up bold" title="TOP"></i></div>';
+    $but_inc = '<div class="textbutton textupdown"><i class="fas fa-angle-up bold" title="UP"></i></div>';
+    $but_dec = '<div class="textbutton textupdown"><i class="fas fa-angle-down bold" title="DOWN"></i></div>';
+    $but_min = '<div class="textbutton textupdown"><i class="fas fa-angle-double-down bold" title="BOTTOM"></i></div>';
     if ($vl > 0) {
 	echo "<a onclick=\"settsel('" . $id . "');" . $onchg ."\">" . $but_max . "</a>\n";
 	echo "<a onmousedown=\"toggleOnSel('" . $id . "',1);" . $onchg ."\" onmouseup=\"toggleOff();" . $onchg . "\">" . $but_inc . "</a>\n";

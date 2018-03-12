@@ -541,7 +541,7 @@ function boxExample() {
 	document.getElementById("boxImg").setAttribute('class', "hidden");
     }
     else {
-	document.getElementById("boxImg").src = "pic/box/s_" + examples[sel.charCodeAt(0) - 65] + '-' + sel.toLowerCase() +  '.jpg';
+	document.getElementById("boxImg").src = "/pic/pub/box/s_" + examples[sel.charCodeAt(0) - 65] + '-' + sel.toLowerCase() +  '.jpg';
 	document.getElementById("boxImg").setAttribute('class', "shown");
     }
 }
@@ -556,7 +556,7 @@ EOT;
     echo "  <td>Model Numbers:</td>\n  <td>Starting at number:</td>\n";
     ChooseNum('start', 'boxStart', 3, 1, 75, 1);
     HorzSpacer(1);
-    echo "  <td rowspan=\"5\" id=\"foo\"><img src=\"pic/box/s_rw01a-a.jpg\" class=\"hidden\" id=\"boxImg\"></td>\n";
+    echo "  <td rowspan=\"5\" id=\"foo\"><img src=\"/pic/pub/box/s_rw01a-a.jpg\" class=\"hidden\" id=\"boxImg\"></td>\n";
     echo " </tr>\n <tr>\n  <td></td>\n  <td>\n";
     Checks('radio', 'series', [['RW', 'Regular Wheels']], '');
     echo "  </td>\n  <td></td>\n  <td></td>\n  <td>Ending at number:</td>\n";

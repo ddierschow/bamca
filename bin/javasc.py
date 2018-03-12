@@ -74,6 +74,7 @@ def_image_selector_js = '''<script type="text/javascript" src="/bin/imageselecto
 def_paste_from_clippy_js = '''<script type="text/javascript" src="/bin/clippypaste.js"></script>\n'''
 
 def_font_awesome_js = '''<script src="https://use.fontawesome.com/a21dc93072.js"></script>\n'''
+def_font_awesome_js = '''<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>\n'''
 
 def_modal_js = '''<script type="text/javascript">
 function init_modal(modal_id) {

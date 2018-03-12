@@ -7,17 +7,17 @@
 <center>
 <table width="100%"><tr>
 <td width="40%" class="modelstars">
-{%- if mdict.no_casting -%}<i class="fa fa-star green"></i>
+{%- if mdict.no_casting -%}<i class="fas fa-star green"></i>
 {%- elif not mdict.picture_only -%}
-    {%- if mdict.no_specific_image -%}<i class="fa fa-star"></i>{%- endif -%}
-    {%- if mdict.no_variation -%}<i class="fa fa-star red"></i>{%- endif -%}
+    {%- if mdict.no_specific_image -%}<i class="fas fa-star"></i>{%- endif -%}
+    {%- if mdict.no_variation -%}<i class="fas fa-star red"></i>{%- endif -%}
 {%- endif -%}
 </td>
 <td width="20%" class="modelnumber">{{ mdict.displayed_id }}</td>
 <td width="40%" class="modelicons">
-{% if mdict.not_made %}<i class="fa fa-ban"></i>{% endif %}
-{% if mdict.is_reused_product_picture %}<i class="fa fa-star yellow"></i>{% endif %}
-{% if mdict.is_product_picture %}<i class="fa fa-camera-retro"></i>{% endif %}
+{% if mdict.not_made %}<i class="fas fa-ban red"></i>{% endif %}
+{% if mdict.is_reused_product_picture %}<i class="fas fa-star yellow"></i>{% endif %}
+{% if mdict.is_product_picture %}<i class="fas fa-camera-retro"></i>{% endif %}
 </td></tr></table>
 {% if mdict.href %}<a href="{{ mdict.href }}">{% endif %}
 <table><tr><td class="spicture"><center>{{ mdict.imgstr }}</center></td></tr></table>

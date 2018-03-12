@@ -206,11 +206,11 @@ def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='
     modals = ''
     title_modal = show_detail_modal(pif, attr_pics.get(field, {}), variation['mod_id'])
     if title_modal:
-	title += ''' <i onclick="init_modal('m.%s');" class="modalbutton fa fa-question-circle-o"></i>\n''' % field
+	title += ''' <i onclick="init_modal('m.%s');" class="modalbutton fas fa-question-circle-o"></i>\n''' % field
 	title += pif.render.format_modal('m.' + field, title_modal)
     value_modal = show_detail_modal(pif, attr_pics.get(field, {}), variation['mod_id'], variation['var'])
     if value_modal:
-	value += ''' <i onclick="init_modal('v.%s');" class="modalbutton fa fa-question-circle-o"></i>\n''' % field
+	value += ''' <i onclick="init_modal('v.%s');" class="modalbutton fas fa-question-circle-o"></i>\n''' % field
 	value += pif.render.format_modal('v.' + field, value_modal)
     return {
 	'field': field,
@@ -481,7 +481,7 @@ class VarSearchForm(object):
 	    title = self.attributes[key]['title']
 	    title_modal = show_detail_modal(pif, self.attr_pics.get(key, {}), self.mod_id)
 	    if title_modal:
-		title += ''' <i onclick="init_modal('m.%s');" class="modalbutton fa fa-question-circle-o"></i>\n''' % key
+		title += ''' <i onclick="init_modal('m.%s');" class="modalbutton fas fa-question-circle-o"></i>\n''' % key
 		title += pif.render.format_modal('m.' + key, title_modal)
 	    entries.append({
 		'title': title,
@@ -640,7 +640,7 @@ var_types = {
 }
 def do_var_detail(pif, model, var, credits):
     def mk_star(has_thing, no_thing):
-	return '<i class="fa fa-star %s"></i>' % ('green' if has_thing else 'gray' if no_thing else 'white')
+	return '<i class="fas fa-star %s"></i>' % ('green' if has_thing else 'gray' if no_thing else 'white')
 
     varsel = pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
     phcred = credits.get(('%(mod_id)s-%(var)s' % var).lower(), '')
@@ -716,7 +716,7 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
 	return sum([int(bool(var['text_' + x]) or not model['format_' + x]) for x in desc_attributes])
 
     count_descs = attr_star(model, var)
-    ostr += '<i class="fa fa-star %s"></i>' % (
+    ostr += '<i class="fas fa-star %s"></i>' % (
 	    'green' if count_descs == len(text_attributes) else ('red' if not count_descs else 'orange'))
     ostr += '</center>'
     return {

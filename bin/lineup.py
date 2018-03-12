@@ -414,7 +414,7 @@ def render_lineup_checklist(pif, mainsec, secs, xsecs):
 	for mod in sec.get('mods', []):
 	    for cvar in mod['cvarlist']:
 		entries.append({'number': mod['displayed_id'], 'mod_id': mod['mod_id'], 'name': mod['name'],
-				'desc': cvar['desc'], 'x': '<i class="fa fa-square-o"></i>'})
+				'desc': cvar['desc'], 'x': '<i class="far fa-square"></i>'})
 
     cols = ['x', 'number', 'mod_id', 'name', 'desc']
     titles = ['', '#', 'Model ID', 'Name', 'Description']
