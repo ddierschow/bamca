@@ -945,7 +945,7 @@ class ActionForm(object):
 		[('s' + x[0], x[1]) for x in zip(mbdata.image_size_types, mbdata.image_size_names)] + \
 		[('t' + x[0], x[1]) for x in zip(mbdata.image_adds_types, mbdata.image_adds_names)]
 
-    sel_moveto = [('.' + x, x,) for x in movetos]
+    sel_moveto = [('.' + x, mbdata.img_dir_name.get(x, x),) for x in movetos]
 
     def write(self, pif, fn):
 #	root, ext = useful.root_ext(fn.strip())

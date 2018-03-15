@@ -62,7 +62,7 @@ def show_dir(pif, tform):
 
     if files['graf']:
         if tform.graf:
-            ostr += '<h4>%s (%d)</h4>\n' % (files['titles']['graf'], len(files['graf']))
+            ostr += '<h4>%s (%d)</h4><div class="glist">\n' % (files['titles']['graf'], len(files['graf']))
             for f in files['graf']:
                 perms = os.stat(tform.tdir + '/' + f)[stat.ST_MODE]
                 if (perms & 4) == 0:
@@ -72,7 +72,7 @@ def show_dir(pif, tform):
                     ostr += '<a href="imawidget.cgi?d=%s&f=%s&man=%s&newvar=%s&cy=0&suff=%s"><img src="../%s" border=0>%s</a><br>\n' % (tform.tdir, f, tform.mod, tform.var, tform.suff, tform.tdir + '/' + f, f)
                 else:
                     ostr += '<a href="../%s">%s</a><br>\n' % (tform.tdir + '/' + f, f)
-            ostr += '<br><hr>\n'
+            ostr += '</div><hr>\n'
         else:
             ostr += show_list(files['titles']['graf'], tform.tdir, files['graf'], tform.view)
 
@@ -193,7 +193,7 @@ def show_imgs(pif, tform):
 		    "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
 		    pif.render.fmt_img_src(os.path.join(tform.tdir, fn))) + '\n'
 	else:
-	    print '<table>'
+	    print '<table class="glist">'
 	    for fn in flist:
 		if tform.dups:
 		    root, ext = useful.root_ext(fn)

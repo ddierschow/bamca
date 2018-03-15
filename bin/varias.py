@@ -971,7 +971,7 @@ def variation_list(pif, man):
     if pif.form.has("save"):
         save_model(pif, man['id'])
     elif pif.form.has('recalc'):
-        pif.dbh.recalc_description(mod_id)
+        pif.dbh.recalc_description(man['id'])
     #mbdata.LISTTYPE_TEXT
     #mbdata.LISTTYPE_CSV
     #mbdata.LISTTYPE_JSON
@@ -1366,6 +1366,14 @@ def list_photo_credits(pif, photog_id=None):
     pif.render.message(fmt_str % totals)
 
 
+def count_photo_credits(pif):
+    pass
+#    pc = pif.dbh.fetch('photographer', left_joins=[('photo_credit', 'casting.make=vehicle_make.id')]
+#    def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None,
+#	      one=False, distinct=False, limit=None, tag='Fetch', verbose=False):
+#    )
+
+
 def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
     if not mod_id:
 	return
@@ -1594,6 +1602,7 @@ cmds = [
     ('l', list_variations, "list: mod_id"),
     ('p', list_variation_pictures, "pictures: mod_id"),
     ('pc', list_photo_credits, "photo credits"),
+    ('cpc', count_photo_credits, "count photo credits"),
     ('cv', count_vars, "count vars"),
     ('x', fix_var, "fix var"),
     ('ckvs', check_variation_select, "check variation select"),

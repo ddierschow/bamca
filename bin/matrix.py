@@ -229,7 +229,7 @@ class MatrixFile(object):
     def find_matrix_variations(self, ents, page_id, vsids):
         for idsegs in range(len(vsids), 0, -1):
             id = '.'.join(vsids[:idsegs])
-            mods = filter(lambda x: x['vs.sub_id'] == id, ents)
+            mods = [x for x in ents if x['vs.sub_id'] == id]
             if mods:
                 return mods
         mods = filter(lambda x: x['vs.sub_id'] == '', ents)

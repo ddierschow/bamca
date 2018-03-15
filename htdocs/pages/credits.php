@@ -31,7 +31,9 @@ The largest contributors so far have been:
 <li>John Baum
 <li>Public Safety Diecast
 <li>Little Wheels
+<li>Hans D&ouml;ring
 <li>Shabbir Malik
+<li>Garry Sleap
 </ul>
 
 Get more information by taking a look at the <a href="/cgi-bin/photogs.cgi">photographer index</a>.
