@@ -394,7 +394,7 @@ def show_single(pif):
 	pdir = pic = ''
     ref = pif.form.get_id('ref')
     sub = pif.form.get_str('sub')
-    reg = sub if sub else pic[4] if ref.startswith('year') and pic and pic[:4].isdigit() else ''
+    reg = sub if sub else pic[4] if (ref.startswith('year') and pic and len(pic) > 4 and pic[:4].isdigit()) else ''
     mod_id = model['id']
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')

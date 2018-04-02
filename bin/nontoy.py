@@ -217,7 +217,7 @@ def submit_comment(pif):
 
 	ostr += "</dd></dl>\n";
 
-    fh = open(fn, "w")
+    fh = open(fn, "wt")
     fh.write("_POST\n\n" + pprint.pformat(pif.form, indent=2, width=132) + "\n\n");
     fh.write("REMOTE_ADDR=" + os.getenv('REMOTE_ADDR') + "\n");
 #else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE)) {

@@ -240,15 +240,15 @@ class UploadForm(object):
     def calc_filename(self):
 	ext = '.jpg'
 	pth = self.tdir
-	fn = self.nfn
-	if self.var_id:
+	fn = 'unknown'
+	if self.nfn:
+	    fn = self.nfn
+	elif self.var_id:
 	    fn = (self.mod_id + '-' + self.var_id).lower()
 	elif self.mod_id:
 	    fn = self.mod_id.lower()
 	elif not fn:
 	    fn = self.fname[:self.fname.rfind('.')]
-	if not fn:
-	    fn = 'unknown'
 	if not self.replace and os.path.exists(os.path.join(pth, fn + ext)):
 	    i = 1
 	    while os.path.exists(pth + '/' + fn + '-' + str(i) + ext):
