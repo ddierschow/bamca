@@ -95,7 +95,8 @@ def show_dir(pif, tform):
 	if pif.render.is_admin:
 	    ostr += '<br><input type="radio" name="lty" value="nrm" checked> Normal\n'
 	    ostr += '<input type="radio" name="lty" value="shc"> Categorize\n'
-	    ostr += '<input type="radio" name="lty" value="mss"> Mass\n'
+	    ostr += '<input type="radio" name="lty" value="mss"> VMass\n'
+	    ostr += '<input type="radio" name="lty" value="pms"> PMass\n'
 	    ostr += '<input type="radio" name="lty" value="shm"> Shelve\n'
 	    ostr += '<input type="radio" name="lty" value="suf"> Resuffix\n'
 	    ostr += '<input type="radio" name="lty" value="crd"> Credit\n'
@@ -120,7 +121,7 @@ imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="ch
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, cred=False, targs=[]):
+def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, pms=False, cred=False, targs=[]):
     also = {'border': 0}
     if sx:
 	also['width'] = sx
@@ -139,6 +140,11 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             continue
 	elif mss:
             inp += '''<br><input type="text" name="var.%s"> var''' % arg
+            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
+	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg))
+            continue
+	elif pms:
+            inp += '''<br><input type="text" name="nam.%s"> nam''' % arg
             ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
 	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg))
             continue
@@ -177,11 +183,17 @@ def show_imgs(pif, tform):
     print '<hr>'
     print '<form action="traverse.cgi" method="post">' + pif.create_token()
     plist = tform.patt.split(',')
-    img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss}
+    img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss, 'pms': tform.pms,}
     if tform.mss:
 	print 'Credit ' + pif.render.format_text_input('credit', 4)
 	print '<br>'
 	img_args['targs'] = [(x, os.stat(x).st_size) for x in sorted(glob.glob('.' + config.IMG_DIR_VAR + '/l_' + tform.dirname + '-*.*'))]
+    elif tform.pms:
+	# maybe put size here?  assume m_
+	print 'Credit ' + pif.render.format_text_input('credit', 4)
+	print '<input type="hidden" name="tysz" value="m">'
+	print '<br>'
+	img_args['targs'] = []
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
         flist_sort(flist, tform)
@@ -218,6 +230,8 @@ def show_imgs(pif, tform):
     elif tform.mss:
 	print '<input type="hidden" name="lty" value="mss">'
 	print 'promote <input type="text" name="msspromote">'
+    elif tform.pms:
+	print '<input type="hidden" name="lty" value="pms">'
     elif tform.cred:
 	print '<input type="hidden" name="lty" value="crd">'
     print pif.render.format_button_input()
@@ -227,7 +241,10 @@ def show_imgs(pif, tform):
 
 def show_script(pif, tform):
     if tform.mss:
-	do_masses(pif, tform)
+	do_var_masses(pif, tform)
+	return
+    if tform.pms:
+	do_prod_masses(pif, tform)
 	return
     if tform.rsuf:
 	for fn, suf in tform.rsfx:
@@ -270,7 +287,7 @@ def show_script(pif, tform):
     print '</pre>'
 
 
-def do_masses(pif, tform):
+def do_var_masses(pif, tform):
     for fn, var in pif.form.get_list(start='var.'):
 	print '<hr>'
 	print fn, var, '<br>'
@@ -285,6 +302,28 @@ def do_masses(pif, tform):
     if var_id:
 	mod_id = eform.calc_man()
 	imglib.promote_picture(pif, mod_id, var_id)
+
+
+def do_prod_masses(pif, tform):
+    ddir = tform.tdir.replace('lib', 'pic')
+    print pif.form.get_str('credit'), ddir, '<br>'
+    siz = pif.form.get('tysz')
+    for fn, nam in pif.form.get_list(start='nam.'):
+	print '<hr>'
+	print fn, ddir, siz, nam, '<br>'
+
+	rf = [False, False, False, False, False]
+	pth = tform.tdir + '/' + fn
+	q = (0, 0,) + imglib.get_size(pth)
+	nname = ddir + '/' + siz + '_' + nam + '.jpg'
+	ts = (400, 0)
+	ofi = imglib.shrinker(pth, nname, q, ts, rf)
+	imglib.simple_save(ofi, nname)
+	images.file_log(nname, tform.tdir)
+	url = 'http://www.bamca.org/' + nname
+	link = 'http://www.bamca.org/'
+	useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=nam, source=url, link=link))
+	pif.dbh.write_photo_credit(pif.form.get_str('credit'), ddir, nam)
 
 
 def show_file(pif, tform):
@@ -425,6 +464,7 @@ class TraverseForm(object):
 	self.cpct = pif.form.get_int("co")
 	self.cate = pif.form.get_radio("lty", "shc")
 	self.mss = pif.form.get_radio("lty", "mss")
+	self.pms = pif.form.get_radio("lty", "pms")
 	self.shlv = pif.form.get_radio("lty", "shm")
 	self.rsuf = pif.form.get_radio("lty", "suf")
 	self.cred = pif.form.get_radio("lty", "crd")

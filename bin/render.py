@@ -59,6 +59,7 @@ class Presentation(object):
 	self.new_cookie = None
 	self.footer = ''
 	self.bamcamark = 'bamca_sm.gif'
+	self.filename = 'matchbox.csv'
 #       if self.verbose:
 #           import datetime
 #           self.dump_file = open(os.path.join(config.LOG_ROOT, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
@@ -264,6 +265,8 @@ class Presentation(object):
     def print_html(self, content='text/html', status=200):
 	if not useful.is_header_done():
 	    print 'Content-Type:', content
+	    if content == 'text/csv':
+		print "Content-Description: File Transfer\nContent-Disposition: attachment; filename=%s\nExpires: 0" % self.filename
 	    print 'Status:', status, httplib.responses.get(status, '')
 	    #useful.html_done = True
 	    self.print_cookie()

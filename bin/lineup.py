@@ -430,10 +430,10 @@ def render_lineup_csv(pif, mainsec, secs, xsecs):
     writer = csv.DictWriter(out_file, fieldnames=field_names)
     writer.writeheader()
     for sec in [mainsec] + secs + xsecs:
-	writer.writerow(dict(zip(field_names, ln)), ('section', sec['name'], '', ''))
+	writer.writerow(dict(zip(field_names, ['section', sec['name'], '', ''])))
 	for mod in sec.get('mods', []):
 	    for cvar in mod['cvarlist']:
-		writer.writerow(dict(zip(field_names, ln)), (mod['number'], mod['mod_id'], mod['name'], cvar['desc'],))
+		writer.writerow(dict(zip(field_names, [mod['number'], mod['mod_id'], mod['name'], cvar['desc'],])))
     return ''
 
 
@@ -758,6 +758,8 @@ def main(pif):
 	pif.render.print_html(mbdata.get_mime_type(listtype))
         return rank_lineup_main(pif)
     elif pif.form.get_str('region') and pif.form.get_str('year'):
+	if listtype == mbdata.LISTTYPE_CSV:
+	    pif.render.filename = 'mb%s.csv' % pif.form.get_str('year')
 	pif.render.print_html(mbdata.get_mime_type(listtype))
 	if listtype == mbdata.LISTTYPE_MULTIYEAR:
 	    return render_multiyear(pif)
