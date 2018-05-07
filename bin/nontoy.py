@@ -186,8 +186,15 @@ def submit_comment(pif):
     pif.form.change_key('page', 'page_id')
     fn = "../../comments/comment." + datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
 
-    ostr += "<dl><dt>My Subject</dt><dd>" + pif.form.get_str('mysubject') + "</dd>\n"
-    ostr += "<dl><dt>My Comment</dt><dd>" + pif.form.get_str('mycomment') + "</dd>\n"
+    mysubject = pif.form.get_str('mysubject')
+    mycomment = pif.form.get_str('mycomment')
+    if ('http://' in mysubject or 'http://' in mycomment or
+	'https://' in mysubject or 'https://' in mycomment):
+	ostr += "<dl><dt>ERROR</dt><dd>Whoa there.  This isn't for submitting links.  Please use the SUGGEST A LINK feature from the link list.</dd></dl>"
+	return ostr
+
+    ostr += "<dl><dt>My Subject</dt><dd>" + mysubject + "</dd>\n"
+    ostr += "<dl><dt>My Comment</dt><dd>" + mycomment + "</dd>\n"
     ostr += "<dt>My Name</dt><dd>" + pif.form.get_str('myname') + "</dd>\n"
     ostr += "<dt>My Email</dt><dd>" + pif.form.get_str('myemail') + "</dd></dl>\n"
 
@@ -212,15 +219,11 @@ def submit_comment(pif):
                 '-',
                 comment, cred, who]) + '\n')
         ostr = '<div class="warning">Thank you for submitting that file.</div><br>\n'
-        ostr += "Unfortunately, you will now have to use your browser's BACK button to get back to where you were, as I have no idea where that was."
-
 
 	ostr += "</dd></dl>\n";
 
     fh = open(fn, "wt")
     fh.write("_POST\n\n" + pprint.pformat(pif.form, indent=2, width=132) + "\n\n");
     fh.write("REMOTE_ADDR=" + os.getenv('REMOTE_ADDR') + "\n");
-#else if (!(strpos(arr_get($_POST, 'mycomment', ''), 'http://') === FALSE)) {
-#    echo 'Whoa there.  This is not the correct place to submit links.  Please use the "Suggest a Link" page on the main index.' . "\n
     ostr += "Thanks for sending that.  Now please use the BACK button on your browser to return to where you were.";
     return ostr
