@@ -160,7 +160,7 @@ class MannoFile(object):
         self.pictypes = {'y': "", 'n': "", 'm': "sml"}
         self.plist = man_sections  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
         if pif.form.get_str('section', 'all') != 'all':
-            slist = pif.dbh.fetch_sections({'id': pif.form.get_str('section')})  #, 'page_id': pif.page_id})
+            slist = pif.dbh.fetch_sections({'id': useful.clean_id(pif.form.get_str('section'))})  #, 'page_id': pif.page_id})
         else:
             slist = pif.dbh.fetch_sections({'page_id': pif.page_id})
 	if not slist:

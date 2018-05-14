@@ -185,7 +185,7 @@ def do_single_pack(pif, pid):
 	pack['name'] = pack['rawname'].replace(';', ' ')
 
 	pmodels = distill_models(pif, pack, pif.page_id)
-	if pack['layout'].isdigit():
+	if pack['layout'].isdigit() and len(pack['layout']) == 4:
 	    layout = [int(x) for x in pack['layout']]
 	elif not pmodels:
 	    layout = pack_layouts['1s']
@@ -385,7 +385,7 @@ def do_page(pif):
 #       pif.form['id'] = pif.form.get_str('id')[0]
     if pif.form.has('id'):
         pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
-	pid = pif.form.get_str('id')
+	pid = useful.clean_id(pif.form.get_str('id'))
         return do_single_pack(pif, pid)
     elif pif.form.has('page'):
 	return make_pack_list(pif,

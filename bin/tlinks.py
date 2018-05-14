@@ -37,7 +37,7 @@ def single_link(pif, link):
 
 
 def link_page(pif):
-    section_id = pif.form.get_str('section')
+    section_id = useful.clean_id(pif.form.get_str('section'))
     if section_id:
         sections = pif.dbh.fetch_sections({'page_id': pif.page_id, 'id': section_id})
     else:

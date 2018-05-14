@@ -590,7 +590,10 @@ class VarSearchForm(object):
     def show_search_object(self):
 	ostr = 'Selected models' if self.varl else 'All models'
 	if self.cateq:
-	    ostr +=  ' in ' +  self.catdefs[self.cateq]['name']
+	    if self.cateq in self.catdefs:
+		ostr +=  ' in ' +  self.catdefs[self.cateq]['name']
+	    else:
+		ostr +=  ' in ' +  self.cateq
 	if self.wheelq:
 	    ostr += ' with ' + self.wheelq + " wheels"
 	if self.attrq:
