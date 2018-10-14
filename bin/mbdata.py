@@ -88,6 +88,7 @@ model_types = {
     'RY': 'Publication',       # Roadway
     'PZ': 'Publication',       # Puzzle
     'BK': 'Publication',       # Book
+    'GM': 'Publication',       # Game
     'AD': 'Advertisement',     # Ad
     'MP': 'Package',           # Multipack
     'SE': 'Package',           # Series
