@@ -56,6 +56,7 @@ to these new templates, and more will follow as I have time.
     6.9 published Sunday, 19 November 2017 at 12:01 AM PST
     6.10 published Sunday, 11 February 2018 at 12:01 AM PST
     6.11 published Sunday, 11 March 2018 at 12:01 AM PST
+    6.12 published Sunday, 14 October 2018 at 12:01 AM PDT
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
