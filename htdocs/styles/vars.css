@@ -12,6 +12,11 @@ body {background-color: #CCFFCC; text-align: left;}
 .eh_Details {width: 300px; font-weight: normal}
 .eh_Picture {width: 200px; font-weight: normal}
 .eh_Notes {width: 200px; text-align: left; font-weight: normal}
+.eh_field {width: 200px;}
+.eh_title {width: 200px;}
+.eh_value {width: 300px;}
+.eh_new {width: 200px;}
+.eh_pic {width: 200px;}
 .eb_1 {text-align: left; font-weight: normal}
 .tb_single {width: 600px;}
 

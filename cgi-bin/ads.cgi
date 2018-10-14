@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import others
-others.main('ads')
+import prints
+prints.ads_main('ads')

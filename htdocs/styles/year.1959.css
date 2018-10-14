@@ -1,7 +1,9 @@
-body {background-color: #FF8800;}
+body {background-color: #FFFF33;}
 
-.tb {background-color: #CCCCCC;}
-.sh {color: #FFFFFF; background-color: #000000;}
-.rh {background-color: #FFFFFF; color: #000000;}
-.eb {background-color: #DDDDAA;}
-
+.tb_year {background-color: #CCCCCC; max-width: 1024px;}
+.sh {background-color: #FFFFFF; color: #CC0000;}
+.rh {background-color: #FFFFFF; color: #CC0000;}
+.er {background-color: #CCCCFF;}
+.eb {background-color: #CCCC66;}
+.tb_tail {background-color: #CCCCCC;}
+.tb_tail eb {background-color: #CCCCCC;}

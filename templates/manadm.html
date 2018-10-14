@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{%- import "showix.html" as showix -%}
+
+{% block page_body %}
+
+<form action="/cgi-bin/admin.cgi" method="post">
+<table>
+ <tr>
+  <td colspan="6">
+{% if pagetype == 0 %}
+Section:
+<select name="section">
+<option value="" SELECTED>Choose a section.
+{% for section in sections %}
+<option value="{{ section.id }}">{{ section.name }}
+{% endfor %}
+<option value="all">All Ranges (slow!)
+</select>
+<input type="submit" name="submit" value="SEE THE MODELS" class="textbutton">
+</td></tr>
+<tr>
+<td colspan=6>
+<hr><center><h3>Advanced Settings</h3></center>
+</td></tr>
+<tr>
+<td>
+   <input type="radio" name="range" value="all"> All Numbers
+</td>
+<td>
+   <input type="radio" name="range" value="some" CHECKED> Some Numbers
+</td>
+<td>starting at:</td>
+<td><input type="text" name="start" size="4" id="numStart" value="1"></td>
+   <td>Start year:</td><td>
+<select name="syear">
+{% for year in range(first_year, last_year + 1) %}
+<option value="{{ year }}"{% if year == first_year %} SELECTED {% endif %}>{{ year }}
+{% endfor %}
+</select>
+</td>
+
+ </tr>
+ <tr><td colspan="2">
+</td>
+  <td>ending at:</td>
+<td><input type="text" name="end" size="4" id="numEnd" value="1499"></td>
+
+   <td>End year:</td><td>
+<select name="eyear">
+{% for year in range(first_year, last_year + 1) %}
+<option value="{{ year }}"{% if year == last_year %} SELECTED {% endif %}>{{ year }}
+{% endfor %}
+</select>
+</td>
+
+ </tr>
+
+<tr>
+<td>Model Type</td>
+<td>SF
+   <input type="hidden" name="mtype" value="SF">
+</td>
+<td colspan="4">
+   <input type="checkbox" name="pic1" value="1" CHECKED> with pics
+</td>
+</tr>
+<tr>
+<td>Photographer</td>
+<td>
+<select name="photog">
+<option value="">Choose a photographer.
+{% for photog in photogs %}
+<option value="{{ photog.0 }}" {% if photog.0 == 'DT' %} SELECTED{% endif %}>{{ photog.1 }}
+{% endfor %}
+</select>
+   <input type="checkbox" name="photognot" value="1" CHECKED> not &nbsp;
+</td>
+<td colspan="4">
+   <input type="checkbox" name="pic0" value="1" CHECKED> without pics
+</td>
+</tr>
+<tr>
+<td style="vertical-align: top;">Var Types</td>
+<td colspan="6">
+   <input type="checkbox" name="vtype" value="c" CHECKED> Core (1-75/100/125)<br>
+   <input type="checkbox" name="vtype" value="1" CHECKED> Code 1<br>
+   <input type="checkbox" name="vtype" value="2"> Code 2<br>
+   <input type="checkbox" name="vtype" value="f"> "F" Variations<br>
+   <input type="checkbox" name="vtype" value="p"> Other Plants (Brazil, Bulgaria, Hungary, Japan)
+</td>
+</tr>
+</table>
+<input type="checkbox" name="verbose" value="1"> Verbose
+
+</form>
+
+{% else %}
+{{ showix.format_listix(llineup) }}
+{% endif %}
+
+{% endblock page_body %}

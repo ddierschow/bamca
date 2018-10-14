@@ -75,7 +75,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     if not mdict.get('nodesc'):
         for s in mdict['descs']:
             if s in mbdata.arts:
-                mdict['desclist'] += "   <br>\n" + pif.render.format_image_art(mbdata.arts[s])
+                mdict['desclist'] += "   <br>\n" + pif.render.format_image_icon('c_' + mbdata.arts[s])
             elif s:
                 mdict['desclist'] += "   <br><i>"+s+"</i>\n"
     return mdict
@@ -218,16 +218,16 @@ def add_model_pic_link_short(pif, id):
 def add_icons(pif, type_id, base_id, vehicle_type):
     icon_list = []
     if type_id:
-        icon = pif.render.format_image_art(type_id, also={'class': 'centered'})
+        icon = pif.render.format_image_icon(type_id, also={'class': 'centered'})
         if icon != '&nbsp;':
             icon_list.append(icon)
     if base_id:
-        icon = pif.render.format_image_optional(base_id, None, prefix='i_', suffix='gif', pdir=config.IMG_DIR_ICON, also={'class': 'centered'})
+        icon = pif.render.format_image_optional(base_id, None, prefix='i_', suffix='gif', pdir=config.IMG_DIR_MAN_ICON, also={'class': 'centered'})
         if icon != '&nbsp;':
             icon_list.append(icon)
     for vtype in vehicle_type:
         if vtype in mbdata.model_icons:
-            icon_list.append(pif.render.format_image_art(mbdata.model_icons[vtype]))
+            icon_list.append(pif.render.format_image_icon(mbdata.model_icons[vtype]))
     ostr = '<p>' + '<p><p>'.join(icon_list)
     return ostr
 
@@ -332,3 +332,18 @@ def add_model_var_pic_link(pif, vdict):
 <tr><td class="varentry"><i>%(text_description)s</i></td></tr>
 </table>
 ''' % vdict
+
+
+def make_page_list(pif, format_type, fmt_link):
+    pif.render.set_button_comment(pif)
+    secs = pif.dbh.fetch_sections_by_page_type(format_type)
+    lsec = [x for x in secs if x.page_id == format_type][0]
+    entries = list()
+    lsec['range'] = [{'entry': entries}]
+    llineup = {'id': 'main', 'name': '', 'section': [lsec]}
+    for sec in secs:
+	hidden = sec.flags & pif.dbh.FLAG_PAGE_INFO_HIDDEN or sec.page_info.flags & pif.dbh.FLAG_PAGE_INFO_HIDDEN
+        if '.' in sec.page_id and (pif.render.is_beta or not hidden):
+            entries.append({'text': ('<i>%s</i>' if hidden else '%s') % fmt_link(sec)})
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('packpages.html', llineup=llineup)

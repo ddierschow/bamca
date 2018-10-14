@@ -58,7 +58,7 @@ class Presentation(object):
 	#useful.html_done = False
 	self.new_cookie = None
 	self.footer = ''
-	self.bamcamark = 'bamca_sm.gif'
+	self.bamcamark = mbdata.bamcamark('')
 	self.filename = 'matchbox.csv'
 #       if self.verbose:
 #           import datetime
@@ -658,6 +658,11 @@ of Matchbox International Ltd. and are used with permission.
 	    self.footer += new_footer
 
     #---- images
+
+    def format_image_icon(self, fname, desc='', also={}):
+	if fname.endswith('-sm'): # TEMPORARY
+	    fname = fname[:-3]
+        return self.fmt_img(fname, alt=desc, pdir=config.IMG_DIR_ICON, also=also)
 
     def format_image_art(self, fname, desc='', also={}):
         return self.fmt_art(fname, desc=desc, also=also)

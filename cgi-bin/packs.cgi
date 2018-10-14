@@ -4,4 +4,4 @@ import sys
 sys.path.append("../bin")
 
 import multip
-multip.do_page('packs', 'page', dbedit='am')
+multip.packs_main('packs', 'page', dbedit='am')

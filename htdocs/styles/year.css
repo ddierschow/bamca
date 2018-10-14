@@ -1,11 +1,12 @@
 .largepic {float: left;}
 
-body {background-color: #FFCC33;}
+body {background-color: #FF8800;}
 
 .tb_year {background-color: #CCCCCC; max-width: 1024px;}
-.sh {color: #FFFFFF; background-color: #000099;}
+.tb {background-color: #CCCCCC;}
+.sh {background-color: #000000; color: #FFFFFF;}
 .rh {background-color: #FFFFFF; color: #000000;}
-.er {background-color: #CCCCFF;}
-.eb {background-color: #CCCC99;}
+.eb {background-color: #DDDDAA;}
+
 .tb_tail {background-color: #CCCCCC;}
 .tb_tail eb {background-color: #CCCCCC;}

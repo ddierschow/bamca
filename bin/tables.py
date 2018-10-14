@@ -220,12 +220,12 @@ table_info = {
 		'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with',
 		'base', 'body', 'interior', 'windows',
 		'manufacture', 'base_text', 'area', 'date', 'note', 'picture_id',
-		'imported', 'imported_from', 'imported_var', 'category'],
+		'imported', 'imported_from', 'imported_var', 'category', 'variation_type'],
         'titles': ['Model ID', 'Variation ID', 'Flags',
 		'Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With',
 		'Base', 'Body', 'Interior', 'Windows',
 		'Manufacture', 'Base Text', 'Area', 'Date', 'Note', 'Other', 'Picture ID',
-		'Imported', 'Imported From', 'Imported Var', 'category'],
+		'Imported', 'Imported From', 'Imported Var', 'category', 'variation_type'],
         'clinks': {
 		'var': {'tab': 'variation', 'id': ['mod_id/mod_id', 'var/var']},
 		'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
@@ -460,7 +460,7 @@ table_info = {
 	'db': 'bamca',
         'id': ['id'],
 	'extends': {'base_id': 'id/id'},
-        'columns': ['id', 'country', 'section_id'],
+        'columns': ['id', 'country', 'section_id', 'isbn'],
         'clinks': {
                 'id': {'tab': 'base_id', 'id': ['id/id']},
                 'country': {'tab': 'country', 'id': ['id/country']},
@@ -482,12 +482,13 @@ table_info = {
     'variation_select': {
 	'db': 'bamca',
         'id': ['id'],
-        'columns': ['id', 'ref_id', 'mod_id', 'var_id', 'sub_id', 'category'],
+        'columns': ['id', 'ref_id', 'mod_id', 'var_id', 'sec_id', 'ran_id', 'category'],
         'create': {
                 'ref_id': 'unset',
                 'mod_id': 'unset',
                 'var_id': 'unset',
-                'sub_id': 'unset',
+                'sec_id': '',
+                'ran_id': '',
                 'category': '',
         },
         'clinks': {
@@ -671,13 +672,16 @@ class Result(object):
 	self._table = table
 	self._record = {}
 	if record:
-	    for key, val in record.items():
-		if '.' in key:
-		    k1, k2 = key.split('.', 1)
-		    self._record.setdefault(k1, Result())
-		    self._record[k1][k2] = val
-		else:
-		    self._record[key] = val
+	    self.receive(record)
+
+    def receive(self, record):
+	for key, val in record.items():
+	    if '.' in key:
+		k1, k2 = key.split('.', 1)
+		self._record.setdefault(k1, Result())
+		self._record[k1][k2] = val
+	    else:
+		self._record[key] = val
 
     def todict(self):
 	outd = dict()
@@ -765,12 +769,12 @@ FLAG_SECTION_HIDE_IMAGE                 = 0x0010
 
 FLAG_MAKE_PRIMARY                       = 0x0002
 FLAG_CASTING_RELATED_SHARED             = 0x0002
+FLAG_LINEUP_MODEL_MULTI_VARS            = 0x0002
 
 FLAG_CATEGORY_INDEXED                   = 0x0004
 
 FLAG_PAGE_INFO_HIDDEN                   = 0x0001
 FLAG_PAGE_INFO_HIDE_TITLE               = 0x0002
-FLAG_PAGE_INFO_UNROLL_MODELS            = 0x0004
 
 FLAG_LINK_LINE_HIDDEN                   = 0x0001
 FLAG_LINK_LINE_RECIPROCAL               = 0x0002
@@ -780,5 +784,7 @@ FLAG_LINK_LINE_FORMAT_LARGE             = 0x0010
 FLAG_LINK_LINE_NOT_VERIFIABLE           = 0x0020
 FLAG_LINK_LINE_ASSOCIABLE               = 0x0040
 FLAG_LINK_LINE_NEW                      = 0x0080
+
+FLAG_PHOTOGRAPHER_PRIVATE               = 0x0002
 
 FLAG_ITEM_HIDDEN                        = 0x0001

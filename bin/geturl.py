@@ -67,8 +67,8 @@ def get_links(pif, assoc_id):
 # an auto link updater would be nice.  this would be part of it.
 
 def import_psdc(pif):
-    pref = 'http://www.publicsafetydiecast.com/'
-    u = urllib2.urlopen('http://www.publicsafetydiecast.com/Matchbox_MAN.htm').read()
+    pref = 'https://www.publicsafetydiecast.com/'
+    u = urllib2.urlopen('https://www.publicsafetydiecast.com/Matchbox_MAN.htm').read()
     u_re = re.compile('<a href="(?P<u>[^"]*)".*?<font.*?>(?P<i>.*?)<\/font>')
     q = get_links(pif, 'PSDC')
     ul = list(set([x['link_line.url'] for x in q]))

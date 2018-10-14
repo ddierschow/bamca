@@ -11,82 +11,92 @@ import useful
 # ---------------------------------------------------------------------
 
 # columns, colspan, rowspan, picsize
-# columns and picsize MUST NOT exceed 4!
+# columns MUST NOT exceed 4!
+# picsize MUST NOT exceed h!
+# colspan must be <= columns!
+pack_layout_keys = ['columns', 'colspan', 'rowspan', 'picsize']
 pack_layouts = {
-    '1s': [1, 1, 1, 4],
-    '2h': [2, 2, 1, 4],
-    '2v': [2, 1, 2, 3],
-    '3h': [3, 3, 1, 4],
-    '3v': [2, 1, 3, 2],
-    '4h': [4, 4, 1, 4],
-    '4v': [2, 1, 4, 2],
-    '5h': [4, 3, 1, 3],
-    '5l': [2, 1, 3, 3],
-    '5s': [3, 2, 2, 3],
-    '5v': [2, 1, 5, 2],
-    '6h': [3, 3, 1, 4],
-    '6s': [3, 2, 3, 3],
-    '6v': [2, 1, 4, 2],
-    '7s': [4, 3, 3, 3],
-    '8h': [4, 4, 1, 4],
-    '8s': [3, 2, 2, 3],
-    '8v': [4, 3, 4, 2],
-    '9h': [3, 3, 1, 4],
-    'th': [4, 3, 2, 3],
-    'tv': [3, 2, 4, 2],
-    'wh': [4, 4, 1, 4],
+    '1s': [1, 1, 1, 'h'],
+    '2h': [2, 2, 1, 'h'],
+    '2v': [2, 1, 2, 'l'],
+    '3h': [3, 3, 1, 'h'],
+    '3v': [2, 1, 3, 'm'],
+    '4h': [4, 4, 1, 'h'],
+    '4v': [2, 1, 4, 'm'],
+    '5h': [4, 3, 1, 'l'],
+    '5l': [2, 1, 3, 'l'],
+    '5s': [3, 2, 2, 'l'],
+    '5v': [2, 1, 5, 'm'],
+    '6h': [3, 3, 1, 'h'],
+    '6s': [3, 2, 3, 'l'],
+    '6v': [2, 1, 4, 'm'],
+    '7s': [4, 3, 3, 'l'],
+    '8h': [4, 4, 1, 'h'],
+    '8s': [3, 2, 2, 'l'],
+    '8v': [4, 3, 4, 'm'],
+    '9h': [3, 3, 1, 'h'],
+    'th': [4, 3, 2, 'l'],
+    'tv': [3, 2, 4, 'm'],
+    'wh': [4, 4, 1, 'h'],
+    '01s': [1, 1, 1, 'h'],
+    '02h': [2, 2, 1, 'h'],
+    '02v': [2, 1, 2, 'l'],
+    '03h': [3, 3, 1, 'h'],
+    '03v': [2, 1, 3, 'm'],
+    '04h': [4, 4, 1, 'h'],
+    '04v': [2, 1, 4, 'm'],
+    '05h': [4, 3, 1, 'l'],
+    '05l': [2, 1, 3, 'l'],
+    '05s': [3, 2, 2, 'l'],
+    '05v': [2, 1, 5, 'm'],
+    '06h': [3, 3, 1, 'h'],
+    '06s': [3, 2, 3, 'l'],
+    '06v': [2, 1, 4, 'm'],
+    '07s': [4, 3, 3, 'l'],
+    '08h': [4, 4, 1, 'h'],
+    '08s': [3, 2, 2, 'l'],
+    '08v': [4, 3, 4, 'm'],
+    '09h': [3, 3, 1, 'h'],
+    '10h': [4, 3, 2, 'l'],
+    '10v': [3, 2, 4, 'm'],
+    '20h': [4, 4, 1, 'h'],
 }
-pack_pic_size = 'tcmlh'
-
-# ---- page list ------------------------------------------------------
-
-def make_page_list(pif):
-    pif.render.set_button_comment(pif)
-    pages = pif.dbh.fetch_pages("format_type='packs'", order='title')
-    lsec = pif.dbh.fetch_sections({'page_id': 'packs'})
-    entries = list()
-    lsec[0]['range'] = [{'entry': entries}]
-    llineup = {'id': 'main', 'name': '', 'section': lsec}
-    for page in pages:
-        if '.' in page['id'] and (not (page['flags'] & pif.dbh.FLAG_PAGE_INFO_HIDDEN) or pif.render.is_beta):
-            txt = models.add_icons(pif, page['id'][6:], '', '') + '<center>' + page['title'] + '</center>'
-            entries.append({'text': pif.render.format_link('?page=' + page['id'][page['id'].find('.') + 1:], txt)})
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('packpages.html', llineup=llineup)
 
 # ---- pack list ------------------------------------------------------
 
-def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose=False):
+def make_pack_list(pif, format_type, sec='', year='', region='', lid='', material='', verbose=False):
     # need to adapt this for id-var
     pif.render.set_button_comment(pif)
     years = set()
     regions = set()
     has_note = False
     title = pif.form.search('title')
-
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    sec_id = sections[0]['id']
-    packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
-    cols = ['pic', 'name', 'year', 'product_code']
-    heads = ['', 'Name', 'Year', 'Product Code']
-    if verbose:
-	cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'material', 'stars', 'rel']
-	heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Mat', 'Models', 'Related']
-    elif sections[0]['flags'] & pif.dbh.FLAG_SECTION_SHOW_IDS:
-	cols = ['id'] + cols + ['regionname']
-	heads = ['ID'] + heads + ['Region']
-    else:
-	cols += ['regionname']
-	heads += ['Region']
-    cols += ['note']
-    heads += ['Note']
-    heads = dict(zip(cols, heads))
 
     pack_ids_found = []
     llineup = dict(section=[])
+    sec_id = sec if sec else sections[0]['id'] if sections else '5packs'
+    num_mods = 2 if sec_id == '2packs' else 10 if sec_id == '10packs' else 5
     for lsection in sections:
 	if sec and lsection['id'] != sec:
 	    continue
+
+	packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
+	cols = ['pic', 'name', 'year', 'product_code']
+	heads = ['', 'Name', 'Year', 'Product Code']
+	if verbose:
+	    cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'material', 'stars', 'rel']
+	    heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Mat', 'Models', 'Related']
+	elif lsection['flags'] & pif.dbh.FLAG_SECTION_SHOW_IDS:
+	    cols = ['id'] + cols + ['regionname']
+	    heads = ['ID'] + heads + ['Region']
+	else:
+	    cols += ['regionname']
+	    heads += ['Region']
+	cols += ['note']
+	heads += ['Note']
+	heads = dict(zip(cols, heads))
+
 	entries = list()
 	for pack in packs:
 	    pack['longid'] = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
@@ -108,21 +118,24 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
 		pack['page'] = pif.form.get_str('page')
 		pack['regionname'] = mbdata.regions[pack['region']]
 		pack['name'] = '<a href="?page=%(page)s&id=%(id)s">%(name)s</a>' % pack
-		pack['pic'] = mbdata.comment_icon.get('c') if imgsizes(pif, config.IMG_DIR_PROD_PACK, pack['id'].lower()) else ''
+		pack['pic'] = mbdata.comment_icon.get('c') if imgsizes(pif, pif.render.pic_dir, pack['id'].lower()) else ''
 		has_note = has_note or bool(pack['note'])
 		if verbose:
 		    modify_pack_admin(pif, pack)
 		entries.append(pack)
-	if not entries:
+	if not entries and not pif.is_allowed('a'):
 	    continue
 	entries.sort(key=lambda x: (x[pif.form.get_str('order', 'name')], x['name'], x['first_year']))
-#	if not has_note:
-#	    cols.remove('note')
+	if pif.is_allowed('a'):  # pragma: no cover
+	    if format_type == 'packs':
+		lsection.name += ' ' + pif.render.format_button('see', 
+		    "packs.cgi?page=%s&sec=%s" % (pif.form.get_str('page'), lsection.id))
+	    lsection.name += ' ' + pif.render.format_button('add', 
+		"mass.cgi?type=pack&section_id=%s&num=%s" % (lsection.id, num_mods))
 
-	lrange = dict(entry=entries, note='')
 	lsection['columns'] = cols
 	lsection['headers'] = heads
-	lsection['range'] = [lrange]
+	lsection['range'] = [dict(entry=entries, note='', styles=dict(zip(cols, cols)))]
 	lsection['note'] = ''
 	llineup['section'].append(lsection)
     useful.write_comment(llineup)
@@ -132,7 +145,7 @@ def make_pack_list(pif, sec='', year='', region='', lid='', material='', verbose
 	'regions': [(x, mbdata.regions[x]) for x in sorted(regions)],
 	'llineup': llineup,
 	'section_id': sec_id,
-	'num': 2 if sec_id == '2packs' else 10 if sec_id == '10packs' else 5,
+	'num': num_mods,
 	#'lid': calc_pack_select(pif, packs),
     }
     return pif.render.format_template('packlist.html', **context)
@@ -156,12 +169,12 @@ def modify_pack_admin(pif, pack):
 
 # ---- single pack ----------------------------------------------------
 
-def do_single_pack(pif, pid):
+def do_single_pack(pif, format_type, pid):
     pack = dict()
     packs = pif.dbh.fetch_pack(pid)
     if not packs:
-	raise useful.SimpleError("That pack doesn't seem to exist.")
-    pif.render.hierarchy_append('', packs[0]['base_id.rawname'])
+	raise useful.SimpleError("That %s doesn't seem to exist." % ('pack' if format_type == 'packs' else 'playset'))
+    pif.render.hierarchy_append('', packs[0]['base_id.rawname'].replace(';', ' '))
 
     llineup = dict(section=[], tail=[''], id='')
     for pack in packs:
@@ -170,7 +183,7 @@ def do_single_pack(pif, pid):
 	db_relateds = pif.dbh.fetch_packs_related(pack_id)
 	relateds = [
 	    {
-		'link': pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'], r['base_id.rawname']),
+		'link': pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'], r['base_id.rawname'].replace(';', ' ')),
 		'product_code': r['pack.product_code'],
 		'region': mbdata.regions.get(r['pack.region'], ''),
 		'country': mbdata.get_country(r['pack.country']),
@@ -184,21 +197,21 @@ def do_single_pack(pif, pid):
 	pack.update({key[key.find('.') + 1:]: pack[key] for key in pack})
 	pack['name'] = pack['rawname'].replace(';', ' ')
 
-	pmodels = distill_models(pif, pack, pif.page_id)
+	pmodels = distill_models(pif, pack, pack['page_id'])
 	if pack['layout'].isdigit() and len(pack['layout']) == 4:
-	    layout = [int(x) for x in pack['layout']]
+	    layout = [int(x) for x in pack['layout'][:3]] + pack['layout'][3:]
 	elif not pmodels:
-	    layout = pack_layouts['1s']
+	    layout = pack_layouts['01s']
 	else:
-	    layout = pack_layouts.get(pack['layout'], [4, 4, 1, 4])
+	    layout = pack_layouts.get(pack['layout'], pack_layouts['04h'])
 	if len(layout) == 2:
 	    layout[3] = 1
 	if len(layout) == 3:
 	    layout[4] = 4 - (layout[0] - layout[1])
 
 	pif.render.comment('pack:', pack)
-	entries = [{'text': show_pack(pif, pack, pack_pic_size[layout[3]]),
-	    'class': 'width_' + pack_pic_size[layout[3]],
+	entries = [{'text': show_pack(pif, pack, layout[3]),
+	    'class': 'width_' + layout[3],
 	    'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
 	for mod in sorted(pmodels.keys()):
 	    pif.render.comment("do_single_pack mod", pmodels[mod])
@@ -220,13 +233,14 @@ def do_single_pack(pif, pid):
     # left bar
     left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        #left_bar_content += str(pack['page_id']) + '/' + str(pack['id'])
 	left_bar_content += '<br><center>'
         left_bar_content += '<p><b><a href="%s">Base ID</a></b><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pack_id})
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
-        left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % config.IMG_DIR_PROD_PACK.replace('/pic/', '/lib/')
+        left_bar_content += '<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' % pif.render.pic_dir.replace('/pic/', '/lib/')
         left_bar_content += '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' % (packs[0]['section_id'], pack_id)
-        left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack_id)
+        left_bar_content += '<b><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' % (pif.render.pic_dir.replace('pic', 'lib'), pack_id)
+        left_bar_content += '<b><a href="upload.cgi?d=./%s&n=%s">Contents</a><br>\n' % (pif.render.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id)
+        #left_bar_content += '<b><a href="imawidget.cgi?d=./%s&f=%s.jpg">Edit Pic</a></b>\n' % (pif.render.pic_dir, pack_id)
         left_bar_content += '</center>\n'
 
     pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
@@ -234,7 +248,7 @@ def do_single_pack(pif, pid):
     context = {
 	'title': packs[0]['name'],
 	'note': packs[0]['note'],
-	'type_id': pif.page_name,
+	'type_id': 'p_' + packs[0]['section_id'],
 	'icon_id': '',#pack_id,
 	'vehicle_type': '',
 	'rowspan': 4,
@@ -248,7 +262,7 @@ def do_single_pack(pif, pid):
 def imgsizes(pif, pdir, pic_id):
     sizes_found = []
     for imgsize in mbdata.image_size_types:
-	if os.path.exists(os.path.join('.' + pdir, imgsize + '_' + pic_id + '.jpg')):
+	if os.path.exists(os.path.join(pdir, imgsize + '_' + pic_id + '.jpg')):
 	    sizes_found.append(imgsize.upper())
     return ' '.join(sizes_found)
 
@@ -260,7 +274,7 @@ def distill_models(pif, pack, page_id):
     #for pic in glob.glob(os.path.join(config.IMG_DIR_PROD_PACK, '?_' + pack_id + '.jpg')):
     #path, pic = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
     #pack['pic'] += imglib.format_image_star(pif, path, pic)
-    pack['pic'] += imgsizes(pif, config.IMG_DIR_PROD_PACK, pack_id.lower())
+    pack['pic'] += imgsizes(pif, pif.render.pic_dir, pack_id.lower())
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
     pack['thumb'] = '<i class="far fa-%s"></i>' % ('check-square' if linmod else 'square')
     if ''.join(pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):
@@ -269,19 +283,20 @@ def distill_models(pif, pack, page_id):
 
     for mod in model_list:
         mod = pif.dbh.modify_man_item(mod)
-        sub_ids = [None, '', pack_id, pack_id + '.' + str(mod['pack_model.display_order'])]
-        if mod['vs.sub_id'] in sub_ids:
+        sec_ids = ['.', '', pack_id + '.', pack_id + '.' + str(mod['pack_model.display_order'])]
+        if (mod['vs.sec_id'] or '') + '.' + (mod['vs.ran_id'] or '') in sec_ids:
             mod['imgl'] = [mbdata.IMG_SIZ_SMALL + '_' + mod['id'], mod['id'], mod['pack_model.mod_id']]
             for s in mod['descs']:
                 if s.startswith('same as '):
                     mod['imgl'].extend([mbdata.IMG_SIZ_SMALL + '_' + s[8:], s[8:]])
             if not mod.get('vs.ref_id'):
                 mod['vs.ref_id'] = ''
-            if not mod.get('vs.sub_id'):
-                mod['vs.sub_id'] = ''
+            if not mod.get('vs.sec_id'):
+                mod['vs.sec_id'] = ''
             mod['pdir'] = pif.render.pic_dir
+            mod['pic_id'] = mod['vs.sec_id'] if mod['vs.sec_id'] else mod['pack_model.pack_id']
 	    if mod['pack_model.mod_id'] != 'unknown':
-		mod['href'] = "single.cgi?id=%(pack_model.mod_id)s&dir=%(pdir)s&pic=%(pack_model.pack_id)s&ref=%(vs.ref_id)s&sub=%(vs.sub_id)s" % mod
+		mod['href'] = "single.cgi?id=%(pack_model.mod_id)s&dir=%(pdir)s&pic=%(pic_id)s&ref=%(vs.ref_id)s&sec=%(vs.sec_id)s&ran=%(vs.ran_id)s" % mod
             #'<a href="single.cgi?dir=%(dir)s&pic=%(link)s&ref=%(vs.ref_id)s&id=%(mod_id)s">' % ent
             #'pack_model.pack_id': 'car02',
         #    if mod['pack_model.var'] and mod['imgl']:  # still not perfect
@@ -304,13 +319,26 @@ def distill_models(pif, pack, page_id):
 #'columns': ['id', 'page_id', 'section_id', 'name', 'first_year', 'end_year', 'region', 'layout', 'product_code', 'material', 'country'],
 def show_pack(pif, pack, picsize):
     pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
-    credit = pif.dbh.fetch_photo_credit(pif.render.pic_dir, pack_id, verbose=True)
-    pack['credit'] = credit['photographer.name'] if credit else ''
-    ostr = pif.render.format_image_required(pack_id, largest=picsize)
-    if pif.is_allowed('a'):  # pragma: no cover
-        ostr = '<a href="upload.cgi?d=./%s&n=%s">%s</a>' % ('lib/prod/pack', pack_id, ostr)
-    else:
-        ostr = '<a href="upload.cgi">%s</a>' % (ostr)
+
+    prod_credit = pif.dbh.fetch_photo_credit(pif.render.pic_dir, pack_id, verbose=True)
+    pack['credit'] = prod_credit['photographer.name'] if prod_credit else ''
+    prod_pic = pif.render.find_image_path(pack_id, largest=picsize)
+
+    cont_dir = pif.render.pic_dir.replace('prod', 'set')
+    cont_credit = pif.dbh.fetch_photo_credit(cont_dir, pack_id, verbose=True)
+    #pack['credit'] = cont_credit['photographer.name'] if cont_credit else ''
+    cont_pic = pif.render.find_image_path(pack_id, largest=picsize, pdir=cont_dir)
+
+    pics = []
+    if prod_pic:
+	ostr = prod_pic
+	pics.append(prod_pic)
+    if cont_pic:
+	ostr = cont_pic
+	pics.append(cont_pic)
+    ostr = pif.render.format_image_selector(pics, 'ps') + '<br>'
+    ostr += pif.render.format_image_selectable(pics, 'ps')
+
     # Ideally this would come from section.flags but we don't have that here.
     # So this is a giant FAKE OUT
     if pack['credit']:
@@ -375,30 +403,54 @@ def edit_model(pif, mdict):
 # ---- main -----------------------------------------------------------
 
 @basics.web_page
-def do_page(pif):
+def packs_main(pif):
+
+    def fmt_link(sec):
+	return pif.render.format_link('?sec=' + sec.id,
+	    models.add_icons(pif, 'p_' + sec.id, '', '') + '<center>' + sec.name + '</center>')
+
+    pif.render.set_page_extra(pif.render.image_selector_js)
     pif.render.print_html()
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('packs.cgi', 'Multi-Model Packs')
-    #pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
-#    if isinstance(pif.form.get('id'), list):
-#       pif.form['id'] = pif.form.get_str('id')[0]
     if pif.form.has('id'):
+	pif.render.hide_title = True
         pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
 	pid = useful.clean_id(pif.form.get_str('id'))
-        return do_single_pack(pif, pid)
+        return do_single_pack(pif, 'packs', pid)
     elif pif.form.has('page'):
-	return make_pack_list(pif,
+	return make_pack_list(pif, 'packs',
 		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
 		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     elif pif.form.has('sec'):
+	pif.render.hide_title = True
 	useful.write_comment(pif.form)
 	sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
 	if not sections:
-	    return make_page_list(pif)
-	pif.page_id = sections[0]['page_info.id']
-	return make_pack_list(pif,
+	    return models.make_page_list(pif, 'packs', fmt_link)
+	pif.page_id = sections[0].page_info.id
+	return make_pack_list(pif, 'packs',
 		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
 		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
-    else:
-        return make_page_list(pif)
+    return models.make_page_list(pif, 'packs', fmt_link)
+
+#---- play ----------------------------------
+
+@basics.web_page
+def play_main(pif):
+    pif.render.set_page_extra(pif.render.image_selector_js)
+    useful.write_comment(pif.form)
+    pif.page_id = 'playset.ps'
+    pif.set_page_info(pif.page_id)
+    pif.render.print_html()
+    pif.render.hierarchy_append('/', 'Home')
+    pif.render.hierarchy_append('/database.php', 'Database')
+    pif.render.hierarchy_append('play.cgi', 'Playsets')
+    if pif.form.has('id'):
+        pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
+	pid = useful.clean_id(pif.form.get_str('id'))
+        return do_single_pack(pif, 'playset', pid)
+    return make_pack_list(pif, 'playset',
+		verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
+		**pif.form.get_dict(['sec', 'year', 'region']))

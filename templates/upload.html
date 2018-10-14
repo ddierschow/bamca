@@ -113,7 +113,9 @@
    {{ render.format_button_reset('upload') }}
 {%- if not form.mass and not restrict %}
    {{ render.format_button_input('mass') }}
-   {{ render.format_button('edit', 'imawidget.cgi?edit=1&d={{ form.tdir  }}&f={{ form.nfn }}&man={{ form.mod_id }}') }}
+{%- endif %}
+{%- if not restrict -%}
+{{ edit }}
 {%- endif %}
   </td>
  </tr>

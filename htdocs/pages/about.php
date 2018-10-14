@@ -27,7 +27,7 @@ $rows = count($larr);
  <tr>
   <td rowspan="<?php echo $rows + 3; ?>" class="boxvs"></td>
   <td colspan="3" class="boxin boxtitle">
-   Bay Area <img src="<?php echo $IMG_DIR_ART; ?>/matchboxb.gif" alt="[Matchbox]" class="mblogo"> Collectors' Association Website</td>
+   Bay Area <img src="<?php echo $IMG_DIR_ICON; ?>/a_matchboxb.gif" alt="[Matchbox]" class="mblogo"> Collectors' Association Website</td>
   <td rowspan="<?php echo $rows + 3; ?>" class="boxvs"></td>
  </tr>
 
@@ -46,7 +46,7 @@ foreach ($larr as $ent) {
  $nams = explode('|', $ent[1]);
 
  echo ' <tr>
-  <td class="c1 boxin boxrow"><a href="' . $ent[0] . '"><img src="' . $IMG_DIR_ART . '/' . $nams[0] . '" alt="[' . $nams[1] . ']"></a></td>
+  <td class="c1 boxin boxrow"><a href="' . $ent[0] . '"><img src="' . $IMG_DIR_ICON . '/a_' . $nams[0] . '" alt="[' . $nams[1] . ']"></a></td>
   <td class="c2 boxin">' . $ent[2] . '</td>
  </tr>
 
@@ -65,7 +65,11 @@ foreach ($larr as $ent) {
 
    Please do not hotlink to images on this site.  We reserve the
    right to change the name, location, or contents of any image at
-   any time for any reason.
+   any time for any reason.<p>
+
+   This site is 100% a volunteer effort.  It was created by the members
+   of the club, and has never spent money on web development or programming.
+   Instead, we've done all of this ourselves, in our spare time.
   </td>
  </tr>
 

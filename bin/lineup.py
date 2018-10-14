@@ -27,8 +27,10 @@ import useful
 # X.61 | Presentation Sets                      | pack     |
 # X.62 | Gift Sets                              | pack     |
 # X.63 | 5-Packs                                | pack     |
-# X.64 | Themed and Licensed 5-Packs            | pack     |
-# X.65 | 9- and 10-Packs                        | pack     |
+# X.64 | Licensed 5-Packs                       | pack     |
+# X.65 | Themed 5-Packs / Action Launchers      | pack     |
+# X.66 | 9- and 10-Packs                        | pack     |
+# X.67 | 2-Packs                                | pack     |
 # X.71 | Roadways                               | pub      |
 # X.72 | Games and Puzzles                      | pub      |
 # X.73 | Books                                  | pub      |
@@ -46,7 +48,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
 	'image_format': lsec['img_format'],
 	'anchor': '%s%d' % ('X' if region.startswith('X') else '', mdict['number']),
 	'class': '', 'product': '', 'prod_id': '', 'href': '',
-	'is_reused_product_picture': 0, 'is_product_picture': 0,
+	'is_reused_product_picture': 0, 'is_product_picture': 0, 'halfstar': 0,
 	'displayed_id': '',  #'&nbsp;'
     })
     pdir = lsec.get('pic_dir')
@@ -62,10 +64,12 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['product'] = mdict['picture_id'].replace('w', pif.form.get_strl('region'))
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
         elif mdict.get('image_format'):
-            mdict['product'] = mdict['image_format'].replace('w', pif.form.get_strl('region')) % mdict['number']
+	    imgfmt = mdict['image_format'].replace('w', pif.form.get_strl('region')) if int(mdict['year']) > 1970 else mdict['image_format']
+            mdict['product'] = imgfmt % mdict['number']
         if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
             mdict['is_product_picture'] = 1
-        mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sub=%(sub_id)s&id=%(mod_id)s" % mdict
+        mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sec=%(sec_id)s&ran=%(ran_id)s&id=%(mod_id)s" % mdict
+	mdict['halfstar'] = int(bool(mdict.get('flags', 0) & pif.dbh.FLAG_LINEUP_MODEL_MULTI_VARS))
     elif mdict['pack.id']:
 	mdict['prod_id'] = mdict['pack.id']
         if mdict['picture_id']:
@@ -105,7 +109,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
 	    mdict['displayed_id'] = disp_format.replace('ID', '%s-%d' % (id_m.group('a'), int(id_m.group('n'))))
     elif disp_format and mdict.get('shown_id'):
         mdict['displayed_id'] = disp_format % (mdict['shown_id'])
-    mdict['upload_link'] =  pif.render.format_link('upload.cgi?d=%s&n=%s' % (mdict['pdir'], mdict['product']), mdict['large_img'])
+    mdict['upload_link'] =  pif.render.format_link('upload.cgi?d=%s&n=%s' % (mdict['pdir'].replace('pic', 'lib'), mdict['product']), mdict['large_img'])
     return mdict
 
 
@@ -122,22 +126,22 @@ def create_lineup(pif, mods, year, lsec, fdebug=False):
     foundlist = []
     for mod in mods:
 	if ((mod['lineup_model.number'], mod['lineup_model.display_order'],) not in foundlist and
-		(not mod['vs.sub_id'] or not mod['vs.sub_id'].isdigit() or int(mod['vs.sub_id']) == mod['lineup_model.number']) and
+		(not mod['vs.sec_id'] or not mod['vs.sec_id'].isdigit() or int(mod['vs.sec_id']) == mod['lineup_model.number']) and
 		((is_extra and region == mod['lineup_model.region']) or not is_extra)):
 	     modlist.append(calc_lineup_model(pif, lsec, year, region, pif.dbh.make_lineup_item(mod)))
 	     foundlist.append((mod['lineup_model.number'], mod['lineup_model.display_order'],))
 
     # 2. edit model list for only entries we're interested in
     mods = [mod for mod in mods if
-	mod['vs.sub_id'] is None or (
-	(not mod['vs.sub_id'].isdigit() or int(mod['vs.sub_id']) == mod['lineup_model.number']) and
-	(mod['vs.sub_id'].isdigit() or mod['vs.sub_id'] in regions))
+	mod['vs.sec_id'] is None or (
+	(not mod['vs.sec_id'].isdigit() or int(mod['vs.sec_id']) == mod['lineup_model.number']) and
+	(mod['vs.sec_id'].isdigit() or mod['vs.sec_id'] in regions))
     ]
 
     # 3. put it in a usable order
     def mod_sort_key(x):
 	return (x['lineup_model.number'], x['lineup_model.display_order'],
-	    0 if (is_extra or x['vs.sub_id'] is None or x['vs.sub_id'].isdigit()) else regions.index(x['vs.sub_id']),)
+	    0 if (is_extra or x['vs.sec_id'] is None or x['vs.sec_id'].isdigit()) else regions.index(x['vs.sec_id']),)
 
     mods.sort(key=mod_sort_key)
 
@@ -158,7 +162,7 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 	print 'CURMOD:', useful.defang(curmod)
 	for rmod in rmods:
 	    if rmod['lineup_model.number'] == curmod['number'] and rmod['lineup_model.display_order'] == curmod['display_order']:
-		print 'RMOD:', rmod['lineup_model.number'], 'ord', rmod['lineup_model.display_order'], 'vs.ref_id', rmod['vs.ref_id'], 'vs.sub_id', rmod['vs.sub_id'], 'var', rmod['v.var'], rmod['v.text_description'], 'pic', rmod['v.picture_id']
+		print 'RMOD:', rmod['lineup_model.number'], 'ord', rmod['lineup_model.display_order'], 'vs.ref_id', rmod['vs.ref_id'], 'vs.sec_id', rmod['vs.sec_id'], 'var', rmod['v.var'], rmod['v.text_description'], 'pic', rmod['v.picture_id']
 
     quittable = False
     for region in regions:
@@ -168,7 +172,7 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 	    if (region.startswith('X') or
 		    (rmod['lineup_model.number'] == curmod['number'] and
 		     rmod['lineup_model.display_order'] == curmod['display_order'] and
-		     (rmod['vs.sub_id'] == region or rmod['vs.sub_id'] == str(curmod['number'])))):
+		     (rmod['vs.sec_id'] == region or rmod['vs.sec_id'] == str(curmod['number'])))):
 		# add to cvarlist
 		for var in curmod['cvarlist']:
 		    if rmod['v.var'] in var['var_ids']:
@@ -188,11 +192,11 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 		    pic_id = rmod['v.picture_id'] if rmod['v.picture_id'] else rmod['v.var']
 		    curmod['cvarlist'].append({'var_ids': [rmod['v.var']], 'desc': rmod.get('v.text_description', ''),
 					       'picture_ids': [pic_id], 'vars': rmod['v.var']})
-		    curmod['sub_id'] = rmod['vs.sub_id']
+		    curmod['sec_id'] = rmod['vs.sec_id']
 		    if fdebug:
 			print 'ADD', rmod['v.var'], rmod['v.text_description']
 
-		    if rmod['vs.sub_id'] == region:
+		    if rmod['vs.sec_id'] == region:
 			quittable = True
 	    elif fdebug:
 		print 'NO ADD'
@@ -231,12 +235,15 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
 	raise useful.SimpleError("""I'm sorry, that lineup was not found.  Please use your "BACK" button or try something else.""")
 
     region, mainsec, secs, xsecs = get_man_sections(pif, year, region, section_types)
+    limits = pif.dbh.fetch_lineup_limits()
 
     # generate main section
     mainsec.update({
 	'year': year,
 	'region': region,
-	'mods': []
+	'mods': [],
+    	'first_year': int(limits['min(year)']),
+    	'last_year': int(limits['max(year)']),
     })
 
     if 'man' in section_types:
@@ -265,10 +272,6 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
     for sec in xsecs:
 	sec['mods'] = create_lineup(pif, lmods, year, sec, fdebug)
 
-    # just one more thing, ma'am
-    limits = pif.dbh.fetch_lineup_limits()
-    mainsec['first_year'] = int(limits['min(year)'])
-    mainsec['last_year'] = int(limits['max(year)'])
     return mainsec, secs, xsecs
 
 
@@ -285,8 +288,9 @@ def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
         ostr += render_lineup_model_var(pif, mdict, comments)
     if large:
 	#ostr += '<br>' + pif.render.format_button("edit", pif.dbh.get_editor_link('lineup_model', {'id': mdict['lineup_model.id']}))
-	ostr += pif.render.format_text_input('description.%s' % mdict['id'], 64, value=mdict['name'])
-	ostr += pif.render.format_text_input('style_id.%s' % mdict['id'], 4, value=mdict['style_id'])
+	ostr += 'name' + pif.render.format_text_input('description.%s' % mdict['id'], 64, value=mdict['name']) + '<br>'
+	ostr += 'style' + pif.render.format_text_input('style_id.%s' % mdict['id'], 4, value=mdict['style_id']) + '<br>'
+	ostr += pif.render.format_checkbox('halfstar.%s' % mdict['id'], [(1, 'multi',)], checked=[mdict.get('halfstar', 0)]) + '<br>'
         ostr += '</center></td></tr></table>'
     mdict.update({
 	'mod_text': ostr,
@@ -341,7 +345,7 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
     return ostr
 
 
-def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False):
+def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=False):
     unroll = pif.form.get_bool('unroll')
     year = mainsec['year']
     region = mainsec['region']
@@ -354,10 +358,14 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False):
 	mainsec['columns'] = 1
     if secs:
 	for sec in secs:
-	    sec['entry'] = [render_lineup_model(pif, x, comments, unroll=unroll, large=large) for x in sec['mods']]
+	    sec['entry'] = [
+		render_lineup_model(pif, x, comments, unroll=unroll, large=large)
+		for x in sec['mods'] if not multi or len(x['cvarlist']) > 1]
 	mainsec['range'] = secs
     else:
-	mainsec['range'] = [{'entry': [render_lineup_model(pif, x, comments, unroll=unroll, large=large) for x in mainsec['mods']]}]
+	mainsec['range'] = [{'entry': [
+		render_lineup_model(pif, x, comments, unroll=unroll, large=large)
+		for x in mainsec['mods'] if not multi or len(x['cvarlist']) > 1]}]
     for sec in xsecs:
 	if sec['flags'] & pif.dbh.FLAG_SECTION_HIDDEN:
 	    sec['name'] = '<i>' + sec['name'] + '</i>'
@@ -380,19 +388,14 @@ def render_lineup_year(pif, mainsec, secs, xsecs, large=False):
     footer = ''
     year = mainsec['year']
     region = mainsec['region']
-    llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs, large=large)
+    llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs, large=large, multi=pif.form.get_bool('multi'))
 #    if year > mainsec['first_year']:
 #       footer += pif.render.format_button("previous_year", link='?year=%s&region=%s' % (year - 1, pif.form.get_stru('region')))
 #    if year < mainsec['last_year']:
 #       footer += pif.render.format_button("following_year", link='?year=%s&region=%s' % (year + 1, pif.form.get_stru('region')))
     pif.render.set_footer(footer)
     pif.render.format_matrix_for_template(llineup)
-    if year >= 2001 and year <= 2005:
-	pif.render.bamcamark = 'bamca_sm2.gif'
-    elif year <= 1969:
-	pif.render.bamcamark = 'bamca_sm3.gif'
-    elif year <= 1974:
-	pif.render.bamcamark = 'bamca_sm4.gif'
+    pif.render.bamcamark = mbdata.bamcamark(year)
     return pif.render.format_template('lineup.html', llineup=llineup, large=large, unroll=pif.form.get_bool('unroll'))
 
 
@@ -468,7 +471,7 @@ def year_lineup_main(pif, listtype):
     year = pif.form.get_str('year')
     section_types = pif.form.get_list('lty')
 
-    if section_types == ['all']:
+    if not section_types or section_types == ['all']:
 	section_types = dict(mbdata.lineup_types).keys()
 
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (year, region),
@@ -493,12 +496,6 @@ def year_lineup_main(pif, listtype):
 #--------- prodpics --------------------------------
 
 def run_product_pics(pif, region):
-    halfstars = dict()
-    if os.path.exists('pic/multivars.dat'):
-        for ln in open('pic/multivars.dat').readlines():
-            ln = ln.strip().split()
-            if len(ln) > 1 and ln[1] == region:
-                halfstars[ln[0]] = [int(x) for x in ln[2:]]
     syear = 'year.' + pif.form.get_str('syear', '0000')
     eyear = 'year.' + pif.form.get_str('eyear', '9999')
     pages = [x for x in pif.dbh.fetch_page_years() if x['page_info.id'] >= syear and x['page_info.id'] <= eyear]
@@ -532,15 +529,16 @@ def run_product_pics(pif, region):
             lmod = lmoddict.get(mnum, {})
             lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', pif.form.get_strl('region'))
             if pic_id:
-                lpic_id = pic_id = pic_id.replace('W', pif.form.get_stru('region'))
+                lpic_id = pic_id = pic_id.replace('W', pif.form.get_stru('region')).replace('w', pif.form.get_strl('region'))
                 product_image_path, product_image_file = pif.render.find_image_file(pic_id, suffix='jpg', pdir=pdir, largest='l')
             else:
-                lpic_id = ifmt % mnum
-                product_image_path, product_image_file = pif.render.find_image_file([ifmt % mnum], suffix='jpg', pdir=pdir, largest='l')
+                lpic_id = ifmt.replace('w', pif.form.get_strl('region')) % mnum
+                product_image_path, product_image_file = pif.render.find_image_file([lpic_id], suffix='jpg', pdir=pdir, largest='l')
 	    if not lmod or lmod.get('lineup_model.flags', 0) & pif.dbh.FLAG_MODEL_NOT_MADE:
 		pic_id = None
+	    halfstar = lmod and lmod.get('lineup_model.flags', 0) & pif.dbh.FLAG_LINEUP_MODEL_MULTI_VARS
             lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (pdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
-	    istar = imglib.format_image_star(pif, product_image_path, product_image_file, pic_id, mnum in halfstars.get(page[5:], []))
+	    istar = imglib.format_image_star(pif, product_image_path, product_image_file, pic_id, halfstar)
             ent = {
                 'text': pif.render.format_link(lnk, istar),
                 'display_id': str(int(mnum % 10 == 0 or page[-1] == '0'))
@@ -677,20 +675,24 @@ def select_lineup(pif, region, year):
 #--------- multiyear lineup ------------------------
 
 def run_multi_file(pif, year, region, nyears):
+    year = mbdata.correct_year(year)
+    nyears = 5
     # as yet not rewritten
-    pages = pif.dbh.fetch_pages('id in (' + ','.join(["'year.%d'" % x for x in range(int(year), int(year) + nyears)]) + ')')
+    pages = pif.dbh.fetch_pages('id in (' + ','.join(["'year.%d'" % x for x in range(year, year + nyears)]) + ')')
 
     modlistlist = []
     max_mods = 0
-    y = int(year)
+    y = year
     nyears = len(pages)
     for page in pages:
+	yregion = mbdata.correct_region(region, y)
         page['year'] = str(y)
-        reg, mainsec, secs, xsecs = get_man_sections(pif, str(y), region, ['man'])
+        reg, mainsec, _, _ = get_man_sections(pif, y, yregion, ['man'])
         page['region'] = reg
         page['sec'] = mainsec
         page['img_format'] = mainsec['img_format']
-        page['mods'] = create_lineup(pif, pif.dbh.fetch_lineup_models(y, region), y, mainsec)
+        mods = pif.dbh.fetch_lineup_models(y, reg)
+        page['mods'] = create_lineup(pif, mods, y, mainsec)
         max_mods = max(max_mods, len(page['mods']))
         y += 1
 
@@ -717,7 +719,7 @@ def run_multi_file(pif, year, region, nyears):
 		#mdict['region'] = region
 		mdict = calc_lineup_model(pif, pages[iyr]['sec'], year + iyr, region, mdict)
                 mdict['display_id'] = mdict.get('style_id', 0)
-                if int(year) + iyr == int(mdict['base_id.first_year']):
+                if year + iyr == int(mdict['base_id.first_year']):
                     mdict['class'] = 'newcasting'
 		mdict['displayed_id'] += ' (%s)' % (year + iyr)
 		lran['entry'].append(render_lineup_model(pif, mdict, comments))
@@ -733,12 +735,11 @@ def run_multi_file(pif, year, region, nyears):
 
 def render_multiyear(pif, nyears=5):
     region = pif.form.get_stru('region')
-    year = mbdata.correct_year(pif.form.get_str('year'))
-    region = mbdata.correct_region(region, year)
+    year = pif.form.get_str('year')
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (year, region),
         "%s %s" % (year, mbdata.regions.get(region)))
-    pif.render.title = 'Matchbox %d-%d' % (year, year + nyears - 1)
-    llineup = run_multi_file(pif, year, region.upper(), nyears)
+    pif.render.title = 'Matchbox %s-%s' % (year, int(year) + nyears - 1)
+    llineup = run_multi_file(pif, year, region, nyears)
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('lineup.html', llineup=llineup, large=False, unroll=pif.form.get_bool('unroll'))
 
@@ -1040,7 +1041,8 @@ def add_variation_select(pif, mod, year, region):
 	'ref_id': 'year.' + year,
 	'mod_id': mod[1],
 	'var_id': 'Y' + year[2:],
-	'sub_id': '',
+	'sec_id': '',
+	'ran_id': '',
     })
 
 
@@ -1102,9 +1104,15 @@ def show_sections(pif):
 	pages.setdefault(sec['page_id'][5:], dict())
 	pages[sec['page_id'][5:]][sec['id'][2:]] = sec
     sec_ids = sorted(sec_ids)
-    print 'page |', ' | '.join(sec_ids), '|'
+
+    def hdr():
+	print 'page |', ' | '.join(sec_ids), '|'
+
+    hdr()
     print '-----+' + len(sec_ids) * '----+'
     for page_id in sorted(pages):
+	if not (int(page_id) % 40):
+	    hdr()
 	print page_id, '|', ' | '.join([pages[page_id].get(sec_id, {}).get('showflag', ' ') + ' ' for sec_id in sec_ids]) + ' |'
 
 

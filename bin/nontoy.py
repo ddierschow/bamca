@@ -6,6 +6,7 @@ import bfiles
 import config
 import images
 import javasc
+import mbdata
 import useful
 
 #pagename = 'biblio'
@@ -70,7 +71,7 @@ def biblio(pif):
     if editable:
 	lsection['columns'].append('edit')
 	lsection['headers']['edit'] = '&nbsp;'
-	row_link_formatters['edit'] = lambda x: ('http://beta.bamca.org/cgi-bin/editor.cgi?table=%s&id=' % tab_name) + str(x[0])
+	row_link_formatters['edit'] = lambda x: ('https://beta.bamca.org/cgi-bin/editor.cgi?table=%s&id=' % tab_name) + str(x[0])
     for arg in page_info['show']:
 	hdr = arg
 	key = arg.lower().replace(' ', '_')
@@ -84,7 +85,8 @@ def biblio(pif):
     this_sort = pif.form.get_str('sort', page_info.get('sort'))
     if this_sort:
 	if this_sort.isdigit():
-	    this_sort = lsection['columns'][int(this_sort)]
+	    this_sort = int(this_sort)
+	    this_sort = lsection['columns'][this_sort]
 	sortkey.append(this_sort)
     if page_info.get('lastsort'):
 	sortkey.append(page_info.get('lastsort'))
@@ -227,3 +229,33 @@ def submit_comment(pif):
     fh.write("REMOTE_ADDR=" + os.getenv('REMOTE_ADDR') + "\n");
     ostr += "Thanks for sending that.  Now please use the BACK button on your browser to return to where you were.";
     return ostr
+
+@basics.web_page
+def counts_main(pif):
+    pif.render.title = 'Site Counts'
+    pif.render.print_html()
+    counts = pif.dbh.fetch_counts()
+    v = {c['model_type']: c['count'] for c in counts[1]}
+    for c in counts[0]:
+	c['name'] = mbdata.model_type_names[c['model_type']]
+	c['type'] = mbdata.model_types[c['model_type']]
+	c['vars'] = v.get(c['model_type'], 0)
+
+    things = []
+    for mt in sorted(set(mbdata.model_types.values())):
+	section = {'name': mt,
+	    'columns': ['name', 'count', 'vars'],
+	    'headers': {'name': 'Model Type', 'count': 'Count', 'vars': 'Variations'},
+	    'range': [{
+		'entry': [x for x in counts[0] if x['type'] == mt],
+	    }],
+	}
+	tot = sum([x['count'] for x in section['range'][0]['entry']])
+	vc = sum([x['vars'] for x in section['range'][0]['entry']])
+	section['range'][0]['entry'].append({'name': 'total', 'count': tot, 'vars': vc})
+	if tot:
+	    things.append(section)
+    llineup = {
+	'section': things,
+    }
+    return pif.render.format_template('simplelistix.html', llineup=llineup)

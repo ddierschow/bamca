@@ -100,8 +100,8 @@ class TestOther(unittest.TestCase):
 
     def test_Multipack(self):
 	import multip
-	self.assertTrue(multip.do_page('packs', 'page', args="verbose=1") != '')
-	self.assertTrue(multip.do_page('packs', 'page', args="page=5packs id=2000p55alu") != '')
+	self.assertTrue(multip.packs_main('packs', 'page', args="verbose=1") != '')
+	self.assertTrue(multip.packs_main('packs', 'page', args="page=5packs id=2000p55alu") != '')
 
     def test_Nontoy(self):
 	import nontoy

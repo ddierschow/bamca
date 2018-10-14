@@ -177,6 +177,7 @@ def unhide_makes(pif, *args):
 	make = pif.dbh.depref('vehicle_make', pif.dbh.fetch_vehicle_make(make_id))
 	flag = 0 if res['c'] else pif.dbh.FLAG_ITEM_HIDDEN
 	print make, flag
+	pif.dbh.update_vehicle_make(make['id'], {'flags': flag})
 
 
 def check_makes(pif, *args):

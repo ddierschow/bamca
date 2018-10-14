@@ -47,13 +47,14 @@ lineup_types = [
 
 model_type_names = {
     'AC': 'Accessory',
-    'ET': 'Early toy',
-    'KS': 'King size',
-    'RW': 'Regular wheel',
+    'ET': 'Early Toy',
+    'KS': 'King Size',
+    'RW': 'Regular Wheel',
     'SB': 'Sky Buster',
     'SF': 'Superfast',
     'BR': 'Budget Range',
     'YY': 'YesterYear',
+    'CH': 'Character Car',
     'PS': 'Playset',
     'CC': 'Carrying Case',
     'PK': 'Packaging',
@@ -61,8 +62,9 @@ model_type_names = {
     'DC': 'Dealer Catalog',
     'RY': 'Roadway',
     'PZ': 'Puzzle',
+    'GM': 'Game',
     'BK': 'Book',
-    'AD': 'Ad',
+    'AD': 'Advertisement',
     'MP': 'Multipack',
     'SE': 'Series',
     'LI': 'Lineup',
@@ -77,6 +79,7 @@ model_types = {
     'SF': 'Casting',           # Superfast
     'BR': 'Casting',           # Budget Range
     'YY': 'Casting',           # YesterYear
+    'CH': 'Casting',           # Character Cars
     'PS': 'Assembly',          # Playset
     'CC': 'Case',              # Carrying Case
     'PK': 'Publication',       # Packaging
@@ -91,6 +94,26 @@ model_types = {
     'LI': 'Package',           # Lineup
 }
 
+page_format_type = {
+    'biblio': 'biblio',
+    'boxart': 'boxart',
+    'calendar': 'calendar',
+    'compare': 'compare',
+    'lineup': 'lineup',
+    'links': 'links',
+    'makes': 'makes',
+    'manno': 'manno',
+    'matrix': 'matrix',
+    'others': 'others',
+    'package': 'package',
+    'packs': 'packs',
+    'php': 'php',
+    'playset': 'playset',
+    'pub': 'pub',
+    'python': 'python',
+    'sets': 'sets',
+    'single': 'single',
+}
 
 countries_dict = None
 country_code_dict = None
@@ -305,9 +328,11 @@ IMG_SIZ_PETITE = 'p'
 IMG_SIZ_COMPACT = 'c'
 IMG_SIZ_SMALL = 's'
 IMG_SIZ_TINY = 't'
-image_size_names = ["micro", "tiny", "small", "petit", "compact", "medium", "large", "huge", "gigantic", "enormous"]
-image_size_types = ['u', 't', 's', 'p', 'c', 'm', 'l', 'h', 'g', 'e']
-image_size_sizes = [(50, 30), (100,  60), (200, 120), (300, 180), (300, 180), (400, 240), (600, 360), (800, 480), (1000, 600), (1200, 720)]
+IMG_SIZ_MICRO = 'u'
+IMG_SIZ_VERY_SMALL = 'v'
+image_size_names = ["very small", "micro", "tiny", "small", "petite", "medium", "large", "huge", "gigantic", "enormous"]
+image_size_types = ['v', 'u', 't', 's', 'p', 'm', 'l', 'h', 'g', 'e']
+image_size_sizes = [(25, 15), (50, 30), (100,  60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480), (1000, 600), (1200, 720)]
 
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
@@ -462,17 +487,19 @@ materials = {
 
 
 arts = {
-    'Rolamatics': 'rola-matics-sm.gif',
-    'Choppers': 'choppers-sm.gif',
-    'Real Talkin': 'realtalkin-sm.gif',
-    'D.A.R.E.': 'dare-sm.gif',
-    'Caterpillar': 'caterpillar-sm.gif',
-    'Auto Steer': 'autosteer-sm.gif',
-    'Collectibles': 'collectibles-sm.gif',
-    'Jurassic Park': 'jurassic_park-sm.gif',
-    'Originals': 'originals-sm.gif',
-    'Premieres': 'premiere-sm.gif',
-    'Color Changers': 'colorchangers-sm.gif',
+    'Rolamatics': 'rola-matics.gif',
+    'Choppers': 'choppers.gif',
+    'Real Talkin': 'realtalkin.gif',
+    'D.A.R.E.': 'dare.gif',
+    'Caterpillar': 'caterpillar.gif',
+    'Auto Steer': 'autosteer.gif',
+    'Collectibles': 'collectibles.gif',
+    'Jurassic Park': 'jurassic_park.gif',
+    'Jurassic World': 'jurassic_world.gif',
+    'Originals': 'originals.gif',
+    'Premieres': 'premiere.gif',
+    'Color Changers': 'colorchangers.gif',
+    'Convoy': 'convoy.gif',
 }
 
 
@@ -483,7 +510,7 @@ model_adds = [
     ["i_", "Interior%(s)s", "<p>", 1],
     ["p_", "Prototype%(s)s or Preproduction Model%(s)s", "<p>", 1],
     ["r_", "Real Vehicle Example%(s)s", "<p>", 1],
-    ["a_", "Customization%(s)s", "<p>", 2],
+    ["a_", "Customization%(s)s", "<p>", 1],
     ["f_", "Advertisement%(s)s", "<p>", 1],
     ["e_", "Error Model%(s)s", "<p>", 1],
 ]
@@ -501,6 +528,7 @@ LISTTYPE_PICTURE = 'pxl'
 LISTTYPE_LINK = 'lnl'
 LISTTYPE_VEHICLE_TYPE = 'vtl'
 LISTTYPE_MULTIYEAR = 'myr'
+LISTTYPE_TILLEY = 'til'
 
 mime_types = {
     LISTTYPE_CSV: 'text/csv',
@@ -533,6 +561,7 @@ plants = (
     ('unset', ''),
 )
 plant_d = dict(plants)
+other_plants = ['Brazil', 'Bulgaria', 'Hungary', 'Japan']
 
 img_dir_name = {
     config.IMG_DIR_ACC:             'Accessories',
@@ -540,13 +569,14 @@ img_dir_name = {
     config.IMG_DIR_ADS:             'Advertising',
     config.IMG_DIR_ART:             'Art',
     config.IMG_DIR_BLISTER:         'Blister packs',
-    config.IMG_DIR_BOOK:            'Books',
+    config.IMG_DIR_BOOK:            'Books (reference)',
+    config.IMG_DIR_PROD_BOOK:       'Books (toys)',
     config.IMG_DIR_BOX:             'Boxes',
     config.IMG_DIR_CAT:             'Catalogs',
     config.IMG_DIR_COLL_43:         '1:43 Collectibles',
     config.IMG_DIR_CONVOY:          'Convoys',
     config.IMG_DIR_ERRORS:          'Errors',
-    config.IMG_DIR_ICON:            'Icons',
+    config.IMG_DIR_MAN_ICON:        'Icons',
     config.IMG_DIR_KING:            'King Size',
     config.IMG_DIR_LESNEY:          'Lesney',
     config.IMG_DIR_MAKE:            'Makes',
@@ -559,12 +589,19 @@ img_dir_name = {
     config.IMG_DIR_PROD_LSF:        'Lesney SF',
     config.IMG_DIR_PROD_MT_LAUREL:  'Mattel Mt. Laurel',
     config.IMG_DIR_PROD_MWORLD:     'Mattel Matchbox World',
+    config.IMG_DIR_PROD_ODDS:       'Odd Castings',
     config.IMG_DIR_PROD_PACK:       'Multi Packs',
+    config.IMG_DIR_PROD_PLAYSET:    'Playsets',
+    config.IMG_DIR_SET_PACK:        'Multi Packs (contents)',
+    config.IMG_DIR_SET_PLAYSET:     'Playsets (contents)',
     config.IMG_DIR_PROD_SERIES:     'Series',
     config.IMG_DIR_PROD_TYCO:       'Tyco',
     config.IMG_DIR_PROD_UNIV:       'Universal',
     config.IMG_DIR_SKY:             'Skybusters',
     config.IMG_DIR_VAR:             'Variations',
+    config.IMG_DIR_GAME:            'Games',
+    config.IMG_DIR_ICON:            'Icons',
+    config.IMG_DIR_PACKAGE:         'Packaging',
 }
 
 # not included: man/ mbusa/ mbxf/ old/ pics/ prod/ set/ submitted/ tilley/ tomica/ trash/
@@ -645,7 +682,7 @@ def correct_region(region, year):
     elif region == 'J':
         if year < 1977 or year > 1992:
             region = 'R'
-    elif region == 'W' or region not in ['R', 'U']:
+    elif region not in ['R', 'U']:
 	region = ''
     return region
 
@@ -696,3 +733,15 @@ def normalize_var_id(mod, var_id):
 	digs = starting_digits_re.match(var_id).end()
 	var_id = '0' * (mod.get('casting.variation_digits', mod.get('variation_digits', 2)) - digs) + var_id
     return var_id
+
+
+def bamcamark(year):
+    if year <= 1969:
+	return 'bamca-1.gif'
+    if year <= 1974:
+	return 'bamca-2.gif'
+    if year <= 2000:
+	return 'bamca-3.gif'
+    if year <= 2005:
+	return 'bamca-4.gif'
+    return 'bamca-5.gif'

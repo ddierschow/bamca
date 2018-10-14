@@ -196,6 +196,8 @@ class UploadForm(object):
 	self.mass = pif.form.get_bool('mass')
 	self.act = pif.form.get_int('act')
 	self.y = pif.form.get_str('y') # I have no idea what this does.
+	image = pif.render.find_image_file(self.nfn, pdir=self.tdir.replace('lib', 'pic'), largest='e')
+	self.image = image if image else None
 	return self
 
     def write(self, pif, restrict=False, desc=''):
@@ -208,6 +210,7 @@ class UploadForm(object):
 	    'restrict': restrict,
 	    'desc': desc,
 	    'var': var,
+	    'edit': pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s' % self.image) if self.image else '',
 	}
 	return pif.render.format_template('upload.html', **context)
 
@@ -376,7 +379,7 @@ def show_editor(pif, eform, pdir=None, fn=None):
     print '<table><tr><td></td><td>' + pif.render.format_image_art('hruler.gif') + '</td></tr>'
     print '<tr><td valign="top">' + pif.render.format_image_art('vruler.gif') + '</td><td valign="top">'
     #print '<a href="../' + full_path + '">' + pif.render.format_image_required([root], suffix=ext, also={"border": "0"}) + '</a>'
-    dic = {'file': 'http://' + os.environ['SERVER_NAME'] + '/' + full_path, 'width': x, 'height': y}
+    dic = {'file': 'https://' + os.environ['SERVER_NAME'] + '/' + full_path, 'width': x, 'height': y}
     print javasc.def_edit_app % dic
     print '</td></tr></table>'
     print '<input type="hidden" value="%s" name="f">' % fn
@@ -540,7 +543,10 @@ class EditForm(imglib.ActionForm):
 	man = ''
 	if pdir.startswith(config.LIB_MAN_DIR):
 	    man = pdir[pdir.rfind('/') + 1:]
-	elif pdir.startswith('.' + config.IMG_DIR_PROD_PACK):
+	elif (pdir.startswith('.' + config.IMG_DIR_PROD_PACK) or 
+	      pdir.startswith('.' + config.IMG_DIR_PROD_PLAYSET) or
+	      pdir.startswith('.' + config.IMG_DIR_SET_PACK) or 
+	      pdir.startswith('.' + config.IMG_DIR_SET_PLAYSET)):
 	    if self.fn:
 		if len(self.fn) > 2 and self.fn[1] == '_':
 		    man = self.fn[2:-4]
@@ -701,14 +707,20 @@ class EditForm(imglib.ActionForm):
 	ot = '.' + self.ot if self.ot else self.fn[self.fn.rfind('.') + 1:]
 	ddir = self.dest if self.dest else self.tdir
 	outnam = '_' + nname_root + ot
-	if self.dest == '.' + config.IMG_DIR_PROD_PACK or self.tdir == '.' + config.IMG_DIR_PROD_PACK: # or self.tdir == './' + config.IMG_DIR_PROD_PACK:
-	    prefs = 'scmlh'
-	elif self.dest == '.' + config.IMG_DIR_BOX or self.tdir == '.' + config.IMG_DIR_BOX:
-	    prefs = 'scm'
+	if self.tdir.startswith('lib/prod') or self.tdir.startswith('./lib/prod'):
+	    prefs = 'smlh'
+	elif self.tdir.startswith('lib/set') or self.tdir.startswith('./lib/set'):
+	    prefs = 'smlh'
+	elif self.tdir.startswith('lib/pub') or self.tdir.startswith('./lib/pub'):
+	    if self.dest == '.' + config.IMG_DIR_BOX or self.tdir == '.' + config.IMG_DIR_BOX:
+		prefs = 'spm'
+	    else:
+		prefs = 'smlh'
 	else:
 	    ddir = '.' + (config.IMG_DIR_VAR if var else config.IMG_DIR_MAN)
 	    prefs = 'tsml'
 	    outnam = '_' + man + ('-' + var if var else '') + ot
+	outnam = outnam.lower()
 
 	largest = None
 	for pref in prefs:
@@ -731,7 +743,7 @@ class EditForm(imglib.ActionForm):
 	    print '<br><img src="/%s"><hr>' % dpth
 
 #	if not var:
-#	    dpth = os.path.join('.' + config.IMG_DIR_ICON, 'i' + man + '.gif')
+#	    dpth = os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i' + man + '.gif')
 #	    print 'creating icon', self.tdir, self.nname, 'to', dpth, '<br>'
 # no pif
 #	    create_icon(pif, man, name='')
@@ -743,10 +755,17 @@ class EditForm(imglib.ActionForm):
 	if largest:# and log_action:
 	    #title = pif.form.get_str('title', '%s-%s' % (eform.man, eform.var))
 	    title = '%s-%s' % (self.man, self.var)
-	    url = 'http://www.bamca.org/' + largest
-	    link = 'http://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
+	    cred = pif.form.get_str('credit')
+	    if cred:
+		photog = pif.dbh.fetch_photographer(cred)
+		if photog and not photog.flags & pif.dbh.FLAG_PHOTOGRAPHER_PRIVATE:
+		    title += ' credited to ' + photog.name
+		else:
+		    cred = ''
+	    url = 'https://www.bamca.org/' + largest
+	    link = 'https://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
 	    useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
-	    pif.dbh.write_photo_credit(pif.form.get_str('credit'), ddir, self.man, self.var)
+	    pif.dbh.write_photo_credit(cred, ddir, self.man, self.var)
 
 	return largest
 
@@ -947,13 +966,13 @@ class StitchForm(object):
 
     def show_widget(self, filepath):
 	x, y = imglib.get_size(filepath)
-	dic = {'file': 'http://' + os.environ['SERVER_NAME'] + '/' + filepath, 'width': x, 'height': y}
+	dic = {'file': 'https://' + os.environ['SERVER_NAME'] + '/' + filepath, 'width': x, 'height': y}
 	return javasc.def_edit_app % dic
 
     def finish_picture(self, pif):
 	print pif.form.get_form(), '<hr>'
 	for fn in pif.form.get_list('in'):
-	    useful.file_mover(fn, os.path.join(config.TRASH_DIR, fn[fn.rfind('/') + 1:]), mv=True, inc=True, trash=False)
+	    useful.file_mover(fn, '.' + os.path.join(config.TRASH_DIR, fn[fn.rfind('/') + 1:]), mv=True, inc=True, trash=False)
 	useful.file_mover(pif.form.get_str('f'), pif.form.get_str('o'), mv=True, ov=True)
 
     def perform(self, pif):
@@ -1072,7 +1091,7 @@ def pictures_main(pif):
     useful.header_done()
     mod_id = pif.form.get_str('m', '')
     if mod_id:
-        [casting_pictures(pif, mod_id.lower(), '.' + x) for x in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_ICON, config.IMG_DIR_ADD]]
+        [casting_pictures(pif, mod_id.lower(), '.' + x) for x in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_MAN_ICON, config.IMG_DIR_ADD]]
         lineup_pictures(pif, pif.dbh.fetch_casting_lineups(mod_id))
     else:
         print 'Huh?'
@@ -1091,7 +1110,7 @@ def create_icon(pif, mod_id, name, title='mb2', isizex=100, isizey=100):
     print ' ', mod_id, '|'.join(name)
 
     in_path = os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg')
-    icon_file = os.path.join('.' + config.IMG_DIR_ICON, 'i_' + mod_id + '.gif')
+    icon_file = os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i_' + mod_id + '.gif')
     open(icon_file, 'w').write(imglib.iconner(in_path, name, logo=logo, isizex=100, isizey=100))
 
 
@@ -1518,6 +1537,7 @@ def photographers(pif):
 	if photog.photographer.url:
 	    header += ' - ' + pif.render.format_button('visit website', link=photog.photographer.url)
     else:
+	# hide private
 	entries = [{'text': photog_ind(pif, x)} for x in pif.dbh.fetch_photographer_counts()]
     lsection = dict(range=[{'entry': entries}])
     llineup = {'section': [lsection], 'header': header, 'footer': footer}
@@ -1645,6 +1665,14 @@ def zero(fl):
     return 0
 
 
+def check_library(pif):
+    fl = os.listdir('lib/man')
+    ml = [x.replace('/', '_').lower() for x in pif.dbh.fetch_casting_ids()]
+    for f in sorted(set(fl) - set(ml)):
+	if not f.endswith('~') and not '.' in f:
+	    print f
+
+
 def count_images(pif):
     print "This has not been rewritten to match the moved directories."
     global castings
@@ -1664,7 +1692,7 @@ def count_images(pif):
 	(IMG_DIR_PROD_COLL_64,   count_all),
 	(IMG_DIR_CONVOY,         zero),
 	(IMG_DIR_ERRORS,         zero),
-	(IMG_DIR_ICON,           zero),
+	(IMG_DIR_MAN_ICON,       zero),
 	(IMG_DIR_KING,           zero),
 	(IMG_DIR_LESNEY,         zero),
 	(IMG_DIR_PROD_LRW,       count_blisters),
@@ -1699,6 +1727,7 @@ cmds = {
     ('a', add_credits, "add credit: photog picture ..."),
     ('f', fix_pix, "fix pix: mod_id ..."),
     ('c', count_images, "count"),
+    ('l', check_library, "check library"),
 }
 
 @basics.command_line

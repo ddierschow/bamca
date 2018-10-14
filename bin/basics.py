@@ -229,7 +229,7 @@ def web_page(main_fn):
             else:
                 pif = get_page_info(page_id, form_key, defval, args, dbedit)
 	    if '/etc/passwd' in os.environ.get('QUERY_STRING', '') or '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower():
-		raise useful.Redirect('http://www.nsa.gov/')
+		raise useful.Redirect('https://www.nsa.gov/')
         except SystemExit:
             pass
 	except useful.SimpleError as e:

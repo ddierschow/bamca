@@ -4,6 +4,9 @@
 
 {% macro matrix_formatter(mdict) %}
 {{ render.fmt_anchor(mdict.anchor) }}
+{%- if mdict.prodpic -%}
+<table width="100%"><tr><td width="400"><img src="/{{ mdict.prodpic }}"></td><td>
+{%- endif -%}
 <center>
 <table width="100%"><tr>
 <td width="40%" class="modelstars">
@@ -15,6 +18,7 @@
 </td>
 <td width="20%" class="modelnumber">{{ mdict.displayed_id }}</td>
 <td width="40%" class="modelicons">
+{% if mdict.no_vs %}<i class="fas fa-star orange"></i>{% endif %}
 {% if mdict.not_made %}<i class="fas fa-ban red"></i>{% endif %}
 {% if mdict.is_reused_product_picture %}<i class="fas fa-star yellow"></i>{% endif %}
 {% if mdict.is_product_picture %}<i class="fas fa-camera-retro"></i>{% endif %}
@@ -31,6 +35,9 @@
 {% endif %}
 </center>
 {{ mdict.additional }}
+{%- if mdict.prodpic -%}
+</td></tr></table>
+{%- endif -%}
 {% endmacro %}
 
 {{ showix.format_matrix(llineup, matrix_formatter) }}

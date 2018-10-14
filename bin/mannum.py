@@ -3,6 +3,7 @@
 import copy, csv, glob, json, os, re, sys
 import basics
 import config
+import imglib
 import mbdata
 import mflags
 import models
@@ -12,7 +13,6 @@ import varias
 
 # API
 #  main
-#  play_main
 
 # This file could use a complete rewrite.
 # Add: order by
@@ -139,32 +139,38 @@ prefixes = [  # need to phase this out somehow
         ['s_', '.' + config.IMG_DIR_MAN],
         ['t_', '.' + config.IMG_DIR_MAN],
         ['z_', '.' + config.IMG_DIR_ADD],
-        ['icon', '.' + config.IMG_DIR_ICON],
+        ['icon', '.' + config.IMG_DIR_MAN_ICON],
 ]
 format_attributes = ['format_description', 'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels', 'format_with']
 
 #---- the manno object ----------------------
 
 class MannoFile(object):
-    def __init__(self, pif, withaliases=False):
-        self.section = None
-        self.start = 1
-        self.end = 9999
-        self.firstyear = 1
-        self.lastyear = 9999
+    def __init__(self, pif, withaliases=False, madeonly=False):
+	self.madeonly = madeonly
+        self.section = pif.form.get_str('section')
+        if self.section == 'all':
+            self.section = ''
+        self.start = pif.form.get_int('start', 1)
+        self.end = pif.form.get_int('end', 9999)
+        self.firstyear = pif.form.get_int('syear', 1)
+        self.lastyear = pif.form.get_int('eyear', 9999)
+        if pif.form.get_str('range', 'all') == 'all':
+            self.start = self.end = None
         self.nodesc = pif.form.get_int('nodesc')
+        self.model_type = pif.form.get_str('mtype')
         vtypes = pif.dbh.fetch_vehicle_types()
         self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in vtypes}
         self.vehtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
         self.addtypes = {'y': "", 'n': "", 'm': "".join(mbdata.image_adds_types)}
         self.pictypes = {'y': "", 'n': "", 'm': "sml"}
         self.plist = man_sections  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
-        if pif.form.get_str('section', 'all') != 'all':
-            slist = pif.dbh.fetch_sections({'id': useful.clean_id(pif.form.get_str('section'))})  #, 'page_id': pif.page_id})
+        if self.section:
+            slist = pif.dbh.fetch_sections({'id': useful.clean_id(self.section)})  #, 'page_id': pif.page_id})
         else:
             slist = pif.dbh.fetch_sections({'page_id': pif.page_id})
 	if not slist:
-	    raise useful.SimpleError('Requested section not found. %s' % pif.form.get_str('section'))
+	    raise useful.SimpleError('Requested section not found. %s' % self.section)
 	aliases = pif.dbh.fetch_aliases()
 	adict = dict()
 	for alias in aliases:
@@ -189,17 +195,8 @@ class MannoFile(object):
 	get_types('add_', self.addtypes)
 	get_types('pic_', self.pictypes)
 
-        self.section = pif.form.get_str('section')
-        if self.section == 'all':
-            self.section = ''
-        self.start = pif.form.get_int('start', 1)
-        self.end = pif.form.get_int('end', 9999)
-        self.firstyear = pif.form.get_int('syear', 1)
-        self.lastyear = pif.form.get_int('eyear', 9999)
-        if pif.form.get_str('range', 'all') == 'all':
-            self.start = self.end = None
-
-        for casting in pif.dbh.fetch_casting_list():  #(page_id=pif.page_id):
+	#useful.write_message(self.start, self.end, self.firstyear, self.lastyear, self.model_type, self.nodesc)
+        for casting in pif.dbh.fetch_casting_list(section_id=self.section):  #(page_id=pif.page_id):
             self.add_casting(pif, casting, aliases=adict.get(casting['base_id.id'], []))
         if withaliases:
             for alias in pif.dbh.fetch_aliases(where="alias.section_id != ''"):
@@ -234,6 +231,7 @@ class MannoFile(object):
             manitem['type_desc'] = self.types(manitem['vehicle_type'])
             self.sdict[manitem['section_id']]['model_ids'].append(manitem['id'])
             self.mdict[manitem['id']] = manitem
+	    #useful.write_message('ai', manitem['id'])
 
     def types(self, typespec):
         return ', '.join(filter(None, [self.tdict.get(t) for t in typespec]))
@@ -248,6 +246,9 @@ class MannoFile(object):
 
     def is_item_shown(self, mod):
         '''Makes decision of whether to show based on vehicle type, # range, and year range.'''
+	if self.model_type and mod['model_type'] != self.model_type:
+	    return False
+
         if self.start and self.end:
             modno = 0
             for c in mod['id']:
@@ -279,6 +280,9 @@ class MannoFile(object):
             if self.pictypes['y'] and not useful.any_char_match(self.pictypes['y'], mod_pics):
                 return False
 
+	if self.madeonly and not mod['made']:
+	    return False
+
         return True
 
     # ----- castings --------------------------------------------
@@ -298,13 +302,6 @@ class MannoFile(object):
                 (pif.form.get_str('selection'), pif.form.get_str('range'), pif.form.get_str('start'), pif.form.get_str('end')))
 	pif.render.format_matrix_for_template(llineup)
         return pif.render.format_template('mannum.html', llineup=llineup)
-
-    # ----- play ------------------------------------------------
-
-    def run_play(self, pif):
-        llineup = {'section': list(), 'columns': 4}
-        llineup['section'] = self.run_thing(pif, self.show_section_manno)
-        return llineup
 
     # ----- check list ------------------------------------------
 
@@ -422,11 +419,11 @@ class MannoFile(object):
 	    mdict['fo'] = '<i class="fas fa-times red"></i>' if fmt_bad else ''
 	    makes = pif.dbh.fetch_casting_makes(mod)
 	    mdict['make'] = '<br>'.join([
-		pif.render.format_link("http://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
+		pif.render.format_link("https://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
 		for x in makes
 	    ])
 	    if mdict['make']:
-		mdict['make'] = pif.render.format_link("http://beta.bamca.org/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make'])
+		mdict['make'] = pif.render.format_link("https://beta.bamca.org/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make'])
 	    relateds = [x['casting_related.related_id'] for x in pif.dbh.fetch_casting_relateds(mod, section_id='single')]
 	    mdict['rel'] = '<br>'.join([pif.render.format_link('/cgi-bin/single.cgi', x, {'id': x}) for x in relateds])
 	    yield mdict
@@ -520,7 +517,7 @@ class MannoFile(object):
 		'name': mades[int(mdict['made'])] % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
 		'credit': '<a href="vars.cgi?vdet=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
-		'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_ICON], mdict['id'], 'i')[1]})
+		'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], mdict['id'], 'i')[1]})
 	    founds, needs, cnts = single.count_list_var_pics(pif, mdict['id'])
 	    #mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
 	    for ipix in range(0, 6):
@@ -593,7 +590,7 @@ class MannoFile(object):
 	elif mdict['unlicensed'] == '-':
 	    mdict['flag'] = pif.render.format_image_art('mbx.gif')
 	mdict['makename'] = ' - '.join([
-	    pif.render.format_link("http://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
+	    pif.render.format_link("https://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
 	    for x in pif.dbh.fetch_casting_makes(mdict['id'])
 	])
         mdict['name'] = pif.render.format_link(lnk, mdict['id'] + '<br>' + mdict['rawname'] + '<br>' + mdict['flag'] + '<br>' + mdict['makename'])
@@ -706,6 +703,113 @@ class MannoFile(object):
 	#'scale': '', 'name': 'Chevrolet K-1500 Pick-up', 'notes': 'modified MB953', 'year': '2015', 'mack': '', 'man': 'MB1000'},
 	return ''.join([''.join([fmt % y for y in x]) for x in secs])
 
+    # ----- tilley list -----------------------------------------
+
+    var_pic_cols = ['ID', 'Description', 'Type', 'Cred', 'Pic', 'T', 'S', 'M', 'L']
+    def get_section_credit_list(self, pif, sect):
+        sect['range'] = list()
+        sect['anchor'] = sect['id']
+        sect['id'] = ''
+        ran = {'entry': list()}
+        for mod_id in sect['model_ids']:
+            ran['entry'].extend(self.list_var_pics(pif, self.mdict[mod_id]))
+        sect['range'].append(ran)
+
+	sect['columns'] = self.var_pic_cols
+	sect['headers'] = dict(zip(self.var_pic_cols, self.var_pic_cols))
+        return sect
+
+    def run_var_credit_list(self, pif):
+	self.pic0 = pif.form.get_str('pic0')
+	self.pic1 = pif.form.get_str('pic1')
+	self.photog = pif.form.get_str('photog')
+	self.photognot = pif.form.get_str('photognot')
+	self.var_type = pif.form.get_list('vtype')
+	self.til_list = imglib.get_tilley_file()
+
+	# a listix consists of a header (outside of the tables) plus a list of sections, each in its own table.
+	#     id, name, note, graphics, tail | section
+	# a section consists of a header (inside the table) plus a list of entries.
+	#     id, name, note, anchor, columns, headers | range
+	# a range consists of a header plus a list of entries.
+	#     id, name, note, anchor, graphics, styles | entry
+	# an entry contains a dict of cells, keys in columns.
+	#     <text>
+
+        llineup = dict()
+        llineup['section'] = self.run_thing(pif, self.get_section_credit_list)
+	return llineup
+
+    def list_var_pics(self, pif, mod):
+
+	def mk_star(has_thing):
+	    return '<i class="%s"></i>' % ('fas fa-star green' if has_thing else 'fas fa-star white')
+
+	mod_id = mod['id']
+	var_rows = []
+	phcred = pif.dbh.fetch_photo_credit(path=config.IMG_DIR_MAN[1:], name=mod_id)
+	mod_row = {
+	    'ID': mod['id'],
+	    'Description': mod['name'],
+	    'Cat': '',
+	    'Type': mod['model_type'],
+	    'Cred': phcred['photographer.id'] if phcred else '',
+	    'Pic': '',
+	}
+	mod_row.update(varias.check_picture_sizes(config.IMG_DIR_MAN, mod_id + '.jpg', mk_star))
+	credits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod_id, verbose=False)}
+	varlist = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
+	count_var = 0
+	count_cred = 0
+	for var in varlist:
+	    if var['picture_id']:
+		continue
+	    if var['variation_type'] not in self.var_type:
+		continue
+	    #var['varsel'] = pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
+	    var['phcred'] = credits.get(('%s-%s' % (var['mod_id'], var['var'])).lower(), '')
+	    #var['ty_var'], var['is_found'], var['has_de'], var['has_ba'], var['has_bo'], var['has_in'], var['has_wh'], var['has_wi'], var['has_wt'] = single.calc_var_pics(pif, var)
+	    count_var += 1
+	    if self.photog and var['phcred'] == self.photog:
+		count_cred += 1
+		if self.photognot:
+		    continue
+	    elif not self.photognot:
+		continue
+	    #cat_vs = set([x['variation_select.category'] for x in var['varsel']])
+	    cat = ' '#.join(cat_vs)
+	    var_row = {
+		'ID': var['mod_id'] + '-' + var['var'],
+		'Description': var['text_description'],
+		'Cat': cat,
+		'Type': varias.var_types.get(var['variation_type'], var['variation_type']),
+		'Cred': var['phcred'],
+		'Pic': var['picture_id'],
+	    }
+	    var_row.update(varias.check_picture_sizes(config.IMG_DIR_VAR, var['mod_id'] + '-' + var['var'] + '.jpg', mk_star))
+	    if not self.pic0 and not var_row['_any']:
+		continue
+	    if not self.pic1 and var_row['_any']:
+		continue
+    #	    for sz in mbdata.image_size_types:
+    #		var_row[sz.upper()] = mk_star(
+    #		    os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + var['mod_id'] + '-' + var + '.jpg').lower()))
+	    var_row['ID'] = '<a href="/cgi-bin/vars.cgi?mod=%s&var=%s">%s</a>' % (var['mod_id'], var['var'], var_row['ID'])
+	    var_rows.append(var_row)
+	mod_row['Cat'] = ''
+	mod_row['Pic'] = '(zero)' if not count_var else '(all)' if count_var == count_cred else ('%d/%d' % (count_cred, count_var))
+	mod_row['Description'] = '<a href="/cgi-bin/single.cgi?id=%s">%s</a>' % (mod['id'], mod['name'])
+	mod_row['ID'] = '<a href="/cgi-bin/vars.cgi?mod=%s&vdet=1">%s</a>' % (mod['id'], mod['id']) + ' ' + mk_star(mod_id.lower() in self.til_list)
+	mod_row['style'] = '2'
+#	if self.photog:
+#	    if self.photognot and mod_row['Cred'] == self.photog:# and count_var == count_cred:
+#		return [mod_row, {'Description': 'all relevant pictures credited'}]
+#	    if not self.photognot and mod_row['Cred'] != self.photog:
+#		return [mod_row, {'Description': 'no relevant pictures credited'}]
+	return [mod_row] + var_rows
+
+    # ----- main ------------------------------------------------
+
     formatters = {
 	mbdata.LISTTYPE_CSV: run_man2csv_out,
 	mbdata.LISTTYPE_JSON: run_man2json_out,
@@ -716,6 +820,7 @@ class MannoFile(object):
 	mbdata.LISTTYPE_THUMBNAIL: run_thumbnails_template,
 	mbdata.LISTTYPE_VEHICLE_TYPE: run_vehicle_type_list_template,
 	mbdata.LISTTYPE_TEXT: run_text_list,
+	mbdata.LISTTYPE_TILLEY: run_var_credit_list,
     }
 
     def format_output(self, pif, listtype):
@@ -741,19 +846,34 @@ def main(pif):
     #manf = MannoFile(pif, withaliases=True)
     return manf.format_output(pif, listtype)
 
-#---- play ----------------------------------
+#---- admin main ----------------------------
 
 @basics.web_page
-def play_main(pif):
+def admin_main(pif):
     pif.render.print_html()
-    manf = MannoFile(pif)
-    llineup = manf.run_play(pif)
-    llineup['section'][0]['range'][0]['entry'][0].update({'rowspan': 2, 'colspan': 2})
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    useful.write_message(pif.form)
+    if pif.form.has('section'):
+	manf = MannoFile(pif, madeonly=True)
+	llineup = manf.format_output(pif, mbdata.LISTTYPE_TILLEY)
+	return pif.render.format_template('manadm.html',
+	    pagetype=1,
+	    llineup=llineup)
+    else:
+	sections = pif.dbh.fetch_sections({'page_id': 'manno'})
+	limits = pif.dbh.fetch_casting_limits()
+	first_year = int(limits['min(base_id.first_year)'])
+	last_year = int(limits['max(base_id.first_year)'])
+	listtype = pif.form.get_str('listtype')
+	llineup = {}
+	return pif.render.format_template('manadm.html',
+	    pagetype=0,
+	    first_year=first_year,
+	    last_year=last_year,
+	    sections=sections,
+	    photogs=[(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers()],
+	    llineup=llineup)
 
 #---- commands ------------------------------
-
 
 def delete_casting(pif, *args, **kwargs):
     pif.render.message("delete not yet implemented")
@@ -829,12 +949,15 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
         '.' + config.IMG_DIR_MAN + '/%s.*' % old_mod_id,
         '.' + config.IMG_DIR_VAR + '/?_%s-*.*' % old_mod_id,
         '.' + config.IMG_DIR_VAR + '/%s-*.*' % old_mod_id,
-        '.' + config.IMG_DIR_ICON + '/?_%s-*.*' % old_mod_id,
+        '.' + config.IMG_DIR_MAN_ICON + '/?_%s-*.*' % old_mod_id,
         '.' + config.IMG_DIR_ADD + '/?_%s.*' % old_mod_id,
         '.' + config.IMG_DIR_CAT + '/?_%s.*' % old_mod_id,
         '.' + config.IMG_DIR_CAT + '/?_%s_*.*' % old_mod_id,
         '.' + config.IMG_DIR_CAT + '/%s.*' % old_mod_id,
         '.' + config.IMG_DIR_ADS + '/%s.*' % old_mod_id,
+        '.' + config.IMG_DIR_SET_PLAYSET + '/?_%s.*' % old_mod_id,
+        '.' + config.IMG_DIR_SET_PACK + '/?_%s.*' % old_mod_id,
+        '.' + config.IMG_DIR_PROD_PLAYSET + '/?_%s.*' % old_mod_id,
         '.' + config.IMG_DIR_PROD_PACK + '/?_%s.*' % old_mod_id,
         '.' + config.IMG_DIR_PROD_PACK + '/%s.*' % old_mod_id,
     ]

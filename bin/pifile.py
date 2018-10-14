@@ -233,12 +233,7 @@ class PageInfoFile(object):
         self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, self.log.dbq, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
         self.log_start()
-        page_info = self.dbh.fetch_page(self.page_id)
-	if not page_info:
-	    raise useful.SimpleError('Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id)
-        self.render.set_page_info(page_info)
-        self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDDEN) != 0
-        self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
+	self.set_page_info(self.page_id)
 	self.render.is_admin = self.is_allowed('a')
 	self.render.is_moderator = self.is_allowed('m')
 	self.render.is_user = self.is_allowed('u')
@@ -246,6 +241,15 @@ class PageInfoFile(object):
         if not self.is_web:
 	    useful.header_done(is_web=False)
 	self.duplicate_form = self.form.has('token') and not self.dbh.insert_token(self.form.get_str('token'))
+	useful.write_comment("Page:", self.page_id)
+
+    def set_page_info(self, page_id):
+        page_info = self.dbh.fetch_page(page_id)
+	if not page_info:
+	    raise useful.SimpleError('Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id)
+        self.render.set_page_info(page_info)
+        self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDDEN) != 0
+        self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
 
     def set_server_env(self):
         self.server_name = os.environ.get('SERVER_NAME', 'unset.server.name')
@@ -268,7 +272,10 @@ class PageInfoFile(object):
 		refer = os.environ.get('HTTP_REFERER', '')
 		if refer and not refer.startswith('http://www.bamca.org') and \
 			     not refer.startswith('http://bamca.org') and \
-			     not refer.startswith('http://beta.bamca.org'):
+			     not refer.startswith('http://beta.bamca.org') and \
+		             not refer.startswith('https://www.bamca.org') and \
+			     not refer.startswith('https://bamca.org') and \
+			     not refer.startswith('https://beta.bamca.org'):
 		    self.log.refer.info(refer)
 
     def get_page_id(self, page_id, form_key, defval):

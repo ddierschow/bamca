@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import mannum
-mannum.play_main('manno')
+import multip
+multip.play_main('playset', 'page', dbedit='am')

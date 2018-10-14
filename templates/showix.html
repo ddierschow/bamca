@@ -15,11 +15,13 @@
 {%- endif %}
 <ul class="{{ render.class_id('tb', section.id) }}">
 {%- for entry in range.entry %}
+{%- if entry %}
   <li class="{{ render.class_id('eb', range.id) }}">{{ entry }}</li>
-{%- endfor -%}
-{%- if range.note -%}
-  <div class="et">{{ range.note }}</div>
 {%- endif -%}
+{% endfor %}
+{% if range.note -%}
+  <div class="et">{{ range.note }}</div>
+{%- endif %}
 </ul>
 {%- endfor -%}
 {%- if section.note -%}
@@ -63,11 +65,13 @@
  </tr>
 {%- endif %}
 {%- for entry in range.entry %}
+{%- if entry %}
 <tr class="er ln{{ loop.cycle('1', '0') }}">
 {%- for col in section.columns %}
-  <td class="{{ render.class_id('eb', range.get('styles', {}).get(col, '1')) }}">{{ entry[col] or '&nbsp;' }}</td>
+  <td class="{{ render.class_id('eb', range.get('styles', {}).get(col, entry.get('style', '1'))) }}">{{ entry[col] or '&nbsp;' }}</td>
 {%- endfor %}
 </tr>
+{%- endif -%}
 {%- endfor -%}
 {%- if range.note -%}
 <tr class="er">

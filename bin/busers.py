@@ -146,7 +146,7 @@ Content-Transfer-Encoding: 7bit
 You have registered for an account on %(host)s.  Please verify your new account
 by visiting the following link:
 
-<a href="http://%(host)s/cgi-bin/signup.cgi?u=%(name)s&k=%(vkey)s">http://%(host)s/cgi-bin/signup.cgi?u=%(name)s&k=%(vkey)s</a>
+<a href="https://%(host)s/cgi-bin/signup.cgi?u=%(name)s&k=%(vkey)s">https://%(host)s/cgi-bin/signup.cgi?u=%(name)s&k=%(vkey)s</a>
 
 Thank you!
 ''' % {'name': urllib.quote_plus(name), 'email': email, 'vkey': vkey, 'host': os.environ['SERVER_NAME']}

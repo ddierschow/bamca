@@ -42,3 +42,24 @@ class tumblr(object):
     def create_video(self, **kwargs):
         # caption embed data
 	return self.client.create_video(self.name, **kwargs)
+
+#---- ---------------------------------------
+
+def post_picture(pif, title, link):
+    #url = 'http://www.bamca.org/' + largest
+    #link = 'http://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
+    pass
+    #useful.write_message('Post to Tumblr: ', tumblr(pif).create_photo(caption=title, source=url, link=link))
+
+cmds = {
+    ('p', post_picture, "picture"),
+}
+
+@basics.command_line
+def commands(pif):
+    useful.cmd_proc(pif, './images.py', cmds)
+
+#---- ---------------------------------------
+
+if __name__ == '__main__':  # pragma: no cover
+    commands(dbedit='')

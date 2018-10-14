@@ -140,7 +140,7 @@ def count_man(pif):
     count = 0
     count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE, 'z'], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_ADD, ['a', 'b', 'e', 'i', 'p', 'r'], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_ICON, ['i'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN_ICON, ['i'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 

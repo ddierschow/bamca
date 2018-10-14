@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, glob, os
+import copy, glob, itertools, os, urllib
 import basics
 import bfiles
 import config
@@ -466,8 +466,8 @@ def show_boxes(pif):
     style = pif.form.get_str('style')
     if style == 'all':
 	style = ''
-    headers = {'mod': 'Model', 'm': 'M', 'c': 'C', 's': 'S', 'box': 'Box'}
-    columns = ['mod', 'm', 'c', 's'] if verbose else ['mod', 'box']
+    headers = {'mod': 'Model', 'm': 'M', 'p': 'P', 's': 'S', 'box': 'Box'}
+    columns = ['mod', 'm', 'p', 's'] if verbose else ['mod', 'box']
 
     boxes = find_boxes(pif)
 
@@ -489,7 +489,7 @@ def show_boxes(pif):
 		ent1['mod']['txt'] += '<br>' + '<br>'.join(picroots)
 	    hdr = "<b>%s style</b>" % box_style
 	    if verbose:
-		for picsize in 'mcs':
+		for picsize in 'mps':
 		    imgs = [get_box_image(pif, picroot, picsize, compact=compact) for picroot in picroots]
 		    if compact:
 			ostr = hdr + ''.join(imgs)
@@ -501,7 +501,7 @@ def show_boxes(pif):
 		ent['s']['txt'] += '<br>%s box variations - %s' % (mod['count'], pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
 		ent['s']['txt'] += ' - %s pics' % mod['pics']
 	    else:
-		largest = 'mmcss'[len(picroots)]
+		largest = 'mmpss'[len(picroots)]
 		pic = ''.join([get_box_image(pif, picroot, largest=largest) for picroot in picroots])
 		ent['box'] = {'txt': "<center>%s<br>%s" % (hdr, pic)}
 		ent['box']['txt'] += '<br>%s box variation%s - %s' % (mod['count'], 's' if mod['count'] != 1 else '', pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
@@ -566,45 +566,150 @@ def count_boxes(pif):
 
 @basics.web_page
 def publication(pif):
-    pif.render.print_html()
     pub_id = pif.form.get_str('id')
+    pub_type = pif.form.get_str('ty')
+    pif.render.print_html()
+    pif.render.hierarchy_append('/', 'Home')
+    pif.render.hierarchy_append('/database.php', 'Database')
+    pif.render.hierarchy_append('/cgi-bin/pub.cgi', 'Publications')
+    pif.render.set_button_comment(pif)
 
-    man = pif.dbh.fetch_publication(pub_id)
+    if pub_id:
+	return single_publication(pif, pub_id)
+    elif pub_type:
+	return publication_list(pif, pub_type)
+    pubs = pif.dbh.fetch_publication_types()
+
+    def fmt_link(sec):
+	txt = models.add_icons(pif, 'p_' + sec.id, '', '')
+#	if sec.id == 'ads':
+#	    return pif.render.format_link('ads.cgi', txt)
+	return pif.render.format_link('?ty=' + sec.category, txt)
+
+    return models.make_page_list(pif, 'pub', fmt_link)
+
+
+def get_section_by_model_type(pif, mtype):
+    for sec in pif.dbh.fetch_sections_by_page_type(mbdata.page_format_type['pub']):
+	if sec.category == mtype:
+	    return sec
+    return {}
+
+
+def publication_list(pif, mtype):
+    sec = get_section_by_model_type(pif, mtype)
+    if sec.id == 'ads':
+	raise useful.Redirect('ads.cgi?title=' + pif.form.get_str('title'))
+    sobj = pif.form.search('title')
+    pif.render.pic_dir = sec.page_info.pic_dir
+    pubs = pif.dbh.fetch_publications(model_type=mtype)
+
+    def pub_ent(pub):
+	ret = pub.todict()
+	ret.update(ret['base_id'])
+	if not useful.search_match(sobj, ret['rawname']):
+	    return None
+	ret['name'] = '<a href="pub.cgi?id=%s">%s</a>' % (ret['id'], ret['rawname'].replace(';', ' '))
+	ret['description'] = useful.printablize(ret['description'])
+	if (os.path.exists(os.path.join(pif.render.pic_dir, ret['id'].lower() + '.jpg')) or
+		glob.glob(os.path.join(pif.render.pic_dir, '?_' + ret['id'].lower() + '_*.jpg')) or
+		glob.glob(os.path.join(pif.render.pic_dir, '?_' + ret['id'].lower() + '.jpg'))):
+	    ret['picture'] = mbdata.comment_icon['c']
+	return ret
+
+    if 1:
+	entry = [pub_ent(pub) for pub in pubs]
+	hdrs = {'description': 'Description', 'first_year': 'Year', 'country': 'Country',
+		'flags': 'Flags', 'model_type': 'Type', 'id': 'ID', 'name': 'Name', 'picture': ''}
+	cols = ['picture', 'name', 'description', 'first_year', 'country']
+
+	lrange = dict(entry=[x for x in entry if x], styles=dict(zip(cols, cols)))
+	lsection = dict(columns=cols, headers=hdrs, range=[lrange], note='', name=sec.name)
+	llistix = dict(section=[lsection])
+	return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+
+    cols = 4
+
+    def pub_text_link(pub):
+	pic = pif.render.fmt_img(pub['id'], prefix='s')
+	name = pic + '<br>' + pub['name'] if pic else pub['name']
+	return {'text': pif.render.format_link("makes.cgi?make=" + pub['id'], name)}
+
+    ents = [pub_text_link(pub_ent(x)) for x in pubs]
+    llineup = {'id': '', 'name': '', 'columns': cols, 'header': '', 'footer': '',
+	'section': [{'columns': cols, 'range': [{'entry': ents, 'id': 'makelist'}]}]}
+
+    pif.render.format_matrix_for_template(llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup)
+
+
+def make_relateds(pif, ref_id, pub_id, imgs):
+    pic = imgs[0] if imgs else ''
+    relateds = pif.dbh.fetch_casting_relateds(pub_id, section_id='pub')
+    vs = pif.dbh.fetch_variation_selects_by_ref(ref_id, pub_id)
+    retval = []
+    for related in relateds:
+	related['id'] = related['casting_related.related_id']
+	vars = [x for x in vs if x['variation_select.mod_id'] == related['id']]
+	descs = [x.get('variation.text_description', '') for x in vars] + related.get('casting_related.description', '').split(';')
+	related = pif.dbh.modify_man_item(related)
+	related['descs'] = [x for x in descs if x]
+	related['imgid'] = [related['id']]
+	for s in related['descs']:
+	    if s.startswith('same as '):
+		related['imgid'].append(s[8:])
+	related['img'] = pif.render.format_image_required(related['imgid'], made=related['made'], pdir=config.IMG_DIR_MAN, vars=[x['variation_select.var_id'] for x in vars], largest=mbdata.IMG_SIZ_SMALL)
+	if related['link']:
+	    related['link'] = '%s=%s&dir=%s&pic=%s&ref=%s&sec=%s' % (related['link'], related['linkid'], pif.render.pic_dir, pic, ref_id, pub_id)
+	    related['img'] = '<a href="%(link)s">%(img)s</a>' % related
+	related['descs'] = '<br>'.join(['<div class="varentry">%s</div>' % x for x in related['descs']])
+	retval.append({'text': '''<span class="modelnumber">%(id)s</span><br>\n%(img)s<br>\n<b>%(name)s</b>\n<br>%(descs)s\n''' % related})
+    return retval
+
+
+def single_publication(pif, pub_id):
+    man = pif.dbh.fetch_publication(pub_id).first
     if not man:
 	raise useful.SimpleError("That publication was not found.")
-    man = man[0]
+    # should just use man.section_id
+    sec = get_section_by_model_type(pif, man.base_id.model_type)
+    pif.set_page_info(sec.page_info.id)
     man['casting_type'] = 'Publication'
     man['name'] = man['base_id.rawname'].replace(';', ' ')
-    imgs = pub_images(pif, pub_id)
+    imgs = pub_images(pif, pub_id.lower())
+    relateds = make_relateds(pif, 'pub.' + mbdata.model_type_names[man['base_id.model_type']].lower(), pub_id, imgs)
 
     left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
         left_bar_content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
         left_bar_content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link('publication', {'id': pub_id})
-        left_bar_content += '<a href="traverse.cgi?d=.%s">Library</a><br>\n' % config.IMG_DIR_CAT
-	left_bar_content += '<a href="upload.cgi?d=.%s&n=%s&c=%s">Product Upload</a><br>\n' % (config.IMG_DIR_CAT, pub_id, pub_id)
+        left_bar_content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % pif.render.pic_dir.replace('pic', 'lib')
+	left_bar_content += '<a href="upload.cgi?d=%s&n=%s&c=%s">Product Upload</a><br>\n' % (pif.render.pic_dir.replace('pic', 'lib'), pub_id, pub_id)
 
     upper_box = ''
     if imgs:
 	upper_box += pif.render.format_image_link_image(imgs[0], link_largest=mbdata.IMG_SIZ_LARGE)
-    else:
-	upper_box += pif.render.format_image_link_image(img, link_largest=mbdata.IMG_SIZ_LARGE)
+#    else:
+#	upper_box += pif.render.format_image_link_image(img, link_largest=mbdata.IMG_SIZ_LARGE)
     if man['base_id.description']:
 	upper_box += '<br>' if upper_box else ''
 	upper_box += man['base_id.description']
 
-    lran = {'id': 'ran', 'entry':
+    lran = [{'id': 'ran', 'entry':
 	[{'text': pif.render.format_image_link_image(img[img.rfind('/') + 1:])} for img in sorted(imgs)] if imgs else
 	[{'text': pif.render.format_image_link_image(pub_id)}]
-    }
-    llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': [lran], 'columns': 4}], 'columns': 4}
+    } if len(imgs) > 1 else {}]
+    if relateds:
+	lran.append({'id': 'related', 'entry': relateds, 'name': 'Related Models'})
+    llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': lran, 'columns': 4}], 'columns': 4}
 
     pif.render.set_button_comment(pif, 'id=%s' % pub_id)
     pif.render.format_matrix_for_template(llineup)
     context = {
 	'title': man.get('name', ''),
 	'note': '',
-	'type_id': '',
+	'type_id': 'p_' + sec.id,
 	#'icon_id': pub_id,
 	'vehicle_type': '',
 	'rowspan': 5 if upper_box else 4,
@@ -615,11 +720,153 @@ def publication(pif):
     return pif.render.format_template('pub.html', **context)
 
 
-def pub_images(pif, id):
-    imgs = glob.glob(os.path.join(pif.render.pic_dir, '?_' + id.lower() + '_*.jpg'))
+def pub_images(pif, pub_id):
+    imgs = glob.glob(os.path.join(pif.render.pic_dir, '?_' + pub_id + '_*.jpg'))
     imgs = list(set([os.path.split(fn)[1][2:-4] for fn in imgs]))
+    if (os.path.exists(os.path.join(pif.render.pic_dir, pub_id + '.jpg')) or
+	    glob.glob(os.path.join(pif.render.pic_dir, '?_' + pub_id + '.jpg'))):
+	imgs.insert(0, pub_id)
     imgs.sort()
     return imgs
+
+# ----- advertising ---- the special snowflake -------------------------
+
+@basics.web_page
+def ads_main(pif):
+    pif.render.print_html()
+    pif.render.hierarchy_append('/', 'Home')
+    pif.render.hierarchy_append('/database.php', 'Database')
+    pif.render.hierarchy_append('/cgi-bin/ads.cgi', 'Advertisements')
+    pif.render.set_button_comment(pif)
+    pic_dir = pif.render.pic_dir
+    lib_dir = pic_dir.replace('pic', 'lib')
+    ranges = []
+    sobj = pif.form.search('title')
+
+    def fmt_cy(ent):
+	cy = ent.get('country', '')
+	cyflag = pif.render.show_flag(cy) if (cy and cy != 'US') else ''
+	cyflag = (' <img src="' + cyflag[1] + '">') if cyflag else ''
+	return cy, cyflag
+
+    def fmt_vid(ent):
+	#sep = pif.render.format_image_art('wheel.gif', also={'class': 'dlm'})
+	# add country
+	cy, cyflag = fmt_cy(ent)
+	cmt = ent['description']
+	ostr = pif.render.format_link(ent['url'], ent['name'])
+	if cmt:
+	    ostr += ' ' + cmt
+	ostr += cyflag
+	ostr += (' ' + pif.render.format_link('edlinks.cgi?id=%s' % ent['id'], '<i class="fas fa-edit"></i>')) if pif.is_allowed('ma') else ''
+	return ostr
+
+    #id, page_id, section_id, display_order, flags, associated_link, last_status, link_type, country, url, name, description, note
+    vlinks = [fmt_vid(x) for x in
+	pif.dbh.depref('link_line', pif.dbh.fetch_link_lines(page_id='links.others', section='Lvideoads', order='name'))
+	if useful.search_match(sobj, x['name'])
+    ]
+
+    def fmt_pub(ent, pdir=None):
+	pdir = pdir if pdir else pic_dir
+	ldir = pdir.replace('pic', 'lib')
+	# ent: id, description, country, first_year, model_type
+	cy, post = fmt_cy(ent)
+	_, floc = pif.render.find_image_file(ent['id'], largest='e', pdir=pdir)
+	_, lloc = pif.render.find_image_file(ent['id'], largest='e', pdir=ldir)
+	#floc = pdir + '/' + ent['id'] + '.jpg'
+	#lloc = floc.replace('/pic/', '/lib/')
+	if floc:
+	    if ent['model_type']:
+		url = 'pub.cgi?id=' + ent['id']
+	    else:
+		url = '/' + pdir + '/' + floc
+	else:
+	    url = '/' + ldir + '/' + lloc
+	if not useful.search_match(sobj, ent['description']):
+	    return ''
+	name = useful.printablize(ent['description'])
+	if ent['first_year']:
+	    name += ' (' + ent['first_year'] + ')'
+	if pif.is_allowed('ma'):
+	    if ent['model_type']:
+		post += ' ' + pif.render.format_link(pif.dbh.get_editor_link('publication', {'id': ent['id']}), '<i class="fas fa-edit"></i>')
+	    else:
+		post += ' ' + pif.render.format_link(
+'/cgi-bin/mass.cgi?type=ads&id=%s&description=%s&year=%s&country=%s' % (ent['id'], urllib.quote_plus(ent['description']), ent['first_year'], cy)
+, '<i class="far fa-plus-square"></i>'
+)
+	    if floc:
+		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=%s&f=%s' % (pdir, floc), '<i class="fas fa-paint-brush"></i>')
+	    elif lloc:
+		post += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=%s&f=%s' % (ldir, lloc), '<i class="fas fa-paint-brush"></i>')
+	    post += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=%s&n=%s' % (ldir, ent['id']), '<i class="fas fa-upload"></i>')
+	    name = ent['id'] + ' - ' + name
+	if floc:
+	    return pif.render.format_link(url, name) + post
+	return name + post
+
+    fields = {
+	'id': 'id',
+	'description': 'base_id.description',
+	'first_year': 'base_id.first_year',
+	'country': 'country',
+	'model_type': 'base_id.model_type',
+	'rawname': 'base_id.rawname',
+    }
+    def mangle_object(x):
+	return {y: x[fields[y]] for y in fields}
+
+    links = {x.id: mangle_object(x) for x in pif.dbh.fetch_publications(model_type='AD', order='base_id.first_year,base_id.id')}
+    pic_ims = ad_images(pic_dir)
+    missing_pics = sorted(set(links.keys()) - set(pic_ims))
+    lib_ims = sorted(set(ad_images(lib_dir)) - set(links.keys()))
+    pic_ims = sorted(set(pic_ims) - set(links.keys()))
+    list_ents = {ent[0]: dict(itertools.izip_longest(['id', 'description', 'first_year', 'country', 'model_type'], ent))
+	for ent in [x.strip().split('|') for x in open(pic_dir + '/list.dat').readlines()]}
+    list_ids = sorted(set(list_ents.keys()) - set(links.keys()))
+    link_ids = sorted(set(links.keys()) - set(missing_pics), key=lambda x: (links[x]['first_year'], links[x]['id']))
+
+    plinks = list()
+    for pic_id in link_ids:
+	plinks.append(fmt_pub(links[pic_id]))
+    ranges.append({'entry': plinks})
+
+    plinks = [fmt_pub(list_ents[lid]) for lid in list_ids]
+    if plinks:
+	ranges.append({'name': 'More information is needed on these (year, location).', 'entry': plinks})
+
+    if pif.is_allowed('ma'):
+	plinks = [fmt_pub({'id': ent, 'description': ent, 'first_year': '', 'model_type': ''}, lib_dir)
+	    for ent in lib_ims]
+	if plinks:
+	    ranges.append({'name': '<i>Nonpublished ads</i>', 'entry': plinks})
+
+	missing = [fmt_pub(links[pic_id]) for pic_id in missing_pics]
+	if missing:
+	    ranges.append({'name': '<i>Database entries missing pictures</i>', 'entry': missing})
+
+    lsecs = [
+	{'id': 'print', 'name': 'Print Advertising', 'range': ranges},
+	{'id': 'video', 'name': 'Video Advertising', 'range': [{'entry': vlinks}]},
+    ]
+
+    pif.render.set_footer(pif.render.format_button('back', '/') + ' to the index.')
+    if pif.is_allowed('ma'):
+	pif.render.set_footer(
+	    pif.render.format_link('/cgi-bin/upload.cgi?d=%s' % lib_dir, 'Upload new ad') + ' - ' +
+	    pif.render.format_link('/cgi-bin/edlinks.cgi?page_id=links.others&sec=Lvideoads&add=1', 'Add new video')
+    )
+    llineup = {'section': lsecs}
+    return pif.render.format_template('simpleulist.html', llineup=llineup)
+
+
+def ad_images(pdir):
+    def mangle_name(x):
+	x = x[x.rfind('/') + 1:-4]
+	return x[2:] if x[1] == '_' else x
+
+    return [mangle_name(x) for x in glob.glob(pdir + '/*.jpg')]
 
 # ----- command line ---------------------------------------------------
 

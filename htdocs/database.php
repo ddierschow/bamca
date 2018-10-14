@@ -28,8 +28,10 @@ $sections[] = array("tag" => "makes", "name" => "Make", "fn" => 'SectionMakes', 
 $sections[] = array("tag" => "search", "name" => "Text Search", "fn" => 'SectionSearch', "scr" => "msearch.cgi");
 $sections[] = array("tag" => "vsearch", "name" => "Variation Text Search", "fn" => 'SectionVSearch', "scr" => "vsearch.cgi");
 $sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi");
+if ($pif['isadmin'])
+    $sections[] = array("tag" => "pubs", "name" => "Publications", "fn" => 'SectionPubs', "scr" => "pub.cgi");
 $sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
-$sections[] = array("tag" => "cats", "name" => "Categories", "fn" => 'SectionCats', "scr" => "matrix.cgi");
+$sections[] = array("tag" => "cats", "name" => "Categories", "fn" => 'SectionCats', "scr" => "cats.cgi");
 $sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();');
 $sections[] = array("tag" => "code2", "name" => "Code 2 Models", "fn" => 'SectionCode2', "scr" => "code2.cgi");
 $sections[] = array("tag" => "plants", "name" => "Location of Manufacture", "fn" => 'SectionPlant', "scr" => "plants.cgi");
@@ -165,9 +167,6 @@ function Section($args) {
     }
     if (isset($args['scr'])) {
 	echo "Select what kind of Matchbox lineup you would like to see, then click \"SEE THE MODELS\".\n";
-	if (isset($args['scr'])) {
-	    echo "<form action=\"/cgi-bin/{$args['scr']}\" method=\"get\" name=\"{$args['tag']}\">\n";
-	}
 	echo "<p>\n";
 	call_user_func($args['fn'], $pif);
 	echo "<br>\n";
@@ -251,7 +250,7 @@ function SectionYear($pif) {
 	echo "<p>\n<i>";
 	#echo "Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
 	Checks('checkbox', 'unroll', [['1', 'Unroll']], '<p>');
-	#Checks('checkbox', 'large', [['1', 'Large']], '');
+	Checks('checkbox', 'multi', [['1', 'Multi Only']], '');
 	echo "</i>";
     }
     echo " </td></tr>\n<tr>";
@@ -501,6 +500,7 @@ function SectionVSearch($pif) {
 	echo "<tr><td><i>Area:</i></td><td><input type=\"text\" name=\"area\"></td></tr>\n";
 	echo "<tr><td><i>Category:</i></td><td><input type=\"text\" name=\"cat\"></td></tr>\n";
 	echo "<tr><td><i>Date:</i></td><td><input type=\"text\" name=\"date\"></td></tr>\n";
+	echo "<tr><td><i>Note:</i></td><td><input type=\"text\" name=\"note\"></td></tr>\n";
     }
     echo "</td></tr></table>\n";
     echo "</td></tr></table>\n";
@@ -514,9 +514,22 @@ function SectionPacks($pif) {
     echo "</td></tr></table>\n";
 }
 
+function SectionPubs($pif) {
+    echo "<table><tr><td>\n";
+    FetchSelect('ty', 'pubPage', 'publication type', "select flags, category, name from section where page_id like 'pub.%' and not (flags & 1) order by name");
+    echo "</td></tr><tr><td>\n";
+    echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
+    echo "</td></tr></table>\n";
+}
+
 function SectionSets($pif) {
     echo "<table><tr><td>\n";
     FetchSelect('page', 'setsPage', 'set', "select flags, id, title, description from page_info where format_type='matrix' order by description");
+    if ($pif['isadmin']) {
+	echo "  </td>\n";
+	echo "  <td>\n";
+	Checks('checkbox', 'large', [['1', '<i>Large</i>']], '');
+    }
     echo "</td></tr></table>\n";
 }
 
@@ -594,7 +607,7 @@ function SectionPlant($pif) {
     $sl = [
 	[64, '', 'Please select a location'],
 	[0,  'BR', 'Brazil'],
-	[0,  'BU', 'Bulgaria'],
+	[0,  'BG', 'Bulgaria'],
 	[0,  'CN', 'China'],
 	[0,  'GB', 'England'],
 	[0,  'HK', 'Hong Kong'],
@@ -626,10 +639,10 @@ function SectionOther($pif) {
 //---- end of sections -------------------------------------------
 
 function PageFooter() {
-    global $IMG_DIR_ART;
+    global $IMG_DIR_ICON;
     echo "<hr>\n";
     echo "<div class=\"bottombar\">\n";
-    echo "<div class=\"bamcamark\"><img src=\"$IMG_DIR_ART/bamca_sm.gif\"></div>\n";
+    echo "<div class=\"bamcamark\"><img src=\"$IMG_DIR_ICON/l_bamca-5.gif\"></div>\n";
     echo "<div class=\"footer\">\n";
     DoTextButtonLink("BACK", '/');
     echo " to the index.\n</div>\n";

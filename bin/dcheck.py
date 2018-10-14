@@ -101,7 +101,6 @@ def check_table(pif, tab):
 # check for duplicate entries in tables
 # existing code silently smushes these so we need to look for them to clean them up
 
-@basics.command_line
 def check_dups(pif):
     check_matrix_model(pif)
     check_lineup_model(pif)
@@ -349,7 +348,7 @@ def show_categories(pif):
 	refs.setdefault(vs['variation_select.category'], set())
 	if vs['variation_select.ref_id'] and vs['variation_select.category'] != 'MB':
 	    refs[vs['variation_select.category']].add(vs['variation_select.ref_id'])
-    cats = pif.dbh.fetch_categories()
+    cats = pif.dbh.fetch_category_counts()
     catl = [(x.id, x.name, 'shown' if (x.flags & 4) else '', 'c2' if (x.flags & 2) else '', x.count, ' '.join(sorted(refs.get(x.id, [])))) for x in cats]
     fmt = pif.dbh.preformat_results(catl)
     for cat in catl:
@@ -390,7 +389,7 @@ def cat2matrix(pif, cat, page_id):
 # variation fns to correllate category entries between variation and variation_select.
 # variation.category is the old version and cannot be properly joined against.
 # variation_select.category is the new version which should be able to replace it.
-# vs.category will be useful without vs.ref_id and vs.sub_id so the rest of the site needs to tolerate that.
+# vs.category will be useful without vs.ref_id and vs.sec_id so the rest of the site needs to tolerate that.
 
 def check_vs_categories(pif):
     #check_vs(pif)
@@ -436,7 +435,7 @@ def l5p(pif):
 p.page_id='packs.5packs' and
 p.section_id='lic5packs' and
 vs.ref_id=p.page_id and
-vs.sub_id=p.id and
+vs.sec_id=p.id and
 v.mod_id=vs.mod_id and
 v.var=vs.var_id
 ''')
@@ -617,7 +616,7 @@ def correllation(pif):
     vs_cats = set()
     for cat in pif.dbh.raw_execute('select distinct category from variation_select')[0]:
 	vs_cats.add(cat[0])
-    db_cats = {x['category.id']: x['category.name'] for x in pif.dbh.fetch_categories()}
+    db_cats = {x['category.id']: x['category.name'] for x in pif.dbh.fetch_category_counts()}
     mb_cats = categories.keys()
     print 'in var but not in databse:', vr_cats - set(db_cats.keys())
     print 'in vs but not in databse:', vs_cats - set(db_cats.keys())
@@ -664,7 +663,7 @@ Would like to make sure that all pictures apply to database objects as well.
 '''
 
 def check_photo_credits(pif):
-    #check_credits(pif)
+    check_credits(pif)
     check_photogs(pif)
 
 
@@ -704,7 +703,7 @@ def check_credits(pif):
 
 
 def check_single_links():
-    src = 'http://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents/'
+    src = 'https://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents/'
     ln_re = re.compile('''<img src=".*?".*?> <a href="(?P<f>[^"]*)">''')
 
     flist = urllib2.urlopen(src).readlines()
@@ -785,7 +784,7 @@ checks = {
     config.IMG_DIR_PROD_CODE_2:      None,
     config.IMG_DIR_COLL_43:          check_package,
     config.IMG_DIR_PROD_COLL_64:     check_package,
-    config.IMG_DIR_ICON:             check_man,
+    config.IMG_DIR_MAN_ICON:         check_man,
     config.IMG_DIR_KING:             check_man,
     config.IMG_DIR_LESNEY:           check_set,
     config.IMG_DIR_PROD_LRW:         check_package,

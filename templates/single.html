@@ -129,6 +129,13 @@
 {%- if model.first_year %}<td valign="top"><center>{{ model.first_year }}</center></td>{% endif %}
 {%- if mack_nums %}<td valign="top"><center>{{ showix.format_brlist(mack_nums) }}</center></td>{% endif %}
 </tr></table></center>
+
+{%- if model.notes %}
+<br>
+<center><div class="notes">{{ model.notes }}</div></center>
+{%- else %}
+<!-- no notes -->
+{%- endif %}
 {%- endmacro %}
 
 {%- macro show_plants() %}
@@ -200,20 +207,14 @@
 {%- endif %}
 {%- endmacro %}
 
-{%- macro show_model_notes() %}
-{%- if model.notes %}
-<center><div class="notes">{{ model.notes }}</div></center>
-{%- else %}
-<!-- no notes -->
-{%- endif %}
-{%- endmacro %}
-
 {%- block frame_body_panel %}
 <center>
 <table class="mainpanel"><tr>
 
 {%- if (prod_title or variations or relateds) %}
 {%- if product_image %}
+
+<!-- LAYOUT STYLE 1 -->
     {#- top left box #}
     <td valign="top" class="panel_1">
     {{ show_product_box() }}
@@ -225,7 +226,6 @@
     {#- top right box #}
     <td valign="top" class="panel_1">
     {{ show_model_info() }}
-    {{ show_model_notes() }}
 
     {#- lower right box #}
 
@@ -235,12 +235,12 @@
 
 {%- else %}
 
+<!-- LAYOUT STYLE 2 -->
     {#- top left box (missing) #}
 
     {#- top right box #}
     <td valign="top" colspan="2">
     {{ show_model_info() }}
-    {{ show_model_notes() }}
     </td>
 
     </tr>
@@ -260,6 +260,7 @@
 {%- endif %}
 {%- elif product_image %}
 
+<!-- LAYOUT STYLE 3 -->
     {#- top left box #}
     <td valign="top" class="panel_1">
     {{ show_product_box() }}
@@ -268,7 +269,6 @@
     {#- top right box #}
     <td valign="top" class="panel_1">
     {{ show_model_info() }}
-    {{ show_model_notes() }}
     </td></tr>
 
     {#- lower center box #}
@@ -279,12 +279,12 @@
 
 {%- else %}
 
+<!-- LAYOUT STYLE 4 -->
     {#- top left box (missing) #}
 
     {#- top right box #}
     <td valign="top" class="panel_2">
     {{ show_model_info() }}
-    {{ show_model_notes() }}
 
     {#- lower left box (missing) #}
 

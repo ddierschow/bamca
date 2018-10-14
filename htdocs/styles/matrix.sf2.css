@@ -1,8 +1,6 @@
-body {background-color: #FF8800;}
+body {background-color: #FCE357; color: #000000;}
 
 .tb {background-color: #CCCCCC;}
-.sh {color: #FFFFFF; background-color: #000000;}
+.sh {background-color: #000000; color: #FFFFFF;}
 .rh {background-color: #FFFFFF; color: #000000;}
 .eb {background-color: #DDDDAA;}
-
-body {background-color: #FCE357; color: #000000;}

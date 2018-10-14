@@ -6,6 +6,11 @@
 {%- endmacro %}
 
 
+{%- macro format_image_icon(fname, desc, also) -%}
+{%- if fname -%}<img src="..{{ config.IMG_DIR_ICON }}/{{ fname }}.gif" alt="{{ desc }}"{{ fmt_also(also) }}>{%- endif -%}
+{%- endmacro -%}
+
+
 {%- macro format_image_art(fname, desc, also) -%}
 {%- if fname -%}<img src="..{{ config.IMG_DIR_ART }}/{{ fname }}.gif" alt="{{ desc }}"{{ fmt_also(also) }}>{%- endif -%}
 {%- endmacro -%}

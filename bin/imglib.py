@@ -63,14 +63,24 @@ movetos = [
     config.IMG_DIR_ACC,
     config.IMG_DIR_ADS,
     config.IMG_DIR_BLISTER,
-    config.IMG_DIR_BOX,
     config.IMG_DIR_BOOK,
+    config.IMG_DIR_PROD_BOOK,
+    config.IMG_DIR_BOX,
     config.IMG_DIR_CAT,
     config.IMG_DIR_PROD_CODE_2,
     config.IMG_DIR_COLL_43,
     config.IMG_DIR_CONVOY,
     config.IMG_DIR_ERRORS,
+    config.IMG_DIR_GAME,
+    config.IMG_DIR_ICON,
     config.IMG_DIR_KING,
+    config.IMG_DIR_MAKE,
+    config.IMG_DIR_PROD_ODDS,
+    config.IMG_DIR_PACKAGE,
+    config.IMG_DIR_PICS,
+    config.IMG_DIR_SET_PLAYSET,
+    config.IMG_DIR_SET_PACK,
+    config.IMG_DIR_PROD_PLAYSET,
     config.IMG_DIR_PROD_PACK,
     config.IMG_DIR_PROD_COLL_64,
     config.IMG_DIR_PROD_SERIES,
@@ -784,6 +794,7 @@ class ActionForm(object):
 	self.mv = self.cpmv == 'm'
 	self.archive = False
 	self.delete = False
+	self.trash = False
 	self.selcat = False
 	self.dest = ''
 	self.rename = False
@@ -796,6 +807,7 @@ class ActionForm(object):
 	self.ptype = ''
 	self.inc = ''
 	self.cycle = False
+	self.tumblr = True
 	self.title = ''
 	self.link = ''
 
@@ -811,10 +823,14 @@ class ActionForm(object):
 	self.archive = form.get_bool('archive')
 	self.fixed = form.get_bool('fixed')
 	self.delete = form.get_bool('delete')
+	self.trash = form.get_bool('trash')
 	self.selcat = form.get_bool('selcat')
 	self.dest = form.get_str('moveto')
-	if not self.dest and 'lib/prod' in self.tdir:
-	    self.dest = './pic/prod' + self.tdir[self.tdir.rfind('/'):]
+	if not self.dest:
+	    if self.tdir.startswith('lib'):
+		self.dest = './' + self.tdir.replace('lib', 'pic')
+	    elif self.tdir.startswith('./lib'):
+		self.dest = self.tdir.replace('lib', 'pic')
 	self.rename = form.get_bool('rename')
 	self.lib = form.get_bool('lib')
 	self.mvbin = form.get_bool('mvbin')
@@ -828,6 +844,7 @@ class ActionForm(object):
 	self.ptype = form.get_str('pref')[0] if form.get_str('pref') else ''
 	self.inc = form.get_str('inc')
 	self.cycle = form.get_bool('cy')
+	self.tumblr = form.get_bool('tu', False)
 	self.title = form.get_str('title', self.nname)
 	self.link = form.get_str('link')
 
@@ -852,6 +869,8 @@ class ActionForm(object):
 	to_dir = to_name = ''
 	if self.delete:
 	    useful.file_delete(from_path)
+	elif self.trash:
+	    useful.file_mover(from_path, os.path.join('.' + config.TRASH_DIR, from_path[from_path.rfind('/') + 1:]), mv=True, inc=True, trash=False)
 	elif self.archive:
 	    useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
 	    ret['fn'] = ''
@@ -929,15 +948,23 @@ class ActionForm(object):
 	else:
 	    ret['act'] = False
 	if to_dir:
+	    cred = pif.form.get_str('credit')
+	    if cred:
+		photog = pif.dbh.fetch_photographer(cred)
+		if not photog or not photog.flags & pif.dbh.FLAG_PHOTOGRAPHER_PRIVATE:
+		    cred = ''
 	    useful.file_mover(from_path, os.path.join(to_dir, to_name), mv=self.mv, ov=self.ov, inc=self.inc)
 	    ret['fn'] = to_name
 	    ret['dir'] = to_dir
-	    if log_action:
+	    if log_action and self.tumblr:
 		title = pif.form.get_str('title', to_name)
-		url = 'http://www.bamca.org/' + os.path.join(to_dir, to_name)
-		link = 'http://www.bamca.org/' + self.link
-		useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=to_name, source=url, link=link))
-	    pif.dbh.write_photo_credit(pif.form.get_str('credit'), to_dir, to_name)
+		url = 'https://www.bamca.org/' + os.path.join(to_dir, to_name)
+		link = 'https://www.bamca.org/' + self.link
+		title = to_name
+		if cred:
+		    title += ' credited to ' + photog.name
+		useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+	    pif.dbh.write_photo_credit(cred, to_dir, to_name)
 	return ret
 
     def picture_prefixes(self):
@@ -968,6 +995,7 @@ class ActionForm(object):
 	print '<input type=hidden name="fi" value="%s">' % fn
 	print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&v=%s&cy=%s">%s</a>' % (self.tdir, fn, self.var, self.cycle, pif.render.format_button('edit'))
 	print pif.render.format_button_input('delete')
+	print pif.render.format_button_input('trash')
 	print pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (self.tdir + '/' + fn))
 	print 'New name: <input type="text" size="32" name="newname" value="%s">' % fn
 	print pif.render.format_button_input('rename')
@@ -984,6 +1012,7 @@ class ActionForm(object):
 	    print 'Category:', pif.render.format_select('cat', mbdata.img_sel_cat, self.cat)
 	    print pif.render.format_button_input('move to bin', 'mvbin')
 	    print pif.render.format_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))])
+	    print pif.render.format_checkbox("tu", [("1", "tumblr")], checked=[str(int(self.tumblr))])
 	    print '<input type=checkbox name="inc" value="1"> increment name'
 	    print '<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var
 	    print 'Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref, blank='')
@@ -1030,37 +1059,37 @@ def get_dir(tdir, name_has=''):
 
 
 def format_image_star(pif, image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):
-    return '<i class="fas fa-%s %s"></i>' % (image_star(image_path, image_file, pic_id, halfstar, target_x, target_y))
+    return '<i class="%s fa-%s %s"></i>' % (image_star(image_path, image_file, pic_id, halfstar, target_x, target_y))
 
 
 def image_star(image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):
-    pic = 'star-half-o' if halfstar else 'star'
+    pic = 'star-half' if halfstar else 'star'
     if pic_id is None:
-        return 'star', 'white'
+        return 'fas', 'star', 'white'
     if not os.path.exists(os.path.join(image_path, image_file)):
         if pic_id:
-            return pic, 'yellow'
-        return 'star-o', 'black'
+            return 'fas', pic, 'yellow'
+        return 'far', 'star', 'black'
     try:
         img = Image.open(os.path.join(image_path, image_file))
     except:
-        return pic, 'yellow'
+        return 'fas', pic, 'yellow'
     ix, iy = img.size
     if target_x:
 	if ix < target_x / 2:
-	    return pic, 'red'
+	    return 'fas', pic, 'red'
 	if ix < target_x:
-	    return pic, 'green'
+	    return 'fas', pic, 'green'
 	if ix > target_x:
-	    return pic, 'blue'
+	    return 'fas', pic, 'blue'
     else:
 	if iy < target_y / 2:
-	    return pic, 'red'
+	    return 'fas', pic, 'red'
 	if iy < target_y:
-	    return pic, 'green'
+	    return 'fas', pic, 'green'
 	if iy > target_y:
-	    return pic, 'blue'
-    return pic, 'black'
+	    return 'fas', pic, 'blue'
+    return 'fas', pic, 'black'
 
 
 def read_presets(pdir):
@@ -1102,3 +1131,13 @@ def simple_save(ofi, opth):
 	ofi.save(opth)
     else:
 	open(opth, "w").write(ofi)
+
+
+def get_tilley_file():
+    ents = open(useful.relpath('.', config.LIB_MAN_DIR, 'tilley.txt')).readlines()
+    mans = {}
+    for ent in ents:
+	man, pref = ent.strip().split(None, 1)
+	mans.setdefault(man, list())
+	mans[man].append(pref)
+    return mans

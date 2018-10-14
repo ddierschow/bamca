@@ -92,6 +92,7 @@ def show_dir(pif, tform):
         ostr += '<input type="checkbox" name="du" value="1"> Dupes\n'
         ostr += '<input type="checkbox" name="co" value="1"> Compact\n'
         ostr += '<input type="checkbox" name="si" value="1"> Sized\n'
+        ostr += '<input type="checkbox" name="mr" value="1"> Recent\n'
 	if pif.render.is_admin:
 	    ostr += '<br><input type="radio" name="lty" value="nrm" checked> Normal\n'
 	    ostr += '<input type="radio" name="lty" value="shc"> Categorize\n'
@@ -108,12 +109,12 @@ def show_dir(pif, tform):
     return ostr
 
 
-def check_image(pif, targs, src):
+def check_image(pif, targs, src, credits):
     ostr = '</td><td>'
     ssize = os.stat(src).st_size
     for tf in targs:
 	if tf[1] == ssize and filecmp.cmp(tf[0], src):
-	    ostr += tf[0][tf[0].rfind('/') + 1:] + '<br>'
+	    ostr += tf[0][tf[0].rfind('/') + 1:] + ' ' + credits.get(tf[0], '') + '<br>'
     return ostr
 
 
@@ -121,7 +122,7 @@ imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="ch
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, pms=False, cred=False, targs=[]):
+def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, pms=False, cred=False, targs=[], credits={}, mans={}):
     also = {'border': 0}
     if sx:
 	also['width'] = sx
@@ -135,18 +136,22 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
         root, ext = useful.root_ext(arg.strip())
         inp = ''
         if shlv or cate:
-            inp += '''<input type="text" name="lib.%s"> lib''' % arg
+            inp += ''' %s/<input type="text" name="lib.%s"> ''' % ("lib" if cate else "lib/man", arg)
+	    for man in sorted(mans.keys()):
+		for pref in mans[man]:
+		    if root.startswith(pref):
+			inp += ' ' + man
             ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
             continue
 	elif mss:
             inp += '''<br><input type="text" name="var.%s"> var''' % arg
             ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
-	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg))
+	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
             continue
 	elif pms:
             inp += '''<br><input type="text" name="nam.%s"> nam''' % arg
             ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
-	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg))
+	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
             continue
 	elif rsuf:
             inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
@@ -174,8 +179,10 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
 
 
 def flist_sort(flist, tform):
-    if tform.sizd:
-	flist.sort(key=lambda x: (x[2:], x[:2]))
+    if tform.rcnt and not tform.sizd:
+	# stat tdir+fn, get st_mtime, sort by date
+	tlist = [os.stat(os.path.join(tform.tdir, fn)).st_mtime for fn in flist]
+	flist.sort(key=dict(zip(flist, tlist)).get, reverse=True)
     else:
 	flist.sort()
 
@@ -185,38 +192,62 @@ def show_imgs(pif, tform):
     plist = tform.patt.split(',')
     img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss, 'pms': tform.pms,}
     if tform.mss:
-	print 'Credit ' + pif.render.format_text_input('credit', 4)
+	print 'Credit ' + pif.render.format_text_input('credit', 4, value=pif.form.get_str('credit'))
 	print '<br>'
 	img_args['targs'] = [(x, os.stat(x).st_size) for x in sorted(glob.glob('.' + config.IMG_DIR_VAR + '/l_' + tform.dirname + '-*.*'))]
+	img_args['credits'] = {'.' + config.IMG_DIR_VAR + '/l_' + x['photo_credit.name'] + '.jpg': x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_vars(config.IMG_DIR_VAR, tform.dirname)}
     elif tform.pms:
 	# maybe put size here?  assume m_
 	print 'Credit ' + pif.render.format_text_input('credit', 4)
 	print '<input type="hidden" name="tysz" value="m">'
 	print '<br>'
 	img_args['targs'] = []
+    elif tform.shlv and tform.dirname == 'tilley':
+	img_args['mans'] = imglib.get_tilley_file()
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
+	if tform.sizd:
+	    flist = list(set([x[2:] for x in flist if len(x) > 2 and x[1] == '_']))
         flist_sort(flist, tform)
 	if tform.cred:
 	    img_args['cred'] = {x['photo_credit.name']: x['photographer.id'] for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
-	if tform.cpct:
-	    for fn in flist:
-		print pif.render.format_link(
-		    "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
-		    pif.render.fmt_img_src(os.path.join(tform.tdir, fn))) + '\n'
+	if tform.sizd:
+	    if tform.cpct:
+		for fp in flist:
+		    for fn in useful.read_dir('?_' + fp, pif.render.pic_dir):
+			print pif.render.format_link(
+			    "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
+			    pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also={'title': fn})) + '\n'
+		    print '<br>'
+	    else:
+		print '<table class="glist">'
+		for fp in flist:
+		    dlist = useful.read_dir('?_' + fp, pif.render.pic_dir)
+		    flist_sort(dlist, tform)
+		    if not tform.dups or len(dlist) > 1:
+			print img(pif, dlist, **img_args)
+		print '</table>'
+		print '<hr>'
 	else:
-	    print '<table class="glist">'
-	    for fn in flist:
-		if tform.dups:
-		    root, ext = useful.root_ext(fn)
-		    flist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
-		    flist_sort(flist, tform)
-		    if len(flist) > 1:
-			print img(pif, flist, fn, **img_args)
-		else:
-		    print img(pif, [fn], rsuf=tform.rsuf, **img_args)
-	    print '</table>'
-	    print '<hr>'
+	    if tform.cpct:
+		for fn in flist:
+		    print pif.render.format_link(
+			"imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
+			pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also={'title': fn})) + '\n'
+	    else:
+		print '<table class="glist">'
+		for fn in flist:
+		    # also sized + dups
+		    if tform.dups:
+			root, ext = useful.root_ext(fn)
+			dlist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
+			if len(dlist) > 1:
+			    flist_sort(dlist, tform)
+			    print img(pif, dlist, fn, **img_args)
+		    else:
+			print img(pif, [fn], rsuf=tform.rsuf, **img_args)
+		print '</table>'
+		print '<hr>'
     print '<input type="hidden" name="d" value="%s">' % tform.tdir
     print '<input type="hidden" name="sc" value="1">'
     if tform.cate:
@@ -308,6 +339,11 @@ def do_prod_masses(pif, tform):
     ddir = tform.tdir.replace('lib', 'pic')
     print pif.form.get_str('credit'), ddir, '<br>'
     siz = pif.form.get('tysz')
+    cred = pif.form.get_str('credit')
+    if cred:
+	photog = pif.dbh.fetch_photographer(cred)
+	if not photog:
+	    cred = ''
     for fn, nam in pif.form.get_list(start='nam.'):
 	print '<hr>'
 	print fn, ddir, siz, nam, '<br>'
@@ -320,10 +356,13 @@ def do_prod_masses(pif, tform):
 	ofi = imglib.shrinker(pth, nname, q, ts, rf)
 	imglib.simple_save(ofi, nname)
 	images.file_log(nname, tform.tdir)
-	url = 'http://www.bamca.org/' + nname
-	link = 'http://www.bamca.org/'
-	useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=nam, source=url, link=link))
-	pif.dbh.write_photo_credit(pif.form.get_str('credit'), ddir, nam)
+	url = 'https://www.bamca.org/' + nname
+	link = 'https://www.bamca.org/'
+	title = nam
+	if cred and not photog.flags & pif.dbh.FLAG_PHOTOGRAPHER_PRIVATE:
+	    title += ' credited to ' + photog.name
+	useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+	pif.dbh.write_photo_credit(cred, ddir, nam)
 
 
 def show_file(pif, tform):
@@ -447,6 +486,12 @@ class TraverseForm(object):
 	    self.dirname = self.tdir[self.tdir.rfind('/') + 1:]
 	else:
 	    self.dirname = self.tdir
+	if self.tdir.startswith('./lib') or self.tdir.startswith('lib'):
+	    self.alt = self.tdir.replace('lib', 'pic')
+	elif self.tdir.startswith('./pic') or self.tdir.startswith('pic'):
+	    self.alt = self.tdir.replace('pic', 'lib')
+	else:
+	    self.alt = ''
 	self.libl = pif.form.get_list(start='lib.', defval='')
 	self.renl = pif.form.get_list(start='ren.', defval='')
 	self.rsfx = pif.form.get_list(start='rsfx.', defval='')
@@ -469,6 +514,7 @@ class TraverseForm(object):
 	self.rsuf = pif.form.get_radio("lty", "suf")
 	self.cred = pif.form.get_radio("lty", "crd")
 	self.sizd = pif.form.get_int("si")
+	self.rcnt = pif.form.get_int("mr")
 	self.scrt = pif.form.get_int('sc')
 	self.act = pif.form.get_int('act')
 	self.cycle = pif.form.get_int("cy")  # srsly?
@@ -498,7 +544,10 @@ def main(pif):
     pif.render.set_page_extra(pif.render.increment_js)
     print pif.render.format_head()
     useful.header_done()
-    print pif.form.get_form(), '<br>'
+    print pif.form.get_form()
+    if tform.alt:
+	print pif.render.format_link('/cgi-bin/traverse.cgi?d=' + tform.alt, tform.alt)
+    print '<br>'
     if tform.patt:
         show_imgs(pif, tform)
     elif tform.scrt:

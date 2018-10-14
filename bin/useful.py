@@ -42,6 +42,12 @@ class SimpleError(Exception):
         return repr(self.value)
 
 
+class SimpleOjbect(object):
+    def __init__(self, args):
+	for key, value in args.items():
+	    self.setattr(key, value)
+
+
 def relpath(*args):
     if len(args) == 0:
 	return '.'

@@ -531,7 +531,7 @@ def check_link(pif, link, rejects=[], visible=False):
                 #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
 	    lurl = link['url']
 	    if lurl.startswith('/'):
-		lurl = 'http://www.bamca.org' + lurl
+		lurl = 'https://www.bamca.org' + lurl
             try:
 		url = urllib2.urlopen(urllib2.Request(lurl, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
                 lstatus = 'H' + str(url.code)

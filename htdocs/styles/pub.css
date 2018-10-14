@@ -1,7 +1,18 @@
 body {background-color: #EEEEEE;}
 img    {margin-left: auto; margin-right: auto; display: block;}
 
-.eb {text-align: center;}
+.tb_main {width: 800px;}
 
-.ok {color: #FFFFFF;}
-.no {color: #FFFF99;}
+.tb_pub {width: 1024px;}
+.tb {background-color: #FFFFFF; border-width: 0px;}
+.sh {color: #FFFFFF; background-color: #000000;}
+.rh {background-color: #FFFFFF; color: #000000;}
+.eb {background-color: #FFFFFF; text-align: left;}
+.eb_picture {text-align: center;}
+.eb_first_year {text-align: center;}
+.eb_country {text-align: center;}
+
+.eb_tail_2 {background-color: #CCCCCC; text-align: left;}
+.eb_tail_2 img {margin-left: 0; display: inline;}
+
+.pub img {margin-left: 0; display: inline;}

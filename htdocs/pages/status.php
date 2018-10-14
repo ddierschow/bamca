@@ -27,7 +27,8 @@ is in short supply.  We'll do them when we can.
 
 There are categories associated with each variation.  I am currently working on populating this, and
 building out the supporting machinery for this field.  Plus, there are many newer categories that
-need to be added.
+need to be added.  In the most recent version much progress has been made with this but I'm still
+working on it.
 
 <li><h4>The Catalog Project</h4>
 
@@ -114,6 +115,7 @@ There is a lot of work still to be done on the site.
 on a light-colored background, like <a href="/pic/man/var/m_mx113-03.jpg">this</a>.
 For Code 2's, I am much less picky.
 The largest size I use is 600 pixels wide, so if your pictures are at least that large, that's great.
+Where appropriate I also add pictures of comparisons and details.
 
 <li>Product pictures are also always handy, especially for items in the database that don't have pictures yet.
 The size varies by the format of the page I'm using, but the widest is no more than 800 pixels,
