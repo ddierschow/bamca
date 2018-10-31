@@ -99,7 +99,7 @@ def code2_model(pif):
     lsec['range'] = [{'entry': []}]
     mvars = pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id)
     for var in mvars:
-	useful.write_comment(var)
+	#useful.write_comment(var)
 	entry = {'text': models.add_model_var_pic_link(pif, pif.dbh.depref('v', var))}
 	lsec['range'][0]['entry'].append(entry)
 

@@ -16,28 +16,6 @@ import useful
 # colspan must be <= columns!
 pack_layout_keys = ['columns', 'colspan', 'rowspan', 'picsize']
 pack_layouts = {
-    '1s': [1, 1, 1, 'h'],
-    '2h': [2, 2, 1, 'h'],
-    '2v': [2, 1, 2, 'l'],
-    '3h': [3, 3, 1, 'h'],
-    '3v': [2, 1, 3, 'm'],
-    '4h': [4, 4, 1, 'h'],
-    '4v': [2, 1, 4, 'm'],
-    '5h': [4, 3, 1, 'l'],
-    '5l': [2, 1, 3, 'l'],
-    '5s': [3, 2, 2, 'l'],
-    '5v': [2, 1, 5, 'm'],
-    '6h': [3, 3, 1, 'h'],
-    '6s': [3, 2, 3, 'l'],
-    '6v': [2, 1, 4, 'm'],
-    '7s': [4, 3, 3, 'l'],
-    '8h': [4, 4, 1, 'h'],
-    '8s': [3, 2, 2, 'l'],
-    '8v': [4, 3, 4, 'm'],
-    '9h': [3, 3, 1, 'h'],
-    'th': [4, 3, 2, 'l'],
-    'tv': [3, 2, 4, 'm'],
-    'wh': [4, 4, 1, 'h'],
     '01s': [1, 1, 1, 'h'],
     '02h': [2, 2, 1, 'h'],
     '02v': [2, 1, 2, 'l'],
@@ -138,7 +116,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
 	lsection['range'] = [dict(entry=entries, note='', styles=dict(zip(cols, cols)))]
 	lsection['note'] = ''
 	llineup['section'].append(lsection)
-    useful.write_comment(llineup)
+    #useful.write_comment(llineup)
     context = {
 	'page_id': pif.form.get_str('page'),
 	'years': sorted(years),
@@ -425,7 +403,7 @@ def packs_main(pif):
 		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     elif pif.form.has('sec'):
 	pif.render.hide_title = True
-	useful.write_comment(pif.form)
+	#useful.write_comment(pif.form)
 	sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
 	if not sections:
 	    return models.make_page_list(pif, 'packs', fmt_link)
@@ -440,7 +418,7 @@ def packs_main(pif):
 @basics.web_page
 def play_main(pif):
     pif.render.set_page_extra(pif.render.image_selector_js)
-    useful.write_comment(pif.form)
+    #useful.write_comment(pif.form)
     pif.page_id = 'playset.ps'
     pif.set_page_info(pif.page_id)
     pif.render.print_html()

@@ -15,7 +15,6 @@ import useful
 
 @basics.web_page
 def makes_main(pif):
-    useful.write_comment('privs', pif.privs)
     make_q = pif.dbh.depref('vehicle_make',
 	pif.dbh.fetch_vehicle_makes(where='' if pif.is_allowed('a') else 'not (flags & %s)' % pif.dbh.FLAG_ITEM_HIDDEN))
     makelist = [(x['id'], x['name']) for x in make_q]

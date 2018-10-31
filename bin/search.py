@@ -112,7 +112,7 @@ def run_search(pif):
     if not mods:
 	raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.")
 
-    mods.sort(key=lambda x: x['rawname'])
+    mods.sort(key=lambda x: x.get('rawname', ''))
     var_id = pif.form.get_str('var')
     if var_id:
 	pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))

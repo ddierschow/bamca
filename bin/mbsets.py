@@ -189,7 +189,7 @@ def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
         if suffix:
             m += suffix
         modnum.append(m)
-    ostr = pif.render.format_image_required(modnum, mod_num(prefix, model[0], suffix), made=made, pdir=dirs.get(prefix))
+    ostr = pif.render.format_image_required(modnum, alt=mod_num(prefix, model[0], suffix), made=made, pdir=dirs.get(prefix))
     return '<center>' + ostr + '</center>'
 
 

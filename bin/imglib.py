@@ -958,13 +958,13 @@ class ActionForm(object):
 	    ret['dir'] = to_dir
 	    if log_action and self.tumblr:
 		title = pif.form.get_str('title', to_name)
-		url = 'https://www.bamca.org/' + os.path.join(to_dir, to_name)
+		url = 'http://www.bamca.org/' + os.path.join(to_dir, to_name)
 		link = 'https://www.bamca.org/' + self.link
 		title = to_name
 		if cred:
 		    title += ' credited to ' + photog.name
-		useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
-	    pif.dbh.write_photo_credit(cred, to_dir, to_name)
+		pif.render.message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+	    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, to_dir, to_name))
 	return ret
 
     def picture_prefixes(self):
@@ -1123,7 +1123,7 @@ def promote_picture(pif, mod_id, var_id):
 	useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
     # transfer credit
     if credit:
-	pif.dbh.write_photo_credit(credit['photographer.id'], config.IMG_DIR_MAN[1:], mod_id)
+	pif.render.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'], config.IMG_DIR_MAN[1:], mod_id))
 
 
 def simple_save(ofi, opth):
@@ -1134,7 +1134,7 @@ def simple_save(ofi, opth):
 
 
 def get_tilley_file():
-    ents = open(useful.relpath('.', config.LIB_MAN_DIR, 'tilley.txt')).readlines()
+    ents = open('lib/tilley/tilley.txt').readlines()
     mans = {}
     for ent in ents:
 	man, pref = ent.strip().split(None, 1)

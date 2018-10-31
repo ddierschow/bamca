@@ -27,6 +27,7 @@ The largest contributors so far have been:
 <ul>
 <li>David Tilley
 <li>Christian Falkensteiner
+<li>Alan's Toys
 <li>MBX University
 <li>John Baum
 <li>Public Safety Diecast

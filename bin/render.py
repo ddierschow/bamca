@@ -683,8 +683,13 @@ of Matchbox International Ltd. and are used with permission.
     def format_image_optional(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None, also={}, nopad=False, largest=None):
         return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, pad=not nopad, largest=largest)
 
-    def format_image_required(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None, also={}, nopad=False, made=True, largest=None, preferred=None):
-        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, pad=not nopad, made=made, required=True, largest=largest, preferred=preferred)
+    def format_image_required(self, fnames, **kwargs):
+	if 'nopad' in kwargs:
+	    kwargs['pad'] = not kwargs['nopad']
+	    del kwargs['nopad']
+        return self.fmt_img(fnames, required=True, **kwargs)
+    #def format_image_required(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None, also={}, nopad=False, made=True, blank=False, largest=None, preferred=None):
+        #return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, pad=not nopad, made=made, blank=blank, required=True, largest=largest, preferred=preferred)
 
     def format_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
@@ -771,9 +776,9 @@ of Matchbox International Ltd. and are used with permission.
         self.comment("fmt_img_check", pth)
 	return pth if useful.is_good(pth, v=self.verbose) else ''
 
-    def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, preferred=None, also={}, made=True, required=False, pad=False, art=False):
+    def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, preferred=None, also={}, made=True, required=False, blank=False, pad=False, art=False):
         img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, preferred=preferred, pdir=pdir, art=art)
-	return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required, unknown=fnames and 'unknown' in fnames, pad=pad)
+	return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required, blank=blank, unknown=fnames and 'unknown' in fnames, pad=pad)
 
     def find_alt_image_path(self, img, prefix='', largest=None, made=True, required=False, unknown=False):
         if img:
@@ -784,23 +789,23 @@ of Matchbox International Ltd. and are used with permission.
 	    return self.find_image_path('nopic' if made else 'notmade', prefix=prefix, suffix='gif', pdir=self.art_dir, largest=largest)
         return ''
 
-    def fmt_img_file(self, img, alt='', prefix='', largest=None, also={}, made=True, required=False, unknown=False, pad=False):
+    def fmt_img_file(self, img, alt='', prefix='', largest=None, also={}, made=True, required=False, blank=False, unknown=False, pad=False):
         if img:
             return self.fmt_img_src(img, alt=alt, also=also)
 	if unknown:
 	    return self.fmt_art('nomod.gif', prefix=prefix, largest=largest, also=also)
         if required:
-            return self.fmt_no_pic(made, prefix, largest=largest, also=also)
+            return self.fmt_no_pic(made, prefix, largest=largest, blank=blank, also=also)
 	if alt:
 	    return alt
         if pad:
             return '&nbsp;'
         return ''
 
-    def fmt_no_pic(self, made=True, prefix='', largest=None, also={}):
-        img = self.fmt_art('nopic.gif' if made else 'notmade.gif', prefix=prefix, largest=largest, also=also)
+    def fmt_no_pic(self, made=True, prefix='', blank=False, largest=None, also={}):
+        img = self.fmt_art('notmade.gif' if not made else 'blank.gif' if blank else 'nopic.gif', prefix=prefix, largest=largest, also=also)
 	if not img:
-	    img = self.fmt_art('nopic.gif' if made else 'notmade.gif', largest='s', also=also)
+	    img = self.fmt_art('notmade.gif' if not made else 'blank.gif' if blank else 'nopic.gif', largest='s', also=also)
 	return img
 
     def fmt_opt_img(self, fnames, alt='', prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):

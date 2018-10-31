@@ -55,8 +55,6 @@ class DB(object):
 			      ('/*mock*/ ' if self.nowrites else '',
 			       os.environ.get('REMOTE_ADDR', ''), query))
         cu = self.db.cursor()
-	if tag == 'UpdateLineupModel':
-	    useful.write_message(query, '<br>')
         try:
             if args:
                 nrows = cu.execute(query, args)

@@ -94,7 +94,7 @@ def mass_save(pif):
             pif.dbh.write(pif.form.get_str('from'), values={col: pif.dbh.escape_string(pif.form.get_str(key))}, where=wheres, modonly=True, tag='mass_save')
     return pif.render.format_template('blank.html', content='')
 
-# ------- varaition dates ------------------------------------------
+# ------- variation dates ------------------------------------------
 
 def dates_main(pif):
     for mvid in pif.form.roots(start='v.'):
@@ -310,6 +310,7 @@ def add_pub_main(pif):
 	{'title': 'Description:', 'value': pif.render.format_text_input("description", 80, 80, value='')},
 	{'title': 'Made:', 'value': pif.render.format_checkbox('notmade', [('not', 'not')])},
 	{'title': 'Country:', 'value': pif.render.format_select_country('country')},
+	{'title': 'ISBN:', 'value': pif.render.format_text_input("isbn", 20, 20, value='')},
 	#{'title': 'Section:', 'value': pif.render.format_select('section_id', [(x['section.id'], x['section.name']) for x in pif.dbh.fetch_sections(where="page_id like 'man%'")], selected=pif.form.get_str('section_id'))},
 	{'title': '', 'value': pif.render.format_button_input('save')},
     ]
@@ -343,6 +344,7 @@ def add_pub_final(pif):
 	    'id': pif.form.get_str('id'),
 	    'country': pif.form.get_str('country'),
 	    'section_id': pif.form.get_str('model_type').lower(),
+	    'isbn': pif.form.get_str('isbn'),
 	}) + '<br>\n'
     return pif.render.format_template('blank.html', content=ostr)
 

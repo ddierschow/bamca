@@ -120,7 +120,7 @@ def biblio(pif):
 # -- calendar
 
 def event_type(pif, event):
-    return '<center><b>%s</b></center>' % pif.render.format_image_art(event, event.upper())
+    return '<center><b>%s</b></center>' % pif.render.format_image_icon('i_' + event, event.upper())
 
 
 def event(pif, ty, llist):
@@ -179,7 +179,7 @@ def calendar(pif):
 def submit_comment(pif):
     pif.render.print_html()
     print pif.render.format_head()
-    useful.write_message(pif.form)
+    #useful.write_message(pif.form)
     ostr = "I am sending this comment for you. "
 
     fname = pif.form.get_str('pic.name')

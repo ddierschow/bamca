@@ -53,11 +53,13 @@ class MatrixFile(object):
 	ent['disp_id'] = ent['image'] = ent['link'] = ''
 	ent['pdir'] = mat['pic_dir'] if mat['pic_dir'] else pif.render.pic_dir
 	ent['disp_format'] = mat['disp_format']
+	# currently this formats all the variations then just uses one.  needs to collate the variations then
+	# call format_image_* with that.
 	if is_num_id:
 	    ent['range_id'] = int(ent['range_id']) if ent['range_id'] else 0
 	if ent['model_type'] == 'MP':
 	    ent['image'] = \
-		    pif.render.format_image_optional(ent['mod_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True)
+		    pif.render.format_image_required(ent['mod_id'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True, blank=True)
 	elif ent['range_id'] and ffmt['img']:
 	    ent['image'] = \
 		    pif.render.format_image_required([useful.clean_name(ffmt['img'] % ent['range_id'], '/')], pdir=ent['pdir'])
@@ -69,10 +71,10 @@ class MatrixFile(object):
 		    pif.render.format_image_optional(ent['mod_id'] + '-' + ent['v.var'], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
 	elif '%' in ffmt['link']:
 	    ent['image'] = \
-		    pif.render.format_image_optional([useful.clean_name(ffmt['link'] % ent['range_id'], '/')], prefix=mbdata.IMG_SIZ_SMALL, pdir=ent['pdir'])
+		    pif.render.format_image_required([useful.clean_name(ffmt['link'] % ent['range_id'], '/')], prefix=mbdata.IMG_SIZ_SMALL, pdir=ent['pdir'], blank=True)
 	else:
 	    ent['image'] = \
-		    pif.render.format_image_optional([useful.clean_name(ffmt['link'], '/')], prefix=mbdata.IMG_SIZ_SMALL, pdir=ent['pdir'])
+		    pif.render.format_image_required([useful.clean_name(ffmt['link'], '/')], prefix=mbdata.IMG_SIZ_SMALL, pdir=ent['pdir'], blank=True)
 	if ent['range_id'] and ffmt['disp']:
 	    ent['disp_id'] = ent['range_id']
 	if ent['range_id'] and ffmt['link']:

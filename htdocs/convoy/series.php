@@ -471,7 +471,7 @@ This line was renamed Team Convoy in 1988.
       <td class="seriesent seriescolKO"><?php link_if_exists('TMTC', 'TM/TC'); ?><br>(many)</td>
     </tr>
     <tr>
-      <td class="seriescol00 ids0" width="100">
+      <td class="seriescol00 ids0" width="90">
 Other cab/trailer combinations
 </td>
       <td class="seriesent ids1" colspan="2">

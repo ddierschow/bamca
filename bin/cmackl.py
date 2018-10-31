@@ -15,7 +15,8 @@ def mack_models(pif, start, end, series):
     mmods = {mbdata.get_mack_number(rec['base_id.id']): rec for rec in
 	pif.dbh.fetch_casting_list('sf') + pif.dbh.fetch_casting_list('rw')}
     amods.update(mmods)
-    return mod_to_mack(pif, amods, start, end, mseries)
+    mods = mod_to_mack(pif, amods, start, end, mseries)
+    return [{'entry': mods}] if mods else []
 
 
 def mod_to_mack(pif, recs, start, end, series):
@@ -31,6 +32,7 @@ def mod_to_mack(pif, recs, start, end, series):
 		'href': 'single.cgi?id=' + rec['base_id.id'],
 		'imgstr': pif.render.format_image_required(rec['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
 		'mack_id_unf': mack_id,  # for sorting
+		'class': 'rw' if not mack_id[0] else 'sf' if mack_id[0] == 'MB' else 'mb',
 	    }
 
 
@@ -47,9 +49,9 @@ def mack_lineup(pif):
     start = 1 if range == 'all' else pif.form.get_int('start', 1)
     end = config.MAX_MACK_NUMBER if range == 'all' else pif.form.get_int('end', config.MAX_MACK_NUMBER)
 
-    mods = mack_models(pif, start, end, series)
+    ranges = mack_models(pif, start, end, series)
 
-    if not mods:
+    if not ranges:
         note = 'Your request produced no models.'
         if start > config.MAX_MACK_NUMBER:
             note += '  Be sure to use numbers from 1 to %d.' % config.MAX_MACK_NUMBER
@@ -57,10 +59,8 @@ def mack_lineup(pif):
             note += "  Use a start number that isn't higher than the end number."
 	raise useful.SimpleError(note)
 
-    #mods.sort(key=lambda x: (x['mack_id_unf'][1], x['mack_id_unf'][0], x['mack_id_unf'][2]))
-
     lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lsec['range'] = [{'entry': mods}]
+    lsec['range'] = ranges
     llineup = {'section': [lsec]}
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('mack.html', llineup=llineup)
@@ -82,13 +82,14 @@ def check_man_mappings(pif, sections):
 def check_mack_ranges(pif):
     letters = list('abcdefghijklmnopqrstuvwyz') + ['aa']
     ranks = {}
-    mods = lineup.mack_models(pif, 1, config.MAX_MACK_NUMBER, ['SF'])
+    ranges = mack_models(pif, 1, config.MAX_MACK_NUMBER, ['SF'])
     num = 0
-    for mod in mods:
-	if num != int(mod['mack_id_unf'][1]):
-	    num = int(mod['mack_id_unf'][1])
-	    ranks[num] = set()
-	ranks[num].add(mod['mack_id_unf'][2])
+    for ran in ranges:
+	for mod in ran['entry']:
+	    if num != int(mod['mack_id_unf'][1]):
+		num = int(mod['mack_id_unf'][1])
+		ranks[num] = set()
+	    ranks[num].add(mod['mack_id_unf'][2])
     for num in range(1, config.MAX_MACK_NUMBER + 1):
 	s = ranks.get(num)
 	if s:

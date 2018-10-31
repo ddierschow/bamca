@@ -60,7 +60,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
         if s.startswith('same as '):
             img.append(s[8:].lower())
     img_size = mdict.get('prefix', mbdata.IMG_SIZ_LARGE if pif.form.get_bool('large') else mbdata.IMG_SIZ_SMALL)
-    mdict['img'] = pif.render.format_image_required(img, None, made=mdict['made'], prefix=img_size)
+    mdict['img'] = pif.render.format_image_required(img, made=mdict['made'], prefix=img_size)
     mdict['flag'] = ''
     if mdict.get('country') in flago:
         mdict['flag'] = pif.render.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})

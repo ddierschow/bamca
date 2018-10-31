@@ -38,6 +38,7 @@ foreach ($newerrors as $ent)
     $errcounter = $errcounter + $ent[1];
 $newusers = Fetch("select name from buser.user where state=1 and privs=''", $pif);
 $newlinks = Fetch("select count(*) from link_line where ((flags&128)=128)", $pif);
+$tumblr = Fetch("select count(*) from buser.tumblr", $pif);
 $commentfiles = glob("../../comments/comment.*");
 $imagefiles = glob("../../inc/*");
 $imagename = $l = '';
@@ -136,6 +137,9 @@ if (count($newusers) > 0)
    <tr><td>
    Uploaded images:</td><td><?php warn_number(count($imagefiles)); ?></td>
    <td>last <?php echo substr($imagename, 0, 9); ?></td></tr>
+
+   <tr><td>
+   Tumblr spool:</td><td><?php warn_number($tumblr[0][0]); ?></td></tr>
    </table>
   </td>
   <td class="boxborder"></td>

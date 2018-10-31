@@ -763,8 +763,8 @@ def check_man(pif, dn):
 		print fn, "missing var", root, var
 	    else:
 		c += 1
-	except:
-	    print fn, "fail"
+	except Exception as e:
+	    print fn, "fail -", e
 	    raise
     print c, 'ok'
 

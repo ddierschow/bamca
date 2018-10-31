@@ -10,6 +10,7 @@ import jinja2
 #html_done = False
 
 alnum = string.digits + string.ascii_lowercase
+verbose = False
 
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
@@ -262,6 +263,15 @@ def search_match(sobj, targ):
     return True
 
 
+def make_dir(dst, perms):
+    if not os.path.exists(dst):
+	warn('making', dst)
+	try:
+	    os.mkdir(dst, perms)
+	except Exception as e:
+	    warn('- failed -', e)
+
+
 def file_touch(dst):
     os.utime(dst, None)
 
@@ -323,25 +333,27 @@ def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma:
 def file_move(src, dst, ov=False, trash=False):  # pragma: no cover
     if not trash:
         warn("mv", src, dst)
-    os.rename(src, dst)
+    try:
+	os.rename(src, dst)
+    except Exception as e:
+	warn("- failed -", e)
     return True
 
 
 def file_delete(src, trash=False):  # pragma: no cover
     if not trash:
         warn("rm", src)
-    if not os.path.exists(src):
-        if not trash:
-            warn("- not found")
-    else:
+    if os.path.exists(src):
         try:
             os.unlink(src)
             if not trash:
                 warn("- removed")
-        except:
+	except Exception as e:
             if not trash:
-                warn("- failed")
+                warn("- failed -", e)
             return False
+    elif not trash:
+	warn("- not found")
     return True
 
 
@@ -350,9 +362,9 @@ def file_copy(src, dst, trash=False):  # pragma: no cover
         warn("copy", src, dst)
     try:
         open(dst, 'w').write(open(src).read())
-    except:
+    except Exception as e:
         if not trash:
-            warn("- failed")
+            warn("- failed -", e)
     return False
 
 
@@ -394,8 +406,7 @@ def fix_file_type(pif, pdir, fn):
 
 
 def file_save(pdir, fn, contents, overwrite=False):
-    if not os.path.exists(pdir):
-        os.mkdir(pdir, 0775)
+    make_dir(pdir, 0775)
     if '.' in fn:
         root, ext = fn.rsplit('.', 1)
     else:
@@ -451,6 +462,10 @@ def warn(*args, **kwargs):
 
 def write_message(*args, **kwargs):
     write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=False)
+
+def write_debug_message(*args, **kwargs):
+    if verbose:
+	write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=False)
 
 def write_comment(*args, **kwargs):
     write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=True)

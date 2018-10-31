@@ -151,6 +151,7 @@ class MannoFile(object):
         self.section = pif.form.get_str('section')
         if self.section == 'all':
             self.section = ''
+        self.mod_id = pif.form.get_str('mod_id')
         self.start = pif.form.get_int('start', 1)
         self.end = pif.form.get_int('end', 9999)
         self.firstyear = pif.form.get_int('syear', 1)
@@ -594,7 +595,7 @@ class MannoFile(object):
 	    for x in pif.dbh.fetch_casting_makes(mdict['id'])
 	])
         mdict['name'] = pif.render.format_link(lnk, mdict['id'] + '<br>' + mdict['rawname'] + '<br>' + mdict['flag'] + '<br>' + mdict['makename'])
-        mdict['img'] = pif.render.format_link(lnk, pif.render.format_image_required(img, None, made=mdict['made']))
+        mdict['img'] = pif.render.format_link(lnk, pif.render.format_image_required(img, made=mdict['made']))
         mdict['sel'] = pif.render.format_checkbox('vt_' + mdict['id'],
                 [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])],
                 checked=mdict['vehicle_type']) + '<br>'

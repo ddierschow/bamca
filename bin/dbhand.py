@@ -317,11 +317,16 @@ class DBHandler(object):
             return self.modify_man_item(manlist)
         return {}
 
-    def fetch_castings_by_alias(self, id):
-        return self.fetch('alias,casting', left_joins=[('vehicle_make', 'casting.make=vehicle_make.id')], where="casting.id=alias.ref_id and alias.id='%s'" % id, tag='CastingsByAlias')
+    def fetch_castings_by_alias(self, alias_id):
+        wheres = ["base_id.id=casting.id", "casting.id=alias.ref_id", "alias.id='%s'" % alias_id,
+		  'casting.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
+#"casting.id=alias.ref_id and alias.id='%s'" % id
+        return self.fetch('base_id,alias,casting,section,page_info', where=wheres,
+			  left_joins=[('vehicle_make', 'casting.make=vehicle_make.id')], tag='CastingsByAlias')
 
     def fetch_aliases(self, ref_id=None, type_id=None, where=None):
-        wheres = ["base_id.id=casting.id", "casting.id=alias.ref_id"]
+        wheres = ["base_id.id=casting.id", "casting.id=alias.ref_id",
+		  'casting.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
         if ref_id:
             wheres.append("alias.ref_id='%s'" % ref_id)
         if type_id:
@@ -330,7 +335,7 @@ class DBHandler(object):
             wheres += where
         elif isinstance(where, str):
             wheres.append(where)
-        return self.fetch("base_id,casting,alias", where=wheres, tag='Aliases')
+        return self.fetch("base_id,casting,alias,section,page_info", where=wheres, extras=True, tag='Aliases')
 
     #- casting
 
@@ -477,10 +482,10 @@ class DBHandler(object):
         mod.setdefault('make', '')
 
         if mod.get('id'):
-            mod['name'] = mod['rawname'].replace(';', ' ')
+            mod['name'] = mod.get('rawname', '').replace(';', ' ')
             mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
             mod.setdefault('description', '')
-            mod['made'] = not (mod['flags'] & self.FLAG_MODEL_NOT_MADE)
+            mod['made'] = not (mod.get('flags', 0) & self.FLAG_MODEL_NOT_MADE)
             mod['visual_id'] = self.default_id(mod['id'])
         else:
             mod['id'] = ''
@@ -1206,7 +1211,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	    "page_info.flags & %d = 0" % tables.FLAG_PAGE_INFO_HIDDEN,
 	]
 	# turn this into a fetch
-        return self.dbi.select('matrix_model, page_info, section', ['matrix_model.section_id', 'page_info.id', 'page_info.title', 'page_info.description', 'page_info.flags', 'section.name'], ' and '.join(wheres), tag='MatrixAppearances')
+        return self.fetch('matrix_model,page_info,section', where=wheres, tag='MatrixAppearances')
 
     def insert_or_update_matrix_model(self, values, verbose=False):
 	return self.write('matrix_model', values, tag='InsertOrUpdateMatrixModel', verbose=verbose)
@@ -1514,7 +1519,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCredit', verbose=verbose)
 
     def fetch_photo_credits_page(self, photographer_id='', pagesize=100, page=0, verbose=False):
-	useful.write_comment('fetch_photo_credits_page', photographer_id, pagesize, page, verbose)
+	#useful.write_comment('fetch_photo_credits_page', photographer_id, pagesize, page, verbose)
 	wheres = ['photo_credit.photographer_id="%s"' % photographer_id]
         return self.fetch('photo_credit', where=wheres, order='path,name', limit=(page * pagesize, pagesize,),tag='PhotoCreditPage', verbose=verbose)
 
@@ -1599,6 +1604,20 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     def insert_category(self, cat, name, flags=0):
 	return self.write('category', values={'id': cat, 'name': name, 'flags': flags}, newonly=True, tag='WriteCat')
 
+    #- tumblr
+
+    def fetch_tumblr_post(self):
+	return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), limit=1, tag='FetchTumblr')).first
+
+    def fetch_tumblr_posts(self):
+	return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), tag='FetchTumblrs'))
+
+    def insert_tumblr(self, ty_post, response, payload):
+        return self.write('tumblr', {'post_type': ty_post, 'payload': payload, 'response': response}, newonly=True, tag="InsertTumblr")
+
+    def delete_tumblr(self, post_id):
+	return self.delete('tumblr', where='id=%d' % post_id, tag='DeleteTumblr')
+	
     #- miscellaneous
 
     def fetch_counts(self):
@@ -1672,10 +1691,11 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     def recalc_description(self, mod_id, showtexts=False, verbose=False):
 	'''Main call to create text_* from format_* and attributes.'''
 	#verbose = True
+	useful.verbose = verbose
 	cols = ['description', 'body', 'base', 'wheels', 'interior', 'windows', 'with']
 
 	# I apologize in advance for this function.
-	def fmt_desc(var, casting, field, verbose):
+	def fmt_desc(var, casting, field):
 
 	    def fmt_detail(fmt):
 
@@ -1683,8 +1703,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 		    attr_name, fmt, default, fmt_prepend, fmt_append, is_opt = self.parse_detail_format(fmt)
 		    if attr_name:
 			if attr_name not in var:
-			    if verbose:
-				useful.write_message('!', attr_name)
+			    useful.write_debug_message('!', attr_name)
 			    return attr_name, ''
 			value = var.get(attr_name)
 			if not value or (is_opt and (value == 'no' or value == '-')):
@@ -1709,8 +1728,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 		    else:
 			desc = ', '.join([fmt[0][1] % var, fmt[1][1] % var])
 		except:
-		    if verbose:
-			useful.write_message('!', field, fmt)
+		    useful.write_debug_message('!', field, fmt)
 		if descs and descs[-1] == desc:
 		    continue
 		descs.append(desc)
@@ -1720,10 +1738,9 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	casting = self.fetch_casting(mod_id, extras=True, tag='Recalc', verbose=verbose)
 	#useful.write_comment('recalc casting', casting)
 	for var in self.depref('variation', self.fetch_variations(mod_id)):
-	    if verbose:
-		useful.write_message(var['var'])
+	    useful.write_debug_message(var['var'])
 	    ovar = {x: '' for x in textcols}
-	    ovar.update({'text_' + x: fmt_desc(var, casting, 'format_' + x, verbose) for x in cols})
+	    ovar.update({'text_' + x: fmt_desc(var, casting, 'format_' + x) for x in cols})
 	    if showtexts:
 		for x in cols:
 		    useful.write_message(' ', x[:2], ':', ovar['text_' + x])

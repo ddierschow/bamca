@@ -605,6 +605,12 @@ table_info = {
         },
         'ask': ['id', 'user_id', 'base_id'],
     },
+    #tumblr
+    'tumblr': {
+	'db': 'buser',
+	'id': ['id'],
+	'columns': ['id', 'payload', 'response', 'post_type'],
+    }
 }
 for key in table_info:
     table_info[key]['name'] = key
@@ -766,6 +772,7 @@ FLAG_SECTION_DEFAULT_IDS                = 0x0002
 FLAG_SECTION_NO_FIRSTS                  = 0x0004
 FLAG_SECTION_SHOW_IDS                   = 0x0008
 FLAG_SECTION_HIDE_IMAGE                 = 0x0010
+FLAG_SECTION_GROUP_SINGLES              = 0x0020
 
 FLAG_MAKE_PRIMARY                       = 0x0002
 FLAG_CASTING_RELATED_SHARED             = 0x0002

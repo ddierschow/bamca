@@ -694,7 +694,7 @@ def single_publication(pif, pub_id):
 #	upper_box += pif.render.format_image_link_image(img, link_largest=mbdata.IMG_SIZ_LARGE)
     if man['base_id.description']:
 	upper_box += '<br>' if upper_box else ''
-	upper_box += man['base_id.description']
+	upper_box += useful.printablize(man['base_id.description'])
 
     lran = [{'id': 'ran', 'entry':
 	[{'text': pif.render.format_image_link_image(img[img.rfind('/') + 1:])} for img in sorted(imgs)] if imgs else

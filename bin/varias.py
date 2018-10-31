@@ -310,10 +310,10 @@ def save_variation(pif, mod_id, var_id):
 	    var_sel = pif.form.get_str(key)  # make it work!
 	elif attr == 'phcred':
 	    phcred = pif.form.get_str(key)
-	    pif.render.message('read phcred', key, phcred, '<br>')
+	    useful.write_message('read phcred', key, phcred, '<br>')
 	elif attr == 'repic':
 	    repic = pif.form.get_str(key)
-	    pif.render.message('repic', repic, '<br>')
+	    useful.write_message('repic', repic, '<br>')
 	elif attr == 'picture_id':
 	    if pif.form.get_str(key) != var_id:
 		var_dict[attr] = pif.form.get_str(key)
@@ -323,18 +323,18 @@ def save_variation(pif, mod_id, var_id):
 	    var_dict[attr] = pif.form.get_str(key)
 	else:
 	    det_dict[attr] = pif.form.get_str(key)
-    pif.render.message('var_dict', var_dict)
-    pif.render.message('det_dict', det_dict)
+    useful.write_message('var_dict', var_dict)
+    useful.write_message('det_dict', det_dict)
     if var_id != var_dict['var']:
 	rename_variation(pif, var_dict['mod_id'], var_id, var_dict['var'])
     pif.dbh.write('variation', var_dict)
     for attr in det_dict:
 	pif.dbh.write('detail', {'mod_id': var_dict['mod_id'], 'var_id': var_dict['var'], 'attr_id': str(attributes[attr]['id']), 'description': det_dict[attr]})
     if var_sel:
-	pif.render.message('varsel', var_sel, '<br>')
+	useful.write_message('varsel', var_sel, '<br>')
 	pif.dbh.update_variation_selects_for_variation(mod_id, var_dict['var'], var_sel.split())
-    pif.render.message('phcred', phcred, '<br>')
-    pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var_dict['var'])
+    useful.write_message('phcred', phcred, '<br>')
+    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var_dict['var']))
     if repic:
 	rename_variation_pictures(pif, mod_id, var_dict['var'], mod_id, repic)
     pif.dbh.recalc_description(mod_id)
@@ -345,7 +345,7 @@ def rename_variation(pif, mod_id=None, old_var_id=None, new_var_id=None, *args, 
 	return
     verbose = False
     if pif.argv:
-        pif.render.message('rename_variation', mod_id, old_var_id, new_var_id)
+        useful.write_message('rename_variation', mod_id, old_var_id, new_var_id)
     if old_var_id == new_var_id:
         return
     pif.dbh.update_variation({'var': new_var_id, 'imported_var': new_var_id}, {'mod_id': mod_id, 'var': old_var_id}, verbose=verbose)
@@ -366,7 +366,7 @@ def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_i
         new_pic = old_pic.replace('-%s.' % old_var_id.lower(), '-%s.' % new_var_id.lower())
         new_pic = new_pic.replace('_%s-' % old_mod_id.lower(), '_%s-' % new_mod_id.lower())
         pif.render.comment("rename", old_pic, new_pic)
-        pif.render.message("rename", old_pic, new_pic, "<br>")
+        useful.write_message("rename", old_pic, new_pic, "<br>")
         os.rename(old_pic, new_pic)
     pif.dbh.write('photo_credit',
 	{'name': '%s-%s' % (new_mod_id.lower(), new_var_id.lower())},
@@ -380,7 +380,7 @@ def remove_picture(pif, mod_id, var_id):  # pragma: no cover
     pics = glob.glob(patt1.lower()) + glob.glob(patt2.lower())
     for pic in pics:
         pif.render.comment("delete", pic)
-        pif.render.message("delete", pic, "<br>")
+        useful.write_message("delete", pic, "<br>")
         os.unlink(pic)
     cred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s' % (mod_id, var_id))
     if cred:
@@ -887,12 +887,12 @@ def save_model(pif, mod_id):
     for var in pif.form.roots(start='phcred.'):
 	phcred = pif.form.get_str('phcred.' + var)
 	if phcred:
-	    pif.render.message('phcred', mod_id, var, "'%s'" % phcred, '<br>')
-            pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var)
+	    useful.write_message('phcred', mod_id, var, "'%s'" % phcred, '<br>')
+	    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var))
     phcred = pif.form.get_str('phcred')
     if phcred:
-	pif.render.message('phcred', mod_id, "'%s'" % phcred, '<br>')
-	pif.dbh.write_photo_credit(phcred, config.IMG_DIR_MAN[1:], mod_id)
+	useful.write_message('phcred', mod_id, "'%s'" % phcred, '<br>')
+	pif.render.message('Credit added: ', pif.dbh.write_photo_credit(phcred, config.IMG_DIR_MAN[1:], mod_id))
 
 
 def mangle_variation(pif, model, variation, cats):
@@ -1162,11 +1162,11 @@ def var_search(pif):
 def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, **kwargs):  # pragma: no cover
     verbose = False
     if pif.argv:
-        pif.render.message('move_variation', old_mod_id, old_var_id, new_mod_id, new_var_id)
+        useful.write_message('move_variation', old_mod_id, old_var_id, new_mod_id, new_var_id)
         verbose = True
 	pif.dbh.set_verbose(True)
     if old_mod_id == new_mod_id and old_var_id == new_var_id:
-	pif.render.message('no change')
+	useful.write_message('no change')
         return
     pif.dbh.update_variation({'mod_id': new_mod_id, 'var': new_var_id, 'imported_var': new_var_id}, {'mod_id': old_mod_id, 'var': old_var_id}, verbose=verbose)
     pif.dbh.update_variation({'picture_id': ''}, {'mod_id': old_mod_id, 'picture_id': old_var_id}, verbose=verbose)
@@ -1176,8 +1176,8 @@ def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, *
     old_attrs = {x['attribute_name']: x for x in old_attrs}
     new_attrs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(new_mod_id))
     new_attrs = {x['attribute_name']: x for x in new_attrs}
-    pif.render.message(old_attrs)
-    pif.render.message(new_attrs)
+    useful.write_message(old_attrs)
+    useful.write_message(new_attrs)
     details = pif.dbh.fetch_details(old_mod_id, old_var_id, nodefaults=True).get(old_var_id, {})
     for detail in details:
 	if detail in new_attrs:
@@ -1186,7 +1186,7 @@ def move_variation(pif, old_mod_id, old_var_id, new_mod_id, new_var_id, *args, *
 	    pif.dbh.update_detail({'attr_id': new_att_id, 'mod_id': new_mod_id, 'var_id': new_var_id},
 		{'attr_id': old_att_id, 'mod_id': old_mod_id, 'var_id': old_var_id})
 	else:
-	    pif.render.message('cannot transfer %s="%s"' % (detail, details[detail]))
+	    useful.write_message('cannot transfer %s="%s"' % (detail, details[detail]))
 
     pif.dbh.write('variation_select', {'mod_id': new_mod_id, 'var_id': new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, old_mod_id), modonly=True, verbose=verbose)
     rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_id)
@@ -1203,7 +1203,7 @@ def swap_variations(pif, mod_id=None, var1=None, var2=None, *args, **kwargs):
 def copy_variation(pif, mod_id, old_var_id, new_var_id, *args, **kwargs):  # pragma: no cover
     verbose = False
     if pif.argv:
-        pif.render.message('copy_variation', mod_id, old_var_id, new_var_id)
+        useful.write_message('copy_variation', mod_id, old_var_id, new_var_id)
     if old_var_id == new_var_id:
         return
 
@@ -1218,7 +1218,7 @@ def run_search_command(pif, args):
     mods = pif.dbh.fetch_variations(args[0])
     mods.sort(key=lambda x: x['variation.var'])
     for mod in mods:
-        pif.render.message('%(mod_id)-8s|%(var)-5s|%(imported_from)-8s|%(text_description)-s' % pif.dbh.depref('variation', mod))
+        useful.write_message('%(mod_id)-8s|%(var)-5s|%(imported_from)-8s|%(text_description)-s' % pif.dbh.depref('variation', mod))
 
 
 def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
@@ -1273,7 +1273,7 @@ def list_variations(pif, mod_id=None, var_id=None, *args, **kwargs):
 		print fmt % item
     else:
 	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
-	    pif.render.message('%5s: %s' % (variation['var'], variation['text_description']))
+	    useful.write_message('%5s: %s' % (variation['var'], variation['text_description']))
 
 
 def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
@@ -1307,9 +1307,9 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
 	'M': 'M',
 	'L': 'L',
     }
-    pif.render.message(fmt_str % row)
+    useful.write_message(fmt_str % row)
     for mod_id in mod_ids[mod_ids.index(start):mod_ids.index(end) + 1]:
-	pif.render.message('--------------------------------------+-----------+-------+-------------------------------------------')
+	useful.write_message('--------------------------------------+-----------+-------+-------------------------------------------')
 	mod = pif.dbh.fetch_casting(mod_id)
 	phcred = pif.dbh.fetch_photo_credit(path=config.IMG_DIR_MAN[1:], name=mod_id, verbose=False)
 	row = {
@@ -1327,7 +1327,7 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
 	    'Wi': ' ',
 	}
 	row.update(check_picture_sizes(config.IMG_DIR_MAN, mod_id + '.jpg', mk_star))
-	pif.render.message(fmt_str % row)
+	useful.write_message(fmt_str % row)
 	credits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod_id, verbose=False)}
 	for model in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
 	    pic_id = model['picture_id'] if model['picture_id'] else model['var']
@@ -1357,7 +1357,7 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
 #	    for sz in mbdata.image_size_types:
 #		row[sz.upper()] = mk_star(
 #		    os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + model['mod_id'] + '-' + pic_id + '.jpg').lower()))
-	    pif.render.message(fmt_str % row)
+	    useful.write_message(fmt_str % row)
 
 
 def check_picture_sizes(pdir, root, mk_star):
@@ -1380,7 +1380,7 @@ def fix_variation_type(pif, start=None, end=None, *args, **kwargs):
 	mod = pif.dbh.fetch_casting(mod_id)
 	for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
 	    ty_var = single.calc_var_type(pif, var)
-	    pif.render.message(var['mod_id'], var['var'], ty_var)
+	    useful.write_message(var['mod_id'], var['var'], ty_var)
 	    #pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var['mod_id'], 'var': var['var']}, verbose=True)
 	    wheres = pif.dbh.make_where(var, cols=['mod_id', 'var'])
 	    pif.dbh.write('variation', {'variation_type': ty_var}, wheres, modonly=True)
@@ -1396,7 +1396,7 @@ def list_photo_credits(pif, photog_id=None):
     fmt_str = '%(mod_id)-6s %(model_type)2s %(main)-4s %(count)7s | ' + ' '.join(['%%(%s)7s' % x for x in photogs])
     headers = {'mod_id': '', 'main': 'Main', 'count': 'Total', 'model_type': 'MT'}
     headers.update({x: x for x in photogs})
-    pif.render.message(fmt_str % headers)
+    useful.write_message(fmt_str % headers)
     mod_ids = sorted(pif.dbh.fetch_casting_ids())
     if not start:
 	start = mod_ids[0]
@@ -1426,8 +1426,8 @@ def list_photo_credits(pif, photog_id=None):
 	for ph in photogs:
 	    if row[ph] == row['count']:
 		row[ph] = 'all'
-	pif.render.message(fmt_str % row)
-    pif.render.message(fmt_str % totals)
+	useful.write_message(fmt_str % row)
+    useful.write_message(fmt_str % totals)
 
 
 def count_photo_credits(pif):
@@ -1445,15 +1445,15 @@ def info(pif, fields=None, mod_id=None, var_id=None, *args, **kwargs):
     if var_id:
 	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id)):
 	    if fields:
-		pif.render.message('|'.join([str(variation[f]) for f in fields]))
+		useful.write_message('|'.join([str(variation[f]) for f in fields]))
 	    else:
-		pif.render.message('|'.join([str(variation[f]) for f in sorted(variation.keys())]))
+		useful.write_message('|'.join([str(variation[f]) for f in sorted(variation.keys())]))
     else:
 	for variation in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
 	    if fields:
-		pif.render.message('|'.join([str(variation[f]) for f in fields]))
+		useful.write_message('|'.join([str(variation[f]) for f in fields]))
 	    else:
-		pif.render.message('|'.join([str(variation[f]) for f in sorted(variation.keys())]))
+		useful.write_message('|'.join([str(variation[f]) for f in sorted(variation.keys())]))
 
 
 def add_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no cover
@@ -1468,7 +1468,7 @@ def add_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma: no
 	    pif.dbh.recalc_description(mod_id)
 
 
-def count_vars(pif, filelist):
+def count_vars(pif, filelist=None):
     count = 0
     showtexts = verbose = False
     #verbose = True

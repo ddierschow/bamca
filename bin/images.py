@@ -34,6 +34,7 @@ auto_credits = [
 	('publicsafetydiecast.com', 'PSDC'),
 	('chezbois.com', 'LW'),
 	('cfalkensteiner.com', 'CF'),
+	('vintagediecasttoys.com', 'AT'),
 ]
 
 # -- common
@@ -762,10 +763,10 @@ class EditForm(imglib.ActionForm):
 		    title += ' credited to ' + photog.name
 		else:
 		    cred = ''
-	    url = 'https://www.bamca.org/' + largest
+	    url = 'http://www.bamca.org/' + largest
 	    link = 'https://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
-	    useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
-	    pif.dbh.write_photo_credit(cred, ddir, self.man, self.var)
+	    pif.render.message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+	    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, self.man, self.var))
 
 	return largest
 
@@ -1552,7 +1553,7 @@ def add_credits(pif, photographer_id, *args):
 	if not '/' in fn:
 	    print 'must have path:', fn
 	else:
-	    pif.dbh.write_photo_credit(photographer_id, ddir, *fn.rsplit('/', 1))
+	    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(photographer_id, ddir, *fn.rsplit('/', 1)))
 
 
 

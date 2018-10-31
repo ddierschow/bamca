@@ -158,7 +158,7 @@ def reduce_variations(pif, mod_id, vars):
             #vard[vtd][0].append(pif.render.format_link('vars.cgi?mod=%s&var=%s' % (mod_id, var['v.var']), var['v.var']))
 	    vard[vtd][0].append(var['v.var'])
 	    vard[vtd][1].append(var['v.picture_id'] if var['v.picture_id'] else var['v.var'])
-    useful.write_comment('single.reduce_variations', vars, vard)
+    #useful.write_comment('single.reduce_variations', vars, vard)
     return sorted([[
 	sorted(vard[vtd][0]),
 	pif.render.find_alt_image_path(
@@ -175,12 +175,28 @@ def show_external_links(pif, external_links):
 
 
 def show_series_appearances(pif, matrixes, relateds):
+    # order by year?
+    # group series where necessary
+
+    matrixes.sort(key=lambda x: x['page_info.description'] + x['section.name'])
+    dedup_mat = {}
+    appears = []
+
+    for appear in matrixes:
+	appear['title'] = [appear['section.name'], appear['page_info.description']] if appear['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_HIDE_TITLE \
+	    else [appear['page_info.title'], appear['page_info.description'], appear['section.name']]
+	if appear['section.flags'] & pif.dbh.FLAG_SECTION_GROUP_SINGLES:
+	    dedup_mat[(appear['page_info.id'], appear['section.id'])] = appear
+	else:
+	    appears.append(appear)
+    appears.extend(dedup_mat.values())
+
     relateds = [x for x in relateds if x['casting_related.section_id'] == 'pub']
     pubs = [show_link('pub.cgi?id=%s' % appear['base_id.id'],
 	                    (appear['base_id.rawname'].replace(';', ' '), appear['base_id.first_year'])) for appear in relateds]
-    # this also needs to show casting_related where section_id='pub'
-    return [show_link('matrix.cgi?page=%s#%s' % (appear['page_info.id'][7:], appear['matrix_model.section_id']),
-	                    appear['title']) for appear in matrixes] + pubs
+    appears = [show_link('matrix.cgi?page=%s#%s' % (appear['page_info.id'][7:], appear['matrix_model.section_id']),
+	                    appear['title']) for appear in appears]
+    return appears + pubs
 
 
 def show_code2_appearances(pif, mod_id, vscounts):
@@ -320,7 +336,7 @@ def show_lineup_appearances(pif, appearances):
     if not appearances:
 	return {}
 
-    useful.write_comment(str(appearances))
+    #useful.write_comment(str(appearances))
     # lineup appearances
     yd = {}
     rs = set()
@@ -397,7 +413,7 @@ def show_single(pif):
     if not model:
 	raise useful.SimpleError("That ID wasn't found.")
     pif.render.print_html(status=404 if not model else 200)
-    useful.write_comment('model', model)
+    #useful.write_comment('model', model)
     pic = pif.form.get_str('pic')
     pdir = pif.form.get_str('dir')
     if pdir.startswith('./'):
@@ -443,12 +459,6 @@ def show_single(pif):
 
     appearances.sort(key=lambda x: x['year'])
     aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
-
-    matrixes = pif.dbh.fetch_matrix_appearances(mod_id)
-    matrixes.sort(key=lambda x: x['page_info.description'] + x['section.name'])
-    for appear in matrixes:
-	appear['title'] = [appear['section.name'], appear['page_info.description']] if appear['page_info.flags'] & 2 \
-	    else [appear['page_info.title'], appear['page_info.description'], appear['section.name']]
 
     sections_recs = pif.dbh.fetch_sections(where="page_id like 'year.%'")
     sections = {}
@@ -534,7 +544,7 @@ def show_single(pif):
 	'mack_nums': get_mack_numbers(pif, mod_id, model['model_type'], aliases),
 	'product_pic': pic,
 	'appearances': show_lineup_appearances(pif, appearances),
-	'matrixes': show_series_appearances(pif, matrixes, relateds),
+	'matrixes': show_series_appearances(pif, pif.dbh.fetch_matrix_appearances(mod_id), relateds),
 	'code2s': show_code2_appearances(pif, mod_id, vscounts),
 	'packs': show_pack_appearances(pif,
 		 sorted(pif.dbh.fetch_pack_model_appearances(mod_id), key=lambda x: x['base_id.first_year'])),

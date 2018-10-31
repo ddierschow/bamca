@@ -7,6 +7,7 @@ import config
 import images
 import imglib
 import mannum
+import tumblr
 import useful
 
 
@@ -91,6 +92,7 @@ def show_dir(pif, tform):
         ostr += '<input type="hidden" name="d" value="%s">\n' % tform.tdir
         ostr += '<input type="checkbox" name="du" value="1"> Dupes\n'
         ostr += '<input type="checkbox" name="co" value="1"> Compact\n'
+        ostr += '<input type="checkbox" name="th" value="1"> Thumbs\n'
         ostr += '<input type="checkbox" name="si" value="1"> Sized\n'
         ostr += '<input type="checkbox" name="mr" value="1"> Recent\n'
 	if pif.render.is_admin:
@@ -122,59 +124,53 @@ imginputs = '''<input type="checkbox" name="rm" value="%(f)s"> rm<input type="ch
 imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 <input type="text" name="ren.%(f)s"> rename
 '''
-def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, pms=False, cred=False, targs=[], credits={}, mans={}):
-    also = {'border': 0}
+def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, pms=False, cred=False, targs=[], credits={}, mans={}, also={}, cpct=False):
+    nalso = {'border': 0}
+    nalso.update(also)
     if sx:
-	also['width'] = sx
+	nalso['width'] = sx
     if sy:
-	also['height'] = sy
-    ostr = '<tr>\n'
+	nalso['height'] = sy
+    ostr = '' if cpct else '<tr>\n'
     args.sort()
     for arg in args:
 	f_st = os.stat(os.path.join(pif.render.pic_dir, arg))
-	f_date = str(datetime.datetime.fromtimestamp(f_st.st_mtime))
+	f_date = str(datetime.datetime.fromtimestamp(f_st.st_mtime)) if not cpct else ''
         root, ext = useful.root_ext(arg.strip())
         inp = ''
+	pic = pif.render.format_image_required([root], suffix=ext, also=nalso)
         if shlv or cate:
             inp += ''' %s/<input type="text" name="lib.%s"> ''' % ("lib" if cate else "lib/man", arg)
 	    for man in sorted(mans.keys()):
 		for pref in mans[man]:
 		    if root.startswith(pref):
 			inp += ' ' + man
-            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
-            continue
 	elif mss:
             inp += '''<br><input type="text" name="var.%s"> var''' % arg
-            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
-	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
-            continue
 	elif pms:
             inp += '''<br><input type="text" name="nam.%s"> nam''' % arg
-            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
-	    ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
-            continue
 	elif rsuf:
             inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
-            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp, f_date))
-            continue
 	elif cred:
 	    fn = arg[:arg.find('.')] if '.' in arg else arg
 	    fn = fn[2:] if (fn[0] in 'sml' and fn[1] == '_') else fn
             inp += '''<input type="text" name="cred.%s" size="12" value="%s"> cred''' % (fn, cred.get(fn, ''))
-            ostr += pif.render.format_cell(0, '%s<br>%s%s' % (pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
-            continue
-        if arg == base:
-            inp = imginputs % {'f': arg, 'b': root + 'z.' + ext}
-        elif base:
-            inp = imginputs % {'f': arg, 'b': base}
-        else:
-            inp = imginput % {'f': arg}
-        #inp += ' <a href="imawidget.cgi?d=%s&f=%s&cy=0">' % (pif.render.pic_dir, arg) + pif.render.format_button('edit') + '</a>'
-        #inp += ' ' + pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
-        #inp += ' ' + pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (pif.render.pic_dir + '/' + arg))
-        #ostr += pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
-        ostr += pif.render.format_cell(0, '<a href="imawidget.cgi?d=%s&f=%s&cy=0">%s</a><br>%s%s' % (pif.render.pic_dir, arg, pif.render.format_image_required([root], suffix=ext, also=also), arg, inp))
-    ostr += '</tr>\n'
+	else:
+	    pic = '<a href="imawidget.cgi?d=%s&f=%s&cy=0">%s</a>' % (pif.render.pic_dir, arg, pic)
+	    if arg == base:
+		inp = imginputs % {'f': arg, 'b': root + 'z.' + ext}
+	    elif base:
+		inp = imginputs % {'f': arg, 'b': base}
+	    else:
+		inp = imginput % {'f': arg}
+	if cpct:
+	    ostr += '<div class="filc">%s<br>%s<br>%s</div>\n' % (pic, arg, inp)
+	else:
+	    ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pic, arg, inp, f_date))
+	    if mss or pms:
+		ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
+    if not cpct:
+	ostr += '</tr>\n'
     return ostr
 
 
@@ -190,7 +186,7 @@ def show_imgs(pif, tform):
     print '<hr>'
     print '<form action="traverse.cgi" method="post">' + pif.create_token()
     plist = tform.patt.split(',')
-    img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss, 'pms': tform.pms,}
+    img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss, 'pms': tform.pms, 'cpct': tform.cpct}
     if tform.mss:
 	print 'Credit ' + pif.render.format_text_input('credit', 4, value=pif.form.get_str('credit'))
 	print '<br>'
@@ -209,16 +205,24 @@ def show_imgs(pif, tform):
 	if tform.sizd:
 	    flist = list(set([x[2:] for x in flist if len(x) > 2 and x[1] == '_']))
         flist_sort(flist, tform)
+	img_also = {'width': '150'} if tform.thum else {}
 	if tform.cred:
 	    img_args['cred'] = {x['photo_credit.name']: x['photographer.id'] for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
+	img_args['also'] = img_also
 	if tform.sizd:
 	    if tform.cpct:
+		print '<div class="filt">'
 		for fp in flist:
 		    for fn in useful.read_dir('?_' + fp, pif.render.pic_dir):
-			print pif.render.format_link(
-			    "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
-			    pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also={'title': fn})) + '\n'
+			img_also['title'] = fn
+			print '<div class="filc">'
+#			print pif.render.format_link(
+#			    "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
+#			    pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also=img_also)) + '\n'
+			print img(pif, fp, **img_args)
+			print '</div>'
 		    print '<br>'
+		print '</div>'
 	    else:
 		print '<table class="glist">'
 		for fp in flist:
@@ -230,13 +234,20 @@ def show_imgs(pif, tform):
 		print '<hr>'
 	else:
 	    if tform.cpct:
+		print '<div class="filt">'
 		for fn in flist:
-		    print pif.render.format_link(
-			"imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
-			pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also={'title': fn})) + '\n'
+		    print '<div class="filc">'
+		    img_also['title'] = fn
+#		    print pif.render.format_link(
+#			"imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
+#			pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also=img_also)) + '\n'
+		    print img(pif, [fn], **img_args)
+		    print '</div>'
+		print '</div>'
 	    else:
 		print '<table class="glist">'
 		for fn in flist:
+		    img_also['title'] = fn
 		    # also sized + dups
 		    if tform.dups:
 			root, ext = useful.root_ext(fn)
@@ -289,7 +300,7 @@ def show_script(pif, tform):
     if tform.cred:
 	for fn, cred in pif.form.get_list(start='cred.'):
 	    print fn, cred, '<br>'
-	    pif.dbh.write_photo_credit(cred, tform.tdir, fn, verbose=False)
+	    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, tform.tdir, fn, verbose=False))
 	return
     rend = dict(tform.renl)
     print '<pre>'
@@ -305,8 +316,7 @@ def show_script(pif, tform):
         dest = lb[1]  # we might have renamed this...
         if lb[0] in rend:
             lb[0] = rend[lb[0]]
-        if not os.path.exists(useful.relpath('.', config.LIB_DIR, tform.pre, dest)):
-            os.mkdir(useful.relpath('.', config.LIB_DIR, tform.pre, dest))
+	useful.make_dir(useful.relpath('.', config.LIB_DIR, tform.pre, dest), 0775)
         useful.file_mover(os.path.join(tform.tdir, lb[0]), useful.relpath('.', config.LIB_DIR, tform.pre, dest, lb[0]), mv=True, inc=True)
     for rm in tform.rml:
         if os.path.exists(os.path.join(tform.tdir, rm)):
@@ -356,13 +366,13 @@ def do_prod_masses(pif, tform):
 	ofi = imglib.shrinker(pth, nname, q, ts, rf)
 	imglib.simple_save(ofi, nname)
 	images.file_log(nname, tform.tdir)
-	url = 'https://www.bamca.org/' + nname
+	url = 'http://www.bamca.org/' + nname
 	link = 'https://www.bamca.org/'
 	title = nam
 	if cred and not photog.flags & pif.dbh.FLAG_PHOTOGRAPHER_PRIVATE:
 	    title += ' credited to ' + photog.name
-	useful.write_message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
-	pif.dbh.write_photo_credit(cred, ddir, nam)
+	pif.render.message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+	pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, nam))
 
 
 def show_file(pif, tform):
@@ -507,6 +517,7 @@ class TraverseForm(object):
 	self.suff = pif.form.get_str("suff")
 	self.dups = pif.form.get_int("du")
 	self.cpct = pif.form.get_int("co")
+	self.thum = pif.form.get_int("th")
 	self.cate = pif.form.get_radio("lty", "shc")
 	self.mss = pif.form.get_radio("lty", "mss")
 	self.pms = pif.form.get_radio("lty", "pms")
@@ -626,9 +637,20 @@ def write_jinja2_config_file(pif):
     print
 
 
+def check_lib_man(pif):
+    man_ids = set([x.lower().replace('/', '_') for x in pif.dbh.fetch_casting_ids()])
+    man_lib = set(os.listdir('.' + config.LIB_MAN_DIR))
+    print "id's without libraries:"
+    print ' '.join(sorted(man_ids - man_lib))
+    print
+    print "libraries without id's:"
+    print ' '.join(sorted(man_lib - man_ids))
+
+
 cmds = [
     ('p', write_php_config_file, "write php config"),
     ('j', write_jinja2_config_file, "write jinja2 config"),
+    ('m', check_lib_man, "check libarary man id's"),
 ]
 
 @basics.command_line
