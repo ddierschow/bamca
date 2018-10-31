@@ -348,6 +348,8 @@ def do_var_masses(pif, tform):
 def do_prod_masses(pif, tform):
     ddir = tform.tdir.replace('lib', 'pic')
     print pif.form.get_str('credit'), ddir, '<br>'
+    if not os.path.exists(ddir):
+        raise useful.SimpleError('Path does not exist.')
     siz = pif.form.get('tysz')
     cred = pif.form.get_str('credit')
     if cred:
@@ -376,6 +378,8 @@ def do_prod_masses(pif, tform):
 
 
 def show_file(pif, tform):
+    if not os.path.exists(tform.tdir + '/' + tform.fnam):
+        raise useful.SimpleError('Path does not exist.')
     print pif.render.format_button('delete', link=pif.request_uri + '&delete=1&act=1')
     if os.path.exists(os.path.join(tform.tdir, 'archive')):
 	print pif.render.format_button('archive', link=pif.request_uri + '&archive=1&act=1')

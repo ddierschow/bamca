@@ -85,7 +85,7 @@ def biblio(pif):
     this_sort = pif.form.get_str('sort', page_info.get('sort'))
     if this_sort:
 	if this_sort.isdigit():
-	    this_sort = int(this_sort)
+	    this_sort = max(0, min(len(lsection['columns']) - 1, int(this_sort)))
 	    this_sort = lsection['columns'][this_sort]
 	sortkey.append(this_sort)
     if page_info.get('lastsort'):
