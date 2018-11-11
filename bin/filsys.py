@@ -205,7 +205,7 @@ def show_imgs(pif, tform):
 	if tform.sizd:
 	    flist = list(set([x[2:] for x in flist if len(x) > 2 and x[1] == '_']))
         flist_sort(flist, tform)
-	img_also = {'width': '150'} if tform.thum else {}
+	img_also = {'width': '200'} if tform.thum else {}
 	if tform.cred:
 	    img_args['cred'] = {x['photo_credit.name']: x['photographer.id'] for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
 	img_args['also'] = img_also

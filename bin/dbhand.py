@@ -337,6 +337,15 @@ class DBHandler(object):
             wheres.append(where)
         return self.fetch("base_id,casting,alias,section,page_info", where=wheres, extras=True, tag='Aliases')
 
+    def update_alias(self, pk, values):
+        return self.write('alias', values, "pk=%s" % pk, modonly=True)
+
+    def add_alias(self, values):
+        return self.write('alias', values, newonly=True)
+
+    def delete_alias(self, pk):
+        return self.delete('attribute', 'pk=%s' % pk)
+
     #- casting
 
     def fetch_casting_limits(self):

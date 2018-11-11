@@ -267,7 +267,7 @@ table_info = {
     'alias': {
 	'db': 'bamca',
         'id': ['id'],
-        'columns': ['id', 'first_year', 'ref_id', 'section_id', 'type'],
+        'columns': ['pk', 'id', 'first_year', 'ref_id', 'section_id', 'type', 'flags'],
         'clinks': {
                 'id': {'tab': 'alias', 'id': ['id/id']},
                 'ref_id': {'tab': 'base_id', 'id': ['id/ref_id']},
@@ -774,6 +774,7 @@ FLAG_SECTION_SHOW_IDS                   = 0x0008
 FLAG_SECTION_HIDE_IMAGE                 = 0x0010
 FLAG_SECTION_GROUP_SINGLES              = 0x0020
 
+FLAG_ALIAS_PRIMARY                      = 0x0002
 FLAG_MAKE_PRIMARY                       = 0x0002
 FLAG_CASTING_RELATED_SHARED             = 0x0002
 FLAG_LINEUP_MODEL_MULTI_VARS            = 0x0002

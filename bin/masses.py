@@ -106,6 +106,121 @@ def dates_main(pif):
 	pif.dbh.update_variation_bare(var)
     return pif.render.format_template('blank.html', content='')
 
+# ------- mack numbers ---------------------------------------------
+
+def aliases_main(pif):
+    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
+	print 'duplicate form submission detected'
+    elif pif.form.has('save'):
+        return aliases_final(pif)
+    elif pif.form.has('add'):
+	return aliases_add(pif)
+    elif pif.form.has('copy'):
+	return aliases_copy(pif)
+    return aliases_ask(pif)
+
+
+def aliases_ask(pif):
+    '''Top level of phase 1.'''
+    mod_id = pif.form.get_str('mod_id')
+    if not mod_id:
+	raise useful.SimpleError("ID not found.")
+
+    aliases = pif.dbh.depref('alias', pif.dbh.fetch_aliases(mod_id))
+    cols = ['pk', 'id', 'first_year', 'ref_id', 'section_id', 'type', 'primary', 'del']
+    hdrs = dict(zip(cols, cols))
+    entries = [
+	{
+	    'pk': str(x['pk']) + pif.render.format_hidden_input({'pk': x['pk']}),
+	    'id': pif.render.format_text_input("id." + str(x['pk']), 12, value=x['id']),
+	    'first_year': pif.render.format_text_input("first_year." + str(x['pk']), 4, value=x['first_year']),
+	    'ref_id': pif.render.format_text_input("ref_id." + str(x['pk']), 12, value=x['ref_id']),
+	    'section_id': pif.render.format_text_input("section_id." + str(x['pk']), 20, value=x['section_id']),
+	    'type': pif.render.format_text_input("type." + str(x['pk']), 16, value=x['type']),
+	    'primary': pif.render.format_checkbox('primary.' + str(x['pk']), [('1', '')], checked=['1' if x['flags'] & 2 else '0']),
+	    'del': pif.render.format_checkbox('del.' + str(x['pk']), [('1', '')]),
+	} for x in aliases
+    ]
+    adds = [
+	{
+	    'id': pif.render.format_text_input("id.0", 12),
+	    'first_year': pif.render.format_text_input("first_year.0", 4),
+	    'ref_id': pif.render.format_text_input("ref_id.0", 12),
+	    'section_id': pif.render.format_text_input("section_id.0", 20),
+	    'type': pif.render.format_text_input("type.0", 16),
+	    'primary': pif.render.format_checkbox("primary.0", [('1', '')]),
+	}
+    ]
+
+#	{'title': "Section ID:", 'value': pif.render.format_text_input("section_id", 256, 80, value='single')},
+#	{'title': "Associated Link:", 'value': pif.render.format_select('associated_link', [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in asslinks])},
+#	{'title': '', 'value': pif.render.format_button_input()},
+
+    header = '<form name="mass" action="mass.cgi">' + pif.create_token()
+    header += 'Mod ID: ' + mod_id + pif.render.format_hidden_input({'mod_id': mod_id})
+    footer = pif.render.format_hidden_input({'type': 'alias'}) + "</form><p>"
+
+    lsections = [
+	dict(columns=cols, range=[{'entry': entries}], note='', headers=hdrs, header=header,
+	    footer=pif.render.format_button_input('save') + footer),
+	dict(columns=cols, range=[{'entry': adds}], note='', headers=hdrs, header=header,
+	    footer=pif.render.format_button_input('add') + pif.render.format_button_input('copy') + " (ref_id)"+ footer),
+    ]
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=lsections), nofooter=True)
+
+
+def aliases_add(pif):
+    print 'add', pif.form, '<br>'
+    mod_id = pif.form.get_str('mod_id')
+    ent = {
+	'id': pif.form.get_str('id.0'),
+	'first_year': pif.form.get_str('first_year.0'),
+	'ref_id': pif.form.get_str('ref_id.0') or mod_id,
+	'section_id': pif.form.get_str('section_id.0'),
+	'type': pif.form.get_str('type.0'),
+	'flags': 2 if pif.form.get_str('primary.0') else 0,
+    }
+    print ent, '<br>'
+    print pif.dbh.add_alias(ent)
+
+
+def aliases_copy(pif):
+    print 'copy', pif.form, '<br>'
+    mod_id = pif.form.get_str('mod_id')
+    aliases = pif.dbh.depref('alias', pif.dbh.fetch_aliases(pif.form.get_str('ref_id.0')))
+    adds = [
+	{
+	    'id': x['id'],
+	    'first_year': x['first_year'],
+	    'ref_id': mod_id,
+	    'section_id': x['section_id'],
+	    'type': x['type'],
+	    'flags': x['flags'],
+	} for x in aliases
+    ]
+    for ent in adds:
+	print ent, '<br>'
+	print pif.dbh.add_alias(ent)
+
+
+def aliases_final(pif):
+    for pk in pif.form.get_list('pk'):
+	ent = pif.form.get_dict(end='.' + pk)
+	if ent.get('del'):
+	    print 'delete', pk
+	    print pif.dbh.delete_alias(pk), '<br>'
+	else:
+	    ent = {
+		'id': ent['id'],
+		'first_year': ent.get('first_year', ''),
+		'ref_id': ent['ref_id'],
+		'section_id': ent.get('section_id', ''),
+		'type': ent['type'],
+		'flags': 2 if ent.get('primary') else 0,
+	    }
+	    print 'update', pk, ent
+	    print pif.dbh.update_alias(int(pk), ent), '<br>'
+
 # ------- add lineup -----------------------------------------------
 
 def lineup_desc_main(pif):
@@ -1871,6 +1986,7 @@ mass_mains_hidden = {
     'lineup_desc': lineup_desc_main,
     'dates': dates_main,
     'photogs': photogs_main,
+    'alias': aliases_main,
 }
 
 def mass_sections(pif):

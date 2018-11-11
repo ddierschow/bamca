@@ -215,6 +215,7 @@ def show_pack_appearances(pif, packs):
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
+    aliases = [x['alias.id'] for x in aliases]
     mack_nums = []
     if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
         aliases.append(cid)
@@ -223,6 +224,7 @@ def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
 	if mack_id:
 	    mack_nums.append(mack_id)
     mack_nums.sort(key=lambda x: x[1])
+    # if aliases.flags == 2, put it first or bold it or something
     return ['-'.join([str(y) for y in x]).upper() for x in mack_nums]
 
 
@@ -234,6 +236,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         links.append('<a href="%s">Casting</a>' % pif.dbh.get_editor_link('casting', {'id': mod_id}))
         links.append('<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id}))
         links.append('<a href="mass.cgi?type=related&mod_id=%s">Relateds</a>' % mod_id)
+        links.append('<a href="mass.cgi?type=alias&mod_id=%s">Aliases</a>' % mod_id)
         links.append('<a href="vars.cgi?list=1&mod=%s">Variations</a>' % mod_id)
         links.append('<a href="vars.cgi?vdet=1&mod=%s">Details</a>' % mod_id)
         links.append('<a href="vsearch.cgi?ask=1&id=%s">Search</a>' % mod_id)
@@ -458,7 +461,7 @@ def show_single(pif):
 	    pic = use_previous_product_pic(pif, pif.form.get_int('useprev'), appear)
 
     appearances.sort(key=lambda x: x['year'])
-    aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
+    aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
 
     sections_recs = pif.dbh.fetch_sections(where="page_id like 'year.%'")
     sections = {}
@@ -519,7 +522,7 @@ def show_single(pif):
 	}
 
     model['makes'] = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
-    adds = [make_boxes(pif, mod_id, boxstyles, aliases)] if boxstyles else []
+    adds = [make_boxes(pif, mod_id, boxstyles, [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')])] if boxstyles else []
     adds += models.make_adds(pif, mod_id)
 
     plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))

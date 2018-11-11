@@ -11,29 +11,48 @@ import useful
 
 def mack_models(pif, start, end, series):
     mseries = 'MB' if 'RW' not in series else None if 'SF' in series else ''
-    amods = {mbdata.get_mack_number(rec['alias.id']): rec for rec in pif.dbh.fetch_aliases(type_id='mack')}
-    mmods = {mbdata.get_mack_number(rec['base_id.id']): rec for rec in
-	pif.dbh.fetch_casting_list('sf') + pif.dbh.fetch_casting_list('rw')}
-    amods.update(mmods)
-    mods = mod_to_mack(pif, amods, start, end, mseries)
-    return [{'entry': mods}] if mods else []
+    amods = [(mbdata.get_mack_number(rec['alias.id']), rec,) for rec in pif.dbh.fetch_aliases(type_id='mack')]
+    mmods = [(mbdata.get_mack_number(rec['base_id.id']), rec,) for rec in
+	pif.dbh.fetch_casting_list('sf') + pif.dbh.fetch_casting_list('rw')]
+    amods = sorted([x for x in mmods + amods
+		    if int(x[0][1]) >= start and int(x[0][1]) <= end and not (mseries is not None and mseries != x[0][0])],
+		   key=lambda x: (x[0][1], x[0][0], x[0][2]))
+    return amods
 
 
-def mod_to_mack(pif, recs, start, end, series):
-    keys = recs.keys()
-    keys.sort(key=lambda x: (x[1], x[0], x[2]))
-    for mack_id in keys:
-	rec = recs[mack_id]
-	if mack_id and int(mack_id[1]) >= start and int(mack_id[1]) <= end and \
-		not (series is not None and series != mack_id[0]):
-	    yield {
-		'id': '%s%02s-%s' % mack_id,
-		'name': rec['base_id.rawname'].replace(';', ' '),
-		'href': 'single.cgi?id=' + rec['base_id.id'],
-		'imgstr': pif.render.format_image_required(rec['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
-		'mack_id_unf': mack_id,  # for sorting
-		'class': 'rw' if not mack_id[0] else 'sf' if mack_id[0] == 'MB' else 'mb',
-	    }
+def format_mack_text(pif, amods):
+    last = None
+    res = []
+    for mod in amods:
+	if last and last[:2] != mod[0][:2]:
+	    res.append({'id': ''})
+	if mod[0] == last:
+	    res[-1]['man'] += ', ' + mod[1]['base_id.id']
+	else:
+	    res.append(
+		{
+		    'id': '%s%02s-%s' % mod[0],
+		    'name': mod[1]['base_id.rawname'].replace(';', ' '),
+		    'man': mod[1]['base_id.id'],
+		    'mack_id_unf': mod[0],  # for internal use
+		    'class': 'rw' if not mod[0][0] else 'sf' if mod[0][0] == 'MB' else 'mb',
+		}
+	    )
+	    last = mod[0]
+    return [{'entry': res}] if res else []
+
+
+def format_mack_html(pif, amods):
+    res = [
+	    {
+		'id': '%s%02s-%s' % x[0],
+		'name': x[1]['base_id.rawname'].replace(';', ' '),
+		'href': 'single.cgi?id=' + x[1]['base_id.id'],
+		'imgstr': pif.render.format_image_required(x[1]['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
+		'mack_id_unf': x[0],  # for internal use
+		'class': 'rw' if not x[0][0] else 'sf' if x[0][0] == 'MB' else 'mb',
+	    } for x in amods]
+    return [{'entry': res}] if res else []
 
 
 @basics.web_page
@@ -48,8 +67,10 @@ def mack_lineup(pif):
     range = pif.form.get_str('range', 'all')
     start = 1 if range == 'all' else pif.form.get_int('start', 1)
     end = config.MAX_MACK_NUMBER if range == 'all' else pif.form.get_int('end', config.MAX_MACK_NUMBER)
+    text_list = pif.form.get_str('text', 'pic') == 'txt'
 
-    ranges = mack_models(pif, start, end, series)
+    amods = mack_models(pif, start, end, series)
+    ranges = format_mack_text(pif, amods) if text_list else format_mack_html(pif, amods)
 
     if not ranges:
         note = 'Your request produced no models.'
@@ -62,6 +83,10 @@ def mack_lineup(pif):
     lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lsec['range'] = ranges
     llineup = {'section': [lsec]}
+    if text_list:
+	lsec['headers'] = {'id': 'Mack ID', 'man': 'MAN ID', 'name': 'Name'}
+	lsec['columns'] = ['id', 'man', 'name']
+	return pif.render.format_template('simplelistix.html', llineup=llineup)
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('mack.html', llineup=llineup)
 
@@ -82,7 +107,8 @@ def check_man_mappings(pif, sections):
 def check_mack_ranges(pif):
     letters = list('abcdefghijklmnopqrstuvwyz') + ['aa']
     ranks = {}
-    ranges = mack_models(pif, 1, config.MAX_MACK_NUMBER, ['SF'])
+    amods = mack_models(pif, 1, config.MAX_MACK_NUMBER, ['SF'])
+    ranges = format_mack_html(pif, amods)
     num = 0
     for ran in ranges:
 	for mod in ran['entry']:

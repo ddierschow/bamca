@@ -757,6 +757,8 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
     count_descs = attr_star(model, var)
     ostr += '<i class="fas fa-star %s"></i>' % (
 	    'green' if count_descs == len(text_attributes) else ('red' if not count_descs else 'orange'))
+    if var['flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED:
+	ostr += '<br><i class="fas fa-check red"></i>'
     ostr += '</center>'
     return {
         'ID': ostr,

@@ -437,12 +437,18 @@ function SectionMack($pif) {
     HorzSpacer(3);
     echo "  <td>\n";
     Checks('radio', 'range', [['all', 'All numbers', 1]]);
+    echo "  </td>\n";
+    echo "  <td></td><td></td>\n";
+    echo "  <td>Show</td><td>\n";
+    Checks('radio', 'text', [['pic', 'with pictures', 1], ]);
     echo "  </td>\n </tr>\n <tr>\n  <td>\n";
     Checks('radio', 'sect', [['rw', 'Regular Wheels']]);
     echo "  </td>\n  <td>\n";
     Checks('radio', 'range', [['some', 'Only numbers']]);
     echo "  </td>\n  <td>starting at:</td>\n";
     ChooseNum('start', 'mackStart', 3, 1, "document.getElementById('mackEnd').value", 1, 'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
+    echo "  <td></td><td>\n";
+    Checks('radio', 'text', [['txt', 'as text list']]);
     echo " </tr>\n <tr>\n  <td>\n";
     Checks('radio', 'sect', [['sf', 'SuperFast']]);
     echo "  </td>\n  <td></td>\n  </td><td>ending at:</td>\n";

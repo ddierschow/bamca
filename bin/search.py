@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 
 import basics
+import mbdata
 import mflags
 import models
 import useful
@@ -125,32 +126,76 @@ def run_search(pif):
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
+def get_mack_numbers(pif, mod_id):
+    def fmt_mack_id(m):
+	ostr = ''
+	if m[0]:
+	    ostr += '%s-' % m[0]
+	if m[2]:
+	    ostr += '%03d-%s' % m[1:]
+	else:
+	    ostr += '%03d' % m[1]
+	return ostr
+
+    ret = []
+    mack = mbdata.get_mack_number(mod_id)
+    if mod_id.startswith('RW') or mod_id in ('MI740', 'MI816', 'MI861') or (mack and mack[0] and mack[2]):
+	ret.append(fmt_mack_id(mack))
+    aliases = sorted(pif.dbh.fetch_aliases(mod_id), key=lambda x: (-x['alias.flags'], x['alias.ref_id']))
+    ret += [fmt_mack_id(mbdata.get_mack_number(x['alias.id'])) for x in aliases]
+    if not mack or not mack[2]:
+	ret.append(mod_id)
+    return ret
+
+
+descs = ['body', 'base', 'interior', 'windows', 'wheels']
 def date_search(pif, dt=None, yr=None):
     llineup = {'columns': 4}
     lsec = {}
-    lran = {'entry': []}
+    lran = {}
     llineup['header'] = llineup['footer'] = ''
     if dt:
 	vars = pif.dbh.fetch_variations_by_date(dt)
+	last = None
 	for var in vars:
 	    checked = ['1'] if var['variation.flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else []
+	    macks = get_mack_numbers(pif, var['variation.mod_id'])
+	    var['sort'] = macks[0] if macks else var['variation.mod_id']
 	    mvid = "%s-%s" % (var['variation.mod_id'], var['variation.var'])
-	    lran['entry'].append({'text': pif.render.format_hidden_input({'v.' + mvid: '1'}) +
+
+	    done = all([var['variation.text_' + x] != '' for x in ['description'] + descs]) # ignore text_with for now
+	    done = ' <i class="fas fa-star %s"></i>\n' % ('green' if done else 'red')
+	    cats = ('(%s)' % var['variation.category']) if var['variation.category'] else ''
+	    desc = ''.join(['<li>' + x + ': ' + var['variation.text_' + x] for x in descs])
+	    if var['variation.text_with']:
+		desc += '<li>with: ' + var['variation.text_with']
+	    var['shown'] = ''
+	    if last != var['variation.mod_id']:
+		var['shown'] += (
+		    pif.render.format_link('/cgi-bin/single.cgi?id=%s' % (var['variation.mod_id']),
+			'<b>%s ' % '/'.join(macks)) +
+		    pif.render.format_link('/cgi-bin/vars.cgi?mod=%s' % (var['variation.mod_id']),
+			'%s</b><br>' % var['base_id.rawname'].replace(';', ' '))
+		)
+		last = var['variation.mod_id']
+	    var['shown'] += pif.render.format_image_optional(var['variation.mod_id'], vars=[var['variation.var'], var['variation.picture_id'] or 'unmatchable'], also={'class': 'righty'}, nobase=True, largest='s')
+	    var['shown'] += (pif.render.format_hidden_input({'v.' + mvid: '1'}) +
 		pif.render.format_checkbox('c.' + mvid, [('1', '',)], checked=checked, sep='\n') +
 		pif.render.format_link(
-		'/cgi-bin/vars.cgi?mod=%s&var=%s' % (var['variation.mod_id'], var['variation.var']),
-		'%s %s<br>%s' % (mvid, var['base_id.rawname'], var['variation.text_description']))
-	    })
-	lsec['columns'] = 3
+		    '/cgi-bin/vars.cgi?mod=%s&var=%s&edit=1' % (var['variation.mod_id'], var['variation.var']),
+		    '(%s) %s' % (var['variation.var'], var['variation.text_description'])) + done +
+		    '<i>' + var['variation.note'] + '</i> ' + cats + '\n<ul>' + desc + '</ul>\n'
+	    )
+	vars.sort(key=lambda x: x['sort'])
+	lran['entry'] = [{'text': x['shown']} for x in vars]
+	lsec['columns'] = 1
 	llineup['header'] += '<form action="/cgi-bin/mass.cgi?type=dates" method="post">'
 	llineup['footer'] += pif.render.format_button_input() + '</form>'
     else:
 	dates = pif.dbh.fetch_variation_dates(yr=yr)
-	for dt in dates:
-	    if dt['date']:
-		lran['entry'].append({'text': pif.render.format_link(
+	lran['entry'] = [{'text': pif.render.format_link(
 		    '/cgi-bin/msearch.cgi?date=1&dt=%s' % dt['date'],
-		    '%s (%s)' % (dt['date'], dt['count(*)']))})
+		    '%s (%s)' % (dt['date'], dt['count(*)']))} for dt in dates if dt['date']]
 	lsec['columns'] = 6
     lsec['range'] = [lran]
     llineup['section'] = [lsec]
