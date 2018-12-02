@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 # readonly hidden select checkbox
-# 'add' 'ask' 'clinks' 'columns' 'create' 'db' 'defaults' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
+# 'add' 'ask' 'bits' 'clinks' 'columns' 'create' 'db' 'defaults' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
 table_info = {
     #page_info
     'page_info': {
@@ -26,6 +26,12 @@ table_info = {
 		'flags': 0,
 		'health': 0,
         },
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+		('0002', 'Hide Title'),
+	    ]
+	},
     },
     #country
     'country': {
@@ -40,7 +46,7 @@ table_info = {
         },
         'create': {
                 'id': '??',
-        }
+        },
     },
     #section
     'section': {
@@ -67,7 +73,17 @@ table_info = {
         },
         'create': {
                 'id': 'newsection',
-        }
+        },
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+		('0002', 'Def IDs'),
+		('0004', 'No 1sts'),
+		('0008', 'ShowIDs'),
+		('0010', 'HideImg'),
+		('0020', 'GrpSngl'),
+	    ]
+	},
     },
     #base_id
     'base_id': {
@@ -171,6 +187,11 @@ table_info = {
                 'related_id': 'unset',
         },
         'ask': ['model_id', 'related_id', 'section_id'],
+	'bits': {'flags':
+	    [
+		('0002', 'Shared'),
+	    ]
+	},
     },
     #attribute
     'attribute': {

@@ -507,7 +507,7 @@ class DBHandler(object):
             mod['visual_id'] = ''
 	mod['filename'] = mod['id'].lower()
         mod['notmade'] = '' if mod['made'] else '*'
-        mod['revised'] = (mod['flags'] & self.FLAG_MODEL_CASTING_REVISED) != 0
+        mod['revised'] = ((mod['flags'] if mod else 0) & self.FLAG_MODEL_CASTING_REVISED) != 0
         mod['linkid'] = mod.get('mod_id', mod.get('id'))
         mod['link'] = "single.cgi?id"
         mod['descs'] = filter(lambda x: x, mod['description'].split(';'))
