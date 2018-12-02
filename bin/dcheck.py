@@ -639,7 +639,6 @@ def by_ref(pif, *filelist):
 	    var = pif.dbh.fetch_variation(varsel['variation_select.mod_id'], varsel['variation_select.var_id'])
 	    if not var:
 		continue
-	    var = var[0]
 	    if pif.switch['l']:
 		print var['variation.mod_id'], var['variation.var'], var['variation.category'], '/', varsel['variation_select.category']
 	    cats.add(var['variation.category'])
@@ -995,6 +994,8 @@ def check_var_data(pif, id_list):
 	casting = pif.dbh.fetch_casting(mod_id)
 	print mod_id, ':', casting['name']
 	attrs = pif.dbh.fetch_attributes(mod_id=mod_id, with_global=True)
+	for attr in attrs:
+	    attr['attribute.visual'] = 1 if (attr['attribute.flags'] & pif.dbh.FLAG_ATTRIBUTE_VISUAL) else 0
 	attr_dict = {x['attribute.attribute_name']: x for x in attrs}
 	if casting['flags'] & pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE:
 	    attr_dict['base']['attribute.visual'] = 1

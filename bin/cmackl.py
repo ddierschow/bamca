@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+import string # don't judge me
+
 import basics
 import config
 import lineup
@@ -20,25 +22,79 @@ def mack_models(pif, start, end, series):
     return amods
 
 
+ranks = list(range(1, config.MAX_MACK_NUMBER + 1))
+files = list(string.ascii_lowercase) + [x + x for x in string.ascii_lowercase]
 def format_mack_text(pif, amods):
+    sharedsets = []
+    for pair in [[x['casting_related.model_id'], x['casting_related.related_id']] for x in pif.dbh.fetch_casting_relateds(flags=pif.dbh.FLAG_CASTING_RELATED_SHARED)]:
+	for shared in sharedsets:
+	    if pair[0] in shared or pair[1] in shared:
+		shared.update(pair)
+		break
+	else:
+	    sharedsets.append(set(pair))
+    res = []
+    bmods = {}
+    for mack_id, mod in amods:
+	bmods.setdefault(mack_id[0], {})
+	bmods[mack_id[0]].setdefault(mack_id[1], {})
+	bmods[mack_id[0]][mack_id[1]].setdefault(mack_id[2], [])
+	bmods[mack_id[0]][mack_id[1]][mack_id[2]].append(mod)
+
+    for mtype, mranks in sorted(bmods.items()):
+	for mrank, mfiles in sorted(mranks.items()):
+	    res.append({'id': '<b>%s<b>' % mrank})
+	    for mfile in files[files.index(min(bmods[mtype][mrank])):files.index(max(bmods[mtype][mrank])) + 1]:
+		ent = {
+			'id': '%s%02s-%s' % (mtype, mrank, mfile),
+			'name': '',
+			'man': '',
+			'mack_id_unf': (mtype, mrank, mfile),  # for internal use
+			'class': 'rw' if not mtype else 'sf' if mtype == 'MB' else 'mb',
+		    }
+		if mfile not in mfiles:
+		    ent['name'] = '<span class="warning">missing</span>'
+		    res.append(ent)
+		    continue
+		for mod in mfiles[mfile]:
+		    modlink = pif.render.format_link('single.cgi?id=' + mod['base_id.id'], mod['base_id.id'])
+		    if ent['man']:
+			ent['man'] = '<br>'.join([ent['man'], modlink])
+			ent['name'] = '<br>'.join([ent['name'], mod['base_id.rawname'].replace(';', ' ')])
+		    else:
+			ent['man'] = modlink
+			ent['name'] = mod['base_id.rawname'].replace(';', ' ')
+		if len(mfiles[mfile]) > 1:
+		    for shared in sharedsets:
+			if not (set([x['base_id.id'] for x in mfiles[mfile]]) - shared):
+			    break
+		    else:
+			ent['name'] += ' <span class="warning">not shared</span>'
+		res.append(ent)
+    return [{'entry': res}] if res else []
+
+
+
     last = None
     res = []
-    for mod in amods:
-	if last and last[:2] != mod[0][:2]:
+    for mack_id, mod in amods:
+	modlink = pif.render.format_link('single.cgi?id=' + mod['base_id.id'], mod['base_id.id'])
+	if last and last[:2] != mack_id[:2]:
 	    res.append({'id': ''})
-	if mod[0] == last:
-	    res[-1]['man'] += ', ' + mod[1]['base_id.id']
+	if mack_id == last:
+	    res[-1]['man'] += '<br>' + modlink
+	    res[-1]['name'] += '<br>' + mod['base_id.rawname'].replace(';', ' ')
 	else:
 	    res.append(
 		{
-		    'id': '%s%02s-%s' % mod[0],
-		    'name': mod[1]['base_id.rawname'].replace(';', ' '),
-		    'man': mod[1]['base_id.id'],
-		    'mack_id_unf': mod[0],  # for internal use
-		    'class': 'rw' if not mod[0][0] else 'sf' if mod[0][0] == 'MB' else 'mb',
+		    'id': '%s%02s-%s' % mack_id,
+		    'name': mod['base_id.rawname'].replace(';', ' '),
+		    'man': modlink,
+		    'mack_id_unf': mack_id,  # for internal use
+		    'class': 'rw' if not mack_id[0] else 'sf' if mack_id[0] == 'MB' else 'mb',
 		}
 	    )
-	    last = mod[0]
+	    last = mack_id
     return [{'entry': res}] if res else []
 
 
@@ -98,7 +154,7 @@ def check_man_mappings(pif, sections):
 	mans.sort(key=lambda x: x['casting.id'])
 	for man in mans:
 	    cid = man['casting.id']
-	    aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(cid, 'mack')]
+	    aliases = pif.dbh.fetch_aliases(cid, 'mack')
 	    mack_nums = single.get_mack_numbers(pif, cid, man['base_id.model_type'], aliases)
 	    if not mack_nums:
 		print cid

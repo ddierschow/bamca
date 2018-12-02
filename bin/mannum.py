@@ -45,6 +45,7 @@ admin_cols = [
 	['varids', 'Vars'],
 	['varl', 'VarL'],
 	['notes', 'Nt'],
+	['im', 'Im'],
 	['de', 'De'],
 	['fo', 'Fo'],
 	['ba', 'Ba'],
@@ -207,7 +208,7 @@ class MannoFile(object):
 
     def add_casting(self, pif, casting, aliases=[]):
         manitem = pif.dbh.modify_man_item(casting)
-	aliases = [x['alias.id'] for x in aliases if x['alias.type'] == 'mack']
+	aliases = [x for x in aliases if x['alias.type'] == 'mack']
 	manitem['mack'] = ','.join(single.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
         if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
             self.add_item(manitem)
@@ -349,6 +350,7 @@ class MannoFile(object):
         mvars = pif.dbh.fetch_variations(mdict['id'])
 	fields = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
 	keys = ['de', 'ba', 'bo', 'in', 'wh', 'wi', 'w/']
+	ver = set()
 	t2k = dict(zip(fields, keys))
 	td = {x: 0 for x in keys}
         fy = ly = None
@@ -380,6 +382,7 @@ class MannoFile(object):
                         ly = yr
                     fy = min(fy, yr)
                     ly = max(ly, yr)
+	    ver.add(var['variation.flags'] & (pif.dbh.FLAG_MODEL_ID_INCORRECT | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED))
 	if id_set:
 	    min_id = min(id_set)
 	    max_id = max(id_set)
@@ -391,10 +394,15 @@ class MannoFile(object):
 	    td[key] = '<i class="%s"></i>' % ('far fa-star gray' if not len(mvars) or td[key] is None else
                     'fas fa-star green' if td[key] == len(mvars) else ('fas fa-star red' if not td[key] else 'fas fa-star orange'))
 	varl = '<a href="vars.cgi?list=1&mod=%s"><span class="%s">%d/%d</span></a>' % (mdict['id'], 'ok' if varl == len(mvars) else 'no', varl, len(mvars))
-        td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-', 'varids': varids, 'varl': varl})
+        td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-', 'varids': varids, 'varl': varl, 'ver': ver})
         return td
 
     def get_admin_entries(self, pif, model_ids):
+	vers = {
+	    pif.dbh.FLAG_MODEL_ID_INCORRECT | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED: "fas fa-times red",
+	    pif.dbh.FLAG_MODEL_VARIATION_VERIFIED: "fas fa-check black",
+	    0: "far fa-circle gray",
+	}
 	# 'alias' : list of aliases, separated by br
 	aliases = {}
 	for alias in pif.dbh.fetch_aliases():
@@ -418,6 +426,11 @@ class MannoFile(object):
 		mdict['vehicle_type'] = '<i class="fas fa-ban red"></i>'
 	    fmt_bad, _, _ = pif.dbh.check_description_formatting(mdict['id'])
 	    mdict['fo'] = '<i class="fas fa-times red"></i>' if fmt_bad else ''
+	    mdict['im'] = ''.join(['<i class="%s"></i>' % vers[x] for x in sorted(mdict['ver'])])
+#	    ver = sorted(set(x[
+#('<i class="fas fa-times red"></i> %s' % var['imported_var']) if var['flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT else
+#	        '<i class="fas fa-check black"></i>' if var['flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else
+#	        '<i class="far fa-circle gray"></i>',
 	    makes = pif.dbh.fetch_casting_makes(mod)
 	    mdict['make'] = '<br>'.join([
 		pif.render.format_link("https://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
@@ -706,7 +719,7 @@ class MannoFile(object):
 
     # ----- tilley list -----------------------------------------
 
-    var_pic_cols = ['ID', 'Description', 'Type', 'Cred', 'Pic', 'T', 'S', 'M', 'L']
+    var_pic_cols = ['ID', 'Description', 'Type', 'Date', 'Cred', 'Pic', 'T', 'S', 'M', 'L']
     def get_section_credit_list(self, pif, sect):
         sect['range'] = list()
         sect['anchor'] = sect['id']
@@ -753,6 +766,7 @@ class MannoFile(object):
 	    'ID': mod['id'],
 	    'Description': mod['name'],
 	    'Cat': '',
+	    'Date': '',
 	    'Type': mod['model_type'],
 	    'Cred': phcred['photographer.id'] if phcred else '',
 	    'Pic': '',
@@ -783,6 +797,7 @@ class MannoFile(object):
 		'ID': var['mod_id'] + '-' + var['var'],
 		'Description': var['text_description'],
 		'Cat': cat,
+		'Date': var['date'],
 		'Type': varias.var_types.get(var['variation_type'], var['variation_type']),
 		'Cred': var['phcred'],
 		'Pic': var['picture_id'],
@@ -934,7 +949,7 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
     if not old_mod_id or not new_mod_id:
 	return
     rec = pif.dbh.fetch_base_id(new_mod_id)
-    if rec:
+    if rec and rec.id.lower() != new_mod_id.lower():
         if not force:
             #print new_mod_id, "exists"
             return
@@ -1272,4 +1287,4 @@ def commands(pif):
 #---- ---------------------------------------
 
 if __name__ == '__main__':  # pragma: no cover
-    commands(dbedit='', options='s')
+    commands(dbedit='', options='fs')

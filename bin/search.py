@@ -155,10 +155,14 @@ def date_search(pif, dt=None, yr=None):
     lran = {}
     llineup['header'] = llineup['footer'] = ''
     if dt:
+	pif.render.title = dt
 	vars = pif.dbh.fetch_variations_by_date(dt)
 	last = None
+	ver_count = 0
 	for var in vars:
-	    checked = ['1'] if var['variation.flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else []
+	    verified = ['1'] if var['variation.flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else []
+	    id_mismatch = ['1'] if var['variation.flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT else []
+	    ver_count += 1 if verified else 0
 	    macks = get_mack_numbers(pif, var['variation.mod_id'])
 	    var['sort'] = macks[0] if macks else var['variation.mod_id']
 	    mvid = "%s-%s" % (var['variation.mod_id'], var['variation.var'])
@@ -178,9 +182,10 @@ def date_search(pif, dt=None, yr=None):
 			'%s</b><br>' % var['base_id.rawname'].replace(';', ' '))
 		)
 		last = var['variation.mod_id']
-	    var['shown'] += pif.render.format_image_optional(var['variation.mod_id'], vars=[var['variation.var'], var['variation.picture_id'] or 'unmatchable'], also={'class': 'righty'}, nobase=True, largest='s')
+	    var['shown'] += pif.render.format_image_optional(var['variation.mod_id'], vars=[var['variation.picture_id'] or 'unmatchable', var['variation.var']], also={'class': 'righty'}, nobase=True, largest='s')
 	    var['shown'] += (pif.render.format_hidden_input({'v.' + mvid: '1'}) +
-		pif.render.format_checkbox('c.' + mvid, [('1', '',)], checked=checked, sep='\n') +
+		pif.render.format_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
+		pif.render.format_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
 		pif.render.format_link(
 		    '/cgi-bin/vars.cgi?mod=%s&var=%s&edit=1' % (var['variation.mod_id'], var['variation.var']),
 		    '(%s) %s' % (var['variation.var'], var['variation.text_description'])) + done +
@@ -189,9 +194,10 @@ def date_search(pif, dt=None, yr=None):
 	vars.sort(key=lambda x: x['sort'])
 	lran['entry'] = [{'text': x['shown']} for x in vars]
 	lsec['columns'] = 1
-	llineup['header'] += '<form action="/cgi-bin/mass.cgi?type=dates" method="post">'
+	llineup['header'] += 'Verified: %d of %d<br><form action="/cgi-bin/mass.cgi?type=dates" method="post">' % (ver_count, len(vars))
 	llineup['footer'] += pif.render.format_button_input() + '</form>'
     else:
+	pif.render.title = 'Search Dates'
 	dates = pif.dbh.fetch_variation_dates(yr=yr)
 	lran['entry'] = [{'text': pif.render.format_link(
 		    '/cgi-bin/msearch.cgi?date=1&dt=%s' % dt['date'],

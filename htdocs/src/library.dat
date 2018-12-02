@@ -54,13 +54,15 @@ AIM|15|1-12
 AIM|16|1-12
 AIM|17|1,3,5,7-11
 AIM|18|1-10
+AIM|22|7-12
+AIM|23|1-12
 AIM|27|9
 # mbusa starting august 1977
 Matchbox USA|1|
 Matchbox USA|2|
 Matchbox USA|3|9,12
-Matchbox USA|4|1-10
-Matchbox USA|5|6-12
+Matchbox USA|4|1-12
+Matchbox USA|5|1-12
 Matchbox USA|6|1-12
 Matchbox USA|7|1-12
 Matchbox USA|8|1-12
@@ -94,15 +96,15 @@ Matchbox USA|35|
 Matchbox USA|36|5-11
 Matchbox USA|37|1-5,8-12
 Matchbox USA|38|1-6,8,10-12
-Matchbox USA|39|1-5,7-9,12
-Matchbox USA|40|
+Matchbox USA|39|1-5,7-12
+Matchbox USA|40|3-12
+Matchbox USA|41|1-4
 
 # mbusa missing
 # 1977 all
 # 1978 all
 # 1979 all
 # 1980 january february march may june
-# 1981 june through december
 # 2012 march through december
 # 2013 all
 # 2015 january february

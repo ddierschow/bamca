@@ -52,8 +52,8 @@
 {%- if not section.noheaders %}
 <tr class="er">
 {%- for col in section.columns %}
-{#-  <th class="{{ render.class_id('eh', section.id) }} {{ render.class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
-  <th class="{{ render.class_id('eh', col, range.id, section.id) }}">{{ section.headers[col] }}</th>
+{#-  <th class="{{ render.class_id('eh', section.id) }} {{ render.class_id('eh', range.id) }}">{{ section.get('headers', {}).get(col, col) }}</th> #}
+  <th class="{{ render.class_id('eh', col, range.id, section.id) }}">{{ section.get('headers', {}).get(col, col) }}</th>
 {%- endfor -%}
 </tr>
 {%- endif %}

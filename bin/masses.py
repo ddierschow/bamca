@@ -99,11 +99,16 @@ def mass_save(pif):
 def dates_main(pif):
     for mvid in pif.form.roots(start='v.'):
 	val = pif.form.get_bool('c.' + mvid)
-	useful.write_message(mvid, val)
-	var = pif.dbh.fetch_variation_bare(*mvid.split('-'))[0]
-	var['variation.flags'] = (var['variation.flags'] | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED) if val else (
-	    var['variation.flags'] & ~pif.dbh.FLAG_MODEL_VARIATION_VERIFIED)
-	pif.dbh.update_variation_bare(var)
+	idm = pif.form.get_bool('i.' + mvid)
+	useful.write_message(mvid, val, idm)
+	vars = pif.dbh.fetch_variation_bare(*mvid.split('-'))
+	if vars:
+	    var = vars[0]
+	    var['variation.flags'] = (var['variation.flags'] | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED) if val else (
+		var['variation.flags'] & ~pif.dbh.FLAG_MODEL_VARIATION_VERIFIED)
+	    var['variation.flags'] = (var['variation.flags'] | pif.dbh.FLAG_MODEL_ID_INCORRECT) if idm else (
+		var['variation.flags'] & ~pif.dbh.FLAG_MODEL_ID_INCORRECT)
+	    pif.dbh.update_variation_bare(var)
     return pif.render.format_template('blank.html', content='')
 
 # ------- mack numbers ---------------------------------------------
@@ -145,10 +150,15 @@ def aliases_ask(pif):
 	{
 	    'id': pif.render.format_text_input("id.0", 12),
 	    'first_year': pif.render.format_text_input("first_year.0", 4),
-	    'ref_id': pif.render.format_text_input("ref_id.0", 12),
+	    'ref_id': pif.render.format_text_input("ref_id.0", 12, value=mod_id),
 	    'section_id': pif.render.format_text_input("section_id.0", 20),
 	    'type': pif.render.format_text_input("type.0", 16),
 	    'primary': pif.render.format_checkbox("primary.0", [('1', '')]),
+	}
+    ]
+    copys = [
+	{
+	    'mod id': pif.render.format_text_input("copy_id.0", 12),
 	}
     ]
 
@@ -164,7 +174,9 @@ def aliases_ask(pif):
 	dict(columns=cols, range=[{'entry': entries}], note='', headers=hdrs, header=header,
 	    footer=pif.render.format_button_input('save') + footer),
 	dict(columns=cols, range=[{'entry': adds}], note='', headers=hdrs, header=header,
-	    footer=pif.render.format_button_input('add') + pif.render.format_button_input('copy') + " (ref_id)"+ footer),
+	    footer=pif.render.format_button_input('add') + footer),
+	dict(columns=['mod id'], range=[{'entry': copys}], note='', header=header,
+	    footer=pif.render.format_button_input('copy') + footer),
     ]
     return pif.render.format_template('simplelistix.html', llineup=dict(section=lsections), nofooter=True)
 
@@ -187,7 +199,7 @@ def aliases_add(pif):
 def aliases_copy(pif):
     print 'copy', pif.form, '<br>'
     mod_id = pif.form.get_str('mod_id')
-    aliases = pif.dbh.depref('alias', pif.dbh.fetch_aliases(pif.form.get_str('ref_id.0')))
+    aliases = pif.dbh.depref('alias', pif.dbh.fetch_aliases(pif.form.get_str('copy_id.0')))
     adds = [
 	{
 	    'id': x['id'],
@@ -408,7 +420,8 @@ def add_casting_final(pif):
 	    'section_id': pif.form.get_str('section_id'),
 	    'notes': '',
 	})) + '<br>\n'
-    return pif.render.format_template('blank.html', content=ostr)
+    print pif.render.format_template('blank.html', content=ostr)
+    raise useful.Redirect('single.cgi?id=%s' % pif.form.get_str('id'))
 
 
 # ------- add pub -------------------------------------------------
@@ -468,14 +481,14 @@ def add_pub_final(pif):
 
 
 def add_var_main(pif):
-
-    if pif.form.get_bool('save'):
+    useful.write_message(pif.form)
+    if pif.form.get_bool('store'):
 	print pif.render.format_head()
 	useful.header_done()
 	add_var_final(pif)
 	print pif.render.format_tail()
 	return
-    elif pif.form.get_str('mod_id'):
+    elif pif.form.get_str('var'):
 	return add_var_info(pif)
     print pif.render.format_head()
     useful.header_done()
@@ -488,41 +501,55 @@ def add_var_ask(pif):
     print "Man ID:", pif.render.format_text_input("mod_id", 8, 8, value=pif.form.get_str('mod_id')), '<br>'
     print 'Var ID:', pif.render.format_text_input("var", 8, 8, value=''), '<br>'
     print 'Date:', pif.render.format_text_input("date", 8, 8, value=''), '<br>'
+    print 'Copy From:', pif.render.format_text_input("copy", 8, 8, value=''), '<br>'
     print 'Imported From:', pif.render.format_text_input("imported_from", 8, 8, value=''), '<br>'
     print pif.render.format_button_input('submit')
     print pif.render.format_hidden_input({'type': 'var'})
     print "</form>"
-    print pif.render.format_button('catalog', '/lib/mbusa/', lalso={'target': '_blank'})
+    print pif.render.format_button('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
 
 
 var_id_columns = ['mod_id', 'var']
-var_attr_columns = ['body', 'base', 'windows', 'interior']
+var_attr_columns = ['body', 'base', 'base_text', 'windows', 'interior']
 var_data_columns = ['category', 'area', 'date', 'note', 'manufacture', 'imported_from', 'imported_var']
 var_record_columns = var_id_columns + var_attr_columns + var_data_columns
 def add_var_info(pif):
     mod_id = pif.form.get_str('mod_id')
-    mod = pif.dbh.fetch_casting_by_id_or_alias(mod_id)
+    mod = pif.dbh.fetch_casting(mod_id)
     if not mod:
-	raise useful.SimpleError("Model not found.")
-    elif len(mod) > 1:
-	raise useful.SimpleError("Multiple models found.")
-    mod = pif.dbh.modify_man_item(mod[0])
+	mod = pif.dbh.fetch_casting_by_id_or_alias(mod_id)
+	if not mod:
+	    raise useful.SimpleError("Model not found.")
+	elif len(mod) > 1:
+	    raise useful.SimpleError("Multiple models found.")
+	mod = pif.dbh.modify_man_item(mod[0])
     mod_id = mod['id']
     var_id = mbdata.normalize_var_id(mod, pif.form.get_str('var'))
     attrs = pif.dbh.fetch_attributes(mod_id)
     attr_names = [x['attribute.attribute_name'] for x in attrs]
     var = pif.dbh.fetch_variation(mod_id, var_id)
-    useful.write_message(mod)
+
+    old_var_id = pif.form.get_str('copy')
+    if not var and old_var_id and old_var_id != var_id:
+	var = pif.dbh.fetch_variation(mod_id, old_var_id)
+	if var:
+	    useful.write_message('copy_variation', mod_id, old_var_id, var_id)
+	    var = pif.dbh.depref('variation', var)
+	    var['var'] = var['imported_var'] = var_id
+	    var['imported_from'] = pif.form.get_str('imported_from')
+	    var['date'] = pif.form.get_str('date')
+	    pif.dbh.insert_variation(mod_id, var_id, var)
+	    raise useful.Redirect('vars.cgi?edit=1&mod=%s&var=%s' % (mod_id, var_id))
 
     print pif.render.format_head()
     useful.header_done()
     print '<h3>%s</h3>' % mod['name']
     print '<form onsubmit="save.disabled=true; return true;">' + pif.create_token()
     if var:
-	print pif.render.format_hidden_input({'store': 'update'})
-	var = pif.dbh.depref('variation', var[0])
+	print 'revising', pif.render.format_hidden_input({'store': 'update'})
+	var = pif.dbh.depref('variation', var)
     else:
-	print pif.render.format_hidden_input({'store': 'insert'})
+	print 'creating', pif.render.format_hidden_input({'store': 'insert'})
 	var = {}
     print '<table class="tb">'
     defs = {'mod_id': mod_id,
@@ -566,7 +593,6 @@ def add_var_final(pif):
     if pif.form.get_str('store') == 'update':
 	var = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))
 	if var:
-	    var = var[0]
 	    upd = True
 	else:
 	    var = {}
@@ -726,7 +752,7 @@ def edit_casting_related(pif):
 		('d', 'casting_related.description', 256),
 		('f', 'casting_related.flags', 4),
 	    ]:
-	    print '<td>', pif.render.format_text_input('%s.%s' % (tag, num), wid, min(wid, 64), value=str(cr.get(key, '0' if tag == 'f' else ''))), '</td>'
+	    print '<td>', pif.render.format_text_input('%s.%s' % (tag, num), wid, min(wid, 48), value=str(cr.get(key, '0' if tag == 'f' else ''))), '</td>'
 
     print '<form name="edit" method="post" action="mass.cgi">' + pif.create_token()
     print '<table border=1>'

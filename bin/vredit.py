@@ -429,18 +429,28 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
     print "</form>"
 
 
+base_id_flag_names = [
+    ('0001', 'NotMade'),
+    ('0080', 'Revised'),
+    ('0100', 'BP Vis'),
+]
+
 def show_base_id(pif, mod):
     # base id form
     print "<h3>Base ID</h3>"
     base_id_info = pif.dbh.describe_dict('base_id')
+    base_id_tab = tables.table_info['base_id']
     print '<form method="post" name="base_id">' + pif.create_token()
     print "<table border=1>"
     print "<tr><th>Column</th><th>Value</th></tr>"
-    for col in tables.table_info['base_id']['columns']:
-        flen = int(paren_re.search(base_id_info[col]['type']).group('len'))
-        print "<tr><td>%s</td><td>%s</td>" \
-            % (col, pif.render.format_text_input("base_id." + col, flen, min(80, flen), mod[col]))
-        print "</tr>"
+    for col in base_id_tab['columns']:
+	print "<tr><td>%s</td><td>" % col
+	if col in base_id_tab.get('bits', {}):
+	    print pif.render.format_checkbox("base_id." + col, base_id_tab['bits'][col], useful.bit_list(mod[col], format='%04x'))
+	else:
+	    flen = int(paren_re.search(base_id_info[col]['type']).group('len'))
+	    print pif.render.format_text_input("base_id." + col, flen, min(80, flen), mod[col])
+        print "</td></tr>"
     print "</table>"
     print pif.render.format_button_input('save', 'save base id')
     print "</form>"
@@ -806,7 +816,10 @@ def do_action(pif, mod_id):
         print "save base_id<br>"
         rec = dict()
         for k in pif.form.keys(start='base_id.'):
-            rec[k[8:]] = pif.form.get_str(k)
+	    if k == 'base_id.flags':
+		rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
+	    else:
+		rec[k[8:]] = pif.form.get_str(k)
         pif.dbh.write("base_id", rec, {"id": pif.form.get_str("base_id.id")})
     elif pif.form.has("save_casting"):
         print "save casting<br>"

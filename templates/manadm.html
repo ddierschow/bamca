@@ -94,6 +94,32 @@ Section:
 
 </form>
 
+<hr>
+
+<form action="/cgi-bin/vars.cgi" method="get">
+<input type="hidden" name="vdet" value="1">
+
+Manufacturing ID: <input type="text" name="mod" value="" size="12">
+<input type="submit" name="submit" value="GO" class="textbutton">
+</form>
+
+<hr>
+
+<form action="/cgi-bin/vars.cgi" method="get">
+<input type="hidden" name="vdet" value="1">
+<input type="hidden" name="mbusa" value="1">
+NOT WORKING YET<br>
+Matchbox USA ID:
+<select name="range">
+<option value="RW">(regular wheels)
+<option value="SF" SELECTED>MB
+</select>
+<input type="text" name="rank" value="" size="3">-<input type="text" name="file" value="" size="2">
+<input type="submit" name="submit" value="GO" class="textbutton">
+</form>
+
+<p>
+
 {% else %}
 {{ showix.format_listix(llineup) }}
 {% endif %}

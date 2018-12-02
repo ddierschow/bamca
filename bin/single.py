@@ -46,13 +46,14 @@ def calc_var_pics(pif, var):
 
     return (calc_var_type(pif, var),) + (is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt)
 
-
+# hardcoding this because i don't want to do a query at this point
+code2cats = set(['ASAP', 'C2', 'CCI', 'CQ', 'NC', 'WR', 'YF'])
 def calc_var_type(pif, var):
     ty_var = ''
     if not var['picture_id']:
 	if any([var['manufacture'].startswith(x) for x in mbdata.other_plants]):
 	    ty_var = 'p'
-	elif any([x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2 for x in var['vs']]):
+	elif any([x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2 for x in var['vs']]) or code2cats & set(var['category'].split()):
 	    ty_var = '2'
 	elif var['var'].startswith('f'):
 	    ty_var = 'f'
@@ -215,7 +216,7 @@ def show_pack_appearances(pif, packs):
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
-    aliases = [x['alias.id'] for x in aliases]
+    aliases = [x['alias.id'] for x in aliases if x['alias.type'] == 'mack']
     mack_nums = []
     if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
         aliases.append(cid)
@@ -279,6 +280,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
                     prodstar = 'fas fa-star red'
 		prod = '<i class="%s"></i>\n' % prodstar + prod
                 prod += ' <a href="imawidget.cgi?act=1&d=./%s&f=%s&trash=1"><i class="fas fa-times"></i></a>' % (pdir, prodpic[prodpic.rfind('/') + 1:])
+		if ref_link:
+		    prod += pif.render.format_link(ref_link, ' <i class="fas fa-edit"></i>')
             else:
 		prod = '<i class="%s"></i>\n' % prodstar + prod
 		if ref_link:

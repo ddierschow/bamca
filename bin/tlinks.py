@@ -321,8 +321,7 @@ def edit_single(pif):
         else:
             nlink['page_id'] = 'links.' + dictCats.get(pif.form.get_str('section_id', ''), pif.form.get_str('section_id', ''))
         nlink['display_order'] = highest_disp_order.get((nlink['page_id'], nlink['section_id']), 0) + 1
-        formflags = pif.form.get_list('flags')
-        for flag in formflags:
+        for flag in pif.form.get_list('flags'):
             nlink['flags'] += int(flag, 16)
         if nlink['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
             nlink['last_status'] = 'NoVer'

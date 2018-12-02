@@ -93,7 +93,7 @@ def show_var_info(pif, mod_id, var_id):
     if mod_id and var_id:
         var = pif.dbh.fetch_variation(mod_id, var_id)
         if var:
-            var = pif.dbh.depref('variation', var[0])
+            var = pif.dbh.depref('variation', var)
 	    ostr += pif.render.format_image_sized(mod_id + '-' + var_id, pdir='.' + config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
             ostr += '<br>\n%s:<ul>\n' % var_id
             ostr += '<li>description: %s\n' % var['text_description']
@@ -204,7 +204,7 @@ class UploadForm(object):
     def write(self, pif, restrict=False, desc=''):
 	var = pif.dbh.fetch_variation(self.mod_id, self.var_id) if self.mod_id and self.var_id else None
 	if var:
-	    var = pif.dbh.depref('variation', var[0])
+	    var = pif.dbh.depref('variation', var)
 	    var['image'] = pif.render.format_image_sized(self.mod_id + '-' + self.var_id, pdir='.' + config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
 	context = {
 	    'form': self,

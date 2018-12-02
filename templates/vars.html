@@ -20,6 +20,10 @@
 <form action="vars.cgi" name="vars" method="post">
 <center>
 {{ image }}
+{% if notes %}
+<p>
+{{ notes }}
+{% endif %}
 </center><br>
 {{ search_object }}
 

@@ -129,13 +129,12 @@ I'd love to work with others on these projects.
 I am missing the following Matchbox USA newsletters:
 <ul>
 <li>all issues from 1977, 1978, and 1979
-<li>issues from 1980: January, February, March, May, and June
-<li>issues from 1981: June through December
-<li>issues from 2012: March through December
+<li>January, February, March, May, and June of 1980
+<li>March through December of 2012
 <li>all issues from 2013
-<li>issues from 2015: January and February
-<li>issues from 2016: February and April 
-<li>issue from 2017: January
+<li>January and February of 2015
+<li>February and April  of 2016
+<li>January, 2017
 </ul>
 
 I am missing the following AIM newsletters:
@@ -145,7 +144,8 @@ I am missing the following AIM newsletters:
 <li>January, April, November of 1973
 <li>June, August, October of 1986
 <li>April, 1987
-<li>March, 1988 onward
+<li>March, 1988 to November, 1991
+<li>June, 1993 onward
 </ul>
 
 I am missing the following MICA newsletters:

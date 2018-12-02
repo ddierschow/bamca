@@ -282,6 +282,7 @@ class DBHandler(object):
         self.write('variation_select', {'sec_id': new_mod_id}, where="sec_id='%s'" % old_mod_id, modonly=True)
         self.write('box_type', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
         self.write('link_line', {'page_id': 'single.' + new_mod_id}, where="page_id='single.%s'" % old_mod_id, modonly=True)
+        self.write('mbusa', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
 
     def update_base_id(self, id, values):
         return self.write('base_id', self.make_values('base_id', values), "id='%s'" % id, modonly=True)
@@ -344,7 +345,7 @@ class DBHandler(object):
         return self.write('alias', values, newonly=True)
 
     def delete_alias(self, pk):
-        return self.delete('attribute', 'pk=%s' % pk)
+        return self.delete('alias', 'pk=%s' % pk)
 
     #- casting
 
@@ -506,6 +507,7 @@ class DBHandler(object):
             mod['visual_id'] = ''
 	mod['filename'] = mod['id'].lower()
         mod['notmade'] = '' if mod['made'] else '*'
+        mod['revised'] = (mod['flags'] & self.FLAG_MODEL_CASTING_REVISED) != 0
         mod['linkid'] = mod.get('mod_id', mod.get('id'))
         mod['link'] = "single.cgi?id"
         mod['descs'] = filter(lambda x: x, mod['description'].split(';'))
@@ -536,7 +538,7 @@ class DBHandler(object):
 
     #- casting_related
 
-    def fetch_casting_relateds(self, mod_id=None, rel_id=None, section_id=None, verbose=False):
+    def fetch_casting_relateds(self, mod_id=None, rel_id=None, section_id=None, flags=0, verbose=False):
         wheres = ["casting_related.related_id=base_id.id"]
 	if mod_id:
 	    wheres.append("casting_related.model_id='%s'" % mod_id)
@@ -544,6 +546,8 @@ class DBHandler(object):
 	    wheres.append("casting_related.related_id='%s'" % rel_id)
 	if section_id:
 	    wheres.append("casting_related.section_id='%s'" % section_id)
+	if flags:
+	    wheres.append("casting_related.flags & %s" % flags)
         return self.fetch('casting_related,base_id', where=wheres, tag='CastingRelated', verbose=verbose)
 
     def fetch_casting_related_models(self, section_id=None):
@@ -600,9 +604,9 @@ class DBHandler(object):
         self.write('attribute', values, self.make_where({'id': id}), modonly=True)
 
     def clone_attributes(self, old_mod_id, new_mod_id):
-	# insert into attribute (mod_id, attribute_name, definition, title, visual) select 'MB900', attribute_name, definition, title, visual from attribute where mod_id='MB894';
-	self.raw_execute("""insert into attribute (mod_id, attribute_name, definition, title, visual) """
-		"""select '%s', attribute_name, definition, title, visual from attribute """
+	# insert into attribute (mod_id, attribute_name, definition, title, flags) select 'MB900', attribute_name, definition, title, flags from attribute where mod_id='MB894';
+	self.raw_execute("""insert into attribute (mod_id, attribute_name, definition, title, flags) """
+		"""select '%s', attribute_name, definition, title, flags from attribute """
 		"""where mod_id='%s'""" % (new_mod_id, old_mod_id))
 
     def update_attribute_for_mod(self, mod_id, attr_name):
@@ -684,12 +688,14 @@ class DBHandler(object):
 
     def fetch_variation(self, mod_id, var):
         varrecs = self.fetch('variation', where="mod_id='%s' and var='%s'" % (mod_id, var), tag='Variation')
-	if varrecs:
-	    detrecs = self.fetch_details(mod_id, var)
-	    for var_id in detrecs:
-		if var == var_id:
-		    varrecs[0].update(detrecs[var_id])
-        return varrecs
+	if not varrecs:
+	    return None
+	varrec = varrecs[0]
+	detrecs = self.fetch_details(mod_id, var)
+	for var_id in detrecs:
+	    if var == var_id:
+		varrec.update(detrecs[var_id])
+        return varrec
 
     def fetch_variation_deconstructed(self, mod_id, var_id, nodefaults=True):
         varrec = self.fetch('variation', where="mod_id='%s' and var='%s'" % (mod_id, var_id), tag='VariationDeconstructed')
@@ -811,7 +817,7 @@ class DBHandler(object):
 
     def update_variation_bare(self, var, verbose=False):
 	where = {'mod_id': var.get('variation.mod_id', ''), 'var': var.get('variation.var', '')}
-        return self.write('variation', var, self.make_where(where), modonly=True, tag="UpdateVarBar", verbose=verbose)
+        return self.write('variation', var, self.make_where(where), modonly=True, tag="UpdateVarBare", verbose=verbose)
 
     def update_variation(self, attributes, where, verbose=False):
 	var_cols = self.get_table_info('variation')['columns']
@@ -1627,6 +1633,11 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     def delete_tumblr(self, post_id):
 	return self.delete('tumblr', where='id=%d' % post_id, tag='DeleteTumblr')
 	
+    #- mbusa
+
+    def fetch_mbusa_entry(self, entry_id):
+	return tables.Results('mbusa', self.fetch('mbusa', where={'id': entry_id}, tag='FetchMBUSAEntry'))
+
     #- miscellaneous
 
     def fetch_counts(self):

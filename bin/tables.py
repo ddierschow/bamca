@@ -96,6 +96,13 @@ table_info = {
                 'description': '',
         },
         'ask': ['id', 'first_year', 'model_type'],
+	'bits': {'flags':
+	    [
+		('0001', 'NotMade'),
+		('0080', 'Revised'),
+		('0100', 'BP Vis'),
+	    ]
+	},
     },
     #casting
     'casting': {
@@ -169,7 +176,7 @@ table_info = {
     'attribute': {
 	'db': 'bamca',
         'id': ['id'],
-        'columns': ['id', 'mod_id', 'attribute_name', 'definition', 'title', 'visual'],
+        'columns': ['id', 'mod_id', 'attribute_name', 'definition', 'title', 'visual', 'flags'],
         'clinks': {
                 'id': {'tab': 'attribute', 'id': ['id/id']},
                 'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
@@ -394,6 +401,17 @@ table_info = {
                 {'tab': 'blacklist'},
         ],
         'ask': ['id', 'page_id', 'section_id'],
+	'bits': {'flags':
+	    [
+		('0001', 'New'),
+		('0002', 'Recip'),
+		('0004', 'Paypal'),
+		('0008', 'Indent'),
+		('0010', 'Large'),
+		('0020', 'NoVer'),
+		('0040', 'Assoc'),
+	    ]
+	},
     },
     #blacklist
     'blacklist': {
@@ -610,7 +628,13 @@ table_info = {
 	'db': 'buser',
 	'id': ['id'],
 	'columns': ['id', 'payload', 'response', 'post_type'],
-    }
+    },
+    #mbusa
+    'mbusa': {
+	'db': 'bamca',
+	'id': ['id'],
+	'columns': ['id', 'mod_id', 'var_id', 'model', 'variation', 'description', 'date'],
+    },
 }
 for key in table_info:
     table_info[key]['name'] = key
@@ -760,6 +784,7 @@ FLAG_MODEL_NOT_MADE                     = 0x0001
 FLAG_MODEL_CODE_2                       = 0x0002
 FLAG_MODEL_NO_VARIATION                 = 0x0004
 FLAG_MODEL_NO_ID                        = 0x0008
+FLAG_MODEL_ID_INCORRECT                 = 0x0008
 FLAG_MODEL_SHOW_ALL_VARIATIONS          = 0x0010
 FLAG_MODEL_HIDE_IMAGE                   = 0x0020
 FLAG_MODEL_NO_SPECIFIC_MODEL            = 0x0040
@@ -778,6 +803,9 @@ FLAG_ALIAS_PRIMARY                      = 0x0002
 FLAG_MAKE_PRIMARY                       = 0x0002
 FLAG_CASTING_RELATED_SHARED             = 0x0002
 FLAG_LINEUP_MODEL_MULTI_VARS            = 0x0002
+
+FLAG_ATTRIBUTE_SPARSE                   = 0x0001
+FLAG_ATTRIBUTE_VISUAL                   = 0x0002
 
 FLAG_CATEGORY_INDEXED                   = 0x0004
 

@@ -111,7 +111,7 @@
 {%- if model.makes %}<th>Make</th>{% endif %}
 {%- if model.scale %}<th>Scale</th>{% endif %}
 {%- if model.country %}<th>Country</th>{% endif %}
-{%- if model.first_year %}<th>Introduced</th>{% endif %}
+{%- if model.first_year %}<th>{% if model.revised %}Revised{% else %}Introduced{% endif %}</th>{% endif %}
 {%- if mack_nums %}<th>Mack Number{{ render.plural(mack_nums) }}</th>{% endif %}
 </tr>
 <tr>
