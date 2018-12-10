@@ -48,13 +48,19 @@ def editor_main(pif):
 
 def show_table(pif):
     pif.render.message(str(pif.form.get_form()))
-
     table_info = pif.dbh.get_table_info(pif.form.get_str('table'))
+
+    def save_val(key):
+	if key in table_info.get('bits', {}):
+	    return pif.form.get_bits(key)
+	return pif.form.get_str(key)
+
     dats = []
     if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
 	print 'duplicate form submission detected'
     elif pif.form.has('save'):
-        pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
+		#rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
+        pif.dbh.write(table_info['name'], {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
                       pif.form.where(table_info['id'], 'o_'), tag='ShowTableSave')
         pif.render.message('record saved')
     elif pif.form.has('delete'):
@@ -63,7 +69,7 @@ def show_table(pif):
         pif.render.message('record deleted')
     elif pif.form.has('clone'):
 	# this should be done in memory without saving yet
-        pif.dbh.write(table_info['name'], {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}, pif.form.where(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
+        pif.dbh.write(table_info['name'], {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}, pif.form.where(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
         #del pif.form.delete('id')
         pif.render.message('record cloned')
 	pif.form.delete('clone')
@@ -74,8 +80,8 @@ def show_table(pif):
         creat = table_info.get('create', {})
         cond = {}
         for id in table_info['columns']:
-            pif.form.default(id, creat.get(id, pif.form.get_str(id)))
-            cond[id] = pif.form.get_str(id)
+            pif.form.default(id, creat.get(id, save_val(id)))
+            cond[id] = save_val(id)
 	dats = [cond]
         print 'new record'
 
@@ -93,7 +99,7 @@ def show_table(pif):
     elif len(dats) == 1:
         lsections.extend(show_single(pif, table_info, dats))
     else:
-        lsections.extend(show_none(pif, table_info, {x: pif.form.get_str(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}))
+        lsections.extend(show_none(pif, table_info, {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}))
     if table_info['name'] in table_info.get('add', {}):
 	cond = {'add': '1'}
 	footer += pif.render.format_button('add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
@@ -159,6 +165,8 @@ def show_single(pif, table_info, dats):
 	# varchar(N)
 	if col in table_info.get('readonly', []):
 	    newvalue = '&nbsp;<input type=hidden name="%s" value="%s">' % (col, dat.get(col, ''))
+	elif col in table_info.get('bits', {}):
+	    newvalue = pif.render.format_checkbox(col, table_info['bits'][col], useful.bit_list(oldvalue, format='%04x'))
 	elif coltype == 'text':
 	    newvalue = pif.render.format_textarea_input(col, value=dat.get(col, ''))
 	elif coltype.startswith('varchar('):

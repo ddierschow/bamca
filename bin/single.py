@@ -216,17 +216,20 @@ def show_pack_appearances(pif, packs):
 
 id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
-    aliases = [x['alias.id'] for x in aliases if x['alias.type'] == 'mack']
-    mack_nums = []
+    aliases = [(x['alias.flags'], x['alias.id']) for x in aliases if x['alias.type'] == 'mack']
     if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
-        aliases.append(cid)
+        aliases.append((pif.dbh.FLAG_ALIAS_PRIMARY, cid,))
+    mack_nums = []
     for alias in aliases:
-	mack_id = mbdata.get_mack_number(alias)
+	mack_id = mbdata.get_mack_number(alias[1])
 	if mack_id:
-	    mack_nums.append(mack_id)
-    mack_nums.sort(key=lambda x: x[1])
+	    mack_nums.append(((alias[0] & pif.dbh.FLAG_ALIAS_PRIMARY) != 0,) + mack_id)
+    mack_nums.sort(key=lambda x: x[2])
     # if aliases.flags == 2, put it first or bold it or something
-    return ['-'.join([str(y) for y in x]).upper() for x in mack_nums]
+    return [('<b>' if x[0] else '') +
+	    '-'.join([str(y) for y in x[1:]]).upper() +
+	    ('</b>' if x[0] else '')
+	for x in mack_nums]
 
 
 def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations):
@@ -442,6 +445,7 @@ def show_single(pif):
     if ref:
         raw_variations = pif.dbh.fetch_variation_by_select(mod_id, ref, sec_id=reg_list, ran_id=ran)
         variations = reduce_variations(pif, mod_id, raw_variations)
+    base_names = pif.dbh.fetch_variation_base_names(mod_id)
     # years 1971 to 1981 needs to cleave W to U and R
     appearances = list()
     for appear in pif.dbh.depref('lineup_model', pif.dbh.fetch_casting_lineups(mod_id)):
@@ -530,6 +534,7 @@ def show_single(pif):
 
     plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))
     relateds = pif.dbh.fetch_casting_relateds(mod_id)
+    mack_nums = get_mack_numbers(pif, mod_id, model['model_type'], aliases)
 
     # ------- render ------------------------------------
 
@@ -547,7 +552,7 @@ def show_single(pif):
 	'prod_title': prod_title,
 	'product_image': product_img,
 	'product_img_credit': product_img_credit,
-	'mack_nums': get_mack_numbers(pif, mod_id, model['model_type'], aliases),
+	'mack_nums': mack_nums,
 	'product_pic': pic,
 	'appearances': show_lineup_appearances(pif, appearances),
 	'matrixes': show_series_appearances(pif, pif.dbh.fetch_matrix_appearances(mod_id), relateds),
@@ -561,6 +566,9 @@ def show_single(pif):
 	'adds_box': models.show_adds(pif, mod_id),
 	'adds': adds,
 	'plants': plants,
+	'base_names': base_names,
+	'info_cols': int(bool(model.get('makes'))) + int(bool(mack_nums)) +
+	    int(bool(model['scale'])) + int(bool(model['country'])) + int(bool(model['first_year'])),
 #	'group': pif.render.find_image_path(mod_id, prefix='g', pdir=config.IMG_DIR_ADD)
     }
     return pif.render.format_template('single.html', **context)

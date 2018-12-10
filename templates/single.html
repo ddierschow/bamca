@@ -128,7 +128,16 @@
 {%- endif %}
 {%- if model.first_year %}<td valign="top"><center>{{ model.first_year }}</center></td>{% endif %}
 {%- if mack_nums %}<td valign="top"><center>{{ showix.format_brlist(mack_nums) }}</center></td>{% endif %}
-</tr></table></center>
+</tr>
+{% if base_names %}
+<tr><th colspan="{{ info_cols }}">Base Name{{ render.plural(base_names) }}</th></tr>
+<tr><td colspan="{{ info_cols }}">
+{% for base_name in base_names %}
+{{ base_name.base_name }}<br>
+{% endfor %}
+</td></tr>
+{% endif %}
+</table></center>
 
 {%- if model.notes %}
 <br>

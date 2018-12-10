@@ -96,7 +96,7 @@ DoPageHeader($pif);
   <hr size="2" width="100%">
 
       <div class="disclaim">
-The Matchbox Convoy Project was originall established on November 28, 2003.
+The Matchbox Convoy Project was originally established on November 28, 2003.
 This web site is a noncommercial educational site and has no official relationship to
 Matchbox or Mattel Inc., the current owner of the Matchbox brand.
 All comments, or questions should be addressed to <a href="mailto:staff@bamca.org">staff@bamca.org</a><p>

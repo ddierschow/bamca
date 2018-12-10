@@ -104,10 +104,9 @@ def dates_main(pif):
 	vars = pif.dbh.fetch_variation_bare(*mvid.split('-'))
 	if vars:
 	    var = vars[0]
-	    var['variation.flags'] = (var['variation.flags'] | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED) if val else (
-		var['variation.flags'] & ~pif.dbh.FLAG_MODEL_VARIATION_VERIFIED)
-	    var['variation.flags'] = (var['variation.flags'] | pif.dbh.FLAG_MODEL_ID_INCORRECT) if idm else (
-		var['variation.flags'] & ~pif.dbh.FLAG_MODEL_ID_INCORRECT)
+	    var['variation.flags'] &= ~(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT)
+	    var['variation.flags'] |= (pif.dbh.FLAG_MODEL_VARIATION_VERIFIED if val else 0)
+	    var['variation.flags'] |= (pif.dbh.FLAG_MODEL_ID_INCORRECT if idm else 0)
 	    pif.dbh.update_variation_bare(var)
     return pif.render.format_template('blank.html', content='')
 

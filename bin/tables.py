@@ -162,7 +162,6 @@ table_info = {
         },
         'ask': ['id', 'make', 'section_id'],
 	'defaults': {
-		'flags': 0,
 		'format_description': '&body',
 		'format_body': '&body',
 		'format_interior': '&interior',
@@ -215,6 +214,12 @@ table_info = {
         'create': {
                 'mod_id': 'unset',
         },
+	'bits': {'flags':
+	    [
+		('0001', 'Sparse'),
+		('0002', 'Visual'),
+	    ]
+	},
     },
     #attribute_picture
     'attribute_picture': {
@@ -247,13 +252,14 @@ table_info = {
         'columns': ['mod_id', 'var', 'flags',
 		'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with',
 		'base', 'body', 'interior', 'windows',
-		'manufacture', 'base_text', 'area', 'date', 'note', 'picture_id',
+		'manufacture', 'base_text', 'base_name', 'base_number', 'toy_id', 'production_id', 'copyright', 'company_name',
+		'logo_type', 'base_elephant',
+		'area', 'date', 'note', 'picture_id',
 		'imported', 'imported_from', 'imported_var', 'category', 'variation_type'],
-        'titles': ['Model ID', 'Variation ID', 'Flags',
-		'Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With',
-		'Base', 'Body', 'Interior', 'Windows',
-		'Manufacture', 'Base Text', 'Area', 'Date', 'Note', 'Other', 'Picture ID',
-		'Imported', 'Imported From', 'Imported Var', 'category', 'variation_type'],
+        'title': {'mod_id': 'Model ID', 'var': 'Variation ID', 'text_description': 'Description',
+		'text_base': 'Base', 'text_body': 'Body', 'text_interior': 'Interior', 'text_wheels': 'Wheels',
+		'toy_id': 'Toy ID', 'production_id': 'Production ID',
+		'text_windows': 'Windows', 'text_with': 'With', 'picture_id': 'Picture ID'},
         'clinks': {
 		'var': {'tab': 'variation', 'id': ['mod_id/mod_id', 'var/var']},
 		'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},
@@ -266,7 +272,14 @@ table_info = {
         },
         'create': {
                 'var': 'unset',
-        }
+        },
+	'bits': {'flags':
+	    [
+		('0002', 'Code2'),
+		('0008', 'Incorrect'),
+		('0080', 'Verified'),
+	    ]
+	},
     },
     #detail
     'detail': {
@@ -305,7 +318,12 @@ table_info = {
         },
         'create': {
                 'id': 'unset',
-        }
+        },
+	'bits': {'flags':
+	    [
+		('0002', 'Shared'),
+	    ]
+	},
     },
     #vehicle_type
     'vehicle_type': {
@@ -337,6 +355,11 @@ table_info = {
                 'id': '???',
         },
         'ask': ['id'],
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+	    ]
+	},
     },
     #casting_make
     'casting_make': {
@@ -352,6 +375,12 @@ table_info = {
                 'casting_make': ['id/id'],
         },
         'ask': ['id', 'make_id', 'casting_id'],
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+		('0002', 'Primary'),
+	    ]
+	},
     },
     #matrix_model
     'matrix_model': {
@@ -371,6 +400,15 @@ table_info = {
                 'matrix_model': ['page_id/page_id', 'section_id/section_id'],
         },
         'ask': ['id', 'page_id', 'section_id', 'mod_id'],
+#select distinct flags from alias;
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+		('0004', 'NoVar'),
+		('0008', 'NoID'),
+		('0010', 'ShowAllVar'),
+	    ]
+	},
     },
     #region
     'region': {
@@ -405,6 +443,13 @@ table_info = {
                 'lineup_model': [],
         },
         'ask': ['id', 'year', 'region', 'number', 'mod_id'],
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+		('0002', 'MultiVar'),
+		('0004', 'NoID'),
+	    ]
+	},
     },
     #link_line
     'link_line': {
@@ -565,6 +610,11 @@ table_info = {
         'clinks': {
                 'id': {'tab': 'book', 'id': ['id/id']},
         },
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+	    ]
+	},
     },
     #bayarea
     'bayarea': {
@@ -600,6 +650,11 @@ table_info = {
         'clinks': {
                 'id': {'tab': 'photo_credit', 'id': ['example_id/id']},
         },
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+	    ]
+	},
     },
     #photo_credit
     'photo_credit': {
@@ -629,6 +684,13 @@ table_info = {
         'clinks': {
         },
         'ask': ['id', 'name'],
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+		('0002', '2'),
+		('0004', 'Indexed'),
+	    ]
+	},
     },
     #user_item
     'user_item': {

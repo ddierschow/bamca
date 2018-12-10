@@ -12,16 +12,18 @@ import useful
 
 
 id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic', '_credit']
-note_attributes = ['manufacture', 'area', 'date', 'note', 'category']
+note_attributes = ['area', 'date', 'note', 'category']
 internal_desc_attributes = ['description', 'base', 'body', 'interior', 'windows']
 desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
 text_attributes = ['text_' + x for x in desc_attributes]
 format_attributes = ['format_' + x for x in desc_attributes]
-hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type']
-detail_attributes = ['base', 'base_text', 'body', 'interior', 'windows']
+hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type', 'base_elephant']
+detail_attributes = ['base', 'body', 'interior', 'windows']
+base_attributes = ['base_text', 'base_name', 'base_number', 'toy_id', 'company_name', 'copyright', 'production_id', 'manufacture']
+not_individual_attributes = text_attributes + note_attributes + hidden_attributes + base_attributes
 
 list_columns = ['ID', 'Description', 'Details', 'Picture', 'Notes']
-detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Ba', 'Bo', 'In', 'Wh', 'Wi', 'W/']
+detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Lo', 'Ba', 'Bo', 'In', 'Wh', 'Wi', 'W/']
 
 fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
 
@@ -105,6 +107,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
     data = sorted(variation.keys() + [d for d in vsform.attributes if d not in variation])
 
     lsec = {'columns': ['title', 'value'], 'id': 'single'}
+    shown_attributes = [d for d in data if d not in not_individual_attributes]
     if edit:
 	lsec['headers'] = {'title': 'Title', 'value': 'Value', 'field': 'Field', 'new': 'New', 'pic': 'Picture Var'}
 	lsec['columns'] = ['field', 'title', 'value', 'new']
@@ -112,13 +115,17 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
 	    lsec['columns'].append('pic')
 	    picture_variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, variation['picture_id']))
 	ranges = [{'name': 'Identification Attributes', 'id': 'det', '_attrs': id_attributes}]
+	base_attributes.extend(['logo_type', 'base_elephant', '_copy_base_from'])
     else:
 	lsec['headers'] = {'title': 'Title', 'value': 'Value'}
 	lsec['columns'] = ['title', 'value']
 	ranges = [{'name': 'Description Texts', 'id': 'det', '_attrs': text_attributes[1:]}]
+	variation['text_base'] += (' ' +
+	    pif.render.format_image_icon('l_base-' + variation['logo_type'], mbdata.base_logo_dict.get(variation['logo_type'])) +
+	    (' ' + pif.render.format_image_icon('l_elephant') if (variation['base_elephant'] == 'with') else ''))
     ranges.extend([
-	    {'name': 'Individual Attributes', 'id': 'det',
-	     '_attrs': [d for d in data if not (d in text_attributes or d in note_attributes or d in hidden_attributes)]},
+	    {'name': 'Individual Attributes', 'id': 'det', '_attrs': shown_attributes},
+	    {'name': 'Information on Base', 'id': 'det', '_attrs': base_attributes},
 	    {'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
 	])
     for lran in ranges:
@@ -214,6 +221,9 @@ def show_appearances(pif, mod_id, var_id, pics=False):
 def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='', photogs=[], picture_var=None):
     if field.startswith('variation.'):  # not sure where this is coming from.
 	field = field[10:]
+    if field == '_copy_base_from':
+	return {'field': '', 'title': 'Copy base info from', 'value': '',
+		'new': pif.render.format_text_input("cpbas." + variation['var'], 16, 16)}
     if field == '_repic':
 	return {'field': '', 'title': 'Move pictures to', 'value': '',
 		'new': pif.render.format_text_input("repic." + variation['var'], 16, 16)}
@@ -240,15 +250,21 @@ def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='
     pic_val = ''
     if picture_var:
 	pic_val = picture_var.get(field, '')
-    new_value = pif.render.format_text_input(field + "." + variation['var'],
+    if field == 'logo_type':
+	value = pif.render.format_image_icon('l_base-' + variation[field], mbdata.base_logo_dict.get(variation[field], '(unknown)'))
+	new_value = pif.render.format_select(field + "." + variation['var'], mbdata.base_logo, selected=variation[field])
+    else:
+	new_value = pif.render.format_text_input(field + "." + variation['var'],
 	    int(fieldwidth_re.search(attributes[field]['definition']).group('w')) \
 		if '(' in attributes[field]['definition'] else 20,
 	    64, value=variation.get(field, ''))
     if field == 'var':
+	flags = variation.get('flags', variation.get('variation.flags', '0')) & (
+	     pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT)
 	new_value += ' ' + pif.render.format_select('flags.' + variation['var'],
 	    [('0', 'unverified'), (str(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED), 'verified'),
 	     (str(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT), 'incorrect')],
-	    str(variation.get('flags', variation.get('variation.flags', '0'))))
+	    str(flags))
     return {'field': field, 'title': title, 'value': value, 'new': new_value, 'pic': pic_val}
 
 
@@ -299,14 +315,16 @@ def show_details(pif, data, attributes, model, variation, attr_pics={}, ran_id='
 
 
 def save_variation(pif, mod_id, var_id):
+    var_bare = pif.dbh.depref('variation', pif.dbh.fetch_variation_bare(mod_id, var_id))
+    var_bare = var_bare[0] if var_bare else {}
     country_codes = mbdata.get_country_codes()
-    phcred = var_sel = repic = ''
+    phcred = var_sel = repic = cpbas = ''
     attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id))}
     #attributes.update({pif.dbh.table_info['variation']['columns'][x]: {'title': pif.dbh.table_info['variation']['titles'][x]} for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
     pif.render.comment("Save: ", attributes)
     var_dict = {'mod_id': pif.form.get_str('mod'), 'picture_id': ''}
     det_dict = dict()
-    for attr in note_attributes + detail_attributes:
+    for attr in note_attributes + detail_attributes + base_attributes:
     #    if 'id' in attributes.get(attr, {}):
     #        det_dict[attr] = pif.form.get_str(attr + '.' + var_id)
     #    else:
@@ -321,15 +339,24 @@ def save_variation(pif, mod_id, var_id):
 	elif attr == 'repic':
 	    repic = pif.form.get_str(key)
 	    useful.write_message('repic', repic, '<br>')
+	elif attr == 'cpbas':
+	    cpbas = pif.form.get_str(key)
+	    useful.write_message('cpbas', cpbas, '<br>')
 	elif attr == 'picture_id':
 	    if pif.form.get_str(key) != var_id:
 		var_dict[attr] = pif.form.get_str(key)
 	elif attr == 'area':
 	    var_dict[attr] = ';'.join([country_codes.get(x, x) for x in pif.form.get_str(key).split(',')])
-	elif attr in note_attributes + internal_desc_attributes + hidden_attributes + detail_attributes:
+	elif attr == 'flags':
+	    var_dict[attr] = var_bare[attr]
+	    var_dict[attr] &= ~(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT)
+	    var_dict[attr] |= pif.form.get_int(key)
+	elif attr in note_attributes + internal_desc_attributes + hidden_attributes + detail_attributes + base_attributes:
 	    var_dict[attr] = pif.form.get_str(key)
 	else:
 	    det_dict[attr] = pif.form.get_str(key)
+    if cpbas:
+	copy_base_info(pif, mod_id, var_dict, cpbas)
     useful.write_message('var_dict', var_dict)
     useful.write_message('det_dict', det_dict)
     if var_id != var_dict['var']:
@@ -417,13 +444,12 @@ class VarSearchForm(object):
 	(mbdata.LISTTYPE_JSON, 'JSON'),
     ]
     def __init__(self, pif, mod_id):
+	tinf = pif.dbh.table_info['variation']
 	self.page_id = pif.page_id
 	self.mod_id = mod_id
 	self.attr_pics = {x['attribute.attribute_name']: x for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
 	attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))}
-	attributes.update({pif.dbh.table_info['variation']['columns'][x]:
-	    {'title': pif.dbh.table_info['variation']['titles'][x]}
-		for x in range(0, len(pif.dbh.table_info['variation']['columns']))})
+	attributes.update({x: {'title': tinf['title'].get(x, x.replace('_', ' ').title())} for x in tinf['columns']})
 	attributes['references'] = {'title': 'References', 'definition': 'varchar(256)'}
 	attributes['category'] = {'title': 'Category', 'definition': 'varchar(256)'}
 	for vardesc in pif.dbh.describe('variation'):
@@ -712,6 +738,7 @@ def do_var_detail(pif, model, var, credits):
 	        '<i class="far fa-circle gray"></i>',
 	'Im': var['imported_from'],
 	'De': mk_star(has_de, not model['format_description']),
+	'Lo': var['logo_type'],
 	'Ba': mk_star(has_ba, not model['format_base']),
 	'Bo': mk_star(has_bo, not model['format_body']),
 	'In': mk_star(has_in, not model['format_interior']),
@@ -731,10 +758,10 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
     pic_id = var['picture_id']
     cats = [model['_catdefs'][x]['name'] for x in sorted(set(var['_catlist'])) if x in model['_catdefs']]
 
-    descs = list()
-    dets = list()
-    note_text = ''
-    note_text += attributes['category']['title'] + ': ' + ', '.join(cats) + '<br>'
+    descs = []
+    dets_a = []
+    dets_b = []
+    note_text = attributes['category']['title'] + ': ' + ', '.join(cats) + '<br>'
     if var.get('date'):
 	var['date'] = pif.render.format_link('msearch.cgi?date=1&dt=%s' % var['date'], var['date'])
     for d in sorted(var.keys()):
@@ -745,8 +772,10 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
 	elif d in note_attributes:
 	    if var[d]:
 		note_text += attributes[d]['title'] + ': ' + var[d] + '<br>'
+	elif d in base_attributes:
+	    dets_b.append(d)
 	elif d not in hidden_attributes:
-	    dets.append(d)
+	    dets_a.append(d)
     if pif.is_allowed('a'):  # pragma: no cover
         note_text += 'Import: %s, %s-%s<br>' % (var['imported'], var['imported_from'], var['imported_var'])
         note_text += 'Show: ' + pif.render.format_text_input("picture_id." + var['var'], 8, value=pic_id, also={'class': 'bggray' if pic_id else 'bgok'})
@@ -780,16 +809,23 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
 	if var['flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT:
 	    ostr += '<br><i class="fas fa-times red"></i>'
     ostr += '</center>'
+    if var['logo_type']:
+	var['_picture'] += "<br><center>" + (pif.render.format_image_icon('l_base-' + var['logo_type'], mbdata.base_logo_dict.get(var['logo_type'], '(unknown)')) +
+	    (' ' + pif.render.format_image_icon('l_elephant') if (var['base_elephant'] == 'with') else '')) + '</center>'
     return {
         'ID': ostr,
         'Description': '<div class="varentry">' + var['text_description'] + '</div>\n' + '<br>'.join([
 	    '<span class="%s">%s: %s</span>\n' % (
 	    ("diff" if pif.is_allowed('a') and var[d] != prev.get(d, var[d]) else "same"),
 	    attributes[d]['title'], var[d]) for d in descs]),
-        'Details': '<br>'.join([
+        'Details': ('<br>'.join([
 	    '<span class="%s">%s: %s</span>\n' % (
 	    ("diff" if pif.is_allowed('a') and var[d] != prev.get(d, var[d]) else "same"),
-	    attributes[d]['title'], var[d]) for d in dets if d in attributes]),
+	    attributes[d]['title'], var[d]) for d in dets_a if d in attributes]) + '<hr>' +
+	    '<br>'.join([
+	    '<span class="%s">%s: %s</span>\n' % (
+	    ("diff" if pif.is_allowed('a') and var[d] != prev.get(d, var[d]) else "same"),
+	    attributes[d]['title'], var[d]) for d in dets_b if d in attributes])),
         'Picture': '<a href="%(_lnk)s">%(_picture)s</a>' % var,
         'Notes': note_text,
     }
@@ -820,6 +856,7 @@ def do_model_admin(pif, model, codes, attributes, dvars, photogs):
 	    lsec['range'].append(lran)
 	    llineup['section'].append(lsec)
 
+    llineup['footer'] = related_casting_links(pif, model['id'], url="vars.cgi?list=1&mod=")
     return llineup
 
 
@@ -858,7 +895,11 @@ def do_model_detail(pif, model, codes, attributes, dvars, photogs):
 		lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
 		lsec['range'].append(lran)
 		llineup['section'].append(lsec)
+    llineup['footer'] = related_casting_links(pif, mod_id, url="vars.cgi?vdet=1&mod=")
+    return llineup
 
+
+def related_casting_links(pif, mod_id, url):
     var_id_set = set()
     related = set()
     for cr in pif.dbh.fetch_casting_relateds(section_id='single', mod_id=mod_id):
@@ -867,14 +908,14 @@ def do_model_detail(pif, model, codes, attributes, dvars, photogs):
 	else:
 	    related.add(cr['casting_related.related_id'])
 
-    llineup['footer'] = ''
+    ostr = ''
     if var_id_set:
-	llineup['footer'] += 'Shares IDs with: ' + ', '.join([pif.render.format_link("vars.cgi?vdet=1&mod=" + x, x) for x in sorted(var_id_set)])
+	ostr += 'Shares IDs with: ' + ', '.join([pif.render.format_link(url + x, x) for x in sorted(var_id_set)])
 	if related:
-	    llineup['footer'] += '<br>'
+	    ostr += '<br>'
     if related:
-	llineup['footer'] += 'Related castings: ' + ', '.join([pif.render.format_link("vars.cgi?vdet=1&mod=" + x, x) for x in sorted(related)])
-    return llineup
+	ostr += 'Related castings: ' + ', '.join([pif.render.format_link(url + x, x) for x in sorted(related)])
+    return ostr
 
 
 #mbdata.LISTTYPE_CHECKLIST
@@ -1283,6 +1324,7 @@ def run_search_command(pif, args):
 
 
 def verify(pif, flag, mod_id, *var_ids):
+    # need to read the old flags and modify
     flag = (pif.dbh.FLAG_MODEL_VARIATION_VERIFIED if flag == 'v' else
 	    pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT if flag == 'i' else 0)
     var = {'variation.mod_id': mod_id, 'flags': flag}
@@ -1750,6 +1792,27 @@ def check_tilley_credits(pif):
 			print 'x', man, tf[0], credits.get(tf[0], '')
 
 
+def copy_base(pif, mod_id, old_var_id, *new_var_ids):
+    for new_var_id in new_var_ids:  # yes, i'm lazy, why do you ask?
+	var_dict = pif.dbh.depref('variation', pif.dbh.fetch_variation_bare(mod_id, new_var_id))
+	if var_dict:
+	    var_dict = copy_base_info(pif, mod_id, var_dict[0], old_var_id)
+	    del var_dict['imported']
+	    print pif.dbh.write('variation', var_dict)
+	    pif.dbh.recalc_description(mod_id)
+
+
+def copy_base_info(pif, mod_id, var_dict, old_var_id):
+    other_var = pif.dbh.depref('variation', pif.dbh.fetch_variation_bare(mod_id, old_var_id))
+    if other_var:
+	other_var = other_var[0]
+	useful.write_message('copying base info', mod_id, var_dict['var'], old_var_id)
+	for attr in base_attributes + ['logo_type', 'base_elephant']:
+	    if not var_dict.get(attr):
+		var_dict[attr] = other_var[attr]
+    return var_dict
+
+
 cmds = [
     ('d', delete_variation, "delete: mod_id var_id"),
     ('a', add_variation, "add: mod_id var_id body"),
@@ -1760,6 +1823,7 @@ cmds = [
     ('f', run_search_command, "search: obj ..."),
     ('i', info, "info: fields mod_id var_id"),
     ('v', add_value, "value: mod_id var_id-or-default-or-all attribute value"),
+    ('cb', copy_base, "copy base: mod_id var_id var_id"),
     ('l', list_variations, "list: mod_id"),
     ('p', list_variation_pictures, "pictures: mod_id"),
     ('pc', list_photo_credits, "photo credits"),

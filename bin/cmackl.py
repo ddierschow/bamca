@@ -49,11 +49,13 @@ def format_mack_text(pif, amods):
 			'id': '%s%02s-%s' % (mtype, mrank, mfile),
 			'name': '',
 			'man': '',
+			'year': '',
+			'error': '',
 			'mack_id_unf': (mtype, mrank, mfile),  # for internal use
 			'class': 'rw' if not mtype else 'sf' if mtype == 'MB' else 'mb',
 		    }
 		if mfile not in mfiles:
-		    ent['name'] = '<span class="warning">missing</span>'
+		    ent['error'] = '<span class="warning">missing</span>'
 		    res.append(ent)
 		    continue
 		for mod in mfiles[mfile]:
@@ -61,40 +63,18 @@ def format_mack_text(pif, amods):
 		    if ent['man']:
 			ent['man'] = '<br>'.join([ent['man'], modlink])
 			ent['name'] = '<br>'.join([ent['name'], mod['base_id.rawname'].replace(';', ' ')])
+			ent['year'] = '<br>'.join([ent['year'], mod['alias.first_year']])
 		    else:
 			ent['man'] = modlink
 			ent['name'] = mod['base_id.rawname'].replace(';', ' ')
+			ent['year'] = mod.get('alias.first_year', mod.get('base_id.first_year', ''))
 		if len(mfiles[mfile]) > 1:
 		    for shared in sharedsets:
 			if not (set([x['base_id.id'] for x in mfiles[mfile]]) - shared):
 			    break
 		    else:
-			ent['name'] += ' <span class="warning">not shared</span>'
+			ent['error'] = ' <span class="warning">not shared</span>'
 		res.append(ent)
-    return [{'entry': res}] if res else []
-
-
-
-    last = None
-    res = []
-    for mack_id, mod in amods:
-	modlink = pif.render.format_link('single.cgi?id=' + mod['base_id.id'], mod['base_id.id'])
-	if last and last[:2] != mack_id[:2]:
-	    res.append({'id': ''})
-	if mack_id == last:
-	    res[-1]['man'] += '<br>' + modlink
-	    res[-1]['name'] += '<br>' + mod['base_id.rawname'].replace(';', ' ')
-	else:
-	    res.append(
-		{
-		    'id': '%s%02s-%s' % mack_id,
-		    'name': mod['base_id.rawname'].replace(';', ' '),
-		    'man': modlink,
-		    'mack_id_unf': mack_id,  # for internal use
-		    'class': 'rw' if not mack_id[0] else 'sf' if mack_id[0] == 'MB' else 'mb',
-		}
-	    )
-	    last = mack_id
     return [{'entry': res}] if res else []
 
 
@@ -140,8 +120,8 @@ def mack_lineup(pif):
     lsec['range'] = ranges
     llineup = {'section': [lsec]}
     if text_list:
-	lsec['headers'] = {'id': 'Mack ID', 'man': 'MAN ID', 'name': 'Name'}
-	lsec['columns'] = ['id', 'man', 'name']
+	lsec['headers'] = {'id': 'Mack ID', 'man': 'MAN ID', 'name': 'Name', 'year': 'Year', 'error': ''}
+	lsec['columns'] = ['id', 'man', 'name', 'year', 'error']
 	return pif.render.format_template('simplelistix.html', llineup=llineup)
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('mack.html', llineup=llineup)

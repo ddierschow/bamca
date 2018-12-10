@@ -651,6 +651,38 @@ img_sel_cat = [
     ('zing',        'Zings'),
 ]
 
+
+base_logo = [
+    ('', '(unknown)'),
+    ('a', '(no logo)'),
+    ('b', 'straight "MATCHBOX" SERIES'),
+    ('c', 'straight MATCHBOX (R)'),
+    ('d', 'italic MATCHBOX'),
+    ('e', 'italic MATCHBOX TM'),
+    ('f', 'italic MATCHBOX (R)'),
+    ('g', 'elliptical MATCHBOX'),
+    ('h', 'rectangular "MATCHBOX"'),
+    ('i', 'rectangular "MATCHBOX" small (R)'),
+    ('j', 'rectangular MATCHBOX small TM'),
+    ('k', 'rectangular MATCHBOX large TM'),
+    ('l', 'rectangular MATCHBOX (R) outside'),
+    ('m', 'rectangular MATCHBOX (R) inside'),
+]
+base_logo_dict = dict(base_logo)
+
+base_logo_2 = [
+    ('', ''),
+    ('0', '(no logo)'),
+    ('1', 'straight SUPERFAST'),
+    ('2', 'Superfast with wheel'),
+    ('3', 'straight MAJOR PACK'),
+    ('4', 'straight KING SIZE'),
+    ('5', 'script Super Kings'),
+    ('6', 'script Speed Kings'),
+]
+base_logo_dict = dict(base_logo)
+
+
 # ----------------------------------------------------------------------
 
 def get_mime_type(listtype):

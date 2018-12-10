@@ -801,6 +801,10 @@ class DBHandler(object):
 	    where=["mod_id='%s'" % mod_id], group='manufacture', order='manufacture',
 	    tag='VarPlantCounts', verbose=True)
 
+    def fetch_variation_base_names(self, mod_id):
+	return self.fetch('variation', columns=['base_name'], where=["mod_id='%s'" % mod_id, "base_name != ''"], distinct=True,
+	    tag='VarBaseNames', verbose=True)
+
     def insert_variation(self, mod_id, var_id, attributes={}, verbose=False):
         cols = self.table_info['variation']['columns']
         nvar = dict()

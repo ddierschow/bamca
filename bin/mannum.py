@@ -369,19 +369,14 @@ class MannoFile(object):
 		    td[t2k[txt]] = None
 		elif var['variation.text_' + txt] or not mdict['format_' + txt]:
 		    td[t2k[txt]] += 1
-            dt = var['variation.date'].split('/')
-            if len(dt) > 1:
-                yr = dt[1].strip()
-                if yr.isdigit():
-                    yr = int(yr) + 1900
-                    if yr < 1953:
-                        yr += 100
-                    if not fy:
-                        fy = yr
-                    if not ly:
-                        ly = yr
-                    fy = min(fy, yr)
-                    ly = max(ly, yr)
+            yr = var['variation.date'].strip()[:4]
+	    if yr.isdigit():
+		if not fy:
+		    fy = yr
+		if not ly:
+		    ly = yr
+		fy = min(fy, yr)
+		ly = max(ly, yr)
 	    ver.add(var['variation.flags'] & (pif.dbh.FLAG_MODEL_ID_INCORRECT | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED))
 	if id_set:
 	    min_id = min(id_set)
@@ -427,17 +422,13 @@ class MannoFile(object):
 	    fmt_bad, _, _ = pif.dbh.check_description_formatting(mdict['id'])
 	    mdict['fo'] = '<i class="fas fa-times red"></i>' if fmt_bad else ''
 	    mdict['im'] = ''.join(['<i class="%s"></i>' % vers[x] for x in sorted(mdict['ver'])])
-#	    ver = sorted(set(x[
-#('<i class="fas fa-times red"></i> %s' % var['imported_var']) if var['flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT else
-#	        '<i class="fas fa-check black"></i>' if var['flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else
-#	        '<i class="far fa-circle gray"></i>',
 	    makes = pif.dbh.fetch_casting_makes(mod)
 	    mdict['make'] = '<br>'.join([
-		pif.render.format_link("https://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
+		pif.render.format_link("/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
 		for x in makes
 	    ])
 	    if mdict['make']:
-		mdict['make'] = pif.render.format_link("https://beta.bamca.org/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make'])
+		mdict['make'] = pif.render.format_link("/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make'])
 	    relateds = [x['casting_related.related_id'] for x in pif.dbh.fetch_casting_relateds(mod, section_id='single')]
 	    mdict['rel'] = '<br>'.join([pif.render.format_link('/cgi-bin/single.cgi', x, {'id': x}) for x in relateds])
 	    yield mdict
@@ -539,6 +530,8 @@ class MannoFile(object):
 		self.totals[ipix]['total'] += needs[ipix]
 	    mdict.update(dict(zip(var_pic_keys, single.fmt_var_pics(founds, needs))))
 	    mdict['credvars'] = '<span class="%s">%d/%d</span>' % ('ok' if len(vcredits) == founds[0] else 'no', len(vcredits), founds[0])
+	    if mdict['flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
+		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fas fa-circle green"></i><nobr>'
 	    if not mdict['made']:
 		mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
 	    mdict['d_'] = single.fmt_var_pic(*self.show_attr_pics(pif, mod))
@@ -604,7 +597,7 @@ class MannoFile(object):
 	elif mdict['unlicensed'] == '-':
 	    mdict['flag'] = pif.render.format_image_art('mbx.gif')
 	mdict['makename'] = ' - '.join([
-	    pif.render.format_link("https://beta.bamca.org/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
+	    pif.render.format_link("/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
 	    for x in pif.dbh.fetch_casting_makes(mdict['id'])
 	])
         mdict['name'] = pif.render.format_link(lnk, mdict['id'] + '<br>' + mdict['rawname'] + '<br>' + mdict['flag'] + '<br>' + mdict['makename'])

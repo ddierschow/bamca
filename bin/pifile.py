@@ -133,6 +133,10 @@ class BaseForm(object):
 	    ret.extend([(x[len(start):], self.get_str(x)) for x in self.keys(start=start)])
 	return ret
 
+    def get_bits(self, key, start=None, base=16, defval=None):
+	val = self.get_list(key, start)
+	return sum(int(x, base) for x in val) if val else defval
+
     def keys(self, keylist=None, start='', end='', has='', sort=None):
 	keylist = keylist if keylist else self.form.keys()
 	keylist = [x for x in keylist if (x.startswith(start) and x.endswith(end) and has in x)]
