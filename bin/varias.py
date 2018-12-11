@@ -19,7 +19,7 @@ text_attributes = ['text_' + x for x in desc_attributes]
 format_attributes = ['format_' + x for x in desc_attributes]
 hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type', 'base_elephant']
 detail_attributes = ['base', 'body', 'interior', 'windows']
-base_attributes = ['base_text', 'base_name', 'base_number', 'toy_id', 'company_name', 'copyright', 'production_id', 'manufacture']
+base_attributes = ['base_text', 'base_name', 'base_number', 'tool_id', 'company_name', 'copyright', 'production_id', 'manufacture']
 not_individual_attributes = text_attributes + note_attributes + hidden_attributes + base_attributes
 
 list_columns = ['ID', 'Description', 'Details', 'Picture', 'Notes']
