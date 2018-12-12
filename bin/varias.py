@@ -120,8 +120,8 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
 	lsec['headers'] = {'title': 'Title', 'value': 'Value'}
 	lsec['columns'] = ['title', 'value']
 	ranges = [{'name': 'Description Texts', 'id': 'det', '_attrs': text_attributes[1:]}]
-	variation['text_base'] += (' ' +
-	    pif.render.format_image_icon('l_base-' + variation['logo_type'], mbdata.base_logo_dict.get(variation['logo_type'])) +
+	variation['text_base'] += (' ' + ' '.join([
+	    pif.render.format_image_icon('l_base-' + x, mbdata.base_logo_dict.get(x)) for x in variation['logo_type']]) +
 	    (' ' + pif.render.format_image_icon('l_elephant') if (variation['base_elephant'] == 'with') else ''))
     ranges.extend([
 	    {'name': 'Individual Attributes', 'id': 'det', '_attrs': shown_attributes},
@@ -251,8 +251,16 @@ def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='
     if picture_var:
 	pic_val = picture_var.get(field, '')
     if field == 'logo_type':
-	value = pif.render.format_image_icon('l_base-' + variation[field], mbdata.base_logo_dict.get(variation[field], '(unknown)'))
-	new_value = pif.render.format_select(field + "." + variation['var'], mbdata.base_logo, selected=variation[field])
+	l1 = l2 = ''
+	for ch in variation[field]:
+	    if ch in mbdata.base_logo_dict:
+		l1 = ch
+	    elif ch in mbdata.base_logo_2_dict:
+		l2 = ch
+	value = (pif.render.format_image_icon('l_base-' + l1, mbdata.base_logo_dict.get(l1, '(unknown)')) + ' ' +
+		pif.render.format_image_icon('l_base-' + l2, mbdata.base_logo_2_dict.get(l2, '(none)')))
+	new_value = (pif.render.format_select(field + "." + variation['var'], mbdata.base_logo, selected=l1) + ' ' +
+	    pif.render.format_select(field + "." + variation['var'], mbdata.base_logo_2, selected=l2))
     else:
 	new_value = pif.render.format_text_input(field + "." + variation['var'],
 	    int(fieldwidth_re.search(attributes[field]['definition']).group('w')) \
@@ -351,6 +359,8 @@ def save_variation(pif, mod_id, var_id):
 	    var_dict[attr] = var_bare[attr]
 	    var_dict[attr] &= ~(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT)
 	    var_dict[attr] |= pif.form.get_int(key)
+	elif attr == 'logo_type':
+	    var_dict[attr] = ''.join(pif.form.get_list(key))
 	elif attr in note_attributes + internal_desc_attributes + hidden_attributes + detail_attributes + base_attributes:
 	    var_dict[attr] = pif.form.get_str(key)
 	else:
@@ -758,20 +768,21 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
     pic_id = var['picture_id']
     cats = [model['_catdefs'][x]['name'] for x in sorted(set(var['_catlist'])) if x in model['_catdefs']]
 
-    descs = []
+    desc_a = []
+    desc_b = []
     dets_a = []
     dets_b = []
-    note_text = attributes['category']['title'] + ': ' + ', '.join(cats) + '<br>'
-    if var.get('date'):
-	var['date'] = pif.render.format_link('msearch.cgi?date=1&dt=%s' % var['date'], var['date'])
+    pic_text = '<center><a href="%(_lnk)s">%(_picture)s</a>' % var
+    note_text = ''
     for d in sorted(var.keys()):
 	if d.startswith('_') or d == 'text_description' or not var[d]:
 	    pass
 	elif d in text_attributes:
-	    descs.append(d)
+	    desc_a.append(d)
 	elif d in note_attributes:
 	    if var[d]:
-		note_text += attributes[d]['title'] + ': ' + var[d] + '<br>'
+		note_text += (attributes[d]['title'] + ': ' +
+		    pif.render.format_link('msearch.cgi?date=1&dt=%s' % var[d], var[d]) if d == 'date' else var[d]) + '<br>'
 	elif d in base_attributes:
 	    dets_b.append(d)
 	elif d not in hidden_attributes:
@@ -786,10 +797,12 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
                 note_text += sz.upper() + ' '
 	if pic_id:
 	    note_text += '</span>'
+	    phcred = credits.get(('%(mod_id)s-%(picture_id)s' % var).lower(), '')
+	    pic_text += dict(photogs).get(phcred, phcred) + '<br>'
 	else:
 	    phcred = credits.get(('%(mod_id)s-%(var)s' % var).lower(), '')
-	    note_text += '<div class="%s">Credit: ' % ('bgok' if phcred or pic_id else 'bgno')
-	    note_text += pif.render.format_select("phcred." + var['var'], photogs, selected=phcred, blank='') + '</div>'
+	    pic_text += '<div class="%s">' % ('bgok' if phcred or pic_id else 'bgno')
+	    pic_text += pif.render.format_select("phcred." + var['var'], photogs, selected=phcred, blank='') + '</div>'
         note_text += "References:<br>" + pif.render.format_text_input("var_sel." + var['var'], 256, 24, value=var['references'], also={'class': 'bgok' if var['references'] else 'bgno'})
 
     ostr = '<center>'
@@ -810,14 +823,27 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
 	    ostr += '<br><i class="fas fa-times red"></i>'
     ostr += '</center>'
     if var['logo_type']:
-	var['_picture'] += "<br><center>" + (pif.render.format_image_icon('l_base-' + var['logo_type'], mbdata.base_logo_dict.get(var['logo_type'], '(unknown)')) +
-	    (' ' + pif.render.format_image_icon('l_elephant') if (var['base_elephant'] == 'with') else '')) + '</center>'
+	for logo in var['logo_type']:
+	    pic_text += pif.render.format_image_icon('l_base-' + logo, mbdata.base_logo_dict.get(logo, '')) + ' '
+    else:
+	pic_text += '(unknown) '
+    pic_text += pif.render.format_image_icon('l_elephant') if (var['base_elephant'] == 'with') else ''
+    pic_text += '</center>'
+    if cats:
+	desc_b.append(attributes['category']['title'] + ': ' + ', '.join(cats))
+    if var['date']:
+	desc_b.append(attributes['date']['title'] + ': ' + var['date'])
+    if var['area']:
+	desc_b.append(attributes['area']['title'] + ': ' + var['area'])
+    if var['note']:
+	desc_b.append(attributes['note']['title'] + ': ' + var['note'])
+    cat_text = ('<hr>' + '<br>'.join(desc_b)) if desc_b else ''
     return {
         'ID': ostr,
         'Description': '<div class="varentry">' + var['text_description'] + '</div>\n' + '<br>'.join([
 	    '<span class="%s">%s: %s</span>\n' % (
 	    ("diff" if pif.is_allowed('a') and var[d] != prev.get(d, var[d]) else "same"),
-	    attributes[d]['title'], var[d]) for d in descs]),
+	    attributes[d]['title'], var[d]) for d in desc_a]) + cat_text,
         'Details': ('<br>'.join([
 	    '<span class="%s">%s: %s</span>\n' % (
 	    ("diff" if pif.is_allowed('a') and var[d] != prev.get(d, var[d]) else "same"),
@@ -826,7 +852,7 @@ def do_var_for_list(pif, model, var, attributes, prev, credits, photogs):
 	    '<span class="%s">%s: %s</span>\n' % (
 	    ("diff" if pif.is_allowed('a') and var[d] != prev.get(d, var[d]) else "same"),
 	    attributes[d]['title'], var[d]) for d in dets_b if d in attributes])),
-        'Picture': '<a href="%(_lnk)s">%(_picture)s</a>' % var,
+        'Picture': pic_text,
         'Notes': note_text,
     }
 

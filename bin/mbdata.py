@@ -680,7 +680,7 @@ base_logo_2 = [
     ('5', 'script Super Kings'),
     ('6', 'script Speed Kings'),
 ]
-base_logo_dict = dict(base_logo)
+base_logo_2_dict = dict(base_logo_2)
 
 
 # ----------------------------------------------------------------------
