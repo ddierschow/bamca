@@ -297,7 +297,7 @@ class DBHandler(object):
 
     def fetch_alias(self, id, extras=False):
         alist = self.fetch("casting,alias,base_id", extras=True, where=["casting.id=alias.ref_id", "alias.id='%s'" % id, "casting.id=base_id.id"], one=True, tag='Alias')
-        return {}
+        return alist
 
     def fetch_castings_by_box(self, series, style):
         wheres = ['casting.id=base_id.id']
@@ -350,10 +350,10 @@ class DBHandler(object):
     #- casting
 
     def fetch_casting_limits(self):
-	#ranswer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
+	#ranswer = fetch("select min(year), max(year), max(number) from lineup_model", $pif);
         wheres = ['base_id.id=casting.id']
 	return self.fetch('casting,base_id', columns=['min(base_id.first_year)', 'max(base_id.first_year)'],
-			  where=wheres, one=True, tag='FetchCastingLimits', verbose=False)
+			  where=wheres, one=True, tag='CastingLimits', verbose=False)
 
     def fetch_casting_ids(self, tag='CastingIDs'):
         return [x['casting.id'] for x in self.fetch('casting', tag='CastingIDs')]
@@ -844,9 +844,9 @@ class DBHandler(object):
 	    wheres.append("sec_id='%s'" % sec_id)
 	    if ran_id:
 		wheres.append("ran_id='%s'" % ran_id)
-	return self.fetch('variation_select', where=wheres, tag='FetchVariationSelectsForRef')
+	return self.fetch('variation_select', where=wheres, tag='VariationSelectsForRef')
 
-    def fetch_variation_selects(self, mod_id=None, var_id=None, ref_id=None, sec_id=None, ran_id=None, category=None):
+    def fetch_variation_selects(self, mod_id=None, var_id=None, ref_id=None, sec_id=None, ran_id=None, category=None, bare=False):
 	wheres = []
 	if mod_id:
 	    wheres.append("variation_select.mod_id='%s'" % mod_id)
@@ -860,13 +860,14 @@ class DBHandler(object):
 		    wheres.append("variation_select.ran_id='%s'" % ran_id)
 	if category:
 	    wheres.append("variation_select.category='%s'" % category)
-        left_joins = [("page_info", "variation_select.ref_id=page_info.id")]
-        left_joins += [("section", "variation_select.ref_id=section.page_id and variation_select.sec_id=section.id")]
-        left_joins += [("pack", "variation_select.sec_id=pack.id")]
-        left_joins += [("base_id", "pack.id=base_id.id")]
-        left_joins += [("category", "variation_select.category=category.id")]
-        left_joins += [("lineup_model", "lineup_model.mod_id=variation_select.mod_id and lineup_model.page_id=variation_select.ref_id")]
-        left_joins += [("publication", "variation_select.sec_id=publication.id"), ("base_id as pub", "pub.id=publication.id")]
+        left_joins = [("category", "variation_select.category=category.id")]
+	if not bare:
+	    left_joins += [("page_info", "variation_select.ref_id=page_info.id")]
+	    left_joins += [("section", "variation_select.ref_id=section.page_id and variation_select.sec_id=section.id")]
+	    left_joins += [("pack", "variation_select.sec_id=pack.id")]
+	    left_joins += [("base_id", "pack.id=base_id.id")]
+	    left_joins += [("lineup_model", "lineup_model.mod_id=variation_select.mod_id and lineup_model.page_id=variation_select.ref_id")]
+	    left_joins += [("publication", "variation_select.sec_id=publication.id"), ("base_id as pub", "pub.id=publication.id")]
         return tables.Results('variation_select',
 		self.fetch('variation_select', left_joins=left_joins, where=wheres, tag='VariationSelects', verbose=0))
 
@@ -1062,9 +1063,9 @@ class DBHandler(object):
     #- lineup_model
 
     def fetch_lineup_limits(self):
-	#ranswer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
+	#ranswer = fetch("select min(year), max(year), max(number) from lineup_model", $pif);
 	return self.fetch('lineup_model', columns=['min(year)', 'max(year)', 'max(number)'],
-			  one=True, tag='FetchLineupLimits', verbose=False)
+			  one=True, tag='LineupLimits', verbose=False)
 
     def make_lineup_item(self, rec):
 	result = {col: rec.get('lineup_model.' + col, '') for col in self.get_table_info('lineup_model')['columns']}
@@ -1608,17 +1609,17 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     #- category
 
     def fetch_category(self, cat_id):
-        return tables.Results('category', self.fetch('category', where="id='%s'" % cat_id, tag="FetchCat")).first
+        return tables.Results('category', self.fetch('category', where="id='%s'" % cat_id, tag="Cat")).first
 
     def fetch_categories(self):
-        return tables.Results('category', self.fetch('category', tag='FetchCats'))
+        return tables.Results('category', self.fetch('category', tag='Cats'))
 
     def fetch_category_counts(self):
 	cols = self.make_columns('category') + ['count(*) as count']
         rows = self.fetch('category,variation_select', where='category.id=variation_select.category',
-			  columns=cols, group='variation_select.category', tag='FetchCatCounts')
+			  columns=cols, group='variation_select.category', tag='CatCounts')
         return tables.Results('category', rows)
-	#return tables.Results('category', self.fetch('category', tag="FetchCats"))
+	#return tables.Results('category', self.fetch('category', tag="Cats"))
 
     def insert_category(self, cat, name, flags=0):
 	return self.write('category', values={'id': cat, 'name': name, 'flags': flags}, newonly=True, tag='WriteCat')
@@ -1626,10 +1627,10 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     #- tumblr
 
     def fetch_tumblr_post(self):
-	return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), limit=1, tag='FetchTumblr')).first
+	return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), limit=1, tag='Tumblr')).first
 
     def fetch_tumblr_posts(self):
-	return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), tag='FetchTumblrs'))
+	return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), tag='Tumblrs'))
 
     def insert_tumblr(self, ty_post, response, payload):
         return self.write('tumblr', {'post_type': ty_post, 'payload': payload, 'response': response}, newonly=True, tag="InsertTumblr")
@@ -1640,17 +1641,17 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     #- mbusa
 
     def fetch_mbusa_entry(self, entry_id):
-	return tables.Results('mbusa', self.fetch('mbusa', where={'id': entry_id}, tag='FetchMBUSAEntry'))
+	return tables.Results('mbusa', self.fetch('mbusa', where={'id': entry_id}, tag='MBUSAEntry'))
 
     #- miscellaneous
 
     def fetch_counts(self):
 	cols = ['base_id.model_type', 'count(*) as count']
-        rows1 = self.fetch('base_id', columns=cols, group='base_id.model_type', tag='FetchCountsBaseId')
+        rows1 = self.fetch('base_id', columns=cols, group='base_id.model_type', tag='CountsBaseId')
 
 #select base_id.model_type,count(variation.var) as count from base_id,variation where base_id.id=variation.mod_id group by base_id.model_type;
 	cols = ['base_id.model_type', 'count(variation.var) as count']
-        rows2 = self.fetch('base_id,variation', columns=cols, where='base_id.id=variation.mod_id', group='base_id.model_type', tag='FetchCountsVars')
+        rows2 = self.fetch('base_id,variation', columns=cols, where='base_id.id=variation.mod_id', group='base_id.model_type', tag='CountsVars')
         return tables.Results('base_id', rows1), tables.Results('base_id', rows2)
 
     #select detail.mod_id, detail.var_id,attribute.attribute_name, detail.description from detail,attribute where detail.attr_id=attribute.id and attribute.attribute_name like '%wheel%' and description like '%front%' order by detail.mod_id;

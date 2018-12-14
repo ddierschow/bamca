@@ -81,6 +81,7 @@ def parse_file(pif, vid, fdir, fn, args=''):
             'casting': {},
 	    'attr_names': [],
         }
+
     if not fitabs:
 	fitab = make_fitab()
         varfile['tabs'].append(fitab)

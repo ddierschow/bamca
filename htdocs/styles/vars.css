@@ -9,9 +9,9 @@ body {background-color: #CCFFCC; text-align: left;}
 .eb_det {text-align: left;}
 .eh_ID {width: 24px; text-align: left; padding-left: 4px; padding-right: 4px; font-weight: bold;}
 .eh_Description {padding-left: 4px; padding-right: 4px;}
-.eh_Details {width: 300px; font-weight: normal}
-.eh_Picture {width: 200px; font-weight: normal}
-.eh_Notes {width: 200px; text-align: left; font-weight: normal}
+/*.eh_Details {width: 300px;}*/
+.eh_Picture {width: 200px;}
+.eh_Notes {width: 200px; text-align: left;}
 .eh_field {width: 200px;}
 .eh_title {width: 200px;}
 .eh_value {width: 300px;}
@@ -41,3 +41,6 @@ body {background-color: #CCFFCC; text-align: left;}
 .dt_d .eb_1 {text-align: center;}
 .eb_lefty {text-align: left;}
 .eb_c2 {background-color: #FFFFCC;}
+
+/*.long_tab {border-collapse: collapse; width: 100%;}
+.long_tab td {border-color: #000000; border-style: solid; border-width: 1px;}*/

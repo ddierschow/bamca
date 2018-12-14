@@ -194,6 +194,7 @@ class BaseForm(object):
 
 class PageInfoFile(object):
     def __init__(self, page_id, form_key='', defval='', args='', dbedit=None):
+	self.start_seconds = time.time()
         self.render = self.dbh = None
         self.secure = secure.Security()
         self.htdocs = self.secure.docroot
@@ -245,7 +246,6 @@ class PageInfoFile(object):
         if not self.is_web:
 	    useful.header_done(is_web=False)
 	self.duplicate_form = self.form.has('token') and not self.dbh.insert_token(self.form.get_str('token'))
-	useful.write_comment("Page:", self.page_id)
 
     def set_page_info(self, page_id):
         page_info = self.dbh.fetch_page(page_id)

@@ -241,7 +241,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         links.append('<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id}))
         links.append('<a href="mass.cgi?type=related&mod_id=%s">Relateds</a>' % mod_id)
         links.append('<a href="mass.cgi?type=alias&mod_id=%s">Aliases</a>' % mod_id)
-        links.append('<a href="vars.cgi?list=1&mod=%s">Variations</a>' % mod_id)
+        links.append('<a href="vars.cgi?edit=1&mod=%s">Variations</a>' % mod_id)
         links.append('<a href="vars.cgi?vdet=1&mod=%s">Details</a>' % mod_id)
         links.append('<a href="vsearch.cgi?ask=1&id=%s">Search</a>' % mod_id)
         links.append('<a href="pics.cgi?m=%s">Pics</a> <a href="vars.cgi?list=LIST&mod=%s&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>' % (mod_id.lower(), mod_id))
@@ -318,6 +318,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
 		ostr += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var, mod_id, var), '<i class="fas fa-upload"></i>') + '\n'
 		ostr += pif.render.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var), '<i class="fas fa-bars"></i>') + '\n'
             ostr += '<br>\n'
+	for attr in pif.dbh.fetch_attributes(mod_id):
+	    ostr += attr['attribute.attribute_name'] + '<br>\n'
     ostr = '<br>\n'.join(links) + '<p>\n' + ostr
     return ostr
 
