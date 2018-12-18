@@ -1775,7 +1775,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     def check_description_formatting(self, mod_id, linesep=''):
 	cas_cols = ['format_description', 'format_body', 'format_base', 'format_wheels', 'format_interior', 'format_windows', 'format_with']
-	var_cols = ['base', 'body', 'interior', 'windows', 'manufacture', 'base_text']
+	var_cols = ['base', 'body', 'interior', 'windows', 'manufacture', 'additional_text']
 	casting = self.fetch_casting(mod_id, extras=True)
 	attributes = var_cols + [x['attribute.attribute_name'] for x in self.fetch_attributes(mod_id)]
 	messages = ''

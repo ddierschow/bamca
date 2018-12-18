@@ -509,7 +509,7 @@ def add_var_ask(pif):
 
 
 var_id_columns = ['mod_id', 'var']
-var_attr_columns = ['body', 'base', 'base_text', 'windows', 'interior']
+var_attr_columns = ['body', 'base', 'additional_text', 'windows', 'interior']
 var_data_columns = ['category', 'area', 'date', 'note', 'manufacture', 'imported_from', 'imported_var']
 var_record_columns = var_id_columns + var_attr_columns + var_data_columns
 def add_var_info(pif):

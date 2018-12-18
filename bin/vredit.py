@@ -45,7 +45,7 @@ file_list_class = {
     IS_DIFFERENT_NUMBER: 'different',
 }
 
-var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'area', 'date', 'note', 'manufacture', 'base_text',
+var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'area', 'date', 'note', 'manufacture', 'additional_text',
                    'imported_from', 'imported_var']
 
 
