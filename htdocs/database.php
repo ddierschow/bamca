@@ -502,6 +502,8 @@ function SectionVSearch($pif) {
     echo "<tr><td>Interior:</td><td><input type=\"text\" name=\"interior\"></td></tr>\n";
     echo "<tr><td>Wheels:</td><td><input type=\"text\" name=\"wheels\"></td></tr>\n";
     echo "<tr><td>Windows:</td><td><input type=\"text\" name=\"windows\"></td></tr>\n";
+    echo "<tr><td>Text:</td><td><input type=\"text\" name=\"text\"></td></tr>\n";
+    echo "<tr><td>With:</td><td><input type=\"text\" name=\"with\"></td></tr>\n";
     if ($pif['isadmin']) {
 	echo "<tr><td><i>Area:</i></td><td><input type=\"text\" name=\"area\"></td></tr>\n";
 	echo "<tr><td><i>Category:</i></td><td><input type=\"text\" name=\"cat\"></td></tr>\n";

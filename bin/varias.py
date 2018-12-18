@@ -1307,7 +1307,7 @@ def add_model_var_table_pic_link(pif, mdict):
 
 
 vfields = {'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior', 'wheels': 'text_wheels',
-	   'windows': 'text_windows', 'with': 'text_with',
+	   'windows': 'text_windows', 'with': 'text_with', 'text': 'text_text',
 	   'cat': 'category', 'date': 'date', 'area': 'area', 'note': 'note'}
 cfields = {'casting': 'rawname'}
 
