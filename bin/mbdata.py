@@ -530,6 +530,7 @@ LISTTYPE_LINK = 'lnl'
 LISTTYPE_VEHICLE_TYPE = 'vtl'
 LISTTYPE_MULTIYEAR = 'myr'
 LISTTYPE_TILLEY = 'til'
+LISTTYPE_EDITOR = 'edt'
 
 mime_types = {
     LISTTYPE_CSV: 'text/csv',

@@ -21,6 +21,8 @@ hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'log
 detail_attributes = ['base', 'body', 'interior', 'windows']
 base_attributes = ['base_text', 'base_name', 'base_number', 'tool_id', 'company_name', 'copyright', 'production_id', 'manufacture']
 not_individual_attributes = text_attributes + note_attributes + hidden_attributes + base_attributes
+internal_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from'] + note_attributes + \
+			internal_desc_attributes + hidden_attributes + detail_attributes + base_attributes
 
 list_columns = ['ID', 'Description', 'Details', 'Picture']
 detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Or', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Lo', 'Ba', 'Bo', 'In', 'Wh', 'Wi', 'W/']
@@ -343,13 +345,10 @@ def save_variation(pif, mod_id, var_id):
 	    var_sel = pif.form.get_str(key)  # make it work!
 	elif attr == 'phcred':
 	    phcred = pif.form.get_str(key)
-	    useful.write_message('read phcred', key, phcred, '<br>')
 	elif attr == 'repic':
 	    repic = pif.form.get_str(key)
-	    useful.write_message('repic', repic, '<br>')
 	elif attr == 'cpbas':
 	    cpbas = pif.form.get_str(key)
-	    useful.write_message('cpbas', cpbas, '<br>')
 	elif attr == 'picture_id':
 	    if pif.form.get_str(key) != var_id:
 		var_dict[attr] = pif.form.get_str(key)
@@ -361,7 +360,7 @@ def save_variation(pif, mod_id, var_id):
 	    var_dict[attr] |= pif.form.get_int(key)
 	elif attr == 'logo_type':
 	    var_dict[attr] = ''.join(pif.form.get_list(key))
-	elif attr in note_attributes + internal_desc_attributes + hidden_attributes + detail_attributes + base_attributes:
+	elif attr in internal_attributes:
 	    var_dict[attr] = pif.form.get_str(key)
 	else:
 	    det_dict[attr] = pif.form.get_str(key)
@@ -458,7 +457,8 @@ class VarSearchForm(object):
 	self.page_id = pif.page_id
 	self.mod_id = mod_id
 	self.attr_pics = {x['attribute.attribute_name']: x for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
-	attributes = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))}
+	self.attr_recs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))
+	attributes = {x['attribute_name']: x for x in self.attr_recs}
 	attributes.update({x: {'title': tinf['title'].get(x, x.replace('_', ' ').title())} for x in tinf['columns']})
 	attributes['references'] = {'title': 'References', 'definition': 'varchar(256)'}
 	attributes['category'] = {'title': 'Category', 'definition': 'varchar(256)'}
@@ -506,6 +506,7 @@ class VarSearchForm(object):
 	self.sobj = form.search("var.s")
 	self.is_list = form.has('list') or form.has('edit')
 	self.is_detail = form.has('vdet')
+	self.is_attr_edit = form.has('attr')
 	self.recalc = form.has('recalc')
 	self.verbose = form.get_bool('verbose')
 	self.codes = []
@@ -526,7 +527,10 @@ class VarSearchForm(object):
 	    not self.sobj and
 	    self.codes == [1, 2]
 	)
-	self.display_type = mbdata.LISTTYPE_ADMIN if self.is_list else mbdata.LISTTYPE_PICTURE if self.is_detail else mbdata.LISTTYPE_NORMAL;
+	self.display_type = (mbdata.LISTTYPE_ADMIN if self.is_list
+			else mbdata.LISTTYPE_PICTURE if self.is_detail
+			else mbdata.LISTTYPE_EDITOR if self.is_attr_edit
+			else mbdata.LISTTYPE_NORMAL)
 	return self
 
     def write(self, pif, values={}):
@@ -978,6 +982,36 @@ def do_model_detail(pif, model, vsform, dvars, photogs):
     return llineup
 
 
+#mbdata.LISTTYPE_EDITOR
+def do_model_editor(pif, model, vsform, dvars, photogs):
+    mod_id = model['id']
+    llineup = {'id': 'vars', 'section': [], 'header': '<form action="vars.cgi">'}
+#detail_attributes = ['base', 'body', 'interior', 'windows']
+    attrs = ['var'] + [x['attribute_name'] for x in vsform.attr_recs]
+
+    mack = sorted(pif.dbh.fetch_aliases(mod_id, type_id='mack'), key=lambda x: -x['alias.flags'])
+    mack = mack[0]['alias.id'] if mack else 'All Models'
+
+    lsec = {'id': 'ed', 'name': 'All Models', 'range': list(),
+	'headers': dict(zip(attrs, attrs)),
+	'columns': attrs,
+    }
+    lran = {'id': 'ran', 'entry': []}
+    def attr_edit(v, x):
+	return v.get(x, '') + '<br>' + pif.render.format_text_input(v['var'] + '.' + x, 80, 16, v.get(x, ''))
+
+    lran['entry'] = [{x: attr_edit(v, x) for x in attrs} for var_id, v in sorted(dvars.items())]
+    lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
+    lsec['range'].append(lran)
+    llineup['section'].append(lsec)
+
+    llineup['footer'] = related_casting_links(pif, mod_id, url="vars.cgi?vdet=1&mod=")
+    llineup['footer'] += pif.render.format_button_input('save')
+    llineup['footer'] += pif.render.format_hidden_input({'mod': mod_id})
+    llineup['footer'] += '</form>'
+    return llineup
+
+
 def related_casting_links(pif, mod_id, url):
     var_id_set = set()
     related = set()
@@ -1070,6 +1104,22 @@ def save_model(pif, mod_id):
     if phcred:
 	useful.write_message('phcred', mod_id, "'%s'" % phcred, '<br>')
 	pif.render.message('Credit added: ', pif.dbh.write_photo_credit(phcred, config.IMG_DIR_MAN[1:], mod_id))
+    attrs = {x['attribute_name']: x['id'] for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id))}
+    for key in pif.form.roots(end='.var'):
+	pass # save_variation(pif, mod_id, key) - keys are backwards!  argh
+	attr_dict = pif.form.get_dict(start=key + '.')
+	var_dict = {x: attr_dict[x] for x in detail_attributes + ['var']}
+	det_dict = {attrs[x]: attr_dict[x] for x in attr_dict if x not in var_dict}
+	# key of det_dict has to be attr.id, not attr.name
+	var_dict['mod_id'] = mod_id
+
+	useful.write_message('var_dict', var_dict,
+	    pif.dbh.write('variation', var_dict, pif.dbh.make_where({'mod_id': mod_id, 'var': key}), modonly=True, tag="UpdateVarEdit"))
+	useful.write_message('det_dict', det_dict, pif.dbh.update_details(mod_id, key, det_dict))
+#	pif.dbh.write('variation', var_dict)
+#	for attr in det_dict:
+#	    pif.dbh.write('detail', {'mod_id': var_dict['mod_id'], 'var_id': var_dict['var'], 'attr_id': str(attributes[attr]['id']), 'description': det_dict[attr]})
+	pif.dbh.recalc_description(mod_id)
 
 
 def mangle_variation(pif, model, variation, cats):
@@ -1116,9 +1166,10 @@ def show_model(pif, model):
     phcred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id)
 
     formatter = {
+	mbdata.LISTTYPE_NORMAL: do_model_grid,
 	mbdata.LISTTYPE_ADMIN: do_model_list,
 	mbdata.LISTTYPE_PICTURE: do_model_detail,
-	mbdata.LISTTYPE_NORMAL: do_model_grid,
+	mbdata.LISTTYPE_EDITOR: do_model_editor,
 	mbdata.LISTTYPE_CHECKLIST: do_model_checklist,
 	mbdata.LISTTYPE_THUMBNAIL: do_model_thumbnail,
     }
@@ -1129,7 +1180,7 @@ def show_model(pif, model):
     footer = ''
     if pif.is_allowed('a'):  # pragma: no cover
 	footer += pif.render.format_button_input('list')
-	if vsform.display_type == mbdata.LISTTYPE_ADMIN:
+	if vsform.display_type in (mbdata.LISTTYPE_ADMIN, mbdata.LISTTYPE_EDITOR,):
 	    img += '<div class="%s">Credit: ' % ('bgok' if phcred else 'bgno')
 	    img += pif.render.format_select("phcred", photogs, selected=phcred, blank='') + '</div>'
 	    footer += pif.render.format_button_input('save')
@@ -1152,7 +1203,7 @@ def show_model(pif, model):
 	'footer': footer,
 	'search_object': vsform.show_search_object(),
 	'verbose': vsform.verbose,
-	'show_as_list': vsform.is_list or vsform.is_detail,
+	'show_as_list': vsform.is_list or vsform.is_detail or vsform.is_attr_edit,
 	'mod_id': mod_id,
 	'var_search_form': vsform.write(pif, form_values),
 	'var_search_visible': pif.render.format_button_input_visibility("varsearch", True),

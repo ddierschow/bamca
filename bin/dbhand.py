@@ -943,15 +943,6 @@ class DBHandler(object):
 
     #- detail
 
-    def update_detail(self, values, where, verbose=False):
-        return self.write('detail', values, where=self.make_where(where), modonly=True, verbose=verbose)
-
-    def add_or_update_detail(self, values, where, verbose=False):
-        return self.write('detail', values, where=self.make_where(where), verbose=verbose)
-
-    def delete_detail(self, where):
-        return self.delete('detail', where=self.make_where(where))
-
     def fetch_details(self, mod_id, var_id=None, nodefaults=False):
         if nodefaults:
             commondetails = {}
@@ -979,7 +970,18 @@ class DBHandler(object):
         return mvars
 
     def update_detail(self, values, where, verbose=False):
-        self.write('detail', values, where=self.make_where(where), modonly=True, verbose=verbose)
+        return self.write('detail', values, where=self.make_where(where), modonly=True, verbose=verbose)
+
+    def update_details(self, mod_id, var_id, details, verbose=False):
+	for attr, val in details.items():
+	    where = {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr}
+	    self.update_detail({'description': val}, where=where)
+
+    def add_or_update_detail(self, values, where, verbose=False):
+        return self.write('detail', values, where=self.make_where(where), verbose=verbose)
+
+    def delete_detail(self, where):
+        return self.delete('detail', where=self.make_where(where))
 
     #- vehicle_make
 

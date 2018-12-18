@@ -284,8 +284,8 @@ table_info = {
     #detail
     'detail': {
 	'db': 'bamca',
-        'id': ['mod_id', 'var_id', 'attr_id'],
-        'columns': ['mod_id', 'var_id', 'attr_id', 'description'],
+        'id': ['id'],
+        'columns': ['id', 'mod_id', 'var_id', 'attr_id', 'description'],
         'clinks': {
                 'attr_id': {'tab': 'attribute', 'id': ['id/attr_id']},
         },
