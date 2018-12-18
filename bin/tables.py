@@ -127,7 +127,7 @@ table_info = {
 	'extends': {'base_id': 'id/id'},
         'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'variation_digits'],
 	'extra_columns': ['notes', 'format_description',
-	    'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels', 'format_with'],
+	    'format_body', 'format_interior', 'format_windows', 'format_base', 'format_wheels', 'format_with', 'format_text'],
         'clinks': {
                 'id': {'tab': 'casting', 'id': ['id/id']},
                 'country': {'tab': 'country', 'id': ['id/country']},
@@ -170,6 +170,7 @@ table_info = {
 		'format_wheels': '&wheels',
 		'variation_digits': 2,
 	},
+	'formats': ['description', 'body', 'base', 'wheels', 'interior', 'windows', 'with', 'text'],
     },
     #casting_related
     'casting_related': {
@@ -250,14 +251,14 @@ table_info = {
 	'db': 'bamca',
         'id': ['mod_id', 'var'],
         'columns': ['mod_id', 'var', 'flags',
-		'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with',
+		'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with', 'text_text',
 		'base', 'body', 'interior', 'windows',
 		'manufacture', 'additional_text', 'base_name', 'base_number', 'tool_id', 'production_id', 'copyright', 'company_name',
 		'logo_type', 'base_elephant',
 		'area', 'date', 'note', 'picture_id',
 		'imported', 'imported_from', 'imported_var', 'category', 'variation_type'],
         'title': {'mod_id': 'Model ID', 'var': 'Variation ID', 'text_description': 'Description',
-		'text_base': 'Base', 'text_body': 'Body', 'text_interior': 'Interior', 'text_wheels': 'Wheels',
+		'text_base': 'Base', 'text_body': 'Body', 'text_interior': 'Interior', 'text_wheels': 'Wheels', 'text_text': 'Text',
 		'tool_id': 'Tool ID', 'production_id': 'Production ID',
 		'text_windows': 'Windows', 'text_with': 'With', 'picture_id': 'Picture ID'},
         'clinks': {
@@ -280,6 +281,10 @@ table_info = {
 		('0080', 'Verified'),
 	    ]
 	},
+        'internals': ['base', 'body', 'interior', 'windows',
+		'manufacture', 'additional_text', 'base_name', 'base_number', 'tool_id',
+		'copyright', 'company_name', 'production_id', #'logo_type', 'base_elephant',
+	],
     },
     #detail
     'detail': {

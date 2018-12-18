@@ -1719,7 +1719,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	'''Main call to create text_* from format_* and attributes.'''
 	#verbose = True
 	useful.verbose = verbose
-	cols = ['description', 'body', 'base', 'wheels', 'interior', 'windows', 'with']
+	cols = self.table_info['casting']['formats']
 
 	# I apologize in advance for this function.
 	def fmt_desc(var, casting, field):
@@ -1774,8 +1774,8 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	    self.update_variation(ovar, {'mod_id': var['mod_id'], 'var': var['var']})
 
     def check_description_formatting(self, mod_id, linesep=''):
-	cas_cols = ['format_description', 'format_body', 'format_base', 'format_wheels', 'format_interior', 'format_windows', 'format_with']
-	var_cols = ['base', 'body', 'interior', 'windows', 'manufacture', 'additional_text']
+	cas_cols = ['format_' + x for x in self.table_info['casting']['formats']]
+	var_cols = self.table_info['variation']['internals']
 	casting = self.fetch_casting(mod_id, extras=True)
 	attributes = var_cols + [x['attribute.attribute_name'] for x in self.fetch_attributes(mod_id)]
 	messages = ''

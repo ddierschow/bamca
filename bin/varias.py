@@ -14,7 +14,7 @@ import useful
 id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic', '_credit']
 note_attributes = ['area', 'date', 'note', 'category']
 internal_desc_attributes = ['description', 'base', 'body', 'interior', 'windows']
-desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
+desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
 text_attributes = ['text_' + x for x in desc_attributes]
 format_attributes = ['format_' + x for x in desc_attributes]
 hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type', 'base_elephant']
