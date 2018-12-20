@@ -938,7 +938,7 @@ def do_model_list(pif, model, vsform, dvars, photogs):
 	    lsec['range'].append(lran)
 	    llineup['section'].append(lsec)
 
-    llineup['footer'] = (related_casting_links(pif, model['id'], url="vars.cgi?list=1&mod=") + '<br>' +
+    llineup['footer'] = (related_casting_links(pif, model['id'], url="vars.cgi?%s=1&mod=" % ('edit' if edit else 'list')) + '<br>' +
 	pif.render.format_button("show as grid", 'vars.cgi?mod=%s' % model['id']))
     return llineup
 

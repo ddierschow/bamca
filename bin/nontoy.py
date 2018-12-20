@@ -182,23 +182,33 @@ def submit_comment(pif):
     #useful.write_message(pif.form)
     ostr = "I am sending this comment for you. "
 
+    mysubject = pif.form.get_str('mysubject')
+    mycomment = pif.form.get_str('mycomment')
+    myname = pif.form.get_str('myname')
+    myemail = pif.form.get_str('myemail')
+    credit = pif.form.get_str('credit')
     fname = pif.form.get_str('pic.name')
     fimage = pif.form.get_str('pic')
     pif.form.delete('pic')
+
+    def comment_error(msg):
+	return "<dl><dt>ERROR</dt><dd>%s</dd></dl>" % msg
+
+    if myemail and '@' not in myemail:
+	return comment_error('Badly formatted email address.  Try again.')
+
     pif.form.change_key('page', 'page_id')
     fn = "../../comments/comment." + datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
 
-    mysubject = pif.form.get_str('mysubject')
-    mycomment = pif.form.get_str('mycomment')
-    if ('http://' in mysubject or 'http://' in mycomment or
-	'https://' in mysubject or 'https://' in mycomment):
-	ostr += "<dl><dt>ERROR</dt><dd>Whoa there.  This isn't for submitting links.  Please use the SUGGEST A LINK feature from the link list.</dd></dl>"
-	return ostr
+    if ('http://' in mysubject or 'https://' in mysubject or
+	'http://' in mycomment or 'https://' in mycomment or
+	'http://' in myemail or 'https://' in myemail):
+	return comment_error("Whoa there.  This isn't for submitting links.  Please use the SUGGEST A LINK feature from the link list.")
 
     ostr += "<dl><dt>My Subject</dt><dd>" + mysubject + "</dd>\n"
     ostr += "<dl><dt>My Comment</dt><dd>" + mycomment + "</dd>\n"
-    ostr += "<dt>My Name</dt><dd>" + pif.form.get_str('myname') + "</dd>\n"
-    ostr += "<dt>My Email</dt><dd>" + pif.form.get_str('myemail') + "</dd></dl>\n"
+    ostr += "<dt>My Name</dt><dd>" + myname + "</dd>\n"
+    ostr += "<dt>My Email</dt><dd>" + myemail + "</dd></dl>\n"
 
     if fimage:
 	ostr += "<dt>Relevant File</dt><dd>" + fname + "<br>\n"
@@ -209,12 +219,12 @@ def submit_comment(pif):
 	images.file_log(direc + '/' + dest_filename, direc)
 
         cred = who = comment = '-'
-	if pif.form.get_str('mycomment'):
-            comment = squish_re.sub(' ', pif.form.get_str('mycomment'))
-        if pif.form.get_str('credit'):
-            cred = squish_re.sub(' ', pif.form.get_str('credit'))
-	if pif.form.get_str('myname'):
-            who = squish_re.sub(' ', pif.form.get_str('myname'))
+	if mycomment:
+            comment = squish_re.sub(' ', mycomment)
+        if credit:
+            cred = squish_re.sub(' ', credit)
+	if myname:
+            who = squish_re.sub(' ', myname)
         open(descriptions_file, 'a+').write('\t'.join([dest_filename,
                 '-',
                 '-',
@@ -229,6 +239,7 @@ def submit_comment(pif):
     fh.write("REMOTE_ADDR=" + os.getenv('REMOTE_ADDR') + "\n");
     ostr += "Thanks for sending that.  Now please use the BACK button on your browser to return to where you were.";
     return ostr
+
 
 @basics.web_page
 def counts_main(pif):

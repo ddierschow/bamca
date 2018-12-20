@@ -680,6 +680,7 @@ base_logo_2 = [
     ('4', 'straight KING SIZE'),
     ('5', 'script Super Kings'),
     ('6', 'script Speed Kings'),
+    ('z', 'elephant'),
 ]
 base_logo_2_dict = dict(base_logo_2)
 
