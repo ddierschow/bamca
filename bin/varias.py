@@ -17,12 +17,13 @@ internal_desc_attributes = ['description', 'base', 'body', 'interior', 'windows'
 desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
 text_attributes = ['text_' + x for x in desc_attributes]
 format_attributes = ['format_' + x for x in desc_attributes]
-hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type', 'base_elephant']
+hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type']
 detail_attributes = ['base', 'body', 'interior', 'windows']
 base_attributes = ['additional_text', 'base_name', 'base_number', 'tool_id', 'company_name', 'copyright', 'production_id', 'manufacture']
 not_individual_attributes = text_attributes + note_attributes + hidden_attributes + base_attributes
 internal_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from'] + note_attributes + \
 			internal_desc_attributes + hidden_attributes + detail_attributes + base_attributes
+form_attributes = note_attributes + detail_attributes + base_attributes + ['logo_type']
 
 list_columns = ['ID', 'Description', 'Details', 'Picture']
 detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Or', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Lo', 'Ba', 'Bo', 'In', 'Wh', 'Wi', 'W/']
@@ -117,14 +118,13 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
 	    lsec['columns'].append('pic')
 	    picture_variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, variation['picture_id']))
 	ranges = [{'name': 'Identification Attributes', 'id': 'det', '_attrs': id_attributes}]
-	base_attributes.extend(['logo_type', 'base_elephant', '_copy_base_from'])
+	base_attributes.extend(['logo_type', '_copy_base_from'])
     else:
 	lsec['headers'] = {'title': 'Title', 'value': 'Value'}
 	lsec['columns'] = ['title', 'value']
 	ranges = [{'name': 'Description Texts', 'id': 'det', '_attrs': text_attributes[1:]}]
 	variation['text_base'] += (' ' + ' '.join([
-	    pif.render.format_image_icon('l_base-' + x, mbdata.base_logo_dict.get(x)) for x in variation['logo_type']]) +
-	    (' ' + pif.render.format_image_icon('l_elephant') if (variation['base_elephant'] == 'with') else ''))
+	    pif.render.format_image_icon('l_base-' + x, mbdata.base_logo_dict.get(x)) for x in variation['logo_type']]))
     ranges.extend([
 	    {'name': 'Individual Attributes', 'id': 'det', '_attrs': shown_attributes},
 	    {'name': 'Information on Base', 'id': 'det', '_attrs': base_attributes},
@@ -334,7 +334,7 @@ def save_variation(pif, mod_id, var_id):
     pif.render.comment("Save: ", attributes)
     var_dict = {'mod_id': pif.form.get_str('mod'), 'picture_id': ''}
     det_dict = dict()
-    for attr in note_attributes + detail_attributes + base_attributes:
+    for attr in form_attributes:
     #    if 'id' in attributes.get(attr, {}):
     #        det_dict[attr] = pif.form.get_str(attr + '.' + var_id)
     #    else:
@@ -884,7 +884,6 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
 	    pic_text += pif.render.format_image_icon('l_base-' + logo, mbdata.base_logo_dict.get(logo, '')) + ' '
     else:
 	pic_text += ' '
-    pic_text += pif.render.format_image_icon('l_elephant') if (var['base_elephant'] == 'with') else ''
     if var['categories']:
 	pic_text += '<hr>' + var['categories']
     pic_text += '</center>'
@@ -1089,10 +1088,13 @@ def do_model_grid(pif, model, vsform, dvars, photogs):
 def save_model(pif, mod_id):
     for key in pif.form.keys(start='picture_id.'):
         if key[11:] == pif.form.get_str(key):
+	    useful.write_message('pic', key[11:], 'clear')
             pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': mod_id, 'var': ''})
         else:
+	    useful.write_message('pic', key[11:], pif.form.get_str(key))
             pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': mod_id, 'var': key[11:]})
     for key in pif.form.keys(start='var_sel.'):
+	useful.write_message('vs', key, pif.form.get_str(key))
         varsel = list(set(pif.form.get_str(key).split()))
         pif.dbh.update_variation_selects_for_variation(mod_id, key[8:], varsel)
     for var in pif.form.roots(start='phcred.'):
@@ -1297,7 +1299,7 @@ def add_model_var_table_pic_link(pif, mdict):
     #mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
     mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
     ostr = '  <center><table class="entry"><tr><td><center><font face="Courier">%(v.mod_id)s-%(v.var)s</font></br>\n' % mdict
-    ostr += '   <a href="%(link)s">%(img)s<br><b>%(casting.name)s</b></a>\n' % mdict
+    ostr += '   <a href="%(link)s">%(img)s<br><b>%(name)s</b></a>\n' % mdict
     #ostr += "   <br><i>%(v.text_description)s</i>\n" % mdict
     ostr += '<table class="vartable">'
     ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % mdict['v.text_description']
@@ -1372,7 +1374,7 @@ def var_search(pif):
     lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lran = {'entry': []}
     for mod in mods:
-        mod['casting.name'] = mod['base_id.rawname'].replace(';', ' ')
+        mod['name'] = mod['base_id.rawname'].replace(';', ' ')
         lran['entry'].append({'text': add_model_var_table_pic_link(pif, mod)})
     lsec['range'] = [lran]
     lsec['columns'] = 4
@@ -1938,7 +1940,7 @@ def copy_base_info(pif, mod_id, var_dict, old_var_id):
     if other_var:
 	other_var = other_var[0]
 	useful.write_message('copying base info', mod_id, var_dict['var'], old_var_id)
-	for attr in base_attributes + ['logo_type', 'base_elephant']:
+	for attr in base_attributes + ['logo_type']:
 	    if not var_dict.get(attr):
 		var_dict[attr] = other_var[attr]
     return var_dict

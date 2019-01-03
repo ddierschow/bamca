@@ -64,6 +64,7 @@ def create_var_lineup(pif, mods, var_id):
     lran = {'entry': []}
     for mod in mods:
 	for var in pif.dbh.fetch_variation_query_by_id(mod['id'], var_id):
+	    var['name'] = var['base_id.rawname'].replace(';', ' ')
 	    lran['entry'].append({'text': varias.add_model_var_table_pic_link(pif, var)})
     lsec['range'] = [lran]
     lsec['columns'] = 4

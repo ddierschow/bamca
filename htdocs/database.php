@@ -303,7 +303,8 @@ function SectionManno($pif) {
     FetchSelect('section', 'manSection', 'range', $q, [[0, 'all', 'All Ranges']]);
     if ($pif['isadmin']) {
 	echo "<i>\n";
-	Checks('checkbox', 'nodesc', [['1', 'No Notes']]);
+	Checks('checkbox', 'nodesc', [['1', 'No Notes']], ' ');
+	Checks('checkbox', 'revised', [['1', 'Revised Only']]);
 	echo "</i>\n";
     }
     echo "</td><td rowspan=\"3\">\n";

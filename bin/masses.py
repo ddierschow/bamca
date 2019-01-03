@@ -862,16 +862,16 @@ pack_sec = {
     'bk' : 'X.68',
 }
 pack_layout = {
-    'rwps' : '8s',
-    'rwgs' : '5s',
-    'sfgs' : '4h',
-    '5packs' : '5v',
-    'lic5packs' : '5s',
-    'launcher' : '5s',
-    '10packs' : 'th',
-    '2packs' : '2v',
-    'hnh' : '2v',
-    'bk' : '2v',
+    'rwps' : '08s',
+    'rwgs' : '05s',
+    'sfgs' : '04h',
+    '5packs' : '05v',
+    'lic5packs' : '05s',
+    'launcher' : '05s',
+    '10packs' : '10h',
+    '2packs' : '02v',
+    'hnh' : '02v',
+    'bk' : '02v',
 }
 def add_pack_form(pif):
     pack_id = pif.form.get_str('pack')
@@ -1017,8 +1017,13 @@ def add_pack_delete(pif):
 
 
 def get_correct_model_id(pif, mod_id):
+    casting = pif.dbh.fetch_casting_raw(mod_id)
+    if casting:
+	return casting.get('casting.id', mod_id)
     alias = pif.dbh.fetch_alias(mod_id)
-    return alias.get('base_id.id', mod_id)
+    if alias:
+	return alias.get('base_id.id', mod_id)
+    return mod_id
 
 
 def add_pack_save(pif):

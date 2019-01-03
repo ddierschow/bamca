@@ -9,22 +9,23 @@ table_info = {
         'id': ['id'],
         'columns': ['id', 'flags', 'format_type', 'title', 'pic_dir', 'tail', 'description', 'note'],
         'clinks': {
-                'id': {'tab': 'page_info', 'id': ['id/id']},
+	    'id': {'tab': 'page_info', 'id': ['id/id']},
         },
         'tlinks': [
-                {'tab': 'section', 'id': ['page_id/id']},
+	    {'tab': 'section', 'id': ['page_id/id']},
         ],
         'add': {
-                'page_info': [],
-                'section': ['page_id/id'],
+	    'page_info': [],
+	    'section': ['page_id/id'],
         },
         'create': {
-                'id': 'newpage',
+	    'id': 'newpage',
+	    'flags': [],
         },
         'ask': ['id', 'format_type'],
 	'defaults': {
-		'flags': 0,
-		'health': 0,
+	    'flags': 0,
+	    'health': 0,
         },
 	'bits': {'flags':
 	    [
@@ -58,21 +59,22 @@ table_info = {
                 'page_id': {'tab': 'page_info', 'id': ['id/page_id']},
                 'region': {'tab': 'region', 'id': ['id/region']},
         },
-        'tlinks': [
-                {'tab': 'matrix_model', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('matrix.')"},
-                {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/*dats[0]["id"][0]'], 'if': "dats and dats[0]['page_id'].startswith('year.')"},
-                {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/id'], 'if': "dats and dats[0]['page_id'].startswith('year.')"},
-                {'tab': 'link_line', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('links.')"},
-                {'tab': 'pack', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('packs.')"},
-        ],
+	'tlinks': [
+	    {'tab': 'matrix_model', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('matrix.')"},
+	    {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/*dats[0]["id"][0]'], 'if': "dats and dats[0]['page_id'].startswith('year.')"},
+	    {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/id'], 'if': "dats and dats[0]['page_id'].startswith('year.')"},
+	    {'tab': 'link_line', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('links.')"},
+	    {'tab': 'pack', 'id': ['section_id/id', 'page_id/page_id'], 'if': "dats and dats[0]['page_id'].startswith('packs.')"},
+	],
         'add': {
-                'section': ['page_id/page_id'],
-                'matrix_model': ['page_id/page_id', 'section_id/id'],
-                'pack': ['page_id/page_id', 'section_id/id'],
-                'link_line': ['page_id/page_id', 'section_id/id'],
+	    'section': ['page_id/page_id'],
+	    'matrix_model': ['page_id/page_id', 'section_id/id'],
+	    'pack': ['page_id/page_id', 'section_id/id'],
+	    'link_line': ['page_id/page_id', 'section_id/id'],
         },
         'create': {
-                'id': 'newsection',
+	    'id': 'newsection',
+	    'flags': [],
         },
 	'bits': {'flags':
 	    [
@@ -106,10 +108,10 @@ table_info = {
         'create': {
                 'id': 'unset',
                 'first_year': '',
-                'flags': 0,
                 'model_type': '',
                 'rawname': '',
                 'description': '',
+		'flags': [],
         },
         'ask': ['id', 'first_year', 'model_type'],
 	'bits': {'flags':
@@ -185,6 +187,7 @@ table_info = {
         'create': {
                 'model_id': 'unset',
                 'related_id': 'unset',
+		'flags': [],
         },
         'ask': ['model_id', 'related_id', 'section_id'],
 	'bits': {'flags':
@@ -214,6 +217,7 @@ table_info = {
         ],
         'create': {
                 'mod_id': 'unset',
+		'flags': [],
         },
 	'bits': {'flags':
 	    [
@@ -254,8 +258,7 @@ table_info = {
 		'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with', 'text_text',
 		'base', 'body', 'interior', 'windows',
 		'manufacture', 'additional_text', 'base_name', 'base_number', 'tool_id', 'production_id', 'copyright', 'company_name',
-		'logo_type', 'base_elephant',
-		'area', 'date', 'note', 'picture_id',
+		'logo_type', 'area', 'date', 'note', 'picture_id',
 		'imported', 'imported_from', 'imported_var', 'category', 'variation_type'],
         'title': {'mod_id': 'Model ID', 'var': 'Variation ID', 'text_description': 'Description',
 		'text_base': 'Base', 'text_body': 'Body', 'text_interior': 'Interior', 'text_wheels': 'Wheels',
@@ -273,6 +276,7 @@ table_info = {
         },
         'create': {
                 'var': 'unset',
+		'flags': [],
         },
 	'bits': {'flags':
 	    [
@@ -283,7 +287,7 @@ table_info = {
 	},
         'internals': ['base', 'body', 'interior', 'windows',
 		'manufacture', 'additional_text', 'base_name', 'base_number', 'tool_id',
-		'copyright', 'company_name', 'production_id', #'logo_type', 'base_elephant',
+		'copyright', 'company_name', 'production_id', #'logo_type',
 	],
     },
     #detail
@@ -323,6 +327,7 @@ table_info = {
         },
         'create': {
                 'id': 'unset',
+		'flags': [],
         },
 	'bits': {'flags':
 	    [
@@ -358,6 +363,7 @@ table_info = {
         },
         'create': {
                 'id': '???',
+		'flags': [],
         },
         'ask': ['id'],
 	'bits': {'flags':
@@ -380,6 +386,9 @@ table_info = {
                 'casting_make': ['id/id'],
         },
         'ask': ['id', 'make_id', 'casting_id'],
+        'create': {
+		'flags': [],
+        },
 	'bits': {'flags':
 	    [
 		('0001', 'Hidden'),
@@ -406,6 +415,9 @@ table_info = {
         },
         'ask': ['id', 'page_id', 'section_id', 'mod_id'],
 #select distinct flags from alias;
+        'create': {
+		'flags': [],
+        },
 	'bits': {'flags':
 	    [
 		('0001', 'Hidden'),
@@ -448,6 +460,9 @@ table_info = {
                 'lineup_model': [],
         },
         'ask': ['id', 'year', 'region', 'number', 'mod_id'],
+        'create': {
+		'flags': [],
+        },
 	'bits': {'flags':
 	    [
 		('0001', 'Hidden'),
@@ -472,6 +487,9 @@ table_info = {
                 {'tab': 'blacklist'},
         ],
         'ask': ['id', 'page_id', 'section_id'],
+        'create': {
+		'flags': [],
+        },
 	'bits': {'flags':
 	    [
 		('0001', 'New'),
@@ -615,6 +633,9 @@ table_info = {
         'clinks': {
                 'id': {'tab': 'book', 'id': ['id/id']},
         },
+        'create': {
+		'flags': [],
+        },
 	'bits': {'flags':
 	    [
 		('0001', 'Hidden'),
@@ -655,6 +676,9 @@ table_info = {
         'clinks': {
                 'id': {'tab': 'photo_credit', 'id': ['example_id/id']},
         },
+        'create': {
+		'flags': [],
+        },
 	'bits': {'flags':
 	    [
 		('0001', 'Hidden'),
@@ -688,6 +712,9 @@ table_info = {
 	],
         'clinks': {
         },
+	'create': {
+	    'flags': [],
+	},
         'ask': ['id', 'name'],
 	'bits': {'flags':
 	    [

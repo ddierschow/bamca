@@ -234,6 +234,75 @@ def bit_list(val, format="%02x"):
     return olst
 
 
+def expand_number_list(lst):
+    olst = []
+    for n in lst:
+	if '-' in n:
+	    s, e = n.split('-', 1)
+	    if s.isdigit() and e.isdigit():
+		pat = '%%0%ds' % len(s)
+		for n in range(int(s), int(e) + 1):
+		    olst.append(pat % n)
+		continue
+	olst.append(n)
+    return olst
+
+
+def collapse_number_list(lst):
+    intlist = []
+    strlist = []
+    maxlen = 0
+    for ent in lst:
+	try:
+	    val = int(ent)
+	except:
+	    pass
+	else:
+	    maxlen = max(maxlen, len(str(ent)))
+	    intlist.append(val)
+	    continue
+
+	try:
+	    ents = ent.split('-', 1)
+	    val1 = int(ents[0])
+	    val2 = int(ents[1])
+	except:
+	    pass
+	else:
+	    maxlen = max(maxlen, len(str(ent[0])))
+	    maxlen = max(maxlen, len(str(ent[1])))
+	    intlist.extend(range(val1, val2 + 1))
+	    continue
+
+	strlist.append(ent)
+
+    str1 = "%%0%dd" % maxlen
+    str2 = str1 + '-' + str1
+    intlist.sort()
+    start = None
+    prev = None
+    for val in intlist:
+	if start == None:
+	    start = prev = val
+	elif val == prev + 1:
+	    prev = val
+	elif start == prev:
+	    strlist.append(str1 % start)
+	    start = prev = val
+	else:
+	    strlist.append(str2 % (start, prev))
+	    start = prev = val
+    if start != None:
+	if start == prev:
+	    strlist.append(str1 % start)
+	    start = None
+	else:
+	    strlist.append(str2 % (start, prev))
+	    start = None
+
+    return strlist
+
+
 def reflect(in_iter, columns, pad=None):
     '''Reflects an interator carved up into chunks, padding with None.
 

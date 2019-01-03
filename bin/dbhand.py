@@ -358,9 +358,9 @@ class DBHandler(object):
     def fetch_casting_ids(self, tag='CastingIDs'):
         return [x['casting.id'] for x in self.fetch('casting', tag='CastingIDs')]
 
-    def fetch_casting_raw(self, id, verbose=False, tag='CastingRaw'):
+    def fetch_casting_raw(self, mod_id, verbose=False, tag='CastingRaw'):
 	cols = self.make_columns('casting', extras=True)
-	recs = self.fetch('casting', columns=cols, where='id="%s"' % id)
+	recs = self.fetch('casting', columns=cols, where='id="%s"' % mod_id)
 	return recs[0] if recs else None
 
     def fetch_casting(self, id, extras=False, verbose=False, tag='Casting'):
@@ -902,7 +902,7 @@ class DBHandler(object):
             if ref_id.find('/') >= 0:
                 ref_id, sub_id = ref_id.split('/', 1)
 	    sec_id, ran_id = sub_id.split('.') if '.' in sub_id else (sub_id, '')
-            self.write('variation_select', {'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sec_id': sec_id, 'ran_id': ran_id, 'category': cat_id}, newonly=True, verbose=1)
+            self.write('variation_select', {'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sec_id': sec_id, 'ran_id': ran_id, 'category': cat_id}, newonly=True, verbose=1, tag='UpdateVSForV')
 
     # this needs to be native sec_id.ran_id instead of sub_id
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):
@@ -1105,7 +1105,7 @@ class DBHandler(object):
         if isinstance(region, list) and region:
             wheres.append("lineup_model.region in (" + ','.join(["'" + x + "'" for x in region]) + ')')
         if year:
-            wheres.append("lineup_model.year='" + year + "'")
+            wheres.append("lineup_model.year='%s'" % year)
         if base_id:
             wheres.append("lineup_model.base_id='" + base_id + "'")
 	# turn this into a fetch

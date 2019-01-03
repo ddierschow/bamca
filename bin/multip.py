@@ -118,7 +118,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
 	llineup['section'].append(lsection)
     #useful.write_comment(llineup)
     context = {
-	'page_id': pif.form.get_str('page'),
+	'page_id': pif.page_id,
 	'years': sorted(years),
 	'regions': [(x, mbdata.regions[x]) for x in sorted(regions)],
 	'llineup': llineup,

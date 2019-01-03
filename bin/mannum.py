@@ -160,6 +160,7 @@ class MannoFile(object):
         if pif.form.get_str('range', 'all') == 'all':
             self.start = self.end = None
         self.nodesc = pif.form.get_int('nodesc')
+        self.revised = pif.form.get_int('revised')
         self.model_type = pif.form.get_str('mtype')
         vtypes = pif.dbh.fetch_vehicle_types()
         self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in vtypes}
@@ -249,6 +250,9 @@ class MannoFile(object):
     def is_item_shown(self, mod):
         '''Makes decision of whether to show based on vehicle type, # range, and year range.'''
 	if self.model_type and mod['model_type'] != self.model_type:
+	    return False
+
+	if self.revised and not mod['revised']:
 	    return False
 
         if self.start and self.end:

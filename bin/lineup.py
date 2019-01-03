@@ -9,7 +9,14 @@ import models
 import useful
 
 
-# A B D J L R U W | man
+# A 1981 1987 1991-1993 1997 2000-2001
+# B 2000-2001
+# D 1999-2001
+# J 1977-1992
+# L 2008-2011
+# R 1982-2018
+# U 1982-2018
+# W 1953-1981
 
 # X.01 | Packaging                              | pub      |
 # X.02 | Catalogs                               | pub      |
@@ -51,8 +58,9 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
 	'is_reused_product_picture': 0, 'is_product_picture': 0, 'halfstar': 0,
 	'displayed_id': '',  #'&nbsp;'
     })
-    pdir = lsec.get('pic_dir')
-    mdict['pdir'] = pdir = pdir if pdir else pif.render.pic_dir
+    if not mdict.get('pdir'):
+	pdir = lsec.get('pic_dir')
+	mdict['pdir'] = pdir = pdir if pdir else pif.render.pic_dir
 
     if not (lsec['flags'] & pif.dbh.FLAG_SECTION_NO_FIRSTS) and str(year) == mdict['base_id.first_year']:
 	mdict['class'] = 'revcasting' if mdict['base_id.flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED else 'newcasting'
@@ -1071,7 +1079,7 @@ def check_lineup(pif, *args):
     totals = {'i': 0, 'p': 0}
 
     st = 1953
-    en = 2014
+    en = 2018
     if args:
         st = int(args[0])
         if len(args) > 1:
@@ -1116,6 +1124,33 @@ def show_sections(pif):
 	print page_id, '|', ' | '.join([pages[page_id].get(sec_id, {}).get('showflag', ' ') + ' ' for sec_id in sec_ids]) + ' |'
 
 
+def lineup_pics(pif, *args):
+    missing = 'm' in args
+    years = useful.expand_number_list([x for x in args if x.replace('-', '').isdigit()])
+    regions = [x for x in args if not x.isdigit() and x.isupper()]
+    if not years:
+	lim = pif.dbh.fetch_lineup_limits()
+	years = range(int(lim['min(year)']), int(lim['max(year)']) + 1)
+    if not regions:
+	regions = mbdata.regionlist
+    for yr in years:
+	page = pif.dbh.fetch_page('year.%d' % int(yr))
+	pdir = page.pic_dir
+	found = {}
+	lml = pif.dbh.fetch_simple_lineup_models(year=yr)
+	for lm in lml:
+	    reg = lm['lineup_model.region']
+	    if reg in regions:
+		found.setdefault(reg, list())
+		fn = pdir + '/m_' + (lm['lineup_model.picture_id'] if lm['lineup_model.picture_id'] else lm['lineup_model.base_id']).replace('W', reg).lower() + '.jpg'
+		if (lm['lineup_model.flags'] & pif.dbh.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and not missing:
+		    found[reg].append(lm['lineup_model.number'])
+		elif not (lm['lineup_model.flags'] & pif.dbh.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and missing:
+		    found[reg].append(lm['lineup_model.number'])
+	for reg in sorted(found):
+	    print yr, reg, ' '.join(useful.collapse_number_list(found[reg]))
+
+
 cmds = [
     ('s', year_lineup, "show: year region [number]"),
     ('c', clone_lineup, "clone: year old_region new_region"),
@@ -1125,6 +1160,7 @@ cmds = [
     ('m', make_lineup, "make lineup"),
     ('x', check_lineup, "check lineup"),
     ('s', show_sections, "show sections"),
+    ('pic', lineup_pics, "pics"),
 ]
 
 
