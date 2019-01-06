@@ -90,19 +90,16 @@ def show_dir(pif, tform):
         ostr += '<a href="traverse.cgi?g=1&d=%s">%s</a> or \n' % (tform.tdir, pif.render.format_button('show all pictures'))
         ostr += 'Pattern <input type="text" name="p">\n'
         ostr += '<input type="hidden" name="d" value="%s">\n' % tform.tdir
-        ostr += '<input type="checkbox" name="du" value="1"> Dupes\n'
-        ostr += '<input type="checkbox" name="co" value="1"> Compact\n'
-        ostr += '<input type="checkbox" name="th" value="1"> Thumbs\n'
-        ostr += '<input type="checkbox" name="si" value="1"> Sized\n'
-        ostr += '<input type="checkbox" name="mr" value="1"> Recent\n'
+	ostr += pif.render.format_checkbox('du', [('1', 'Dupes',)])
+	ostr += pif.render.format_checkbox('co', [('1', 'Compact',)])
+	ostr += pif.render.format_checkbox('th', [('1', 'Thumbs',)])
+	ostr += pif.render.format_checkbox('si', [('1', 'Sized',)])
+	ostr += pif.render.format_checkbox('mr', [('1', 'Recent',)])
 	if pif.render.is_admin:
-	    ostr += '<br><input type="radio" name="lty" value="nrm" checked> Normal\n'
-	    ostr += '<input type="radio" name="lty" value="shc"> Categorize\n'
-	    ostr += '<input type="radio" name="lty" value="mss"> VMass\n'
-	    ostr += '<input type="radio" name="lty" value="pms"> PMass\n'
-	    ostr += '<input type="radio" name="lty" value="shm"> Shelve\n'
-	    ostr += '<input type="radio" name="lty" value="suf"> Resuffix\n'
-	    ostr += '<input type="radio" name="lty" value="crd"> Credit\n'
+	    lty = [('nrm', 'Normal',), ('shc', 'Categorize',), ('mss', 'VMass',), ('pms', 'PMass',),
+		    ('shm', 'Shelve',), ('suf', 'Resuffix',), ('crd', 'Credit',)]
+	    ostr += '<br>'
+	    ostr += pif.render.format_radio('lty', lty, 'nrm')
         ostr += pif.render.format_button_input()
 	ostr += '<br>\n'
         ostr += 'Size X <input type="text" name="sx">\n'

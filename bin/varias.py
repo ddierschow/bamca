@@ -807,7 +807,7 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
     id_text = '<center>'
     if edit:  # pragma: no cover
 	id_text += pif.render.format_link('?edit=1&mod=%s&var=%s' % (var['mod_id'], var['var']), var['var'].upper())
-        id_text += '<br><input type="checkbox" name="v" value="%s"><br>' % var['var']
+	id_text += '<br>' + pif.render.format_checkbox('v', [(var['var'], '')])
 
 	count_descs = attr_star(model, var)
 	id_text += '<i class="fas fa-star %s"></i>' % (

@@ -663,18 +663,20 @@ def rank_lineup_main(pif):
 #--------- select lineup ---------------------------
 
 def select_lineup(pif, region, year):
+    ypp = 15
     lran = {'entry': []}
     lsec = {'range': [lran]}
     llineup = {'section': [lsec], 'header': '<form>\n', 'footer': '</form>'}
-    lines = pif.render.format_radio('year', [(x['year'], x['year']) for x in pif.dbh.fetch_lineup_years()],
-		checked=year, sep='<br>\n')
-    while lines:
-	lran['entry'].append({'text': ''.join(lines[:15])})
-	lines = lines[15:]
-    lran['entry'].append({'text': ''.join(
-	pif.render.format_radio('region', [(x, mbdata.regions[x]) for x in mbdata.regionlist[1:]], checked=region, sep='<br>\n'))})
-    lran['entry'].append({'text': ''.join(
-	pif.render.format_checkbox('lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types], sep='<br>\n')) +
+    years = pif.dbh.fetch_lineup_years()
+    while years:
+	lines = pif.render.format_radio('year', [(x['year'], x['year']) for x in years[:ypp]],
+		    checked=year, sep='<br>\n')
+	lran['entry'].append({'text': lines})
+	years = years[ypp:]
+    lran['entry'].append({'text':
+	pif.render.format_radio('region', [(x, mbdata.regions[x]) for x in mbdata.regionlist[1:]], checked=region, sep='<br>\n')})
+    lran['entry'].append({'text':
+	pif.render.format_checkbox('lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types], sep='<br>\n') +
 	'<p>' + pif.render.format_button_input()})
     lsec['columns'] = len(lran['entry'])
     pif.render.format_matrix_for_template(llineup)

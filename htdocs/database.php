@@ -142,12 +142,13 @@ function FetchSelect($name, $id, $thing, $query, $extra=[], $select_js="") {
 	$extra), $select_js);
 }
 
-function Checks($input, $name, $values, $sep='<br>') {
+function Checks($input, $tag, $name, $values, $sep='<br>') {
     foreach ($values as $val) {
-	echo "   <input type=\"$input\" name=\"$name\" value=\"$val[0]\"";
+	$id = $tag . '_' . $name . $val[0];
+	echo "   <input id=\"$id\" type=\"$input\" name=\"$name\" value=\"$val[0]\"";
 	if (arr_get($val, 2, 0))
 	    echo " checked";
-	echo "> $val[1]$sep\n";
+	echo "> <label for=\"$id\">$val[1]</label>$sep\n";
     }
 }
 
@@ -173,7 +174,7 @@ function Section($args) {
 	DoTextButtonSubmit("SEE THE MODELS", "submit");
 	DoTextButtonReset($args['tag'], arr_get($args, 'reset', ''));
 	if ($pif['isadmin'])
-	    Checks('checkbox', 'verbose', [['1', '<i>Verbose</i>']], ''); 
+	    Checks('checkbox', $args['tag'], 'verbose', [['1', '<i>Verbose</i>']], ''); 
     }
     else
 	call_user_func($args['fn'], $pif);
@@ -183,7 +184,7 @@ function Section($args) {
     echo "  </td>\n </tr>\n";
 }
 
-function ChooseRegion($nrows) {
+function ChooseRegion($nrows, $tag) {
     $regions = [
 	    ['U', 'USA', 1],
 	    ['R', 'International'],
@@ -195,7 +196,7 @@ function ChooseRegion($nrows) {
 	];
     echo "    <td rowspan=\"$nrows\">Region:</td>\n";
     echo "    <td rowspan=\"$nrows\">\n";
-    Checks('radio', 'region', $regions);
+    Checks('radio', $tag, 'region', $regions);
     echo "</td>\n";
 }
 
@@ -219,7 +220,7 @@ function SectionYear($pif) {
     echo "\n<table>\n <tr>\n  <td>Year: </td>\n";
     SelectYear('year', 'yearYear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
     HorzSpacer(4);
-    ChooseRegion(3);
+    ChooseRegion(3, 'year');
     #echo "  </td>\n";
     HorzSpacer(4);
     echo "  <td rowspan=\"4\">\n";
@@ -233,7 +234,7 @@ function SectionYear($pif) {
 	["bld", "Buildings", 1],
 	["pub", "Publications", 1]
     ];
-    Checks('checkbox', 'lty', $ptypes);
+    Checks('checkbox', 'year', 'lty', $ptypes);
     echo "  </td>\n</tr>\n<tr><td>\n";
     if ($pif['isadmin']) {
 	echo " List type:</td><td width=\"180\">\n";
@@ -249,8 +250,8 @@ function SectionYear($pif) {
     if ($pif['isadmin']) {
 	echo "<p>\n<i>";
 	#echo "Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
-	Checks('checkbox', 'unroll', [['1', 'Unroll']], '<p>');
-	Checks('checkbox', 'multi', [['1', 'Multi Only']], '');
+	Checks('checkbox', 'year', 'unroll', [['1', 'Unroll']], '<p>');
+	Checks('checkbox', 'year', 'multi', [['1', 'Multi Only']], '');
 	echo "</i>";
     }
     echo " </td></tr>\n<tr>";
@@ -268,7 +269,7 @@ function SectionRank($pif) {
     echo "  <td style=\"text-align: right;\">\nStart year:\n  </td>\n";
     SelectYear('syear', 'rankSyear', $LINE_YEAR_START, $LINE_YEAR_START, $LINE_YEAR_END);
     HorzSpacer(2);
-    ChooseRegion(3);
+    ChooseRegion(3, 'rank');
     echo "</tr><tr>\n<td>\n";
     if ($pif['isadmin']) {
 	echo "<i>Ending number:<br>\n(1-$MAX_NUMBER)</i>\n";
@@ -284,8 +285,8 @@ function SectionRank($pif) {
     echo " </tr>\n <tr>\n  <td colspan=\"6\" rowspan=\"2\">\n";
     if ($pif['isadmin']) {
 	echo "<br><i>\n";
-	Checks('checkbox', 'large', [['1', 'Large']]);
-	Checks('checkbox', 'prodpic', [['1', 'Product Pics']], '');
+	Checks('checkbox', 'rank', 'large', [['1', 'Large']]);
+	Checks('checkbox', 'rank', 'prodpic', [['1', 'Product Pics']], '');
 	echo "</i>\n";
     }
     echo "  </td>\n </tr>\n <tr>";
@@ -303,15 +304,15 @@ function SectionManno($pif) {
     FetchSelect('section', 'manSection', 'range', $q, [[0, 'all', 'All Ranges']]);
     if ($pif['isadmin']) {
 	echo "<i>\n";
-	Checks('checkbox', 'nodesc', [['1', 'No Notes']], ' ');
-	Checks('checkbox', 'revised', [['1', 'Revised Only']]);
+	Checks('checkbox', 'manno', 'nodesc', [['1', 'No Notes']], ' ');
+	Checks('checkbox', 'manno', 'revised', [['1', 'Revised Only']]);
 	echo "</i>\n";
     }
     echo "</td><td rowspan=\"3\">\n";
     echo "\n</td></tr><tr>\n<td>";
-    Checks('radio', 'range', [['all', 'All numbers', 1]]);
+    Checks('radio', 'manno', 'range', [['all', 'All numbers', 1]]);
     echo "</td>\n<td>";
-    Checks('radio', 'range', [['some', 'Some numbers']]);
+    Checks('radio', 'manno', 'range', [['some', 'Some numbers']]);
     echo "</td>\n<td>starting at:</td>\n";
     ChooseNum("start", "manStart", 4, 1, "document.getElementById('manEnd').value", 1, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
@@ -323,7 +324,7 @@ function SectionManno($pif) {
     echo " </tr>\n <tr><td colspan=\"2\">";
     if ($pif['isadmin']) {
 	echo "<i>";
-	Checks('checkbox', 'large', [['1', 'Large']], '');
+	Checks('checkbox', 'manno', 'large', [['1', 'Large']], '');
 	echo "</i>";
     }
     echo "</td>\n";
@@ -361,7 +362,7 @@ function SectionManno($pif) {
 //	    echo "<i>$arr[0]</i>";
 //	echo "  </td>\n";
 	echo "  <td class=\"tdright\">";
-	Checks('radio', $pref . $arr[0], [['y', 'yes'], ['n', 'no'], ['m', 'maybe', 1]], '');
+	Checks('radio', 'manno', $pref . $arr[0], [['y', 'yes'], ['n', 'no'], ['m', 'maybe', 1]], '');
 	echo "  </td>\n";
     }
     $a = [
@@ -433,25 +434,25 @@ function SectionMack($pif) {
     global $MAX_NUMBER;
 
     echo "<table>\n <tr>\n  <td>\n";
-    Checks('radio', 'sect', [['all', 'Both sections', 1]]);
+    Checks('radio', 'mack', 'sect', [['all', 'Both sections', 1]]);
     echo "  </td>\n";
     HorzSpacer(3);
     echo "  <td>\n";
-    Checks('radio', 'range', [['all', 'All numbers', 1]]);
+    Checks('radio', 'mack', 'range', [['all', 'All numbers', 1]]);
     echo "  </td>\n";
     echo "  <td></td><td></td>\n";
     echo "  <td>Show</td><td>\n";
-    Checks('radio', 'text', [['pic', 'with pictures', 1], ]);
+    Checks('radio', 'mack', 'text', [['pic', 'with pictures', 1], ]);
     echo "  </td>\n </tr>\n <tr>\n  <td>\n";
-    Checks('radio', 'sect', [['rw', 'Regular Wheels']]);
+    Checks('radio', 'mack', 'sect', [['rw', 'Regular Wheels']]);
     echo "  </td>\n  <td>\n";
-    Checks('radio', 'range', [['some', 'Only numbers']]);
+    Checks('radio', 'mack', 'range', [['some', 'Only numbers']]);
     echo "  </td>\n  <td>starting at:</td>\n";
     ChooseNum('start', 'mackStart', 3, 1, "document.getElementById('mackEnd').value", 1, 'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
     echo "  <td></td><td>\n";
-    Checks('radio', 'text', [['txt', 'as text list']]);
+    Checks('radio', 'mack', 'text', [['txt', 'as text list']]);
     echo " </tr>\n <tr>\n  <td>\n";
-    Checks('radio', 'sect', [['sf', 'SuperFast']]);
+    Checks('radio', 'mack', 'sect', [['sf', 'SuperFast']]);
     echo "  </td>\n  <td></td>\n  </td><td>ending at:</td>\n";
     ChooseNum('end', 'mackEnd', 3, "document.getElementById('mackStart').value", $MAX_NUMBER, $MAX_NUMBER, 'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
     echo " </tr>\n</table>\n";
@@ -459,8 +460,8 @@ function SectionMack($pif) {
 
 function SectionMakes($pif) {
     echo "Choose a make:<br>\n<table><tr><td>\n";
-    Checks('radio', 'make', [['unk', 'unknown', 1], ['unl', 'unlicensed']]);
-    Checks('radio', 'make', [['text', 'Specific make:']], '');
+    Checks('radio', 'makes', 'make', [['unk', 'unknown', 1], ['unl', 'unlicensed']]);
+    Checks('radio', 'makes', 'make', [['text', 'Specific make:']], '');
     echo "<input type=\"text\" name=\"text\" onFocus=\"document.makes.make[2].checked=true;\">\n  </td>\n";
     echo "  <td>Or, <a href=\"../cgi-bin/makes.cgi\">choose from a list!</a></td>\n";
     echo " </tr></table>\n";
@@ -488,11 +489,11 @@ function SectionVSearch($pif) {
     echo "<table><tr>\n";
     echo "<td>Casting name:</td><td><input type=\"text\" name=\"casting\"></td><td width=\"16\">\n";
     echo "<td>\n";
-    Checks('checkbox', 'codes', [['1', 'Code 1 Models', 1]], '');
+    Checks('checkbox', 'vsearch', 'codes', [['1', 'Code 1 Models', 1]], '');
     echo "</td></tr>\n";
     echo "<tr><td>Body:</td><td><input type=\"text\" name=\"body\"></td><td></td>\n";
     echo "<td>\n";
-    Checks('checkbox', 'codes', [['2', 'Code 2 Models', 1]], '');
+    Checks('checkbox', 'vsearch', 'codes', [['2', 'Code 2 Models', 1]], '');
     echo "</td></tr></table>\n";
     echo "</td></tr>\n";
     echo "<tr><td>\n";
@@ -537,7 +538,7 @@ function SectionSets($pif) {
     if ($pif['isadmin']) {
 	echo "  </td>\n";
 	echo "  <td>\n";
-	Checks('checkbox', 'large', [['1', '<i>Large</i>']], '');
+	Checks('checkbox', 'sets', 'large', [['1', '<i>Large</i>']], '');
     }
     echo "</td></tr></table>\n";
 }
@@ -572,7 +573,7 @@ document.addEventListener("DOMContentLoaded", boxExample, false);
 EOT;
 
     echo "\n<table>\n <tr>\n  <td>Series:</td>\n  <td>";
-    Checks('radio', 'series', [['', 'All', 1]], '');
+    Checks('radio', 'boxes', 'series', [['', 'All', 1]], '');
     echo "</td>\n";
     HorzSpacer(1);
     echo "  <td>Model Numbers:</td>\n  <td>Starting at number:</td>\n";
@@ -580,11 +581,11 @@ EOT;
     HorzSpacer(1);
     echo "  <td rowspan=\"5\" id=\"foo\"><img src=\"/pic/pub/box/s_rw01a-a.jpg\" class=\"hidden\" id=\"boxImg\"></td>\n";
     echo " </tr>\n <tr>\n  <td></td>\n  <td>\n";
-    Checks('radio', 'series', [['RW', 'Regular Wheels']], '');
+    Checks('radio', 'boxes', 'series', [['RW', 'Regular Wheels']], '');
     echo "  </td>\n  <td></td>\n  <td></td>\n  <td>Ending at number:</td>\n";
     ChooseNum('end', 'boxEnd', 3, 1, 75, 75);
     echo " </tr>\n <tr>\n  <td></td>\n  <td>\n";
-    Checks('radio', 'series', [['SF', 'SuperFast']], '');
+    Checks('radio', 'boxes', 'series', [['SF', 'SuperFast']], '');
     echo "  </td>\n </tr>\n <tr>\n  <td>&nbsp;\n";
     echo "  </td>\n </tr>\n <tr>\n  <td>Styles:</td>\n  <td colspan=\"4\">\n";
 
@@ -597,7 +598,7 @@ EOT;
     echo "  </td>\n";
     if ($pif['isadmin']) {
 	echo "  <td>\n";
-	Checks('checkbox', 'c', [['1', '<i>Compact</i>']], '');
+	Checks('checkbox', 'boxes', 'c', [['1', '<i>Compact</i>']], '');
 	echo "  </td>\n  <td></td>";
     }
     echo " </tr>\n</table>\n";

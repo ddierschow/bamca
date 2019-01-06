@@ -309,7 +309,7 @@ flag_check_names = [
 
 def edit_single(pif):
     listCats, listIndices, dictCats, listRejectCats = read_config(pif, True)
-    #listCats.append(('single', 'single'))
+    listCats.append(('single', 'single'))
     table_info = pif.dbh.table_info['link_line']
     link_id = pif.form.get_str('id')
     if pif.form.get_bool('save'):
@@ -430,7 +430,7 @@ def edit_multiple(pif):
         section = pif.dbh.fetch_section(sec_id)
         page_id = section['page_id']
     else:
-        linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page'), order="display_order")
+        linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page_id'), order="display_order")
     pif.render.message(len(linklines), 'lines')
 
     entries = [{'text': col} for col in table_info['columns']]
@@ -496,7 +496,7 @@ def edit_links(pif):
     pif.render.print_html()
     if pif.form.get_str('id') or pif.form.get_bool('add'):
 	return edit_single(pif)
-    elif pif.form.has_any(['as', 'sec', 'stat', 'page']):
+    elif pif.form.has_any(['as', 'sec', 'stat', 'page_id']):
 	return edit_multiple(pif)
     else:
 	return edit_choose(pif)

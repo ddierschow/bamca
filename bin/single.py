@@ -246,7 +246,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         links.append('<a href="vars.cgi?vdet=1&mod=%s">Details</a>' % mod_id)
         links.append('<a href="vsearch.cgi?ask=1&id=%s">Search</a>' % mod_id)
         links.append('<a href="pics.cgi?m=%s">Pics</a> <a href="vars.cgi?list=LIST&mod=%s&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>' % (mod_id.lower(), mod_id))
-        links.append('<a href="edlinks.cgi?page=single.%s">Links</a>' % mod_id)
+        links.append('<a href="edlinks.cgi?page_id=single.%s">Links</a>' % mod_id)
     if os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower())):
 	if pif.is_allowed('v'):  # pragma: no cover
 	    links.append('<a href="traverse.cgi?d=%s">Library</a>' % useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))

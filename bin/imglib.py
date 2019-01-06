@@ -999,7 +999,7 @@ class ActionForm(object):
 	print pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (self.tdir + '/' + fn))
 	print 'New name: <input type="text" size="32" name="newname" value="%s">' % fn
 	print pif.render.format_button_input('rename')
-	print ''.join(pif.render.format_radio('cpmv', [('c', 'copy'), ('m', 'move')], self.cpmv))
+	print pif.render.format_radio('cpmv', [('c', 'copy'), ('m', 'move')], self.cpmv)
 	if pif.is_allowed('m'):  # pragma: no cover
 	    if self.ov:
 		print '<input type=checkbox name="ov" value="1" checked>'

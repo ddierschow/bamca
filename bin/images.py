@@ -588,10 +588,10 @@ class EditForm(imglib.ActionForm):
 	if edit:
 	    print '<div class="lefty">'
 	    #print '(%d, %d)' % (xs, ys)
-	    print '<input type="radio" name="tysz" value="q"%s>' % (' checked' if presets.get('tysz') == 'q' else '')
+	    print pif.render.format_radio('tysz', [('q', '')], presets.get('tysz', ''))
 	    print 'x: <input name="x" type="text" size="4" value="%s">' % config.DEFAULT_X_SIZE
 	    print 'y: <input name="y" type="text" size="4" value="%s">' % config.DEFAULT_Y_SIZE
-	    print ''.join(pif.render.format_radio('tysz', [(siz, siz.upper()) for siz in mbdata.image_size_types], presets.get('tysz', mbdata.IMG_SIZ_SMALL)))
+	    print pif.render.format_radio('tysz', [(siz, siz.upper()) for siz in mbdata.image_size_types], presets.get('tysz', mbdata.IMG_SIZ_SMALL))
 	    print '-', pif.render.format_checkbox("unlv", [(1, "V")], presets.get("unlv", []))
 	    print pif.render.format_checkbox("unlh", [(1, "H")], presets.get("unlh", []))
 	    print pif.render.format_button_input('keep')

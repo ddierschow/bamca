@@ -521,14 +521,14 @@ of Matchbox International Ltd. and are used with permission.
     def format_checkbox(self, name, options, checked=[], sep='\n'):
         #self.comment('format_checkbox', name, options, checked)
         return ''.join([
-            '<nobr><input type="checkbox" name="%s" value="%s"%s> %s</nobr>%s' % (name, option[0],
-		' CHECKED' if option[0] in checked else '', option[1], sep)
-	    for option in options])
+            '<nobr><input type="checkbox" name="%s" value="%s" id="%s"%s> <label for="%s">%s</label></nobr>%s' % (name, x[0],
+		name + str(x[0]), ' CHECKED' if x[0] in checked else '', name + str(x[0]), x[1], sep)
+	    for x in options])
 
     def format_radio(self, name, options, checked='', sep='\n'):
-        return ['<input type="radio" name="%s" value="%s"%s> %s%s' %
-		(name, option[0], ' CHECKED' if option[0] == checked else '', option[1], sep)
-	    if option else sep for option in options]
+        return ''.join(['<input type="radio" id="%s" name="%s" value="%s"%s> <label for="%s">%s</label>%s' %
+		(name + str(x[0]), name, x[0], ' CHECKED' if x[0] == checked else '', name + str(x[0]), x[1], sep)
+	    if x else sep for x in options])
 
     def format_select_country(self, name, selected='', id=None):
         return self.format_select(name, mbdata.countries, selected='', id=None, blank='')
