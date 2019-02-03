@@ -926,6 +926,7 @@ FLAG_CATEGORY_INDEXED                   = 0x0004
 
 FLAG_PAGE_INFO_HIDDEN                   = 0x0001
 FLAG_PAGE_INFO_HIDE_TITLE               = 0x0002
+FLAG_PAGE_INFO_ADMIN_ONLY               = 0x0080
 
 FLAG_LINK_LINE_HIDDEN                   = 0x0001
 FLAG_LINK_LINE_RECIPROCAL               = 0x0002

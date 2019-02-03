@@ -531,6 +531,7 @@ LISTTYPE_VEHICLE_TYPE = 'vtl'
 LISTTYPE_MULTIYEAR = 'myr'
 LISTTYPE_TILLEY = 'til'
 LISTTYPE_EDITOR = 'edt'
+LISTTYPE_DETAIL = 'vdt'
 
 mime_types = {
     LISTTYPE_CSV: 'text/csv',
@@ -728,7 +729,8 @@ def get_mack_number(cid):
     if id_m:
         if id_m.group('p') == 'SF':
 	    return ('MB', int(id_m.group('n')), id_m.group('l'))
-	return ('', int(id_m.group('n')), id_m.group('l'))
+        if id_m.group('p') == 'RW':
+	    return ('', int(id_m.group('n')), id_m.group('l'))
     return None
 
 

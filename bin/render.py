@@ -26,6 +26,7 @@ class Presentation(object):
     paste_from_clippy_js = javasc.def_paste_from_clippy_js
     font_awesome_js = javasc.def_font_awesome_js
     def __init__(self, page_id, verbose):
+	self.is_html = False
         self.page_id = page_id
         self.art_dir = config.IMG_DIR_ART
         self.is_beta = False
@@ -272,6 +273,7 @@ class Presentation(object):
 	    self.print_cookie()
 	    print
 	    if content == 'text/html':
+		self.is_html = True
 		print '<!DOCTYPE html>'
 		print
 	    useful.header_done()
@@ -515,6 +517,16 @@ of Matchbox International Ltd. and are used with permission.
 
     #---- forms
 
+    def format_form_start(self, action=None, name=None, method=None, also={}, token=None):
+	args = (' action="%s"' % action) if action else ''
+	args += (' name="%s"' % name) if name else ''
+	args += (' method="%s"' % method) if method else ''
+	args += useful.fmt_also(also)
+	return '<form%s>\n' % args + (self.format_form_token(token) if token else '')
+
+    def format_form_end(self):
+	return '</form>\n'
+
     def format_form_token(self, token, name="token"):
 	return '<input type="hidden" name="%s" value="%s">\n' % (name, token)
 
@@ -560,8 +572,11 @@ of Matchbox International Ltd. and are used with permission.
     def format_password_input(self, name, maxlength=80, showlength=24, value=''):
         return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (name, min(showlength, maxlength), maxlength, value)
 
-    def format_hidden_input(self, values):
-	return ''.join(['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in values.items()])
+    def format_hidden_input(self, *values, **kvalues):
+	ret = ['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in kvalues.items()]
+	if values:
+	    ret += ['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in values[0].items()]
+	return ''.join(ret)
 
     #---- buttons
 

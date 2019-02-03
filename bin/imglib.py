@@ -1,8 +1,9 @@
 #!/usr/local/bin/python
 
 import datetime, glob, os, stat, subprocess, sys, time
-import config
 from PIL import Image, ImageDraw
+import bfiles
+import config
 import imicon
 import mbdata
 import tumblr
@@ -1133,11 +1134,21 @@ def simple_save(ofi, opth):
 	open(opth, "w").write(ofi)
 
 
+def get_credit_file():
+    ents = bfiles.SimpleFile('src/credits.dat')
+    dirs = {}
+    for ent in ents:
+	if ent[0] == 'c':
+	    dirs.setdefault(ent[1], dict())
+	    dirs[ent[1]][ent[3]] = ent[2]
+    return dirs
+
+
 def get_tilley_file():
-    ents = open('lib/tilley/tilley.txt').readlines()
+    ents = bfiles.SimpleFile('src/credits.dat')
     mans = {}
     for ent in ents:
-	man, pref = ent.strip().split(None, 1)
-	mans.setdefault(man, list())
-	mans[man].append(pref)
+	if ent[0] == 'c' and ent[2] == 'DT' and ent[1].startswith('man/'):
+	    mans.setdefault(ent[1][4:], list())
+	    mans[ent[1][4:]].append(ent[3])
     return mans

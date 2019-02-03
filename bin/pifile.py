@@ -251,6 +251,8 @@ class PageInfoFile(object):
         page_info = self.dbh.fetch_page(page_id)
 	if not page_info:
 	    raise useful.SimpleError('Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id)
+	if self.render.flags & self.dbh.FLAG_PAGE_INFO_ADMIN_ONLY:
+	    self.restrict('a')
         self.render.set_page_info(page_info)
         self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDDEN) != 0
         self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0

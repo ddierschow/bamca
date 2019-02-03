@@ -583,7 +583,7 @@ class EditForm(imglib.ActionForm):
 	presets = imglib.read_presets(pdir)
 
 	xs, ys = super(EditForm, self).write(pif, fn)
-	print pif.render.format_hidden_input({'c': urllib.quote_plus(pif.form.get_str('c', ''))})
+	print pif.render.format_hidden_input(c=urllib.quote_plus(pif.form.get_str('c', '')))
 	#xs, ys = imglib.get_size(full_path)
 	if edit:
 	    print '<div class="lefty">'
@@ -620,7 +620,7 @@ class EditForm(imglib.ActionForm):
 	print pif.render.format_select('credit', photogs, selected=self.credit, blank='')
 	print 'Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q])
 	print '<br><span id="ima_info"></span>&nbsp;'
-	print pif.render.format_hidden_input({'cc': presets.get('cc', '')})
+	print pif.render.format_hidden_input(cc=presets.get('cc', ''))
 	return xs, ys
 
     def save_file(self, ofi):
@@ -918,7 +918,7 @@ class StitchForm(object):
 	header = str(self.fsl) + '<br>'
 
 	header += '''<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">\n''' + pif.create_token()
-	header += pif.render.format_hidden_input({'fc': self.file_count + 1})
+	header += pif.render.format_hidden_input(fc=self.file_count + 1)
 	columns = ['name', 'image']
 	print header
 	print pif.render.format_table_start()
@@ -1034,7 +1034,7 @@ class StitchForm(object):
 	print '<br><form>Final resting place:'
 	print pif.create_token()
 	print pif.render.format_text_input('o', 80, value='%s' % input_files[0])
-	print pif.render.format_hidden_input({'f': '%s/%s' % (d, f)})
+	print pif.render.format_hidden_input(f='%s/%s' % (d, f))
 	for fn in input_files:
 	    print pif.render.format_hidden_input({'in': fn})
 	print pif.render.format_button_input('finish')
@@ -1721,6 +1721,9 @@ def count_images(pif):
         t += dt
     print t
 
+def do_stuff(pif):
+    imglib.get_credit_file()
+
 #---- ---------------------------------------
 
 cmds = {
@@ -1729,6 +1732,7 @@ cmds = {
     ('f', fix_pix, "fix pix: mod_id ..."),
     ('c', count_images, "count"),
     ('l', check_library, "check library"),
+    ('x', do_stuff, "x"),
 }
 
 @basics.command_line

@@ -241,11 +241,11 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         links.append('<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id}))
         links.append('<a href="mass.cgi?type=related&mod_id=%s">Relateds</a>' % mod_id)
         links.append('<a href="mass.cgi?type=alias&mod_id=%s">Aliases</a>' % mod_id)
-        links.append('<a href="vars.cgi?edit=1&mod=%s">Variations</a>' % mod_id)
-        links.append('<a href="vars.cgi?attr=1&mod=%s">Attr Edit</a>' % mod_id)
-        links.append('<a href="vars.cgi?vdet=1&mod=%s">Details</a>' % mod_id)
+        links.append('<a href="vars.cgi?edt=1&mod=%s">Variations</a>' % mod_id)
+        links.append('<a href="vars.cgi?adl=1&mod=%s">Attr Edit</a>' % mod_id)
+        links.append('<a href="vars.cgi?vdt=1&mod=%s">Details</a>' % mod_id)
         links.append('<a href="vsearch.cgi?ask=1&id=%s">Search</a>' % mod_id)
-        links.append('<a href="pics.cgi?m=%s">Pics</a> <a href="vars.cgi?list=LIST&mod=%s&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>' % (mod_id.lower(), mod_id))
+        links.append('<a href="pics.cgi?m=%s">Pics</a> <a href="vars.cgi?lrg=1&mod=%s&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>' % (mod_id.lower(), mod_id))
         links.append('<a href="edlinks.cgi?page_id=single.%s">Links</a>' % mod_id)
     if os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower())):
 	if pif.is_allowed('v'):  # pragma: no cover
@@ -310,12 +310,12 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         var_ids = [x['v.var'] for x in raw_variations]
         var_ids.sort()
         for var in var_ids:
-            ostr += '<a href="vars.cgi?mod=%s&var=%s&edit=1">%s</a>\n' % (mod_id, var, var)
+            ostr += '<a href="vars.cgi?mod=%s&var=%s&edt=1">%s</a>\n' % (mod_id, var, var)
 	    if var:
 		for sz in mbdata.image_size_types:
 		    if os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + mod_id + '-' + var + '.jpg').lower()):
 			ostr += sz.upper() + ' '
-		ostr += '<a href="vars.cgi?mod=%s&var=%s&edit=1"><i class="fas fa-edit"></i></a>\n' % (mod_id, var)
+		ostr += '<a href="vars.cgi?mod=%s&var=%s&edt=1"><i class="fas fa-edit"></i></a>\n' % (mod_id, var)
 		ostr += pif.render.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var, mod_id, var), '<i class="fas fa-upload"></i>') + '\n'
 		ostr += pif.render.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var), '<i class="fas fa-bars"></i>') + '\n'
             ostr += '<br>\n'
@@ -353,18 +353,19 @@ def show_lineup_appearances(pif, appearances):
     yd = {}
     rs = set()
     for appear in appearances:
+	reg = appear['region'][0]
         yd.setdefault(appear['year'], dict())
-        yd[appear['year']].setdefault(appear['region'][0], list())
-        yd[appear['year']][appear['region'][0]].append(appear)
-        rs.add(appear['region'][0])
+        yd[appear['year']].setdefault(reg, set())
+        yd[appear['year']][reg].add(appear['number'])
+        rs.add(reg)
     rl = filter(lambda x: x in rs, mbdata.regionlist)
     entries = []
 
     if not yd:
 	return {}
 
-    def show_lineup(appear):
-	return 'lineup.cgi?year=%(year)s&region=%(region)s&lty=all#%(number)s' % appear
+    def show_lineup(yr, rg, num):
+	return 'lineup.cgi?year=%s&region=%s&lty=all#%s' % (yr, rg, num)
 
     if 'X' in rs:  # not implemented yet  # pragma: no cover
 	#return {}
@@ -374,15 +375,15 @@ def show_lineup_appearances(pif, appearances):
 	    if yd[yr].get('X'):
 		appear = yd[yr]['X'][0]
 		entry = {'': '<b>%s</b>' % str(yr),
-			'W': '<a href="lineup.cgi?year=%s&region=U&lty=all#X%s">%s</a>' % (appear['year'], appear['number'], 'X')}
+			'W': '<a href="lineup.cgi?year=%s&region=U&lty=all#X%s">%s</a>' % (yr, appear, 'X')}
 	    entries.append(entry)
     else:
 	columns = [''] + rl
 	for yr in sorted(yd.keys()):
 	    entry = {'': '<b>%s</b>' % str(yr)}
 	    for reg in rl:
-		entry[reg] = ', '.join([pif.render.format_link(show_lineup(appear), str(appear['number']))
-					for appear in yd[yr][reg]]) if yd[yr].get(reg) else '&nbsp;'
+		entry[reg] = ', '.join([pif.render.format_link(show_lineup(yr, reg, appear), str(appear))
+					for appear in sorted(yd[yr][reg])]) if yd[yr].get(reg) else '&nbsp;'
 	    entries.append(entry)
 
     llineup = {'id': 'lappear', 'name': '',

@@ -3,7 +3,7 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-import copy, filecmp, glob, itertools, os, pprint, random, re, stat, string, urllib, urllib2
+import copy, filecmp, functools, glob, itertools, os, pprint, random, re, stat, string, urllib, urllib2
 import config  # bleagh
 import jinja2
 
@@ -163,6 +163,14 @@ def render_file(fname):
 def img_src(pth, alt=None, also={}):
     return '<img src="../' + pth + '"' + fmt_also({'alt': alt}, also) + '>'
 
+
+# Decorator that wraps calls in a "large" way
+def largish(main_fn):
+    @functools.wraps(main_fn)
+    def call_main(**kwargs):
+	ret = main_fn(pif)
+	return ret
+    return call_main
 
 def plural(thing):
     return 's' if len(thing) != 1 else ''

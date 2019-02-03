@@ -56,10 +56,7 @@ class DB(object):
 			       os.environ.get('REMOTE_ADDR', ''), query))
         cu = self.db.cursor()
         try:
-            if args:
-                nrows = cu.execute(query, args)
-            else:
-                nrows = cu.execute(query)
+	    nrows = cu.execute(query, args)
         except:
 	    self.logger.info('x %s%s %s' %
 			      ('/*mock*/ ' if self.nowrites else '',

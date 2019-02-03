@@ -258,7 +258,8 @@ def web_page(main_fn):
             ret = main_fn(pif)
 	    if not useful.is_header_done():
 		pif.render.print_html()
-	    useful.write_comment("Page:", pif.page_id, 'Time:', time.time() - pif.start_seconds)
+	    if pif.render.is_html:
+		useful.write_comment("Page:", pif.page_id, 'Time:', time.time() - pif.start_seconds)
             if ret and not pif.unittest:
                 print ret
         except SystemExit:

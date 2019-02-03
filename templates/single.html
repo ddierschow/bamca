@@ -33,9 +33,16 @@
 <div class="inset {{ sz }} infopanel">
 <h3>Model-Related Links</h3>
 <p>
-<h4><a href="vars.cgi?mod={{ model.id }}">Variations ({{ model.vars }})</a>
-- <a href="vsearch.cgi?ask=1&id={{ model.id }}">Search</a></h4>
-<h4><a href="upload.cgi?m={{ model.id }}&y={{ product_pic }}">Upload a Picture</a></h4><p>
+<h4>{{ model.vars }} Variations</h4>
+<center>
+<a href="vars.cgi?mod={{ model.id }}">Grid</a> &#x2666;
+<a href="vars.cgi?lrg=1&mod={{ model.id }}">List</a> &#x2666;
+<a href="vars.cgi?csv=1&mod={{ model.id }}">CSV</a> &#x2666;
+<a href="vars.cgi?jsn=1&mod={{ model.id }}">JSON</a> &#x2666;
+<a href="vsearch.cgi?ask=1&id={{ model.id }}">Search</a><br>
+<a href="upload.cgi?m={{ model.id }}&y={{ product_pic }}">Upload a Picture</a>
+</center>
+<p>
 {% for compare in compares %}
 <h4>{{ compare }}</h4>
 {% endfor %}

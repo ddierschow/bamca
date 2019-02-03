@@ -28,7 +28,7 @@ def mass(pif):
 
 
 def mass_main(pif):
-    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form:
 	print 'duplicate form submission detected'
     elif pif.form.has('save'):
 	return mass_save(pif)
@@ -38,12 +38,14 @@ def mass_main(pif):
 
 
 def mass_ask(pif):
-    header = '<form method="post">' + pif.create_token()
+    #header = '<form method="post">' + pif.create_token()
+    header = pif.render.format_form_start(method='post', token=pif.dbh.create_token())
 
     rows = ['select', 'from', 'where', 'order']
     entries = [{'title': row, 'value': pif.render.format_text_input(row, 256, 80)} for row in rows]
 
-    footer = '<input type="hidden" name="verbose" value="1">'
+    #footer = '<input type="hidden" name="verbose" value="1">'
+    footer = pif.render.format_hidden_input(verbose=1)
     footer += pif.render.format_button_input()
     footer += "</form>"
     footer += mass_sections(pif)
@@ -57,7 +59,8 @@ def mass_select(pif):
     columns = pif.form.get_str('select').split(',')
     table_info = pif.dbh.table_info[pif.form.get_str('from')]
     rows = pif.dbh.fetch(pif.form.get_str('from'), columns=columns + table_info['id'], where=pif.form.get_str('where'), order=pif.form.get_str('order'), tag='mass_select')
-    header = '<form method="post">' + pif.create_token()
+    #header = '<form method="post">' + pif.create_token()
+    header = pif.render.format_form_start(method='post', token=pif.dbh.create_token())
     header += '<input type="hidden" name="from" value="%s">' % pif.form.get_str('from')
     header += '<input type="hidden" name="select" value="%s">' % pif.form.get_str('select')
     header += '<input type="hidden" name="verbose" value="1">'
@@ -113,7 +116,7 @@ def dates_main(pif):
 # ------- mack numbers ---------------------------------------------
 
 def aliases_main(pif):
-    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form:
 	print 'duplicate form submission detected'
     elif pif.form.has('save'):
         return aliases_final(pif)
@@ -165,7 +168,8 @@ def aliases_ask(pif):
 #	{'title': "Associated Link:", 'value': pif.render.format_select('associated_link', [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in asslinks])},
 #	{'title': '', 'value': pif.render.format_button_input()},
 
-    header = '<form name="mass" action="mass.cgi">' + pif.create_token()
+    #header = '<form name="mass" action="mass.cgi">' + pif.create_token()
+    header = pif.render.format_form_start(name='mass', action='mass.cgi', token=pif.dbh.create_token())
     header += 'Mod ID: ' + mod_id + pif.render.format_hidden_input({'mod_id': mod_id})
     footer = pif.render.format_hidden_input({'type': 'alias'}) + "</form><p>"
 
@@ -257,7 +261,7 @@ def lineup_desc_main(pif):
 
 # TODO add base_id/casting_id for new castings
 def add_lineup_main(pif):
-    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form:
 	print 'duplicate form submission detected'
     elif pif.form.has('save'):
 	print pif.render.format_head()
@@ -271,7 +275,8 @@ def add_lineup_main(pif):
 
 
 def add_lineup_ask(pif):
-    header = '<form action="mass.cgi">' + pif.create_token()
+    #header = '<form action="mass.cgi">' + pif.create_token()
+    header = pif.render.format_form_start(action='mass.cgi', token=pif.dbh.create_token())
     entries = [
 	{'title': 'Number of models:', 'value': pif.render.format_text_input("num", 8, 8)},
 	{'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4)},
@@ -347,7 +352,7 @@ def add_lineup_list(pif):
 	{'title': '', 'value': pif.render.format_button_input()},
     ]
     lsection = dict(columns=['title', 'value'], range=[{'entry': entries}], note='Page and Section', noheaders=True,
-	header='<form method="post" action="mass.cgi">' + pif.create_token())
+	header=pif.render.format_form_start(method='post', action='mass.cgi', token=pif.dbh.create_token()))
     entries = []
     for cnt in range(0, num_models):
 	name = modlist.pop(0)
@@ -365,6 +370,87 @@ def add_lineup_list(pif):
 	note='Models', headers=dict(zip(columns, headers)), footer=footer)
     lsection = dict(columns=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True, header=header, footer=footer)
     return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]), nofooter=True)
+
+
+# ------- add lineup_model -----------------------------------------
+
+def add_lm_main(pif):
+    if pif.duplicate_form:
+	add_lm_save(pif)
+	print 'duplicate form submission detected'
+    elif pif.form.has('save'):
+	add_lm_save(pif)
+	return
+    elif pif.form.has('number'):
+        return add_lm_enter(pif)
+    return add_lm_ask(pif)
+
+
+def add_lm_ask(pif):
+    header = '<form action="mass.cgi">' + pif.create_token()
+    entries = [
+	{'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4)},
+	{'title': 'Number:', 'value': pif.render.format_text_input("number", 4, 4)},
+	{'title': 'Mod ID:', 'value': pif.render.format_text_input("mod_id", 24, 4)},
+	{'title': '', 'value': pif.render.format_button_input()},
+    ]
+    footer = pif.render.format_hidden_input({'type': 'lineup_model'})
+    footer += "</form>"
+    lsection = dict(columns=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True, header=header, footer=footer)
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]), nofooter=True)
+
+
+def add_lm_enter(pif):
+    year = pif.form.get_str('year')
+    pg = pif.dbh.fetch_page('year.' + year)
+    if not pg:
+	raise useful.SimpleError("no page")
+    secs = pif.dbh.fetch_sections({'page_id': pg.id})
+    if not secs:
+	raise useful.SimpleError("no secs")
+    tab = pif.dbh.table_info['lineup_model']
+    mod_id = pif.form.get_str('mod_id')
+    mod = pif.dbh.fetch_casting(mod_id)
+    number = pif.form.get_int('number')
+
+    colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
+    entries = [
+	{'title': 'Page ID:', 'value': pif.render.format_text_input("page_id", 32, 32, value='year.%s' % year)},
+	{'title': 'Mod ID:', 'value': pif.render.format_text_input("mod_id", 24, 24, value=mod_id)},
+	{'title': 'Number:', 'value': pif.render.format_text_input("number", 4, 4, value=number)},
+	{'title': 'Display Order:', 'value': pif.render.format_text_input("display_order", 4, 4)},
+	{'title': 'Flags:', 'value':
+	    pif.render.format_checkbox('flags', tab['bits']['flags'], useful.bit_list(0, format='%04x'))},
+	{'title': 'Style:', 'value': pif.render.format_select("style_id", colors)},
+	{'title': 'Picture ID:', 'value': pif.render.format_text_input("picture_id", 12, 12, value='')},
+	{'title': 'Region:', 'value': pif.render.format_checkbox('region', [(x.id, x.id,) for x in secs])},
+	{'title': 'Year:', 'value': pif.render.format_text_input("year", 6, 6, value=year)},
+	{'title': 'Name:', 'value': pif.render.format_text_input("name", 64, 64, value=mod['name'])},
+#	{'title': 'Variation:', 'value': pif.render.format_text_input("var", 8, 8)},
+	{'title': '', 'value': pif.render.format_button_input('save')},
+    ]
+
+    columns = ['title', 'value']
+    header = '<form name="mass" action="mass.cgi">' + pif.create_token()
+    footer = pif.render.format_hidden_input({'type': 'lineup_model'}) + "</form>"
+    lsection = dict(columns=columns, range=[{'entry': entries}], note='', noheaders=True, header=header, footer=footer)
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]), nofooter=True)
+
+
+def add_lm_save(pif):
+    print pif.render.format_head()
+    useful.header_done()
+
+#    var = pif.form.get_str('var')
+    lm = pif.form.get_dict(['mod_id', 'number', 'display_order', 'style_id', 'picture_id', 'year', 'page_id', 'name'])
+    lm['flags'] = pif.form.get_bits('flags')
+    regions = pif.form.get_list('region')
+
+    for region in regions:
+	lm['region'] = region
+	lm['base_id'] = lm['year'] + region + '%03d' % int(lm['number'])
+        pif.dbh.dbi.insert_or_update('lineup_model', lm)
+    print pif.render.format_tail()
 
 
 # ------- add casting ---------------------------------------------
@@ -397,7 +483,7 @@ def add_casting_main(pif):
 
 def add_casting_final(pif):
     ostr = str(pif.form.get_form()) + '<br>\n'
-    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form:
 	print 'duplicate form submission detected'
     else:
 	if pif.dbh.fetch_base_id(pif.form.get_str('id')):
@@ -456,7 +542,7 @@ def add_pub_final(pif):
     # base_id: id, first_year, model_type, rawname, description, flags
     # publication: id, country, section_id
     ostr = str(pif.form.get_form()) + '<br>\n'
-    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form:
 	print 'duplicate form submission detected'
     else:
 	ostr += pif.dbh.add_new_base_id({
@@ -600,7 +686,7 @@ def add_var_final(pif):
     for col in var_record_columns + attr_names:
 	var[col] = pif.form.get_str(col)
     print var, '<br>'
-    if pif.duplicate_form: #not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form:
 	print 'duplicate form submission detected'
     elif upd:
 	pif.dbh.update_variation(var, {'mod_id': mod_id, 'var': var_id}, verbose=True)
@@ -2010,6 +2096,7 @@ mass_mains_list = [
     ('ads', add_ads),
     ('matrix', add_matrix),
     ('attrpics', add_attr_pics),
+    ('lineup_model', add_lm_main),
 ]
 
 mass_mains_hidden = {

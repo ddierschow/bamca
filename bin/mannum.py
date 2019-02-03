@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, csv, glob, json, os, re, sys
+import copy, csv, glob, json, os, re, sys, StringIO
 import basics
 import config
 import imglib
@@ -525,7 +525,7 @@ class MannoFile(object):
 		'first_year': '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (useful.relpath(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year']),
 		'name': mades[int(mdict['made'])] % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
-		'credit': '<a href="vars.cgi?vdet=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
+		'credit': '<a href="vars.cgi?vdt=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
 		'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], mdict['id'], 'i')[1]})
 	    founds, needs, cnts = single.count_list_var_pics(pif, mdict['id'])
 	    #mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
@@ -668,7 +668,8 @@ class MannoFile(object):
             ret.append([mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])
         return ret
 
-    def run_man2csv_out(self, pif, out_file=sys.stdout):
+    def run_man2csv_out(self, pif):
+	out_file = StringIO.StringIO()
 	field_names = ["MAN #", "Mack #", "Year", "Scale", "Name", "Notes"]
 	writer = csv.DictWriter(out_file, fieldnames=field_names)
 	writer.writeheader()
@@ -676,7 +677,9 @@ class MannoFile(object):
 	for sec in secs:
 	    for ln in sec:
 		writer.writerow(dict(zip(field_names, ln)))
-	return ''
+	out_str = out_file.getvalue()
+	out_file.close()
+	return out_str
 
     # ----- json ------------------------------------------------
 
@@ -812,7 +815,7 @@ class MannoFile(object):
 	mod_row['Cat'] = ''
 	mod_row['Pic'] = '(zero)' if not count_var else '(all)' if count_var == count_cred else ('%d/%d' % (count_cred, count_var))
 	mod_row['Description'] = '<a href="/cgi-bin/single.cgi?id=%s">%s</a>' % (mod['id'], mod['name'])
-	mod_row['ID'] = '<a href="/cgi-bin/vars.cgi?mod=%s&vdet=1">%s</a>' % (mod['id'], mod['id']) + ' ' + mk_star(mod_id.lower() in self.til_list)
+	mod_row['ID'] = '<a href="/cgi-bin/vars.cgi?mod=%s&vdt=1">%s</a>' % (mod['id'], mod['id']) + ' ' + mk_star(mod_id.lower() in self.til_list)
 	mod_row['style'] = '2'
 #	if self.photog:
 #	    if self.photognot and mod_row['Cred'] == self.photog:# and count_var == count_cred:

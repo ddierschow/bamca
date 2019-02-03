@@ -184,6 +184,7 @@ class TestRender(unittest.TestCase):
 
     def test_format_hidden_input(self):
 	self.assertTrue(self.pif.render.format_hidden_input({'1':'2','3':'4'}) != '')
+	self.assertTrue(self.pif.render.format_hidden_input(a='2',c='4') != '')
 
     def test_format_button_up_down(self):
 	self.assertTrue(self.pif.render.format_button_up_down('updn') != '')

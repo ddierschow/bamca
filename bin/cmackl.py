@@ -17,7 +17,8 @@ def mack_models(pif, start, end, series):
     mmods = [(mbdata.get_mack_number(rec['base_id.id']), rec,) for rec in
 	pif.dbh.fetch_casting_list('sf') + pif.dbh.fetch_casting_list('rw')]
     amods = sorted([x for x in mmods + amods
-		    if int(x[0][1]) >= start and int(x[0][1]) <= end and not (mseries is not None and mseries != x[0][0])],
+		    if x and x[0] and int(x[0][1]) >= start and int(x[0][1]) <= end and
+		       not (mseries is not None and mseries != x[0][0])],
 		   key=lambda x: (x[0][1], x[0][0], x[0][2]))
     return amods
 
@@ -44,7 +45,8 @@ def format_mack_text(pif, amods):
     for mtype, mranks in sorted(bmods.items()):
 	for mrank, mfiles in sorted(mranks.items()):
 	    res.append({'id': '<b>%s<b>' % mrank})
-	    for mfile in files[files.index(min(bmods[mtype][mrank])):files.index(max(bmods[mtype][mrank])) + 1]:
+	    mmods = bmods[mtype][mrank]
+	    for mfile in files[files.index(min(mmods)):files.index(max(mmods)) + 1]:
 		ent = {
 			'id': '%s%02s-%s' % (mtype, mrank, mfile),
 			'name': '',
