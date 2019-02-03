@@ -373,7 +373,7 @@ def show_lineup_appearances(pif, appearances):
 	columns = ['', 'W']
 	for yr in sorted(yd.keys()):
 	    if yd[yr].get('X'):
-		appear = yd[yr]['X'][0]
+		appear = sorted(yd[yr]['X'])[0]
 		entry = {'': '<b>%s</b>' % str(yr),
 			'W': '<a href="lineup.cgi?year=%s&region=U&lty=all#X%s">%s</a>' % (yr, appear, 'X')}
 	    entries.append(entry)
