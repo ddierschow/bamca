@@ -16,7 +16,7 @@ import useful
 @basics.web_page
 def makes_main(pif):
     make_q = pif.dbh.depref('vehicle_make',
-	pif.dbh.fetch_vehicle_makes(where='' if pif.is_allowed('a') else 'not (flags & %s)' % pif.dbh.FLAG_ITEM_HIDDEN))
+	pif.dbh.fetch_vehicle_makes(where='' if pif.is_allowed('a') else 'not (flags & %s)' % config.FLAG_ITEM_HIDDEN))
     makelist = [(x['id'], x['name']) for x in make_q]
     makedict = {x['id']: x for x in make_q}
     makedict['unl'] = {'id': 'unl', 'name': 'Unlicensed', 'company_name': 'Unlicensed', 'flags': 0}
@@ -101,7 +101,7 @@ def show_make_selection(pif, make_id, makedict):
     where = '' if pif.is_allowed('a') else "section.page_id='manno'"
     if make_id == 'unk':
         casting_make = ''
-    castings = pif.dbh.fetch_casting_list_by_make(casting_make, where)
+    castings = pif.dbh.fetch_casting_list_by_make(casting_make, where=where)
     aliases = []  #pif.dbh.fetch_aliases(where="casting.make='%s'" % casting_make)
     mlist = []
 
@@ -174,7 +174,7 @@ def unhide_makes(pif, *args):
 		where="casting.section_id=section.id and section.page_id='manno' and casting_make.casting_id=casting.id and casting_make.make_id='%s'" % make_id
 	)
 	make = pif.dbh.depref('vehicle_make', pif.dbh.fetch_vehicle_make(make_id))
-	flag = 0 if res['c'] else pif.dbh.FLAG_ITEM_HIDDEN
+	flag = 0 if res['c'] else config.FLAG_ITEM_HIDDEN
 	print make, flag
 	pif.dbh.update_vehicle_make(make['id'], {'flags': flag})
 
