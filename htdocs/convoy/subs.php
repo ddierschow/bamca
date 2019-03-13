@@ -307,10 +307,10 @@ function show_tmtc($prod) {
 }
 
 function fetch_cy_credits($pif) {
-    $cq = Fetch('select photo_credit.path,photo_credit.name,photographer.id,photographer.name from photo_credit,photographer where photo_credit.photographer_id=photographer.id and photo_credit.path="pic/set/convoy"', $pif);
+    $cq = Fetch('select photo_credit.path,photo_credit.name as cr_name,photographer.id,photographer.name as ph_name from photo_credit,photographer where photo_credit.photographer_id=photographer.id and photo_credit.path="pic/set/convoy"', $pif);
     $credits = array();
     foreach ($cq as $credit) {
-	$credits[$credit[1]] = $credit[3];
+	$credits[$credit['cr_name']] = $credit['ph_name'];
     }
     return $credits;
 }

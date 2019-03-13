@@ -43,11 +43,11 @@ $rows = count($larr);
 
 <?php
 foreach ($larr as $ent) {
- $nams = explode('|', $ent[1]);
+ $nams = explode('|', $ent['name']);
 
  echo ' <tr>
-  <td class="c1 boxin boxrow"><a href="' . $ent[0] . '"><img src="' . $IMG_DIR_ICON . '/a_' . $nams[0] . '" alt="[' . $nams[1] . ']"></a></td>
-  <td class="c2 boxin">' . $ent[2] . '</td>
+  <td class="c1 boxin boxrow"><a href="' . $ent['url'] . '"><img src="' . $IMG_DIR_ICON . '/a_' . $nams[0] . '" alt="[' . $nams[1] . ']"></a></td>
+  <td class="c2 boxin">' . $ent['description'] . '</td>
  </tr>
 
 ';

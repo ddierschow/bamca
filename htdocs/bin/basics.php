@@ -22,9 +22,8 @@ function NoAccess($pif, $access, $dest) {
 
 <script type="text/javascript">
 <!--
-window.location = "https://<?php echo $pif['host']; ?>/cgi-bin/login.cgi?dest=http://<?php echo $pif['host']; ?>/<?php echo $dest; ?>";
-//document.write("dumpout!");
-//-->
+window.location = "https://<?php echo $pif['host']; ?>/cgi-bin/login.cgi?dest=/<?php echo $dest; ?>";
+-->
 </script>
 
 <?php
@@ -41,14 +40,9 @@ function CheckID() {
 }
 
 function DBConnect($pif) {
-    $dbi = mysql_connect('localhost', $pif['dbuser'], $pif['dbpass']);
-    if (!$dbi) {
-	echo 'connect failed';
-	return 0;
-    }
-    $r = mysql_select_db($pif['dbname'], $dbi);
-    if (!$r) {
-	echo 'select failed';
+    $dbi = mysqli_connect('localhost', $pif['dbuser'], $pif['dbpass'], $pif['dbname']);
+    if ($dbi->connect_error) {
+	echo 'Connect Error (' . $dbi->connect_errno . ') ' . $dbi->connect_error;
 	return 0;
     }
     return $dbi;
@@ -56,25 +50,25 @@ function DBConnect($pif) {
 
 function DBQuery($dbi, $query) {
     $ret = Array();
-    $res = mysql_query($query, $dbi);
-    #echo "<!-- query " . $query . " : ";
-    #print_r($res);
-    #echo "-->\n";
-    if ($res && $res != 1) {
+    $res = $dbi->query($query);
+    if ($res && $res->num_rows) {
 	while (1) {
-	    $row = mysql_fetch_row($res);
+	    $row = $res->fetch_assoc();
 	    if (!$row) {
 		break;
 	    }
 	    $ret[] = $row;
 	}
     }
+    echo "<!-- query " . $query . " : ";
+    print_r($ret);
+    echo "-->\n";
     return $ret;
 }
 
 function DBClose($dbi) {
     if ($dbi)
-	mysql_close($dbi);
+	$dbi->close();
 }
 
 function GetPageInfo($page_id) {
@@ -100,24 +94,25 @@ function GetPageInfo($page_id) {
     if (!$dbi)
 	return $pif;
     $q = "select page_info.format_type,page_info.title,page_info.pic_dir,page_info.tail,page_info.flags from page_info where page_info.id='" . $page_id . "'";
-    $res = mysql_query($q, $dbi);
+    $res = $pif['dbi']->query($q);
     if ($res) {
 	while (1) {
-	    $row = mysql_fetch_row($res);
+	    $row = $res->fetch_assoc();
 	    if ($row) {
-		$pif['format_type'] = $row[0];
-		$pif['title'] = $row[1];
-		$pif['pic_dir'] = $row[2];
-		$pif['tail'] = $row[3];
-		$pif['flags'] = $row[4];
-		$pif['hide_title'] = $row[4] & 2;
+		$pif['format_type'] = $row['format_type'];
+		$pif['title'] = $row['title'];
+		$pif['pic_dir'] = $row['pic_dir'];
+		$pif['tail'] = $row['tail'];
+		$pif['flags'] = $row['flags'];
+		$pif['hide_title'] = $row['flags'] & 2;
 	    }
 	    else
 		break;
 	}
     }
     $bad_ip = DBQuery($dbi, "select count(*) from blacklist where reason='ip' and target='" . getenv('REMOTE_ADDR') . "'");
-    $pif['bad_ip'] = $bad_ip[0][0];
+// not sure how to fix this yet
+    $pif['bad_ip'] = $bad_ip[0]['count(*)'];
     $pif['messages'] = '';
     return $pif;
 }
@@ -154,16 +149,18 @@ function DoPageHeader($pif) {
 </script>
 ";
     echo "</head>\n\n<body>\n";
+    if (!($pif['flags'] & 16)) {
+	NoAccess($pif, 'b', '');
+    }
     $id = CheckID();
     echo '<table width="1024" class="body">' . "\n";
     if ($id > 0) {
 	$username = Fetch('select name from buser.user where id=' . $id, $pif);
-	$username = $username[0][0];
+	$username = $username[0]['name'];
 	echo '<tr><td class="loginbar">Welcome back, ' . $username . '! ('.$id.')';
 	DoTextButtonLink('log_out', "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
-	DoTextButtonLink('change_password', "https://" . $pif['host'] . "/cgi-bin/chpass.cgi?dest=http://" . $pif['host'] . "/stuff.php");
-	$retval = CheckPerm('u');
-	if ($retval) {
+	DoTextButtonLink('user_profile', "https://" . $pif['host'] . "/cgi-bin/userprofile.cgi");
+	if (CheckPerm('u')) {
 	    DoTextButtonLink('upload', "http://" . $pif['host'] . "/cgi-bin/upload.cgi");
 	}
 	if (CheckPerm('a')) {
@@ -207,9 +204,11 @@ function DoTextButton($buttext, $classname="textbutton") {
 
 function DoTextButtonLink($buttext, $linkloc, $classname="textbutton") {
     $buttext = strtoupper(str_replace('_', ' ', $buttext));
+    echo "<div class=\"$classname\">";
     echo "<a href=\"$linkloc\">";
-    DoTextButton($buttext, $classname);
-    echo "</a>\n";
+    echo "$buttext";
+    echo "</a>";
+    echo "</div>\n";
 }
 
 function DoTextButtonReset($formid, $addl='') {

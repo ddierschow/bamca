@@ -11,12 +11,12 @@ $pif['isadmin'] = $isadmin;
 $pif['hierarchy'][0] = ['/', 'Home'];
 $pif['hierarchy'][1] = ['/database.php', 'Database'];
 $answer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
-$LINE_YEAR_START = $answer[0][0];
-$LINE_YEAR_END = $answer[0][1];
-$MAX_NUMBER = $answer[0][2];
+$LINE_YEAR_START = $answer[0]['min(year)'];
+$LINE_YEAR_END = $answer[0]['max(year)'];
+$MAX_NUMBER = $answer[0]['max(number)'];
 $answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
-$MAN_YEAR_START = $answer[0][0];
-$MAN_YEAR_END = $answer[0][1];
+$MAN_YEAR_START = $answer[0]['min(first_year)'];
+$MAN_YEAR_END = $answer[0]['max(first_year)'];
 
 $sections = array();
 $sections[] = array("tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi");
@@ -111,20 +111,22 @@ function SelectYear($name, $id, $defval, $min, $max) {
     echo "  </td>\n";
 }
 
+
+// flags val title desc
 function Select($name, $id, $sl, $select_js="", $cl="") {
     echo "   <select name=\"$name\" id=\"$id\"";
     if ($select_js)
 	echo " $select_js";
     echo ">\n";
     foreach ($sl as $ent) {
-	if (!($ent[0] & 1)) {
-	    echo "   <option value=\"" . trim($ent[1]) . "\"";
-	    if ($ent[0] & 64) {
+	if (!($ent['flags'] & 1)) {
+	    echo "   <option value=\"" . trim($ent['val']) . "\"";
+	    if ($ent['flags'] & 64) {
 		echo " selected";
 	    }
-	    echo ">$ent[2]";
-	    if (arr_get($ent, 3, '')) {
-		echo " - $ent[3]";
+	    echo ">" . $ent['title'];
+	    if (arr_get($ent, 'descr', '')) {
+		echo " - " . $ent['descr'];
 	    }
 	    echo "\n";
 	}
@@ -137,7 +139,7 @@ function FetchSelect($name, $id, $thing, $query, $extra=[], $select_js="") {
     global $pif;
 
     Select($name, $id, array_merge(
-	[[64, '', 'Please select a ' . $thing . '.', '']],
+	[['flags' => 64, 'val' => '', 'title' => 'Please select a ' . $thing . '.']],
 	Fetch($query, $pif),
 	$extra), $select_js);
 }
@@ -238,10 +240,14 @@ function SectionYear($pif) {
     echo "  </td>\n</tr>\n<tr><td>\n";
     if ($pif['isadmin']) {
 	echo " List type:</td><td width=\"180\">\n";
-	$sl = [[64, '', 'Normal'], [0, 'txt', 'Text'], [0, 'ckl', 'Checklist'], [0, 'csv', 'CSV'], [0, 'jsn', 'JSON']];
+	$sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
+		['flags' => 0, 'val' => 'txt', 'title' => 'Text'],
+		['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],
+		['flags' => 0, 'val' => 'csv', 'title' => 'CSV'],
+		['flags' => 0, 'val' => 'jsn', 'title' => 'JSON']];
 	if ($pif['isadmin'])
-	    $sl[] = [0, 'lrg', 'Large'];
-	    $sl[] = [0, 'myr', 'Multi-Year'];
+	    $sl[] = ['flags' => 0, 'val' => 'lrg', 'title' => 'Large'];
+	    $sl[] = ['flags' => 0, 'val' => 'myr', 'title' => 'Multi-Year'];
 	Select('listtype', 'yrList', $sl);
     } else {
 	echo " </td><td width=\"180\">\n";
@@ -298,10 +304,10 @@ function SectionManno($pif) {
     global $MAN_YEAR_START, $MAN_YEAR_END;
     echo "<table>\n <tr>\n  <td colspan=\"7\">\n";
     if ($pif['isadmin'])
-	$q = "select 0, id, name from section where page_id like 'man%' order by display_order";
+	$q = "select 0 as flags, id as val, name as title from section where page_id like 'man%' order by display_order";
     else
-	$q = "select 0, id, name from section where page_id='manno' order by display_order";
-    FetchSelect('section', 'manSection', 'range', $q, [[0, 'all', 'All Ranges']]);
+	$q = "select 0 as flags, id as val, name as title from section where page_id='manno' order by display_order";
+    FetchSelect('section', 'manSection', 'range', $q, [['flags' => 0, 'val' => 'all', 'title' => 'All Ranges']]);
     if ($pif['isadmin']) {
 	echo "<i>\n";
 	Checks('checkbox', 'manno', 'nodesc', [['1', 'No Notes']], ' ');
@@ -337,10 +343,18 @@ function SectionManno($pif) {
 	SelectYear('eyear', 'manEyear', $MAN_YEAR_END + 1, $MAN_YEAR_START, $MAN_YEAR_END);
     }
     echo " </tr>\n <tr><td colspan=\"4\">List type:\n";
-    $sl = [[64, '', 'Normal'], [0, 'ckl', 'Checklist'], [0, 'thm', 'Thumbnails'], [0, 'csv', 'CSV'], [0, 'jsn', 'JSON']];
+    $sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
+	   ['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],
+	   ['flags' => 0, 'val' => 'thm', 'title' => 'Thumbnails'],
+	   ['flags' => 0, 'val' => 'csv', 'title' => 'CSV'],
+	   ['flags' => 0, 'val' => 'jsn', 'title' => 'JSON']];
     if ($pif['isadmin']) {
-	$sl = array_merge($sl, [[0, 'adl', 'Admin List'], [0, 'pxl', 'Picture List'], [0, 'lnl', 'Links List'], [0, 'vtl', 'Vehicle Type']]);
-	$sl[] = [0, 'txt', 'Text List'];
+	$sl = array_merge($sl, [
+		['flags' => 0, 'val' => 'adl', 'title' => 'Admin List'],
+		['flags' => 0, 'val' => 'pxl', 'title' => 'Picture List'],
+		['flags' => 0, 'val' => 'lnl', 'title' => 'Links List'],
+		['flags' => 0, 'val' => 'vtl', 'title' => 'Vehicle Type']]);
+	$sl[] = ['flags' => 0, 'val' => 'txt', 'title' => 'Text List'];
     }
     Select('listtype', 'selList', $sl);
 
@@ -453,7 +467,7 @@ function SectionMack($pif) {
     Checks('radio', 'mack', 'text', [['txt', 'as text list']]);
     echo " </tr>\n <tr>\n  <td>\n";
     Checks('radio', 'mack', 'sect', [['sf', 'SuperFast']]);
-    echo "  </td>\n  <td></td>\n  </td><td>ending at:</td>\n";
+    echo "  </td>\n  <td></td>\n  <td>ending at:</td>\n";
     ChooseNum('end', 'mackEnd', 3, "document.getElementById('mackStart').value", $MAX_NUMBER, $MAX_NUMBER, 'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
     echo " </tr>\n</table>\n";
 }
@@ -475,7 +489,7 @@ function SectionSearch($pif) {
     echo "<tr>\n";
     echo " <tr><td style=\"text-align: right;\">\nStart year:\n  </td>\n";
     SelectYear('syear', 'searchSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
-    echo " </td><tr>\n";
+    echo " <tr>\n";
     echo " <tr><td style=\"text-align: right;\">End year:</td>\n";
     SelectYear('eyear', 'searchEyear', $MAN_YEAR_END, $MAN_YEAR_START, $MAN_YEAR_END);
     echo "</tr></table>\n";
@@ -512,13 +526,13 @@ function SectionVSearch($pif) {
 	echo "<tr><td><i>Date:</i></td><td><input type=\"text\" name=\"date\"></td></tr>\n";
 	echo "<tr><td><i>Note:</i></td><td><input type=\"text\" name=\"note\"></td></tr>\n";
     }
-    echo "</td></tr></table>\n";
+    echo "</table>\n";
     echo "</td></tr></table>\n";
 }
 
 function SectionPacks($pif) {
     echo "<table><tr><td>\n";
-    FetchSelect('sec', 'packPage', 'pack type', "select flags, id, name from section where page_id like 'packs.%' and not (flags & 1) order by name");
+    FetchSelect('sec', 'packPage', 'pack type', "select flags, id as val, name as title from section where page_id like 'packs.%' and not (flags & 1) order by name");
     echo "</td></tr><tr><td>\n";
     echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
     echo "</td></tr></table>\n";
@@ -526,7 +540,7 @@ function SectionPacks($pif) {
 
 function SectionPubs($pif) {
     echo "<table><tr><td>\n";
-    FetchSelect('ty', 'pubPage', 'publication type', "select flags, category, name from section where page_id like 'pub.%' and not (flags & 1) order by name");
+    FetchSelect('ty', 'pubPage', 'publication type', "select flags, category as val, name as title from section where page_id like 'pub.%' and not (flags & 1) order by name");
     echo "</td></tr><tr><td>\n";
     echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
     echo "</td></tr></table>\n";
@@ -534,7 +548,7 @@ function SectionPubs($pif) {
 
 function SectionSets($pif) {
     echo "<table><tr><td>\n";
-    FetchSelect('page', 'setsPage', 'set', "select flags, id, title, description from page_info where format_type='matrix' order by description");
+    FetchSelect('page', 'setsPage', 'set', "select flags, id as val, title, description as descr from page_info where format_type='matrix' order by descr");
     if ($pif['isadmin']) {
 	echo "  </td>\n";
 	echo "  <td>\n";
@@ -545,7 +559,7 @@ function SectionSets($pif) {
 
 function SectionCats($pif) {
     echo "<table><tr><td>\n";
-    FetchSelect('cat', 'catsPage', 'category', "select flags, id, name from category where flags & 4 order by name");
+    FetchSelect('cat', 'catsPage', 'category', "select flags, id as val, name as title from category where flags & 4 order by name");
     echo "</td></tr></table>\n";
 }
 
@@ -589,11 +603,11 @@ EOT;
     echo "  </td>\n </tr>\n <tr>\n  <td>&nbsp;\n";
     echo "  </td>\n </tr>\n <tr>\n  <td>Styles:</td>\n  <td colspan=\"4\">\n";
 
-    $sl = [[64, '', 'Please select a box style.']];
+    $sl = [['flags' => 64, 'val' => '', 'title' => 'Please select a box style.']];
     foreach ($examples as $ty => $pic) {
-	$sl[] = [0, $ty, $ty . ' type'];
+	$sl[] = ['flags' => 0, 'val' => $ty, 'title' => $ty . ' type'];
     }
-    $sl[] = [0, 'all', 'All'];
+    $sl[] = ['flags' => 0, 'val' => 'all', 'title' => 'All'];
     Select('style', 'boxStyle', $sl, 'onkeyup="boxExample();" onchange="boxExample();" onmouseup="boxExample();"', "boxExample();");
     echo "  </td>\n";
     if ($pif['isadmin']) {
@@ -607,7 +621,7 @@ EOT;
 function SectionCode2($pif) {
     echo "<table><tr><td>\n";
     echo "Choose a type of Code 2 model:\n";
-    FetchSelect('section', 'code2Section', 'range', "select flags, id, name from section where page_id='code2' order by display_order", [[0, '', 'All Sections']]);
+    FetchSelect('section', 'code2Section', 'range', "select flags, id as val, name as title from section where page_id='code2' order by display_order", [['flags' => 0, 'val' => '', 'title' => 'All Sections']]);
     echo "</td></tr></table>\n";
 }
 
@@ -615,18 +629,18 @@ function SectionPlant($pif) {
     echo "<table><tr><td>\n";
     echo "Choose a location of manufacture:\n";
     $sl = [
-	[64, '', 'Please select a location'],
-	[0,  'BR', 'Brazil'],
-	[0,  'BG', 'Bulgaria'],
-	[0,  'CN', 'China'],
-	[0,  'GB', 'England'],
-	[0,  'HK', 'Hong Kong'],
-	[0,  'HU', 'Hungary'],
-	[0,  'JP', 'Japan'],
-	[0,  'MO', 'Macau'],
-	[0,  'TH', 'Thailand'],
-	[0,  'none', 'no origin'],
-	[0,  'unset', 'location unknown or not yet set']
+	['flags' => 64, 'val' => '', 'title' => 'Please select a location'],
+	['flags' => 0,  'val' => 'BR', 'title' => 'Brazil'],
+	['flags' => 0,  'val' => 'BG', 'title' => 'Bulgaria'],
+	['flags' => 0,  'val' => 'CN', 'title' => 'China'],
+	['flags' => 0,  'val' => 'GB', 'title' => 'England'],
+	['flags' => 0,  'val' => 'HK', 'title' => 'Hong Kong'],
+	['flags' => 0,  'val' => 'HU', 'title' => 'Hungary'],
+	['flags' => 0,  'val' => 'JP', 'title' => 'Japan'],
+	['flags' => 0,  'val' => 'MO', 'title' => 'Macau'],
+	['flags' => 0,  'val' => 'TH', 'title' => 'Thailand'],
+	['flags' => 0,  'val' => 'none', 'title' => 'no origin'],
+	['flags' => 0,  'val' => 'unset', 'title' => 'location unknown or not yet set']
     ];
     Select('id', 'plant', $sl);
     echo "</td></tr></table>\n";
