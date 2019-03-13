@@ -104,6 +104,10 @@ foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; ver
 .textbutton:visited {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
 .textbutton:active  {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
 .textbutton:hover   {color: #006600; background-color: #FFFFFF; border-color: #006600; text-decoration: none;}
+.textbutton a:link    {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
+.textbutton a:visited {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
+.textbutton a:active  {color: #FFFFFF; background-color: #006600; border-color: #FFFFFF;}
+.textbutton a:hover   {color: #006600; background-color: #FFFFFF; border-color: #006600; text-decoration: none;}
 .textupdown {margin: 0;}
 
 /* Used within FF chrome to target CSS to specific URLs: being FF-specific,

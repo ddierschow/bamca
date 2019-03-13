@@ -149,9 +149,9 @@ function DoPageHeader($pif) {
 </script>
 ";
     echo "</head>\n\n<body>\n";
-    if (!($pif['flags'] & 16)) {
-	NoAccess($pif, 'b', '');
-    }
+//    if (!($pif['flags'] & 16)) {
+//	NoAccess($pif, 'b', '');
+//    }
     $id = CheckID();
     echo '<table width="1024" class="body">' . "\n";
     if ($id > 0) {

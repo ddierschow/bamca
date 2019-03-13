@@ -36,3 +36,4 @@ h2 {padding: 0 0 0 0; margin: 0 0 0 0;}
 .status a:active  {color: #000000;}
 .status a:hover   {color: #000000;}
 
+.login_or_register {margin: 16px; padding: 64px 12px; border-width: 1px; border-style: solid; width: 600px; background-color: #000000; text-align: center; font-size: large;}
