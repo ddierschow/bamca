@@ -235,6 +235,12 @@ class Logger(object):
             'class': 'logging.FileHandler',
             'filename': '/home/bamca/logs/' + env + '.root.log',
         },
+        'devnull': {
+            'level': 'CRITICAL',
+            'formatter': 'serious',
+            'class': 'logging.FileHandler',
+            'filename': '/dev/null',
+        },
     },
     'loggers': {
         'console': {
@@ -282,6 +288,11 @@ class Logger(object):
             'handlers': ['debug'],
             'propagate': False,
         },
+        'devnull': {
+            'level': 'CRITICAL',
+            'handlers': ['devnull'],
+            'propagate': False,
+        },
     },
     'root': {
         'handlers': ['root'],
@@ -301,3 +312,4 @@ class Logger(object):
         self.refer	= logging.getLogger('refer')
         self.debug	= logging.getLogger('debug')
 	self.root	= logging.getLogger('root')
+	self.devnull	= logging.getLogger('devnull')

@@ -1,9 +1,10 @@
 #!/usr/local/bin/python
 
-import os, re, urllib2, urlparse
+import os, re, requests, urlparse
 import basics
 import config
 import images
+import mannum
 import mbdata
 import useful
 
@@ -107,9 +108,9 @@ def dates_main(pif):
 	vars = pif.dbh.fetch_variation_bare(*mvid.split('-'))
 	if vars:
 	    var = vars[0]
-	    var['variation.flags'] &= ~(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT)
-	    var['variation.flags'] |= (pif.dbh.FLAG_MODEL_VARIATION_VERIFIED if val else 0)
-	    var['variation.flags'] |= (pif.dbh.FLAG_MODEL_ID_INCORRECT if idm else 0)
+	    var['variation.flags'] &= ~(config.FLAG_MODEL_VARIATION_VERIFIED | config.FLAG_MODEL_ID_INCORRECT)
+	    var['variation.flags'] |= (config.FLAG_MODEL_VARIATION_VERIFIED if val else 0)
+	    var['variation.flags'] |= (config.FLAG_MODEL_ID_INCORRECT if idm else 0)
 	    pif.dbh.update_variation_bare(var)
     return pif.render.format_template('blank.html', content='')
 
@@ -245,7 +246,7 @@ def lineup_desc_main(pif):
     for root in pif.form.roots(start='description.'):
 	#root = key[key.find('.') + 1:]
 	lm = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model({'id': root})[0])
-	halfstar = lm['flags'] & pif.dbh.FLAG_LINEUP_MODEL_MULTI_VARS
+	halfstar = lm['flags'] & config.FLAG_LINEUP_MODEL_MULTI_VARS
 	if lm['name'] != pif.form.get_str('description.' + root) or lm['style_id'] != pif.form.get_str('style_id.' + root) or \
 		bool(halfstar) != pif.form.get_bool('halfstar.' + root):
 	    print 'name', root, pif.form.get_str('description.' + root), lm['name']
@@ -254,7 +255,7 @@ def lineup_desc_main(pif):
 	    lm['name'] = pif.form.get_str('description.' + root)
 	    lm['style_id'] = pif.form.get_str('style_id.' + root)
 	    # i am a terrible person
-	    lm['flags'] = (lm['flags'] & ~pif.dbh.FLAG_LINEUP_MODEL_MULTI_VARS) | (pif.dbh.FLAG_LINEUP_MODEL_MULTI_VARS * pif.form.get_int('halfstar.' + root))
+	    lm['flags'] = (lm['flags'] & ~config.FLAG_LINEUP_MODEL_MULTI_VARS) | (config.FLAG_LINEUP_MODEL_MULTI_VARS * pif.form.get_int('halfstar.' + root))
 	    print pif.dbh.update_lineup_model({'id': root}, lm, verbose=True)
 	    print '<br>'
     print pif.render.format_tail()
@@ -337,7 +338,7 @@ def add_lineup_final(pif):
 
 def add_lineup_list(pif):
     # Currently untested.  Used too rarely to worry about right now.
-    modlist = urllib2.urlopen(pif.form.get_str('models')).read().split('\n')
+    modlist = requests.get(pif.form.get_str('models')).text.split('\n')
     castings = {x['base_id.rawname'].replace(';', ' '): x['base_id.id'] for x in pif.dbh.fetch_casting_list()}
     num_models = pif.form.get_int('num')
     year = pif.form.get_str('year')
@@ -470,6 +471,7 @@ def add_casting_main(pif):
 	{'title': 'Country:', 'value': pif.render.format_select_country('country')},
 	{'title': 'Make:', 'value': pif.render.format_select('make', [('unl', 'MBX')] + [(x['vehicle_make.id'], x['vehicle_make.name']) for x in pif.dbh.fetch_vehicle_makes()], blank='')},
 	{'title': 'Section:', 'value': pif.render.format_select('section_id', [(x['section.id'], x['section.name']) for x in pif.dbh.fetch_sections(where="page_id like 'man%'")], selected=pif.form.get_str('section_id'))},
+	{'title': 'Attributes:', 'value': pif.render.format_text_input('attributes', 80, 80)},
 	{'title': '', 'value': pif.render.format_button_input('save')},
     ]
 
@@ -496,7 +498,7 @@ def add_casting_final(pif):
 	    'model_type': pif.form.get_str('model_type'),
 	    'rawname': pif.form.get_str('rawname'),
 	    'description': pif.form.get_str('description'),
-	    'flags': pif.dbh.FLAG_MODEL_NOT_MADE if pif.form.get_str('notmade') == 'not' else 0,
+	    'flags': config.FLAG_MODEL_NOT_MADE if pif.form.get_str('notmade') == 'not' else 0,
 	})) + '<br>\n'
 	ostr += str(pif.dbh.add_new_casting({
 	    'id': pif.form.get_str('id'),
@@ -505,6 +507,7 @@ def add_casting_final(pif):
 	    'section_id': pif.form.get_str('section_id'),
 	    'notes': '',
 	})) + '<br>\n'
+	mannum.add_attributes(pif, pif.form.get_str('id'), *pif.form.get_str('attributes').split(' '))
     print pif.render.format_template('blank.html', content=ostr)
     raise useful.Redirect('single.cgi?id=%s' % pif.form.get_str('id'))
 
@@ -551,7 +554,7 @@ def add_pub_final(pif):
 	    'model_type': pif.form.get_str('model_type'),
 	    'rawname': pif.form.get_str('rawname'),
 	    'description': pif.form.get_str('description'),
-	    'flags': pif.dbh.FLAG_MODEL_NOT_MADE if pif.form.get_str('notmade') == 'not' else 0,
+	    'flags': config.FLAG_MODEL_NOT_MADE if pif.form.get_str('notmade') == 'not' else 0,
 	}) + '<br>\n'
 	ostr += pif.dbh.add_new_publication({
 	    'id': pif.form.get_str('id'),
@@ -592,6 +595,7 @@ def add_var_ask(pif):
     print pif.render.format_hidden_input({'type': 'var'})
     print "</form>"
     print pif.render.format_button('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
+    print pif.render.format_button('casting', '/cgi-bin/mass.cgi?type=casting')
 
 
 var_id_columns = ['mod_id', 'var']
@@ -693,7 +697,7 @@ def add_var_final(pif):
     else:
 	pif.dbh.insert_variation(mod_id, var_id, var, verbose=True)
     pif.dbh.recalc_description(mod_id, showtexts=False, verbose=False)
-    raise useful.Redirect('/cgi-bin/vars.cgi?edit=1&mod=%s&var=%s' % (mod_id, var_id))
+    raise useful.Redirect('/cgi-bin/vars.cgi?edt=1&mod=%s&var=%s' % (mod_id, var_id))
 
 
 # ------- casting_related ------------------------------------------
@@ -805,10 +809,10 @@ def edit_casting_related(pif):
 	print revdict
 	for upd_id in revdict:
 	    if revdict[upd_id]:
-		pif.dbh.update_flags('base_id', pif.dbh.FLAG_MODEL_CASTING_REVISED, 0, where="id='%s'" % upd_id)
+		pif.dbh.update_flags('base_id', config.FLAG_MODEL_CASTING_REVISED, 0, where="id='%s'" % upd_id)
 		print upd_id, 'on<br>'
 	    else:
-		pif.dbh.update_flags('base_id', 0, pif.dbh.FLAG_MODEL_CASTING_REVISED, where="id='%s'" % upd_id)
+		pif.dbh.update_flags('base_id', 0, config.FLAG_MODEL_CASTING_REVISED, where="id='%s'" % upd_id)
 		print upd_id, 'off<br>'
 
     # id          | int(11)
@@ -850,14 +854,14 @@ def edit_casting_related(pif):
 	print '<td>%s %s</td>' % (num, section_id)
 	if rel_id in crd_r:
 	    print '<td colspan=4>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_r[rel_id]['base_id.id'], crd_r[rel_id]['base_id.rawname'])
-	    if crd_r[rel_id]['base_id.flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
+	    if crd_r[rel_id]['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED:
 		revised.append(str(num))
 	else:
 	    print '<td colspan=4></td>'
 	print '<td>%s</td>' % (num + 1)
 	if rel_id in crd_m:
 	    print '<td colspan=4>%s</td>' % pif.render.format_link('/cgi-bin/single.cgi?id=' + crd_m[rel_id]['base_id.id'], crd_m[rel_id]['base_id.rawname'])
-	    if crd_m[rel_id]['base_id.flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
+	    if crd_m[rel_id]['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED:
 		revised.append(str(num + 1))
 	else:
 	    print '<td colspan=4></td>'
@@ -1227,7 +1231,7 @@ class LinkScraper(object):
 	self.pif = pif
 
     def url_fetch(self, url):
-	return useful.url_fetch(url, None)
+	return url_fetch(url, None)
 
     def links_parse(self, url):
 	data = self.url_fetch(url)
@@ -1367,7 +1371,7 @@ class LinkScraperMBXU(LinkScraper):
 	urlp = urlparse.urlparse(url)
 	url = urlparse.urlunparse(urlp[:3] + ('', '', ''))
 	data = urlparse.parse_qs(urlp.query)
-	return useful.url_fetch(url, data)
+	return url_fetch(url, data)
 
 class LinkScraperLW(LinkScraper):
     lid = LW
@@ -1412,7 +1416,7 @@ def add_links(pif):
 
 def add_links_ask(pif):
     '''Top level of phase 1.'''
-    asslinks = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)
+    asslinks = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE)
 
     entries = [
 	{'title': "URL to scrape:", 'value': pif.render.format_text_input("url", 256, 80, value='')},
@@ -1585,7 +1589,7 @@ def add_book_final(pif):
 	'publisher': pif.form.get_str('publisher'),
 	'year': pif.form.get_str('year'),
 	'isbn': pif.form.get_str('isbn'),
-	'flags': pif.dbh.FLAG_ITEM_HIDDEN if pif.form.get_int('flags') else 0,
+	'flags': config.FLAG_ITEM_HIDDEN if pif.form.get_int('flags') else 0,
 	'pic_id': pif.form.get_str('pic_id'),
     }
     ostr += str(vals)
@@ -1914,7 +1918,7 @@ def add_attr_pics_ask(pif):
 
 def add_attr_pics_form(pif):
     pref = pif.form.get_str('attr_type')
-    photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
+    photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
     credits = {x['photo_credit.name']: x['photo_credit.photographer_id'] for x in
 		    pif.dbh.fetch_photo_credits(path=config.IMG_DIR_ADD[1:])}
     fl, rl = get_attr_pics(pif, pref)
@@ -2044,7 +2048,7 @@ def add_photogs_form(pif):
     def photog_rec(rec):
 	recid = rec['id']
 	return {
-	    'X': pif.render.format_checkbox('X.%s' % recid, [('1', '')], checked='1' if not rec['flags'] & pif.dbh.FLAG_ITEM_HIDDEN else ''),
+	    'X': pif.render.format_checkbox('X.%s' % recid, [('1', '')], checked='1' if not rec['flags'] & config.FLAG_ITEM_HIDDEN else ''),
 	    'id': pif.render.format_text_input('id.%s' % recid, maxlength=4, showlength=4, value=rec['id']),
 	    'name': pif.render.format_text_input('name.%s' % recid, maxlength=32, showlength=32, value=rec['name']),
 	    'url': pif.render.format_text_input('url.%s' % recid, maxlength=128, showlength=64, value=rec['url']),
@@ -2070,7 +2074,7 @@ def add_photogs_form(pif):
 def add_photogs_save(pif):
     for phid in pif.form.roots(start='id.'):
 	inp = pif.form.get_dict(end='.' + phid)
-	flags = pif.dbh.FLAG_ITEM_HIDDEN if inp.get('X') else 0
+	flags = config.FLAG_ITEM_HIDDEN if inp.get('X') else 0
 	print phid, inp, flags
 	rec = {
 	    'id': inp['id'],

@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import glob, logging, os, re, stat, sys, time, traceback, urllib, urllib2
+import glob, logging, os, re, stat, sys, time, traceback
 import basics
 import bfiles
 import config
@@ -133,7 +133,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
     try:
-        up = urllib2.urlopen(url).read()
+        up = requests.get(url).text
     except:
         if useful.is_header_done():
 	    useful.show_error()
@@ -220,7 +220,7 @@ class UploadForm(object):
 	print '<br>', url, ':', self.tdir, '<br>'
 	scrape_re = re.compile(r'''<img src="(?P<img>[^"]*)"''', re.I)
 	try:
-	    up = urllib2.urlopen(url).read()
+	    up = requests.get(url).text
 	except:
 	    useful.show_error()
 	    return
@@ -380,7 +380,7 @@ def show_editor(pif, eform, pdir=None, fn=None):
     print '<table><tr><td></td><td>' + pif.render.format_image_art('hruler.gif') + '</td></tr>'
     print '<tr><td valign="top">' + pif.render.format_image_art('vruler.gif') + '</td><td valign="top">'
     #print '<a href="../' + full_path + '">' + pif.render.format_image_required([root], suffix=ext, also={"border": "0"}) + '</a>'
-    dic = {'file': 'https://' + os.environ['SERVER_NAME'] + '/' + full_path, 'width': x, 'height': y}
+    dic = {'file': pif.secure_host + '/' + full_path, 'width': x, 'height': y}
     print javasc.def_edit_app % dic
     print '</td></tr></table>'
     print '<input type="hidden" value="%s" name="f">' % fn
@@ -583,7 +583,7 @@ class EditForm(imglib.ActionForm):
 	presets = imglib.read_presets(pdir)
 
 	xs, ys = super(EditForm, self).write(pif, fn)
-	print pif.render.format_hidden_input(c=urllib.quote_plus(pif.form.get_str('c', '')))
+	print pif.render.format_hidden_input(c=useful.url_quote(pif.form.get_str('c', ''), plus=True))
 	#xs, ys = imglib.get_size(full_path)
 	if edit:
 	    print '<div class="lefty">'
@@ -615,7 +615,7 @@ class EditForm(imglib.ActionForm):
 	    print pif.render.format_checkbox("save", [(1, "Save")], presets.get("save", []))
 	print pif.render.format_button_input('mass')
 	print pif.render.format_button_input('clean')
-	photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
+	photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
 	print pif.render.format_link('/cgi-bin/mass.cgi?type=photogs', 'Credit')
 	print pif.render.format_select('credit', photogs, selected=self.credit, blank='')
 	print 'Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q])
@@ -759,12 +759,12 @@ class EditForm(imglib.ActionForm):
 	    cred = pif.form.get_str('credit')
 	    if cred:
 		photog = pif.dbh.fetch_photographer(cred)
-		if photog and not photog.flags & pif.dbh.FLAG_PHOTOGRAPHER_PRIVATE:
+		if photog and not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
 		    title += ' credited to ' + photog.name
 		else:
 		    cred = ''
-	    url = 'http://www.bamca.org/' + largest
-	    link = 'https://www.bamca.org/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
+	    url = pif.secure_prod + largest
+	    link = pif.secure_prod + '/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
 	    pif.render.message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
 	    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, self.man, self.var))
 
@@ -1472,7 +1472,7 @@ def thumber_main(pif):
     pth = os.path.join(dir, fil)
 
     x = 100
-    outf = imglib.pipe_chain(open(pth),
+    outf = useful.pipe_chain(open(pth),
             imglib.import_file(pth) +
             [["/usr/local/bin/pamscale", "-xsize", str(x)]] +
             imglib.export_file('tmp.gif'), stderr=open('/dev/null', 'w'), verbose=False)
@@ -1626,7 +1626,7 @@ def ensmallen(pdir, fn):
     if os.path.exists(ipth) and not os.path.exists(opth):
 	print 'ensmallen', fn
 	pipes = [['/usr/local/bin/jpegtopnm'], ["/usr/local/bin/pamscale", "-xsize", str(100)], ['/usr/local/bin/pnmtojpeg']]
-	open(opth, 'w').write(imglib.pipe_chain(open(ipth), pipes))
+	open(opth, 'w').write(useful.pipe_chain(open(ipth), pipes))
 
 #---- count ---------------------------------
 
@@ -1677,7 +1677,7 @@ def check_library(pif):
 def count_images(pif):
     print "This has not been rewritten to match the moved directories."
     global castings
-    castings = [x['id'].lower() for x in pif.dbh.dbi.select('casting', ['id'])]
+    castings = [x.lower() for x in pif.dbh.fetch_casting_ids()]
 
     dirs = [
 	(IMG_DIR_ACC,            count_all),

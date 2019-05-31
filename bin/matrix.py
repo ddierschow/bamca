@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, re, urllib
+import copy, re
 import basics
 import config
 import mbdata
@@ -240,7 +240,7 @@ class MatrixFile(object):
 
         for table in self.tables:
             section_name = table['name']
-            if not (table['flags'] & pif.dbh.FLAG_SECTION_HIDE_IMAGE) and (table['id'] not in pif.page_id.split('.')):
+            if not (table['flags'] & config.FLAG_SECTION_HIDE_IMAGE) and (table['id'] not in pif.page_id.split('.')):
                 img = pif.render.format_image_optional(table['id'], pdir=table['pic_dir'], nopad=True)
                 if img:
                     section_name += '<br>' + img
@@ -300,7 +300,7 @@ class MatrixFile(object):
             ent = entd[mod][0]
 
             for ent2 in entd[mod][1:]:
-                if ent['flags'] & tables.FLAG_MODEL_SHOW_ALL_VARIATIONS:
+                if ent['flags'] & config.FLAG_MODEL_SHOW_ALL_VARIATIONS:
                     ent['image'] += ent2['image']
                 elif not ent['image']:
                     ent['image'] = ent2['image']
@@ -310,7 +310,7 @@ class MatrixFile(object):
             if ent['image']:
                 varimage = ent['image']
 
-        if ent['flags'] & tables.FLAG_MODEL_NO_VARIATION:
+        if ent['flags'] & config.FLAG_MODEL_NO_VARIATION:
             ent['picture_only'] = 1
         elif not ent['mod_id']:
             comments.add('m')
@@ -330,7 +330,7 @@ class MatrixFile(object):
         ent['number'] = ent['disp_id']
         if not ent['shown_id'] and ent['disp_id']:
             ent['shown_id'] = ent['disp_id']
-        if ent['flags'] & pif.dbh.FLAG_MODEL_NO_ID:
+        if ent['flags'] & config.FLAG_MODEL_NO_ID:
             ent['shown_id'] = ''
 
         ent['product'] = [ent['link']]
@@ -341,7 +341,7 @@ class MatrixFile(object):
             ent['is_product_picture'] = 1
             if pif.is_allowed('a') and pif.form.has('large'):  # pragma: no cover
 		ent['prodpic'] = prodpic
-        if ent['flags'] & tables.FLAG_MODEL_NOT_MADE:
+        if ent['flags'] & config.FLAG_MODEL_NOT_MADE:
             comments.add('n')
             ent['not_made'] = 1
             ent['picture_only'] = 1
@@ -361,7 +361,7 @@ class MatrixFile(object):
             ent['href'] = "single.cgi?dir=%(pdir)s&pic=%(link)s&id=%(mod_id)s" % ent
         vstr = ''
         ent['descriptions'] = filter(None, ent['description'])
-        if ent['descriptions'] and (not ent['flags'] & tables.FLAG_MODEL_NO_VARIATION):
+        if ent['descriptions'] and (not ent['flags'] & config.FLAG_MODEL_NO_VARIATION):
             pass
         elif ent.get('matrix_model.description', ''):
             ent['descriptions'] = ent['matrix_model.description'].split(';')
@@ -379,7 +379,8 @@ class MatrixFile(object):
             ent['additional'] += pif.render.format_button("edit", pif.dbh.get_editor_link('matrix_model', {'id': ent['id']}))
 	    pic = ent['link']
             ent['additional'] += pif.render.format_button("upload",
-		    "upload.cgi?d=%s&n=%s&c=%s&link=%s" % (pif.render.pic_dir.replace('pic', 'lib'), pic, pic, urllib.quote('https://www.bamca.org/cgi-bin/matrix.cgi?page=' + pif.page_id)))
+		    "upload.cgi?d=%s&n=%s&c=%s&link=%s" % (pif.render.pic_dir.replace('pic', 'lib'), pic, pic,
+		    useful.url_quote(pif.secure_prod + '/cgi-bin/matrix.cgi?page=' + pif.page_id)))
 
 	ent.setdefault('displayed_id', '&nbsp;')
 	if ent.get('disp_format'):
@@ -426,7 +427,7 @@ def select_cats(pif):
     cats = pif.dbh.fetch_categories()
     for ent in cats:
 	link = '<b><a href="?cat=%(id)s">%(name)s</a> (%(id)s)</b>' % ent
-	if ent['flags'] & pif.dbh.FLAG_CATEGORY_INDEXED:
+	if ent['flags'] & config.FLAG_CATEGORY_INDEXED:
 	    lran['entry'].append(link)
 	elif pif.is_allowed('a'):  # pragma: no cover
 	    lran['entry'].append('<i>' + link + '</i>')

@@ -374,7 +374,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
     attrs = pif.dbh.depref('attribute', attrs)
     common_attrs = pif.dbh.fetch_attributes('')
     common_attrs = pif.dbh.depref('attribute', common_attrs)
-    visual_base = bool(mod['flags'] & pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE)
+    visual_base = bool(mod['flags'] & config.FLAG_MODEL_BASEPLATE_VISIBLE)
     print '<form method="post">' + pif.create_token()
     print '<input type="hidden" name="mod_id" value="%s">' % mod_id
     dets = pif.dbh.fetch_details(mod_id, "").get('', dict())
@@ -772,9 +772,9 @@ def save_attribute(pif, attr_id, mod_id):
 	    print '<br>'
 	if attr_id == 1:
 	    if pif.form.get_bool("visualbase"):
-		pif.dbh.update_flags('base_id', turn_on=pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE, where='id="%s"' % mod_id)
+		pif.dbh.update_flags('base_id', turn_on=config.FLAG_MODEL_BASEPLATE_VISIBLE, where='id="%s"' % mod_id)
 	    else:
-		pif.dbh.update_flags('base_id', turn_off=pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE, where='id="%s"' % mod_id)
+		pif.dbh.update_flags('base_id', turn_off=config.FLAG_MODEL_BASEPLATE_VISIBLE, where='id="%s"' % mod_id)
     else:
         print '%d attributes returned!' % len(attr)
 

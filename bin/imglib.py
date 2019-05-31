@@ -91,9 +91,10 @@ movetos = [
 
 def get_size(fn):
     try:
-	l = pipe_chain(open(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], subprocess.PIPE, verbose=False)
+	l = useful.pipe_chain(open(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], stderr=subprocess.PIPE, verbose=False)
     except IOError:
 	raise useful.SimpleError('Could not read ' + fn)
+    print 'get_size', l
     f = l.split()
     try:
         x = int(f[3])
@@ -108,24 +109,11 @@ def img_info(f):
     return (img_is_anim(img), img.size[0], img.size[1])
 
 
-def pipe_chain(inp, pipes, stderr=None, verbose=True):
-    ch = '%'
-    for pipe in pipes:
-        if verbose:
-            useful.write_message(ch, ' '.join(pipe), nonl=True)
-        ch = '|'
-        proc = subprocess.Popen(pipe, stdin=inp, stdout=subprocess.PIPE, stderr=stderr, close_fds=True)
-        inp = proc.stdout
-    if verbose:
-        useful.write_message()
-    return proc.communicate()[0]
-
-
 def pipe_convert(src, dst, verbose=False):
     if src == dst:
 	return inpf.read()
     ctypes = import_file(src) + export_file(dst)
-    return pipe_chain(open(src), ctypes, stderr=open('/dev/null', 'w'), verbose=verbose)
+    return useful.pipe_chain(open(src), ctypes, stderr=open('/dev/null', 'w'), verbose=verbose)
 
 
 def import_file(fn):
@@ -361,7 +349,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
         if xcs > xts:
             useful.write_message("shrinking", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
-            ofi = pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open(pth),
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
@@ -374,7 +362,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
             x1, x2, y1, y2 = normalize(x1, x2, y1, y2, xts, yts)
             useful.write_message("expanding", x1, x2, y1, y2, nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
-            ofi = pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open(pth),
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
@@ -386,7 +374,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
         else:
             useful.write_message("cutting", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
-            ofi = pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open(pth),
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
@@ -398,7 +386,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
         if xts < x2 - x1:
             useful.write_message("trim shrinking x", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
-            ofi = pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open(pth),
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
@@ -408,7 +396,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
         elif yts < y2 - y1:
             useful.write_message("trim shrinking y", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
-            ofi = pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open(pth),
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
@@ -418,7 +406,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
         else:
             useful.write_message("trim cutting", nonl=True)
 	    xts, yts = fix_axes(rf, xts, yts)
-            ofi = pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open(pth),
                     import_file(pth) +
                     cut(x1, y1, x2, y2) +
                     rot_flip(rf) +
@@ -444,7 +432,7 @@ def shrinker(pth, nname, bound, maxsize, rf):
     if xcs == xts and ycs == yts:
         useful.write_message("cutting")
 	xts, yts = fix_axes(rf, xts, yts)
-        ofi = pipe_chain(open(pth),
+        ofi = useful.pipe_chain(open(pth),
                 import_file(pth) +
                 cut(x1, y1, x1 + xcs, y1 + ycs) +
                 rot_flip(rf) +
@@ -453,7 +441,7 @@ def shrinker(pth, nname, bound, maxsize, rf):
     elif xts/xcs < yts/ycs:
         useful.write_message("shrinking x")
 	xts, yts = fix_axes(rf, xts, yts)
-        ofi = pipe_chain(open(pth),
+        ofi = useful.pipe_chain(open(pth),
                 import_file(pth) +
                 cut(x1, y1, x1 + xcs, y1 + ycs) +
                 rot_flip(rf) +
@@ -463,7 +451,7 @@ def shrinker(pth, nname, bound, maxsize, rf):
     else:
         useful.write_message("shrinking y")
 	xts, yts = fix_axes(rf, xts, yts)
-        ofi = pipe_chain(open(pth),
+        ofi = useful.pipe_chain(open(pth),
                 import_file(pth) +
                 cut(x1, y1, x1 + xcs, y1 + ycs) +
                 rot_flip(rf) +
@@ -478,7 +466,7 @@ def cropper(pth, nname, bound, rf):
     useful.write_message('crop', x1, y1, x2, y2, ':', x2-x1, y2-y1, ':', rf)
     useful.write_message(pth)
     useful.write_message("cutting")
-    ofi = pipe_chain(open(pth),
+    ofi = useful.pipe_chain(open(pth),
             import_file(pth) +
             cut(x1, y1, x2, y2) +
             rot_flip(rf) +
@@ -661,13 +649,13 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 	pipes = import_file(f[0]) + \
 		cut(f[3], f[4], f[5], f[6]) + \
 		resize(x=resize_x, y=resize_y)
-	outf = pipe_chain(open(f[0]), pipes, verbose=verbose,
+	outf = useful.pipe_chain(open(f[0]), pipes, verbose=verbose,
 		    stderr=open('/dev/null', 'w'))
 	if verbose:
 	    useful.write_message('>', f[0] + '.pnm')
 	open(f[0] + '.pnm', 'w').write(outf)
 	cat.append(f[0] + '.pnm')
-    outf = pipe_chain(open('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
+    outf = useful.pipe_chain(open('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
 		    stderr=open('/dev/null', 'w'))
 
     if verbose:
@@ -794,6 +782,7 @@ class ActionForm(object):
 	self.cpmv = 'c'
 	self.mv = self.cpmv == 'm'
 	self.archive = False
+	self.spam = False
 	self.delete = False
 	self.trash = False
 	self.selcat = False
@@ -822,6 +811,7 @@ class ActionForm(object):
 	self.cpmv = form.get_str('cpmv', 'c')
 	self.mv = self.cpmv == 'm'
 	self.archive = form.get_bool('archive')
+	self.spam = form.get_bool('spam')
 	self.fixed = form.get_bool('fixed')
 	self.delete = form.get_bool('delete')
 	self.trash = form.get_bool('trash')
@@ -874,6 +864,10 @@ class ActionForm(object):
 	    useful.file_mover(from_path, os.path.join('.' + config.TRASH_DIR, from_path[from_path.rfind('/') + 1:]), mv=True, inc=True, trash=False)
 	elif self.archive:
 	    useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
+	    ret['fn'] = ''
+	elif self.spam:
+	    path = '../spam' if os.path.exists(os.path.join(tdir, '..', 'spam')) else 'spam'
+	    useful.file_mover(from_path, os.path.join(tdir, path, fn), mv=True)
 	    ret['fn'] = ''
 	elif self.fixed:
 	    useful.file_mover(from_path, os.path.join(tdir, 'fixed', fn), mv=True)
@@ -952,15 +946,15 @@ class ActionForm(object):
 	    cred = pif.form.get_str('credit')
 	    if cred:
 		photog = pif.dbh.fetch_photographer(cred)
-		if not photog or not photog.flags & pif.dbh.FLAG_PHOTOGRAPHER_PRIVATE:
+		if not photog or not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
 		    cred = ''
 	    useful.file_mover(from_path, os.path.join(to_dir, to_name), mv=self.mv, ov=self.ov, inc=self.inc)
 	    ret['fn'] = to_name
 	    ret['dir'] = to_dir
 	    if log_action and self.tumblr:
 		title = pif.form.get_str('title', to_name)
-		url = 'http://www.bamca.org/' + os.path.join(to_dir, to_name)
-		link = 'https://www.bamca.org/' + self.link
+		url = pif.secure_prod + os.path.join(to_dir, to_name)
+		link = pif.secure_prod + self.link
 		title = to_name
 		if cred:
 		    title += ' credited to ' + photog.name

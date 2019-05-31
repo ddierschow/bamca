@@ -2,13 +2,25 @@
 
 {% block page_body %}
 
-You are registering to receive an account on this system.
-<form method="post">
+<h3>You are registering to receive an account on this system.</h3>
+
+Registration is free, and easy to do; just fill in this form, and verify your
+email address.
+Once approved, this will give you access to all of the model
+information on this site.<p>
+
+Note that by registering, you are agreeing to this site storing cookies on your browser.
+These cookies are to give you access to pages and information that cannot normally
+be seen without logging in.  By registering, you agree to this happening.<p>
+
+<form method="post" action="/cgi-bin/signup.cgi">
 {{ page.token }}
 <table>
  <tr>
-  <td>Name:</td>
-  <td><input type="text" name="n"></td>
+  <td>Name:<br>(this is what you will use to log in)</td>
+  <td><input type="text" name="user_id" size="32" maxlength="32">
+    (any combination of numbers, letters, period, and underscore)
+  </td>
  </tr>
  <tr>
   <td>Password:</td>
@@ -19,8 +31,24 @@ You are registering to receive an account on this system.
   <td><input type="password" name="p2"></td>
  </tr>
  <tr>
-  <td>EMail:</td>
-  <td><input type="text" name="e" size=60></td>
+  <td>First Name:</td>
+  <td><input type="text" name="first_name" size="32" maxlength="32"></td>
+ </tr>
+ <tr>
+  <td>Last Name:</td>
+  <td><input type="text" name="last_name" size="32" maxlength="32"></td>
+ </tr>
+ <tr>
+  <td>EMail:<br>(so we can contact you)</td>
+  <td><input type="email" name="email" size="80" maxlength="80"></td>
+ </tr>
+ <tr>
+  <td>Location:</td>
+  <td><input type="text" name="location" size="64" maxlength="64"></td>
+ </tr>
+ <tr>
+  <td>Interests:</td>
+  <td><input type="text" name="interests" size="64" maxlength="256"></td>
  </tr>
  <tr>
   <td>{{ render.format_button_input('register') }}  </td>

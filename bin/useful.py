@@ -3,7 +3,7 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-import copy, filecmp, functools, glob, itertools, os, pprint, random, re, stat, string, urllib, urllib2
+import copy, filecmp, functools, glob, itertools, os, pprint, random, re, stat, string, subprocess, urllib
 import config  # bleagh
 import jinja2
 
@@ -14,15 +14,6 @@ verbose = False
 
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
-
-
-class DelayedRedirect(Exception):
-    def __init__(self, value, delay=10):
-        self.value = value
-	self.delay = delay
-
-    def __str__(self):
-        return repr(self.value)
 
 
 class Redirect(Exception):
@@ -458,8 +449,7 @@ def fix_file_type(pif, pdir, fn):
         root = fn
         ext = ''
 
-    c = ["/usr/bin/file", "-b", pdir + '/' + fn]
-    p = subprocess.Popen(c, stdout=subprocess.PIPE, stderr=None, close_fds=True)
+    p = simple_process(("/usr/bin/file", "-b", pdir + '/' + fn,))
     l = p.stdout.readlines()
     if not l:
         return fn
@@ -596,46 +586,6 @@ def render_template(template, **kwargs):
     return tpl.render(comments=read_comments(), **kwargs)
 
 
-def url_fetch(url, data=None):
-    #fn = os.path.basename(url)
-    #url = urllib.quote(url, ':/')
-    img = ''
-    finished_len = 0
-    tries = 3
-    retry = 0
-    content_len = None
-    if data:
-	data = urllib.urlencode(data)
-    while retry < tries:
-	retry += 1
-	try:
-	    url_file = urllib2.urlopen(url, data, 90)
-	    img = ''
-	    if content_len == None and 'content-length' in url_file.info():
-		content_len = int(url_file.info()['content-length'])
-	    img_add = ''
-	    while 1:
-		buf = url_file.read()
-		if not buf:
-		    break
-		img_add += buf
-	    img += img_add
-	    finished_len = len(img)
-	    if not content_len or (finished_len >= content_len):
-		break
-	    else:
-		pass
-	except KeyboardInterrupt:
-	    raise
-	except urllib2.HTTPError:
-	    img = ''
-	    break
-	except:
-	    img = ''
-	time.sleep(2)
-    return img
-
-
 def command_help(script, cmds):
     # cmds is list of (cmd, function, help message)
     write_message("./%s [%s] ..." % (script, '|'.join([x[0] for x in cmds])))
@@ -644,8 +594,45 @@ def command_help(script, cmds):
 
 
 def cmd_proc(pif, script, cmds):
+    header_done()
     if pif.filelist:
 	lup = {x[0]: x[1] for x in cmds}
 	lup.get(pif.filelist[0], command_help)(pif, *pif.filelist[1:])
     else:
 	command_help(script, cmds)
+
+
+def pipe_chain(inp, pipes, stderr=None, verbose=True):
+    procs = []
+    ch = '%'
+    for cmd in pipes:
+        if verbose:
+            write_message(ch, ' '.join(cmd), nonl=True)
+        ch = '|'
+        procs.append(subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr))
+        inp = procs[-1].stdout
+    output = ''
+    while True:
+	o, e = procs[-1].communicate()
+	output += o
+	if procs[-1].returncode is not None:
+	    break
+    return output
+
+
+def simple_process(cmd, msg='', inp=subprocess.PIPE, stderr=None, verbose=False):
+    ch = '%'
+    if verbose:
+	write_message(ch, ' '.join(cmd), nonl=True)
+    proc = subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr)
+    output = ''
+    o, e = proc.communicate(msg)
+    while proc.returncode is None:
+	output += o
+	o, e = proc.communicate()
+    return output
+
+
+def url_quote(value, safe=None, plus=False):
+    safe = safe if safe is not None else '' if plus else '/'
+    return urllib.quote_plus(value, safe) if plus else urllib.quote(value, safe)

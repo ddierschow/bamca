@@ -381,7 +381,7 @@ class MannoFile(object):
 		    ly = yr
 		fy = min(fy, yr)
 		ly = max(ly, yr)
-	    ver.add(var['variation.flags'] & (pif.dbh.FLAG_MODEL_ID_INCORRECT | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED))
+	    ver.add(var['variation.flags'] & (config.FLAG_MODEL_ID_INCORRECT | config.FLAG_MODEL_VARIATION_VERIFIED))
 	if id_set:
 	    min_id = min(id_set)
 	    max_id = max(id_set)
@@ -398,8 +398,8 @@ class MannoFile(object):
 
     def get_admin_entries(self, pif, model_ids):
 	vers = {
-	    pif.dbh.FLAG_MODEL_ID_INCORRECT | pif.dbh.FLAG_MODEL_VARIATION_VERIFIED: "fas fa-times red",
-	    pif.dbh.FLAG_MODEL_VARIATION_VERIFIED: "fas fa-check black",
+	    config.FLAG_MODEL_ID_INCORRECT | config.FLAG_MODEL_VARIATION_VERIFIED: "fas fa-times red",
+	    config.FLAG_MODEL_VARIATION_VERIFIED: "fas fa-check black",
 	    0: "far fa-circle gray",
 	}
 	# 'alias' : list of aliases, separated by br
@@ -418,7 +418,7 @@ class MannoFile(object):
 		'notes': 'N' if mdict['notes'] else '',
 		'vid': '<a href="vars.cgi?mod=%(id)s">%(id)s</a>' % mdict,
 		'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
-	    if mdict['flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
+	    if mdict['flags'] & config.FLAG_MODEL_CASTING_REVISED:
 		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fas fa-circle green"></i><nobr>'
 	    mdict.update(self.show_list_var_info(pif, mdict))
 	    if not mdict['vehicle_type']:
@@ -534,7 +534,7 @@ class MannoFile(object):
 		self.totals[ipix]['total'] += needs[ipix]
 	    mdict.update(dict(zip(var_pic_keys, single.fmt_var_pics(founds, needs))))
 	    mdict['credvars'] = '<span class="%s">%d/%d</span>' % ('ok' if len(vcredits) == founds[0] else 'no', len(vcredits), founds[0])
-	    if mdict['flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED:
+	    if mdict['flags'] & config.FLAG_MODEL_CASTING_REVISED:
 		mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fas fa-circle green"></i><nobr>'
 	    if not mdict['made']:
 		mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
@@ -1056,9 +1056,9 @@ def update_descriptions(pif, *args):
     #verbose = True
     #showtexts = True
     if not args:
-        castings = [x['id'] for x in pif.dbh.dbi.select('casting', verbose=False)]
+        castings = pif.dbh.fetch_casting_ids()
     elif args[0][0] >= 'a':
-        castings = [x['id'] for x in pif.dbh.dbi.select('casting', where="section_id='%s'" % pif.filelist[0], verbose=False)]
+        castings = pif.dbh.fetch_casting_ids(section_id=pif.filelist[0])
     else:
         castings = args
         verbose = True
@@ -1125,7 +1125,6 @@ def fix_formats(pif):
 
 
 def ck_model(pif, mod):
-    # formerly regions S, M and J were excluded, but there are no longer any entries with these regions.
     yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s'" % mod)[0]
     yrs = [x[0] for x in yrs]
     yrs.sort()
@@ -1152,7 +1151,7 @@ def show_list_var_pics(pif, mod_id):
 	code2 = False
 	core = False
 	for vs in var['vs']:
-	    if vs['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2:
+	    if vs['category.flags'] & config.FLAG_MODEL_CODE_2:
 		code2 = True
 	    if vs['category.id'] == 'MB':
 		core = True

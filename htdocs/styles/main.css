@@ -23,6 +23,10 @@ a:hover      {color: #000099; text-decoration: underline;}
 .title       {background-color: #000066; height: 66px; margin: 3px 0 3px 0; display: table; width: 100%;
               color: #FFFFFF; font-weight: bold; font-size: xx-large; text-align: center; max-width: 1024px;}
 .titletext   {display: table-cell; vertical-align: middle;}
+.titletext a:link       {color: #FFFF00; text-decoration: none;}
+.titletext a:visited    {color: #CCCC00; text-decoration: none;}
+.titletext a:active     {color: #CC00CC; text-decoration: none;}
+.titletext a:hover      {color: #CCCC00; text-decoration: underline;}
 .titleimage  {margin-left: auto; margin-right: auto; display: block;}
 .description {color: #000000; font-weight: bold; font-size: x-large; text-align: center;}
 .note        {color: #000000;}

@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, os, re, urllib
+import copy, os, re
 import basics
 import config
 import imglib
@@ -53,7 +53,7 @@ def calc_var_type(pif, var):
     if not var['picture_id']:
 	if any([var['manufacture'].startswith(x) for x in mbdata.other_plants]):
 	    ty_var = 'p'
-	elif any([x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2 for x in var['vs']]) or code2cats & set(var['category'].split()):
+	elif any([x['category.flags'] & config.FLAG_MODEL_CODE_2 for x in var['vs']]) or code2cats & set(var['category'].split()):
 	    ty_var = '2'
 	elif var['var'].startswith('f'):
 	    ty_var = 'f'
@@ -184,9 +184,9 @@ def show_series_appearances(pif, matrixes, relateds):
     appears = []
 
     for appear in matrixes:
-	appear['title'] = [appear['section.name'], appear['page_info.description']] if appear['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_HIDE_TITLE \
+	appear['title'] = [appear['section.name'], appear['page_info.description']] if appear['page_info.flags'] & config.FLAG_PAGE_INFO_HIDE_TITLE \
 	    else [appear['page_info.title'], appear['page_info.description'], appear['section.name']]
-	if appear['section.flags'] & pif.dbh.FLAG_SECTION_GROUP_SINGLES:
+	if appear['section.flags'] & config.FLAG_SECTION_GROUP_SINGLES:
 	    dedup_mat[(appear['page_info.id'], appear['section.id'])] = appear
 	else:
 	    appears.append(appear)
@@ -203,7 +203,7 @@ def show_series_appearances(pif, matrixes, relateds):
 def show_code2_appearances(pif, mod_id, vscounts):
     return [show_link('code2.cgi?mod_id=%s&cat=%s' % (mod_id, x['variation_select.category']),
 			['%s (%d variation%s)' % (x['category.name'], x['count(*)'], 's' if x['count(*)'] != 1 else '')])
-		for x in vscounts if x['count(*)'] and x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2]
+		for x in vscounts if x['count(*)'] and x['category.flags'] & config.FLAG_MODEL_CODE_2]
 
 
 def show_pack_appearances(pif, packs):
@@ -218,12 +218,12 @@ id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
     aliases = [(x['alias.flags'], x['alias.id']) for x in aliases if x['alias.type'] == 'mack']
     if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
-        aliases.append((pif.dbh.FLAG_ALIAS_PRIMARY, cid,))
+        aliases.append((config.FLAG_ALIAS_PRIMARY, cid,))
     mack_nums = []
     for alias in aliases:
 	mack_id = mbdata.get_mack_number(alias[1])
 	if mack_id:
-	    mack_nums.append(((alias[0] & pif.dbh.FLAG_ALIAS_PRIMARY) != 0,) + mack_id)
+	    mack_nums.append(((alias[0] & config.FLAG_ALIAS_PRIMARY) != 0,) + mack_id)
     mack_nums.sort(key=lambda x: x[2])
     # if aliases.flags == 2, put it first or bold it or something
     return [('<b>' if x[0] else '') +
@@ -269,7 +269,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
 	    links.append('')
             prodstar = 'fas fa-star white'
 	    prod = pic
-            prod += ' <a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fas fa-upload"></i></a>' % (pdir.replace('pic', 'lib'), pic, pic, urllib.quote(pif.request_uri))
+            prod += ' <a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fas fa-upload"></i></a>' % (pdir.replace('pic', 'lib'), pic, pic, useful.url_quote(pif.request_uri))
             prodpic = pif.render.find_image_path(pic, pdir=pdir, largest="m")
             if lm_pic_id:
 		prod = '<i class="%s"></i>\n' % prodstar + prod

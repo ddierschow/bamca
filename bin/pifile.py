@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import cgi, copy, datetime, getopt, os, stat, sys, time
+import cgi, copy, datetime, getopt, os, re, stat, sys, time
 if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
     import cgitb; cgitb.enable()
 
@@ -61,6 +61,15 @@ class BaseForm(object):
     def __str__(self):
 	return self.form.__str__()
 
+    def __len__(self):
+	return self.form.__len__()
+
+    def __iter__(self):
+	return self.form.__iter__()
+
+    def __contains__(self, x):
+	return self.form.__contains__(x)
+
     def set_val(self, key, val):
         self.form[key] = val
 
@@ -106,6 +115,11 @@ class BaseForm(object):
         except:
             return str(defval)
 
+    ALFA_RE = re.compile('[^-A-Za-z0-9_ ]+')
+
+    def get_alnum(self, key, defval=''):
+	return self.ALFA_RE.sub('', self.get_str(key, defval))
+
     def get_stru(self, key, defval=''):
 	return self.get_str(key, defval).upper()
 
@@ -140,7 +154,7 @@ class BaseForm(object):
     def keys(self, keylist=None, start='', end='', has='', sort=None):
 	keylist = keylist if keylist else self.form.keys()
 	keylist = [x for x in keylist if (x.startswith(start) and x.endswith(end) and has in x)]
-	if sort == True:
+	if sort is True:
 	    keylist.sort()
 	elif sort:
 	    keylist.sort(key=sort)
@@ -171,7 +185,7 @@ class BaseForm(object):
         return ' and '.join(wheres)
 
     def search(self, key):
-        obj = self.form.get(key, "").split()
+        obj = self.get_alnum(key, "").split()
         nob = []
         col = ''
         for w in obj:
@@ -217,6 +231,8 @@ class PageInfoFile(object):
         self.request_uri = os.environ.get('REQUEST_URI', 'unknown')
         self.remote_host = os.environ.get('REMOTE_HOST', 'host_unset')
         self.remote_addr = os.environ.get('REMOTE_ADDR', '127.0.0.1')
+	self.secure_host = 'https://' + self.secure.host
+	self.secure_prod = self.secure_host.replace('beta', 'www')
         self.is_web = 'REQUEST_METHOD' in os.environ  # is apache!
         self.set_server_env()
 	self.log = logger.Logger()
@@ -225,7 +241,7 @@ class PageInfoFile(object):
         self.render.secure = self.secure
         self.render.unittest = self.unittest
         self.render.comment('form', self.form.get_form())
-        self.privs = set(self.rawcookies.get('pr', '')) & set(self.form.get_str('privs', 'vuma'))
+        self.privs = set(self.rawcookies.get('pr', '')) & set(self.form.get_str('tprivs', 'bvuma'))
         self.secure.cookies = self.rawcookies.get('co')
         if self.is_allowed(dbedit):
             self.secure.set_config('edit')
@@ -235,14 +251,19 @@ class PageInfoFile(object):
         self.render.is_beta = self.secure.is_beta
         self.cgibin = '../cgi-bin'
 
-        self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, self.log.dbq, self.render.verbose)
+	dbqlog = self.log.devnull if self.unittest else self.log.dbq
+        self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, dbqlog, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
-        self.log_start()
-	self.set_page_info(self.page_id)
 	self.render.is_admin = self.is_allowed('a')
 	self.render.is_moderator = self.is_allowed('m')
 	self.render.is_user = self.is_allowed('u')
 	self.render.is_viewer = self.is_allowed('v')
+	self.render.is_basic = self.is_allowed('b')
+
+    def start(self):
+        self.log_start()
+	self.set_user_info(self.user_id)
+	self.set_page_info(self.page_id)
         if not self.is_web:
 	    useful.header_done(is_web=False)
 	self.duplicate_form = self.form.has('token') and not self.dbh.insert_token(self.form.get_str('token'))
@@ -251,11 +272,18 @@ class PageInfoFile(object):
         page_info = self.dbh.fetch_page(page_id)
 	if not page_info:
 	    raise useful.SimpleError('Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id)
-	if self.render.flags & self.dbh.FLAG_PAGE_INFO_ADMIN_ONLY:
-	    self.restrict('a')
         self.render.set_page_info(page_info)
-        self.render.not_released = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDDEN) != 0
-        self.render.hide_title = (self.render.flags & self.dbh.FLAG_PAGE_INFO_HIDE_TITLE) != 0
+	if self.render.flags & config.FLAG_PAGE_INFO_ADMIN_ONLY:
+	    self.restrict('a')
+	if config.LOCKDOWN and not (self.render.flags & config.FLAG_PAGE_INFO_PUBLIC):
+	    self.restrict('b')
+        self.render.not_released = (self.render.flags & config.FLAG_PAGE_INFO_HIDDEN) != 0
+        self.render.hide_title = (self.render.flags & config.FLAG_PAGE_INFO_HIDE_TITLE) != 0
+
+    def set_user_info(self, user_id):
+	self.user = user = self.dbh.fetch_user(user_id)
+	if not user:
+	    self.user_id = 0
 
     def set_server_env(self):
         self.server_name = os.environ.get('SERVER_NAME', 'unset.server.name')
@@ -319,6 +347,8 @@ class PageInfoFile(object):
     def restrict(self, priv):  # pragma: no cover
         if not self.is_allowed(priv):
 	    raise useful.Redirect('/')
+	if priv and self.user and not(self.user.flags & config.FLAG_USER_VERIFIED):
+	    raise useful.Redirect('/cgi-bin/validate.cgi')
 
     # -- debugging and error handling -----------------------------------
 

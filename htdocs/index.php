@@ -4,6 +4,7 @@
 include "bin/basics.php";
 include "config.php";
 $pif = GetPageInfo("index");
+$is_logged_in = CheckPerm('b');
 DoHead($pif);
 DoPageHeader($pif);
 ?> 
@@ -39,6 +40,9 @@ DoPageHeader($pif);
  <li><a href="/pages/contact.html">How to <b>Contact</b> or join BAMCA</a>
  <li><a href="/pages/about.php"><b>About</b> This Website</a>
  <li><a href="/pages/club.php"><b>History</b> of BAMCA</a>
+<?php
+if ($is_logged_in) {
+?>
  <li><a href="/cgi-bin/calendar.cgi">The BAMCA <b>Calendar</b></a>
  <li><a href="/cgi-bin/biblio.cgi?page=bayarea">A list of places to find die-cast in the <b>Bay Area</b></a>
  </ul>
@@ -64,6 +68,23 @@ DoPageHeader($pif);
      <a href="/cgi-bin/addlink.cgi"><b>Suggest</b> a Link!</a>
  </ul>
 </td></tr></table>
+<?php
+} else {
+?>
+ </ul>
+</td></tr></table>
+
+<div class="login_or_register">
+To discover more about Matchbox Toys, you will have to be a member of this website.<br><br>
+You may
+<?php DoTextButtonLink('log_in', "https://" . $pif['host'] . "/cgi-bin/login.cgi"); ?>
+or
+<?php DoTextButtonLink('register', "https://" . $pif['host'] . "/cgi-bin/signup.cgi"); ?>
+.
+</div>
+<?php
+}
+?>
 
 </td>
 <td width="50">&nbsp;</td>
@@ -76,12 +97,15 @@ foreach ($pics as $r)
     echo '<img src="' . $pf[$r] . '" vspace="8">
 ';
 echo '<br><center>3 of ' . count($pf) . " pictures</center>\n";
+
+if ($is_logged_in) {
 ?> 
 <br>
 
 <div class="status">
 <a href="/pages/status.php">Status of the Website</a>
 </div>
+<?php } ?>
 
 </td>
 </tr>
@@ -105,8 +129,10 @@ of Matchbox International Ltd. and are used with permission.
 <a name="fb_share" type="button" class="textbutton facebook" href="http://www.facebook.com/sharer.php">Share</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script>
 <a href="/pages/faq.php"><div class="textbutton see_the_faq"><i class="fas fa-question-circle"></i> SEE THE FAQ</div></a>
 <a href="http://blog.bamca.org/"><div class="textbutton"><i class="fab fa-blogger"></i> BLOG</div></a>
+<?php if ($is_logged_in) { ?>
 <a href="http://bamca.tumblr.com/"><div class="textbutton"><i class="fab fa-tumblr-square"></i> TUMBLR</div></a>
 <a href="/pages/status.php"><div class="textbutton site_status"><i class="fas fa-clipboard-list"></i> SITE STATUS</div></a>
+<?php } ?>
 </td></tr></table>
 
 <?php

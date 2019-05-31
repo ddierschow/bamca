@@ -62,8 +62,8 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
 	pdir = lsec.get('pic_dir')
 	mdict['pdir'] = pdir = pdir if pdir else pif.render.pic_dir
 
-    if not (lsec['flags'] & pif.dbh.FLAG_SECTION_NO_FIRSTS) and str(year) == mdict['base_id.first_year']:
-	mdict['class'] = 'revcasting' if mdict['base_id.flags'] & pif.dbh.FLAG_MODEL_CASTING_REVISED else 'newcasting'
+    if not (lsec['flags'] & config.FLAG_SECTION_NO_FIRSTS) and str(year) == mdict['base_id.first_year']:
+	mdict['class'] = 'revcasting' if mdict['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED else 'newcasting'
 
     if mdict['casting.id']:
         # modify this if rank_id exists
@@ -77,7 +77,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
         if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
             mdict['is_product_picture'] = 1
         mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sec=%(sec_id)s&ran=%(ran_id)s&id=%(mod_id)s" % mdict
-	mdict['halfstar'] = int(bool(mdict.get('flags', 0) & pif.dbh.FLAG_LINEUP_MODEL_MULTI_VARS))
+	mdict['halfstar'] = int(bool(mdict.get('flags', 0) & config.FLAG_LINEUP_MODEL_MULTI_VARS))
     elif mdict['pack.id']:
 	mdict['prod_id'] = mdict['pack.id']
         if mdict['picture_id']:
@@ -105,7 +105,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
     mdict['large_img'] = pif.render.format_image_required(
 	mdict['product'], suffix='jpg', pdir=mdict['pdir'], largest='m', also={'class': 'largepic'})
 
-    if lsec['flags'] & pif.dbh.FLAG_SECTION_DEFAULT_IDS:
+    if lsec['flags'] & config.FLAG_SECTION_DEFAULT_IDS:
 	mdict['shown_id'] = pif.dbh.default_id(mdict['mod_id'])
 	disp_format = '%s'
     else:
@@ -218,7 +218,7 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 def get_man_sections(pif, year, region, section_types):
     wheres = ["page_id='year.%s'" % year]
     if not pif.render.is_beta:
-        wheres.append("not flags & %d" % pif.dbh.FLAG_SECTION_HIDDEN)
+        wheres.append("not flags & %d" % config.FLAG_SECTION_HIDDEN)
     secs = pif.dbh.fetch_sections(wheres).tolist()
     if not secs:
 	raise useful.SimpleError("""I'm sorry, that lineup was not found.  Please use your "BACK" button or try something else.""")
@@ -312,7 +312,7 @@ def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
 def render_lineup_model_var(pif, mdict, comments, show_var=None):
     imglist = []
     varlist = []
-    if mdict.get('flags', 0) & pif.dbh.FLAG_MODEL_NOT_MADE:
+    if mdict.get('flags', 0) & config.FLAG_MODEL_NOT_MADE:
         mdict['not_made'] = True
         imgname = mdict['mod_id'].replace('.', '_')
         imglist.append(imgname)
@@ -375,7 +375,7 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
 		render_lineup_model(pif, x, comments, unroll=unroll, large=large)
 		for x in mainsec['mods'] if not multi or len(x['cvarlist']) > 1]}]
     for sec in xsecs:
-	if sec['flags'] & pif.dbh.FLAG_SECTION_HIDDEN:
+	if sec['flags'] & config.FLAG_SECTION_HIDDEN:
 	    sec['name'] = '<i>' + sec['name'] + '</i>'
 	sec['entry'] = [render_lineup_model(pif, x, comments, unroll=unroll, large=large) for x in sec['mods']]
     mainsec['range'] += xsecs
@@ -542,9 +542,9 @@ def run_product_pics(pif, region):
             else:
                 lpic_id = ifmt.replace('w', pif.form.get_strl('region')) % mnum
                 product_image_path, product_image_file = pif.render.find_image_file([lpic_id], suffix='jpg', pdir=pdir, largest='l')
-	    if not lmod or lmod.get('lineup_model.flags', 0) & pif.dbh.FLAG_MODEL_NOT_MADE:
+	    if not lmod or lmod.get('lineup_model.flags', 0) & config.FLAG_MODEL_NOT_MADE:
 		pic_id = None
-	    halfstar = lmod and lmod.get('lineup_model.flags', 0) & pif.dbh.FLAG_LINEUP_MODEL_MULTI_VARS
+	    halfstar = lmod and lmod.get('lineup_model.flags', 0) & config.FLAG_LINEUP_MODEL_MULTI_VARS
             lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (pdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
 	    istar = imglib.format_image_star(pif, product_image_path, product_image_file, pic_id, halfstar)
             ent = {
@@ -761,6 +761,11 @@ def main(pif):
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/lineup.cgi', 'Annual Lineup')
+
+    if pif.form.get_str('year') and not pif.form.get_str('year').isdigit():
+	raise useful.SimpleError('Year is incorrect.  It must be a number.')
+    if pif.form.get_str('region') and pif.form.get_str('region') not in mbdata.regions:
+	raise useful.SimpleError('Region not recognized.')
 
     if pif.form.has('prodpic'):
 	pif.render.print_html()
@@ -1145,9 +1150,9 @@ def lineup_pics(pif, *args):
 	    if reg in regions:
 		found.setdefault(reg, list())
 		fn = pdir + '/m_' + (lm['lineup_model.picture_id'] if lm['lineup_model.picture_id'] else lm['lineup_model.base_id']).replace('W', reg).lower() + '.jpg'
-		if (lm['lineup_model.flags'] & pif.dbh.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and not missing:
+		if (lm['lineup_model.flags'] & config.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and not missing:
 		    found[reg].append(lm['lineup_model.number'])
-		elif not (lm['lineup_model.flags'] & pif.dbh.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and missing:
+		elif not (lm['lineup_model.flags'] & config.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and missing:
 		    found[reg].append(lm['lineup_model.number'])
 	for reg in sorted(found):
 	    print yr, reg, ' '.join(useful.collapse_number_list(found[reg]))

@@ -1,6 +1,8 @@
 #!/usr/local/bin/python
 
-import copy, re, sys
+import copy, datetime, re, sys, time
+
+import config
 import dbintf
 import mbdata
 import tables
@@ -17,7 +19,6 @@ class DBHandler(object):
         if not self.dbi:
             raise 'DB connect failed'
         #self.table_info = tables.table_info
-        self.set_constants()
 
     def __repr__(self):
         return "'<dbhand.DBHandler instance>'"
@@ -61,11 +62,6 @@ class DBHandler(object):
     def table_cols(self, table):
         return [table + '.' + x for x in self.table_info[table]['columns']]
 
-    def set_constants(self):
-        for key in tables.__dict__:
-            if key.startswith('FLAG_'):
-                self.__dict__[key] = tables.__dict__[key]
-
     def make_where(self, form, cols=None, prefix=""):
         if not cols:
             cols = form.keys()
@@ -75,9 +71,9 @@ class DBHandler(object):
                 wheres.append(col + "='" + str(form.get(prefix + col, '')) + "'")
         return ' and '.join(wheres)
 
-    def raw_execute(self, query, tag='RawExecute'):
-        ret = self.dbi.execute(query, tag=tag)
-        self.dbi.execute('commit', tag=tag)
+    def raw_execute(self, query, args=None, logargs=True, tag='RawExecute'):
+        ret = self.dbi.execute(query, args=args, logargs=logargs, tag=tag)
+        self.dbi.commit(tag=tag)
 	return ret
 
     def make_columns(self, tab='', name='', tabs=[], extras=False):
@@ -101,7 +97,7 @@ class DBHandler(object):
 	return tab
 
     def fetch(self, table_name, args=None, left_joins=None, columns=None, extras=False, where=None, group=None, order=None,
-	      one=False, distinct=False, limit=None, tag='Fetch', verbose=False):
+	      one=False, distinct=False, limit=None, logargs=True, tag='Fetch', verbose=False):
 	#useful.write_comment('fetch', 't', table_name, 'a', args, 'l', left_joins, 'c', columns, 'e', extras, 'w', where, 'g', group, 'o', order, 'd', distinct, tag)
 	if isinstance(table_name, str):
 	    table_name = table_name.split(',')
@@ -141,15 +137,22 @@ class DBHandler(object):
 		limit = '%d,%d' % (limit[0], 99999999)
 	    else:
 		limit = '%d,%d' % limit
-        results = self.dbi.select(table_name, columns, args=args, where=where, group=group, order=order, distinct=distinct, limit=limit, tag=tag, verbose=verbose, outcols=outcols)
+        results = self.dbi.select(table_name, cols=columns, args=args, where=where, group=group, order=order, distinct=distinct,
+				  limit=limit, logargs=logargs, tag=tag, verbose=verbose, outcols=outcols)
 	if one:
 	    return results[0] if results else None
 	return results
 
     def describe_dict(self, table):
-        return {x['field']: x for x in self.describe(table)}
+	def do_field(f):
+	    ft = f['type']
+	    f['length'] = int(ft[ft.index('(') + 1:ft.index(')')]) if '(' in ft else 16
+	    return f
+
+        return {x['field']: do_field(x) for x in self.describe(table)}
 
     def describe(self, table):
+	table = self.make_tablename(table)
         return self.dbi.describe(table)
 
     def columns(self, table):
@@ -183,14 +186,14 @@ class DBHandler(object):
         values = {x: x + '+1' for x in values}
         return self.dbi.updateraw(table_name, values, where, tag=tag, verbose=verbose)
 
-    def write(self, table_name, values=None, where=None, newonly=False, modonly=False, tag='Write', verbose=False):
+    def write(self, table_name, values=None, where=None, newonly=False, modonly=False, args=None, logargs=True, tag='Write', verbose=False):
 	table_name = self.make_tablename(table_name)
         if newonly:
-            return self.dbi.insert(table_name, values, tag=tag, verbose=verbose)
+            return self.dbi.insert(table_name, values, args, logargs, tag=tag, verbose=verbose)
         elif modonly:
-            return self.dbi.update(table_name, values, where, tag=tag, verbose=verbose)
+            return self.dbi.update(table_name, values, where, args, logargs, tag=tag, verbose=verbose)
         else:
-            return self.dbi.insert_or_update(table_name, values, tag=tag, verbose=verbose)
+            return self.dbi.insert_or_update(table_name, values, args, logargs, tag=tag, verbose=verbose)
 
     def delete(self, table, where=None, tag='Delete', verbose=None):
 	table = self.make_tablename(table)
@@ -219,7 +222,7 @@ class DBHandler(object):
                 group="page_info.id", tag='PageYears'))
 
     def insert_or_update_page(self, values, verbose=False):
-	return self.write('page_info', values, tag='InsertOrUpdatePage', verbose=verbose)
+	return self.write('page_info', values=values, tag='InsertOrUpdatePage', verbose=verbose)
 
     #- country
 
@@ -249,7 +252,7 @@ class DBHandler(object):
         return tables.Results('section', self.fetch('section', where=where, order='display_order', tag='Sections'))
 
     def insert_or_update_section(self, values, verbose=False):
-	return self.write('section', values, tag='InsertOrUpdateSection', verbose=verbose)
+	return self.write('section', values=values, tag='InsertOrUpdateSection', verbose=verbose)
 
     #- base_id
 
@@ -263,32 +266,32 @@ class DBHandler(object):
 	return tables.Results('base_id', self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type', tag='BaseIdModelType'))
 
     def rename_base_id(self, old_mod_id, new_mod_id):
-        self.write('base_id', {'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
-        self.write('casting', {'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
-        self.write('pack', {'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
-        self.write('publication', {'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
-        self.write('alias', {'ref_id': new_mod_id}, where="ref_id='%s'" % old_mod_id, modonly=True)
-        self.write('attribute', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('attribute_picture', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('casting_related', {'model_id': new_mod_id}, where="model_id='%s'" % old_mod_id, modonly=True)
-        self.write('casting_related', {'related_id': new_mod_id}, where="related_id='%s'" % old_mod_id, modonly=True)
-        self.write('detail', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('lineup_model', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('matrix_model', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('pack_model', {'pack_id': new_mod_id}, where="pack_id='%s'" % old_mod_id, modonly=True)
-        self.write('pack_model', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('variation', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('variation_select', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('variation_select', {'sec_id': new_mod_id}, where="sec_id='%s'" % old_mod_id, modonly=True)
-        self.write('box_type', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
-        self.write('link_line', {'page_id': 'single.' + new_mod_id}, where="page_id='single.%s'" % old_mod_id, modonly=True)
-        self.write('mbusa', {'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('base_id', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
+        self.write('casting', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
+        self.write('pack', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
+        self.write('publication', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
+        self.write('alias', values={'ref_id': new_mod_id}, where="ref_id='%s'" % old_mod_id, modonly=True)
+        self.write('attribute', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('attribute_picture', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('casting_related', values={'model_id': new_mod_id}, where="model_id='%s'" % old_mod_id, modonly=True)
+        self.write('casting_related', values={'related_id': new_mod_id}, where="related_id='%s'" % old_mod_id, modonly=True)
+        self.write('detail', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('lineup_model', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('matrix_model', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('pack_model', values={'pack_id': new_mod_id}, where="pack_id='%s'" % old_mod_id, modonly=True)
+        self.write('pack_model', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('variation', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('variation_select', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('variation_select', values={'sec_id': new_mod_id}, where="sec_id='%s'" % old_mod_id, modonly=True)
+        self.write('box_type', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
+        self.write('link_line', values={'page_id': 'single.' + new_mod_id}, where="page_id='single.%s'" % old_mod_id, modonly=True)
+        self.write('mbusa', values={'mod_id': new_mod_id}, where="mod_id='%s'" % old_mod_id, modonly=True)
 
     def update_base_id(self, id, values):
-        return self.write('base_id', self.make_values('base_id', values), "id='%s'" % id, modonly=True)
+        return self.write('base_id', values=self.make_values('base_id', values), where="id='%s'" % id, modonly=True)
 
     def add_new_base_id(self, values):
-        return self.write('base_id', self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
+        return self.write('base_id', values=self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
 
     def delete_base_id(self, where):
         return self.delete('base_id', self.make_where(where))
@@ -339,10 +342,10 @@ class DBHandler(object):
         return self.fetch("base_id,casting,alias,section,page_info", where=wheres, extras=True, tag='Aliases')
 
     def update_alias(self, pk, values):
-        return self.write('alias', values, "pk=%s" % pk, modonly=True)
+        return self.write('alias', values=values, where="pk=%s" % pk, modonly=True)
 
     def add_alias(self, values):
-        return self.write('alias', values, newonly=True)
+        return self.write('alias', values=values, newonly=True)
 
     def delete_alias(self, pk):
         return self.delete('alias', 'pk=%s' % pk)
@@ -355,8 +358,9 @@ class DBHandler(object):
 	return self.fetch('casting,base_id', columns=['min(base_id.first_year)', 'max(base_id.first_year)'],
 			  where=wheres, one=True, tag='CastingLimits', verbose=False)
 
-    def fetch_casting_ids(self, tag='CastingIDs'):
-        return [x['casting.id'] for x in self.fetch('casting', tag='CastingIDs')]
+    def fetch_casting_ids(self, section_id=None, tag='CastingIDs'):
+	where = ['section.id="%s"' % section_id] if section_id else None
+        return [x['casting.id'] for x in self.fetch('casting', where=where, tag='CastingIDs')]
 
     def fetch_casting_raw(self, mod_id, verbose=False, tag='CastingRaw'):
 	cols = self.make_columns('casting', extras=True)
@@ -470,7 +474,7 @@ class DBHandler(object):
 		  'visual_id': '',
 		  'link': "single.cgi?id",
 		  'filename': mod_id.lower(),
-		  'notmade': '*' if (mod.base_id.flags & self.FLAG_MODEL_NOT_MADE) else '',
+		  'notmade': '*' if (mod.base_id.flags & config.FLAG_MODEL_NOT_MADE) else '',
 		  'linkid': mod_id,
 		  'descs': filter(lambda x: x, mod.base_id.description.split(';')),
 		  'iconname': self.icon_name(mod.base_id.rawname),
@@ -495,7 +499,7 @@ class DBHandler(object):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
             mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
             mod.setdefault('description', '')
-            mod['made'] = not (mod.get('flags', 0) & self.FLAG_MODEL_NOT_MADE)
+            mod['made'] = not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
             mod['visual_id'] = self.default_id(mod['id'])
         else:
             mod['id'] = ''
@@ -507,7 +511,7 @@ class DBHandler(object):
             mod['visual_id'] = ''
 	mod['filename'] = mod['id'].lower()
         mod['notmade'] = '' if mod['made'] else '*'
-        mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & self.FLAG_MODEL_CASTING_REVISED) != 0
+        mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & config.FLAG_MODEL_CASTING_REVISED) != 0
         mod['linkid'] = mod.get('mod_id', mod.get('id'))
         mod['link'] = "single.cgi?id"
         mod['descs'] = filter(lambda x: x, mod['description'].split(';'))
@@ -601,7 +605,7 @@ class DBHandler(object):
         self.delete('attribute', self.make_where(where))
 
     def update_attribute(self, values, id):
-        self.write('attribute', values, self.make_where({'id': id}), modonly=True)
+        self.write('attribute', values=values, where=self.make_where({'id': id}), modonly=True)
 
     def clone_attributes(self, old_mod_id, new_mod_id):
 	# insert into attribute (mod_id, attribute_name, definition, title, flags) select 'MB900', attribute_name, definition, title, flags from attribute where mod_id='MB894';
@@ -612,12 +616,12 @@ class DBHandler(object):
     def update_attribute_for_mod(self, mod_id, attr_name):
 	rec = {"mod_id": mod_id, "attribute_name": attr_name,
 	       "title": attr_name.replace('_', ' ').title(), "definition": 'varchar(64)'}
-	return self.write("attribute", rec, {"mod_id": mod_id, "attribute_name": attr_name}, modonly=True)
+	return self.write("attribute", values=rec, where={"mod_id": mod_id, "attribute_name": attr_name}, modonly=True)
 
     def insert_attribute(self, mod_id, attr_name):
 	rec = {"mod_id": mod_id, "attribute_name": attr_name,
 	       "title": attr_name.replace('_', ' ').title(), "definition": 'varchar(64)'}
-	return self.write("attribute", rec, newonly=True)
+	return self.write("attribute", values=rec, newonly=True)
 
     #- attribute_picture
 
@@ -639,10 +643,10 @@ class DBHandler(object):
         return self.fetch('attribute_picture', where="id='%s'" % id, tag='AttrPic')
 
     def update_attribute_picture(self, values, id):
-        return self.write('attribute_picture', values, self.make_where({'id': id}), modonly=True, tag='UpdateAttrPic')
+        return self.write('attribute_picture', values=values, where=self.make_where({'id': id}), modonly=True, tag='UpdateAttrPic')
 
     def add_attribute_picture(self, values):
-        return self.write('attribute_picture', values, newonly=True, tag='AddAttrPic')
+        return self.write('attribute_picture', values=values, newonly=True, tag='AddAttrPic')
 
     def delete_attribute_picture(self, rec_id):
 	return self.delete('attribute_picture', where='id=%s' % rec_id, tag='DeleteAttrPic')
@@ -684,7 +688,7 @@ class DBHandler(object):
 
     def fetch_variation_dates(self, yr=None):
 	where = ("date like '%s%%'" % yr) if yr else ''
-        return self.dbi.select('variation', ['date', 'count(*)'], where=where, group='date', order='date', tag='VariationDates')
+        return self.dbi.select('variation', cols=['date', 'count(*)'], where=where, group='date', order='date', tag='VariationDates')
 
     def fetch_variation(self, mod_id, var):
         varrecs = self.fetch('variation', where="mod_id='%s' and var='%s'" % (mod_id, var), tag='Variation')
@@ -711,9 +715,9 @@ class DBHandler(object):
         if codes == 0:
             return list()  # ha-ha
         elif codes == 1:
-            wheres.append('(v.flags & %s)=0' % self.FLAG_MODEL_CODE_2)
+            wheres.append('(v.flags & %s)=0' % config.FLAG_MODEL_CODE_2)
         elif codes == 2:
-            wheres.append('(v.flags & %s)!=0' % self.FLAG_MODEL_CODE_2)
+            wheres.append('(v.flags & %s)!=0' % config.FLAG_MODEL_CODE_2)
         args = list()
         cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.text_description', 'v.text_base',
                 'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id']
@@ -724,7 +728,7 @@ class DBHandler(object):
             wheres.extend(["casting.%s like %%s" % (key) for x in castingq[key]])
             args.extend(["%%%%%s%%%%" % (x) for x in castingq[key]])
 	# turn this into a fetch
-        varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), args=args, tag='VariationQuery')
+        varrecs = self.dbi.select('variation v,casting,base_id', cols=cols, where=' and '.join(wheres), args=args, tag='VariationQuery')
         return varrecs
 
     def fetch_variation_query_by_id(self, mod_id, var_id):
@@ -734,7 +738,7 @@ class DBHandler(object):
 	wheres.append('casting.id="%s"' % mod_id)
 	wheres.append('v.var="%s"' % var_id)
 	# turn this into a fetch
-        varrecs = self.dbi.select('variation v,casting,base_id', cols, where=' and '.join(wheres), tag='VariationIdQuery')
+        varrecs = self.dbi.select('variation v,casting,base_id', cols=cols, where=' and '.join(wheres), tag='VariationIdQuery')
         return varrecs
 
     def fetch_variation_by_select(self, mod_id, ref_id, sec_id="", ran_id="", category=None, verbose=False):
@@ -757,14 +761,14 @@ class DBHandler(object):
 	    where += " and vs.category='%s'" % category
         table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, verbose=verbose, tag='VarBySelect')
+        return self.dbi.select(table, cols=cols, where=where, verbose=verbose, tag='VarBySelect')
 
     def fetch_variations_by_plant(self, mod_id, plant, verbose=False):
         cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'v.manufacture']
         where = "v.mod_id='%s' and v.manufacture='%s'" % (mod_id, plant)
         table = 'variation v'
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, verbose=verbose, tag='VarByPlant')
+        return self.dbi.select(table, cols=cols, where=where, verbose=verbose, tag='VarByPlant')
 
     def fetch_variations_by_vs_category(self, category, verbose=False):
 	# if the same cat appears in 2 vs's, this should only produce one var.  not sure it does right now.
@@ -778,7 +782,7 @@ class DBHandler(object):
         table += " left join casting on vs.mod_id=casting.id"
         table += " left join base_id on vs.mod_id=base_id.id"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, verbose=verbose, tag='VarsByVSCat')
+        return self.dbi.select(table, cols=cols, where=where, verbose=verbose, tag='VarsByVSCat')
 
     def fetch_variations_by_category(self, category, verbose=False):
 	# if the same cat appears in 2 vs's, this should only produce one var.  not sure it does right now.
@@ -790,7 +794,7 @@ class DBHandler(object):
         table += " left join casting on v.mod_id=casting.id"
         table += " left join base_id on v.mod_id=base_id.id"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, verbose=verbose, tag='VarsByCat')
+        return self.dbi.select(table, cols=cols, where=where, verbose=verbose, tag='VarsByCat')
 
     def fetch_variation_files(self, mod_id):
         return self.fetch('variation', columns=['imported_from', 'mod_id'], group='imported_from', order='imported_from', where="mod_id='%s'" % mod_id, tag='VariationFiles', verbose=True)
@@ -813,25 +817,25 @@ class DBHandler(object):
         nvar['var'] = var_id
         nvar['mod_id'] = mod_id
         nvar['flags'] = 0
-        self.write('variation', nvar, newonly=True, verbose=verbose)
+        self.write('variation', values=nvar, newonly=True, verbose=verbose)
         attribute_list = self.fetch_attributes(mod_id)
         for attr in attribute_list:
             det = {'var_id': nvar['var'], 'mod_id': mod_id, 'attr_id': attr['attribute.id'], 'description': attributes.get(attr['attribute.attribute_name'], '')}
-            self.write('detail', det, newonly=True, verbose=verbose)
+            self.write('detail', values=det, newonly=True, verbose=verbose)
 
     def update_variation_bare(self, var, verbose=False):
 	where = {'mod_id': var.get('variation.mod_id', ''), 'var': var.get('variation.var', '')}
-        return self.write('variation', var, self.make_where(where), modonly=True, tag="UpdateVarBare", verbose=verbose)
+        return self.write('variation', values=var, where=self.make_where(where), modonly=True, tag="UpdateVarBare", verbose=verbose)
 
     def update_variation(self, attributes, where, verbose=False):
 	var_cols = self.get_table_info('variation')['columns']
 	new_var = {x: attributes[x] for x in (set(attributes.keys()) & set(var_cols))}
-        self.write('variation', new_var, self.make_where(where, var_cols), modonly=True, tag="UpdateVar", verbose=verbose)
+        self.write('variation', values=new_var, where=self.make_where(where, var_cols), modonly=True, tag="UpdateVar", verbose=verbose)
         attribute_list = self.fetch_attributes(where['mod_id'])
         for attr in attribute_list:
 	    if attr['attribute.attribute_name'] in attributes:
 		det = {'var_id': attributes['var'], 'mod_id': where['mod_id'], 'attr_id': attr['attribute.id'], 'description': attributes.get(attr['attribute.attribute_name'], '')}
-		self.write('detail', det, tag="UpdateVar", verbose=verbose)
+		self.write('detail', values=det, tag="UpdateVar", verbose=verbose)
 
     def delete_variation(self, where):
         self.delete('variation', where=self.make_where(where))
@@ -891,7 +895,7 @@ class DBHandler(object):
 	return self.fetch('variation_select', where=where, left_joins=left_joins, tag='VarSelByRef')
 
     def update_variation_select(self):
-        self.write('variation_select', {'var_id': new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, mod_id), modonly=True)
+        self.write('variation_select', values={'var_id': new_var_id}, where="var_id='%s' and mod_id='%s'" % (old_var_id, mod_id), modonly=True)
 
     def update_variation_selects_for_variation(self, mod_id, var_id, ref_ids):
         self.delete('variation_select', where="mod_id='%s' and var_id='%s'" % (mod_id, var_id))
@@ -902,12 +906,12 @@ class DBHandler(object):
             if ref_id.find('/') >= 0:
                 ref_id, sub_id = ref_id.split('/', 1)
 	    sec_id, ran_id = sub_id.split('.') if '.' in sub_id else (sub_id, '')
-            self.write('variation_select', {'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sec_id': sec_id, 'ran_id': ran_id, 'category': cat_id}, newonly=True, verbose=1, tag='UpdateVSForV')
+            self.write('variation_select', values={'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sec_id': sec_id, 'ran_id': ran_id, 'category': cat_id}, newonly=True, verbose=1, tag='UpdateVSForV')
 
     # this needs to be native sec_id.ran_id instead of sub_id
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):
 	sec_id, ran_id = sub_id.split('.') if '.' in sub_id else (sub_id, '')
-        self.write('variation_select', {'sec_id': sec_id, 'ran_id': ran_id}, where="ref_id='%s' and sec_id='%s' and ran_id='%s'" % (ref_id, sec_id, ran_id), modonly=True)
+        self.write('variation_select', values={'sec_id': sec_id, 'ran_id': ran_id}, where="ref_id='%s' and sec_id='%s' and ran_id='%s'" % (ref_id, sec_id, ran_id), modonly=True)
 
     # some packs use ran_id and this might not work for them
     def update_variation_select_pack(self, pms, page_id=None, sub_id=''):
@@ -917,7 +921,7 @@ class DBHandler(object):
 	sec_id, ran_id = sub_id.split('.') if sub_id and '.' in sub_id else (sub_id, '')
         for pm in pms:
 	    for var_id in list(set([x for x in pm['var_id'].split('/') if x])):
-		self.write('variation_select', {'mod_id': pm['mod_id'], 'var_id': var_id, 'ref_id': page_id, 'sec_id': pm['pack_id']}, newonly=True)
+		self.write('variation_select', values={'mod_id': pm['mod_id'], 'var_id': var_id, 'ref_id': page_id, 'sec_id': pm['pack_id']}, newonly=True)
 
     # working through sub_id
     def update_variation_selects_for_ref(self, mod_vars, ref_id='', sub_id='', category=''):
@@ -931,12 +935,12 @@ class DBHandler(object):
 		mod_vars.remove(modvar)
 		if vs['variation_select.category'] != category:
 		    self.write('variation_select', 
-			{'mod_id': vs['variation_select.mod_id'], 'var_id': vs['variation_select.var_id'],
-			 'ref_id': ref_id, 'sub_id': sub_id, 'category': category},
+			values={'mod_id': vs['variation_select.mod_id'], 'var_id': vs['variation_select.var_id'],
+				'ref_id': ref_id, 'sub_id': sub_id, 'category': category},
 			where='id=%s' % vs['variation_select.id'], tag='UVSFRcat')
 
         for modvar in mod_vars:
-	    self.write('variation_select', {'mod_id': modvar[0], 'var_id': modvar[1], 'ref_id': ref_id, 'sub_id': sub_id, 'category': category}, newonly=True)
+	    self.write('variation_select', values={'mod_id': modvar[0], 'var_id': modvar[1], 'ref_id': ref_id, 'sub_id': sub_id, 'category': category}, newonly=True)
 
     def delete_variation_select(self, where):
         self.delete('variation_select', where=self.make_where(where))
@@ -950,18 +954,18 @@ class DBHandler(object):
 	    # turn this into a fetch
             commondetails = {x['attribute_name']: x['description'] for x in
                 self.dbi.select('detail, attribute',
-                    ['detail.mod_id', 'attr_id', 'description', 'attribute_name'],
-                    "detail.mod_id='%s' and detail.attr_id=attribute.id and detail.var_id=''" % mod_id, tag='Details')}
+                    cols=['detail.mod_id', 'attr_id', 'description', 'attribute_name'],
+                    where="detail.mod_id='%s' and detail.attr_id=attribute.id and detail.var_id=''" % mod_id, tag='Details')}
         if var_id is not None:
 	    # turn this into a fetch
             details = self.dbi.select('detail, attribute',
-                ['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
-                "detail.mod_id='%s' and detail.var_id='%s' and detail.attr_id=attribute.id" % (mod_id, var_id), tag='Details')
+                cols=['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
+                where="detail.mod_id='%s' and detail.var_id='%s' and detail.attr_id=attribute.id" % (mod_id, var_id), tag='Details')
         else:
 	    # turn this into a fetch
             details = self.dbi.select('detail, attribute',
-                ['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
-                "detail.mod_id='%s' and detail.attr_id=attribute.id" % mod_id, tag='Details')
+                cols=['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
+                where="detail.mod_id='%s' and detail.attr_id=attribute.id" % mod_id, tag='Details')
 
         mvars = {}
         for det in details:
@@ -970,7 +974,7 @@ class DBHandler(object):
         return mvars
 
     def update_detail(self, values, where, verbose=False):
-        return self.write('detail', values, where=self.make_where(where), modonly=True, verbose=verbose)
+        return self.write('detail', values=values, where=self.make_where(where), modonly=True, verbose=verbose)
 
     def update_details(self, mod_id, var_id, details, verbose=False):
 	for attr, val in details.items():
@@ -978,7 +982,7 @@ class DBHandler(object):
 	    self.update_detail({'description': val}, where=where)
 
     def add_or_update_detail(self, values, where, verbose=False):
-        return self.write('detail', values, where=self.make_where(where), verbose=verbose)
+        return self.write('detail', values=values, where=self.make_where(where), verbose=verbose)
 
     def delete_detail(self, where):
         return self.delete('detail', where=self.make_where(where))
@@ -1046,18 +1050,18 @@ class DBHandler(object):
         return self.fetch('counter', columns=columns, where=where, group=group, order=order, tag='Counters')
 
     def set_counter(self, page_id, new_count):
-	return self.write('counter', {'id': page_id, 'value': new_count}, where="id='%s'" % page_id, modonly=True, tag='SetCounter')
+	return self.write('counter', values={'id': page_id, 'value': new_count}, where="id='%s'" % page_id, modonly=True, tag='SetCounter')
 
     def delete_counter(self, page_id):
 	where = {'id': page_id}
         return self.delete('counter', self.make_where(where), tag='DeleteCounter')
 
     def set_health(self, page_id, verbose=False):
-	self.write('counter', {'id': page_id}, newonly=True)
+	self.write('counter', values={'id': page_id}, newonly=True)
         return self.increment('counter', ['health'], "id='%s'" % page_id, tag='SetHealth', verbose=verbose)
 
     def clear_health(self):
-        return self.write('counter', {'health': 0}, modonly=True, tag='ClearHealth')
+        return self.write('counter', values={'health': 0}, modonly=True, tag='ClearHealth')
 
     def increment_counter(self, page_id, tag='Count'):
         self.dbi.count(page_id)
@@ -1079,7 +1083,7 @@ class DBHandler(object):
 	result['ref_id'] = rec.get('vs.ref_id', '')
 	result['sec_id'] = rec.get('vs.sec_id', '')
 	result['ran_id'] = rec.get('vs.ran_id', '')
-	result['made'] = not (result['flags'] & self.FLAG_MODEL_NOT_MADE)
+	result['made'] = not (result['flags'] & config.FLAG_MODEL_NOT_MADE)
 	result['notmade'] = '' if result['made'] else '*'
 	result['class'] = result['href'] = result['product'] = ''
 	result['no_variation'] = result['is_product_picture'] = 0
@@ -1091,7 +1095,7 @@ class DBHandler(object):
         cols = self.make_columns('lineup_model')
         table = "lineup_model"
         wheres = ['region="%s"' % region, 'year=%s' % year]
-        return self.dbi.select(table, cols, where=' and '.join(wheres), verbose=verbose, tag='BareLineupModels')
+        return self.dbi.select(table, cols=cols, where=' and '.join(wheres), verbose=verbose, tag='BareLineupModels')
 
     def fetch_simple_lineup_models(self, year='', region='', base_id='', verbose=False):
         cols = list()
@@ -1109,7 +1113,7 @@ class DBHandler(object):
         if base_id:
             wheres.append("lineup_model.base_id='" + base_id + "'")
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=' and '.join(wheres), verbose=verbose, tag='SimpleLineupModels')
+        return self.dbi.select(table, cols=cols, where=' and '.join(wheres), verbose=verbose, tag='SimpleLineupModels')
 
     def fetch_lineup_models(self, year='', region=''):
         cols = self.make_columns('lineup_model')
@@ -1136,7 +1140,7 @@ class DBHandler(object):
             table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
             wheres.append("lineup_model.year='%s'" % year)
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=' and '.join(wheres), tag='LineupModels')
+        return self.dbi.select(table, cols=cols, where=' and '.join(wheres), tag='LineupModels')
 
     def fetch_lineup_models_by_rank(self, rank, syear, eyear):
         cols = self.make_columns('lineup_model')
@@ -1152,11 +1156,11 @@ class DBHandler(object):
         where += " and casting.id=lineup_model.mod_id"
         where += " and base_id.id=casting.id"
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, tag='LineupModelsByRank')
+        return self.dbi.select(table, cols=cols, where=where, tag='LineupModelsByRank')
 
     def fetch_lineup_years(self):
 	# turn this into a fetch
-        return self.dbi.select("lineup_model", ["year"], group="year", tag='LineupYears')
+        return self.dbi.select("lineup_model", cols=["year"], group="year", tag='LineupYears')
 
     def fetch_casting_lineups(self, mod_id):
         where = "lineup_model.mod_id='%s'" % mod_id
@@ -1169,11 +1173,11 @@ class DBHandler(object):
 
     def insert_lineup_model(self, values, newonly=True):
 	#useful.write_message(values, '<br>')
-        self.write('lineup_model', self.make_values('lineup_model', values), newonly=newonly, verbose=True, tag='InsertLineupModel')
+        self.write('lineup_model', values=self.make_values('lineup_model', values), newonly=newonly, verbose=True, tag='InsertLineupModel')
 
     def update_lineup_model(self, where, values, verbose=False):
 	#useful.write_message(where, values, '<br>')
-        self.write('lineup_model', self.make_values('lineup_model', values), self.make_where(where), modonly=True, tag='UpdateLineupModel', verbose=verbose)
+        self.write('lineup_model', values=self.make_values('lineup_model', values), where=self.make_where(where), modonly=True, tag='UpdateLineupModel', verbose=verbose)
 
     def delete_lineup_model(self, where):
         self.delete('lineup_model', self.make_where(where))
@@ -1222,7 +1226,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	if section:
 	    where += " and matrix_model.section_id='%s'" % section
 	# turn this into a fetch
-        return self.dbi.select(table, cols, where=where, order='matrix_model.display_order', tag='MatrixModelsVariations')
+        return self.dbi.select(table, cols=cols, where=where, order='matrix_model.display_order', tag='MatrixModelsVariations')
 
     def fetch_matrix_appearances(self, mod_id):
         wheres = [
@@ -1230,13 +1234,13 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	    "page_info.id=matrix_model.page_id",
 	    "section.id=matrix_model.section_id",
 	    "matrix_model.mod_id='%s'" % mod_id,
-	    "page_info.flags & %d = 0" % tables.FLAG_PAGE_INFO_HIDDEN,
+	    "page_info.flags & %d = 0" % config.FLAG_PAGE_INFO_HIDDEN,
 	]
 	# turn this into a fetch
         return self.fetch('matrix_model,page_info,section', where=wheres, tag='MatrixAppearances')
 
     def insert_or_update_matrix_model(self, values, verbose=False):
-	return self.write('matrix_model', values, tag='InsertOrUpdateMatrixModel', verbose=verbose)
+	return self.write('matrix_model', values=values, tag='InsertOrUpdateMatrixModel', verbose=verbose)
 
     #- link_line
 
@@ -1244,10 +1248,10 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         self.delete('link_line', where="id=%s" % id)
 
     def update_link_line(self, rec):
-        self.write('link_line', rec, 'id=%s' % rec['id'], modonly=True, tag='UpdateLinkLine')
+        self.write('link_line', values=rec, where='id=%s' % rec['id'], modonly=True, tag='UpdateLinkLine')
 
     def insert_link_line(self, rec, verbose=False):
-        return self.write('link_line', rec, newonly=True, tag='InsertLinkLine', verbose=verbose)
+        return self.write('link_line', values=rec, newonly=True, tag='InsertLinkLine', verbose=verbose)
 
     def fetch_link_line(self, id):
 	# turn this into a fetch
@@ -1267,7 +1271,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             wheres.append("section_id='" + section + "'")
 	if flags:
 	    wheres.append("flags & %s" % flags)
-        return self.write('link_line', {'last_status': None}, where=" and ".join(wheres), tag='LinkLineStatuses', modonly=True, verbose=verbose)
+        return self.write('link_line', values={'last_status': None}, where=" and ".join(wheres), tag='LinkLineStatuses', modonly=True, verbose=verbose)
 
     def fetch_link_lines(self, page_id=None, section=None, where=None, flags=None, not_flags=None, order=None, verbose=False):
         wheres = list()
@@ -1286,7 +1290,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     def fetch_links_single(self, page_id=None):
         columns = ['l1.page_id', 'l1.associated_link', 'l1.url', 'l1.name', 'l2.id', 'l2.name', 'l2.url', 'l1.flags']
         wheres = [
-	    'not l1.flags & %d' % (tables.FLAG_LINK_LINE_NEW | tables.FLAG_LINK_LINE_HIDDEN),
+	    'not l1.flags & %d' % (config.FLAG_LINK_LINE_NEW | config.FLAG_LINK_LINE_HIDDEN),
 	    'l1.associated_link=l2.id',
 	]
         if page_id:
@@ -1346,14 +1350,14 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         return self.fetch('base_id,pack', where=' and '.join(wheres), tag='Packs')
 
     def add_new_pack(self, values):
-        return self.write('pack', values, newonly=True)
+        return self.write('pack', values=values, newonly=True)
 
     def insert_pack(self, pack_id, page_id=None):
         section_id = None
         if page_id:
             section_id = page_id[page_id.rfind('.') + 1:]
-        self.write('base_id', {'id': pack_id}, newonly=True)
-        return self.write('pack', {'id': pack_id, 'page_id': page_id, 'section_id': section_id}, newonly=True)
+        self.write('base_id', values={'id': pack_id}, newonly=True)
+        return self.write('pack', values={'id': pack_id, 'page_id': page_id, 'section_id': section_id}, newonly=True)
 
     def delete_pack(self, id):
         self.delete('pack', "id='%s'" % id)
@@ -1366,7 +1370,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
         return self.fetch(tables, columns=cols, where=wheres, tag='PacksRelated')
 
     def update_pack(self, id, values):
-        self.write('pack', self.make_values('pack', values), "id='%s'" % id, modonly=True)
+        self.write('pack', values=self.make_values('pack', values), where="id='%s'" % id, modonly=True)
 
     #- pack_model
 
@@ -1375,11 +1379,11 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     def add_new_pack_models(self, pms):
         for pm in pms:
-            self.write('pack_model', pm)
+            self.write('pack_model', values=pm)
 
     def update_pack_models(self, pms):
         for pm in pms:
-            self.write('pack_model', pm, where="id=%s" % pm['id'])
+            self.write('pack_model', values=pm, where="id=%s" % pm['id'])
 
     def fetch_pack_model(self, id):
         return self.fetch('pack_model', where='id=%s' % id, tag='PackModel')
@@ -1435,39 +1439,79 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 
     #- user
 
-    def fetch_user(self, id=None, name=None, vkey=None):
-        where = list()
+    def fetch_user(self, id=None, user_id=None, vkey=None, passwd=None, email=None):
+	args = []
+        where = []
         if id:
             where.append("id=%s" % id)
-        if name:
-            where.append("name='%s'" % name)
+        if user_id:
+            where.append("user_id='%s'" % user_id)
         if vkey:
             where.append("vkey='%s'" % vkey)
-        return self.fetch('user', where=' and '.join(where), tag='User')
+	if passwd:
+	    where.append("passwd=PASSWORD(%s)")
+	    args.append(passwd)
+        if email:
+            where.append("email='%s'" % email)
+        return tables.Results('user', self.fetch('user', where=where, args=args, logargs=False, tag='User')).first
 
     def fetch_users(self):
         return tables.Results('user', self.fetch('user', tag='Users'))
 
-    def login(self, name, passwd):
-        return self.dbi.login(name, passwd)
+    def login(self, id=None, user_id=None, passwd=None):
+	table_name = self.make_tablename('user')
+	args = (passwd,)
+	if id:
+	    query = """select id, privs from %s where id='%s'""" % (table_name, id)
+	else:
+	    query = """select id, privs from %s where user_id='%s'""" % (table_name, user_id)
+	if 0:
+	    query += ' and passwd=PASSWORD(%s)'
+	else:
+	    args = None
+	res, desc, lid = self.raw_execute(query, args=args, logargs=False, tag='Login')
+	if res:
+	    return res[0][0], res[0][1]
+        return None, None
 
-    def create_user(self, name, passwd, email, vkey):
-        return self.dbi.createuser(name, passwd, email, vkey)
+    def create_user(self, passwd, vkey, **kwargs):
+	cols = ['vkey', 'flags'] + [x for x in self.table_info['user']['editable'] if x in kwargs]
+	vals = [vkey, config.FLAG_USER_NEW] + [kwargs[x] for x in self.table_info['user']['editable'] if x in kwargs]
+	values = dict(zip(cols, vals))
+	values['name'] = values['first_name'] + ' ' + values['last_name']
+	ret = self.write('user', values=values, newonly=True, logargs=False, tag='CreateUser')
+	if ret > 0:
+	    self.update_password(ret, passwd)
+	return ret
 
-    def update_user(self, id, name=None, email=None, passwd=None, privs=None, state=None):
-        #'columns': ['id', 'name', 'passwd', 'privs', 'email', 'state', 'vkey'],
-        values = {}
-        if name is not None:
-            values['name'] = name
-        if email is not None:
-            values['email'] = email
-        if passwd is not None:
-            values['passwd'] = "PASSWORD('%s')" % passwd
-        if state is not None:
-            values['state'] = int(state)
-        if privs is not None:
-            values['privs'] = privs
-        self.write('user', values, "id=%s" % id, modonly=True)
+    def update_user(self, rec_id, **kwargs):
+        values = {x: kwargs[x] for x in self.table_info['user']['columns'] if x in kwargs}
+        self.write('user', values=values, where="id=%s" % rec_id, modonly=True, tag='UpdateUser')
+
+    def update_profile(self, user, **kwargs):
+	rec_id = user['id']
+        values = {x: kwargs[x] for x in self.table_info['user']['editable'] if x in kwargs and user[x] != kwargs[x]}
+	if 'user_id' in values:
+	    other_user = self.fetch_user(user_id=values['user_id'])
+	    if other_user and other_user['buser.id'] != rec_id:
+		return None
+	if user['email'] != values['email']:
+	    values['flags'] = user['flags'] & ~config.FLAG_USER_VERIFIED
+        self.write('user', values=values, where="id=%s" % rec_id, modonly=True, tag='UpdateUser')
+
+    def update_password(self, rec_id, passwd):
+        self.write('user', values='passwd=PASSWORD(%s)', where="id=%s" % rec_id, modonly=True, args=(passwd,), logargs=False, tag='UpdatePassword')
+
+    def verify_user(self, user_id):
+	return self.update_flags('user', turn_on=config.FLAG_USER_VERIFIED, where={'user_id': user_id}, tag='VerifyUser')
+
+    def update_user_last_login(self, user_id):
+	ts = time.time()
+	timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
+        self.write('user', values={'last_login': timestamp}, where="id=%s" % user_id, modonly=True, tag='UpdateUserLogin')
+
+    def write_user(self, values):
+        self.write('user', values=values, where="id=%s" % values['id'], modonly=True, tag='WriteUser')
 
     def delete_user(self, id):
         self.delete('user', 'id=%s' % id)
@@ -1635,7 +1679,7 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), tag='Tumblrs'))
 
     def insert_tumblr(self, ty_post, response, payload):
-        return self.write('tumblr', {'post_type': ty_post, 'payload': payload, 'response': response}, newonly=True, tag="InsertTumblr")
+        return self.write('tumblr', values={'post_type': ty_post, 'payload': payload, 'response': response}, newonly=True, tag="InsertTumblr")
 
     def delete_tumblr(self, post_id):
 	return self.delete('tumblr', where='id=%d' % post_id, tag='DeleteTumblr')
@@ -1823,3 +1867,32 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
 	    for col in range(len(result)):
 		lengths[col] = max(len(str(result[col])), abs(lengths[col])) * sign(lengths[col], str(result[col]).isdigit())
 	return '| %s |' % (' | '.join(['%{}s'.format(x) for x in lengths]))
+
+'''
+counts.py:    answer = pif.dbh.dbi.rawquery("select min(year), max(year) from lineup_model")[0]
+dcheck.py:    for tab in pif.dbh.dbi.execute('show tables')[0]:
+dcheck.py:	cnts = pif.dbh.dbi.execute('select count(*) from ' + tab[0])
+dcheck.py:	    cols = pif.dbh.dbi.execute('desc ' + tab[0])
+dcheck.py:    tablelist = pif.dbh.dbi.execute('show tables in %s' % db)
+dcheck.py:            desc = pif.dbh.dbi.execute('desc %s.%s' % (db, table))
+dcheck.py:	tabs = pif.dbh.dbi.execute('show tables')
+dcheck.py:    rows = pif.dbh.dbi.execute('select * from ' + tab)[0]
+dcheck.py:    cols = [desc[0] for desc in pif.dbh.dbi.execute('desc ' + tab)[0]]
+dcheck.py:#            mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
+dcheck.py:#        mods = pif.dbh.dbi.execute("select distinct id from casting")[0]
+editor.py:    pif.dbh.dbi.logger.info('form %s' % (str(pif.form.get_form())))
+lineup.py:    pif.dbh.dbi.insert_or_update(
+mannum.py:    yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s'" % mod)[0]
+mannum.py:    sel = pif.dbh.dbi.execute("select distinct ref_id from variation_select where mod_id='%s'" % mod)[0]
+mannum.py:        mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
+masses.py:    pif.dbh.dbi.insert_or_update('page_info',
+masses.py:    pif.dbh.dbi.insert_or_update('section',
+masses.py:        pif.dbh.dbi.insert_or_update('lineup_model',
+masses.py:        pif.dbh.dbi.insert_or_update('lineup_model', lm)
+pifile.py:        self.dbh.dbi.nowrites = self.unittest
+tlinks.py:                #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
+tlinks.py:                    #pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
+varias.py:        castings = [x['id'] for x in pif.dbh.dbi.select('casting', verbose=False)]
+varias.py:        castings = [x['id'] for x in pif.dbh.dbi.select('casting', where="section_id='%s'" % filelist[0], verbose=False)]
+varias.py:	dats = pif.dbh.dbi.execute('select * from ' + table)[0]
+'''

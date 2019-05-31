@@ -65,7 +65,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
 	if verbose:
 	    cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'material', 'stars', 'rel']
 	    heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Mat', 'Models', 'Related']
-	elif lsection['flags'] & pif.dbh.FLAG_SECTION_SHOW_IDS:
+	elif lsection['flags'] & config.FLAG_SECTION_SHOW_IDS:
 	    cols = ['id'] + cols + ['regionname']
 	    heads = ['ID'] + heads + ['Region']
 	else:

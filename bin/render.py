@@ -2,7 +2,7 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-import cgi, copy, glob, httplib, logging, os, re, sys, urllib
+import cgi, copy, glob, httplib, logging, os, re, sys
 import config
 import javasc
 import mbdata
@@ -34,7 +34,7 @@ class Presentation(object):
         self.unittest = False
         self.description = ''
         self.note = ''
-        self.pic_dir = 'pics'
+        self.pic_dir = 'pic/pics'
         self.tail = dict()
         self.large = False
         self.verbose = verbose
@@ -501,7 +501,7 @@ of Matchbox International Ltd. and are used with permission.
                 url += '&' + args
             else:
                 url += '?' + args
-	#url = urllib.quote(url)
+	#url = useful.url_quote(url)
 	url = url.replace('"', '%22')
         if not url and not also:
             ostr += txt
@@ -560,8 +560,8 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_text_input(self, name, maxlength, showlength=24, value='', id=None, also={}):
-        if not value:
-            value = ''
+        value = value or ''
+	showlengh = min(maxlength, showlength)
         return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s"%s%s>\n' % (name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True), useful.fmt_also(also), (' id="%s"' % id) if id else '')
 
     def format_textarea_input(self, name, showlength=128, showheight=4, value=''):

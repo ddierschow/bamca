@@ -71,7 +71,7 @@ def biblio(pif):
     if editable:
 	lsection['columns'].append('edit')
 	lsection['headers']['edit'] = '&nbsp;'
-	row_link_formatters['edit'] = lambda x: ('https://beta.bamca.org/cgi-bin/editor.cgi?table=%s&id=' % tab_name) + str(x[0])
+	row_link_formatters['edit'] = lambda x: ('%s/cgi-bin/editor.cgi?table=%s&id=%s' % (pif.secure_host, tab_name, x[0]))
     for arg in page_info['show']:
 	hdr = arg
 	key = arg.lower().replace(' ', '_')

@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import datetime, filecmp, glob, os, re, sys, urllib2
+import datetime, filecmp, glob, os, re, requests, sys
 import basics
 import config
 import images
@@ -159,7 +159,7 @@ def check_base_id(pif):
 	small_pic = os.path.join(*pif.render.find_image_file(pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL, fnames=id['base_id.id']))
 	#if not os.path.exists(small_pic):
 	if not small_pic:
-	    if not id['base_id.flags'] & pif.dbh.FLAG_MODEL_NOT_MADE:
+	    if not id['base_id.flags'] & config.FLAG_MODEL_NOT_MADE:
 		print id['base_id.id'], 'no pictures', small_pic
 	else:
 	    pic_size = imglib.get_size(small_pic)
@@ -705,7 +705,7 @@ def check_single_links():
     src = 'https://www.mbxforum.com/11-Catalogs/02-MB75/MB75-Documents/'
     ln_re = re.compile('''<img src=".*?".*?> <a href="(?P<f>[^"]*)">''')
 
-    flist = urllib2.urlopen(src).readlines()
+    flist = requests.get(src).text
     olist = glob.glob('orig/*.doc')
 
     for ln in flist:
@@ -995,9 +995,9 @@ def check_var_data(pif, id_list):
 	print mod_id, ':', casting['name']
 	attrs = pif.dbh.fetch_attributes(mod_id=mod_id, with_global=True)
 	for attr in attrs:
-	    attr['attribute.visual'] = 1 if (attr['attribute.flags'] & pif.dbh.FLAG_ATTRIBUTE_VISUAL) else 0
+	    attr['attribute.visual'] = 1 if (attr['attribute.flags'] & config.FLAG_ATTRIBUTE_VISUAL) else 0
 	attr_dict = {x['attribute.attribute_name']: x for x in attrs}
-	if casting['flags'] & pif.dbh.FLAG_MODEL_BASEPLATE_VISIBLE:
+	if casting['flags'] & config.FLAG_MODEL_BASEPLATE_VISIBLE:
 	    attr_dict['base']['attribute.visual'] = 1
 	visual_keys = sorted([x['attribute.attribute_name'] for x in attrs if x['attribute.visual']])
 	print '    ', visual_keys

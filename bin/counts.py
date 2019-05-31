@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, glob, os, re, sys, urllib2
+import copy, glob, os, re, sys
 import basics
 import config
 import imglib

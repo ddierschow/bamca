@@ -1,17 +1,15 @@
 <?php
+include "config.php";
 include "db.php";
 
 $pif = 0;
 
 function CheckPerm($lev) {
-    $retval = 0;
+    global $LOCKDOWN;
+    $retval = !$LOCKDOWN;
     if ($lev) {
-	if (array_key_exists('id', $_COOKIE)) {
-	    passthru('../bin/secure.py ' . $lev, $retval);
-	}
+	passthru('../bin/secure.py ' . $lev, $retval);
     }
-    else
-	return 1;
     return $retval;
 }
 
@@ -123,8 +121,8 @@ function DoHead($pif) {
 <meta http-equiv=\"content-type\" content=\"text/html; charset=ISO-8859-1\">
 <script defer src=\"https://use.fontawesome.com/releases/v5.0.8/js/all.js\"></script>
 <script defer src=\"https://use.fontawesome.com/releases/v5.0.8/js/v4-shims.js\"></script>
-<link rel=\"icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
-<link rel=\"shortcut icon\" href=\"http://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
+<link rel=\"icon\" href=\"https://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
+<link rel=\"shortcut icon\" href=\"https://www.bamca.org/pic/gfx/favicon.ico\" type=\"image/x-icon\" />
 <link rel=\"stylesheet\" href=\"/styles/main.css\" type=\"text/css\">
 <link rel=\"stylesheet\" href=\"/styles/fonts.css\" type=\"text/css\">
 <link rel=\"stylesheet\" href=\"/styles/" . $pif['page_id'] . ".css\" type=\"text/css\">
@@ -181,7 +179,7 @@ function DoPageHeader($pif) {
 function DoPageFooter($pif) {
     echo "</td></tr>\n";
     if ($pif['is_beta'])
-	echo "<tr><td height=24 background=\"http://" . $pif['host'] . "/pic/gfx/beta.gif\">&nbsp;</td></tr>\n";
+	echo "<tr><td height=24 background=\"https://" . $pif['host'] . "/pic/gfx/beta.gif\">&nbsp;</td></tr>\n";
     echo "</table>\n";
 }
 

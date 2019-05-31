@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import re, urllib2
+import re, requests
 
 import basics
 import useful
@@ -68,7 +68,7 @@ def get_links(pif, assoc_id):
 
 def import_psdc(pif):
     pref = 'https://www.publicsafetydiecast.com/'
-    u = urllib2.urlopen('https://www.publicsafetydiecast.com/Matchbox_MAN.htm').read()
+    u = requests.get('https://www.publicsafetydiecast.com/Matchbox_MAN.htm').text
     u_re = re.compile('<a href="(?P<u>[^"]*)".*?<font.*?>(?P<i>.*?)<\/font>')
     q = get_links(pif, 'PSDC')
     ul = list(set([x['link_line.url'] for x in q]))

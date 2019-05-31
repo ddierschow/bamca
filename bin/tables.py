@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
 # readonly hidden select checkbox
-# 'add' 'ask' 'bits' 'clinks' 'columns' 'create' 'db' 'defaults' 'elinks' 'extends' 'id' 'readonly' 'titles' 'tlinks'
+# add ask bits clinks columns create db defaults editable elinks extends id readonly title tlinks
 table_info = {
     #page_info
     'page_info': {
@@ -31,6 +31,8 @@ table_info = {
 	    [
 		('0001', 'Hidden'),
 		('0002', 'Hide Title'),
+		('0010', 'Public'),
+		('0080', 'Admin'),
 	    ]
 	},
     },
@@ -518,11 +520,27 @@ table_info = {
     'user': {
 	'db': 'buser',
         'id': ['id'],
-        'columns': ['id', 'name', 'passwd', 'privs', 'email', 'state', 'vkey'],
+        'columns': ['id', 'user_id', 'privs', 'email', 'vkey', 'first_name', 'last_name', 'location', 'interests', 'flags', 'photographer_id', 'last_login',],
+        'editable': ['user_id', 'email', 'first_name', 'last_name', 'location', 'interests',],
+	'title': {
+		'id': 'ID', 'user_id': 'User ID', 'privs': 'Privs', 'email': 'Email', 'vkey': 'VKey',
+		'first_name': 'First Name', 'last_name': 'Last Name', 'location': 'Location',
+		'interests': 'Interests', 'flags': 'Flags', 'photographer_id': 'Photographer ID', 'last_login': 'Last Login',
+	},
+        'ask': ['id', 'user_id', 'first_name', 'last_name'],
         'clinks': {
                 'id': {'tab': 'user', 'id': ['id/id']},
         },
-        'readonly': ['id'],
+        'readonly': ['id', 'passwd', 'vkey', 'last_login'],
+	'bits': {'flags':
+	    [
+		('0001', 'Hidden'),
+		('0010', 'BAMCA Mem'),
+		('0020', 'Verified'),
+		('0080', 'New'),
+		('0100', 'PW Rec'),
+	    ]
+	},
     },
     #pack
     'pack': {
@@ -671,7 +689,7 @@ table_info = {
 		'photographer': [],
 	},
         'tlinks': [
-                {'tab': 'photo_credit', 'id': ['id/photographer_id']},
+                {'tab': 'photo_credit', 'id': ['photographer_id/id']},
         ],
         'clinks': {
                 'id': {'tab': 'photo_credit', 'id': ['example_id/id']},
@@ -795,9 +813,6 @@ class Results(object):
     def __getattr__(self, key):
 	return self._info[key]
 
-    def __getattr__(self, key):
-	return self._info[key]
-
     def __getitem__(self, key):
 	if isinstance(key, int):
 	    return self._results[key]
@@ -892,51 +907,3 @@ class Result(object):
 		if self[key] == subrec[key]:
 		    del subrec[key]
         return self
-
-#-
-
-FLAG_MODEL_NOT_MADE                     = 0x0001
-FLAG_MODEL_CODE_2                       = 0x0002
-FLAG_MODEL_NO_VARIATION                 = 0x0004
-FLAG_MODEL_NO_ID                        = 0x0008
-FLAG_MODEL_ID_INCORRECT                 = 0x0008
-FLAG_MODEL_SHOW_ALL_VARIATIONS          = 0x0010
-FLAG_MODEL_HIDE_IMAGE                   = 0x0020
-FLAG_MODEL_NO_SPECIFIC_MODEL            = 0x0040
-FLAG_MODEL_CASTING_REVISED              = 0x0080
-FLAG_MODEL_VARIATION_VERIFIED           = 0x0080
-FLAG_MODEL_BASEPLATE_VISIBLE            = 0x0100
-
-FLAG_SECTION_HIDDEN                     = 0x0001
-FLAG_SECTION_DEFAULT_IDS                = 0x0002
-FLAG_SECTION_NO_FIRSTS                  = 0x0004
-FLAG_SECTION_SHOW_IDS                   = 0x0008
-FLAG_SECTION_HIDE_IMAGE                 = 0x0010
-FLAG_SECTION_GROUP_SINGLES              = 0x0020
-
-FLAG_ALIAS_PRIMARY                      = 0x0002
-FLAG_MAKE_PRIMARY                       = 0x0002
-FLAG_CASTING_RELATED_SHARED             = 0x0002
-FLAG_LINEUP_MODEL_MULTI_VARS            = 0x0002
-
-FLAG_ATTRIBUTE_SPARSE                   = 0x0001
-FLAG_ATTRIBUTE_VISUAL                   = 0x0002
-
-FLAG_CATEGORY_INDEXED                   = 0x0004
-
-FLAG_PAGE_INFO_HIDDEN                   = 0x0001
-FLAG_PAGE_INFO_HIDE_TITLE               = 0x0002
-FLAG_PAGE_INFO_ADMIN_ONLY               = 0x0080
-
-FLAG_LINK_LINE_HIDDEN                   = 0x0001
-FLAG_LINK_LINE_RECIPROCAL               = 0x0002
-FLAG_LINK_LINE_PAYPAL                   = 0x0004
-FLAG_LINK_LINE_INDENTED                 = 0x0008
-FLAG_LINK_LINE_FORMAT_LARGE             = 0x0010
-FLAG_LINK_LINE_NOT_VERIFIABLE           = 0x0020
-FLAG_LINK_LINE_ASSOCIABLE               = 0x0040
-FLAG_LINK_LINE_NEW                      = 0x0080
-
-FLAG_PHOTOGRAPHER_PRIVATE               = 0x0002
-
-FLAG_ITEM_HIDDEN                        = 0x0001

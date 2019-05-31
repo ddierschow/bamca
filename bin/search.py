@@ -161,8 +161,8 @@ def date_search(pif, dt=None, yr=None):
 	last = None
 	ver_count = 0
 	for var in vars:
-	    verified = ['1'] if var['variation.flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else []
-	    id_mismatch = ['1'] if var['variation.flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT else []
+	    verified = ['1'] if var['variation.flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else []
+	    id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
 	    ver_count += 1 if verified else 0
 	    macks = get_mack_numbers(pif, var['variation.mod_id'])
 	    var['sort'] = macks[0] if macks else var['variation.mod_id']

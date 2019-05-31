@@ -152,15 +152,10 @@ I am missing the following MICA newsletters:
 <ul>
 <li>Volume 1, issues 1, 2, 4
 <li>Volume 2, issue 3
-<li>Volume 7, issue 6
-<li>Volume 8, issues 3, 6
-<li>Volume 9, issues 2, 3
-<li>Volume 12, issues 2, 3, 4, 5, 6
-<li>Volume 13, issues 1, 3, 4, 5
 <li>Volume 14, issue 3
 <li>Volume 15, issue 4
 <li>Volume 16, issue 3
-<li>Volume 17, issues 1 and 3 onward
+<li>Volume 19, 20, and 22 onward
 </ul>
 
 <li>If you're a programmer and want to take part in script development, by all means get in touch.

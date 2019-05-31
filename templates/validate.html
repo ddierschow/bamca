@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+<h3>You are registering to receive an account on this system.</h3>
+
+{% if validated %}
+Your email address has been verified!  You're ready to go,
+you can log in now.<p>
+
+{{ render.format_button("log in", '/cgi-bin/login.cgi') }}
+
+{% else %}
+A verification code was emailed to the address you gave us.  Please enter it here,
+or click on the link in the email, to verify that address.
+
+<form method="post">
+{{ page.token }}
+<table>
+ <tr>
+  <td>User ID:</td>
+  <td>{{ user_id }}</td>
+ </tr>
+ <tr>
+  <td>Validation Code:</td>
+  <td><input type="text" name="vkey" size="10">
+  <button type="submit" name="resend" value="1" class="textbutton">{{ render.find_button_label('resend the code') }}</button>  </td>
+ </tr>
+ <tr>
+  <td></td>
+  <td>{{ render.format_button_input('verify') }}</td>
+ </tr>
+ <tr>
+  <td></td>
+  <td>{{ render.format_button('log out', '/cgi-bin/logout.cgi') }}</td>
+ </tr>
+</table>
+</form>
+
+Note that by registering, you are agreeing to this site storing cookies on your browser.
+These cookies are to give you access to pages and information that cannot normally
+be seen without logging in.  By registering, you agree to this happening.<p>
+
+{% endif %}
+{% endblock page_body %}

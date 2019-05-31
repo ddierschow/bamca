@@ -26,6 +26,7 @@ class tumblr(object):
     # All of these have: state tags tweet date format slug, plus...
 
     def create_photo(self, **kwargs):
+	kwargs['source'] = kwargs['source'].replace('https:', 'http:')
         # caption link source data
 	return self.post(TUMBLR_PHOTO, self.client.create_photo(self.name, **kwargs), **kwargs)
 

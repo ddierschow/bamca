@@ -77,9 +77,9 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
         left_bar_content += pif.render.format_link('upload.cgi?d=' + libdir, "Upload") + '<br>'
 
     if pif.is_allowed('a'):
-	if variation['flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED:
+	if variation['flags'] & config.FLAG_MODEL_VARIATION_VERIFIED:
 	    left_bar_content += '<br><i class="fas fa-check white"></i>'
-	    if variation['flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT:
+	    if variation['flags'] & config.FLAG_MODEL_ID_INCORRECT:
 		left_bar_content += '<br><i class="fas fa-times red"></i>'
 	if variation['date']:
 	    for fn in sorted(glob.glob('lib/docs/mbusa/%s-?.png' % variation['date'])):
@@ -95,7 +95,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
 
     #photogs = [('', '')] + [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers()]
     # hide private?
-    photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
+    photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
     pic_var = variation['picture_id'] if variation['picture_id'] else variation['var']
     picture_variation = None
     img = ''.join([
@@ -211,7 +211,7 @@ def show_appearances(pif, mod_id, var_id, pics=False):
 	elif vs.ref_id == 'code2':
 	    appears.append(pif.render.format_link('code2.cgi?section=' + vs.sec_id, vs.page_info.title + ' - ' + vs.section.name))
 	elif not vs.get('ref_id', ''):
-	    if vs.get('category.flags', 0) & pif.dbh.FLAG_CATEGORY_INDEXED:
+	    if vs.get('category.flags', 0) & config.FLAG_CATEGORY_INDEXED:
 		appears.append(pif.render.format_link("cats.cgi?cat=%(category.id)s" % vs, vs['category.name']))
 	elif pif.is_allowed('a'):  # pragma: no cover
 	    appears.append('<i>ref_id = ' + str(vs.ref_id) + (' / sec_id = ' + str(vs.sec_id)) if vs.sec_id else '' + "<br>(vs = %s)</i>\n" % str(vs))
@@ -271,10 +271,10 @@ def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='
 	    64, value=variation.get(field, ''))
     if field == 'var':
 	flags = variation.get('flags', variation.get('variation.flags', '0')) & (
-	     pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT)
+	     config.FLAG_MODEL_VARIATION_VERIFIED | config.FLAG_MODEL_ID_INCORRECT)
 	new_value += ' ' + pif.render.format_select('flags.' + variation['var'],
-	    [('0', 'unverified'), (str(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED), 'verified'),
-	     (str(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT), 'incorrect')],
+	    [('0', 'unverified'), (str(config.FLAG_MODEL_VARIATION_VERIFIED), 'verified'),
+	     (str(config.FLAG_MODEL_VARIATION_VERIFIED | config.FLAG_MODEL_ID_INCORRECT), 'incorrect')],
 	    str(flags))
     return {'field': field, 'title': title, 'value': value, 'new': new_value, 'pic': pic_val}
 
@@ -357,7 +357,7 @@ def save_variation(pif, mod_id, var_id):
 	    var_dict[attr] = ';'.join([country_codes.get(x, x) for x in pif.form.get_str(key).split(',')])
 	elif attr == 'flags':
 	    var_dict[attr] = var_bare[attr]
-	    var_dict[attr] &= ~(pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT)
+	    var_dict[attr] &= ~(config.FLAG_MODEL_VARIATION_VERIFIED | config.FLAG_MODEL_ID_INCORRECT)
 	    var_dict[attr] |= pif.form.get_int(key)
 	elif attr == 'logo_type':
 	    var_dict[attr] = ''.join(pif.form.get_list(key))
@@ -771,8 +771,8 @@ def do_var_detail(pif, model, var, credits, varsels):
 	'Cr': phcred,
 	'Pic': var['picture_id'],
 	'Date': var['date'],
-	'Ver': ('<i class="fas fa-times red"></i> %s' % var['imported_var']) if var['flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT else
-	        '<i class="fas fa-check black"></i>' if var['flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED else
+	'Ver': ('<i class="fas fa-times red"></i> %s' % var['imported_var']) if var['flags'] & config.FLAG_MODEL_ID_INCORRECT else
+	        '<i class="fas fa-check black"></i>' if var['flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else
 	        '<i class="far fa-circle gray"></i>',
 	'Im': var['imported_from'],
 	'Or': flag,
@@ -823,9 +823,9 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
 	count_descs = attr_star(model, var)
 	id_text += '<i class="fas fa-star %s"></i>' % (
 		'green' if count_descs == len(text_attributes) else ('red' if not count_descs else 'orange'))
-	if var['flags'] & pif.dbh.FLAG_MODEL_VARIATION_VERIFIED:
+	if var['flags'] & config.FLAG_MODEL_VARIATION_VERIFIED:
 	    id_text += '<br><i class="fas fa-check black"></i>'
-	    if var['flags'] & pif.dbh.FLAG_MODEL_ID_INCORRECT:
+	    if var['flags'] & config.FLAG_MODEL_ID_INCORRECT:
 		id_text += '<br><i class="fas fa-times red"></i>'
     else:
 	id_text += pif.render.format_link('?mod=%s&var=%s' % (var['mod_id'], var['var']), var['var'].upper())
@@ -1025,7 +1025,7 @@ def related_casting_links(pif, mod_id, url):
     var_id_set = set()
     related = set()
     for cr in pif.dbh.fetch_casting_relateds(section_id='single', mod_id=mod_id):
-	if cr['casting_related.flags'] & pif.dbh.FLAG_CASTING_RELATED_SHARED:
+	if cr['casting_related.flags'] & config.FLAG_CASTING_RELATED_SHARED:
 	    var_id_set.add(cr['casting_related.related_id'])
 	else:
 	    related.add(cr['casting_related.related_id'])
@@ -1137,8 +1137,8 @@ def save_model(pif, mod_id):
 def mangle_variation(pif, model, variation, cats):
     vcats = variation['_catlist'] = sorted(set([x['variation_select.category'] for x in variation['vs']] + variation['category'].split()))
     #variation['area'] = ', '.join([mbdata.regions.get(x, x) for x in variation.get('area', '').split(';')])
-    #variation['_code'] = 2 if any([x['category.flags'] & pif.dbh.FLAG_MODEL_CODE_2 for x in variation['vs']]) else 1
-    variation['_code'] = 2 if any([x in cats and (cats[x].flags & pif.dbh.FLAG_MODEL_CODE_2) for x in vcats]) else 1
+    #variation['_code'] = 2 if any([x['category.flags'] & config.FLAG_MODEL_CODE_2 for x in variation['vs']]) else 1
+    variation['_code'] = 2 if any([x in cats and (cats[x].flags & config.FLAG_MODEL_CODE_2) for x in vcats]) else 1
     variation['link'] = '?mod=%s&var=%s' % (variation['mod_id'], variation['var'])
     pic_id = variation['picture_id']
 
@@ -1230,7 +1230,7 @@ def show_model(pif, model):
     form_values['category'] = list(cates)
     # hide private?
     photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers()]
-    #photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)]
+    #photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
     phcred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id)
 
     formatter = {
@@ -1532,8 +1532,8 @@ def run_search_command(pif, args):
 
 def verify(pif, flag, mod_id, *var_ids):
     # need to read the old flags and modify
-    flag = (pif.dbh.FLAG_MODEL_VARIATION_VERIFIED if flag == 'v' else
-	    pif.dbh.FLAG_MODEL_VARIATION_VERIFIED | pif.dbh.FLAG_MODEL_ID_INCORRECT if flag == 'i' else 0)
+    flag = (config.FLAG_MODEL_VARIATION_VERIFIED if flag == 'v' else
+	    config.FLAG_MODEL_VARIATION_VERIFIED | config.FLAG_MODEL_ID_INCORRECT if flag == 'i' else 0)
     var = {'variation.mod_id': mod_id, 'flags': flag}
     for var_id in var_ids:
 	print 'verify', mod_id, var_id
@@ -1710,7 +1710,7 @@ def list_photo_credits(pif, photog_id=None):
     start = end = None
     # hide private?
     photogs = [photog_id] if photog_id else sorted([x.photographer.id for x in pif.dbh.fetch_photographers()])
-    #photogs = [photog_id] if photog_id else sorted([x.photographer.id for x in pif.dbh.fetch_photographers(pif.dbh.FLAG_ITEM_HIDDEN)])
+    #photogs = [photog_id] if photog_id else sorted([x.photographer.id for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)])
     totals = {x: 0 for x in photogs}
     totals['mod_id'] = totals['main'] = totals['count'] = totals['model_type'] = ''
     fmt_str = '%(mod_id)-6s %(model_type)2s %(main)-4s %(count)7s | ' + ' '.join(['%%(%s)7s' % x for x in photogs])
@@ -1863,7 +1863,7 @@ def check_table_data(pif):
     for table in pif.dbh.table_info:
 	print table
 	dats = pif.dbh.dbi.execute('select * from ' + table)[0]
-	cols = pif.dbh.dbi.describe(table)
+	cols = pif.dbh.describe(table)
 	types = list()
 	for dat in dats:
 	    ldat = list(dat)

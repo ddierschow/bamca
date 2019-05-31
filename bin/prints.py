@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, glob, itertools, os, urllib
+import copy, glob, itertools, os
 import basics
 import bfiles
 import config
@@ -793,7 +793,7 @@ def ads_main(pif):
 		post += ' ' + pif.render.format_link(pif.dbh.get_editor_link('publication', {'id': ent['id']}), '<i class="fas fa-edit"></i>')
 	    else:
 		post += ' ' + pif.render.format_link(
-'/cgi-bin/mass.cgi?type=ads&id=%s&description=%s&year=%s&country=%s' % (ent['id'], urllib.quote_plus(ent['description']), ent['first_year'], cy)
+'/cgi-bin/mass.cgi?type=ads&id=%s&description=%s&year=%s&country=%s' % (ent['id'], useful.url_quote(ent['description'], plus=True), ent['first_year'], cy)
 , '<i class="far fa-plus-square"></i>'
 )
 	    if floc:

@@ -22,23 +22,22 @@ $cols = Fetch("select id,start,category from section where page_id='links.stuff'
 $sections = array();
 $sections['l4'] = array(); # temporary until we have at least one l4 link.
 foreach ($links as $ent) {
-    if (!isset($sections[$ent[0]]))
-	$sections[$ent[0]] = array();
-    $sections[$ent[0]][] = array("ty" => $ent[1], 'name' => $ent[2], 'url' => $ent[3]);
+    if (!isset($sections[$ent['section_id']]))
+	$sections[$ent['section_id']] = array();
+    $sections[$ent['section_id']][] = array("ty" => $ent['link_type'], 'name' => $ent['name'], 'url' => $ent['url']);
 }
 if ($pif['is_beta'])
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'release', 'url' => "http://www.bamca.org/stuff.php"));
 else
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'beta', 'url' => "http://beta.bamca.org/stuff.php"));
 
-$newerrors = Fetch("select id,health from counter where not health=0", $pif);
-$newerrors += Fetch("select id,health from buser.counter where not health=0", $pif);
+$newerrors = Fetch("select id,health from buser.counter where not health=0", $pif);
 $errcounter = 0;
 foreach ($newerrors as $ent)
-    $errcounter = $errcounter + $ent[1];
-$newusers = Fetch("select name from buser.user where state=1 and privs=''", $pif);
-$newlinks = Fetch("select count(*) from link_line where ((flags&128)=128)", $pif);
-$tumblr = Fetch("select count(*) from buser.tumblr", $pif);
+    $errcounter = $errcounter + $ent['health'];
+$newusers = Fetch("select user_id from buser.user where flags&2", $pif);
+$newlinks = Fetch("select count(*) as c from link_line where ((flags&128)=128)", $pif);
+$tumblr = Fetch("select count(*) as c from buser.tumblr", $pif);
 $commentfiles = glob("../../comments/comment.*");
 $imagefiles = glob("../../inc/*");
 $imagename = $l = '';
@@ -59,9 +58,9 @@ fclose($imagedescs);
   <td class="boxborder" rowspan=4><img src="/pic/gfx/red4x4.gif"></td>
 <?php
 foreach ($cols as $col) {
-    if ($col[0][0] == 'c') {
-	echo '  <td class="linklist ' . $col[2] . '" rowspan=' . $col[1] . ">\n";
-	LinksList($sections[$col[0]], '<li>', '<h3><ul>', '</ul></h3>');
+    if ($col['id'][0] == 'c') {
+	echo '  <td class="linklist ' . $col['category'] . '" rowspan=' . $col['start'] . ">\n";
+	LinksList($sections[$col['id']], '<li>', '<h3><ul>', '</ul></h3>');
 	echo "  </td>\n";
     }
 }
@@ -108,7 +107,7 @@ DoTextButtonLink('clear', "cgi-bin/editor.cgi?clear=1");
 if (count($newerrors) > 0)
 {
     foreach ($newerrors as $ent)
-	echo ' ' . $ent[0] . ' (' . $ent[1] . ')';
+	echo ' ' . $ent['id'] . ' (' . $ent['health'] . ')';
 }
 ?></span>
    </td></tr>
@@ -120,13 +119,13 @@ DoTextButtonLink('see', "https://" . $pif['host'] . "/cgi-bin/user.cgi");
 if (count($newusers) > 0)
 {
     foreach ($newusers as $ent)
-	echo $ent[0] . ' ';
+	echo $ent['user_id'] . ' ';
 }
 ?></span></td>
    </tr>
 
    <tr><td>
-   New links:</td><td><?php warn_number($newlinks[0][0]); ?></td><td><?php DoTextButtonLink('see', "cgi-bin/edlinks.cgi?sec=new"); ?></td>
+   New links:</td><td><?php warn_number($newlinks[0]['c']); ?></td><td><?php DoTextButtonLink('see', "cgi-bin/edlinks.cgi?sec=new"); ?></td>
    <td><?php LinksList($sections['l3'], ' - '); ?></td></tr>
 
    <tr><td>
@@ -139,7 +138,8 @@ if (count($newusers) > 0)
    <td>last <?php echo substr($imagename, 0, 9); ?></td></tr>
 
    <tr><td>
-   Tumblr spool:</td><td><?php warn_number($tumblr[0][0]); ?></td></tr>
+   Tumblr spool:</td><td><?php warn_number($tumblr[0]['c']); ?></td><td>
+   <?php DoTextButtonLink('see', "/cgi-bin/editor.cgi?table=tumblr"); ?></td></tr>
    </table>
   </td>
   <td class="boxborder"></td>

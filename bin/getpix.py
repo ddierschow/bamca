@@ -1,7 +1,8 @@
 #!/usr/local/bin/python
 
-import glob, os, re, sys, urllib2
+import glob, os, re, sys
 import binascii, os, stat, sys
+import requests
 
 import basics
 import config
@@ -11,78 +12,6 @@ errors = []
 
 
 # ----------------------------------------------------------------------------
-# web_read
-
-WEB_RETURN_SUCCESS = 'success'
-WEB_RETURN_CONTENTS = 'contents'
-WEB_RETURN_CODE = 'code'
-WEB_RETURN_EXCEPTION_TYPE = 'exctype'
-WEB_RETURN_EXCEPTION_VALUE = 'excvalue'
-
-
-def web_read(url, noread=False, quiet=False, log=None):
-    '''Read and return something from a url.  Package it up nicely.
-    Take care of as much crap as possible.'''
-
-    wp = lstatus = ''
-    retval = {
-        WEB_RETURN_CONTENTS: '',
-        WEB_RETURN_CODE: None,
-        WEB_RETURN_SUCCESS: False,
-        WEB_RETURN_EXCEPTION_TYPE: None,
-        WEB_RETURN_EXCEPTION_VALUE: None,
-    }
-
-    #if not quiet:
-        #Info('web_read: ' + url, log=log)
-
-    try:
-        wp = urllib2.urlopen(url)
-        retval[WEB_RETURN_CODE] = str(wp.code)
-    except urllib2.HTTPError as (e):  # we expect these
-        retval[WEB_RETURN_CODE] = 'H' + str(e.code)
-        #Error("Reading %s failed with HTTPError:" % url, str(e), log=log)
-        retval[WEB_RETURN_EXCEPTION_TYPE] = sys.exc_info()[0]
-        retval[WEB_RETURN_EXCEPTION_VALUE] = sys.exc_info()[1]
-        return retval
-    except urllib2.URLError as (e):  # we expect these
-        retval[WEB_RETURN_CODE] = 'U' + str(e.reason[0])
-        #Error("Reading %s failed with URLError:" % url, str(e), log=log)
-        retval[WEB_RETURN_EXCEPTION_TYPE] = sys.exc_info()[0]
-        retval[WEB_RETURN_EXCEPTION_VALUE] = sys.exc_info()[1]
-        return retval
-    except:  # we don't expect these
-        #Error("Reading %s encountered unexpected error:" % url, str(sys.exc_info()[0]), log=log)
-        retval[WEB_RETURN_EXCEPTION_TYPE] = sys.exc_info()[0]
-        retval[WEB_RETURN_EXCEPTION_VALUE] = sys.exc_info()[1]
-        raise
-
-    #if noread:  # check only, don't actually read
-        #return retval
-
-#    for hdr in wp.headers.headers:
-#        if hdr.lower().startswith('content-length:'):
-#            Info(hdr.strip())
-    retval[WEB_RETURN_CONTENTS] = ''
-    while 1:
-        try:
-            wread = wp.read()
-        except httplib.IncompleteRead, e:
-            #Error("Reading encountered Incomplete Read error. Retrying.")
-            wp = urllib2.urlopen(url)
-            retval[WEB_RETURN_CONTENTS] = ''
-            continue
-        except:
-            #Error("Reading %s encountered unexpected error:" % url, str(sys.exc_info()[0]), log=log)
-            retval[WEB_RETURN_EXCEPTION_TYPE] = sys.exc_info()[0]
-            retval[WEB_RETURN_EXCEPTION_VALUE] = sys.exc_info()[1]
-            raise
-        if not wread:
-            break
-        retval[WEB_RETURN_CONTENTS] += wread
-    retval[WEB_RETURN_SUCCESS] = True
-    return retval
-
 
 def fix_files(page_id):
     dn = useful.relpath('.', config.LIB_MAN_DIR, page_id[7:].lower())
@@ -94,8 +23,8 @@ def fix_files(page_id):
 
 def grab_page(url):
     print 'read', url
-    retval = web_read(url)
-    return retval[WEB_RETURN_CONTENTS]
+    retval = requests.get(url)
+    return retval.text
 
 
 def grab_list(ll, fl):

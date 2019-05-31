@@ -134,10 +134,14 @@ class Security(object):
 if __name__ == '__main__':  # pragma: no cover
     sec = Security()
     cook = sec.get_cookies()
+    sys.stderr.write('running secure %s\n' % sys.argv)
     if sys.argv:
         if sys.argv[1] == 'id':
             sys.exit(int(cook.get('id', 0)))
-        elif sys.argv[1] in 'vuma':
+	elif sys.argv[1] == 'b' and not config.LOCKDOWN:
+	    sys.stderr.write('not locked down\n')
+	    sys.exit(1)
+        elif sys.argv[1] in 'bvuma':
             if sys.argv[1] in cook.get('pr', ''):
                 sys.exit(1)
     sys.exit(0)

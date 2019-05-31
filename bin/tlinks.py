@@ -42,7 +42,7 @@ def link_page(pif):
         sections = pif.dbh.fetch_sections({'page_id': pif.page_id, 'id': section_id})
     else:
         sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    linklines = pif.dbh.fetch_link_lines(pif.page_id, not_flags=pif.dbh.FLAG_ITEM_HIDDEN)
+    linklines = pif.dbh.fetch_link_lines(pif.page_id, not_flags=config.FLAG_ITEM_HIDDEN)
     linklines = pif.dbh.depref('link_line', linklines)
     linklines.sort(key=lambda x: int(x['display_order']))
     sect_links = dict()
@@ -64,14 +64,14 @@ def link_page(pif):
 
 def generate_links(pif, links):
     for ent in links:
-        if ent['link_type'] != 'x' and not (ent['flags'] & pif.dbh.FLAG_LINK_LINE_NEW):
+        if ent['link_type'] != 'x' and not (ent['flags'] & config.FLAG_LINK_LINE_NEW):
 	    yield make_link(pif, ent)
 
 
 def make_link(pif, ent):
     lnk = dict()
     lnk['text'], lnk['desc'] = format_entry(pif, ent)
-    lnk['indent'] = (ent['flags'] & pif.dbh.FLAG_LINK_LINE_INDENTED) != 0
+    lnk['indent'] = (ent['flags'] & config.FLAG_LINK_LINE_INDENTED) != 0
     lnk['id'] = ent['id']
     cmd = ent['link_type']
     lnk['comment'] = True
@@ -79,7 +79,7 @@ def make_link(pif, ent):
 	if ent.get('last_status') == 'exc':
 	    cmd = 'b'
     lnk['linktype'] = cmd # linktypes.get(cmd)
-    lnk['large'] = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
+    lnk['large'] = ent['flags'] & config.FLAG_LINK_LINE_FORMAT_LARGE
     return lnk
 
 
@@ -89,16 +89,16 @@ def format_entry(pif, ent):
             'Reciprocal': ('Reciprocal', '<i class="fas fa-refresh dlm"></i>'),
             'PayPal': ('Accepts PayPal', '<i class="fab fa-paypal dlm"></i>'),
     }
-    is_large = ent['flags'] & pif.dbh.FLAG_LINK_LINE_FORMAT_LARGE
+    is_large = ent['flags'] & config.FLAG_LINK_LINE_FORMAT_LARGE
     url = ent['url']
     tag = ent['name']
     dlms = []
     if ent['country']:
         dlms.append(ent['country'])
     cmt = ent['description']
-    if ent['flags'] & pif.dbh.FLAG_LINK_LINE_RECIPROCAL:
+    if ent['flags'] & config.FLAG_LINK_LINE_RECIPROCAL:
         dlms.append('Reciprocal')
-    if ent['flags'] & pif.dbh.FLAG_LINK_LINE_PAYPAL:
+    if ent['flags'] & config.FLAG_LINK_LINE_PAYPAL:
         dlms.append('PayPal')
 
     ostr = pif.render.format_link(url, tag) + ' '
@@ -143,7 +143,7 @@ def read_config(pif, showall=False):
     if pif.is_allowed('a'):  # and pif.render.is_beta:  # pragma: no cover
         showpage = {x['page_info.id']: 1 for x in allpages}
     else:
-        showpage = {x['page_info.id']: not (x['page_info.flags'] & pif.dbh.FLAG_PAGE_INFO_HIDDEN) for x in allpages}
+        showpage = {x['page_info.id']: not (x['page_info.flags'] & config.FLAG_PAGE_INFO_HIDDEN) for x in allpages}
     sections = pif.dbh.fetch_sections(where="page_id like 'links.%'")
     for section in sections:
         page_name = section['section.page_id'].split('.', 1)[1]
@@ -211,7 +211,7 @@ def add_new_link(pif, dictCats, listRejects):
             "The request was badly formed.",
             "The request was not made by the supplied web form."])
 
-    link['flags'] = pif.dbh.FLAG_LINK_LINE_NEW
+    link['flags'] = config.FLAG_LINK_LINE_NEW
     if pif.is_allowed('a'):  # pragma: no cover
         link['flags'] = 0
     link['link_type'] = 'l'
@@ -249,12 +249,8 @@ def add_new_link(pif, dictCats, listRejects):
         ostr += "if you think this rejection was in error, you can send email.  Just don't hope for too much.\n"
         open(os.path.join(config.LOG_ROOT, 'trash.log'), 'a+').write(str(link) + '\n')
     else:
-        link['id'] =  pif.dbh.insert_link_line(link)
-        ostr += "The following has been added to the list:<br><ul>\n"
-        ent = format_entry(pif, link)
-        ostr += ent[0] + ' '
-        ostr += '<br>' .join(ent[1])
-        ostr += '\n</ul>\n'
+        link['id'] = pif.dbh.insert_link_line(link)
+        ostr += "Your suggestion has been sent to the site administrators.  Thank you.<br>"
 	check_link(pif, link)
     return ostr
 
@@ -323,7 +319,7 @@ def edit_single(pif):
         nlink['display_order'] = highest_disp_order.get((nlink['page_id'], nlink['section_id']), 0) + 1
         for flag in pif.form.get_list('flags'):
             nlink['flags'] += int(flag, 16)
-        if nlink['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE:
+        if nlink['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE:
             nlink['last_status'] = 'NoVer'
         pif.dbh.update_link_line(nlink)
         pif.render.message('<br>record saved<br>')
@@ -350,7 +346,7 @@ def edit_single(pif):
     if not links:
 	raise useful.SimpleError("That ID wasn't found.")
     link = links[0]
-    asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE)]
+    asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE)]
     descs = pif.dbh.describe_dict('link_line')
 
     header = '<form>' + pif.create_token()
@@ -415,9 +411,9 @@ def edit_multiple(pif):
     page_id = ''
     sec_id = pif.form.get_str('sec', '')
     if pif.form.get_bool('as'):
-        linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
+        linklines = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
     elif sec_id == 'new':
-        linklines = pif.dbh.fetch_link_lines(flags=pif.dbh.FLAG_LINK_LINE_NEW)
+        linklines = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_NEW)
     elif sec_id == 'nonf':
         linklines = pif.dbh.fetch_link_lines(where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and page_id != 'links.trash' and (flags & 32)=0")
     elif pif.form.get_str('stat'):
@@ -518,10 +514,10 @@ def check_link(pif, link, rejects=[], visible=False):
 	print link, visible
         link = pif.dbh.depref('link_line', link)
         lstatus = 'unset'
-	if visible and (link['flags'] & pif.dbh.FLAG_LINK_LINE_HIDDEN or link['page_id'] == 'links.rejects'):
+	if visible and (link['flags'] & config.FLAG_LINK_LINE_HIDDEN or link['page_id'] == 'links.rejects'):
 	    return
         print link['id'], link['url'],
-        if link['flags'] & pif.dbh.FLAG_LINK_LINE_NOT_VERIFIABLE or link['link_type'] in 'tfpn':
+        if link['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE or link['link_type'] in 'tfpn':
             lstatus = 'NoVer'
         elif link['link_type'] in 'bglsx':
 #            ret = is_blacklisted(link['url'], rejects)
@@ -534,10 +530,10 @@ def check_link(pif, link, rejects=[], visible=False):
             try:
 		url = urllib2.urlopen(urllib2.Request(lurl, headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
                 lstatus = 'H' + str(url.code)
-            except urllib2.HTTPError as (c):
+            except urllib2.HTTPError as c:
                 print 'http error:', c.code
                 lstatus = 'H' + str(c.code)
-            except urllib2.URLError as (c):
+            except urllib2.URLError as c:
                 print 'url error:', c.reason
                 lstatus = 'U' + str(c.reason[0])
             except:

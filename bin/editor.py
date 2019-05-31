@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import copy, os, re, urllib2
+import copy, os, re
 import basics
 import config
 import imglib
@@ -36,9 +36,10 @@ def editor_start(pif):
 
 @basics.web_page
 def editor_main(pif):
+    pif.dbh.dbi.logger.info('form %s' % (str(pif.form.get_form())))
+    pif.render.set_page_extra(pif.render.reset_button_js)
     pif.render.print_html()
     pif.restrict('a')
-    pif.render.set_page_extra(pif.render.reset_button_js)
     if pif.form.get_str('promote'):
 	return imglib.promote_picture(pif, pif.form.get_str('mod'), pif.form.get_str('var'))
     if pif.form.get_str('table'):
@@ -61,7 +62,7 @@ def show_table(pif):
     elif pif.form.has('save'):
 		#rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
         pif.dbh.write(table_info['name'], {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
-                      pif.form.where(table_info['id'], 'o_'), tag='ShowTableSave')
+                      pif.form.where(table_info['id'], 'o_'), tag='ShowTableSave', verbose=True)
         pif.render.message('record saved')
     elif pif.form.has('delete'):
         pif.dbh.delete(table_info['name'], pif.form.where(table_info['id'], 'o_'))

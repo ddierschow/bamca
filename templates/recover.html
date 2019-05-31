@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block page_body %}
+
+<h3>We can help you reset your password.</h3>
+
+We will send a verification code to your email address.
+If you have already received this code, you can enter it
+here.<p>
+
+<form method="post">
+<table>
+{% if not recovering %}
+ <tr>
+  <td>User ID or email address:</td>
+  <td><input type="text" name="user_id"></td>
+ </tr>
+{% else %}
+ <tr>
+  <td>User ID:</td>
+  <td>{{ user_id }}<input type="hidden" name="user_id" value="{{ user_id }}"></td>
+ </tr>
+ <tr>
+  <td>Verification key:</td>
+  <td><input type="text" name="vkey">
+  <button type="submit" name="resend" value="1" class="textbutton">{{ render.find_button_label('resend the code') }}</button></td>
+ </tr>
+ <tr>
+  <td>New password:</td>
+  <td><input type="password" name="p1"></td>
+ </tr>
+ <tr>
+  <td>Retry new password:</td>
+  <td><input type="password" name="p2"></td>
+ </tr>
+{% endif %}
+ <tr>
+  <td></td>
+  <td>{{ render.format_button_input("reset password") }}</td>
+ </tr>
+</table>
+</form>
+
+{% endblock page_body %}

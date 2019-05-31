@@ -5,6 +5,7 @@ chdir('..');
 include "bin/basics.php";
 include "config.php";
 $pif = GetPageInfo("faq");
+$is_logged_in = CheckPerm('b');
 DoHead($pif);
 DoPageHeader($pif);
 ?>
@@ -85,6 +86,7 @@ encourage you to keep looking.
 <tr><td colspan=2>&nbsp;</td></tr>
 
 
+<?php if ($is_logged_in) { ?>
 
 <tr><th valign="top">Q:</td>
 <td valign="top">How can I get in touch with another particular manufacturer?
@@ -94,6 +96,7 @@ encourage you to keep looking.
 
 <tr><td colspan=2>&nbsp;</td></tr>
 
+<?php } ?>
 
 
 <tr><th valign="top">Q:</td>
@@ -166,6 +169,7 @@ give you any better estimate than this.
 <tr><td colspan=2>&nbsp;</td></tr>
 
 
+<?php if ($is_logged_in) { ?>
 
 <tr><th valign="top">Q:</td>
 <td valign="top">I have an old Matchbox, but I'm not sure which revision it is.  Can you help me figure this out?
@@ -178,6 +182,7 @@ Feel free to ask for clarification on any others.
 
 <tr><td colspan=2>&nbsp;</td></tr>
 
+<?php } ?>
 
 
 <tr><th valign="top">Q:</td>
@@ -231,6 +236,7 @@ anything for sale, we've put it up on a web page, referred within.
 <tr><td colspan=2>&nbsp;</td></tr>
 
 
+<?php if ($is_logged_in) { ?>
 
 <tr><th valign="top">Q:</td>
 <td valign="top">How can I find a particular model to buy?
@@ -243,6 +249,7 @@ trying there, or checking other sites listed on the
 
 <tr><td colspan=2>&nbsp;</td></tr>
 
+<?php } ?>
 
 
 <tr><th valign="top">Q:</td>
@@ -257,6 +264,7 @@ send e-mail to us.
 <tr><td colspan=2>&nbsp;</td></tr>
 
 
+<?php if ($is_logged_in) { ?>
 
 <tr><th valign="top">Q:</td>
 <td valign="top">How do I find what updates have been done to the site recently?
@@ -294,6 +302,7 @@ for example, about hotel reservations, just go away.  Seriously.
 
 <tr><td colspan=2>&nbsp;</td></tr>
 
+<?php } ?>
 
 
 <tr><th valign="top">Q:</td>
@@ -345,6 +354,7 @@ really want to send us your $10, go ahead and follow the instructions on the
 <tr><td colspan=2>&nbsp;</td></tr>
 
 
+<?php if ($is_logged_in) { ?>
 
 <tr><th valign="top">Q:</td>
 <td valign="top">I live somewhere outside if BAMCA's area.  Are there any clubs near me?
@@ -355,6 +365,7 @@ Perhaps your best bet would be to join a national club.
 
 <tr><td colspan=2>&nbsp;</td></tr>
 
+<?php } ?>
 
 
 <tr><th valign="top">Q:</td>

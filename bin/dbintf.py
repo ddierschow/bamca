@@ -32,7 +32,7 @@ class DB(object):
     def escape_string(self, s):
         return self.db.escape_string(s)
 
-    def execute(self, query, args=None, verbose=None, tag=''):
+    def execute(self, query, args=None, logargs=True, verbose=None, tag=''):
         if verbose is None:
             verbose = self.verbose
         if tag:
@@ -41,7 +41,10 @@ class DB(object):
         if verbose:
             useful.write_comment('DB.execute q : "%s"' % query)
             if args:
-                useful.write_comment('     args :', args)
+		if logargs:
+		    useful.write_comment('     args :', args)
+		else:
+		    useful.write_comment('     args :', len(args), 'redacted')
             sys.stdout.flush()
         if self.logger:
 #            log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.dbq%Y%m.log'))
@@ -54,6 +57,11 @@ class DB(object):
 	    self.logger.info('q %s%s %s' %
 			      ('/*mock*/ ' if self.nowrites else '',
 			       os.environ.get('REMOTE_ADDR', ''), query))
+            if args:
+		if logargs:
+		    self.logger.info('     args :', args)
+		else:
+		    self.logger.info('     args :', len(args), 'redacted')
         cu = self.db.cursor()
         try:
 	    nrows = cu.execute(query, args)
@@ -79,28 +87,6 @@ class DB(object):
 
     def mockexecute(self, query, args=None, verbose=None, tag=''):
         return ([], [], 0)
-
-    # user functions
-
-    def login(self, name, passwd):
-        if self.db:
-            res, desc, lid = self.execute('''select id, privs from buser.user where name = '%s' and passwd = PASSWORD('%s')''' %
-                                          (name, passwd))
-            if res:
-                return res[0][0], res[0][1]
-        return None, None
-
-    def createuser(self, name, passwd, email, vkey):
-        if self.db:
-            query = '''insert buser.user (name, passwd, privs, email, state, vkey) values ('%s', PASSWORD('%s'), '', '%s', 0, '%s')''' % \
-                    (name, passwd, email, vkey)
-            if self.nowrites:
-                res, desc, lid = self.mockexecute(query)
-            else:
-                res, desc, lid = self.execute(query)
-            self.execute('commit')
-	    return lid
-        return None
 
     # counter function
 
@@ -154,7 +140,7 @@ class DB(object):
         return list()
 
     def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, outcols=None, limit=None,
-	       tag='', verbose=None):
+	       logargs=True, tag='', verbose=None):
         if self.db:
             query = 'select '
             if tag:
@@ -174,7 +160,7 @@ class DB(object):
 	    if limit:
 		query += ''' limit %s''' % limit
 	    #useful.write_comment(query)
-            res, desc, lid = self.execute(query, args, verbose=verbose)
+            res, desc, lid = self.execute(query, args, logargs=logargs, verbose=verbose)
             if not cols:
                 cols = [x[0] for x in desc]
 	    if not outcols:
@@ -183,11 +169,11 @@ class DB(object):
                 return [dict(zip(outcols, x)) for x in res]
         return list()
 
-    def rawquery(self, query, tag='', verbose=None):
+    def rawquery(self, query, args=None, logargs=True, tag='', verbose=None):
         if self.db:
             if tag:
                 query.insert(1, '/* %s */' % tag)
-            res, desc, lid = self.execute(query, verbose=verbose)
+            res, desc, lid = self.execute(query, args, logargs, verbose=verbose)
             if not desc:
                 return list()
             cols = [x[0] for x in desc]
@@ -195,7 +181,7 @@ class DB(object):
                 return [dict(zip(cols, x)) for x in res]
         return list()
 
-    def insert_or_update(self, table, values, tag='', verbose=None):
+    def insert_or_update(self, table, values, args=None, logargs=True, tag='', verbose=None):
         if self.db:
             setlist = ','.join([x + "=" + self.db.literal(str(values[x])) for x in values])
             cols = []
@@ -209,37 +195,42 @@ class DB(object):
             cols = ','.join(cols)
             vals = ','.join(vals)
             query = 'insert '
-#            if tag:
-#                query += "/* %s */ " % tag
+            if tag:
+                query += "/* %s */ " % tag
             query += '''into %s (%s) values (%s) on duplicate key update %s''' % (table, cols, vals, setlist)
             if self.nowrites:
-                res, desc, lid = self.mockexecute(query, verbose=verbose, tag=tag)
+                res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose, tag=tag)
             else:
-                res, desc, lid = self.execute(query, verbose=verbose, tag=tag)
+                res, desc, lid = self.execute(query, args, logargs, verbose=verbose, tag=tag)
                 self.execute('commit')
             return res
         return list()
 
-    def update(self, table, values, where=None, tag='', verbose=None):
+    def update(self, table, values, where=None, args=None, logargs=True, tag='', verbose=None):
 	if verbose:
 	    print 'update', table, values, where, tag
         if self.db:
             query = 'update '
 #            if tag:
 #                query += "/* %s */ " % tag
-            setlist = ','.join([x + "=" + (self.db.literal(str(values[x])) if values[x] is not None else 'NULL') for x in values])
+	    if isinstance(values, dict):
+		setlist = ','.join([x + "=" + (self.db.literal(str(values[x])) if values[x] is not None else 'NULL') for x in values])
+	    elif isinstance(values, list):
+		setlist = ','.join(values)
+	    else:
+		setlist = values
             query += '''%s set %s''' % (table, setlist)
             if where:
                 query += ''' where %s;''' % where
             if self.nowrites:
-                res, desc, lid = self.mockexecute(query, verbose=verbose, tag=tag)
+                res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose, tag=tag)
             else:
-                res, desc, lid = self.execute(query, verbose=verbose, tag=tag)
+                res, desc, lid = self.execute(query, args, logargs, verbose=verbose, tag=tag)
                 self.execute('commit')
             return res
         return list()
 
-    def updateraw(self, table, values, where=None, tag='', verbose=None):
+    def updateraw(self, table, values, where=None, args=None, logargs=True, tag='', verbose=None):
         if self.db:
             query = 'update '
             if tag:
@@ -249,9 +240,9 @@ class DB(object):
             if where:
                 query += ''' where %s;''' % where
             if self.nowrites:
-                res, desc, lid = self.mockexecute(query, verbose=verbose)
+                res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose)
             else:
-                res, desc, lid = self.execute(query, verbose=verbose)
+                res, desc, lid = self.execute(query, args, logargs, verbose=verbose)
                 self.execute('commit')
             return res
         return list()
@@ -273,7 +264,7 @@ class DB(object):
             return res
         return list()
 
-    def insert(self, table, inits={}, tag='', verbose=None):
+    def insert(self, table, inits={}, args=None, logargs=True, tag='', verbose=None):
         if self.db:
             query = 'insert '
             if tag:
@@ -285,9 +276,9 @@ class DB(object):
                 vals.append(self.db.literal(inits[key]))
             query += '''into %s (%s) values (%s)''' % (table, ','.join(cols), ','.join(vals))
             if self.nowrites:
-                res, desc, lid = self.mockexecute(query, verbose=verbose)
+                res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose)
             else:
-                res, desc, lid = self.execute(query, verbose=verbose)
+                res, desc, lid = self.execute(query, args, logargs, verbose=verbose)
                 self.execute('commit')
             return lid
         return -1
@@ -307,3 +298,6 @@ class DB(object):
                 self.execute('commit')
             return res
         return list()
+
+    def commit(self, tag='Commit'):
+	return self.execute('commit', tag=tag)

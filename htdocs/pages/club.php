@@ -4,7 +4,7 @@
 chdir('..');
 include "bin/basics.php";
 include "config.php";
-$pif = GetPageInfo("status");
+$pif = GetPageInfo("clubhist");
 $pif['title'] = 'Bay Area <img src="/pic/gfx/matchboxw.gif" class="mblogo"> Collectors Association History';
 DoHead($pif);
 DoPageHeader($pif);

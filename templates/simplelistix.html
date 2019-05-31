@@ -2,5 +2,11 @@
 {%- import "showix.html" as showix -%}
 
 {% block page_body %}
+{% if header %}
+{{ header }}
+{% endif %}
 {{ showix.format_listix(llineup) }}
+{% if footer %}
+{{ footer }}
+{% endif %}
 {% endblock page_body %}

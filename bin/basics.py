@@ -153,13 +153,13 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 
     try:  # get command line
         opts2, files2 = getopt.getopt(sys.argv[1:], coptions, loptions)
-        opts = opts + opts2
-        files = files + files2
     except getopt.GetoptError:
         if not noerror:
             print "*** Options error"
             print >> sys.stderr, sys.argv[0], short_help
             sys.exit(2)
+    opts = opts + opts2
+    files = files + files2
 
     for opt in switches:
         switch[opt] = None
@@ -228,6 +228,7 @@ def web_page(main_fn):
                 pif = page_id
             else:
                 pif = get_page_info(page_id, form_key, defval, args, dbedit)
+		pif.start()
 	    if '/etc/passwd' in os.environ.get('QUERY_STRING', '') or '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower():
 		raise useful.Redirect('https://www.nsa.gov/')
         except SystemExit:
@@ -269,10 +270,6 @@ def web_page(main_fn):
 		pif.render.print_html(status=e.status)
 	    print pif.render.format_template('error.html', error=[e.value])
 	except useful.Redirect as e:
-	    if not useful.is_header_done():
-		pif.render.print_html()
-	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
-	except useful.DelayedRedirect as e:
 	    if not useful.is_header_done():
 		pif.render.print_html()
 	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)

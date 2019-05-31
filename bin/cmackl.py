@@ -27,7 +27,7 @@ ranks = list(range(1, config.MAX_MACK_NUMBER + 1))
 files = list(string.ascii_lowercase) + [x + x for x in string.ascii_lowercase]
 def format_mack_text(pif, amods):
     sharedsets = []
-    for pair in [[x['casting_related.model_id'], x['casting_related.related_id']] for x in pif.dbh.fetch_casting_relateds(flags=pif.dbh.FLAG_CASTING_RELATED_SHARED)]:
+    for pair in [[x['casting_related.model_id'], x['casting_related.related_id']] for x in pif.dbh.fetch_casting_relateds(flags=config.FLAG_CASTING_RELATED_SHARED)]:
 	for shared in sharedsets:
 	    if pair[0] in shared or pair[1] in shared:
 		shared.update(pair)

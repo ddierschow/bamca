@@ -2,22 +2,29 @@
 
 {% block page_body %}
 
-Please log in.<br>
-<form method="post" action="login.cgi">
+<div class="title"><span class="titletext">Welcome to the <a href="/">BAMCA</a> Website!</span></div>
+
+<h3>Please log in.</h3>
+Note that by logging in, you are agreeing to this site storing cookies on your browser.
+These cookies are to give you access to pages and information that cannot normally
+be seen otherwise.  By logging in, you agree to this happening.<p>
+<form method="post" action="/cgi-bin/login.cgi">
 {% if dest %}<input type="hidden" name="dest" value="{{ dest }}">{% endif %}
 
 <table><tr><td>
-Name:</td><td>
-<input type="text" name="n"></td></tr>
+User ID:</td><td>
+<input type="text" name="user_id"></td></tr>
 <tr><td>
 Password:</td><td>
 <input type="password" name="p"></td></tr>
 <tr><td></td><td>
 {{ render.format_button_input("log in") }}
-</td></tr><tr><td></td><td>
-<p>
-{{ render.format_button('register', register) }}
 </td></tr></table>
 </form>
 
+<p>
+Or you can {{ render.format_button('register', register) }} for a new account.
+
+<p>
+Use this button if you {{ render.format_button('forgot', forgot) }} your password.
 {% endblock page_body %}

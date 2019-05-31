@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import datetime, filecmp, glob, os, re, stat, subprocess, sys
+import datetime, filecmp, glob, os, re, stat, sys
 import basics
 import bfiles
 import config
@@ -365,10 +365,10 @@ def do_prod_masses(pif, tform):
 	ofi = imglib.shrinker(pth, nname, q, ts, rf)
 	imglib.simple_save(ofi, nname)
 	images.file_log(nname, tform.tdir)
-	url = 'http://www.bamca.org/' + nname
-	link = 'https://www.bamca.org/'
+	url = pif.secure_prod + nname
+	link = pif.secure_prod
 	title = nam
-	if cred and not photog.flags & pif.dbh.FLAG_PHOTOGRAPHER_PRIVATE:
+	if cred and not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
 	    title += ' credited to ' + photog.name
 	pif.render.message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
 	pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, nam))
@@ -382,14 +382,30 @@ def show_file(pif, tform):
 	print pif.render.format_button('archive', link=pif.request_uri + '&archive=1&act=1')
     if os.path.exists(os.path.join(tform.tdir, 'fixed')):
 	print pif.render.format_button('fixed', link=pif.request_uri + '&fixed=1&act=1')
+    if os.path.exists(os.path.join(tform.tdir, 'spam')) or os.path.exists(os.path.join(tform.tdir, '..', 'spam')):
+	print pif.render.format_button('spam', link=pif.request_uri + '&spam=1&act=1')
     root, ext = useful.root_ext(tform.fnam)
-    if ext in imglib.itypes:
+    if not os.path.exists(tform.tdir + '/' + tform.fnam):
+	print "file not found"
+    elif ext in imglib.itypes:
 #       if tform.tdir.startswith('..'):
 #           print '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (tform.tdir, tform.fnam)
 #       else:
             show_picture(pif, tform.fnam)
 #    elif ext == 'dat':
 #        show_table(pif, tform)
+    elif tform.tdir.startswith('../../comments'):
+        fil = open(tform.tdir + '/' + tform.fnam).read()
+	if '{' in fil and '}' in fil:
+	    print fil[:fil.index('{')]
+	    data = eval(fil[fil.index('{'):fil.rindex('}') + 1])
+	    print '<p><dl>'
+	    for key, val in sorted(data.items()):
+		print '<dt>', key, '</dt><dd>', val, '</dd>'
+	    print '</dl>'
+	    print fil[fil.rindex('}') + 1]
+	else:
+	    print '<p>', fil
     elif tform.tdir == '../../logs':
         print '<p><div style="font-family: monospace;">'
         fil = open(tform.tdir + '/' + tform.fnam).readlines()
@@ -401,7 +417,7 @@ def show_file(pif, tform):
         print ''.join(fil)
 	print '</pre>'
 	print '</div>'
-    elif os.path.exists(tform.tdir + '/' + tform.fnam):
+    else:
         print '<p>'
 	fil = open(tform.tdir + '/' + tform.fnam).readlines()
 	for i in range(len(fil)):
@@ -585,8 +601,7 @@ the config file for php's use.
 
 
 def read_commits(endtime):
-    p = subprocess.Popen(["/usr/local/bin/git", "log"], stdout=subprocess.PIPE, stderr=None, close_fds=True)
-    l = p.stdout.read()
+    l = useful.simple_process(("/usr/local/bin/git", "log",))
     commits = list()
     #Date:   Fri Jun 13 19:26:34 2014 +0200
     date_re = re.compile('Date:\s*(?P<d>... ... \d+ \d+:\d+:\d+ \d+)')
@@ -611,15 +626,14 @@ def read_commits(endtime):
 
 def write_php_config_file(pif):
     print "Writing PHP config file."
-    configs = []
-    fout = open('../bin/config.py').readlines()
-    fout[0] = '<?php\n// Generated file.  Do not modify.\n'
-    for idx in range(1, len(fout)):
-        if fout[idx][0] == '#':
-            fout[idx] = '//' + fout[idx][1:]
-        elif fout[idx].find('=') >= 0:
-	    configs.append(fout[idx][:fout[idx].find('=')].strip())
-            fout[idx] = '$' + fout[idx].replace('\n', ';\n')
+    fin = open('../bin/config.py').readlines()
+    fout = ['<?php\n', '// Generated file.  Do not modify.\n']
+    for ln in fin:
+        if ln.startswith('#'):
+            ln = '//' + ln[1:]
+        elif ln.find('=') >= 0:
+            ln = '$' + ln.replace('\n', ';\n')
+	fout.append(ln)
     fout.append('?>\n')
     open('../htdocs/config.php', 'w').writelines(fout)
     print
@@ -627,13 +641,19 @@ def write_php_config_file(pif):
 
 def write_jinja2_config_file(pif):
     print "Writing Jinja2 config file."
-    fout = open('../bin/config.py').readlines()
-    fout[0] = '{# Generated file.  Do not modify. #}\n'
-    for idx in range(1, len(fout)):
-        if fout[idx][0] == '#':
-            fout[idx] = '{# ' + fout[idx][1:] + fout[idx].replace('\n', ' #}\n')
-        elif fout[idx].find('=') >= 0:
-            fout[idx] = '{% set ' + fout[idx].replace('\n', ' %}\n')
+    fin = open('../bin/config.py').readlines()
+    fout = ['{# Generated file.  Do not modify. #}\n']
+    for ln in fin:
+	if ln.startswith('#!'):
+	    continue
+        elif ln.startswith('#'):
+            ln = '{' + ln.strip() + ' #}\n'
+        elif '0x' in ln:
+	    idx = ln.find('0x')
+	    ln = '{% set ' + ln[:idx] + str(eval(ln[idx:].strip())) + ' %}\n'
+        elif '=' in ln:
+            ln = '{% set ' + ln.strip() + ' %}\n'
+	fout.append(ln)
     open('../templates/config.html', 'w').writelines(fout)
     print
 
