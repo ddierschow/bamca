@@ -57,6 +57,7 @@ to these new templates, and more will follow as I have time.
     6.10 published Sunday, 11 February 2018 at 12:01 AM PST
     6.11 published Sunday, 11 March 2018 at 12:01 AM PST
     6.12 published Sunday, 14 October 2018 at 12:01 AM PDT
+    6.13 published Sunday, 2 June 2019 at 12:01 AM PDT
 
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
@@ -73,7 +74,6 @@ Current and planned projects:
    * Need to add support for packs limited to region
    * Matrix items with no ID aren't well supported
    * Add support for multiple castings at a number in a year (the 1969SE problem)
-   * Add a blog link for posting textual updates (notes, minutes, etc)
 
 ...BIG things:
 
