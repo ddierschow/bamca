@@ -1064,7 +1064,7 @@ class DBHandler(object):
         return self.write('counter', values={'health': 0}, modonly=True, tag='ClearHealth')
 
     def increment_counter(self, page_id, tag='Count'):
-        self.dbi.count(page_id)
+        self.dbi.count(page_id, tag=tag)
 
     #- lineup_model
 

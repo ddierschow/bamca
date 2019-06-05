@@ -90,18 +90,12 @@ class DB(object):
 
     # counter function
 
-    def count(self, countid):
+    def count(self, countid, tag="Count"):
         if not self.db:
             return None
-        cnt = 0
-        res, desc, lid = self.execute("""select value from buser.counter where id='%s'""" % countid, verbose=False)
-        if res:
-            cnt = int(res[0][0])
-        else:
-            res, desc, lid = self.execute("""insert buser.counter (id, value) values ('%s', 0)""" % countid, verbose=False)
-            self.execute('commit')
-        res, desc, lid = self.execute("""update buser.counter set value=%s, timestamp=now() where id='%s'""" %
-                                      (cnt + 1, countid), verbose=False)
+	res, desc, lid = self.execute(
+	    """insert buser.counter (id, value, timestamp) values ('%s', 0, now()) on duplicate key """
+	    """update value=value+1, timestamp=now()""" % countid, verbose=False)
         self.execute('commit')
         return res
 
