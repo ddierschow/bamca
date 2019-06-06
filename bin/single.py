@@ -406,7 +406,8 @@ def make_plants(pif, mod_id, plants):
 	    flag = ('unset', '')
 	else:
 	    flag = pif.render.show_flag(mbdata.plant_d[plant['manufacture']])
-	url = "/cgi-bin/vars.cgi?manufacture=%s&mod=%s" % (plant['manufacture'] if plant['manufacture'] else 'unset', mod_id)
+	url = "/cgi-bin/vars.cgi?manufacture=%s&mod=%s" % (plant['manufacture'].replace(' ', '+') if plant['manufacture']
+							   else 'unset', mod_id)
 	columns.append(plant['manufacture'])
 	headers[plant['manufacture']] = pif.render.format_link(url, useful.img_src(flag[1], also={'title': plant['manufacture']}) if flag[1] else flag[0])
 	entry[plant['manufacture']] = pif.render.format_link(url, str(plant['count']))
@@ -428,7 +429,7 @@ def show_single(pif):
     pif.render.print_html(status=404 if not model else 200)
     #useful.write_comment('model', model)
     pic = pif.form.get_str('pic')
-    pdir = pif.form.get_str('dir')
+    pdir = pif.form.get_dir('dir')
     if pdir.startswith('./'):
 	pdir = pdir[2:]
     if not pdir.startswith('pic/') or '/' in pic:

@@ -1,3 +1,4 @@
+import bidict
 import config
 import re
 import useful
@@ -684,6 +685,47 @@ base_logo_2 = [
     ('z', 'elephant'),
 ]
 base_logo_2_dict = dict(base_logo_2)
+
+dirs = bidict.bidict({
+    'pbads':	    config.IMG_DIR_ADS[1:],
+    'pbblis':	    config.IMG_DIR_BLISTER[1:],
+    'pbbook':	    config.IMG_DIR_BOOK[1:],
+    'pbbox':	    config.IMG_DIR_BOX[1:],
+    'pbcat':	    config.IMG_DIR_CAT[1:],
+    'pbgame':	    config.IMG_DIR_GAME[1:],
+    'pbpkg':	    config.IMG_DIR_PACKAGE[1:],
+    'pgfx':	    config.IMG_DIR_ART[1:],
+    'picon':	    config.IMG_DIR_ICON[1:],
+    'pmadd':	    config.IMG_DIR_ADD[1:],
+    'pmake':	    config.IMG_DIR_MAKE[1:],
+    'pman':	    config.IMG_DIR_MAN[1:],
+    'pmicon':	    config.IMG_DIR_MAN_ICON[1:],
+    'pmvar':	    config.IMG_DIR_VAR[1:],
+    'ppbook':	    config.IMG_DIR_PROD_BOOK[1:],
+    'ppcode2':	    config.IMG_DIR_PROD_CODE_2[1:],
+    'ppelseg':	    config.IMG_DIR_PROD_EL_SEG[1:],
+    'ppics':	    config.IMG_DIR_PICS[1:],
+    'pplrw':	    config.IMG_DIR_PROD_LRW[1:],
+    'pplsf':	    config.IMG_DIR_PROD_LSF[1:],
+    'ppmtl':	    config.IMG_DIR_PROD_MT_LAUREL[1:],
+    'ppmworld':	    config.IMG_DIR_PROD_MWORLD[1:],
+    'ppodds':	    config.IMG_DIR_PROD_ODDS[1:],
+    'pppack':	    config.IMG_DIR_PROD_PACK[1:],
+    'ppplay':	    config.IMG_DIR_PROD_PLAYSET[1:],
+    'ppprem':	    config.IMG_DIR_PROD_COLL_64[1:],
+    'ppseries':	    config.IMG_DIR_PROD_SERIES[1:],
+    'pptyco':	    config.IMG_DIR_PROD_TYCO[1:],
+    'ppuniv':	    config.IMG_DIR_PROD_UNIV[1:],
+    'psacc':	    config.IMG_DIR_ACC[1:],
+    'psconvoy':	    config.IMG_DIR_CONVOY[1:],
+    'pserror':	    config.IMG_DIR_ERRORS[1:],
+    'psking':	    config.IMG_DIR_KING[1:],
+    'psles':	    config.IMG_DIR_LESNEY[1:],
+    'psmcoll':	    config.IMG_DIR_COLL_43[1:],
+    'pspack':	    config.IMG_DIR_SET_PACK[1:],
+    'psplay':	    config.IMG_DIR_SET_PLAYSET[1:],
+    'pssky':	    config.IMG_DIR_SKY[1:],
+})
 
 
 # ----------------------------------------------------------------------

@@ -120,7 +120,7 @@ of Matchbox International Ltd. and are used with permission.
 </font></center>
 </td></tr></table></center>
 </td><td>
-<center><?php DoTextButtonLink('comment on<br>this page', "pages/comment.php?page==index"); ?></center>
+<center><?php DoTextButtonLink('comment on<br>this page', "pages/comment.php?page=index"); ?></center>
 </td></tr></table>
 <p>
 <table class="loginbar" width=1024><tr><td>

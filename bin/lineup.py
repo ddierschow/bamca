@@ -61,6 +61,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
     if not mdict.get('pdir'):
 	pdir = lsec.get('pic_dir')
 	mdict['pdir'] = pdir = pdir if pdir else pif.render.pic_dir
+    mdict['spdir'] = mbdata.dirs.inverse.get(mdict['pdir'], mdict['pdir'])
 
     if not (lsec['flags'] & config.FLAG_SECTION_NO_FIRSTS) and str(year) == mdict['base_id.first_year']:
 	mdict['class'] = 'revcasting' if mdict['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED else 'newcasting'
@@ -76,7 +77,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['product'] = imgfmt % mdict['number']
         if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
             mdict['is_product_picture'] = 1
-        mdict['href'] = "single.cgi?dir=%(pdir)s&pic=%(product)s&ref=%(ref_id)s&sec=%(sec_id)s&ran=%(ran_id)s&id=%(mod_id)s" % mdict
+        mdict['href'] = "single.cgi?dir=%(spdir)s&pic=%(product)s&ref=%(ref_id)s&sec=%(sec_id)s&ran=%(ran_id)s&id=%(mod_id)s" % mdict
 	mdict['halfstar'] = int(bool(mdict.get('flags', 0) & config.FLAG_LINEUP_MODEL_MULTI_VARS))
     elif mdict['pack.id']:
 	mdict['prod_id'] = mdict['pack.id']

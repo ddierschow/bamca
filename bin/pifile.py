@@ -7,6 +7,7 @@ if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
 import config
 import dbhand
 import logger
+import mbdata
 import render
 import secure
 import useful
@@ -114,6 +115,9 @@ class BaseForm(object):
             return str(self.form[key])
         except:
             return str(defval)
+
+    def get_dir(self, key, defval=''):
+	return mbdata.dirs.get(self.get_str(key, defval), self.get_str(key, defval))
 
     ALFA_RE = re.compile('[^-A-Za-z0-9_ ]+')
 

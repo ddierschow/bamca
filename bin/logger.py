@@ -195,7 +195,7 @@ class Logger(object):
         },
         'url': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
-            'formatter': 'serious',
+            'formatter': 'single',
             'class': 'logging.FileHandler',
             'filename': '/home/bamca/logs/' + env + '.url' + logdate + '.log',
         },
@@ -215,7 +215,7 @@ class Logger(object):
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'informational',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.count.log',
+            'filename': '/home/bamca/logs/' + env + '.count' + logdate + '.log',
         },
         'refer': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),

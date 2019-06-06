@@ -94,7 +94,7 @@ def get_size(fn):
 	l = useful.pipe_chain(open(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], stderr=subprocess.PIPE, verbose=False)
     except IOError:
 	raise useful.SimpleError('Could not read ' + fn)
-    print 'get_size', l
+    #print 'get_size', l
     f = l.split()
     try:
         x = int(f[3])

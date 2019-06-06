@@ -149,7 +149,7 @@ format_attributes = ['format_description', 'format_body', 'format_interior', 'fo
 class MannoFile(object):
     def __init__(self, pif, withaliases=False, madeonly=False):
 	self.madeonly = madeonly
-        self.section = pif.form.get_str('section')
+        self.section = pif.form.get_id('section')
         if self.section == 'all':
             self.section = ''
         self.mod_id = pif.form.get_str('mod_id')
