@@ -345,6 +345,7 @@ class MatrixFile(object):
             comments.add('n')
             ent['not_made'] = 1
             ent['picture_only'] = 1
+	ent['spdir'] = mbdata.dirs.inverse.get(ent['pdir'], ent['pdir'])
 
         ent['href'] = ''
 	if ent['model_type'] == 'MP':
@@ -354,11 +355,11 @@ class MatrixFile(object):
             if img:
                 ent['href'] = '/' + img
         elif ent['vs.ref_id']:
-            ent['href'] = "single.cgi?dir=%(pdir)s&pic=%(link)s&ref=%(vs.ref_id)s&sec=%(vs.sec_id)s&ran=%(vs.ran_id)s&id=%(mod_id)s" % ent
+            ent['href'] = "single.cgi?dir=%(spdir)s&pic=%(link)s&ref=%(vs.ref_id)s&sec=%(vs.sec_id)s&ran=%(vs.ran_id)s&id=%(mod_id)s" % ent
         elif ent.get('var_id'):
             ent['href'] = "vars.cgi?mod=%(mod_id)s&var=%(var_id)s" % ent
 	else:
-            ent['href'] = "single.cgi?dir=%(pdir)s&pic=%(link)s&id=%(mod_id)s" % ent
+            ent['href'] = "single.cgi?dir=%(spdir)s&pic=%(link)s&id=%(mod_id)s" % ent
         vstr = ''
         ent['descriptions'] = filter(None, ent['description'])
         if ent['descriptions'] and (not ent['flags'] & config.FLAG_MODEL_NO_VARIATION):

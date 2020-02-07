@@ -535,6 +535,7 @@ def run_product_pics(pif, region):
         lran['entry'].append(ent)
         for mnum in range(min_num, max_num + 1):
             ifmt, pdir = get_product_image(pages[page], mnum)
+	    spdir = mbdata.dirs.inverse.get(pdir, pdir)
             lmod = lmoddict.get(mnum, {})
             lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', pif.form.get_strl('region'))
             if pic_id:
@@ -546,7 +547,7 @@ def run_product_pics(pif, region):
 	    if not lmod or lmod.get('lineup_model.flags', 0) & config.FLAG_MODEL_NOT_MADE:
 		pic_id = None
 	    halfstar = lmod and lmod.get('lineup_model.flags', 0) & config.FLAG_LINEUP_MODEL_MULTI_VARS
-            lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (pdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
+            lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (spdir, lpic_id, page, '', lmod.get('lineup_model.mod_id', ''))
 	    istar = imglib.format_image_star(pif, product_image_path, product_image_file, pic_id, halfstar)
             ent = {
                 'text': pif.render.format_link(lnk, istar),

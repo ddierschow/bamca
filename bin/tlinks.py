@@ -90,7 +90,7 @@ def format_entry(pif, ent):
             'PayPal': ('Accepts PayPal', '<i class="fab fa-paypal dlm"></i>'),
     }
     is_large = ent['flags'] & config.FLAG_LINK_LINE_FORMAT_LARGE
-    url = ent['url']
+    url = '' if ent['flags'] & config.FLAG_LINK_LINE_DISABLED else ent['url']
     tag = ent['name']
     dlms = []
     if ent['country']:
@@ -308,7 +308,7 @@ def edit_single(pif):
     listCats.append(('single', 'single'))
     table_info = pif.dbh.table_info['link_line']
     link_id = pif.form.get_str('id')
-    if pif.form.get_bool('save'):
+    if pif.form.get_str('save'):
         all_links, highest_disp_order = read_all_links(pif)
         nlink = {x: pif.form.get_str(x) for x in table_info['columns']}
         nlink['flags'] = 0
@@ -323,13 +323,13 @@ def edit_single(pif):
             nlink['last_status'] = 'NoVer'
         pif.dbh.update_link_line(nlink)
         pif.render.message('<br>record saved<br>')
-    elif pif.form.get_bool('test'):
+    elif pif.form.get_str('test'):
         link = pif.dbh.fetch_link_line(link_id)[0]
         check_link(pif, link)  # don't care about blacklist here, just actual check
-    elif pif.form.get_bool('delete'):
+    elif pif.form.get_str('delete'):
         pif.dbh.delete_link_line(link_id)
         return "<br>deleted<br>"
-    elif pif.form.get_bool('reject'):
+    elif pif.form.get_str('reject'):
         nlink = {x: pif.form.get_str(x, '') for x in table_info['columns']}
         nlink['page_id'] = 'links.rejects'
         nlink['display_order'] = 1
@@ -337,7 +337,7 @@ def edit_single(pif):
         nlink['flags'] = 0
         pif.dbh.update_link_line(nlink)
         pif.render.message('<br>record rejected<br>')
-    elif pif.form.get_bool('add'):
+    elif pif.form.get_str('add'):
         link_id = (#pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id', ''), 'section_id': pif.form.get_str('sec')})
 #        pif.form.set_val('id',
 	    pif.dbh.insert_link_line({'page_id': pif.form.get_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
@@ -406,21 +406,20 @@ def edit_single(pif):
     return pif.render.format_template('simplematrix.html', llineup=llineup)
 
 
-def edit_multiple(pif):
+def edit_multiple(pif, good=None):
     table_info = pif.dbh.table_info['link_line']
     page_id = ''
     sec_id = pif.form.get_str('sec', '')
-    if pif.form.get_bool('as'):
+    if pif.form.get_str('as'):
         linklines = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
     elif sec_id == 'new':
         linklines = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_NEW)
     elif sec_id == 'nonf':
         linklines = pif.dbh.fetch_link_lines(where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') and page_id != 'links.rejects' and page_id != 'links.trash' and (flags & 32)=0")
     elif pif.form.get_str('stat'):
-	if pif.form.get_str('stat') == 'None':
-	    linklines = pif.dbh.fetch_link_lines(where="last_status is NULL", order='id')
-	else:
-	    linklines = pif.dbh.fetch_link_lines(where="last_status='%s'" % pif.form.get_str('stat'), order='id')
+	wheres = ["page_id != 'links.rejects' and page_id != 'links.trash'" if good else "page_id='links.rejects' or page_id='links.trash'",
+		  "last_status is NULL" if pif.form.get_str('stat') == 'None' else "last_status='%s'" % pif.form.get_str('stat')]
+	linklines = pif.dbh.fetch_link_lines(where=wheres, order='id')
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
         section = pif.dbh.fetch_section(sec_id)
@@ -462,6 +461,7 @@ def edit_choose(pif):
 	'H410': '(Gone)',
 	'H418': '(Teapot)',
 	'H429': '(Too Many Reqs)',
+	'H451': '(Legal)',
 	'H500': '(Internal Error)',
 	'H502': '(Bad Gateway)',
 	'H503': '(Unavailable)',
@@ -473,14 +473,15 @@ def edit_choose(pif):
 	'U8': '(No DNS)',
 	'exc': '(Exception)',
     }
-    link_statuses = pif.dbh.fetch_link_statuses()
-    link_statuses = {str(x['last_status']): x['count(*)'] for x in link_statuses}
+    ok_link_statuses = {str(x['last_status']): x['count(*)'] for x in pif.dbh.fetch_link_statuses("page_id != 'links.rejects' and page_id != 'links.trash'")}
+    rej_link_statuses = {str(x['last_status']): x['count(*)'] for x in pif.dbh.fetch_link_statuses("page_id='links.rejects' or page_id='links.trash'")}
     #'link_statuses': ["%s (%s)" % (x, reasons.get(x, 'Unknown')) for x in sorted(pif.dbh.fetch_link_statuses())],
     context = {
 	'sections': sorted(pif.dbh.fetch_sections(where="page_id like 'links%'"),
 			key=lambda x: x['section.page_id']),
 	'blacklist': pif.dbh.get_editor_link('blacklist', {}),
-	'link_statuses': link_statuses,
+	'link_statuses': sorted(ok_link_statuses.items()),
+	'link_rejects': sorted(rej_link_statuses.items()),
 	'reasons': reasons,
     }
     return pif.render.format_template('tlinkcats.html', **context)
@@ -490,10 +491,10 @@ def edit_choose(pif):
 @basics.web_page
 def edit_links(pif):
     pif.render.print_html()
-    if pif.form.get_str('id') or pif.form.get_bool('add'):
+    if pif.form.get_str('id') or pif.form.get_str('add'):
 	return edit_single(pif)
     elif pif.form.has_any(['as', 'sec', 'stat', 'page_id']):
-	return edit_multiple(pif)
+	return edit_multiple(pif, good=pif.form.get_str('good'))
     else:
 	return edit_choose(pif)
 

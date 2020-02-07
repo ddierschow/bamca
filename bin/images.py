@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-import glob, logging, os, re, stat, sys, time, traceback
+import glob, logging, os, re, requests, stat, sys, time, traceback
 import basics
 import bfiles
 import config
@@ -30,11 +30,11 @@ images.bits_main
 descriptions_file = os.path.join(config.LOG_ROOT, 'descr.log')
 
 auto_credits = [
-	('mbx-u.com', 'MBXU'),
-	('publicsafetydiecast.com', 'PSDC'),
-	('chezbois.com', 'LW'),
-	('cfalkensteiner.com', 'CF'),
-	('vintagediecasttoys.com', 'AT'),
+    ('mbx-u.com', 'MBXU'),
+    ('publicsafetydiecast.com', 'PSDC'),
+    ('chezbois.com', 'LW'),
+    ('cfalkensteiner.com', 'CF'),
+    ('vintagediecasttoys.com', 'AT'),
 ]
 
 # -- common
@@ -132,12 +132,13 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     useful.write_message(url, '<br>')
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
+    print "Attempting upload...", url, '<br>'
     try:
         up = requests.get(url).text
-    except:
+    except Exception as e:
         if useful.is_header_done():
 	    useful.show_error()
-        return "Error encountered!  File not uploaded."
+        return "Error encountered!  File not uploaded. ({})".format(e)
     if not fn:
         fn = url[url.rfind('/') + 1:].lower()
     elif '.' not in fn:
@@ -194,7 +195,7 @@ class UploadForm(object):
 	self.select = pif.form.get_str('select')
 	self.selsearch = pif.form.get_str('selsearch')
 	self.replace = pif.form.get_bool('replace') and pif.is_allowed('ma')
-	self.mass = pif.form.get_bool('mass')
+	self.mass = pif.form.get_exists('mass')
 	self.act = pif.form.get_int('act')
 	self.y = pif.form.get_str('y') # I have no idea what this does.
 	image = pif.render.find_image_file(self.nfn, pdir=self.tdir.replace('lib', 'pic'), largest='e')
@@ -448,7 +449,7 @@ class EditForm(imglib.ActionForm):
 
     def read(self, pif, edit=False):
 	super(EditForm, self).read(pif.form)
-	self.edit = edit or pif.form.get_bool('edit')
+	self.edit = edit or pif.form.get_exists('edit')
 	self.fn = pif.form.get_str("f", '')
 	self.ot = pif.form.get_str('ot')
 	self.pr = pif.form.get_bool('pr')
@@ -473,14 +474,14 @@ class EditForm(imglib.ActionForm):
 	self.rr = pif.form.get_bool('rr')
 	self.fh = pif.form.get_bool('fh')
 	self.fv = pif.form.get_bool('fv')
-	self.keep = pif.form.get_bool('keep')
-	self.resize = pif.form.get_bool('resize')
-	self.crop = pif.form.get_bool('crop')
-	self.shrink = pif.form.get_bool('shrink')
-	self.wipe = pif.form.get_bool('wipe')
-	self.pad = pif.form.get_bool('pad')
-	self.mass = pif.form.get_bool('mass')
-	self.clean = pif.form.get_bool('clean')
+	self.keep = pif.form.get_exists('keep')
+	self.resize = pif.form.get_exists('resize')
+	self.crop = pif.form.get_exists('crop')
+	self.shrink = pif.form.get_exists('shrink')
+	self.wipe = pif.form.get_exists('wipe')
+	self.pad = pif.form.get_exists('pad')
+	self.mass = pif.form.get_exists('mass')
+	self.clean = pif.form.get_exists('clean')
 	self.repl = pif.form.get_bool('repl')
 	self.save = pif.form.get_bool('save')
 	self.cc = pif.form.get_str('cc')

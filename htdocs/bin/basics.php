@@ -60,9 +60,6 @@ function DBQuery($dbi, $query) {
 	    $ret[] = $row;
 	}
     }
-    echo "<!-- query " . $query . " : ";
-    print_r($ret);
-    echo "-->\n";
     return $ret;
 }
 

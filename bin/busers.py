@@ -86,7 +86,7 @@ def user_main(pif):
 
 @basics.web_page
 def login_main(pif):
-    if pif.form.has('user_id'):
+    if pif.form.has('user_id') and pif.form.has('p'):
 	user = pif.dbh.fetch_user(user_id=pif.form.get_str('user_id'), passwd=pif.form.get_str('p'))
 	if user:
 	    pif.dbh.update_user_last_login(user.id)

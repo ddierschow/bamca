@@ -15,8 +15,13 @@
 <li><a href="edlinks.cgi?sec=single">Single</a>
 <li><a href="edlinks.cgi?as=1">Associables</a><p>
 <li><a href="{{ blacklist }}">Blacklist</a><p>
-{% for stat in link_statuses.items() %}
-<li><a href="edlinks.cgi?stat={{ stat.0 }}">{{ stat.0 }}</a> {{ reasons[stat.0] }} {{ stat.1 }}
+<h3>Good</h3>
+{% for stat in link_statuses %}
+<li><a href="edlinks.cgi?good=1&stat={{ stat.0 }}">{{ stat.0 }}</a> {{ reasons[stat.0] }} {{ stat.1 }}
+{% endfor %}
+<h3>Bad</h3>
+{% for stat in link_rejects %}
+<li><a href="edlinks.cgi?good=0&stat={{ stat.0 }}">{{ stat.0 }}</a> {{ reasons[stat.0] }} {{ stat.1 }}
 {% endfor %}
 </ul>
 </td></tr></table>

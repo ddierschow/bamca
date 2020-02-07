@@ -2,6 +2,7 @@
 
 import functools, httplib, os, sys, time
 import MySQLdb
+import logger
 import useful
 
 
@@ -47,9 +48,13 @@ def simple_html(status=404):
 
 
 def handle_exception(pif, header_done=False, write_traceback=True):
+    logger.Logger().exc.error('%s %s' % (
+        os.environ.get('REMOTE_ADDR', '127.0.0.1'),
+        os.environ.get('REQUEST_URI', 'unknown')))
     str_tb = ''
     if write_traceback:
 	str_tb = write_traceback_file(pif)
+    log_page_call(pif)
     if not pif or not pif.render or not pif.dbh:
 	if not header_done:
 	    simple_html()
@@ -75,6 +80,28 @@ def final_exit():
 #    print "<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>"
 #    print "We'll get things going as soon as possible."
     sys.exit()
+
+
+def log_page_call(pif):
+    if not pif:
+	pass # do something
+    elif not pif.argv and not pif.is_allowed('m'):
+	if os.getenv('HTTP_USER_AGENT', '') in logger.crawlers:
+	    pif.log.bot.info('%s %s' % (pif.remote_addr, pif.request_uri))
+	else:
+	    pif.dbh.increment_counter(pif.page_id)
+	    pif.log.count.info(pif.page_id)
+	    pif.log.url.info('%s %s' % (pif.remote_addr, pif.request_uri))
+	    if os.getenv('HTTP_USER_AGENT'):
+		pif.log.debug.info(os.getenv('HTTP_USER_AGENT'))
+	    refer = os.environ.get('HTTP_REFERER', '')
+	    if refer and not refer.startswith('http://www.bamca.org') and \
+			 not refer.startswith('http://bamca.org') and \
+			 not refer.startswith('http://beta.bamca.org') and \
+			 not refer.startswith('https://www.bamca.org') and \
+			 not refer.startswith('https://bamca.org') and \
+			 not refer.startswith('https://beta.bamca.org'):
+		pif.log.refer.info(refer)
 
 
 # --- Command Lines -----------------------------------------------------
@@ -224,38 +251,37 @@ def web_page(main_fn):
         pif = None
         try:
             import pifile
-            if isinstance(page_id, pifile.PageInfoFile):
-                pif = page_id
-            else:
-                pif = get_page_info(page_id, form_key, defval, args, dbedit)
-		pif.start()
-	    if '/etc/passwd' in os.environ.get('QUERY_STRING', '') or '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower():
-		raise useful.Redirect('https://www.nsa.gov/')
+	    pif = page_id if isinstance(page_id, pifile.PageInfoFile) else get_page_info(page_id, form_key, defval, args, dbedit)
         except SystemExit:
             pass
-	except useful.SimpleError as e:
-	    simple_html(status=e.status)
-	    print useful.render_template('error.html', error=[e.value], page={'tail':''})
-	    if pif:
-		pif.log.debug.error('SimpleError: ' + str(e) + ' - ' + '''%s''' % os.environ.get('REQUEST_URI', ''))
-            handle_exception(pif, True, False)
-            return
+#	except useful.SimpleError as e:
+#	    simple_html(status=e.status)
+#	    print useful.render_template('error.html', error=[e.value], page={'tail':''})
+#	    if pif:
+#		pif.log.debug.error('SimpleError: ' + str(e) + ' - ' + '''%s''' % os.environ.get('REQUEST_URI', ''))
+#            handle_exception(pif, True, False)
+#            return
         except MySQLdb.OperationalError:
 	    simple_html()
             print 'The database is currently down, and thus, this page is unable to be shown.<p>'
 	    str_tb = write_traceback_file(pif)
             handle_exception(pif, True)
             return
-	except useful.Redirect as e:
-	    if not useful.is_header_done():
-		pif.render.print_html()
-	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
-	    return
-        except:
+#	except useful.Redirect as e:
+#	    if not useful.is_header_done():
+#		pif.render.print_html()
+#	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
+#	    return
+        except Exception:
             handle_exception(pif)
             return
 
+	pif.start()
+
 	try:
+	    if ('/etc/passwd' in os.environ.get('QUERY_STRING', '') or
+		    '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower()):
+		raise useful.Redirect('https://www.nsa.gov/')
             ret = main_fn(pif)
 	    if not useful.is_header_done():
 		pif.render.print_html()
@@ -271,18 +297,19 @@ def web_page(main_fn):
 	    print pif.render.format_template('error.html', error=[e.value])
 	except useful.Redirect as e:
 	    if not useful.is_header_done():
-		pif.render.print_html()
+		pif.render.print_html(status=302)
 	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
         except MySQLdb.OperationalError:
 	    if not useful.is_header_done():
-		pif.render.print_html()
-            print 'The database is currently done, and thus, this page is unable to be shown.<p>'
+		pif.render.print_html(status=500)
+            print 'The database is currently down, and thus, this page is unable to be shown.<p>'
 	    str_tb = write_traceback_file(pif)
         except:
             handle_exception(pif)
             raise
 	useful.header_done(True)
 	useful.write_comment()
+	log_page_call(pif)
     return call_main
 
 

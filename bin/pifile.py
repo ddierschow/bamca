@@ -106,9 +106,12 @@ class BaseForm(object):
 
     def get_bool(self, key, defval=False):
         try:
-            return bool(self.form[key])
+            return bool(int(self.form[key]))
         except:
             return bool(defval)
+
+    def get_exists(self, key):
+        return key in self.form
 
     def get_str(self, key, defval=''):
         try:
@@ -265,7 +268,7 @@ class PageInfoFile(object):
 	self.render.is_basic = self.is_allowed('b')
 
     def start(self):
-        self.log_start()
+        #self.log_start()
 	self.set_user_info(self.user_id)
 	self.set_page_info(self.page_id)
         if not self.is_web:

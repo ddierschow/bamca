@@ -1276,7 +1276,10 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
     def fetch_link_lines(self, page_id=None, section=None, where=None, flags=None, not_flags=None, order=None, verbose=False):
         wheres = list()
         if where:
-            wheres.append(where)
+	    if isinstance(where, list):
+		wheres.extend(where)
+	    else:
+		wheres.append(where)
         if page_id:
             wheres.append("page_id='" + page_id + "'")
         if section:
@@ -1297,8 +1300,8 @@ from matrix_model left join casting on (casting.id=matrix_model.mod_id) left joi
             wheres.append("l1.page_id='%s'" % page_id)
         return self.fetch('link_line l1,link_line l2', columns=columns, where=" and ".join(wheres), tag='LinksSingle', order="l1.display_order")
 
-    def fetch_link_statuses(self):
-	return self.fetch('link_line', columns=['last_status', 'count(*)'], group='last_status', tag='LinkStatuses', verbose=True)
+    def fetch_link_statuses(self, where):
+	return self.fetch('link_line', where=where, columns=['last_status', 'count(*)'], group='last_status', tag='LinkStatuses', verbose=True)
 
     #- blacklist
 

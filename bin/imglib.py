@@ -810,22 +810,22 @@ class ActionForm(object):
 	self.ov = form.get_bool('ov', False)
 	self.cpmv = form.get_str('cpmv', 'c')
 	self.mv = self.cpmv == 'm'
-	self.archive = form.get_bool('archive')
-	self.spam = form.get_bool('spam')
-	self.fixed = form.get_bool('fixed')
-	self.delete = form.get_bool('delete')
-	self.trash = form.get_bool('trash')
-	self.selcat = form.get_bool('selcat')
+	self.archive = form.get_exists('archive')
+	self.spam = form.get_exists('spam')
+	self.fixed = form.get_exists('fixed')
+	self.delete = form.get_exists('delete')
+	self.trash = form.get_exists('trash')
+	self.selcat = form.get_exists('selcat')
 	self.dest = form.get_str('moveto')
 	if not self.dest:
 	    if self.tdir.startswith('lib'):
 		self.dest = './' + self.tdir.replace('lib', 'pic')
 	    elif self.tdir.startswith('./lib'):
 		self.dest = self.tdir.replace('lib', 'pic')
-	self.rename = form.get_bool('rename')
+	self.rename = form.get_exists('rename')
 	self.lib = form.get_bool('lib')
 	self.mvbin = form.get_bool('mvbin')
-	self.select = form.get_bool('select')
+	self.select = form.get_exists('select')
 	self.var = form.get_str('newvar')
 	self.suff = form.get_str('suff')
 	if not self.var:

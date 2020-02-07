@@ -153,6 +153,7 @@ def do_single_pack(pif, format_type, pid):
     if not packs:
 	raise useful.SimpleError("That %s doesn't seem to exist." % ('pack' if format_type == 'packs' else 'playset'))
     pif.render.hierarchy_append('', packs[0]['base_id.rawname'].replace(';', ' '))
+    pif.render.print_html()
 
     llineup = dict(section=[], tail=[''], id='')
     for pack in packs:
@@ -261,6 +262,8 @@ def distill_models(pif, pack, page_id):
 
     for mod in model_list:
         mod = pif.dbh.modify_man_item(mod)
+	mod['pdir'] = pif.render.pic_dir
+	mod['spdir'] = mbdata.dirs.inverse.get(mod['pdir'], mod['pdir'])
         sec_ids = ['.', '', pack_id + '.', pack_id + '.' + str(mod['pack_model.display_order'])]
         if (mod['vs.sec_id'] or '') + '.' + (mod['vs.ran_id'] or '') in sec_ids:
             mod['imgl'] = [mbdata.IMG_SIZ_SMALL + '_' + mod['id'], mod['id'], mod['pack_model.mod_id']]
@@ -271,10 +274,9 @@ def distill_models(pif, pack, page_id):
                 mod['vs.ref_id'] = ''
             if not mod.get('vs.sec_id'):
                 mod['vs.sec_id'] = ''
-            mod['pdir'] = pif.render.pic_dir
             mod['pic_id'] = mod['vs.sec_id'] if mod['vs.sec_id'] else mod['pack_model.pack_id']
 	    if mod['pack_model.mod_id'] != 'unknown':
-		mod['href'] = "single.cgi?id=%(pack_model.mod_id)s&dir=%(pdir)s&pic=%(pic_id)s&ref=%(vs.ref_id)s&sec=%(vs.sec_id)s&ran=%(vs.ran_id)s" % mod
+		mod['href'] = "single.cgi?id=%(pack_model.mod_id)s&dir=%(spdir)s&pic=%(pic_id)s&ref=%(vs.ref_id)s&sec=%(vs.sec_id)s&ran=%(vs.ran_id)s" % mod
             #'<a href="single.cgi?dir=%(dir)s&pic=%(link)s&ref=%(vs.ref_id)s&id=%(mod_id)s">' % ent
             #'pack_model.pack_id': 'car02',
         #    if mod['pack_model.var'] and mod['imgl']:  # still not perfect
@@ -388,7 +390,6 @@ def packs_main(pif):
 	    models.add_icons(pif, 'p_' + sec.id, '', '') + '<center>' + sec.name + '</center>')
 
     pif.render.set_page_extra(pif.render.image_selector_js)
-    pif.render.print_html()
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('packs.cgi', 'Multi-Model Packs')
@@ -398,6 +399,7 @@ def packs_main(pif):
 	pid = useful.clean_id(pif.form.get_str('id'))
         return do_single_pack(pif, 'packs', pid)
     elif pif.form.has('page'):
+        pif.render.print_html()
 	return make_pack_list(pif, 'packs',
 		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
 		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
@@ -406,11 +408,14 @@ def packs_main(pif):
 	#useful.write_comment(pif.form)
 	sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
 	if not sections:
+            pif.render.print_html()
 	    return models.make_page_list(pif, 'packs', fmt_link)
 	pif.page_id = sections[0].page_info.id
+        pif.render.print_html()
 	return make_pack_list(pif, 'packs',
 		    verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
 		    **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
+    pif.render.print_html()
     return models.make_page_list(pif, 'packs', fmt_link)
 
 #---- play ----------------------------------
