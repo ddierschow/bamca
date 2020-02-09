@@ -1,254 +1,25 @@
 #!/usr/local/bin/python
 
-import datetime, os, sys
+import datetime
+import os
 import logging
 import logging.config
 import config
 
-crawlers = [  # precluded from normal url tracking
-
-    "'Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)'",
-    ": Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
-    "Aboundex/0.3 (http://www.aboundex.com/crawler/)",
-    "ArchiveTeam ArchiveBot/20170510.02 (wpull 2.0.2) and not Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36",
-    "Avant Browser (http://www.avantbrowser.com)",
-    "AwarioSmartBot/1.0 (+https://awario.com/bots.html; bots@awario.com)",
-    "BacklinkCrawler (http://www.backlinktest.com/crawler.html)",
-    "Baiduspider+(+http://www.baidu.com/search/spider.htm) ",
-    "BublupBot (+http://www.bublup.com)",
-    "BublupBot (+https://www.bublup.com/bublup-bot.html)",
-    "CCBot/2.0 (http://commoncrawl.org/faq/)",
-    "CCBot/2.0 (https://commoncrawl.org/faq/)",
-    "Curious George - www.analyticsseo.com/crawler",
-    "DJEcoBot/1.0 (http://demandjump.com/; analytics@demandjump.com)",
-    "DoCoMo/2.0 N905i(c100;TB;W24H16) (compatible; Googlebot-Mobile/2.1; +http://www.google.com/bot.html)",
-    "Domain Re-Animator Bot (http://domainreanimator.com) - support@domainreanimator.com",
-    "DomainStatsBot/1.0 (http://domainstats.io/our-bot)",
-    "DomainStatsBot/1.0 (https://domainstats.com/pages/our-bot)",
-    "FAST Enterprise Crawler 6 / Scirus scirus-crawler@fast.no; http://www.scirus.com/srsapp/contactus/ ",
-    "FAST MetaWeb Crawler (helpdesk at fastsearch dot com) ",
-    "GG PeekBot 2.0 ( http://gg.pl/ http://info.gadu-gadu.pl/praca )",
-    "GarlikCrawler/1.2 (http://garlik.com/, crawler@garlik.com)",
-    "GetIntent Crawler (http://getintent.com/bot.html)",
-    "Googlebot-Image/1.0 ",
-    "Googlebot-Image/1.0",
-    "Googlebot/2.1 (+http://www.google.com/bot.html) ",
-    "Googlebot/2.1 (+http://www.google.com/bot.html)",
-    "Googlebot/2.1 (+http://www.googlebot.com/bot.html)",
-    "Java/1.6.0_04",
-    "Java/1.8.0_40",
-    "Kyoto-Tohoku-Crawler/v1 (Mozilla-compatible; kyoto-crawler-contact@nlp.ist.i.kyoto-u.ac.jp; http://nlp.ist.i.kyoto-u.ac.jp/?crawling-kt)",
-    "Linguee Bot (http://www.linguee.com/bot; bot@linguee.com)",
-    "MBCrawler/1.0 (https://monitorbacklinks.com/robot)",
-    "MauiBot (crawler.feedback+dc@gmail.com)",
-    "MauiBot (crawler.feedback+wc@gmail.com)",
-    "Mediatoolkitbot (complaints@mediatoolkit.com)",
-    "Mozilla/4.0 (compatible; MSIE 5.0; Windows 95) VoilaBot BETA 1.2 (http://www.voila.com/) ",
-    "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.0 ; Claritybot)",
-    "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html) ",
-    "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-    "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Pinterestbot/1.0; +http://www.pinterest.com/bot.html)",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/600.2.5 (KHTML, like Gecko) Version/8.0.2 Safari/600.2.5 (Applebot/0.1; +http://www.apple.com/go/applebot)",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/601.2.4 (KHTML, like Gecko) Version/9.0.1 Safari/601.2.4 facebookexternalhit/1.1 Facebot Twitterbot/1.0",
-    "Mozilla/5.0 (TweetmemeBot/4.0; +http://datasift.com/bot.html) Gecko/20100101 Firefox/31.0",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36 (compatible; SMTBot/1.0; +http://www.similartech.com/smtbot)",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; BDCbot/1.0; +http://bigweb.bigdatacorp.com.br/faq.aspx) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy) ",
-    "Mozilla/5.0 (Windows NT 6.1) (compatible; SMTBot/1.0; +http://www.similartech.com/smtbot)",
-    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534+ (KHTML, like Gecko) BingPreview/1.0b ",
-    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; +http://www.komodia.com/newwiki/index.php/URL_server_crawler) KomodiaBot/1.0",
-    "Mozilla/5.0 (Windows NT 6.1; compatible; BDCbot/1.0; +http://bigweb.bigdatacorp.com.br/faq.aspx) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 6.1; rv:38.0) Gecko/20100101 Firefox/38.0 (IndeedBot 1.1)",
-    "Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv 11.0) like Gecko (compatible; Zombiebot/2.1; +http://www.zombiedomain.net/robot/)",
-    "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.6) Gecko/20070725 Firefox/2.0.0.6 - James BOT - WebCrawler http://cognitiveseo.com/bot.html",
-    "Mozilla/5.0 (Windows; U; Windows NT 5.1; fr; rv:1.8.1) VoilaBot BETA 1.2 (http://www.voila.com/) ",
-    "Mozilla/5.0 (Windows; U; Windows NT 5.1; fr; rv:1.8.1) VoilaBot BETA 1.2 (support.voilabot@orange-ftgroup.com) ",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.75 Safari/537.36 Google Favicon ",
-    "Mozilla/5.0 (compatible; 007ac9 Crawler; http://crawler.007ac9.net/)",
-    "Mozilla/5.0 (compatible; AhrefsBot/4.0; +http://ahrefs.com/robot/) ",
-    "Mozilla/5.0 (compatible; AhrefsBot/5.0; +http://ahrefs.com/robot/) ",
-    "Mozilla/5.0 (compatible; AhrefsBot/5.0; +http://ahrefs.com/robot/)",
-    "Mozilla/5.0 (compatible; AhrefsBot/5.1; +http://ahrefs.com/robot/) ",
-    "Mozilla/5.0 (compatible; AhrefsBot/5.1; +http://ahrefs.com/robot/)",
-    "Mozilla/5.0 (compatible; AhrefsBot/5.2; +http://ahrefs.com/robot/) ",
-    "Mozilla/5.0 (compatible; AhrefsBot/5.2; +http://ahrefs.com/robot/)",
-    "Mozilla/5.0 (compatible; AhrefsBot/6.1; +http://ahrefs.com/robot/)",
-    "Mozilla/5.0 (compatible; AlphaBot/3.2; +http://alphaseobot.com/bot.html)",
-    "Mozilla/5.0 (compatible; Applebot/0.3; +http://www.apple.com/go/applebot)",
-    "Mozilla/5.0 (compatible; BLEXBot/1.0; +http://webmeup-crawler.com/)",
-    "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html) ",
-    "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",
-    "Mozilla/5.0 (compatible; Bingbot/2.0; +http://www.bing.com/bingbot.htm)",
-    "Mozilla/5.0 (compatible; Cliqzbot/1.0 +http://cliqz.com/company/cliqzbot)",
-    "Mozilla/5.0 (compatible; Cliqzbot/1.0; +http://cliqz.com/company/cliqzbot)",
-    "Mozilla/5.0 (compatible; Cliqzbot/2.0; +http://cliqz.com/company/cliqzbot)",
-    "Mozilla/5.0 (compatible; DeuSu/5.0.2; +https://deusu.de/robot.html)",
-    "Mozilla/5.0 (compatible; DnyzBot/1.0)",
-    "Mozilla/5.0 (compatible; DotBot/1.1; http://www.dotnetdotcom.org/, crawler@dotnetdotcom.org) ",
-    "Mozilla/5.0 (compatible; DotBot/1.1; http://www.opensiteexplorer.org/dotbot, help@moz.com) ",
-    "Mozilla/5.0 (compatible; DotBot/1.1; http://www.opensiteexplorer.org/dotbot, help@moz.com)",
-    "Mozilla/5.0 (compatible; DuckDuckBot-Https/1.1; https://duckduckgo.com/duckduckbot)",
-    "Mozilla/5.0 (compatible; DuckDuckGo-Favicons-Bot/1.0; +http://duckduckgo.com) ",
-    "Mozilla/5.0 (compatible; EECS398 bot; +eecs398.contact@gmail.com)",
-    "Mozilla/5.0 (compatible; Exabot/3.0; +http://www.exabot.com/go/robot) ",
-    "Mozilla/5.0 (compatible; Exabot/3.0; +http://www.exabot.com/go/robot)",
-    "Mozilla/5.0 (compatible; ExtLinksBot/1.5 +https://extlinks.com/Bot.html)",
-    "Mozilla/5.0 (compatible; ExtLinksBot/1.5; +https://extlinks.com/Bot.html)",
-    "Mozilla/5.0 (compatible; FemtosearchBot/1.0; http://femtosearch.com)",
-    "Mozilla/5.0 (compatible; Findxbot/1.0; +http://www.findxbot.com)",
-    "Mozilla/5.0 (compatible; Go-http-client/1.1; +centurybot9@gmail.com)",
-    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://import.io)",
-    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html) ",
-    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-    "Mozilla/5.0 (compatible; Googlebot/2.1;+http://www.google.com/bot.html)",
-    "Mozilla/5.0 (compatible; GrapeshotCrawler/2.0; +http://www.grapeshot.co.uk/crawler.php)",
-    "Mozilla/5.0 (compatible; Grobbot/2.2; +https://grob.it)",
-    "Mozilla/5.0 (compatible; IstellaBot/1.23.15 +http://www.tiscali.it/)",
-    "Mozilla/5.0 (compatible; Konqueror/3.5; Linux) KHTML/3.5.5 (like Gecko) (Exabot-Thumbnails) ",
-    "Mozilla/5.0 (compatible; LinkpadBot/1.07; +http://www.linkpad.ru)",
-    "Mozilla/5.0 (compatible; LinkpadBot/1.12; +http://www.linkpad.ru)",
-    "Mozilla/5.0 (compatible; Linux x86_64; Mail.RU_Bot/2.0; +http://go.mail.ru/help/robots)",
-    "Mozilla/5.0 (compatible; MJ12bot/v1.4.3; http://www.majestic12.co.uk/bot.php?+) ",
-    "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+) ",
-    "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)",
-    "Mozilla/5.0 (compatible; MJ12bot/v1.4.7; http://mj12bot.com/) ",
-    "Mozilla/5.0 (compatible; MJ12bot/v1.4.7; http://mj12bot.com/)",
-    "Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/) ",
-    "Mozilla/5.0 (compatible; MJ12bot/v1.4.8; http://mj12bot.com/)",
-    "Mozilla/5.0 (compatible; MegaIndex.ru/2.0; +http://megaindex.com/crawler)",
-    "Mozilla/5.0 (compatible; MetaJobBot; http://www.metajob.de/crawler)",
-    "Mozilla/5.0 (compatible; MixrankBot; crawler@mixrank.com)",
-    "Mozilla/5.0 (compatible; NetSeer crawler/2.0; +http://www.netseer.com/crawler.html; crawler@netseer.com)",
-    "Mozilla/5.0 (compatible; OmnizensBot/1.1)",
-    "Mozilla/5.0 (compatible; Pinterestbot/1.0; +http://www.pinterest.com/bot.html)",
-    "Mozilla/5.0 (compatible; Plukkie/1.6; http://www.botje.com/plukkie.htm)",
-    "Mozilla/5.0 (compatible; Qwantify/Bleriot/1.1; +https://help.qwant.com/bot)",
-    "Mozilla/5.0 (compatible; RSSMicro.com RSS/Atom Feed Robot)",
-    "Mozilla/5.0 (compatible; SEOdiver/1.0; +http://www.seodiver.com/bot)",
-    "Mozilla/5.0 (compatible; SEOkicks-Robot +http://www.seokicks.de/robot.html)",
-    "Mozilla/5.0 (compatible; SEOkicks-Robot; +http://www.seokicks.de/robot.html)",
-    "Mozilla/5.0 (compatible; SEOkicks-Robot; +https://www.seokicks.de/robot.html)",
-    "Mozilla/5.0 (compatible; SEOkicks; +https://www.seokicks.de/robot.html)",
-    "Mozilla/5.0 (compatible; SMTBot/1.0; +http://www.similartech.com/smtbot)",
-    "Mozilla/5.0 (compatible; SemrushBot-BA; +http://www.semrush.com/bot.html)",
-    "Mozilla/5.0 (compatible; SemrushBot-BM/1.0; +http://www.semrush.com/bot.html)",
-    "Mozilla/5.0 (compatible; SemrushBot/0.99~bl; +http://www.semrush.com/bot.html)",
-    "Mozilla/5.0 (compatible; SemrushBot/1.0~bm; +http://www.semrush.com/bot.html)",
-    "Mozilla/5.0 (compatible; SemrushBot/1.1~bl; +http://www.semrush.com/bot.html)",
-    "Mozilla/5.0 (compatible; SemrushBot/1.2~bl; +http://www.semrush.com/bot.html)",
-    "Mozilla/5.0 (compatible; SemrushBot/1~bl; +http://www.semrush.com/bot.html)",
-    "Mozilla/5.0 (compatible; SeznamBot/3.2-test1-1; +http://napoveda.seznam.cz/en/seznambot-intro/)",
-    "Mozilla/5.0 (compatible; SeznamBot/3.2-test1; +http://fulltext.sblog.cz/)",
-    "Mozilla/5.0 (compatible; SeznamBot/3.2-test1; +http://napoveda.seznam.cz/en/seznambot-intro/)",
-    "Mozilla/5.0 (compatible; SeznamBot/3.2; +http://fulltext.sblog.cz/)",
-    "Mozilla/5.0 (compatible; SeznamBot/3.2; +http://napoveda.seznam.cz/en/seznambot-intro/)",
-    "Mozilla/5.0 (compatible; WBSearchBot/1.1; +http://www.warebay.com/bot.html)",
-    "Mozilla/5.0 (compatible; XoviBot/2.0; +http://www.xovibot.net/)",
-    "Mozilla/5.0 (compatible; YaK/1.0; http://linkfluence.com/; bot@linkfluence.com)",
-    "Mozilla/5.0 (compatible; Yahoo! Slurp/3.0; http://help.yahoo.com/help/us/ysearch/slurp) ",
-    "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp) ",
-    "Mozilla/5.0 (compatible; Yahoo! Slurp; http://help.yahoo.com/help/us/ysearch/slurp)",
-    "Mozilla/5.0 (compatible; YandexAccessibilityBot/3.0; +http://yandex.com/bots)",
-    "Mozilla/5.0 (compatible; YandexAntivirus/2.0; +http://yandex.com/bots)",
-    "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots) ",
-    "Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)",
-    "Mozilla/5.0 (compatible; YandexImages/3.0; +http://yandex.com/bots)",
-    "Mozilla/5.0 (compatible; Yeti/1.1; +http://naver.me/bot)",
-    "Mozilla/5.0 (compatible; aiHitBot/2.9; +https://www.aihitdata.com/about)",
-    "Mozilla/5.0 (compatible; archive.org_bot +http://www.archive.org/details/archive.org_bot)",
-    "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) ",
-    "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)",
-    "Mozilla/5.0 (compatible; eright/1.0; +bot@eright.com)",
-    "Mozilla/5.0 (compatible; linkdexbot/2.0; +http://www.linkdex.com/bots/)",
-    "Mozilla/5.0 (compatible; linkdexbot/2.2; +http://www.linkdex.com/bots/)",
-    "Mozilla/5.0 (compatible; spbot/4.4.2; +http://OpenLinkProfiler.org/bot )",
-    "Mozilla/5.0 (compatible; spbot/5.0.1; +http://OpenLinkProfiler.org/bot )",
-    "Mozilla/5.0 (compatible; spbot/5.0.2; +http://OpenLinkProfiler.org/bot )",
-    "Mozilla/5.0 (compatible; spbot/5.0.3; +http://OpenLinkProfiler.org/bot )",
-    "Mozilla/5.0 (compatible; spbot/5.0; +http://OpenLinkProfiler.org/bot )",
-    "Mozilla/5.0 (compatible; yoozBot-2.2; http://yooz.ir; info@yooz.ir)",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25 (compatible; Applebot/0.3; +http://www.apple.com/go/applebot)",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25 (compatible; Googlebot/2.1; +http://www.google.com/bot.html) ",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0;  http://www.bing.com/bingbot.htm)",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm) ",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 BingPreview/1.0b ",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 8_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12B411 Safari/600.1.4 (compatible; YandexMobileBot/3.0; +http://yandex.com/bots)",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html) ",
-    "Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) Version/8.0 Mobile/12F70 Safari/600.1.4 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-    "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_1 like Mac OS X; en-us) AppleWebKit/532.9 (KHTML, like Gecko) Version/4.0.5 Mobile/8B117 Safari/6531.22.7 (compatible; Googlebot-Mobile/2.1; +http://www.google.com/bot.html) ",
-    "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Safari/537.36 ",
-    "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; Googlebot/2.1; +http://www.google.com/bot.html) Safari/537.36",
-    "Mozilla/5.0+(compatible;+PiplBot;+http://www.pipl.com/bot/)/Nutch-1.14-SNAPSHOT",
-    "NextGenSearchBot 1 (for information visit http://www.zoominfo.com/About/misc/NextGenSearchBot.aspx)",
-    "NinjaBot/2.0 (+http://www.imninjas.com)",
-    "Personal Private Crawler; You can block this crawler by the UserAgent; regex(PPC2938731);",
-    "Pinterest/0.2 (+http://www.pinterest.com/) ",
-    "PiplBot (+http://www.pipl.com/bot/)",
-    "SAMSUNG-SGH-E250/1.0 Profile/MIDP-2.0 Configuration/CLDC-1.1 UP.Browser/6.2.3.3.c.1.101 (GUI) MMP/2.0 (compatible; Googlebot-Mobile/2.1; +http://www.google.com/bot.html)",
-    "SafeAds.xyz bot",
-    "SafeDNS search bot/Nutch-1.9 (https://www.safedns.com/searchbot; support [at] safedns [dot] com)",
-    "SafeDNSBot (https://www.safedns.com/searchbot)",
-    "SafeSearch microdata crawler (https://safesearch.avira.com, safesearch-abuse@avira.com)",
-    "See https://meta.wikimedia.org/wiki/InternetArchiveBot/FAQ_for_sysadmins",
-    "SerankingPageAuditBot",
-    "SiteSucker/2.4.6",
-    "Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07) ",
-    "Spiderbot/Nutch-1.7",
-    "Thither.Direct Bot/0.0.1",
-    "TurnitinBot (https://turnitin.com/robot/crawlerinfo.html)",
-    "WebCrawler http://cognitiveseo.com/bot.html",
-    "WordChampBot",
-    "Wotbox/2.01 (+http://www.wotbox.com/bot/)",
-    "Y!J-ASR/0.1 crawler (http://www.yahoo-help.jp/app/answers/detail/p/595/a_id/42716/)",
-    "Yahoo-MMCrawler/3.x (mms dash mmcrawler dash support at yahoo dash inc dot com) ",
-    "YahooMailProxy; https://help.yahoo.com/kb/yahoo-mail-proxy-SLN28749.html ",
-    "ZoomBot (Linkbot 1.0 http://suite.seozoom.it/bot.html)",
-    "ZoominfoBot (zoominfobot at zoominfo dot com)",
-    "betaBot",
-    "bhcBot",
-    "crawler4j (http://code.google.com/p/crawler4j/)",
-    "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php) ",
-    "ia_archiver ",
-    "ia_archiver",
-    "istellabot-nutch/Nutch-1.10",
-    "istellabot/Nutch-1.10",
-    "istellabot/Nutch-1.11",
-    "istellabot/t.1",
-    "istellabot/t.1.13",
-    "linkapediabot (+http://www.linkapedia.com)",
-    "msnbot-media/1.0 (+http://search.msn.com/msnbot.htm) ",
-    "msnbot-media/1.1 (+http://search.msn.com/msnbot.htm) ",
-    "msnbot/0.01 (+http://search.msn.com/msnbot.htm) ",
-    "msnbot/0.3 (+http://search.msn.com/msnbot.htm) ",
-    "msnbot/1.0 (+http://search.msn.com/msnbot.htm) ",
-    "msnbot/1.1 (+http://search.msn.com/msnbot.htm) ",
-    "msnbot/2.0b (+http://search.msn.com/msnbot.htm) ",
-    "msnbot/2.0b (+http://search.msn.com/msnbot.htm)",
-    "tbot-nutch/Nutch-1.10",
-    "webcrawler101/Nutch-1.9",
-
-]
-
-# you were looking for pretty?  hah.
-class Logger(object):
-    def __init__(self):
-	logdate = datetime.datetime.now().strftime('%Y%m')
-
-	env = config.ENV
-	LOGGING = {
+logdate = datetime.datetime.now().strftime('%Y%m')
+logging_config = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'single': {
-            'format': '%(asctime)s [%(process)d] %(levelname)s ' + str(config.USER_ID) + ' - %(message)s',
+            'format': '%(asctime)s [%(process)d] %(levelname)s {} - %(message)s'.format(config.USER_ID),
         },
         'serious': {
-            'format': '%(asctime)s [%(process)d] %(levelname)s ' + str(config.USER_ID) + ' %(filename)s:%(lineno)d - %(message)s',
+            'format': '%(asctime)s [%(process)d] %(levelname)s {} %(filename)s:%(lineno)d - %(message)s'.format(
+                config.USER_ID),
         },
         'informational': {
-            'format': '%(asctime)s %(levelname)s ' + str(config.USER_ID) + ' - %(message)s',
+            'format': '%(asctime)s %(levelname)s {} - %(message)s'.format(config.USER_ID),
         },
     },
     'handlers': {
@@ -261,61 +32,61 @@ class Logger(object):
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'informational',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.file.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.file.log',
         },
         'upload': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'informational',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.upload.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.upload.log',
         },
         'exc': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'single',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.exc' + logdate + '.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.exc' + logdate + '.log',
         },
         'url': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'single',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.url' + logdate + '.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.url' + logdate + '.log',
         },
         'dbq': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'single',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.dbq' + logdate + '.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.dbq' + logdate + '.log',
         },
         'bot': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'serious',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.bot' + logdate + '.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.bot' + logdate + '.log',
         },
         'count': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'informational',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.count' + logdate + '.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.count' + logdate + '.log',
         },
         'refer': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'informational',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.refer.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.refer.log',
         },
         'debug': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'serious',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.debug.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.debug.log',
         },
         'root': {
             'level': os.environ.get('LOG_LEVEL', 'INFO'),
             'formatter': 'serious',
             'class': 'logging.FileHandler',
-            'filename': '/home/bamca/logs/' + env + '.root.log',
+            'filename': '/home/bamca/logs/' + config.ENV + '.root.log',
         },
         'devnull': {
             'level': 'CRITICAL',
@@ -387,17 +158,22 @@ class Logger(object):
     },
 }
 
-	logging.config.dictConfig(LOGGING)
 
-        self.console	= logging.getLogger('console')
-        self.file	= logging.getLogger('file')
-        self.upload	= logging.getLogger('upload')
-        self.exc	= logging.getLogger('exc')
-        self.url	= logging.getLogger('url')
-        self.dbq	= logging.getLogger('dbq')
-        self.bot	= logging.getLogger('bot')
-        self.count	= logging.getLogger('count')
-        self.refer	= logging.getLogger('refer')
-        self.debug	= logging.getLogger('debug')
-	self.root	= logging.getLogger('root')
-	self.devnull	= logging.getLogger('devnull')
+# you were looking for pretty?  hah.
+class Logger(object):
+    def __init__(self):
+
+        logging.config.dictConfig(logging_config)
+
+        self.console = logging.getLogger('console')
+        self.file = logging.getLogger('file')
+        self.upload = logging.getLogger('upload')
+        self.exc = logging.getLogger('exc')
+        self.url = logging.getLogger('url')
+        self.dbq = logging.getLogger('dbq')
+        self.bot = logging.getLogger('bot')
+        self.count = logging.getLogger('count')
+        self.refer = logging.getLogger('refer')
+        self.debug = logging.getLogger('debug')
+        self.root = logging.getLogger('root')
+        self.devnull = logging.getLogger('devnull')

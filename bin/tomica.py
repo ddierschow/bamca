@@ -2,12 +2,13 @@
 # small: 200x120
 # large: 300x180
 
-import os
+from __future__ import print_function
 import basics
 import bfiles
 import config
 import models
 import useful
+
 
 # interprets "manno.dat"
 class MannoFile(bfiles.ArgFile):
@@ -60,7 +61,6 @@ class MannoFile(bfiles.ArgFile):
             self.sdict = {}
 
 
-
 def get_man_item(llist, data=None):
     if not isinstance(llist, dict):
         mod = dict(zip(data, llist[1:]))
@@ -88,8 +88,8 @@ def get_man_item(llist, data=None):
         mod['notmade'] = '*'
         mod['id'] = mod['id'][:-1]
         mod['descs'].append('Not made')
-    #mod['link'] = linkurl[linky]
-    #mod['linkid'] = linkids[linky](mod)
+    # mod['link'] = linkurl[linky]
+    # mod['linkid'] = linkids[linky](mod)
     return mod
 
 
@@ -101,16 +101,16 @@ def type_match(t1, t2):
 
 
 def show_section(pif, manf, sect, start=None, end=None, year=None):
-    print '<hr><center><h3 id="%s">%s</h3></center>' % (sect['label'], sect['title'])
+    print('<hr><center><h3 id="%s">%s</h3></center>' % (sect['label'], sect['title']))
     if sect['comment']:
-        print '\n'.join(sect['comment']) + '<br>'
+        print('\n'.join(sect['comment']) + '<br>')
     shown = 0
     cols = 4
     this_year = None
     for i in range(len(sect['models']) - 1, -1, -1):
         sect['models'][i]['last_year'] = this_year
-	this_year = None if sect['models'][i]['subid'].isdigit() and int(sect['models'][i]['subid']) == 1 \
-	    else sect['models'][i]['first_year']
+        this_year = None if sect['models'][i]['subid'].isdigit() and int(sect['models'][i]['subid']) == 1 \
+            else sect['models'][i]['first_year']
 
     for slist in sect['models']:
 
@@ -127,30 +127,30 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
                 continue
 
         if year and slist['last_year'] and (year < int(slist['first_year']) or year > int(slist['last_year'])):
-	    continue
+            continue
 
         slist['link'] = "/cgi-bin/upload.cgi?d=./pic/tomica&r"
         slist['linkid'] = 's_' + slist['id'].lower()
         slist['descs'] = slist.get('desc', '').split(';')
 
         if shown == 0:
-            print "<center><table><tr align=top>"
+            print("<center><table><tr align=top>")
         shown += 1
-        print " <td valign=top width=%d>" % 200
-        print models.add_model_table_pic_link(pif, slist)
-        print " </td>"
+        print(" <td valign=top width=%d>" % 200)
+        print(models.add_model_table_pic_link(pif, slist))
+        print(" </td>")
         if (shown == cols):
-            print "</tr></table></center>\n"
+            print("</tr></table></center>\n")
             shown = 0
 
     if shown:
-        print "</tr></table></center>\n"
+        print("</tr></table></center>\n")
 
 
 def show_section_list(pif, sect):
     cols = 3
-    print '<table class="smallprint pagebreak" width="100%" id="%s">' % sect['label']
-    print '<tr><td colspan=%d style="text-align: center; font-weight: bold;">%s</td></tr>' % (4 * cols, sect['name'])
+    print('<table class="smallprint pagebreak" width="100%" id="%s">' % sect['label'])
+    print('<tr><td colspan=%d style="text-align: center; font-weight: bold;">%s</td></tr>' % (4 * cols, sect['name']))
     inmods = filter(lambda x: x['subid'] != 'X', sect['models'])
     mods = []
     mpc = len(inmods) / cols
@@ -160,24 +160,24 @@ def show_section_list(pif, sect):
         mods.append(inmods[col * mpc:(col + 1) * mpc])
 
     while True:
-        print ' <tr>'
+        print(' <tr>')
         found = False
         for col in range(0, cols):
             if mods[col]:
                 slist = mods[col].pop(0)
                 slist['shortname'] = slist['name']
-                print models.add_model_table_list_entry(pif, slist)
+                print(models.add_model_table_list_entry(pif, slist))
                 found = True
-        print ' </tr>'
+        print(' </tr>')
         if not found:
             break
 
-    print '<tr>'
+    print('<tr>')
     for col in range(0, cols):
-        print '<td colspan=4 width=%d%%>&nbsp;</td>' % (100 / cols)
-    print '</tr>'
+        print('<td colspan=4 width=%d%%>&nbsp;</td>' % (100 / cols))
+    print('</tr>')
 
-    print "</table>"
+    print("</table>")
     print
 
 
@@ -190,7 +190,6 @@ def run_file(pif, manf, start=0, end=9999, year=None):
         show_section_list(pif, sect)
 
 
-
 '''<style>
 @media print
 {
@@ -199,17 +198,18 @@ table {page-break-inside:avoid}
 </style>
 '''
 
+
 @basics.web_page
 def main(pif):
     pif.render.print_html()
-    print pif.render.format_head()
+    print(pif.render.format_head())
     useful.header_done()
     manf = MannoFile(useful.relpath(config.SRC_DIR, 'tomica.dat'))
-    mans = manf.dictlist
+    # mans = manf.dictlist
     if pif.form.has('num'):
-        print '<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form.get_str('num')
+        print('<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form.get_str('num'))
         return
     else:
         run_file(pif, manf, year=pif.form.get_str('year'))
-        #print pif.render.format_matrix(llineup)
-    print pif.render.format_tail()
+        # print(pif.render.format_matrix(llineup))
+    print(pif.render.format_tail())

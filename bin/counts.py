@@ -1,21 +1,25 @@
 #!/usr/local/bin/python
 
-import copy, glob, os, re, sys
+from __future__ import print_function
+from io import open
+import glob
+import os
+import re
 import basics
 import config
 import imglib
 import lineup
 import mbdata
-import prints
+import multip
 
 
 # Start here
 
-href_re = re.compile('''<a href=".*?">''')
+href_re = re.compile(r'''<a href=".*?">''')
 
 
 def report(area, im_count, pr_count=0):
-    print "%-23s %6d / %6d" % (area, im_count, pr_count)
+    print("%-23s %6d / %6d" % (area, im_count, pr_count))
 
 
 def count_html(fpath):
@@ -97,7 +101,7 @@ def get_years(pif, region, ystart, yend, pr_count, im_count):
         count = get_year(pif, region, year)
         pr_count += count[0]
         im_count += count[1]
-        print "    %s  %s  %-4d / %-4d" % (year, region, count[1], count[0])
+        print("    %s  %s  %-4d / %-4d" % (year, region, count[1], count[0]))
     return pr_count, im_count
 
 
@@ -106,7 +110,6 @@ def count_lineups(pif):
     answer = pif.dbh.dbi.rawquery("select min(year), max(year) from lineup_model")[0]
     ystart = int(answer['min(year)'])
     yend = int(answer['max(year)'])
-    dircheck = {}
     pr_count, im_count = get_years(pif, 'W', ystart, 1970, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'U', 1971, yend, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'R', 1971, yend, pr_count, im_count)
@@ -115,13 +118,14 @@ def count_lineups(pif):
     pr_count, im_count = get_years(pif, 'B', 2000, 2001, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'A', 2000, 2001, pr_count, im_count)
     report("lineups", im_count, pr_count)
-    return count
+    return 0  # count
 
 
 def count_pub(pif):
     recs = pif.dbh.fetch_publications()
     count = 0
-    count += count_combo(config.IMG_DIR_CAT, [mbdata.IMG_SIZ_SMALL, ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
+    count += count_combo(
+        config.IMG_DIR_CAT, [mbdata.IMG_SIZ_SMALL, ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
     count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
@@ -129,8 +133,12 @@ def count_pub(pif):
 def count_pack(pif):
     recs = pif.dbh.fetch_packs()
     count = 0
-    count += count_combo_one_only(config.IMG_DIR_PROD_PACK, [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_PETITE, mbdata.IMG_SIZ_MEDIUM], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_PROD_PACK, [mbdata.IMG_SIZ_LARGE, mbdata.IMG_SIZ_HUGE], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo_one_only(
+        config.IMG_DIR_PROD_PACK,
+        [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_PETITE, mbdata.IMG_SIZ_MEDIUM],
+        [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_PROD_PACK, [mbdata.IMG_SIZ_LARGE, mbdata.IMG_SIZ_HUGE], [x['base_id.id'].lower()
+                         for x in recs], [''])
     count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
@@ -138,8 +146,10 @@ def count_pack(pif):
 def count_man(pif):
     recs = pif.dbh.fetch_casting_list()
     count = 0
-    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE, 'z'], [x['base_id.id'].lower() for x in recs], [''])
-    count += count_combo(config.IMG_DIR_ADD, ['a', 'b', 'e', 'i', 'p', 'r'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE, 'z'],
+                         [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(
+        config.IMG_DIR_ADD, ['a', 'b', 'e', 'i', 'p', 'r'], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_MAN_ICON, ['i'], [x['base_id.id'].lower() for x in recs], [''])
     return count
 
@@ -158,7 +168,7 @@ def count_var(pif):
 
 
 def count_box(pif):
-    pr_count, im_count = package.count_boxes(pif)
+    pr_count, im_count = multip.count_boxes(pif)
     report("box", im_count, pr_count)
     return im_count
 

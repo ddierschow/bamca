@@ -1,7 +1,10 @@
 #!/usr/local/bin/python
 
-import MySQLdb, datetime, os, sys, traceback
-import config
+from __future__ import print_function
+import MySQLdb
+import os
+import sys
+import traceback
 import useful
 
 
@@ -15,11 +18,12 @@ class DB(object):
         self.verbose = verbose
         self.user_id = user_id
         self.nowrites = False
-	self.logger = db_logger
+        self.logger = db_logger
         if cfg['dbuser'] in DB.dbcs:
             self.db = DB.dbcs[cfg['dbuser']]
         else:
-            DB.dbcs[cfg['dbuser']] = self.db = MySQLdb.connect(user=cfg['dbuser'], passwd=cfg['dbpass'], db=cfg['dbname'])
+            DB.dbcs[cfg['dbuser']] = self.db = MySQLdb.connect(
+                user=cfg['dbuser'], passwd=cfg['dbpass'], db=cfg['dbname'])
         self.lastrowid = None
         self.lastdescription = None
 
@@ -41,34 +45,35 @@ class DB(object):
         if verbose:
             useful.write_comment('DB.execute q : "%s"' % query)
             if args:
-		if logargs:
-		    useful.write_comment('     args :', args)
-		else:
-		    useful.write_comment('     args :', len(args), 'redacted')
+                if logargs:
+                    useful.write_comment('     args :', args)
+                else:
+                    useful.write_comment('     args :', len(args), 'redacted')
             sys.stdout.flush()
         if self.logger:
-#            log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.dbq%Y%m.log'))
-#            try:
-#                open(log_name, 'a').write('%s %s%s %s %s\n' %
-#                                          (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/' if self.nowrites else '',
-#                                           self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
-#            except:
-#                pass
-	    self.logger.info('q %s%s %s' %
-			      ('/*mock*/ ' if self.nowrites else '',
-			       os.environ.get('REMOTE_ADDR', ''), query))
+            # log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.dbq%Y%m.log'))
+            # try:
+            #     open(log_name, 'a').write('%s %s%s %s %s\n' %
+            #                               (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/'
+            #                                if self.nowrites else '',
+            #                                self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
+            # except Exception:
+            #     pass
+            self.logger.info('q %s%s %s' %
+                             ('/*mock*/ ' if self.nowrites else '',
+                              os.environ.get('REMOTE_ADDR', ''), query))
             if args:
-		if logargs:
-		    self.logger.info('     args :', args)
-		else:
-		    self.logger.info('     args :', len(args), 'redacted')
+                if logargs:
+                    self.logger.info('     args :', args)
+                else:
+                    self.logger.info('     args :', len(args), 'redacted')
         cu = self.db.cursor()
         try:
-	    nrows = cu.execute(query, args)
-        except:
-	    self.logger.info('x %s%s %s' %
-			      ('/*mock*/ ' if self.nowrites else '',
-			       os.environ.get('REMOTE_ADDR', ''), traceback.format_exc(0)))
+            nrows = cu.execute(query, args)
+        except Exception:
+            self.logger.info('x %s%s %s' %
+                             ('/*mock*/ ' if self.nowrites else '',
+                              os.environ.get('REMOTE_ADDR', ''), traceback.format_exc(0)))
             if verbose:
                 traceback.print_exc()
             return ([], cu.description, -1)
@@ -80,9 +85,9 @@ class DB(object):
         self.lastdescription = cu.description
         self.lastresp = resp
         cu.close()
-	self.logger.info('a %s%s %s' %
-			  ('/*mock*/ ' if self.nowrites else '',
-			   os.environ.get('REMOTE_ADDR', ''), "%s rows %s id" % (len(resp), self.lastrowid)))
+        self.logger.info('a %s%s %s' %
+                         ('/*mock*/ ' if self.nowrites else '',
+                          os.environ.get('REMOTE_ADDR', ''), "%s rows %s id" % (len(resp), self.lastrowid)))
         return (resp, self.lastdescription, self.lastrowid)
 
     def mockexecute(self, query, args=None, verbose=None, tag=''):
@@ -93,9 +98,9 @@ class DB(object):
     def count(self, countid, tag="Count"):
         if not self.db:
             return None
-	res, desc, lid = self.execute(
-	    """insert buser.counter (id, value, timestamp) values ('%s', 0, now()) on duplicate key """
-	    """update value=value+1, timestamp=now()""" % countid, verbose=False)
+        res, desc, lid = self.execute(
+            """insert buser.counter (id, value, timestamp) values ('%s', 0, now()) on duplicate key """
+            """update value=value+1, timestamp=now()""" % countid, verbose=False)
         self.execute('commit')
         return res
 
@@ -103,8 +108,8 @@ class DB(object):
 
     def old_page_info(self, table):
         res = self.select("page_info,style",
-                          ["page_info.format_type", "page_info.title", "page_info.pic_dir", "page_info.tail", "style.style_type",
-                           "style.style_setting"],
+                          ["page_info.format_type", "page_info.title", "page_info.pic_dir", "page_info.tail",
+                           "style.style_type", "style.style_setting"],
                           "page_info.id='" + table + "' and page_info.id=style.page_id")
         if not res:
             return dict()
@@ -133,14 +138,14 @@ class DB(object):
                 return [dict(zip(desc_cols, x)) for x in res]
         return list()
 
-    def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, outcols=None, limit=None,
-	       logargs=True, tag='', verbose=None):
+    def select(self, table, cols=None, where=None, group=None, order=None, args=None, distinct=False, outcols=None,
+               limit=None, logargs=True, tag='', verbose=None):
         if self.db:
             query = 'select '
             if tag:
                 query += "/* %s */ " % tag
-	    if distinct:
-		query += 'distinct '
+            if distinct:
+                query += 'distinct '
             if cols:
                 query += '''%s from %s''' % (','.join(cols), table)
             else:
@@ -151,14 +156,14 @@ class DB(object):
                 query += ''' group by %s''' % group
             if order:
                 query += ''' order by %s''' % order
-	    if limit:
-		query += ''' limit %s''' % limit
-	    #useful.write_comment(query)
+            if limit:
+                query += ''' limit %s''' % limit
+            # useful.write_comment(query)
             res, desc, lid = self.execute(query, args, logargs=logargs, verbose=verbose)
             if not cols:
                 cols = [x[0] for x in desc]
-	    if not outcols:
-		outcols = cols
+            if not outcols:
+                outcols = cols
             if res:
                 return [dict(zip(outcols, x)) for x in res]
         return list()
@@ -201,18 +206,19 @@ class DB(object):
         return list()
 
     def update(self, table, values, where=None, args=None, logargs=True, tag='', verbose=None):
-	if verbose:
-	    print 'update', table, values, where, tag
+        if verbose:
+            print('update', table, values, where, tag)
         if self.db:
             query = 'update '
-#            if tag:
-#                query += "/* %s */ " % tag
-	    if isinstance(values, dict):
-		setlist = ','.join([x + "=" + (self.db.literal(str(values[x])) if values[x] is not None else 'NULL') for x in values])
-	    elif isinstance(values, list):
-		setlist = ','.join(values)
-	    else:
-		setlist = values
+            # if tag:
+            #     query += "/* %s */ " % tag
+            if isinstance(values, dict):
+                setlist = ','.join([x + "=" + (self.db.literal(str(values[x])) if values[x] is not None else 'NULL')
+                                    for x in values])
+            elif isinstance(values, list):
+                setlist = ','.join(values)
+            else:
+                setlist = values
             query += '''%s set %s''' % (table, setlist)
             if where:
                 query += ''' where %s;''' % where
@@ -294,4 +300,4 @@ class DB(object):
         return list()
 
     def commit(self, tag='Commit'):
-	return self.execute('commit', tag=tag)
+        return self.execute('commit', tag=tag)

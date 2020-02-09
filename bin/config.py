@@ -1,4 +1,5 @@
 #!/usr/local/bin/python
+# flake8: noqa
 
 CGI_BIN  	        = '../cgi-bin'
 HTDOCS                  = '../htdocs'

@@ -1,7 +1,15 @@
 #!/usr/local/bin/python
 
-import functools, httplib, os, sys, time
+from __future__ import print_function
+from functools import reduce
+from io import open
+import functools
+import http.client
+import os
+import sys
+import time
 import MySQLdb
+import crawls
 import logger
 import useful
 
@@ -16,7 +24,9 @@ def get_page_info(page_id, form_key='', defval='', args='', dbedit=None):
 
 
 def write_traceback_file(pif):
-    import datetime, pprint, traceback
+    import datetime
+    import pprint
+    import traceback
     import config
     str_tb = traceback.format_exc()
     if pif and pif.unittest:
@@ -40,9 +50,9 @@ def write_traceback_file(pif):
 
 def simple_html(status=404):
     if not useful.is_header_done():
-	print 'Content-Type: text/html\n\n'
-	print 'Status:', status, httplib.responses.get(status, '')
-    #print '<!--\n' + str(os.environ) + '-->'
+        print('Content-Type: text/html\n\n')
+        print('Status:', status, http.client.responses.get(status, ''))
+    # print('<!--\n' + str(os.environ) + '-->')
     useful.header_done()
     useful.write_comment()
 
@@ -53,55 +63,49 @@ def handle_exception(pif, header_done=False, write_traceback=True):
         os.environ.get('REQUEST_URI', 'unknown')))
     str_tb = ''
     if write_traceback:
-	str_tb = write_traceback_file(pif)
+        str_tb = write_traceback_file(pif)
     log_page_call(pif)
     if not pif or not pif.render or not pif.dbh:
-	if not header_done:
-	    simple_html()
-	if str_tb:
-	    print '<!--\n' + str_tb + '-->'
+        if not header_done:
+            simple_html()
+        if str_tb:
+            print('<!--\n' + str_tb + '-->')
         final_exit()
     pif.dbh.set_health(pif.page_id)
     import useful
     if not useful.is_header_done() and not header_done:
-	simple_html()
+        simple_html()
     useful.header_done()
     useful.write_comment()
     while pif.render.table_count > 0:
-        print pif.render.format_table_end()
+        print(pif.render.format_table_end())
     if not pif.is_allowed('a'):
-        print '<!--\n' + str_tb + '-->'
+        print('<!--\n' + str_tb + '-->')
         final_exit()
 
 
 def final_exit():
-    print "<p><h3>An error has occurred that prevents this page from displaying.  Our apologies.<br>"
-    print "An alert has been sent and the problem will be fixed as soon as possible.</h3>"
-#    print "<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>"
-#    print "We'll get things going as soon as possible."
+    print("<p><h3>An error has occurred that prevents this page from displaying.  Our apologies.<br>")
+    print("An alert has been sent and the problem will be fixed as soon as possible.</h3>")
+#    print("<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>")
+#    print("We'll get things going as soon as possible.")
     sys.exit()
 
 
 def log_page_call(pif):
     if not pif:
-	pass # do something
+        pass  # do something
     elif not pif.argv and not pif.is_allowed('m'):
-	if os.getenv('HTTP_USER_AGENT', '') in logger.crawlers:
-	    pif.log.bot.info('%s %s' % (pif.remote_addr, pif.request_uri))
-	else:
-	    pif.dbh.increment_counter(pif.page_id)
-	    pif.log.count.info(pif.page_id)
-	    pif.log.url.info('%s %s' % (pif.remote_addr, pif.request_uri))
-	    if os.getenv('HTTP_USER_AGENT'):
-		pif.log.debug.info(os.getenv('HTTP_USER_AGENT'))
-	    refer = os.environ.get('HTTP_REFERER', '')
-	    if refer and not refer.startswith('http://www.bamca.org') and \
-			 not refer.startswith('http://bamca.org') and \
-			 not refer.startswith('http://beta.bamca.org') and \
-			 not refer.startswith('https://www.bamca.org') and \
-			 not refer.startswith('https://bamca.org') and \
-			 not refer.startswith('https://beta.bamca.org'):
-		pif.log.refer.info(refer)
+        if os.getenv('HTTP_USER_AGENT', '') in crawls.crawlers:
+            pif.log.bot.info('%s %s' % (pif.remote_addr, pif.request_uri))
+        else:
+            pif.dbh.increment_counter(pif.page_id)
+            pif.log.count.info(pif.page_id)
+            pif.log.url.info('%s %s' % (pif.remote_addr, pif.request_uri))
+            if os.getenv('HTTP_USER_AGENT'):
+                pif.log.debug.info(os.getenv('HTTP_USER_AGENT'))
+            if pif.is_external_referrer():
+                pif.log.refer.info(os.environ['HTTP_REFERER'])
 
 
 # --- Command Lines -----------------------------------------------------
@@ -136,7 +140,7 @@ All arguments are optional.
 
 def get_req(sw, reqs=[]):
     if isinstance(sw, dict):
-        osw = []
+        # osw = []
         for opt in sw:
             if opt[0] == '+':
                 if sw[opt]:
@@ -156,7 +160,8 @@ def get_req(sw, reqs=[]):
 
 def get_command_line(switches="", options="", long_options={}, version="", short_help="",
                      long_help="", envar=None, noerror=False, defaults={}, doglob=False):
-    import getopt, glob
+    import getopt
+    import glob
 
     switches, reqs = get_req(switches)
     options, reqs = get_req(options, reqs)
@@ -174,16 +179,16 @@ def get_command_line(switches="", options="", long_options={}, version="", short
             opts, files = getopt.getopt(os.environ[envar].split(), coptions, loptions)
         except getopt.GetoptError:
             if not noerror:
-                print "*** Environment error"
-                print >> sys.stderr, sys.argv[0], short_help
+                print("*** Environment error")
+                print(sys.argv[0], short_help, file=sys.stderr)
                 sys.exit(1)
 
     try:  # get command line
         opts2, files2 = getopt.getopt(sys.argv[1:], coptions, loptions)
     except getopt.GetoptError:
         if not noerror:
-            print "*** Options error"
-            print >> sys.stderr, sys.argv[0], short_help
+            print("*** Options error")
+            print(sys.argv[0], short_help, file=sys.stderr)
             sys.exit(2)
     opts = opts + opts2
     files = files + files2
@@ -201,7 +206,7 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 
     for opt in opts:
         if opt[0] == "-h" and 'h' not in switches + options:
-            print >> sys.stderr, version, long_help
+            print(version, long_help, file=sys.stderr)
             sys.exit(3)
         elif opt[0][0:2] == '--':
             if opt[0][2:] in long_options:
@@ -224,8 +229,8 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 
     for req in reqs:
         if not switch[req]:
-            print "*** Missing command line argument"
-            print >> sys.stderr, sys.argv[0], short_help
+            print("*** Missing command line argument")
+            print(sys.argv[0], short_help, file=sys.stderr)
             sys.exit(4)
 
     for key in switch:
@@ -247,69 +252,70 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 def web_page(main_fn):
     @functools.wraps(main_fn)
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
-	#useful.write_comment('PID', os.getpid())
+        # useful.write_comment('PID', os.getpid())
         pif = None
         try:
             import pifile
-	    pif = page_id if isinstance(page_id, pifile.PageInfoFile) else get_page_info(page_id, form_key, defval, args, dbedit)
+            pif = (page_id if isinstance(page_id, pifile.PageInfoFile) else
+                   get_page_info(page_id, form_key, defval, args, dbedit))
         except SystemExit:
             pass
-#	except useful.SimpleError as e:
-#	    simple_html(status=e.status)
-#	    print useful.render_template('error.html', error=[e.value], page={'tail':''})
-#	    if pif:
-#		pif.log.debug.error('SimpleError: ' + str(e) + ' - ' + '''%s''' % os.environ.get('REQUEST_URI', ''))
-#            handle_exception(pif, True, False)
-#            return
+        # except useful.SimpleError as e:
+        #     simple_html(status=e.status)
+        #     print(useful.render_template('error.html', error=[e.value], page={'tail':''}))
+        #     if pif:
+        #         pif.log.debug.error('SimpleError: ' + str(e) + ' - ' + '''%s''' % os.environ.get('REQUEST_URI', ''))
+        #     handle_exception(pif, True, False)
+        #     return
         except MySQLdb.OperationalError:
-	    simple_html()
-            print 'The database is currently down, and thus, this page is unable to be shown.<p>'
-	    str_tb = write_traceback_file(pif)
+            simple_html()
+            print('The database is currently down, and thus, this page is unable to be shown.<p>')
+            write_traceback_file(pif)
             handle_exception(pif, True)
             return
-#	except useful.Redirect as e:
-#	    if not useful.is_header_done():
-#		pif.render.print_html()
-#	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
-#	    return
+        # except useful.Redirect as e:
+        #     if not useful.is_header_done():
+        #         pif.render.print_html()
+        #     print(pif.render.format_template('forward.html', url=e.value, delay=e.delay))
+        #     return
         except Exception:
             handle_exception(pif)
             return
 
-	pif.start()
+        pif.start()
 
-	try:
-	    if ('/etc/passwd' in os.environ.get('QUERY_STRING', '') or
-		    '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower()):
-		raise useful.Redirect('https://www.nsa.gov/')
+        try:
+            if ('/etc/passwd' in os.environ.get('QUERY_STRING', '') or
+                    '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower()):
+                raise useful.Redirect('https://www.nsa.gov/')
             ret = main_fn(pif)
-	    if not useful.is_header_done():
-		pif.render.print_html()
-	    if pif.render.is_html:
-		useful.write_comment("Page:", pif.page_id, 'Time:', time.time() - pif.start_seconds)
+            if not useful.is_header_done():
+                pif.render.print_html()
+            if pif.render.is_html:
+                useful.write_comment("Page:", pif.page_id, 'Time:', time.time() - pif.start_seconds)
             if ret and not pif.unittest:
-                print ret
+                print(ret)
         except SystemExit:
             pass
-	except useful.SimpleError as e:
-	    if not useful.is_header_done():
-		pif.render.print_html(status=e.status)
-	    print pif.render.format_template('error.html', error=[e.value])
-	except useful.Redirect as e:
-	    if not useful.is_header_done():
-		pif.render.print_html(status=302)
-	    print pif.render.format_template('forward.html', url=e.value, delay=e.delay)
+        except useful.SimpleError as e:
+            if not useful.is_header_done():
+                pif.render.print_html(status=e.status)
+            print(pif.render.format_template('error.html', error=[e.value]))
+        except useful.Redirect as e:
+            if not useful.is_header_done():
+                pif.render.print_html(status=302)
+            print(pif.render.format_template('forward.html', url=e.value, delay=e.delay))
         except MySQLdb.OperationalError:
-	    if not useful.is_header_done():
-		pif.render.print_html(status=500)
-            print 'The database is currently down, and thus, this page is unable to be shown.<p>'
-	    str_tb = write_traceback_file(pif)
-        except:
+            if not useful.is_header_done():
+                pif.render.print_html(status=500)
+            print('The database is currently down, and thus, this page is unable to be shown.<p>')
+            write_traceback_file(pif)
+        except Exception:
             handle_exception(pif)
             raise
-	useful.header_done(True)
-	useful.write_comment()
-	log_page_call(pif)
+        useful.header_done(True)
+        useful.write_comment()
+        log_page_call(pif)
     return call_main
 
 
@@ -324,9 +330,9 @@ def command_line(main_fn):
         try:
             import pifile
             switch, filelist = get_command_line(switches, options)
-	    for f in filelist:
-		if f.startswith('page_id='):
-		    page_id = f[8:]
+            for f in filelist:
+                if f.startswith('page_id='):
+                    page_id = f[8:]
             if isinstance(page_id, pifile.PageInfoFile):
                 pif = page_id
             else:
@@ -335,11 +341,11 @@ def command_line(main_fn):
             ret = main_fn(pif)
             useful.write_comment()
             if ret:
-                print ret
+                print(ret)
         except SystemExit:
             pass
-	except useful.SimpleError as e:
-	    print '***', e.value
+        except useful.SimpleError as e:
+            print('***', e.value)
     return call_main
 
 
@@ -359,7 +365,7 @@ def standalone(main_fn):
             ret = main_fn(switch, filelist)
             useful.write_comment()
             if ret:
-                print ret
+                print(ret)
         except SystemExit:
             pass
     return call_main
@@ -369,7 +375,9 @@ def standalone(main_fn):
 
 
 def goaway():
-    print '''Content-Type: text/html\n\n<html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>'''
+    print('Content-Type: text/html')
+    print()
+    print('html><body bgcolor="#FFFFFF"><img src="../pic/gfx/tested.gif"></body></html>')
 
 
 if __name__ == '__main__':  # pragma: no cover

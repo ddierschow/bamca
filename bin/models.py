@@ -35,6 +35,8 @@ mod_tab_thumb_pat = '''
    </table>
   </center>
 '''
+
+
 def add_model_table_pic_link(pif, mdict, flago=flago):
     mdict = add_model_table_pic_link_dict(pif, mdict, flago)
     if mdict.get('prefix') == mbdata.IMG_SIZ_TINY:
@@ -46,7 +48,9 @@ def generate_model_table_pic_link(pif, mdict, mlist):
     for mod_id in mlist:
         yield {'text': add_model_table_pic_link(pif, mdict[mod_id])}
 
+
 # for templates
+
 
 def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, first_year, (type)
@@ -77,7 +81,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
             if s in mbdata.arts:
                 mdict['desclist'] += "   <br>\n" + pif.render.format_image_icon('c_' + mbdata.arts[s])
             elif s:
-                mdict['desclist'] += "   <br><i>"+s+"</i>\n"
+                mdict['desclist'] += "   <br><i>" + s + "</i>\n"
     return mdict
 
 
@@ -86,7 +90,7 @@ def generate_model_table_pic_link_dict(pif, mdict, mlist):
         yield add_model_table_pic_link_dict(pif, mdict[mod_id])
 
 
-#mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
+# mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
 def add_model_table_product_link(pif, mdict):
     pif.render.comment('add_model_table_product_link', mdict)
 
@@ -96,9 +100,9 @@ def add_model_table_product_link(pif, mdict):
         ostr += mbdata.comment_icon.get('m', '')
     elif not mdict.get('picture_only'):
         if mdict.get('no_specific_image'):
-	    ostr += mbdata.comment_icon.get('i', '')
+            ostr += mbdata.comment_icon.get('i', '')
         if mdict.get('no_variation'):
-	    ostr += mbdata.comment_icon.get('v', '')
+            ostr += mbdata.comment_icon.get('v', '')
     ostr += '</td><td class="modelnumber">'
     ostr += mdict['displayed_id']
     ostr += '</td><td class="modelicons">'
@@ -111,38 +115,40 @@ def add_model_table_product_link(pif, mdict):
     ostr += '</td></tr></table>\n'
 
     if mdict.get('show_vars'):
-	# imgstr descriptions
-	for vdict in mdict['show_vars']:
-	    if mdict.get('href'):
-		ostr += '<a href="%(href)s">\n' % mdict
-	    #ostr += '<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' % (vdict['imgstr'])
-	    ostr += '<center>%s</center>\n' % (vdict['imgstr'])
-	    ostr += '<span class="modelname">' + mdict['name'] + '</span>'
-	    if mdict.get('href'):
-		ostr += '</a>'
-	    if mdict.get('subnames'):
-		ostr += "<br>" + "<br>".join(mdict['subnames'])
-	    if vdict.get('description'):
-		ostr += '<table class="vartable">'
-		ostr += '<tr><td class="varentry">%s</td></tr>' % vdict['description']
-		ostr += "</table>"
-	    ostr += "</center>"
+        # imgstr descriptions
+        for vdict in mdict['show_vars']:
+            if mdict.get('href'):
+                ostr += '<a href="%(href)s">\n' % mdict
+            # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
+            #          vdict['imgstr'])
+            ostr += '<center>%s</center>\n' % (vdict['imgstr'])
+            ostr += '<span class="modelname">' + mdict['name'] + '</span>'
+            if mdict.get('href'):
+                ostr += '</a>'
+            if mdict.get('subnames'):
+                ostr += "<br>" + "<br>".join(mdict['subnames'])
+            if vdict.get('description'):
+                ostr += '<table class="vartable">'
+                ostr += '<tr><td class="varentry">%s</td></tr>' % vdict['description']
+                ostr += "</table>"
+            ostr += "</center>"
     else:
-	if mdict.get('href'):
-	    ostr += '<a href="%(href)s">\n' % mdict
-	#ostr += '<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' % (mdict['imgstr'])
-	ostr += '<center>%s</center>\n' % (mdict['imgstr'])
-	ostr += '<span class="modelname">' + mdict['name'] + '</span>'
-	if mdict.get('href'):
-	    ostr += '</a>'
-	if mdict.get('subnames'):
-	    ostr += "<br>" + "<br>".join(mdict['subnames'])
-	if mdict.get('descriptions'):
-	    ostr += '<table class="vartable">'
-	    for var in mdict['descriptions']:
-		ostr += '<tr><td class="varentry">%s</td></tr>' % var
-	    ostr += "</table>"
-	ostr += "</center>"
+        if mdict.get('href'):
+            ostr += '<a href="%(href)s">\n' % mdict
+        # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
+        #          mdict['imgstr'])
+        ostr += '<center>%s</center>\n' % (mdict['imgstr'])
+        ostr += '<span class="modelname">' + mdict['name'] + '</span>'
+        if mdict.get('href'):
+            ostr += '</a>'
+        if mdict.get('subnames'):
+            ostr += "<br>" + "<br>".join(mdict['subnames'])
+        if mdict.get('descriptions'):
+            ostr += '<table class="vartable">'
+            for var in mdict['descriptions']:
+                ostr += '<tr><td class="varentry">%s</td></tr>' % var
+            ostr += "</table>"
+        ostr += "</center>"
 
     ostr += mdict.get('additional', '')
     return ostr
@@ -152,6 +158,8 @@ def add_model_table_product_link(pif, mdict):
 # shows scale, flag, pic, model name, description, with link to single.
 mod_txt_lin_pat = '''%(long_id)s|%(name)s|%(desc)s
 '''
+
+
 def add_model_text_line(pif, mdict):
     # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
     sub_id = 'a'
@@ -193,13 +201,15 @@ mod_tab_lst_ent_pat = '''  <td>%(box_sm)s</td>
   <td>%(first_year)s</td>
   <td>%(lname)s</td>
 '''
+
+
 def add_model_table_list_entry_dict(pif, mdict):
     if mdict:
-	# input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
-	mdict['lname'] = mdict['shortname']
-	if mdict.get('link'):
-	    mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(lname)s</a>' % mdict
-	mdict['box_sm'] = '<i class="far fa-square"></i>'
+        # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
+        mdict['lname'] = mdict['shortname']
+        if mdict.get('link'):
+            mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(lname)s</a>' % mdict
+        mdict['box_sm'] = '<i class="far fa-square"></i>'
     return mdict
 
 
@@ -211,7 +221,8 @@ def add_model_table_list_entry(pif, mdict):
 def add_model_pic_link_short(pif, id):
     ostr = '<center><b id="%s">%s</b><br>' % (id, id)
     ostr += '<a href="single.cgi?id=%s">' % id
-    ostr += pif.render.format_image_required([id], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN) + '</a></center>'
+    ostr += pif.render.format_image_required(
+        [id], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN) + '</a></center>'
     return ostr
 
 
@@ -222,7 +233,8 @@ def add_icons(pif, type_id, base_id, vehicle_type):
         if icon != '&nbsp;':
             icon_list.append(icon)
     if base_id:
-        icon = pif.render.format_image_optional(base_id, None, prefix='i_', suffix='gif', pdir=config.IMG_DIR_MAN_ICON, also={'class': 'centered'})
+        icon = pif.render.format_image_optional(
+            base_id, None, prefix='i_', suffix='gif', pdir=config.IMG_DIR_MAN_ICON, also={'class': 'centered'})
         if icon != '&nbsp;':
             icon_list.append(icon)
     for vtype in vehicle_type:
@@ -240,10 +252,12 @@ var_adds = [
 
 
 def show_adds(pif, mod_id, var_id=''):
-    photo_credits = {x['photo_credit.name']: x['photographer.name'] for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
+    photo_credits = {x['photo_credit.name']: x['photographer.name']
+                     for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
     attribute_pictures = pif.dbh.fetch_attribute_pictures(mod_id)
     attribute_pictures = dict([
-        (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
+        (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' +
+         x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
@@ -254,28 +268,30 @@ def show_adds(pif, mod_id, var_id=''):
         if imgs:
             ostr += '<h3>%s</h3>\n' % add[1] % {'s': useful.plural(imgs)}
             for img in imgs:
-		ostr += '<table><tr><td class="center">'
+                ostr += '<table><tr><td class="center">'
                 ostr += pif.render.fmt_img_src(pdir + '/' + img) + '<br>'
-		fn = img[:img.find('.')]
-		if fn in photo_credits:
-		    ostr += '<div class="credit">Photo credit: %s</div>' % photo_credits[fn]
+                fn = img[:img.find('.')]
+                if fn in photo_credits:
+                    ostr += '<div class="credit">Photo credit: %s</div>' % photo_credits[fn]
                 for apic in attribute_pictures:
-		    # This is terrible and I'm a terrible person but I don't want to think too much right now.
+                    # This is terrible and I'm a terrible person but I don't want to think too much right now.
                     if apic in img and attribute_pictures[apic]['attribute_picture.description']:
-			if attribute_pictures[apic]['attribute.title']:
-			    ostr += "%(attribute.title)s: %(attribute_picture.description)s" % attribute_pictures[apic]
-			else:
-			    ostr += "%(attribute_picture.description)s" % attribute_pictures[apic]
-		ostr += '</td></tr></table>'
+                        if attribute_pictures[apic]['attribute.title']:
+                            ostr += "%(attribute.title)s: %(attribute_picture.description)s" % attribute_pictures[apic]
+                        else:
+                            ostr += "%(attribute_picture.description)s" % attribute_pictures[apic]
+                ostr += '</td></tr></table>'
                 ostr += '<p>\n'
     return ostr
 
 
 def make_adds(pif, mod_id, var_id=''):
-    photo_credits = {x['photo_credit.name']: x['photographer.name'] for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
+    photo_credits = {x['photo_credit.name']: x['photographer.name']
+                     for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
     attribute_pictures = pif.dbh.fetch_attribute_pictures(mod_id)
     attribute_pictures = dict([
-        (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' + x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
+        (x['attribute_picture.attr_type'].lower() + '_' + x['attribute_picture.mod_id'].lower() + '-' +
+         x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
@@ -284,21 +300,22 @@ def make_adds(pif, mod_id, var_id=''):
     for add in adds:
         imgs = pif.render.find_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
         if imgs:
-	    elem = {'title': add[1] % {'s': useful.plural(imgs)}, 'entry': [],
-		    'columns': add[3]}
+            elem = {'title': add[1] % {'s': useful.plural(imgs)}, 'entry': [],
+                    'columns': add[3]}
             for img in imgs:
-		fn = img[:img.find('.')]
-		ent = {'img': pif.render.fmt_img_src(pdir + '/' + img),
-		       'credit': photo_credits.get(fn, '')}
+                fn = img[:img.find('.')]
+                ent = {'img': pif.render.fmt_img_src(pdir + '/' + img),
+                       'credit': photo_credits.get(fn, '')}
                 for apic in attribute_pictures:
-		    # This is terrible and I'm a terrible person but I don't want to think too much right now.
+                    # This is terrible and I'm a terrible person but I don't want to think too much right now.
                     if apic in img and attribute_pictures[apic]['attribute_picture.description']:
-			if attribute_pictures[apic]['attribute.title']:
-			    ent['desc'] = "%(attribute.title)s: %(attribute_picture.description)s" % attribute_pictures[apic]
-			else:
-			    ent['desc'] = "%(attribute_picture.description)s" % attribute_pictures[apic]
+                        if attribute_pictures[apic]['attribute.title']:
+                            ent['desc'] = ("%(attribute.title)s: %(attribute_picture.description)s" %
+                                           attribute_pictures[apic])
+                        else:
+                            ent['desc'] = "%(attribute_picture.description)s" % attribute_pictures[apic]
                 elem['entry'].append(ent)
-	    outd.append(elem)
+            outd.append(elem)
     return outd
 
 
@@ -307,12 +324,12 @@ def add_model_thumb_pic_link(pif, mdict):
     ostr += pif.render.format_image_required([mdict['id']], prefix=mbdata.IMG_SIZ_TINY, pdir=config.IMG_DIR_MAN)
     ostr += '</td>\n<td class="text">'
     if mdict['id']:
-	ostr += '<span class="modelname">'
-	ostr += pif.render.format_link('single.cgi?id=%s' % mdict['id'], mdict['id'] + ': ' + mdict['name'])
-	ostr += '</span><br>\n'
+        ostr += '<span class="modelname">'
+        ostr += pif.render.format_link('single.cgi?id=%s' % mdict['id'], mdict['id'] + ': ' + mdict['name'])
+        ostr += '</span><br>\n'
     img = mdict['img']
     if isinstance(img, list):
-	img = '<ul>%s</ul>' % ('\n'.join(['<li>' + x for x in img]))
+        img = '<ul>%s</ul>' % ('\n'.join(['<li>' + x for x in img]))
     ostr += '<span class="info">See: %s</span>' % img
     ostr += '</td></tr></table>\n'
     return ostr
@@ -322,7 +339,8 @@ def add_model_var_pic_link(pif, vdict):
     vdict['link'] = 'vars.cgi?mod=%s&var=%s' % (vdict['mod_id'], vdict['var'].upper())
     vdict['categories'] = ''
     pic_id = vdict['picture_id'] if vdict['picture_id'] else vdict['var']
-    img = pif.render.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN)
+    img = pif.render.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL,
+                                     pdir=config.IMG_DIR_MAN)
     vdict['img'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
 
     return '''
@@ -342,7 +360,7 @@ def make_page_list(pif, format_type, fmt_link):
     lsec['range'] = [{'entry': entries}]
     llineup = {'id': 'main', 'name': '', 'section': [lsec]}
     for sec in secs:
-	hidden = sec.flags & config.FLAG_PAGE_INFO_HIDDEN or sec.page_info.flags & config.FLAG_PAGE_INFO_HIDDEN
+        hidden = sec.flags & config.FLAG_PAGE_INFO_HIDDEN or sec.page_info.flags & config.FLAG_PAGE_INFO_HIDDEN
         if '.' in sec.page_id and (pif.render.is_beta or not hidden):
             entries.append({'text': ('<i>%s</i>' if hidden else '%s') % fmt_link(sec)})
     pif.render.format_matrix_for_template(llineup)

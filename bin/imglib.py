@@ -1,6 +1,13 @@
 #!/usr/local/bin/python
 
-import datetime, glob, os, stat, subprocess, sys, time
+from __future__ import print_function
+from functools import reduce
+from io import open
+import glob
+import os
+import stat
+import subprocess
+import sys
 from PIL import Image, ImageDraw
 import bfiles
 import config
@@ -32,7 +39,7 @@ image_inputter = {
     'png': [['/usr/local/bin/pngtopnm']],
     'tif': [['/usr/local/bin/tifftopnm']],
     'xbm': [['/usr/local/bin/xbmtopbm']],
-#    '': [['/usr/local/bin/jpegtopnm']],
+    # '': [['/usr/local/bin/jpegtopnm']],
 }
 itypes = ['bmp', 'gif', 'ico', 'jpg', 'jpeg', 'png', 'tif', 'xbm']
 
@@ -91,15 +98,16 @@ movetos = [
 
 def get_size(fn):
     try:
-	l = useful.pipe_chain(open(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], stderr=subprocess.PIPE, verbose=False)
+        p = useful.pipe_chain(open(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], stderr=subprocess.PIPE,
+                              verbose=False)
     except IOError:
-	raise useful.SimpleError('Could not read ' + fn)
-    #print 'get_size', l
-    f = l.split()
+        raise useful.SimpleError('Could not read ' + fn)
+    # print('get_size', p)
+    f = p.split()
     try:
         x = int(f[3])
         y = int(f[5])
-    except:
+    except Exception:
         x = y = 0
     return (x, y)
 
@@ -111,7 +119,7 @@ def img_info(f):
 
 def pipe_convert(src, dst, verbose=False):
     if src == dst:
-	return inpf.read()
+        return open(src).read()
     ctypes = import_file(src) + export_file(dst)
     return useful.pipe_chain(open(src), ctypes, stderr=open('/dev/null', 'w'), verbose=verbose)
 
@@ -142,45 +150,46 @@ def get_palette(img):
 def corner_color(img, pixel):
     ox, oy = img.size
     if pixel == 'ul':
-	pval = img.getpixel((0, 0))
+        pval = img.getpixel((0, 0))
     elif pixel == 'ml':
-	pval = img.getpixel((0, oy / 2))
+        pval = img.getpixel((0, oy / 2))
     elif pixel == 'll':
-	pval = img.getpixel((0, oy - 1))
+        pval = img.getpixel((0, oy - 1))
     elif pixel == 'um':
-	pval = img.getpixel((ox / 2, 0))
+        pval = img.getpixel((ox / 2, 0))
     elif pixel == 'mm':
-	pval = img.getpixel((ox / 2, oy / 2))
+        pval = img.getpixel((ox / 2, oy / 2))
     elif pixel == 'lm':
-	pval = img.getpixel((ox / 2, oy - 1))
+        pval = img.getpixel((ox / 2, oy - 1))
     elif pixel == 'ur':
-	pval = img.getpixel((ox - 1, 0))
+        pval = img.getpixel((ox - 1, 0))
     elif pixel == 'mr':
-	pval = img.getpixel((ox - 1, ox / 2))
+        pval = img.getpixel((ox - 1, ox / 2))
     elif pixel == 'lr':
-	pval = img.getpixel((ox - 1, oy - 1))
+        pval = img.getpixel((ox - 1, oy - 1))
     else:
-	return None
+        return None
     if img.mode == 'P':
-	palette = get_palette(img)
-	pval = palette[pval]
+        palette = get_palette(img)
+        pval = palette[pval]
     return pval
 
 
 def img_is_anim(img):
     try:
-	img.seek(1)
-	return True
+        img.seek(1)
+        return True
     except EOFError:
-	return False
+        return False
 
 
 def is_anim(f):
     try:
-	img = Image.open(f)
-    except:
-	return False
+        img = Image.open(f)
+    except Exception:
+        return False
     return img_is_anim(img)
+
 
 # transforms
 
@@ -192,15 +201,17 @@ rot_flip_transforms = [
     ['/usr/local/bin/pamflip', '-lr'],
     ['/usr/local/bin/pamflip', '-tb'],
 ]
-#rot_flip_axes = [True, False, True, False, False]
+# rot_flip_axes = [True, False, True, False, False]
 rot_flip_axes = [False, False, False, False, False]
+
+
 def rot_flip(rf):
     return [rot_flip_transforms[x] for x in range(len(rf)) if rf[x]]
 
 
 def fix_axes(rf, xts, yts):
-    if reduce(lambda x,y: x != y, [True for x in range(len(rf)) if rf[x] and rot_flip_axes[x]], False):
-	return yts, xts
+    if reduce(lambda x, y: x != y, [True for x in range(len(rf)) if rf[x] and rot_flip_axes[x]], False):
+        return yts, xts
     return xts, yts
 
 
@@ -215,19 +226,21 @@ def resize(x=None, y=None):
 
 
 def cut(x1, y1, x2, y2):
-    return [["/usr/local/bin/pamcut", "-top", str(y1), "-height", str(y2 - y1), "-left", str(x1), "-width", str(x2 - x1)]]
+    return [["/usr/local/bin/pamcut", "-top", str(y1), "-height", str(y2 - y1), "-left", str(x1),
+             "-width", str(x2 - x1)]]
 
 
 # Reshaping assemblers
 
 def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
-    #xos, yos = get_size(tdir + '/' + fil)
+    # xos, yos = get_size(tdir + '/' + fil)
     xcs = x2 - x1
     ycs = y2 - y1
     ratio = float(xts) / float(yts)
-    useful.write_message("set_shape_sizes", x1, y1, "/", x2, y2, ';', xts, yts, ';', xcs, ycs, ';', xos, yos, ';', ratio)
+    useful.write_message("set_shape_sizes", x1, y1, "/", x2, y2, ';', xts, yts, ';', xcs, ycs, ';', xos, yos,
+                         ';', ratio)
     if xcs < xts:
-        if xos < xts: # this one doesn't work right
+        if xos < xts:  # this one doesn't work right
             useful.write_message("fix x to orig /", nonl=True)
             x1 = 0
             x2 = xos - 1
@@ -295,7 +308,7 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
             ny1 = 0
         elif ny2 > yos:
             useful.write_message("off the bottom")
-            #ny1 = ny1 - (ny2 - yos)
+            # ny1 = ny1 - (ny2 - yos)
             ny1 = yos - nys
             ny2 = yos
         else:
@@ -348,70 +361,52 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
 
         if xcs > xts:
             useful.write_message("shrinking", nonl=True)
-	    xts, yts = fix_axes(rf, xts, yts)
+            xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open(pth),
-                    import_file(pth) +
-                    cut(x1, y1, x2, y2) +
-                    rot_flip(rf) +
-                    resize(x=xts) +
-                    export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                    import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(x=xts) +
+                                    export_file(nname, pth),
+                                    stderr=open('/dev/null', 'w'))
         elif xcs < xts:
-            dx = xts - xcs
-            dy = yts - ycs
+            # dx = xts - xcs
+            # dy = yts - ycs
             x1, x2, y1, y2 = normalize(x1, x2, y1, y2, xts, yts)
             useful.write_message("expanding", x1, x2, y1, y2, nonl=True)
-	    xts, yts = fix_axes(rf, xts, yts)
+            xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open(pth),
-                    import_file(pth) +
-                    cut(x1, y1, x2, y2) +
-                    rot_flip(rf) +
-                    export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                    import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
+                                    stderr=open('/dev/null', 'w'))
         elif xos == xts and yos == yts and xos == xcs and yos == ycs:
             useful.write_message("copying", nonl=True)
             ofi = open(pth).read()
         else:
             useful.write_message("cutting", nonl=True)
-	    xts, yts = fix_axes(rf, xts, yts)
+            xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open(pth),
-                    import_file(pth) +
-                    cut(x1, y1, x2, y2) +
-                    rot_flip(rf) +
-                    export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                    import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
+                                    stderr=open('/dev/null', 'w'))
 
     else:
 
         if xts < x2 - x1:
             useful.write_message("trim shrinking x", nonl=True)
-	    xts, yts = fix_axes(rf, xts, yts)
+            xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open(pth),
-                    import_file(pth) +
-                    cut(x1, y1, x2, y2) +
-                    rot_flip(rf) +
-                    resize(x=xts) +
-                    export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                    import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(x=xts) +
+                                    export_file(nname, pth),
+                                    stderr=open('/dev/null', 'w'))
         elif yts < y2 - y1:
             useful.write_message("trim shrinking y", nonl=True)
-	    xts, yts = fix_axes(rf, xts, yts)
+            xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open(pth),
-                    import_file(pth) +
-                    cut(x1, y1, x2, y2) +
-                    rot_flip(rf) +
-                    resize(y=yts) +
-                    export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                    import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(y=yts) +
+                                    export_file(nname, pth),
+                                    stderr=open('/dev/null', 'w'))
         else:
             useful.write_message("trim cutting", nonl=True)
-	    xts, yts = fix_axes(rf, xts, yts)
+            xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open(pth),
-                    import_file(pth) +
-                    cut(x1, y1, x2, y2) +
-                    rot_flip(rf) +
-                    export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                    import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
+                                    stderr=open('/dev/null', 'w'))
 
     useful.write_message('')
     return ofi
@@ -431,47 +426,36 @@ def shrinker(pth, nname, bound, maxsize, rf):
     useful.write_message(pth)
     if xcs == xts and ycs == yts:
         useful.write_message("cutting")
-	xts, yts = fix_axes(rf, xts, yts)
+        xts, yts = fix_axes(rf, xts, yts)
         ofi = useful.pipe_chain(open(pth),
-                import_file(pth) +
-                cut(x1, y1, x1 + xcs, y1 + ycs) +
-                rot_flip(rf) +
-                export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
-    elif xts/xcs < yts/ycs:
+                                import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
+                                export_file(nname, pth),
+                                stderr=open('/dev/null', 'w'))
+    elif xts / xcs < yts / ycs:
         useful.write_message("shrinking x")
-	xts, yts = fix_axes(rf, xts, yts)
+        xts, yts = fix_axes(rf, xts, yts)
         ofi = useful.pipe_chain(open(pth),
-                import_file(pth) +
-                cut(x1, y1, x1 + xcs, y1 + ycs) +
-                rot_flip(rf) +
-                resize(x=xts) +
-                export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
+                                resize(x=xts) + export_file(nname, pth),
+                                stderr=open('/dev/null', 'w'))
     else:
         useful.write_message("shrinking y")
-	xts, yts = fix_axes(rf, xts, yts)
+        xts, yts = fix_axes(rf, xts, yts)
         ofi = useful.pipe_chain(open(pth),
-                import_file(pth) +
-                cut(x1, y1, x1 + xcs, y1 + ycs) +
-                rot_flip(rf) +
-                resize(y=yts) +
-                export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                                import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
+                                resize(y=yts) + export_file(nname, pth),
+                                stderr=open('/dev/null', 'w'))
     return ofi
 
 
 def cropper(pth, nname, bound, rf):
     x1, y1, x2, y2 = bound
-    useful.write_message('crop', x1, y1, x2, y2, ':', x2-x1, y2-y1, ':', rf)
+    useful.write_message('crop', x1, y1, x2, y2, ':', x2 - x1, y2 - y1, ':', rf)
     useful.write_message(pth)
     useful.write_message("cutting")
     ofi = useful.pipe_chain(open(pth),
-            import_file(pth) +
-            cut(x1, y1, x2, y2) +
-            rot_flip(rf) +
-            export_file(nname, pth),
-		    stderr=open('/dev/null', 'w'))
+                            import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
+                            stderr=open('/dev/null', 'w'))
     return ofi
 
 
@@ -495,9 +479,9 @@ def wiper(pth, bound, original_size, wipev, wipeh):
     x1, y1, x2, y2 = xl, yt, xr, yb
 
     def wiper_copy(img, xf1, yf1, xf2, yf2, xt1, yt1, xt2, yt2):
-	#useful.write_message(('%3d ' * 8) % (xf1, yf1, xf2 + 1, yf2 + 1, xt1, yt1, xt2 + 1, yt2 + 1), nonl=True)
-	cp = img.crop((xf1, yf1, xf2 + 1, yf2 + 1))
-	img.paste(cp, (xt1, yt1, xt2 + 1, yt2 + 1))
+        # useful.write_message(('%3d ' * 8) % (xf1, yf1, xf2 + 1, yf2 + 1, xt1, yt1, xt2 + 1, yt2 + 1), nonl=True)
+        cp = img.crop((xf1, yf1, xf2 + 1, yf2 + 1))
+        img.paste(cp, (xt1, yt1, xt2 + 1, yt2 + 1))
 
     while 1:
         if x1 > x2 or y1 > y2:
@@ -548,17 +532,17 @@ def padder(pth, target_size):
     xts = target_size[0] if target_size[0] else xos
     yts = target_size[1] if target_size[1] else yos
     if img.size == (xts, yts):
-	return img
+        return img
     if xos > xts or yos > yts:
-	useful.write_message("original larger than new", nonl=True)
-	return img
+        useful.write_message("original larger than new", nonl=True)
+        return img
     img = img.convert('RGB')
 
-    nc = (0,0,0)
-    bc = None
+    nc = (0, 0, 0)
+    # bc = None
 
-    sx = (xts - xos) /2
-    sy = (yts - yos) /2
+    sx = (xts - xos) / 2
+    sy = (yts - yos) / 2
     ex = sx + xos - 1
     ey = sy + yos - 1
 
@@ -568,20 +552,20 @@ def padder(pth, target_size):
 
     nimg = Image.new(img.mode, (xts, yts), nc)
     for x in range(0, xos):
-	for y in range(0, yos):
-	    nimg.putpixel((sx + x, sy + y), img.getpixel((x, y)))
+        for y in range(0, yos):
+            nimg.putpixel((sx + x, sy + y), img.getpixel((x, y)))
     for x in range(0, sx):
-	for y in range(0, yts):
-	    nimg.putpixel((x, y), nimg.getpixel((sx, y)))
+        for y in range(0, yts):
+            nimg.putpixel((x, y), nimg.getpixel((sx, y)))
     for x in range(ex + 1, xts):
-	for y in range(0, yts):
-	    nimg.putpixel((x, y), nimg.getpixel((ex, y)))
+        for y in range(0, yts):
+            nimg.putpixel((x, y), nimg.getpixel((ex, y)))
     for y in range(0, sy):
-	for x in range(0, xts):
-	    nimg.putpixel((x, y), nimg.getpixel((x, sy)))
+        for x in range(0, xts):
+            nimg.putpixel((x, y), nimg.getpixel((x, sy)))
     for y in range(ey + 1, yts):
-	for x in range(0, xts):
-	    nimg.putpixel((x, y), nimg.getpixel((x, ey)))
+        for x in range(0, xts):
+            nimg.putpixel((x, y), nimg.getpixel((x, ey)))
 
     return nimg
 
@@ -601,7 +585,7 @@ def iconner(in_path, name, logo=None, isizex=100, isizey=100):
     banner = Image.open(logo)
 
     text = imicon.Icon(isizex, isizey)
-    top = banner.size[1] + thumb.size[1]
+    # top = banner.size[1] + thumb.size[1]
     texttop = isizey - 6 - (6 * len(name)) / 2
     for n in name:
         if len(n) > isizex / 6:
@@ -630,408 +614,408 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
     if is_horiz:
         useful.write_message('horizontal', nonl=True)
 
-	if limit_y:
-	    miny = min(miny, limit_y)
-	resize_x = 0
-	resize_y = miny
-	cat = ['pnmcat', '-lr']
+        if limit_y:
+            miny = min(miny, limit_y)
+        resize_x = 0
+        resize_y = miny
+        cat = ['pnmcat', '-lr']
 
     else:
         useful.write_message('vertical', nonl=True)
 
-	if limit_x:
-	    minx = min(minx, limit_x)
-	resize_x = minx
-	resize_y = 0
-	cat = ['pnmcat', '-tb']
+        if limit_x:
+            minx = min(minx, limit_x)
+        resize_x = minx
+        resize_y = 0
+        cat = ['pnmcat', '-tb']
 
     for f in fa:
-	pipes = import_file(f[0]) + \
-		cut(f[3], f[4], f[5], f[6]) + \
-		resize(x=resize_x, y=resize_y)
-	outf = useful.pipe_chain(open(f[0]), pipes, verbose=verbose,
-		    stderr=open('/dev/null', 'w'))
-	if verbose:
-	    useful.write_message('>', f[0] + '.pnm')
-	open(f[0] + '.pnm', 'w').write(outf)
-	cat.append(f[0] + '.pnm')
+        pipes = import_file(f[0]) + cut(f[3], f[4], f[5], f[6]) + resize(x=resize_x, y=resize_y)
+        outf = useful.pipe_chain(open(f[0]), pipes, verbose=verbose,
+                                 stderr=open('/dev/null', 'w'))
+        if verbose:
+            useful.write_message('>', f[0] + '.pnm')
+        open(f[0] + '.pnm', 'w').write(outf)
+        cat.append(f[0] + '.pnm')
     outf = useful.pipe_chain(open('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
-		    stderr=open('/dev/null', 'w'))
+                             stderr=open('/dev/null', 'w'))
 
     if verbose:
-	useful.write_message('>', ofn)
+        useful.write_message('>', ofn)
     open(ofn, 'w').write(outf)
 
     if not verbose:
-	for f in fa:
-	    os.unlink(f[0] + '.pnm')
-
-
+        for f in fa:
+            os.unlink(f[0] + '.pnm')
 
 
 class Drawer(object):
 
     def __init__(self, fn, ofn=None):
-	self.cmdfile = fn
-	self.sx = 100
-	self.sy = 100
-	self.cx = 0
-	self.cy = 0
-	self.col = (0, 0, 0)
-	self.drw = None
-	self.img = None
+        self.cmdfile = fn
+        self.sx = 100
+        self.sy = 100
+        self.cx = 0
+        self.cy = 0
+        self.col = (0, 0, 0)
+        self.drw = None
+        self.img = None
 
-	self.process()
-	self.save(ofn)
+        self.process()
+        self.save(ofn)
 
     def at(self, args):
-	self.cx, self.cy = map(int, args[0].split(','))
+        self.cx, self.cy = map(int, args[0].split(','))
 
     def line(self, args):
-	if args[0]:
-	    self.cx, self.cy = map(int, args[0].split(','))
-	for arg in args[1:]:
-	    nx, ny = map(int, arg.split(','))
-	    self.drw.line(((self.cx, self.cy), (nx, ny)), fill=self.col)
-	    self.cx, self.cy = nx, ny
+        if args[0]:
+            self.cx, self.cy = map(int, args[0].split(','))
+        for arg in args[1:]:
+            nx, ny = map(int, arg.split(','))
+            self.drw.line(((self.cx, self.cy), (nx, ny)), fill=self.col)
+            self.cx, self.cy = nx, ny
 
     def fill(self, args):
-	if args[0]:
-	    self.cx, self.cy = map(int, args[0].split(','))
-	nx, ny = map(int, args[1].split(','))
-	self.drw.rectangle(((self.cx, self.cy), (nx, ny)), fill=self.col, outline=self.col)
-	self.cx, self.cy = nx, ny
+        if args[0]:
+            self.cx, self.cy = map(int, args[0].split(','))
+        nx, ny = map(int, args[1].split(','))
+        self.drw.rectangle(((self.cx, self.cy), (nx, ny)), fill=self.col, outline=self.col)
+        self.cx, self.cy = nx, ny
 
     def box(self, args):
-	if args[0]:
-	    self.cx, self.cy = map(int, args[0].split(','))
-	nx, ny = map(int, args[1].split(','))
-	self.drw.rectangle(((self.cx, self.cy), (nx, ny)), outline=self.col)
-	self.cx, self.cy = nx, ny
+        if args[0]:
+            self.cx, self.cy = map(int, args[0].split(','))
+        nx, ny = map(int, args[1].split(','))
+        self.drw.rectangle(((self.cx, self.cy), (nx, ny)), outline=self.col)
+        self.cx, self.cy = nx, ny
 
     def point(self, args):
-	self.cx, self.cy = map(int, args[0].split(','))
-	self.drw.point((self.cx, self.cy), fill=self.col)
+        self.cx, self.cy = map(int, args[0].split(','))
+        self.drw.point((self.cx, self.cy), fill=self.col)
 
     def arc(self, args):
-	nx, ny = map(int, args[0].split(','))
-	self.drw.arc((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
+        nx, ny = map(int, args[0].split(','))
+        self.drw.arc((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
 
     def chord(self, args):
-	nx, ny = map(int, args[0].split(','))
-	self.drw.chord((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
+        nx, ny = map(int, args[0].split(','))
+        self.drw.chord((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
 
     def pie(self, args):
-	nx, ny = map(int, args[0].split(','))
-	self.drw.pieslice((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
+        nx, ny = map(int, args[0].split(','))
+        self.drw.pieslice((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
 
     def write(self, args):
-	self.drw.text((self.cx, self.cy), args[0], fill=self.col)
+        self.drw.text((self.cx, self.cy), args[0], fill=self.col)
 
     def color(self, args):
-	self.col = tuple(map(int, args[0].split(',')))
+        self.col = tuple(map(int, args[0].split(',')))
 
     def polygon(self, args):
-	lst = []
-	if not args[0]:
-	    lst = [(self.cx, self.cy)]
-	    args = args[1:]
-	lst.extend(map(lambda x: tuple(map(int, x.split(','))), args))
-	self.drw.polygon(lst, outline=self.col)
+        lst = []
+        if not args[0]:
+            lst = [(self.cx, self.cy)]
+            args = args[1:]
+        lst.extend(map(lambda x: tuple(map(int, x.split(','))), args))
+        self.drw.polygon(lst, outline=self.col)
 
     def polyfil(self, args):
-	lst = []
-	if not args[0]:
-	    lst = [(self.cx, self.cy)]
-	    args = args[1:]
-	lst.extend(map(lambda x: tuple(map(int, x.split(','))), args))
-	self.drw.polygon(lst, outline=self.col, fill=self.col)
+        lst = []
+        if not args[0]:
+            lst = [(self.cx, self.cy)]
+            args = args[1:]
+        lst.extend(map(lambda x: tuple(map(int, x.split(','))), args))
+        self.drw.polygon(lst, outline=self.col, fill=self.col)
 
     def process(self):
-	for cmd in open(self.cmdfile).readlines():
-	    cmd, args = cmd.strip().split('\t', 1)
-	    arg = args.split(';')
-	    if cmd == 'canvas':
-		sz = arg[0].split(',')
-		self.sx = int(sz[0])
-		self.sy = int(sz[1])
-		self.col = tuple(map(int, arg[1].split(',')))
-		self.img = Image.new("RGB", (self.sx, self.sy), self.col)
-		self.drw = ImageDraw.Draw(self.img)
-	    elif cmd in self.__class__.__dict__:
-		print >> sys.stderr, '+', cmd, arg
-		ret = self.__class__.__dict__[cmd](self, arg)
-	    else:
-		print >> sys.stderr, '?', cmd, args
+        for cmd in open(self.cmdfile).readlines():
+            cmd, args = cmd.strip().split('\t', 1)
+            arg = args.split(';')
+            if cmd == 'canvas':
+                sz = arg[0].split(',')
+                self.sx = int(sz[0])
+                self.sy = int(sz[1])
+                self.col = tuple(map(int, arg[1].split(',')))
+                self.img = Image.new("RGB", (self.sx, self.sy), self.col)
+                self.drw = ImageDraw.Draw(self.img)
+            elif cmd in self.__class__.__dict__:
+                print('+', cmd, arg, file=sys.stderr)
+                self.__class__.__dict__[cmd](self, arg)
+            else:
+                print('?', cmd, args, file=sys.stderr)
 
     def save(self, ofn):
-	if ofn:
-	    self.img.save(ofn)
-	else:
-	    self.img.save(sys.stdout, 'PPM')
+        if ofn:
+            self.img.save(ofn)
+        else:
+            self.img.save(sys.stdout, 'PPM')
 
 
 class ActionForm(object):
     def __init__(self, pif):
-	self.tdir = ''
-	self.fn = ''
-	self.nname = ''
-	self.man = ''
-	self.cat = ''
-	self.ov = False
-	self.cpmv = 'c'
-	self.mv = self.cpmv == 'm'
-	self.archive = False
-	self.spam = False
-	self.delete = False
-	self.trash = False
-	self.selcat = False
-	self.dest = ''
-	self.rename = False
-	self.lib = False
-	self.mvbin = False
-	self.select = False
-	self.var = ''
-	self.suff = ''
-	self.pref = ''
-	self.ptype = ''
-	self.inc = ''
-	self.cycle = False
-	self.tumblr = True
-	self.title = ''
-	self.link = ''
+        self.tdir = ''
+        self.fn = ''
+        self.nname = ''
+        self.man = ''
+        self.cat = ''
+        self.ov = False
+        self.cpmv = 'c'
+        self.mv = self.cpmv == 'm'
+        self.archive = False
+        self.spam = False
+        self.delete = False
+        self.trash = False
+        self.selcat = False
+        self.dest = ''
+        self.rename = False
+        self.lib = False
+        self.mvbin = False
+        self.select = False
+        self.var = ''
+        self.suff = ''
+        self.pref = ''
+        self.ptype = ''
+        self.inc = ''
+        self.cycle = False
+        self.tumblr = True
+        self.title = ''
+        self.link = ''
 
     def read(self, form):
-	self.tdir = form.get_str('d')
-	self.fn = form.get_str('fi')
-	self.nname = form.get_str('newname')
-	self.man = form.get_str('man')
-	self.cat = form.get_str('cat')
-	self.ov = form.get_bool('ov', False)
-	self.cpmv = form.get_str('cpmv', 'c')
-	self.mv = self.cpmv == 'm'
-	self.archive = form.get_exists('archive')
-	self.spam = form.get_exists('spam')
-	self.fixed = form.get_exists('fixed')
-	self.delete = form.get_exists('delete')
-	self.trash = form.get_exists('trash')
-	self.selcat = form.get_exists('selcat')
-	self.dest = form.get_str('moveto')
-	if not self.dest:
-	    if self.tdir.startswith('lib'):
-		self.dest = './' + self.tdir.replace('lib', 'pic')
-	    elif self.tdir.startswith('./lib'):
-		self.dest = self.tdir.replace('lib', 'pic')
-	self.rename = form.get_exists('rename')
-	self.lib = form.get_bool('lib')
-	self.mvbin = form.get_bool('mvbin')
-	self.select = form.get_exists('select')
-	self.var = form.get_str('newvar')
-	self.suff = form.get_str('suff')
-	if not self.var:
-	    self.var = form.get_str('v')
-	pref = form.get_str('pref')
-	self.pref = pref[1:] if pref and pref != 'n' else ''
-	self.ptype = form.get_str('pref')[0] if form.get_str('pref') else ''
-	self.inc = form.get_str('inc')
-	self.cycle = form.get_bool('cy')
-	self.tumblr = form.get_bool('tu', False)
-	self.title = form.get_str('title', self.nname)
-	self.link = form.get_str('link')
+        self.tdir = form.get_str('d')
+        self.fn = form.get_str('fi')
+        self.nname = form.get_str('newname')
+        self.man = form.get_str('man')
+        self.cat = form.get_str('cat')
+        self.ov = form.get_bool('ov', False)
+        self.cpmv = form.get_str('cpmv', 'c')
+        self.mv = self.cpmv == 'm'
+        self.archive = form.get_exists('archive')
+        self.spam = form.get_exists('spam')
+        self.fixed = form.get_exists('fixed')
+        self.delete = form.get_exists('delete')
+        self.trash = form.get_exists('trash')
+        self.selcat = form.get_exists('selcat')
+        self.dest = form.get_str('moveto')
+        if not self.dest:
+            if self.tdir.startswith('lib'):
+                self.dest = './' + self.tdir.replace('lib', 'pic')
+            elif self.tdir.startswith('./lib'):
+                self.dest = self.tdir.replace('lib', 'pic')
+        self.rename = form.get_exists('rename')
+        self.lib = form.get_bool('lib')
+        self.mvbin = form.get_bool('mvbin')
+        self.select = form.get_exists('select')
+        self.var = form.get_str('newvar')
+        self.suff = form.get_str('suff')
+        if not self.var:
+            self.var = form.get_str('v')
+        pref = form.get_str('pref')
+        self.pref = pref[1:] if pref and pref != 'n' else ''
+        self.ptype = form.get_str('pref')[0] if form.get_str('pref') else ''
+        self.inc = form.get_str('inc')
+        self.cycle = form.get_bool('cy')
+        self.tumblr = form.get_bool('tu', False)
+        self.title = form.get_str('title', self.nname)
+        self.link = form.get_str('link')
 
-#	szname = ''
-#	self.sx = self.sy = 0
-#	if os.path.exists(self.tdir + '/' + fn):
-#	    x, y = get_size(self.tdir + '/' + fn)
-#	    print (x, y)
-#	    for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
-#		if x <= szxy[0]:
-#		    break
-	return self
+        # szname = ''
+        # self.sx = self.sy = 0
+        # if os.path.exists(self.tdir + '/' + fn):
+        #     x, y = get_size(self.tdir + '/' + fn)
+        #     print((x, y))
+        #     for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
+        #         if x <= szxy[0]:
+        #             break
+        return self
 
     def action(self, pif, tdir=None, fn=None):
-	log_action = False
-	if not fn:
-	    fn = self.fn
-	if not tdir:
-	    tdir = self.tdir
-	ret = {'fn': fn, 'dir': tdir, 'act': True}
-	from_path = os.path.join(tdir, fn)
-	to_dir = to_name = ''
-	if self.delete:
-	    useful.file_delete(from_path)
-	elif self.trash:
-	    useful.file_mover(from_path, os.path.join('.' + config.TRASH_DIR, from_path[from_path.rfind('/') + 1:]), mv=True, inc=True, trash=False)
-	elif self.archive:
-	    useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
-	    ret['fn'] = ''
-	elif self.spam:
-	    path = '../spam' if os.path.exists(os.path.join(tdir, '..', 'spam')) else 'spam'
-	    useful.file_mover(from_path, os.path.join(tdir, path, fn), mv=True)
-	    ret['fn'] = ''
-	elif self.fixed:
-	    useful.file_mover(from_path, os.path.join(tdir, 'fixed', fn), mv=True)
-	    ret['fn'] = ''
-	elif self.rename:
-	    if not self.nname:
-		useful.warn('What? (rename, no name)')
-	    else:
-		to_dir = tdir
-		to_name = self.nname
-	elif self.lib:
-	    if not self.man:
-		useful.warn('What? (lib, no man)')
-	    elif not os.path.exists(useful.relpath('.' + config.LIB_MAN_DIR, self.man)):
-#		man2 = pif.dbh.fetch_alias(self.man)
-#		if not man2:
-		    useful.warn('bad destination')
-#		else:
-#		    useful.file_mover(from_path, os.path.join('.' + config.LIB_MAN_DIR, man2['ref_id'].lower(), fn), mv=self.mv, ov=self.ov)
-	    else:
-		to_dir = useful.relpath('.' + config.LIB_MAN_DIR, self.man)
-		to_name = self.nname
-	elif self.mvbin:
-	    if not os.path.exists(os.path.join('lib', self.cat)):
-		useful.warn('bad destination')
-	    else:
-		to_dir = os.path.join('lib', self.cat)
-		to_name = self.nname
-	elif self.selcat:
-	    if not (self.man or self.nname) or not self.dest:
-		useful.warn('What? (selcat, no name or dest)')
-	    else:
-		ddir = self.dest
-		dnam = self.man if self.man else self.nname
-		if self.pref:
-		    dnam = self.pref + '_' + dnam
-		    if self.ptype == 't':
-			ddir = '.' + config.IMG_DIR_ADD
-			if self.suff:
-			    dnam += '-' + self.suff
-		if dnam:
-		    to_name = dnam.lower() + '.jpg'
-		    to_dir = ddir
-		log_action = True
-	elif self.select:
-	    inc = self.inc
-	    if not self.man:
-		#self.man = tdir[tdir.rfind('/') + 1:]
-		useful.warn('Huh? (select, no man)')
-	    else:
-		ddir = '.' + config.IMG_DIR_MAN
-		dnam = self.man
-		if self.var:
-		    ddir = '.' + config.IMG_DIR_VAR
-		    dnam = dnam + '-' + self.var
-		    if self.pref:
-			dnam = self.pref + '_' + dnam
-		elif self.pref:
-		    if self.pref != 'n':
-			dnam = self.pref + '_' + dnam
-		    if self.ptype == 't':
-			ddir = '.' + config.IMG_DIR_ADD
-			if self.suff:
-			    dnam += '-' + self.suff
-			self.inc = True
-		else:
-		    useful.warn("What? (select, no var or pref)")
-		    dnam = ''
-		if dnam:
-		    to_name = dnam.lower() + '.jpg'
-		    to_dir = ddir
-		log_action = True
-	else:
-	    ret['act'] = False
-	if to_dir:
-	    cred = pif.form.get_str('credit')
-	    if cred:
-		photog = pif.dbh.fetch_photographer(cred)
-		if not photog or not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
-		    cred = ''
-	    useful.file_mover(from_path, os.path.join(to_dir, to_name), mv=self.mv, ov=self.ov, inc=self.inc)
-	    ret['fn'] = to_name
-	    ret['dir'] = to_dir
-	    if log_action and self.tumblr:
-		title = pif.form.get_str('title', to_name)
-		url = pif.secure_prod + os.path.join(to_dir, to_name)
-		link = pif.secure_prod + self.link
-		title = to_name
-		if cred:
-		    title += ' credited to ' + photog.name
-		pif.render.message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
-	    pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, to_dir, to_name))
-	return ret
+        log_action = False
+        if not fn:
+            fn = self.fn
+        if not tdir:
+            tdir = self.tdir
+        ret = {'fn': fn, 'dir': tdir, 'act': True}
+        from_path = os.path.join(tdir, fn)
+        to_dir = to_name = ''
+        if self.delete:
+            useful.file_delete(from_path)
+        elif self.trash:
+            useful.file_mover(from_path, os.path.join('.' + config.TRASH_DIR, from_path[from_path.rfind('/') + 1:]),
+                              mv=True, inc=True, trash=False)
+        elif self.archive:
+            useful.file_mover(from_path, os.path.join(tdir, 'archive', fn), mv=True)
+            ret['fn'] = ''
+        elif self.spam:
+            path = '../spam' if os.path.exists(os.path.join(tdir, '..', 'spam')) else 'spam'
+            useful.file_mover(from_path, os.path.join(tdir, path, fn), mv=True)
+            ret['fn'] = ''
+        elif self.fixed:
+            useful.file_mover(from_path, os.path.join(tdir, 'fixed', fn), mv=True)
+            ret['fn'] = ''
+        elif self.rename:
+            if not self.nname:
+                useful.warn('What? (rename, no name)')
+            else:
+                to_dir = tdir
+                to_name = self.nname
+        elif self.lib:
+            if not self.man:
+                useful.warn('What? (lib, no man)')
+            elif not os.path.exists(useful.relpath('.' + config.LIB_MAN_DIR, self.man)):
+                # man2 = pif.dbh.fetch_alias(self.man)
+                # if not man2:
+                useful.warn('bad destination')
+                # else:
+                #     useful.file_mover(from_path, os.path.join('.' + config.LIB_MAN_DIR, man2['ref_id'].lower(), fn),
+                #                       mv=self.mv, ov=self.ov)
+            else:
+                to_dir = useful.relpath('.' + config.LIB_MAN_DIR, self.man)
+                to_name = self.nname
+        elif self.mvbin:
+            if not os.path.exists(os.path.join('lib', self.cat)):
+                useful.warn('bad destination')
+            else:
+                to_dir = os.path.join('lib', self.cat)
+                to_name = self.nname
+        elif self.selcat:
+            if not (self.man or self.nname) or not self.dest:
+                useful.warn('What? (selcat, no name or dest)')
+            else:
+                ddir = self.dest
+                dnam = self.man if self.man else self.nname
+                if self.pref:
+                    dnam = self.pref + '_' + dnam
+                    if self.ptype == 't':
+                        ddir = '.' + config.IMG_DIR_ADD
+                        if self.suff:
+                            dnam += '-' + self.suff
+                if dnam:
+                    to_name = dnam.lower() + '.jpg'
+                    to_dir = ddir
+                log_action = True
+        elif self.select:
+            # inc = self.inc
+            if not self.man:
+                # self.man = tdir[tdir.rfind('/') + 1:]
+                useful.warn('Huh? (select, no man)')
+            else:
+                ddir = '.' + config.IMG_DIR_MAN
+                dnam = self.man
+                if self.var:
+                    ddir = '.' + config.IMG_DIR_VAR
+                    dnam = dnam + '-' + self.var
+                    if self.pref:
+                        dnam = self.pref + '_' + dnam
+                elif self.pref:
+                    if self.pref != 'n':
+                        dnam = self.pref + '_' + dnam
+                    if self.ptype == 't':
+                        ddir = '.' + config.IMG_DIR_ADD
+                        if self.suff:
+                            dnam += '-' + self.suff
+                        self.inc = True
+                else:
+                    useful.warn("What? (select, no var or pref)")
+                    dnam = ''
+                if dnam:
+                    to_name = dnam.lower() + '.jpg'
+                    to_dir = ddir
+                log_action = True
+        else:
+            ret['act'] = False
+        if to_dir:
+            cred = pif.form.get_str('credit')
+            if cred:
+                photog = pif.dbh.fetch_photographer(cred)
+                if not photog or not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
+                    cred = ''
+            useful.file_mover(from_path, os.path.join(to_dir, to_name), mv=self.mv, ov=self.ov, inc=self.inc)
+            ret['fn'] = to_name
+            ret['dir'] = to_dir
+            if log_action and self.tumblr:
+                title = pif.form.get_str('title', to_name)
+                url = pif.secure_prod + os.path.join(to_dir, to_name)
+                link = pif.secure_prod + self.link
+                title = to_name
+                if cred:
+                    title += ' credited to ' + photog.name
+                pif.render.message('Post to Tumblr: ',
+                                   tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+            pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, to_dir, to_name))
+        return ret
 
     def picture_prefixes(self):
-	return [('n', 'no prefix')] + \
-		[('s' + x[0], x[1]) for x in zip(mbdata.image_size_types, mbdata.image_size_names)] + \
-		[('t' + x[0], x[1]) for x in zip(mbdata.image_adds_types, mbdata.image_adds_names)]
+        return ([('n', 'no prefix')] +
+                [('s' + x[0], x[1]) for x in zip(mbdata.image_size_types, mbdata.image_size_names)] +
+                [('t' + x[0], x[1]) for x in zip(mbdata.image_adds_types, mbdata.image_adds_names)])
 
     sel_moveto = [('.' + x, mbdata.img_dir_name.get(x, x),) for x in movetos]
 
     def write(self, pif, fn):
-#	root, ext = useful.root_ext(fn.strip())
-#	print '<a href="?d=%s">%s</a> / ' % (self.tdir, self.tdir)
-#	print '<a href="/%s/%s">%s</a>' % (self.tdir, fn, fn)
-#	print '<hr>'
-#	print '<self action="upload.cgi">'
+        # root, ext = useful.root_ext(fn.strip())
+        # print('<a href="?d=%s">%s</a> / ' % (self.tdir, self.tdir))
+        # print('<a href="/%s/%s">%s</a>' % (self.tdir, fn, fn))
+        # print('<hr>')
+        # print('<self action="upload.cgi">')
 
-	szname = ''
-	x = y = 0
-	if os.path.exists(self.tdir + '/' + fn):
-	    x, y = get_size(self.tdir + '/' + fn)
-	    print (x, y)
-	    for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
-		if x <= szxy[0]:
-		    break
-	self.pref = 's' + szname
-	print '<input type=hidden name="act" value="1">'
-	print '<input type=hidden name="d" value="%s">' % self.tdir
-	print '<input type=hidden name="fi" value="%s">' % fn
-	print '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&v=%s&cy=%s">%s</a>' % (self.tdir, fn, self.var, self.cycle, pif.render.format_button('edit'))
-	print pif.render.format_button_input('delete')
-	print pif.render.format_button_input('trash')
-	print pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (self.tdir + '/' + fn))
-	print 'New name: <input type="text" size="32" name="newname" value="%s">' % fn
-	print pif.render.format_button_input('rename')
-	print pif.render.format_radio('cpmv', [('c', 'copy'), ('m', 'move')], self.cpmv)
-	if pif.is_allowed('m'):  # pragma: no cover
-	    if self.ov:
-		print '<input type=checkbox name="ov" value="1" checked>'
-	    else:
-		print '<input type=checkbox name="ov" value="1">'
-	    print 'overwrite<br>'
-	    print 'Man: <input type="text" size="12" name="man" value="%s">' % self.man #get_man(pif)
-	    print pif.render.format_button_up_down('man')
-	    print pif.render.format_button_input('move to library', 'lib')
-	    print 'Category:', pif.render.format_select('cat', mbdata.img_sel_cat, self.cat)
-	    print pif.render.format_button_input('move to bin', 'mvbin')
-	    print pif.render.format_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))])
-	    print pif.render.format_checkbox("tu", [("1", "tumblr")], checked=[str(int(self.tumblr))])
-	    print '<input type=checkbox name="inc" value="1"> increment name'
-	    print '<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var
-	    print 'Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref, blank='')
-	    print 'Suffix: <input type="text" size="5" name="suff" value="%s">' % self.suff
-	    print pif.render.format_button_input('select to casting', 'select')
-	    print 'Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest, blank='')
-	    #useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
-	    print pif.render.format_button_input('select to category', 'selcat')
-	    print '<br>'
+        szname = ''
+        x = y = 0
+        if os.path.exists(self.tdir + '/' + fn):
+            x, y = get_size(self.tdir + '/' + fn)
+            print((x, y))
+            for (szname, szxy) in zip(mbdata.image_size_types, mbdata.image_size_sizes):
+                if x <= szxy[0]:
+                    break
+        self.pref = 's' + szname
+        print('<input type=hidden name="act" value="1">')
+        print('<input type=hidden name="d" value="%s">' % self.tdir)
+        print('<input type=hidden name="fi" value="%s">' % fn)
+        print('<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&v=%s&cy=%s">%s</a>' % (
+              self.tdir, fn, self.var, self.cycle, pif.render.format_button('edit')))
+        print(pif.render.format_button_input('delete'))
+        print(pif.render.format_button_input('trash'))
+        print(pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (self.tdir + '/' + fn)))
+        print('New name: <input type="text" size="32" name="newname" value="%s">' % fn)
+        print(pif.render.format_button_input('rename'))
+        print(pif.render.format_radio('cpmv', [('c', 'copy'), ('m', 'move')], self.cpmv))
+        if pif.is_allowed('m'):  # pragma: no cover
+            if self.ov:
+                print('<input type=checkbox name="ov" value="1" checked>')
+            else:
+                print('<input type=checkbox name="ov" value="1">')
+            print('overwrite<br>')
+            print('Man: <input type="text" size="12" name="man" value="%s">' % self.man)  # get_man(pif)
+            print(pif.render.format_button_up_down('man'))
+            print(pif.render.format_button_input('move to library', 'lib'))
+            print('Category:', pif.render.format_select('cat', mbdata.img_sel_cat, self.cat))
+            print(pif.render.format_button_input('move to bin', 'mvbin'))
+            print(pif.render.format_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))]))
+            print(pif.render.format_checkbox("tu", [("1", "tumblr")], checked=[str(int(self.tumblr))]))
+            print('<input type=checkbox name="inc" value="1"> increment name')
+            print('<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var)
+            print('Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref, blank=''))
+            print('Suffix: <input type="text" size="5" name="suff" value="%s">' % self.suff)
+            print(pif.render.format_button_input('select to casting', 'select'))
+            print('Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest, blank=''))
+            # useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
+            print(pif.render.format_button_input('select to category', 'selcat'))
+            print('<br>')
 
-	return x, y
+        return x, y
 
 
-titles = {'dir': 'Directories', 'graf': 'Graphics', 'dat': 'Data Files',
-	  'exe': 'Executable Files', 'other': 'Other Files', 'log': 'Log Files'}
 def get_dir(tdir, name_has=''):
+    titles = {'dir': 'Directories', 'graf': 'Graphics', 'dat': 'Data Files',
+              'exe': 'Executable Files', 'other': 'Other Files', 'log': 'Log Files'}
     fl = os.listdir(tdir)
     fl.sort()
     files = {'dir': list(), 'graf': list(), 'dat': list(),
-	     'exe': list(), 'other': list(), 'log': list(),
-	     'titles': titles}
+             'exe': list(), 'other': list(), 'log': list(),
+             'titles': titles}
     for f in fl:
-	if name_has and name_has not in f:
-	    continue
+        if name_has and name_has not in f:
+            continue
         root, ext = useful.root_ext(f)
         if os.path.exists(tdir + '/' + f):
             if f[-1] == '~' or f == '.crcs' or f[-4:] == '.pyc':
@@ -1067,74 +1051,76 @@ def image_star(image_path, image_file, pic_id='', halfstar=False, target_x=400, 
         return 'far', 'star', 'black'
     try:
         img = Image.open(os.path.join(image_path, image_file))
-    except:
+    except Exception:
         return 'fas', pic, 'yellow'
     ix, iy = img.size
     if target_x:
-	if ix < target_x / 2:
-	    return 'fas', pic, 'red'
-	if ix < target_x:
-	    return 'fas', pic, 'green'
-	if ix > target_x:
-	    return 'fas', pic, 'blue'
+        if ix < target_x / 2:
+            return 'fas', pic, 'red'
+        if ix < target_x:
+            return 'fas', pic, 'green'
+        if ix > target_x:
+            return 'fas', pic, 'blue'
     else:
-	if iy < target_y / 2:
-	    return 'fas', pic, 'red'
-	if iy < target_y:
-	    return 'fas', pic, 'green'
-	if iy > target_y:
-	    return 'fas', pic, 'blue'
+        if iy < target_y / 2:
+            return 'fas', pic, 'red'
+        if iy < target_y:
+            return 'fas', pic, 'green'
+        if iy > target_y:
+            return 'fas', pic, 'blue'
     return 'fas', pic, 'black'
 
 
 def read_presets(pdir):
     if os.path.exists(os.path.join(pdir, '.ima')):
-	presets = eval(open(os.path.join(pdir, '.ima')).read())
-	print 'read_presets:', presets, '<br>'
-	presets['save'] = [1]
-	return presets
+        presets = eval(open(os.path.join(pdir, '.ima')).read())
+        print('read_presets:', presets, '<br>')
+        presets['save'] = [1]
+        return presets
     return dict()
 
 
 def write_presets(pdir, presets, force=False):
     if force or os.path.exists(os.path.join(pdir, '.ima')):
-	print 'write_presets:', presets, '<br>'
-	open(os.path.join(pdir, '.ima'), 'w').write(str(presets))
+        print('write_presets:', presets, '<br>')
+        open(os.path.join(pdir, '.ima'), 'w').write(str(presets))
 
 
 def update_presets(pdir, values):
     if os.path.exists(os.path.join(pdir, '.ima')):
-	presets = read_presets(pdir)
-	presets.update(values)
-	write_presets(pdir, presets)
+        presets = read_presets(pdir)
+        presets.update(values)
+        write_presets(pdir, presets)
 
 
 def promote_picture(pif, mod_id, var_id):
     credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s.*' % (mod_id.lower(), var_id.lower()))
-    pif.render.message('promoting picture for', mod_id, 'var', var_id, 'to', credit['photographer.id'] if credit else 'uncredited')
+    pif.render.message('promoting picture for', mod_id, 'var', var_id, 'to',
+                       credit['photographer.id'] if credit else 'uncredited')
     for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
-	ofn = pic[pic.rfind('/') + 1:]
-	nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
-	useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
+        ofn = pic[pic.rfind('/') + 1:]
+        nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
+        useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
     # transfer credit
     if credit:
-	pif.render.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'], config.IMG_DIR_MAN[1:], mod_id))
+        pif.render.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'],
+                           config.IMG_DIR_MAN[1:], mod_id))
 
 
 def simple_save(ofi, opth):
     if isinstance(ofi, Image.Image):
-	ofi.save(opth)
+        ofi.save(opth)
     else:
-	open(opth, "w").write(ofi)
+        open(opth, "w").write(ofi)
 
 
 def get_credit_file():
     ents = bfiles.SimpleFile('src/credits.dat')
     dirs = {}
     for ent in ents:
-	if ent[0] == 'c':
-	    dirs.setdefault(ent[1], dict())
-	    dirs[ent[1]][ent[3]] = ent[2]
+        if ent[0] == 'c':
+            dirs.setdefault(ent[1], dict())
+            dirs[ent[1]][ent[3]] = ent[2]
     return dirs
 
 
@@ -1142,7 +1128,7 @@ def get_tilley_file():
     ents = bfiles.SimpleFile('src/credits.dat')
     mans = {}
     for ent in ents:
-	if ent[0] == 'c' and ent[2] == 'DT' and ent[1].startswith('man/'):
-	    mans.setdefault(ent[1][4:], list())
-	    mans[ent[1][4:]].append(ent[3])
+        if ent[0] == 'c' and ent[2] == 'DT' and ent[1].startswith('man/'):
+            mans.setdefault(ent[1][4:], list())
+            mans[ent[1][4:]].append(ent[3])
     return mans

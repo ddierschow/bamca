@@ -1,7 +1,11 @@
 #!/usr/local/bin/python
 # -*- coding: utf8 -*-
 
-import functools, os, re, sys
+from __future__ import print_function
+from functools import reduce
+from io import open
+import functools
+import re
 import basics
 import config
 import useful
@@ -39,11 +43,11 @@ def read_data_file(main_fn):
 def read_column_change(fil):
     changes = dict()
     for ln in fil:
-	try:
-	    mnl, col, colto = ln.split('|')
-	except ValueError:
-	    print 'ValueError:', ln, '<br>'
-	    continue
+        try:
+            mnl, col, colto = ln.split('|')
+        except ValueError:
+            print('ValueError:', ln, '<br>')
+            continue
         for mn in mnl.split(';'):
             changes.setdefault(mn, list())
             changes[mn].append([col.split(';'), colto.split(';')])
@@ -84,17 +88,20 @@ def read_filenames(fil):
     changes = list()
     for ln in fil:
         transfrom, transto = ln.split('|')[:2]
-        changes.append([re.compile('^%s$' % transfrom) if '?' in transfrom else transfrom, transto.split(';') if transto else []])
+        changes.append([re.compile(r'^%s$' % transfrom) if '?' in transfrom else
+                        transfrom, transto.split(';') if transto else []])
     return changes
 
 
 cmt_re = re.compile(r'<!--.*?-->', re.S)
 hln_re = re.compile(r'\\hline')
-div_re = re.compile('</?div.*?>', re.S | re.M)
+div_re = re.compile(r'</?div.*?>', re.S | re.M)
 tab_re = re.compile(r'<table[^>]*>(?P<c>.*?)</table>', re.S)
 row_re = re.compile(r'<tr[^>]*>(?P<c>.*?)</tr>', re.S)
 cel_re = re.compile(r'<t(?P<t>[hd])[^>]*>(?P<c>.*?)</t[hd]>', re.S)
 mup_re = re.compile(r'<[^>]*>', re.S)
+
+
 def get_html_tables(fn, markups=True):
     f = open(fn).read()
     f = cmt_re.sub('', f)
@@ -103,52 +110,52 @@ def get_html_tables(fn, markups=True):
 
     tables = list()
     while 1:
-	fitab = tab_re.search(f)
-	if not fitab:
-	    rest = f
-	    break
+        fitab = tab_re.search(f)
+        if not fitab:
+            rest = f
+            break
 
-	pred = f[:fitab.start()]
-	tab_con = fitab.group('c')
-	rows = list()
-	while 1:
-	    row = row_re.search(tab_con)
-	    if not row:
-		break
+        pred = f[:fitab.start()]
+        tab_con = fitab.group('c')
+        rows = list()
+        while 1:
+            row = row_re.search(tab_con)
+            if not row:
+                break
 
-	    row_con = row.group('c')
-	    cels = list()
-	    while 1:
-		cel = cel_re.search(row_con)
-		if not cel:
-		    break
+            row_con = row.group('c')
+            cels = list()
+            while 1:
+                cel = cel_re.search(row_con)
+                if not cel:
+                    break
 
-		cel_con = cel.group('c')
-		if markups:
-		    cel_con = mup_re.sub('', cel_con)
-		cels.append(cel_con.strip())
+                cel_con = cel.group('c')
+                if markups:
+                    cel_con = mup_re.sub('', cel_con)
+                cels.append(cel_con.strip())
 
-		row_con = row_con[cel.end():]
-	    tab_con = tab_con[row.end():]
-	    rows.append(cels)
-	f = f[fitab.end():]
-	tables.append([pred, rows, ''])
+                row_con = row_con[cel.end():]
+            tab_con = tab_con[row.end():]
+            rows.append(cels)
+        f = f[fitab.end():]
+        tables.append([pred, rows, ''])
     if tables:
-	tables[-1][-1] = rest
+        tables[-1][-1] = rest
     else:
-	tables.append(['', list(), rest])
+        tables.append(['', list(), rest])
     return tables
 
 
 def compare_var_ids(v1, v2):
     for iv1 in range(len(v1)):
-	for iv2 in range(len(v2)):
-	    if v1[iv1:] == v2[iv2:]:
-		return True
-	    if v2[iv2] != '0':
-		break
-	if v1[iv1] != '0':
-	    break
+        for iv2 in range(len(v2)):
+            if v1[iv1:] == v2[iv2:]:
+                return True
+            if v2[iv2] != '0':
+                break
+        if v1[iv1] != '0':
+            break
     return False
 
 
@@ -156,19 +163,18 @@ class VariationImportData(object):
 
     # ------ html ------------------------------------------------
 
-
     column_split_delim = {
         'body_license_plate': ' ',
         'windows_rear_side_window_corners': ',',
     }
 
     last_change = [
-        [re.compile("\(\s+"), " ("],
-        [re.compile("\s+\)"), ") "],
-        [re.compile("\s+,"), ","],
-        [re.compile("^\s+"), ""],  # do these three last
-        [re.compile("\s+$"), ""],
-        [re.compile("\s+"), " "],
+        [re.compile(r"\(\s+"), " ("],
+        [re.compile(r"\s+\)"), ") "],
+        [re.compile(r"\s+,"), ","],
+        [re.compile(r"^\s+"), ""],  # do these three last
+        [re.compile(r"\s+$"), ""],
+        [re.compile(r"\s+"), " "],
     ]
 
     def __init__(self, verbose=False):
@@ -224,36 +230,37 @@ class VariationImportData(object):
         self.debug('RCC 2', row)
         row['imported_from'] = file_id
         for hdrs, nhdr in self.base_change.get(file_id, []):
-	    hdr_txts = []
-	    for hdr in hdrs:
-		hdr_txts.append(row[hdr])
-		if hdr != nhdr:
-		    del row[hdr]
-	    row[nhdr[0]] = ' / '.join(hdr_txts)
+            hdr_txts = []
+            for hdr in hdrs:
+                hdr_txts.append(row[hdr])
+                if hdr != nhdr:
+                    del row[hdr]
+            row[nhdr[0]] = ' / '.join(hdr_txts)
 
         self.debug('RCC 3', row)
         row['base'], row['manufacture'] = self.interpret_base(row.get('base', ''), row.get('manufacture'))
         if 'base_insert' in row and not row['manufacture']:
-            row['base_insert'], row['manufacture'] = self.interpret_base(row.get('base_insert', ''), row.get('manufacture'))
+            row['base_insert'], row['manufacture'] = self.interpret_base(
+                row.get('base_insert', ''), row.get('manufacture'))
 
         self.debug('RCC 4', row)
         for hdrs, nhdrs in self.clmn_change.get('', []) + self.clmn_change.get(file_id, []):
-	    hdrs = filter(None, hdrs)
+            hdrs = filter(None, hdrs)
             self.debug('RCC 4a', hdrs, nhdrs)
-	    if len(hdrs) < 1:  # 0 to 1 create
-		row[nhdrs[0]] = ''
-	    elif len(nhdrs) < 1:  # 1 to 0 delete
-		pass
+            if len(hdrs) < 1:  # 0 to 1 create
+                row[nhdrs[0]] = ''
+            elif len(nhdrs) < 1:  # 1 to 0 delete
+                pass
             elif len(hdrs) > 1:  # N to 1 join
                 self.debug('RCC 4b')
                 nvals = list()
-		no_val = ''
+                no_val = ''
                 for hdr in hdrs:
                     self.debug('RCC 4c', hdr, row.get(hdr))
-		    if row.get(hdr) == 'no':
-			no_val = 'no'
+                    if row.get(hdr) == 'no':
+                        no_val = 'no'
                     elif hdr in row and row[hdr] and row[hdr] not in nvals:
-			self.debug('   ... added', row[hdr])
+                        self.debug('   ... added', row[hdr])
                         nvals.append(row[hdr])
                 row[nhdrs[0]] = ', '.join(nvals) if nvals else no_val
                 self.debug('RCC 4b-finish', nhdrs[0], row[nhdrs[0]])
@@ -274,18 +281,18 @@ class VariationImportData(object):
                 if len(flds) == len(nhdrs):
                     row[hdr] = ''
                     for nhdr in nhdrs:
-			if nhdr.startswith('*'):
-			    nhdr = nhdr[1:]
+                        if nhdr.startswith('*'):
+                            nhdr = nhdr[1:]
                         self.debug('RCC 4g', nhdr, ':', row.get(nhdr), nonl=True)
                         row[nhdr] = (row.get(nhdr, '') + ' ' + flds.pop(0).strip()).strip()
                         self.debug('to', row[nhdr], 'nhdr', nhdr)
                 else:
                     self.debug('RCC 4h')
                     for nhdr in nhdrs:
-			if nhdr.startswith('*'):
-			    row[nhdr[1:]] = ''
-			else:
-			    row[nhdr] = row[hdr]
+                        if nhdr.startswith('*'):
+                            row[nhdr[1:]] = ''
+                        else:
+                            row[nhdr] = row[hdr]
             else:  # 1 to 1 with +
                 if hdrs[0] not in row:
                     self.debug('RCC 4i')
@@ -325,28 +332,28 @@ class VariationImportData(object):
     def header_column_change(self, file_id, hdrs):
         self.debug('HCC0', self.clmn_change.get(file_id, []))
         self.debug('HCC1', hdrs)
-	base_change = self.base_change.get(file_id, [])
-	clmn_change = self.clmn_change.get('', []) + self.clmn_change.get(file_id, [])
+        base_change = self.base_change.get(file_id, [])
+        clmn_change = self.clmn_change.get('', []) + self.clmn_change.get(file_id, [])
         nhdrs = list()
         for hdr in filter(None, hdrs):
             self.debug('HCC3', hdr)
             for ocolname, ncolname in base_change:
                 if hdr in ocolname:
-		    if ncolname[0] not in hdrs:
-			hdr = ncolname[0]
-			break
-		    elif hdr != ncolname[0]:
-			continue
+                    if ncolname[0] not in hdrs:
+                        hdr = ncolname[0]
+                        break
+                    elif hdr != ncolname[0]:
+                        continue
             self.debug('HCC4', hdr)
             found = False
             for ent in clmn_change:
-		ent[1] = filter(None, ent[1])
+                ent[1] = filter(None, ent[1])
                 self.debug('HCC5', hdr, ent)
-		if not len(ent[1]):  # N to 0
+                if not len(ent[1]):  # N to 0
                     self.debug('HCC6 N-to-0')
-		    if hdr in ent[0]:
-			found = True
-			break
+                    if hdr in ent[0]:
+                        found = True
+                        break
                 elif len(ent[0]) == 1:  # 1 to 1 or 1 to N split
                     self.debug('HCC6 1-to-N')
                     if not hdr == ent[0][0]:
@@ -357,8 +364,8 @@ class VariationImportData(object):
                     for nhdr in newhdrs:
                         if nhdr.find('+') >= 0:
                             nhdr = nhdr[:nhdr.find('+')]
-			if nhdr.startswith('*'):
-			    nhdr = nhdr[1:]
+                        if nhdr.startswith('*'):
+                            nhdr = nhdr[1:]
                         if nhdr not in nhdrs:
                             nhdrs.append(nhdr)
                 else:
@@ -371,10 +378,10 @@ class VariationImportData(object):
             if not found and hdr not in nhdrs:
                 self.debug('HCC7', hdr)
                 nhdrs.append(hdr)
-	for ent in clmn_change:
-	    if not filter(None, ent[0]):
+        for ent in clmn_change:
+            if not filter(None, ent[0]):
                 self.debug('HCC8', ent)
-		nhdrs.extend(ent[1])
+                nhdrs.extend(ent[1])
         if 'manufacture' not in nhdrs:
             nhdrs.append('manufacture')
         self.debug('HCCX', nhdrs)
@@ -385,7 +392,7 @@ class VariationImportData(object):
         return row
 
     def transform_cell(self, txt):
-	txt = txt.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ')
+        txt = txt.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ')
         txt = reduce(lambda y, x: x[0].sub(x[1], y), self.cell_change, txt)
         return txt.strip()
 
@@ -409,32 +416,31 @@ class VariationImportData(object):
 
     def show_settings(self, title, sets):
         if sets:
-            print '<h4>', title, '</h4>'
-	    print '<table>',
+            print('<h4>', title, '</h4>')
+            print('<table>',)
             for row in sets:
-		print '<tr>'
-		if isinstance(row, list):
-		    for col in row:
-			print '<td>',
-			if isinstance(col, list):
-			    print '; '.join(col),
-			elif isinstance(col, str):
-			    print col,
-			else:
-			    print col.pattern,
-			print '</td>'
-		else:
-		    print '<td>', row.pattern, '</td>'
-		print '</tr>'
-            print '</table>'
+                print('<tr>')
+                if isinstance(row, list):
+                    for col in row:
+                        print('<td>',)
+                        if isinstance(col, list):
+                            print('; '.join(col),)
+                        elif isinstance(col, str):
+                            print(col,)
+                        else:
+                            print(col.pattern,)
+                        print('</td>')
+                else:
+                    print('<td>', row.pattern, '</td>')
+                print('</tr>')
+            print('</table>')
 
     def show_file_settings(self, fn):
         self.show_settings("Bases", self.base_change.get(fn))
         self.show_settings("Columns", self.clmn_change.get(fn))
         self.show_settings("Cells (pre)", self.prep_change.get(fn))
         self.show_settings("Cells (post)", self.post_change.get(fn))
-	print '<hr>'
-
+        print('<hr>')
 
     def show_global_settings(self):
         self.show_settings("Filenames", self.fnam_change)
@@ -449,7 +455,7 @@ class VariationImportData(object):
 @basics.command_line
 def commands(pif):
     vid = VariationImportData()
-    print vid.transform_header("base no.")
+    print(vid.transform_header("base no."))
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -1,6 +1,8 @@
 #!/usr/local/bin/python
 
-import os, sys
+from io import open
+import os
+import sys
 from PIL import Image
 
 # =========================
@@ -19,7 +21,7 @@ class Icon(object):
         self.bgcolor = 0
 
     def charset(self, fn):
-	self.chars = Font(fn)
+        self.chars = Font(fn)
 
     def set(self, x, y, v=1):
         if v:
@@ -152,13 +154,13 @@ class Icon(object):
 
 class Font(object):
     def __init__(self, fname):
-	sys.path.append('./bin')
+        sys.path.append('./bin')
         f = None
         for path in sys.path:
             try:
                 fp = os.path.join(path, fname)
                 f = open(fp)
-            except:
+            except Exception:
                 continue
             break
 
@@ -166,13 +168,13 @@ class Font(object):
             inp = f.readlines()
 
             self.chars = {}
-            xall = x = y = 0
-            v = 0L
+            xall = x = 0
+            v = 0
             c = None
             for line in inp:
                 if line[0] == '\t':
-#                    if not c:
-#                        print '*** badly formed input'
+                    # if not c:
+                    #     print '*** badly formed input'
                     line = line[1:] + " " * x
                     line = line[:x]
                     for p in line:
@@ -182,7 +184,7 @@ class Font(object):
                 elif line[0] == 'x':
                     x = xall = int(line[1:])
                 elif line[0] == 'y':
-                    self.height = y = int(line[1:])
+                    self.height = int(line[1:])
                 elif line[0] == '=':
                     if c:
                         self.chars[c] = (x, v)

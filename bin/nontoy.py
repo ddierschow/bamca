@@ -1,15 +1,19 @@
 #!/usr/local/bin/python
 
-import datetime, glob, os, pprint, re
+from __future__ import print_function
+from io import open
+import datetime
+import os
+import pprint
+import re
 import basics
 import bfiles
 import config
 import images
-import javasc
 import mbdata
 import useful
 
-#pagename = 'biblio'
+# pagename = 'biblio'
 
 # -- biblio
 
@@ -18,25 +22,25 @@ squish_re = re.compile(r'\s\s*')
 
 biblios = {
     'biblio': {
-	'tab': 'book',
-	'show': ['*Author', '*Title', '*Publisher', '*Year', 'ISBN'],
-	'sort': 'author',
-	'lastsort': 'title',
-	'links': {
-	    'title': 'pic:pic_id',
-	    'edit': 'edit:id',
-	},
+        'tab': 'book',
+        'show': ['*Author', '*Title', '*Publisher', '*Year', 'ISBN'],
+        'sort': 'author',
+        'lastsort': 'title',
+        'links': {
+            'title': 'pic:pic_id',
+            'edit': 'edit:id',
+        },
     },
     'bayarea': {
-	'tab': 'bayarea',
-	'show': ['*Name', 'Address', '*City', 'State', 'Phone'],
-	'sort': 'name',
-	'lastsort': 'name',
-	'links': {
-	    'name': 'url:url',
-	    'address': 'map:address,city,state',
-	    'edit': 'edit:id',
-	},
+        'tab': 'bayarea',
+        'show': ['*Name', 'Address', '*City', 'State', 'Phone'],
+        'sort': 'name',
+        'lastsort': 'name',
+        'links': {
+            'name': 'url:url',
+            'address': 'map:address,city,state',
+            'edit': 'edit:id',
+        },
     },
 }
 
@@ -44,13 +48,13 @@ biblios = {
 @basics.web_page
 def biblio(pif):
     def pic_formatter(x):
-	img = pif.render.find_image_file([str(y) for y in x])
-	return ('/' + '/'.join(pif.render.find_image_file([str(y) for y in x]))) if ''.join(img) else ''
+        img = pif.render.find_image_file([str(y) for y in x])
+        return ('/' + '/'.join(pif.render.find_image_file([str(y) for y in x]))) if ''.join(img) else ''
 
     row_link_formatters = {
-	'map': lambda x: '' if '' in x else (map_url + ','.join(x)).replace(' ', '+'),
-	'url': lambda x: x[0],
-	'pic': pic_formatter,
+        'map': lambda x: '' if '' in x else (map_url + ','.join(x)).replace(' ', '+'),
+        'url': lambda x: x[0],
+        'pic': pic_formatter,
     }
 
     pif.render.hierarchy_append('/', 'Home')
@@ -69,55 +73,60 @@ def biblio(pif):
 
     editable = pif.form.get_bool('edit') and pif.is_allowed('a')
     if editable:
-	lsection['columns'].append('edit')
-	lsection['headers']['edit'] = '&nbsp;'
-	row_link_formatters['edit'] = lambda x: ('%s/cgi-bin/editor.cgi?table=%s&id=%s' % (pif.secure_host, tab_name, x[0]))
+        lsection['columns'].append('edit')
+        lsection['headers']['edit'] = '&nbsp;'
+        row_link_formatters['edit'] = lambda x: (
+            '%s/cgi-bin/editor.cgi?table=%s&id=%s' % (pif.secure_host, tab_name, x[0]))
     for arg in page_info['show']:
-	hdr = arg
-	key = arg.lower().replace(' ', '_')
-	if arg.startswith('*'):
-	    key = key[1:]
-	    hdr = '<a href="biblio.cgi?page=%s&sort=%s">%s</a>' % (pif.page_name, key, hdr[1:])
-	lsection['columns'].append(key)
-	lsection['headers'][key] = hdr
+        hdr = arg
+        key = arg.lower().replace(' ', '_')
+        if arg.startswith('*'):
+            key = key[1:]
+            hdr = '<a href="biblio.cgi?page=%s&sort=%s">%s</a>' % (pif.page_name, key, hdr[1:])
+        lsection['columns'].append(key)
+        lsection['headers'][key] = hdr
 
     sortkey = []
     this_sort = pif.form.get_str('sort', page_info.get('sort'))
     if this_sort:
-	if this_sort.isdigit():
-	    this_sort = max(0, min(len(lsection['columns']) - 1, int(this_sort)))
-	    this_sort = lsection['columns'][this_sort]
-	sortkey.append(this_sort)
+        if this_sort.isdigit():
+            this_sort = max(0, min(len(lsection['columns']) - 1, int(this_sort)))
+            this_sort = lsection['columns'][this_sort]
+        sortkey.append(this_sort)
     if page_info.get('lastsort'):
-	sortkey.append(page_info.get('lastsort'))
+        sortkey.append(page_info.get('lastsort'))
     if sortkey:
         table.sort(key=lambda x: [x[y] for y in sortkey if y in lsection['columns']])
 
     def bib_field(fdict, field):
-	cont = str(fdict.get(field, '&nbsp'))
-	url = ''
-	if field in row_links:
-	    if field == 'edit':
-		cont = str(fdict['id'])
-	    cmd, arg = row_links[field].split(':')
-	    arg = [str(fdict.get(x, lsection.get(x, ''))) for x in arg.split(',')]
-	    if ''.join(arg):
-		url = row_link_formatters[cmd](arg)
+        cont = str(fdict.get(field, '&nbsp'))
+        url = ''
+        if field in row_links:
+            if field == 'edit':
+                cont = str(fdict['id'])
+            cmd, arg = row_links[field].split(':')
+            arg = [str(fdict.get(x, lsection.get(x, ''))) for x in arg.split(',')]
+            if ''.join(arg):
+                url = row_link_formatters[cmd](arg)
 
-	edlink = ''
-	if field == 'title' and editable:
-	    if os.path.exists('.' + config.IMG_DIR_BOOK + '/' + fdict['pic_id'] + '.jpg'):
-		edlink += ' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-paint-brush"></i>')
-	    edlink += ' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-upload"></i>')
+        edlink = ''
+        if field == 'title' and editable:
+            if os.path.exists('.' + config.IMG_DIR_BOOK + '/' + fdict['pic_id'] + '.jpg'):
+                edlink += (' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (
+                    config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-paint-brush"></i>'))
+            edlink += (' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (
+                config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-upload"></i>'))
 
-	return pif.render.format_link(url, cont) + edlink
+        return pif.render.format_link(url, cont) + edlink
 
     lrange['entry'] = [{field: bib_field(fdict, field) for field in lsection['columns']}
-		       for fdict in table]
+                       for fdict in table]
     pif.render.set_button_comment(pif)
     return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]))
 
+
 # -- calendar
+
 
 def event_type(pif, event):
     return '<center><b>%s</b></center>' % pif.render.format_image_icon('i_' + event, event.upper())
@@ -125,9 +134,10 @@ def event_type(pif, event):
 
 def event(pif, ty, llist):
     return [event_type(pif, ty),
-		    llist.get_arg('&nbsp;').replace(';', '<br>'),
-		    llist.get_arg('&nbsp;').replace(';', '<br>'),
-		    llist.get_arg('&nbsp;').replace(';', '<br>')]
+            llist.get_arg('&nbsp;').replace(';', '<br>'),
+            llist.get_arg('&nbsp;').replace(';', '<br>'),
+            llist.get_arg('&nbsp;').replace(';', '<br>')]
+
 
 @basics.web_page
 def calendar(pif):
@@ -148,29 +158,27 @@ def calendar(pif):
         if (cmd == 'h'):
             for iarg in range(1, llist.args()):
                 arg = llist.get_arg('&nbsp;')
-		lsection['columns'].append(arg)
-		lsection['headers'][arg] = arg
+                lsection['columns'].append(arg)
+                lsection['headers'][arg] = arg
 
         elif (cmd == 'm'):
-	    lrange['entry'].append(dict(zip(lsection['columns'],
-		    event(pif, 'meet', llist))))
+            lrange['entry'].append(dict(zip(lsection['columns'], event(pif, 'meet', llist))))
 
         elif (cmd == 's'):
-	    lrange['entry'].append(dict(zip(lsection['columns'],
-		    event(pif, 'show', llist))))
+            lrange['entry'].append(dict(zip(lsection['columns'], event(pif, 'show', llist))))
 
         elif (cmd == 'n'):
-	    if lrange:
-		lsection['range'].append(lrange)
-	    lrange = dict(entry=list(), name=llist.get_arg('&nbsp;', 1))
+            if lrange:
+                lsection['range'].append(lrange)
+            lrange = dict(entry=list(), name=llist.get_arg('&nbsp;', 1))
 
         elif (cmd == 'e'):
-	    if lrange:
-		lsection['range'].append(lrange)
-	    lrange = None
+            if lrange:
+                lsection['range'].append(lrange)
+            lrange = None
 
     if lrange:
-	lsection['range'].append(lrange)
+        lsection['range'].append(lrange)
 
     return pif.render.format_template('simplelistix.html', llineup=llistix)
 
@@ -178,8 +186,8 @@ def calendar(pif):
 @basics.web_page
 def submit_comment(pif):
     pif.render.print_html()
-    print pif.render.format_head()
-    #useful.write_message(pif.form)
+    print(pif.render.format_head())
+    # useful.write_message(pif.form)
     ostr = "I am sending this comment for you. "
 
     mysubject = pif.form.get_str('mysubject')
@@ -192,18 +200,19 @@ def submit_comment(pif):
     pif.form.delete('pic')
 
     def comment_error(msg):
-	return "<dl><dt>ERROR</dt><dd>%s</dd></dl>" % msg
+        return "<dl><dt>ERROR</dt><dd>%s</dd></dl>" % msg
 
     if myemail and '@' not in myemail:
-	return comment_error('Badly formatted email address.  Try again.')
+        return comment_error('Badly formatted email address.  Try again.')
 
     pif.form.change_key('page', 'page_id')
     fn = "../../comments/comment." + datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
 
-    if ('http://' in mysubject or 'https://' in mysubject or
-	'http://' in mycomment or 'https://' in mycomment or
-	'http://' in myemail or 'https://' in myemail):
-	return comment_error("Whoa there.  This isn't for submitting links.  Please use the SUGGEST A LINK feature from the link list.")
+    if any('http://' in mysubject, 'https://' in mysubject,
+            'http://' in mycomment, 'https://' in mycomment,
+            'http://' in myemail, 'https://' in myemail):
+        return comment_error(
+            "Whoa there.  This isn't for submitting links.  Please use the SUGGEST A LINK feature from the link list.")
 
     ostr += "<dl><dt>My Subject</dt><dd>" + mysubject + "</dd>\n"
     ostr += "<dl><dt>My Comment</dt><dd>" + mycomment + "</dd>\n"
@@ -211,33 +220,29 @@ def submit_comment(pif):
     ostr += "<dt>My Email</dt><dd>" + myemail + "</dd></dl>\n"
 
     if fimage:
-	ostr += "<dt>Relevant File</dt><dd>" + fname + "<br>\n"
-	direc = config.INC_DIR
-	descriptions_file = config.LOG_ROOT + '/descr.log'
-	dest_filename = images.get_next_upload_filename()
-	dest_filename = useful.file_save(direc, dest_filename, fimage)
-	images.file_log(direc + '/' + dest_filename, direc)
+        ostr += "<dt>Relevant File</dt><dd>" + fname + "<br>\n"
+        direc = config.INC_DIR
+        descriptions_file = config.LOG_ROOT + '/descr.log'
+        dest_filename = images.get_next_upload_filename()
+        dest_filename = useful.file_save(direc, dest_filename, fimage)
+        images.file_log(direc + '/' + dest_filename, direc)
 
         cred = who = comment = '-'
-	if mycomment:
+        if mycomment:
             comment = squish_re.sub(' ', mycomment)
         if credit:
             cred = squish_re.sub(' ', credit)
-	if myname:
+        if myname:
             who = squish_re.sub(' ', myname)
-        open(descriptions_file, 'a+').write('\t'.join([dest_filename,
-                '-',
-                '-',
-                '-',
-                comment, cred, who]) + '\n')
+        open(descriptions_file, 'a+').write('\t'.join([dest_filename, '-', '-', '-', comment, cred, who]) + '\n')
         ostr = '<div class="warning">Thank you for submitting that file.</div><br>\n'
 
-	ostr += "</dd></dl>\n";
+        ostr += "</dd></dl>\n"
 
     fh = open(fn, "wt")
-    fh.write("_POST\n\n" + pprint.pformat(pif.form, indent=2, width=132) + "\n\n");
-    fh.write("REMOTE_ADDR=" + os.getenv('REMOTE_ADDR') + "\n");
-    ostr += "Thanks for sending that.  Now please use the BACK button on your browser to return to where you were.";
+    fh.write("_POST\n\n" + pprint.pformat(pif.form, indent=2, width=132) + "\n\n")
+    fh.write("REMOTE_ADDR=" + os.getenv('REMOTE_ADDR') + "\n")
+    ostr += "Thanks for sending that.  Now please use the BACK button on your browser to return to where you were."
     return ostr
 
 
@@ -248,25 +253,26 @@ def counts_main(pif):
     counts = pif.dbh.fetch_counts()
     v = {c['model_type']: c['count'] for c in counts[1]}
     for c in counts[0]:
-	c['name'] = mbdata.model_type_names[c['model_type']]
-	c['type'] = mbdata.model_types[c['model_type']]
-	c['vars'] = v.get(c['model_type'], 0)
+        c['name'] = mbdata.model_type_names[c['model_type']]
+        c['type'] = mbdata.model_types[c['model_type']]
+        c['vars'] = v.get(c['model_type'], 0)
 
     things = []
     for mt in sorted(set(mbdata.model_types.values())):
-	section = {'name': mt,
-	    'columns': ['name', 'count', 'vars'],
-	    'headers': {'name': 'Model Type', 'count': 'Count', 'vars': 'Variations'},
-	    'range': [{
-		'entry': [x for x in counts[0] if x['type'] == mt],
-	    }],
-	}
-	tot = sum([x['count'] for x in section['range'][0]['entry']])
-	vc = sum([x['vars'] for x in section['range'][0]['entry']])
-	section['range'][0]['entry'].append({'name': 'total', 'count': tot, 'vars': vc})
-	if tot:
-	    things.append(section)
+        section = {
+            'name': mt,
+            'columns': ['name', 'count', 'vars'],
+            'headers': {'name': 'Model Type', 'count': 'Count', 'vars': 'Variations'},
+            'range': [{
+                'entry': [x for x in counts[0] if x['type'] == mt],
+            }],
+        }
+        tot = sum([x['count'] for x in section['range'][0]['entry']])
+        vc = sum([x['vars'] for x in section['range'][0]['entry']])
+        section['range'][0]['entry'].append({'name': 'total', 'count': tot, 'vars': vc})
+        if tot:
+            things.append(section)
     llineup = {
-	'section': things,
+        'section': things,
     }
     return pif.render.format_template('simplelistix.html', llineup=llineup)

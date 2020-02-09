@@ -1,13 +1,17 @@
 #!/usr/local/bin/python
 
-import os, sys
+from io import open
+import os
+import sys
 import Cookie
 import Crypto.Cipher.DES
-import enviro
+import config
+import enviro  # noqa
 
 
 class Security(object):
     cfgfile = None
+
     def __init__(self, siteid=None):
         self.cgibin = '../cgi-bin'
         self.is_beta = False
@@ -21,23 +25,23 @@ class Security(object):
         return "'<secure.Security>'"
 
     def read_version(self):
-#       if os.path.exists('version.txt'):
-#           self.htdocs_path = '.'
-#       elif os.path.exists('../version.txt'):
-#           self.htdocs_path = '..'
-#       elif os.path.exists('../htdocs/version.txt'):
-#           self.htdocs_path = '../htdocs'
-#       else:
-#           self.htdocs_path = os.environ['DOCUMENT_ROOT']
-#       ver = open(self.htdocs_path + '/version.txt')
-#       for ln in ver.readlines():
-#           if '=' in ln:
-#               key, val = ln.strip().split('=')
-#               if key.startswith('$'):
-#                   key = key[1:]
-#               if val.endswith(';'):
-#                   val = val[:-1]
-#               self.__dict__[key.strip()] = eval(val.strip())
+        # if os.path.exists('version.txt'):
+        #     self.htdocs_path = '.'
+        # elif os.path.exists('../version.txt'):
+        #     self.htdocs_path = '..'
+        # elif os.path.exists('../htdocs/version.txt'):
+        #     self.htdocs_path = '../htdocs'
+        # else:
+        #     self.htdocs_path = os.environ['DOCUMENT_ROOT']
+        # ver = open(self.htdocs_path + '/version.txt')
+        # for ln in ver.readlines():
+        #     if '=' in ln:
+        #         key, val = ln.strip().split('=')
+        #         if key.startswith('$'):
+        #             key = key[1:]
+        #         if val.endswith(';'):
+        #             val = val[:-1]
+        #         self.__dict__[key.strip()] = eval(val.strip())
         self.htdocs_path = os.environ['DOCUMENT_ROOT']
         self.root = os.environ['SERVER_NAME'].split('.')[0]
         self.version = os.environ['BAMCA_VERSION']
@@ -64,12 +68,14 @@ class Security(object):
         cfgkey = '.'.join(self.host.split('.')[-2:])
         if siteid:
             cfgkey = siteid + '.' + cfgkey
-        #self.config = dict(map(lambda x: [x[0], dict(map(lambda y: y.split(','), x[1:]))], map(lambda x: x.strip().split('|'), self.cfgfile)))[cfgkey]
-        self.config = {x[0]: dict([y.split(',') for y in x[1:]]) for x in [z.strip().split('|') for z in self.cfgfile]}[cfgkey]
+        # self.config = dict(map(lambda x: [x[0], dict(map(lambda y: y.split(','), x[1:]))],
+        #                        map(lambda x: x.strip().split('|'), self.cfgfile)))[cfgkey]
+        self.config = {x[0]: dict([y.split(',') for y in x[1:]])
+                       for x in [z.strip().split('|') for z in self.cfgfile]}[cfgkey]
         for c in self.config:
             self.__dict__[c] = self.config[c].strip()
 
-    #---- cookieish code
+    # --- cookieish code
 
     def clear_cookie(self, keys=[]):
         cookie = Cookie.SimpleCookie()
@@ -107,28 +113,27 @@ class Security(object):
             cookie = Cookie.SimpleCookie()
             try:
                 cookie.load(rawcookie)
-            except:
-                pass  #sys.stderr.write("cookie decode error\n")
+            except Exception:
+                pass  # sys.stderr.write("cookie decode error\n")
         else:
-            pass  #sys.stderr.write("cookie missing error\n")
+            pass  # sys.stderr.write("cookie missing error\n")
         if not cookie:
             return {}
         if not cookie.get('id'):
-            #sys.stderr.write("cookie empty error\n")
+            # sys.stderr.write("cookie empty error\n")
             return {}
         cookieval = self.cookie_decode(cookie['id'].value)
         if '/' not in cookieval:
-            #sys.stderr.write("cookie format error\n")
+            # sys.stderr.write("cookie format error\n")
             return {}
         try:
             ret = dict(zip(['id', 'ip', 'pr'], self.cookie_decode(cookie['id'].value).split('/')))
-        except:
-            #sys.stderr.write("cookie split error\n")
-            #sys.stderr.write("  '%s' -> '%s'\n" % (cookie['id'].value, self.cookie_decode(cookie['id'].value)))
+        except Exception:
+            # sys.stderr.write("cookie split error\n")
+            # sys.stderr.write("  '%s' -> '%s'\n" % (cookie['id'].value, self.cookie_decode(cookie['id'].value)))
             return {}
         ret['co'] = cookie
         return ret
-
 
 
 if __name__ == '__main__':  # pragma: no cover
@@ -138,9 +143,9 @@ if __name__ == '__main__':  # pragma: no cover
     if sys.argv:
         if sys.argv[1] == 'id':
             sys.exit(int(cook.get('id', 0)))
-	elif sys.argv[1] == 'b' and not config.LOCKDOWN:
-	    sys.stderr.write('not locked down\n')
-	    sys.exit(1)
+        elif sys.argv[1] == 'b' and not config.LOCKDOWN:
+            sys.stderr.write('not locked down\n')
+            sys.exit(1)
         elif sys.argv[1] in 'bvuma':
             if sys.argv[1] in cook.get('pr', ''):
                 sys.exit(1)

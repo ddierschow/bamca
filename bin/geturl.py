@@ -1,6 +1,8 @@
 #!/usr/local/bin/python
 
-import re, requests
+from __future__ import print_function
+import re
+import requests
 
 import basics
 import useful
@@ -42,23 +44,24 @@ import useful
 | 15 | links.toylinks-Lmb     | http://www.mbx-u.com/                             | Matchbox University                    |
 | 16 | links.toylinks-Linfo   | http://chezbois.com/index.htm                     | Die-Cast Automotive Models             |
 +----+------------------------+---------------------------------------------------+----------------------------------------+
-'''
+'''  # noqa
 
 assoc_ids = {
-    'MBXD':  2,
-    'WIKI':  4,
-    'VAN' :  5,
-    'PSDC':  6,
-    'AREH':  7,
-    'MDAN':  8,
-    'MBXF':  9,
-    'CF'  : 10,
+    'MBXD': 2,
+    'WIKI': 4,
+    'VAN': 5,
+    'PSDC': 6,
+    'AREH': 7,
+    'MDAN': 8,
+    'MBXF': 9,
+    'CF': 10,
     'HTFD': 11,
     'DPLS': 12,
     'MBDB': 14,
     'MBXU': 15,
-    'LW'  : 16,
+    'LW': 16,
 }
+
 
 def get_links(pif, assoc_id):
     return pif.dbh.fetch_link_lines(where='associated_link=%d' % assoc_ids[assoc_id])
@@ -69,24 +72,28 @@ def get_links(pif, assoc_id):
 def import_psdc(pif):
     pref = 'https://www.publicsafetydiecast.com/'
     u = requests.get('https://www.publicsafetydiecast.com/Matchbox_MAN.htm').text
-    u_re = re.compile('<a href="(?P<u>[^"]*)".*?<font.*?>(?P<i>.*?)<\/font>')
+    u_re = re.compile(r'<a href="(?P<u>[^"]*)".*?<font.*?>(?P<i>.*?)<\/font>')
     q = get_links(pif, 'PSDC')
     ul = list(set([x['link_line.url'] for x in q]))
     pl = list(set(u_re.findall(u)))
     for l in pl:
         if not pref + l[0] in ul:
-            print l[1], pref + l[0]
+            print(l[1], pref + l[0])
+
 
 # ---- importers ------------------------------------------
+
 
 importers = {
     'PSDC': import_psdc,
 }
 
+
 def import_links(pif):
     for assoc_id in assoc_ids:
-	if assoc_id in importers:
-	    importers[assoc_id](pif)
+        if assoc_id in importers:
+            importers[assoc_id](pif)
+
 
 # ---- commands -------------------------------------------
 
@@ -94,11 +101,14 @@ cmds = [
     ('i', import_links, "import"),
 ]
 
+
 @basics.command_line
 def commands(pif):
     useful.cmd_proc(pif, './tlinks.py', cmds)
 
+
 # ---- ----------------------------------------------------
+
 
 if __name__ == '__main__':  # pragma: no cover
     commands(dbedit='')

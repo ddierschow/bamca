@@ -1,7 +1,6 @@
 import bidict
 import config
 import re
-import useful
 
 verno = ' abcdefghijklmnopqrstuvwxyz'
 
@@ -334,11 +333,13 @@ IMG_SIZ_MICRO = 'u'
 IMG_SIZ_VERY_SMALL = 'v'
 image_size_names = ["very small", "micro", "tiny", "small", "petite", "medium", "large", "huge", "gigantic", "enormous"]
 image_size_types = ['v', 'u', 't', 's', 'p', 'm', 'l', 'h', 'g', 'e']
-image_size_sizes = [(25, 15), (50, 30), (100,  60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480), (1000, 600), (1200, 720)]
+image_size_sizes = [(25, 15), (50, 30), (100, 60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480),
+                    (1000, 600), (1200, 720)]
 
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
-image_adds_names = ["advertisement", "baseplate", "comparison", "custom", "detail", "error", "interior", "prototype", "real", "box", "group"]
+image_adds_names = ["advertisement", "baseplate", "comparison", "custom", "detail", "error", "interior", "prototype",
+                    "real", "box", "group"]
 image_adds_types = ['f', 'b', 'z', 'a', 'd', 'e', 'i', 'p', 'r', 'x', 'g']
 image_adds_list = zip(image_adds_types, image_adds_names)
 
@@ -420,7 +421,7 @@ model_small_icons = {
     "r": "fa-train",
     "4": "fa-car",
     "u": "i_suv",
-    "r": "i_trail",
+    "z": "i_trail",
     "t": "fa-truck",
     "v": "i_van",
     "5": "i_wagon",
@@ -541,10 +542,10 @@ mime_types = {
 }
 
 
-ATTRIBUTE_BASE     = 1
-ATTRIBUTE_BODY     = 2
+ATTRIBUTE_BASE = 1
+ATTRIBUTE_BODY = 2
 ATTRIBUTE_INTERIOR = 3
-ATTRIBUTE_WINDOWS  = 4
+ATTRIBUTE_WINDOWS = 4
 
 areas = {
     'ROW': 'Rest of World',
@@ -568,90 +569,90 @@ plant_d = dict(plants)
 other_plants = ['Brazil', 'Bulgaria', 'Hungary', 'Japan']
 
 img_dir_name = {
-    config.IMG_DIR_ACC:             'Accessories',
-    config.IMG_DIR_ADD:             'Additional model pictures',
-    config.IMG_DIR_ADS:             'Advertising',
-    config.IMG_DIR_ART:             'Art',
-    config.IMG_DIR_BLISTER:         'Blister packs',
-    config.IMG_DIR_BOOK:            'Books (reference)',
-    config.IMG_DIR_PROD_BOOK:       'Books (toys)',
-    config.IMG_DIR_BOX:             'Boxes',
-    config.IMG_DIR_CAT:             'Catalogs',
-    config.IMG_DIR_COLL_43:         '1:43 Collectibles',
-    config.IMG_DIR_CONVOY:          'Convoys',
-    config.IMG_DIR_ERRORS:          'Errors',
-    config.IMG_DIR_MAN_ICON:        'Icons',
-    config.IMG_DIR_KING:            'King Size',
-    config.IMG_DIR_LESNEY:          'Lesney',
-    config.IMG_DIR_MAKE:            'Makes',
-    config.IMG_DIR_MAN:             'Model Pictures',
-    config.IMG_DIR_PICS:            'Miscellaneous',
-    config.IMG_DIR_PROD_CODE_2:     'Code 2 Models',
-    config.IMG_DIR_PROD_COLL_64:    '1:64 Collectibles',
-    config.IMG_DIR_PROD_EL_SEG:     'Mattel El Segundo',
-    config.IMG_DIR_PROD_LRW:        'Lesney RW',
-    config.IMG_DIR_PROD_LSF:        'Lesney SF',
-    config.IMG_DIR_PROD_MT_LAUREL:  'Mattel Mt. Laurel',
-    config.IMG_DIR_PROD_MWORLD:     'Mattel Matchbox World',
-    config.IMG_DIR_PROD_ODDS:       'Odd Castings',
-    config.IMG_DIR_PROD_PACK:       'Multi Packs',
-    config.IMG_DIR_PROD_PLAYSET:    'Playsets',
-    config.IMG_DIR_SET_PACK:        'Multi Packs (contents)',
-    config.IMG_DIR_SET_PLAYSET:     'Playsets (contents)',
-    config.IMG_DIR_PROD_SERIES:     'Series',
-    config.IMG_DIR_PROD_TYCO:       'Tyco',
-    config.IMG_DIR_PROD_UNIV:       'Universal',
-    config.IMG_DIR_SKY:             'Skybusters',
-    config.IMG_DIR_VAR:             'Variations',
-    config.IMG_DIR_GAME:            'Games',
-    config.IMG_DIR_ICON:            'Icons',
-    config.IMG_DIR_PACKAGE:         'Packaging',
+    config.IMG_DIR_ACC: 'Accessories',
+    config.IMG_DIR_ADD: 'Additional model pictures',
+    config.IMG_DIR_ADS: 'Advertising',
+    config.IMG_DIR_ART: 'Art',
+    config.IMG_DIR_BLISTER: 'Blister packs',
+    config.IMG_DIR_BOOK: 'Books (reference)',
+    config.IMG_DIR_PROD_BOOK: 'Books (toys)',
+    config.IMG_DIR_BOX: 'Boxes',
+    config.IMG_DIR_CAT: 'Catalogs',
+    config.IMG_DIR_COLL_43: '1:43 Collectibles',
+    config.IMG_DIR_CONVOY: 'Convoys',
+    config.IMG_DIR_ERRORS: 'Errors',
+    config.IMG_DIR_MAN_ICON: 'Icons',
+    config.IMG_DIR_KING: 'King Size',
+    config.IMG_DIR_LESNEY: 'Lesney',
+    config.IMG_DIR_MAKE: 'Makes',
+    config.IMG_DIR_MAN: 'Model Pictures',
+    config.IMG_DIR_PICS: 'Miscellaneous',
+    config.IMG_DIR_PROD_CODE_2: 'Code 2 Models',
+    config.IMG_DIR_PROD_COLL_64: '1:64 Collectibles',
+    config.IMG_DIR_PROD_EL_SEG: 'Mattel El Segundo',
+    config.IMG_DIR_PROD_LRW: 'Lesney RW',
+    config.IMG_DIR_PROD_LSF: 'Lesney SF',
+    config.IMG_DIR_PROD_MT_LAUREL: 'Mattel Mt. Laurel',
+    config.IMG_DIR_PROD_MWORLD: 'Mattel Matchbox World',
+    config.IMG_DIR_PROD_ODDS: 'Odd Castings',
+    config.IMG_DIR_PROD_PACK: 'Multi Packs',
+    config.IMG_DIR_PROD_PLAYSET: 'Playsets',
+    config.IMG_DIR_SET_PACK: 'Multi Packs (contents)',
+    config.IMG_DIR_SET_PLAYSET: 'Playsets (contents)',
+    config.IMG_DIR_PROD_SERIES: 'Series',
+    config.IMG_DIR_PROD_TYCO: 'Tyco',
+    config.IMG_DIR_PROD_UNIV: 'Universal',
+    config.IMG_DIR_SKY: 'Skybusters',
+    config.IMG_DIR_VAR: 'Variations',
+    config.IMG_DIR_GAME: 'Games',
+    config.IMG_DIR_ICON: 'Icons',
+    config.IMG_DIR_PACKAGE: 'Packaging',
 }
 
 # not included: man/ mbusa/ mbxf/ old/ pics/ prod/ set/ submitted/ tilley/ tomica/ trash/
 img_sel_cat = [
-    ('unsorted',    'unsorted'),
-    ('acc',         'Accessories'),
-    ('ads',         'Advertising'),
-    ('bigmx',       'BigMX'),
-    ('blister',     'Blister'),
-    ('box',         'Box'),
-    ('cat',         'Catalogs'),
-    ('cc',          'Carrying Case'),
-    ('coll',        'Collectibles'),
-    ('commando',    'Commando'),
-    ('copies',      'Copies'),
-    ('convoy',      'Convoys'),
-    ('custom',      'Customs'),
-    ('disp',        'Displays'),
-    ('docs',        'Documents'),
-    ('early',       'Early'),
-    ('game',        'Games'),
-    ('gfx',         'Grafix'),
-    ('gs',          'Giftsets'),
-    ('gw',          'Giftware'),
-    ('ks',          'Kings'),
-    ('mattel',      'Mattel'),
-    ('moko',        'Moko'),
-    ('mult',        'Multiples'),
-    ('mw',          'Motorways'),
-    ('other',       'Other'),
-    ('orig',        'Originals'),
-    ('packs',       'Packs'),
-    ('prem',        'Premieres'),
-    ('proto',       'Prototypes'),
-    ('ps',          'Play Sets'),
-    ('rb',          'Roadblasters'),
-    ('robotech',    'RoboTech'),
-    ('rt',          'Real Talkin'),
-    ('ry',          'Roadway'),
-    ('sb',          'Sky Busters'),
-    ('supergt',     'SuperGT'),
-    ('tp',          'TwinPacks'),
-    ('tyco',        'Tyco'),
-    ('wd',          'Walt Disney'),
-    ('wr',          'White Rose'),
-    ('zing',        'Zings'),
+    ('unsorted', 'unsorted'),
+    ('acc', 'Accessories'),
+    ('ads', 'Advertising'),
+    ('bigmx', 'BigMX'),
+    ('blister', 'Blister'),
+    ('box', 'Box'),
+    ('cat', 'Catalogs'),
+    ('cc', 'Carrying Case'),
+    ('coll', 'Collectibles'),
+    ('commando', 'Commando'),
+    ('copies', 'Copies'),
+    ('convoy', 'Convoys'),
+    ('custom', 'Customs'),
+    ('disp', 'Displays'),
+    ('docs', 'Documents'),
+    ('early', 'Early'),
+    ('game', 'Games'),
+    ('gfx', 'Grafix'),
+    ('gs', 'Giftsets'),
+    ('gw', 'Giftware'),
+    ('ks', 'Kings'),
+    ('mattel', 'Mattel'),
+    ('moko', 'Moko'),
+    ('mult', 'Multiples'),
+    ('mw', 'Motorways'),
+    ('other', 'Other'),
+    ('orig', 'Originals'),
+    ('packs', 'Packs'),
+    ('prem', 'Premieres'),
+    ('proto', 'Prototypes'),
+    ('ps', 'Play Sets'),
+    ('rb', 'Roadblasters'),
+    ('robotech', 'RoboTech'),
+    ('rt', 'Real Talkin'),
+    ('ry', 'Roadway'),
+    ('sb', 'Sky Busters'),
+    ('supergt', 'SuperGT'),
+    ('tp', 'TwinPacks'),
+    ('tyco', 'Tyco'),
+    ('wd', 'Walt Disney'),
+    ('wr', 'White Rose'),
+    ('zing', 'Zings'),
 ]
 
 
@@ -687,44 +688,44 @@ base_logo_2 = [
 base_logo_2_dict = dict(base_logo_2)
 
 dirs = bidict.bidict({
-    'pbads':	    config.IMG_DIR_ADS[1:],
-    'pbblis':	    config.IMG_DIR_BLISTER[1:],
-    'pbbook':	    config.IMG_DIR_BOOK[1:],
-    'pbbox':	    config.IMG_DIR_BOX[1:],
-    'pbcat':	    config.IMG_DIR_CAT[1:],
-    'pbgame':	    config.IMG_DIR_GAME[1:],
-    'pbpkg':	    config.IMG_DIR_PACKAGE[1:],
-    'pgfx':	    config.IMG_DIR_ART[1:],
-    'picon':	    config.IMG_DIR_ICON[1:],
-    'pmadd':	    config.IMG_DIR_ADD[1:],
-    'pmake':	    config.IMG_DIR_MAKE[1:],
-    'pman':	    config.IMG_DIR_MAN[1:],
-    'pmicon':	    config.IMG_DIR_MAN_ICON[1:],
-    'pmvar':	    config.IMG_DIR_VAR[1:],
-    'ppbook':	    config.IMG_DIR_PROD_BOOK[1:],
-    'ppcode2':	    config.IMG_DIR_PROD_CODE_2[1:],
-    'ppelseg':	    config.IMG_DIR_PROD_EL_SEG[1:],
-    'ppics':	    config.IMG_DIR_PICS[1:],
-    'pplrw':	    config.IMG_DIR_PROD_LRW[1:],
-    'pplsf':	    config.IMG_DIR_PROD_LSF[1:],
-    'ppmtl':	    config.IMG_DIR_PROD_MT_LAUREL[1:],
-    'ppmworld':	    config.IMG_DIR_PROD_MWORLD[1:],
-    'ppodds':	    config.IMG_DIR_PROD_ODDS[1:],
-    'pppack':	    config.IMG_DIR_PROD_PACK[1:],
-    'ppplay':	    config.IMG_DIR_PROD_PLAYSET[1:],
-    'ppprem':	    config.IMG_DIR_PROD_COLL_64[1:],
-    'ppseries':	    config.IMG_DIR_PROD_SERIES[1:],
-    'pptyco':	    config.IMG_DIR_PROD_TYCO[1:],
-    'ppuniv':	    config.IMG_DIR_PROD_UNIV[1:],
-    'psacc':	    config.IMG_DIR_ACC[1:],
-    'psconvoy':	    config.IMG_DIR_CONVOY[1:],
-    'pserror':	    config.IMG_DIR_ERRORS[1:],
-    'psking':	    config.IMG_DIR_KING[1:],
-    'psles':	    config.IMG_DIR_LESNEY[1:],
-    'psmcoll':	    config.IMG_DIR_COLL_43[1:],
-    'pspack':	    config.IMG_DIR_SET_PACK[1:],
-    'psplay':	    config.IMG_DIR_SET_PLAYSET[1:],
-    'pssky':	    config.IMG_DIR_SKY[1:],
+    'pbads': config.IMG_DIR_ADS[1:],
+    'pbblis': config.IMG_DIR_BLISTER[1:],
+    'pbbook': config.IMG_DIR_BOOK[1:],
+    'pbbox': config.IMG_DIR_BOX[1:],
+    'pbcat': config.IMG_DIR_CAT[1:],
+    'pbgame': config.IMG_DIR_GAME[1:],
+    'pbpkg': config.IMG_DIR_PACKAGE[1:],
+    'pgfx': config.IMG_DIR_ART[1:],
+    'picon': config.IMG_DIR_ICON[1:],
+    'pmadd': config.IMG_DIR_ADD[1:],
+    'pmake': config.IMG_DIR_MAKE[1:],
+    'pman': config.IMG_DIR_MAN[1:],
+    'pmicon': config.IMG_DIR_MAN_ICON[1:],
+    'pmvar': config.IMG_DIR_VAR[1:],
+    'ppbook': config.IMG_DIR_PROD_BOOK[1:],
+    'ppcode2': config.IMG_DIR_PROD_CODE_2[1:],
+    'ppelseg': config.IMG_DIR_PROD_EL_SEG[1:],
+    'ppics': config.IMG_DIR_PICS[1:],
+    'pplrw': config.IMG_DIR_PROD_LRW[1:],
+    'pplsf': config.IMG_DIR_PROD_LSF[1:],
+    'ppmtl': config.IMG_DIR_PROD_MT_LAUREL[1:],
+    'ppmworld': config.IMG_DIR_PROD_MWORLD[1:],
+    'ppodds': config.IMG_DIR_PROD_ODDS[1:],
+    'pppack': config.IMG_DIR_PROD_PACK[1:],
+    'ppplay': config.IMG_DIR_PROD_PLAYSET[1:],
+    'ppprem': config.IMG_DIR_PROD_COLL_64[1:],
+    'ppseries': config.IMG_DIR_PROD_SERIES[1:],
+    'pptyco': config.IMG_DIR_PROD_TYCO[1:],
+    'ppuniv': config.IMG_DIR_PROD_UNIV[1:],
+    'psacc': config.IMG_DIR_ACC[1:],
+    'psconvoy': config.IMG_DIR_CONVOY[1:],
+    'pserror': config.IMG_DIR_ERRORS[1:],
+    'psking': config.IMG_DIR_KING[1:],
+    'psles': config.IMG_DIR_LESNEY[1:],
+    'psmcoll': config.IMG_DIR_COLL_43[1:],
+    'pspack': config.IMG_DIR_SET_PACK[1:],
+    'psplay': config.IMG_DIR_SET_PLAYSET[1:],
+    'pssky': config.IMG_DIR_SKY[1:],
 })
 
 
@@ -761,18 +762,18 @@ def correct_region(region, year):
         if year < 1977 or year > 1992:
             region = 'R'
     elif region not in ['R', 'U']:
-	region = ''
+        region = ''
     return region
 
 
-id_re = re.compile('(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 def get_mack_number(cid):
+    id_re = re.compile(r'(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
     id_m = id_re.match(cid)
     if id_m:
         if id_m.group('p') == 'SF':
-	    return ('MB', int(id_m.group('n')), id_m.group('l'))
+            return ('MB', int(id_m.group('n')), id_m.group('l'))
         if id_m.group('p') == 'RW':
-	    return ('', int(id_m.group('n')), id_m.group('l'))
+            return ('', int(id_m.group('n')), id_m.group('l'))
     return None
 
 
@@ -795,8 +796,8 @@ def get_countries():
 def get_country_codes():
     global countries, country_code_dict
     if not country_code_dict:
-        country_code_dict = dict([(y, x) for x,y in countries])
-    country_code_dict.update({x: y for x,y in areas.items()})
+        country_code_dict = dict([(y, x) for x, y in countries])
+    country_code_dict.update({x: y for x, y in areas.items()})
     return country_code_dict
 
 
@@ -804,23 +805,23 @@ def get_country(cc2):
     return get_countries().get(cc2, '')
 
 
-starting_digits_re = re.compile('\d*')
 def normalize_var_id(mod, var_id):
+    starting_digits_re = re.compile(r'\d*')
     if var_id[0].isdigit():
-	while var_id and var_id[0] == '0':
-	    var_id = var_id[1:]
-	digs = starting_digits_re.match(var_id).end()
-	var_id = '0' * (mod.get('casting.variation_digits', mod.get('variation_digits', 2)) - digs) + var_id
+        while var_id and var_id[0] == '0':
+            var_id = var_id[1:]
+        digs = starting_digits_re.match(var_id).end()
+        var_id = '0' * (mod.get('casting.variation_digits', mod.get('variation_digits', 2)) - digs) + var_id
     return var_id
 
 
 def bamcamark(year):
     if year <= 1969:
-	return 'bamca-1.gif'
+        return 'bamca-1.gif'
     if year <= 1974:
-	return 'bamca-2.gif'
+        return 'bamca-2.gif'
     if year <= 2000:
-	return 'bamca-3.gif'
+        return 'bamca-3.gif'
     if year <= 2005:
-	return 'bamca-4.gif'
+        return 'bamca-4.gif'
     return 'bamca-5.gif'

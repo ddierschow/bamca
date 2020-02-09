@@ -2,13 +2,17 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-import cgi, copy, glob, httplib, logging, os, re, sys
+from __future__ import print_function
+import cgi
+import copy
+import glob
+import http.client
+import os
+import re
 import config
 import javasc
 import mbdata
-import secure
 import useful
-
 
 pseud_re = re.compile(r'''<\$(?P<cmd>\S*)\s(?P<arg>[^>]*)>''')
 graphic_types = ['jpg', 'gif', 'bmp', 'ico', 'png']
@@ -25,8 +29,9 @@ class Presentation(object):
     image_selector_js = javasc.def_image_selector_js
     paste_from_clippy_js = javasc.def_paste_from_clippy_js
     font_awesome_js = javasc.def_font_awesome_js
+
     def __init__(self, page_id, verbose):
-	self.is_html = False
+        self.is_html = False
         self.page_id = page_id
         self.art_dir = config.IMG_DIR_ART
         self.is_beta = False
@@ -41,7 +46,7 @@ class Presentation(object):
         self.dump_file = None
         self.not_released = False
         self.hide_title = False
-        self.flags = 0L
+        self.flags = 0
         self.table_count = 0  # for making tables go away upon error
         self.hierarchy = list()
         self.flag_info = None
@@ -49,24 +54,25 @@ class Presentation(object):
         self.secure = None
         self.styles = list(('main', 'fonts'))
         if '.' in self.page_id:
-	    self.styles.append(self.page_id[:self.page_id.find('.')])
-	self.styles.append(self.page_id)
-	self.extra = self.font_awesome_js
-	self.comment_button = ''
-	self.is_admin = False
-	self.is_moderator = False
-	self.is_user = False
-	#useful.html_done = False
-	self.new_cookie = None
-	self.footer = ''
-	self.bamcamark = mbdata.bamcamark('')
-	self.filename = 'matchbox.csv'
-#       if self.verbose:
-#           import datetime
-#           self.dump_file = open(os.path.join(config.LOG_ROOT, datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
+            self.styles.append(self.page_id[:self.page_id.find('.')])
+        self.styles.append(self.page_id)
+        self.extra = self.font_awesome_js
+        self.comment_button = ''
+        self.is_admin = False
+        self.is_moderator = False
+        self.is_user = False
+        # useful.html_done = False
+        self.new_cookie = None
+        self.footer = ''
+        self.bamcamark = mbdata.bamcamark('')
+        self.filename = 'matchbox.csv'
+        # if self.verbose:
+        #     import datetime
+        #     self.dump_file = open(os.path.join(config.LOG_ROOT,
+        #                                        datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
 
-#    def __str__(self):
-#       return str(self.__dict__)
+    # def __str__(self):
+    #    return str(self.__dict__)
 
     def __repr__(self):
         return "'<render.Presentation instance>'"
@@ -75,20 +81,20 @@ class Presentation(object):
         return "'<render.Presentation instance>'"
 
     def error_report(self):
-	import pprint
-	return pprint.pformat(self.__dict__, indent=2, width=132)
+        import pprint
+        return pprint.pformat(self.__dict__, indent=2, width=132)
 
     def set_page_info(self, row):
-	self.flags = row['page_info.flags'] or 0
-	self.format_type = row['page_info.format_type']
-	self.title = self.fmt_pseudo(row['page_info.title'])
-	self.pic_dir = row['page_info.pic_dir']
-	self.description = row['page_info.description']
-	self.note = self.fmt_pseudo(row['page_info.note'])
-	self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
+        self.flags = row['page_info.flags'] or 0
+        self.format_type = row['page_info.format_type']
+        self.title = self.fmt_pseudo(row['page_info.title'])
+        self.pic_dir = row['page_info.pic_dir']
+        self.description = row['page_info.description']
+        self.note = self.fmt_pseudo(row['page_info.note'])
+        self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
 
     def set_page_extra(self, extra):
-	self.extra += extra
+        self.extra += extra
 
     def style_name(self, previous, prefix, col=None, id=None):
         class_ids = list()
@@ -105,12 +111,6 @@ class Presentation(object):
 
     def show_location(self):
         return ''.join(['<a href="%(link)s">%(name)s</a> &gt;\n' % lvl for lvl in self.hierarchy]) + '<br>'
-        ostr += '<br>'
-        ostr = ''
-        for lvl in self.hierarchy:
-            ostr += '<a href="%(link)s">%(name)s</a> &gt;\n' % lvl
-        ostr += '<br>'
-        return ostr
 
     def hierarchy_append(self, link, txt):
         self.hierarchy.append({'link': link, 'name': txt})
@@ -133,22 +133,25 @@ class Presentation(object):
             suffix = graphic_types
         elif isinstance(suffix, str):
             suffix = [suffix]
-	pdir = useful.relpath(pdir if pdir else self.art_dir if art else self.pic_dir)
-	retfiles = list()
-	for fname in fnames:
-	    for sfx in suffix:
-		retfiles.extend(glob.glob(useful.relpath('.', pdir, fname + '.' + sfx))) # + glob.glob(os.path.join(pdir, fname.lower() + '.' + sfx)))
-	return retfiles
+        pdir = useful.relpath(pdir if pdir else self.art_dir if art else self.pic_dir)
+        retfiles = list()
+        for fname in fnames:
+            for sfx in suffix:
+                retfiles.extend(glob.glob(useful.relpath('.', pdir, fname + '.' + sfx)))
+                # + glob.glob(os.path.join(pdir, fname.lower() + '.' + sfx)))
+        return retfiles
 
-    def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None, pdir=None, art=False):
-	self.comment('START find_image_file', fnames, 'vars', vars, 'nobase', nobase, 'prefix', prefix, 'suffix', suffix, 'largest', largest, 'preferred', prefix, 'pdir', pdir, 'art', art)
+    def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None,
+                        pdir=None, art=False):
+        self.comment('START find_image_file', fnames, 'vars', vars, 'nobase', nobase, 'prefix', prefix,
+                     'suffix', suffix, 'largest', largest, 'preferred', prefix, 'pdir', pdir, 'art', art)
         if not fnames:
             self.comment('find_image_file ret', '')
             return ('', '')
         elif isinstance(fnames, str):
             fnames = [fnames]
 
-	suffix = graphic_types if suffix is None else [suffix] if isinstance(suffix, str) else suffix
+        suffix = graphic_types if suffix is None else [suffix] if isinstance(suffix, str) else suffix
 
         if largest:  # overrides previous setting of prefixes.
             prefix = list(reversed(mbdata.image_size_types))
@@ -157,19 +160,19 @@ class Presentation(object):
         elif isinstance(prefix, str):
             prefix = [prefix]
 
-	pdir = useful.relpath(pdir if pdir else self.art_dir if art else self.pic_dir)
-	pdirvar = useful.relpath(pdir, 'var')
+        pdir = useful.relpath(pdir if pdir else self.art_dir if art else self.pic_dir)
+        pdirvar = useful.relpath(pdir, 'var')
 
-	base = [] if nobase else ['']
-	vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
+        base = [] if nobase else ['']
+        vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
 
         self.comment("find_image_file", 'f:', fnames, 'v:', vars, 'p:', prefix, 's:', suffix, 'd:', pdir)
-	fimg = fdir = ''
+        fimg = fdir = ''
         for var in vars:
             for fname in fnames:
                 fname = useful.clean_name(fname.replace('/', '_'))
-#               if not fname:
-#                   continue
+                # if not fname:
+                #     continue
                 if fname.find('.') >= 0:
                     csuffix = [fname[fname.rfind('.') + 1:]]
                     fname = fname[:fname.rfind('.')]
@@ -177,48 +180,50 @@ class Presentation(object):
                     csuffix = suffix
 
                 for pfx in prefix + ['']:
-		    rdir, rimg = self.find_prefixed_image(fname, pdir, pdirvar, pfx, csuffix, var)
-		    if rimg:
-			if not preferred or preferred == pfx:
-			    return rdir, rimg
-			fdir, fimg = rdir, rimg
-	self.comment('find_image_file ret', fdir, fimg)
-	return fdir, fimg
+                    rdir, rimg = self.find_prefixed_image(fname, pdir, pdirvar, pfx, csuffix, var)
+                    if rimg:
+                        if not preferred or preferred == pfx:
+                            return rdir, rimg
+                        fdir, fimg = rdir, rimg
+        self.comment('find_image_file ret', fdir, fimg)
+        return fdir, fimg
 
     def find_prefixed_image(self, fname, pdir, pdirvar, pfx, csuffix, var):
-	if pfx and not pfx.endswith('_'):
-	    pfx += '_'
-	for suf in csuffix:
-	    suf = '.' + suf
-	    self.comment('find_prefixed_image trying', pdir, pfx + fname + suf)
-	    if var:
-		img = self.fmt_img_file_check(pdirvar, pfx + fname + '-' + var + suf)
-		if img:
-		    self.comment('find_prefixed_image ret', img)
-		    return pdirvar, img
-		img = self.fmt_img_file_check(pdirvar, (pfx + fname + '-' + var + suf).lower())
-		if img:
-		    self.comment('find_prefixed_image ret', img)
-		    return pdirvar, img
-	    else:
-		img = self.fmt_img_file_check(pdir, pfx + fname + suf)
-		if img:
-		    self.comment('find_prefixed_image ret', img)
-		    return pdir, img
-		img = self.fmt_img_file_check(pdir, (pfx + fname + suf).lower())
-		if img:
-		    self.comment('find_prefixed_image ret', img)
-		    return pdir, img
+        if pfx and not pfx.endswith('_'):
+            pfx += '_'
+        for suf in csuffix:
+            suf = '.' + suf
+            self.comment('find_prefixed_image trying', pdir, pfx + fname + suf)
+            if var:
+                img = self.fmt_img_file_check(pdirvar, pfx + fname + '-' + var + suf)
+                if img:
+                    self.comment('find_prefixed_image ret', img)
+                    return pdirvar, img
+                img = self.fmt_img_file_check(pdirvar, (pfx + fname + '-' + var + suf).lower())
+                if img:
+                    self.comment('find_prefixed_image ret', img)
+                    return pdirvar, img
+            else:
+                img = self.fmt_img_file_check(pdir, pfx + fname + suf)
+                if img:
+                    self.comment('find_prefixed_image ret', img)
+                    return pdir, img
+                img = self.fmt_img_file_check(pdir, (pfx + fname + suf).lower())
+                if img:
+                    self.comment('find_prefixed_image ret', img)
+                    return pdir, img
         return ('', '')
 
-    def find_image_path(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None, pdir=None, art=False):
-	if not fnames:
-	    return ''
-	return os.path.join(*self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, preferred=preferred, pdir=pdir, art=art))
+    def find_image_path(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None,
+                        pdir=None, art=False):
+        if not fnames:
+            return ''
+        return os.path.join(*self.find_image_file(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix,
+                            largest=largest, preferred=preferred, pdir=pdir, art=art))
 
     def find_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('find_image_list', fn, alt, wc, prefix, suffix, pdir)
-	pdir = useful.relpath(pdir if pdir else self.pic_dir)
+        pdir = useful.relpath(pdir if pdir else self.pic_dir)
         if isinstance(suffix, str):
             suffix = [suffix]
         if isinstance(prefix, str):
@@ -231,27 +236,27 @@ class Presentation(object):
                 patt = (pref + fn + wc + '.' + suf)
 
                 for fname in [orig] + useful.read_dir(patt, pdir):
-                    img = self.fmt_img_src(pdir + '/' + fname, alt)
-		    if self.fmt_img_file_check(pdir, fname):
+                    # img = self.fmt_img_src(pdir + '/' + fname, alt)
+                    if self.fmt_img_file_check(pdir, fname):
                         imgs.append(fname)
         return imgs
 
     def find_button_name(self, name):
-	return name.replace('<br>', '_').replace(' ', '_').lower()
+        return name.replace('<br>', '_').replace(' ', '_').lower()
 
     def find_button_label(self, name):
-	return name.replace('_', ' ').upper()
+        return name.replace('_', ' ').upper()
 
     # immediate effect functions.
 
     def debug(self, *args):
-	if self.verbose:
-	    print ' '.join([str(x) for x in args])
+        if self.verbose:
+            print(' '.join([str(x) for x in args]))
 
     def message(self, *args):
         if self.dump_file:  # pragma: no cover
             self.dump_file.write(' '.join([str(x) for x in args]) + '\n')
-	useful.write_message(*args)
+        useful.write_message(*args)
 
     def comment(self, *args):
         if self.dump_file:  # pragma: no cover
@@ -261,65 +266,67 @@ class Presentation(object):
 
     def comment_dict(self, name, arg):
         if self.verbose:
-            print useful.dump_dict_comment(name, arg)
+            print(useful.dump_dict_comment(name, arg))
 
     def print_html(self, content='text/html', status=200):
-	if not useful.is_header_done():
-	    print 'Content-Type:', content
-	    if content == 'text/csv':
-		print "Content-Description: File Transfer\nContent-Disposition: attachment; filename=%s\nExpires: 0" % self.filename
-	    print 'Status:', status, httplib.responses.get(status, '')
-	    #useful.html_done = True
-	    self.print_cookie()
-	    print
-	    if content == 'text/html':
-		self.is_html = True
-		print '<!DOCTYPE html>'
-		print
-	    useful.header_done()
+        if not useful.is_header_done():
+            print('Content-Type:', content)
+            if content == 'text/csv':
+                print("Content-Description: File Transfer\nContent-Disposition: attachment; "
+                      "filename=%s\nExpires: 0" % self.filename)
+            print('Status:', status, http.client.responses.get(status, ''))
+            # useful.html_done = True
+            self.print_cookie()
+            print
+            if content == 'text/html':
+                self.is_html = True
+                print('<!DOCTYPE html>')
+                print
+            useful.header_done()
 
     def set_cookie(self, cookie):
-	self.new_cookie = cookie
+        self.new_cookie = cookie
 
     def print_cookie(self):  # pragma: no cover
         if self.new_cookie:
-            print self.new_cookie.output()
+            print(self.new_cookie.output())
             os.environ['HTTP_COOKIE'] = self.new_cookie.output()
         else:
-	    incookie = self.secure.cookies if self.secure.cookies else self.secure.get_cookies()
+            incookie = self.secure.cookies if self.secure.cookies else self.secure.get_cookies()
             if not incookie:
                 pass
             elif 'id' not in incookie:
                 pass
             elif '/' not in incookie['id'].value:
                 incookie['id']['expires'] = -1
-                print incookie.output()
-		if 'HTTP_COOKIE' in os.environ:
-		    del os.environ['HTTP_COOKIE']
+                print(incookie.output())
+                if 'HTTP_COOKIE' in os.environ:
+                    del os.environ['HTTP_COOKIE']
             elif incookie['id'].value.split('/')[1] != os.environ['REMOTE_ADDR']:
                 incookie['id']['expires'] = -1
-                print incookie.output()
-		if 'HTTP_COOKIE' in os.environ:
-		    del os.environ['HTTP_COOKIE']
+                print(incookie.output())
+                if 'HTTP_COOKIE' in os.environ:
+                    del os.environ['HTTP_COOKIE']
 
-    #---- upper level rendering blocks
+    # ---- upper level rendering blocks
 
     def format_head(self):
         pagetitle = self.title
         if self.is_beta:
             pagetitle = 'BETA: ' + pagetitle
 
-        ostr  = '<html>\n<!-- This page rendered by the old-style rendering engine. -->\n'
+        ostr = '<html>\n<!-- This page rendered by the old-style rendering engine. -->\n'
         ostr += '<head><meta charset="UTF-8"><title>%s</title>\n' % pagetitle
         ostr += '<link rel="icon" href="' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
         ostr += '<link rel="shortcut icon" href="' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
         ostr += '<link rel="stylesheet" href="%s" type="text/css">\n' % config.CSS_FILE
         ostr += '<link rel="stylesheet" href="%s" type="text/css">\n' % config.FONTS_FILE
         if '.' in self.page_id:
-            ostr += '<link rel="stylesheet" href="%s/%s.css" type="text/css">\n' % (config.CSS_DIR, self.page_id[:self.page_id.find('.')])
+            ostr += '<link rel="stylesheet" href="%s/%s.css" type="text/css">\n' % (
+                config.CSS_DIR, self.page_id[:self.page_id.find('.')])
         ostr += '<link rel="stylesheet" href="%s/%s.css" type="text/css">\n' % (config.CSS_DIR, self.page_id)
 
-	ostr += self.extra
+        ostr += self.extra
         if not self.is_beta:
             ostr += javasc.def_google_analytics_js
         ostr += '</head>\n<body>\n'
@@ -340,7 +347,8 @@ class Presentation(object):
     def format_tail(self):
         ostr = "<p>\n"
         if self.tail.get('effort'):
-            ostr += "Every effort has been made to make this as accurate as possible.  If you have corrections, please contact us.<p>\n"
+            ostr += ("Every effort has been made to make this as accurate as possible.  "
+                     "If you have corrections, please contact us.<p>\n")
         if self.tail.get('moreinfo'):
             ostr += "Feel free to ask for clarification on these or other models.<p>"
         if self.tail.get('contact'):
@@ -354,7 +362,7 @@ of Matchbox International Ltd. and are used with permission.
 <hr><p>
 '''
         if self.tail.get('flags'):
-	    ostr += self.format_shown_flags()
+            ostr += self.format_shown_flags()
 
         st = self.tail.get('stat')
         if st:  # pragma: no cover
@@ -365,12 +373,12 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_shown_flags(self):
-	ball = '<span class="blue">&#x25cf;</span> '
-	return '<center>\n' + \
-	    ball.join(['<nobr>%s %s</nobr> ' % (self.format_image_flag(x), self.flag_info[x][0]) for x in
-		sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'
+        ball = '<span class="blue">&#x25cf;</span> '
+        return '<center>\n' + \
+            ball.join(['<nobr>%s %s</nobr> ' % (self.format_image_flag(x), self.flag_info[x][0]) for x in
+                       sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'
 
-    #---- tables
+    # ---- tables
 
     def format_table_start(self, also={}, id='', style_id=''):
         also = copy.deepcopy(also)
@@ -394,7 +402,7 @@ of Matchbox International Ltd. and are used with permission.
         return " </tr>\n"
 
     def format_cell(self, col=None, content="&nbsp;", hdr=False, also={}, large=False, id=''):
-        #self.comment('format_cell', col, hdr, also)
+        # self.comment('format_cell', col, hdr, also)
         ostr = self.format_cell_start(col, hdr, also, large, id)
         ostr += str(content or '&nbsp;')
         ostr += self.format_cell_end(col, hdr, large)
@@ -403,7 +411,7 @@ of Matchbox International Ltd. and are used with permission.
     def format_cell_start(self, col=None, hdr=False, also={}, large=False, id=''):
         cellstyle = {False: 'eb', True: 'eh'}[hdr]
         celltype = {False: "td", True: "th"}
-	also = copy.deepcopy(also)
+        also = copy.deepcopy(also)
         also.update({'class': self.style_name(also.get('class'), cellstyle, col, id)})
         self.comment('format_cell_start', col, hdr, also)
         return '  <%s%s>' % (celltype[hdr], useful.fmt_also(also))
@@ -415,13 +423,13 @@ of Matchbox International Ltd. and are used with permission.
             ostr += " </tr>\n"
         return ostr
 
-    #format_table({'also': {}, 'id': '', 'style_id': '', 'rows': []})
-    #rows=[{'ids': [], 'also': {}, 'cells': []}, ...]
-    #cells=[{'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''}, ...]
+    # format_table({'also': {}, 'id': '', 'style_id': '', 'rows': []})
+    # rows=[{'ids': [], 'also': {}, 'cells': []}, ...]
+    # cells=[{'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''}, ...]
 
     def format_table(self, table):
-        ostr = ''
-        ostr += self.format_table_start(also=table.get('also', {}), id=table.get('ids', []), style_id=table.get('style_id', ''))
+        ostr = self.format_table_start(also=table.get('also', {}), id=table.get('ids', []),
+                                       style_id=table.get('style_id', ''))
         ostr += self.format_rows(table.get('rows', []))
         ostr += self.format_table_end()
         return ostr
@@ -437,11 +445,11 @@ of Matchbox International Ltd. and are used with permission.
     def format_cells(self, cells):
         return ''.join([self.format_cell(**cell) for cell in cells])
 
-    #----
+    # ----
 
     def format_section(self, content, fn=None, also=None, cols=0, id=''):
-	fn = fn or list()
-	also = also or dict()
+        fn = fn or list()
+        also = also or dict()
         nalso = copy.deepcopy(also)
         nalso['class'] = self.style_name(also.get('class'), 'sh', id)
         if cols:
@@ -451,9 +459,9 @@ of Matchbox International Ltd. and are used with permission.
             strimg = self.fmt_opt_img(fn)
             if len(strimg) > 6:
                 ostr += strimg + '<br>'
-	ostr = self.format_row_start()
+        ostr = self.format_row_start()
         ostr += '  <th%s>%s</th>\n' % (useful.fmt_also(nalso), self.fmt_pseudo(content))
-	ostr += self.format_row_end()
+        ostr += self.format_row_end()
         return ostr
 
     def format_section_freestanding(self, content, fn=[], also={}, cols=0, id=''):
@@ -487,7 +495,7 @@ of Matchbox International Ltd. and are used with permission.
             ostr += '  <th' + useful.fmt_also({'colspan': cols - 2}, nalso) + '>%s</th>\n' % content
             ostr += '  <th' + useful.fmt_also(nalso) + '>&nbsp;</th>\n'
         ostr += self.format_row_end()
-        #self.comment('nalso', nalso)
+        # self.comment('nalso', nalso)
         return ostr
 
     def format_link(self, url, txt=None, args={}, nstyle=None, also={}):
@@ -501,8 +509,8 @@ of Matchbox International Ltd. and are used with permission.
                 url += '&' + args
             else:
                 url += '?' + args
-	#url = useful.url_quote(url)
-	url = url.replace('"', '%22')
+        # url = useful.url_quote(url)
+        url = url.replace('"', '%22')
         if not url and not also:
             ostr += txt
         elif not url:
@@ -515,32 +523,32 @@ of Matchbox International Ltd. and are used with permission.
             ostr += '</span>\n'
         return ostr
 
-    #---- forms
+    # ---- forms
 
     def format_form_start(self, action=None, name=None, method=None, also={}, token=None):
-	args = (' action="%s"' % action) if action else ''
-	args += (' name="%s"' % name) if name else ''
-	args += (' method="%s"' % method) if method else ''
-	args += useful.fmt_also(also)
-	return '<form%s>\n' % args + (self.format_form_token(token) if token else '')
+        args = (' action="%s"' % action) if action else ''
+        args += (' name="%s"' % name) if name else ''
+        args += (' method="%s"' % method) if method else ''
+        args += useful.fmt_also(also)
+        return '<form%s>\n' % args + (self.format_form_token(token) if token else '')
 
     def format_form_end(self):
-	return '</form>\n'
+        return '</form>\n'
 
     def format_form_token(self, token, name="token"):
-	return '<input type="hidden" name="%s" value="%s">\n' % (name, token)
+        return '<input type="hidden" name="%s" value="%s">\n' % (name, token)
 
     def format_checkbox(self, name, options, checked=[], sep='\n'):
-        #self.comment('format_checkbox', name, options, checked)
+        # self.comment('format_checkbox', name, options, checked)
         return ''.join([
-            '<nobr><input type="checkbox" name="%s" value="%s" id="%s"%s> <label for="%s">%s</label></nobr>%s' % (name, x[0],
-		name + str(x[0]), ' CHECKED' if x[0] in checked else '', name + str(x[0]), x[1], sep)
-	    for x in options])
+            '<nobr><input type="checkbox" name="%s" value="%s" id="%s"%s> <label for="%s">%s</label></nobr>%s' % (
+                name, x[0], name + str(x[0]), ' CHECKED' if x[0] in checked else '', name + str(x[0]), x[1], sep)
+            for x in options])
 
     def format_radio(self, name, options, checked='', sep='\n'):
-        return ''.join(['<input type="radio" id="%s" name="%s" value="%s"%s> <label for="%s">%s</label>%s' %
-		(name + str(x[0]), name, x[0], ' CHECKED' if x[0] == checked else '', name + str(x[0]), x[1], sep)
-	    if x else sep for x in options])
+        return ''.join(['<input type="radio" id="%s" name="%s" value="%s"%s> <label for="%s">%s</label>%s' % (
+            name + str(x[0]), name, x[0], ' CHECKED' if x[0] == checked else '', name + str(x[0]), x[1], sep)
+            if x else sep for x in options])
 
     def format_select_country(self, name, selected='', id=None):
         return self.format_select(name, mbdata.countries, selected='', id=None, blank='')
@@ -549,8 +557,8 @@ of Matchbox International Ltd. and are used with permission.
         ostr = '<select name="%s"' % name
         if id:
             ostr += ' id="%s"' % id
-	ostr += '>\n'
-	if blank is not None:
+        ostr += '>\n'
+        if blank is not None:
             ostr += '<option value=""%s>%s\n' % (' SELECTED' if selected == '' else '', blank)
         for option in options:
             if isinstance(option, str):
@@ -561,24 +569,28 @@ of Matchbox International Ltd. and are used with permission.
 
     def format_text_input(self, name, maxlength, showlength=24, value='', id=None, also={}):
         value = value or ''
-	showlengh = min(maxlength, showlength)
-        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s"%s%s>\n' % (name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True), useful.fmt_also(also), (' id="%s"' % id) if id else '')
+        # showlengh = min(maxlength, showlength)
+        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s"%s%s>\n' % (
+            name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True), useful.fmt_also(also),
+            (' id="%s"' % id) if id else '')
 
     def format_textarea_input(self, name, showlength=128, showheight=4, value=''):
         if not value:
             value = ''
-        return '<textarea name="%s" cols="%d" rows="%d">%s</textarea>\n' % (name, showlength, showheight, cgi.escape(str(value), True))
+        return '<textarea name="%s" cols="%d" rows="%d">%s</textarea>\n' % (
+            name, showlength, showheight, cgi.escape(str(value), True))
 
     def format_password_input(self, name, maxlength=80, showlength=24, value=''):
-        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (name, min(showlength, maxlength), maxlength, value)
+        return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (
+            name, min(showlength, maxlength), maxlength, value)
 
     def format_hidden_input(self, *values, **kvalues):
-	ret = ['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in kvalues.items()]
-	if values:
-	    ret += ['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in values[0].items()]
-	return ''.join(ret)
+        ret = ['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in kvalues.items()]
+        if values:
+            ret += ['<input type="hidden" name="%s" value="%s">\n' % (k, v) for k, v in values[0].items()]
+        return ''.join(ret)
 
-    #---- buttons
+    # ---- buttons
 
     def format_button_up_down(self, field):
         but_inc = '''<div class="textbutton textupdown"><i class="fas fa-angle-up bold" title="UP"></i></div>'''
@@ -588,12 +600,16 @@ of Matchbox International Ltd. and are used with permission.
         ostr += '''<a onclick="incrfield(%s,-1);">%s</a>''' % (field, but_dec)
         return ostr
 
+    def format_fa(fa_class, title):
+        return '<i class="{} bold" title="{}"></i>'.format(fa_class, title)
+
     def format_button_up_down_select(self, id, vl=1):
         ostr = ''
-        but_max = '''<div class="textbutton textupdown"><i class="fas fa-angle-double-up bold" title="TOP"></i></div>'''
-        but_inc = '''<div class="textbutton textupdown"><i class="fas fa-angle-up bold" title="UP"></i></div>'''
-        but_dec = '''<div class="textbutton textupdown"><i class="fas fa-angle-down bold" title="DOWN"></i></div>'''
-        but_min = '''<div class="textbutton textupdown"><i class="fas fa-angle-double-down bold" title="BOTTOM"></i></div>'''
+        but_max = '<div class="textbutton textupdown">{}</div>'.format(self.format_fa("fas fa-angle-double-up", "TOP"))
+        but_inc = '<div class="textbutton textupdown">{}</div>'.format(self.format_fa("fas fa-angle-up", "UP"))
+        but_dec = '<div class="textbutton textupdown">{}</div>'.format(self.format_fa("fas fa-angle-down", "DOWN"))
+        but_min = '<div class="textbutton textupdown">{}</div>'.format(self.format_fa(
+            "fas fa-angle-double-down", "BOTTOM"))
         if vl > 0:
             ostr += "<a onclick=\"settsel('%s');\">%s</a>\n" % (id, but_max)
             ostr += "<a onmousedown=\"toggleOnSel('%s', 1);\" onmouseup=\"toggleOff();\">%s</a>\n" % (id, but_inc)
@@ -607,37 +623,39 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_button_input_visibility(self, id, collapsed=False):
-	fname = 'expand' if collapsed else 'collapse'
+        fname = 'expand' if collapsed else 'collapse'
         bname = self.find_button_label(fname)
-        also = {'id': id + '_l',
-                'name': bname,
-                'value': bname,
-                'onclick': "toggle_visibility('%s','%s_l'); return false;" % (id, id),
-                'class': 'textbutton',
-	}
+        also = {
+            'id': id + '_l',
+            'name': bname,
+            'value': bname,
+            'onclick': "toggle_visibility('%s','%s_l'); return false;" % (id, id),
+            'class': 'textbutton',
+        }
         return '<button type="submit"%s>%s</button>\n' % (useful.fmt_also(also), bname)
 
     def format_button_input(self, bname="submit", name=None, also=None):
         bname = self.find_button_label(bname)
-	name = name if name else bname
-        value = self.find_button_label(bname)
+        name = name if name else bname
+        # value = self.find_button_label(bname)
         altname = self.find_button_label(bname)
-	also = also if also else {}
+        also = also if also else {}
         imalso = {'class': 'textbutton', 'alt': altname}
-	#also['onsubmit'] = 'this.disabled=true;'
+        # also['onsubmit'] = 'this.disabled=true;'
         inputname = self.find_button_name(name)
-	#also['onclick'] = 'this.disabled=true; var e=document.createElement("input"); e.type="text"; e.name="%s"; e.value="1"; this.form.appendChild(e); this.form.submit();' % inputname
-	#return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, value, useful.fmt_also(imalso, also))
-	return '<button type="submit" name="%s" value="%s"%s>%s</button>\n' % (inputname, altname, useful.fmt_also(imalso, also), altname)
-
+        # also['onclick'] = 'this.disabled=true; var e=document.createElement("input"); e.type="text"; e.name="%s";
+        # e.value="1"; this.form.appendChild(e); this.form.submit();' % inputname
+        # return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, value, useful.fmt_also(imalso, also))
+        return '<button type="submit" name="%s" value="%s"%s>%s</button>\n' % (
+            inputname, altname, useful.fmt_also(imalso, also), altname)
 
     def format_text_button(self, name, also={}):
         bname = self.find_button_label(name)
         imalso = dict({'class': 'textbutton'})
-	imalso['onsubmit'] = 'this.disabled=true;'
-	imalso.update(also)
-	btn = '<div%s>%s</div>' % (useful.fmt_also(imalso), bname)
-	return btn
+        imalso['onsubmit'] = 'this.disabled=true;'
+        imalso.update(also)
+        btn = '<div%s>%s</div>' % (useful.fmt_also(imalso), bname)
+        return btn
 
     def format_button(self, bname, link='', image='', args={}, also={}, lalso={}):
         btn = self.format_text_button(bname, also=also)
@@ -646,37 +664,40 @@ of Matchbox International Ltd. and are used with permission.
         return btn + '\n'
 
     def format_button_input_paste(self, id):
-	return self.format_text_button('paste', also={
-	    'onclick': "paste_from_clippy('%s'); return false;" % id,
-	})
+        return self.format_text_button('paste', also={
+            'onclick': "paste_from_clippy('%s'); return false;" % id,
+        })
 
     def format_button_reset(self, name):
-	return self.format_text_button('reset', also={'onClick': 'ResetForm(document.%s);' % name})
+        return self.format_text_button('reset', also={'onClick': 'ResetForm(document.%s);' % name})
 
     def set_button_comment(self, pif, args=None):
         if args:
-            args = 'page=%s&%s' % (pif.page_id, unicode(args, errors='ignore'))
+            args = 'page=%s&%s' % (pif.page_id, args)
         else:
             args = 'page=%s' % pif.page_id
-        ostr = self.format_button("comment on<br>this page", link='../pages/comment.php?%s' % args, also={'class': 'textbutton comment'}, lalso=dict())
+        ostr = self.format_button("comment on<br>this page", link='../pages/comment.php?%s' % args,
+                                  also={'class': 'textbutton comment'}, lalso=dict())
         if pif.is_allowed('a'):  # pragma: no cover
-            ostr += self.format_button("pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class': 'textbutton comment'}, lalso=dict())
-            ostr += self.format_button("edit_this_page", link=pif.dbh.get_editor_link('page_info', {'id': pif.page_id}), also={'class': 'textbutton comment'}, lalso=dict())
-	self.comment_button = '<div class="comment_box">' + ostr + '</div>'
+            ostr += self.format_button(
+                "pictures", link="traverse.cgi?d=%s" % self.pic_dir, also={'class': 'textbutton comment'}, lalso=dict())
+            ostr += self.format_button("edit_this_page", link=pif.dbh.get_editor_link(
+                'page_info', {'id': pif.page_id}), also={'class': 'textbutton comment'}, lalso=dict())
+        self.comment_button = '<div class="comment_box">' + ostr + '</div>'
 
     def set_footer(self, new_footer):
-	if new_footer:
-	    if self.footer:
-		self.footer += '<br>'
-	    if isinstance(new_footer, list):
-		new_footer = '<br>'.join(new_footer)
-	    self.footer += new_footer
+        if new_footer:
+            if self.footer:
+                self.footer += '<br>'
+            if isinstance(new_footer, list):
+                new_footer = '<br>'.join(new_footer)
+            self.footer += new_footer
 
-    #---- images
+    # ---- images
 
     def format_image_icon(self, fname, desc='', also={}):
-	if fname.endswith('-sm'): # TEMPORARY
-	    fname = fname[:-3]
+        if fname.endswith('-sm'):  # TEMPORARY
+            fname = fname[:-3]
         return self.fmt_img(fname, alt=desc, pdir=config.IMG_DIR_ICON, also=also)
 
     def format_image_art(self, fname, desc='', also={}):
@@ -686,29 +707,35 @@ of Matchbox International Ltd. and are used with permission.
         return self.fmt_opt_img(code2, alt=name, pdir=config.FLAG_DIR, also=also)
 
     def format_image_link_image(self, img, link_largest=mbdata.IMG_SIZ_SMALL, image_largest=mbdata.IMG_SIZ_GIGANTIC):
-	txt = self.format_image_sized(img, largest=link_largest)
-	if txt:
-	    lnk = self.find_image_path(img, largest=image_largest)
-	    return self.format_link(os.path.join('..', lnk), txt)
-	return ''
+        txt = self.format_image_sized(img, largest=link_largest)
+        if txt:
+            lnk = self.find_image_path(img, largest=image_largest)
+            return self.format_link(os.path.join('..', lnk), txt)
+        return ''
 
     def format_image_as_link(self, fnames, txt, pdir=None, also={}):
         return self.format_link('../' + self.find_image_path(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
 
-    def format_image_optional(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None, also={}, nopad=False, largest=None):
-        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, pad=not nopad, largest=largest)
+    def format_image_optional(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None,
+                              also={}, nopad=False, largest=None):
+        return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir,
+                            also=also, pad=not nopad, largest=largest)
 
     def format_image_required(self, fnames, **kwargs):
-	if 'nopad' in kwargs:
-	    kwargs['pad'] = not kwargs['nopad']
-	    del kwargs['nopad']
+        if 'nopad' in kwargs:
+            kwargs['pad'] = not kwargs['nopad']
+            del kwargs['nopad']
         return self.fmt_img(fnames, required=True, **kwargs)
-    #def format_image_required(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None, also={}, nopad=False, made=True, blank=False, largest=None, preferred=None):
-        #return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir, also=also, pad=not nopad, made=made, blank=blank, required=True, largest=largest, preferred=preferred)
+
+    # def format_image_required(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None,
+    #                           also={}, nopad=False, made=True, blank=False, largest=None, preferred=None):
+    #     return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir,
+    #                         also=also, pad=not nopad, made=made, blank=blank, required=True, largest=largest,
+    #                         preferred=preferred)
 
     def format_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
         self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
-	pdir = useful.relpath(pdir if pdir else self.pic_dir)
+        pdir = useful.relpath(pdir if pdir else self.pic_dir)
         if isinstance(suffix, str):
             suffix = [suffix]
         if isinstance(prefix, str):
@@ -726,31 +753,33 @@ of Matchbox International Ltd. and are used with permission.
                         imgs.append(img)
         return imgs
 
-    def format_image_sized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None, required=False, also={}):
-        return self.fmt_img(fnames, alt='', vars=vars, nobase=nobase, suffix=suffix, largest=largest, pdir=pdir, required=required, also=also)
+    def format_image_sized(self, fnames, vars=None, nobase=False, largest='g', suffix=None, pdir=None,
+                           required=False, also={}):
+        return self.fmt_img(fnames, alt='', vars=vars, nobase=nobase, suffix=suffix, largest=largest, pdir=pdir,
+                            required=required, also=also)
 
     def format_image_selector(self, pics, select_id):
-	if len(pics) < 2:
-	    return ''
-	select_id = select_id.replace('-', '_')
-	ostr = '''<script>var sel_%s = new imageselector("%s", %s);</script>\n''' % (select_id, select_id, str(pics))
-	for num in range(len(pics)):
-	    ostr += "<a onclick=\"sel_%s.select(%d);\" id=\"%s_%s\">%s</a>\n" % (select_id, num, select_id, num,
-		'<i class="fa%s fa-circle green"></i>' % ('r' if num else 's')
-	    )
-	return ostr
+        if len(pics) < 2:
+            return ''
+        select_id = select_id.replace('-', '_')
+        ostr = '''<script>var sel_%s = new imageselector("%s", %s);</script>\n''' % (select_id, select_id, str(pics))
+        for num in range(len(pics)):
+            ostr += "<a onclick=\"sel_%s.select(%d);\" id=\"%s_%s\">%s</a>\n" % (
+                select_id, num, select_id, num,
+                '<i class="fa%s fa-circle green"></i>' % ('r' if num else 's'))
+        return ostr
 
     def format_image_selectable(self, pics, select_id):
-	if not pics:
+        if not pics:
             return self.fmt_no_pic()
-	if len(pics) == 1:
+        if len(pics) == 1:
             return self.fmt_img_src(pics[0])
-	select_id = select_id.replace('-', '_')
-	return '\n'.join([self.fmt_img_src(pics[0], also={'id': select_id, 'class': 'shown'})] +
-			 [self.fmt_img_src(pics[n], also={'class': 'hidden'})
-			  for n in range(1, len(pics))])
+        select_id = select_id.replace('-', '_')
+        return '\n'.join([self.fmt_img_src(pics[0], also={'id': select_id, 'class': 'shown'})] +
+                         [self.fmt_img_src(pics[n], also={'class': 'hidden'})
+                          for n in range(1, len(pics))])
 
-    #---- lower level rendering blocks
+    # ---- lower level rendering blocks
 
     def fmt_pseudo(self, istr):
         if not istr:
@@ -762,7 +791,8 @@ of Matchbox International Ltd. and are used with permission.
             if mat.group('cmd') == 'img':
                 istr = istr[:mat.start()] + self.fmt_opt_img(mat.group('arg')) + istr[mat.end():]
             elif mat.group('cmd') == 'art':
-                istr = istr[:mat.start()] + self.fmt_art(mat.group('arg'), also={'align': 'absmiddle'}) + istr[mat.end():]
+                istr = istr[:mat.start()] + self.fmt_art(
+                    mat.group('arg'), also={'align': 'absmiddle'}) + istr[mat.end():]
             elif mat.group('cmd') == 'button':
                 istr = istr[:mat.start()] + self.format_button(mat.group('arg')) + istr[mat.end():]
         return istr
@@ -777,57 +807,65 @@ of Matchbox International Ltd. and are used with permission.
         return self.fmt_img(fname, alt=desc, prefix=prefix, pdir=self.art_dir, also=also, largest=largest)
 
     def fmt_img_src(self, pth, alt='', also={}):
-	if isinstance(pth, tuple):
-	    pth = '/'.join(pth)
+        if isinstance(pth, tuple):
+            pth = '/'.join(pth)
         if useful.is_good(pth, v=self.verbose):
             return '<img src="../' + pth + '"' + useful.fmt_also({'alt': alt}, also) + '>'
         return ''
 
     def fmt_img_file_check(self, pdir, fn):
         self.comment("fmt_img_check", pdir, fn)
-	return fn if useful.is_good(useful.relpath('.', pdir, fn), v=self.verbose) else ''
+        return fn if useful.is_good(useful.relpath('.', pdir, fn), v=self.verbose) else ''
 
     def fmt_img_check(self, pth):
         self.comment("fmt_img_check", pth)
-	return pth if useful.is_good(pth, v=self.verbose) else ''
+        return pth if useful.is_good(pth, v=self.verbose) else ''
 
-    def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None, preferred=None, also={}, made=True, required=False, blank=False, pad=False, art=False):
-        img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest, preferred=preferred, pdir=pdir, art=art)
-	return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required, blank=blank, unknown=fnames and 'unknown' in fnames, pad=pad)
+    def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None,
+                preferred=None, also={}, made=True, required=False, blank=False, pad=False, art=False):
+        img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest,
+                                   preferred=preferred, pdir=pdir, art=art)
+        return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required,
+                                 blank=blank, unknown=fnames and 'unknown' in fnames, pad=pad)
 
     def find_alt_image_path(self, img, prefix='', largest=None, made=True, required=False, unknown=False):
         if img:
             return img
-	if unknown:
-	    return self.find_image_path('nomod', prefix=prefix, suffix='gif', pdir=self.art_dir, largest=largest)
+        if unknown:
+            return self.find_image_path('nomod', prefix=prefix, suffix='gif', pdir=self.art_dir, largest=largest)
         if required:
-	    return self.find_image_path('nopic' if made else 'notmade', prefix=prefix, suffix='gif', pdir=self.art_dir, largest=largest)
+            return self.find_image_path('nopic' if made else 'notmade', prefix=prefix, suffix='gif', pdir=self.art_dir,
+                                        largest=largest)
         return ''
 
-    def fmt_img_file(self, img, alt='', prefix='', largest=None, also={}, made=True, required=False, blank=False, unknown=False, pad=False):
+    def fmt_img_file(self, img, alt='', prefix='', largest=None, also={}, made=True, required=False, blank=False,
+                     unknown=False, pad=False):
         if img:
             return self.fmt_img_src(img, alt=alt, also=also)
-	if unknown:
-	    return self.fmt_art('nomod.gif', prefix=prefix, largest=largest, also=also)
+        if unknown:
+            return self.fmt_art('nomod.gif', prefix=prefix, largest=largest, also=also)
         if required:
             return self.fmt_no_pic(made, prefix, largest=largest, blank=blank, also=also)
-	if alt:
-	    return alt
+        if alt:
+            return alt
         if pad:
             return '&nbsp;'
         return ''
 
     def fmt_no_pic(self, made=True, prefix='', blank=False, largest=None, also={}):
-        img = self.fmt_art('notmade.gif' if not made else 'blank.gif' if blank else 'nopic.gif', prefix=prefix, largest=largest, also=also)
-	if not img:
-	    img = self.fmt_art('notmade.gif' if not made else 'blank.gif' if blank else 'nopic.gif', largest='s', also=also)
-	return img
+        img = self.fmt_art('notmade.gif' if not made else 'blank.gif' if blank else 'nopic.gif', prefix=prefix,
+                           largest=largest, also=also)
+        if img:
+            return img
+        return self.fmt_art('notmade.gif' if not made else
+                            'blank.gif' if blank else 'nopic.gif', largest='s', also=also)
 
     def fmt_opt_img(self, fnames, alt='', prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False):
-        return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars, pad=not nopad)
+        return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars,
+                            pad=not nopad)
 
     def fmt_anchor(self, name):
-	return ('<i id="%s"></i>\n' % name) if name else ''
+        return ('<i id="%s"></i>\n' % name) if name else ''
 
     def format_bullet_list(self, descs):
         ostr = ''
@@ -850,7 +888,7 @@ of Matchbox International Ltd. and are used with permission.
 
     def format_listix(self, llineup):
         ostr = ''
-        #self.comment_dict('lineup', llineup)
+        # self.comment_dict('lineup', llineup)
         if llineup.get('graphics'):
             for graf in llineup['graphics']:
                 ostr += self.fmt_opt_img(graf, suffix='gif')
@@ -859,7 +897,7 @@ of Matchbox International Ltd. and are used with permission.
             ostr += llineup['note'] + '<br>'
         for sec in llineup.get('section', []):
             sec_id = sec.get('id', '')
-	    ncols = len(sec['columns'])
+            ncols = len(sec['columns'])
             ostr += self.fmt_anchor(sec.get('anchor'))
             if sec.get('header'):
                 ostr += sec['header']
@@ -873,29 +911,29 @@ of Matchbox International Ltd. and are used with permission.
                 ostr += self.format_cell(0, sec['note'], also=also)
                 ostr += self.format_row_end()
 
-	    if not sec.get('noheaders'):
-		ostr += self.format_row_start(also={'class': 'er'})
-		for ent in sec['columns']:
-		    ostr += self.format_cell(0, sec['headers'].get(ent, ''), hdr=True)
-		ostr += self.format_row_end()
+            if not sec.get('noheaders'):
+                ostr += self.format_row_start(also={'class': 'er'})
+                for ent in sec['columns']:
+                    ostr += self.format_cell(0, sec['headers'].get(ent, ''), hdr=True)
+                ostr += self.format_row_end()
 
-	    for ran in sec['range']:
-		ran_id = ran.get('id', '')
-		ostr += self.fmt_anchor(ran.get('anchor'))
-		if ran.get('name'):
-		    ostr += self.format_cell(0, ran.get('name', ''), hdr=True, id=ran['id'], also={'colspan': ncols})
-		if ran.get('note'):
-		    ostr += self.format_row_start()
-		    also = {'colspan': ncols}
-		    also['class'] = self.style_name(also.get('class'), 'sb', ran_id)
-		    ostr += self.format_cell(0, ran['note'], also=also)
-		    ostr += self.format_row_end()
+            for ran in sec['range']:
+                ran_id = ran.get('id', '')
+                ostr += self.fmt_anchor(ran.get('anchor'))
+                if ran.get('name'):
+                    ostr += self.format_cell(0, ran.get('name', ''), hdr=True, id=ran['id'], also={'colspan': ncols})
+                if ran.get('note'):
+                    ostr += self.format_row_start()
+                    also = {'colspan': ncols}
+                    also['class'] = self.style_name(also.get('class'), 'sb', ran_id)
+                    ostr += self.format_cell(0, ran['note'], also=also)
+                    ostr += self.format_row_end()
 
-		for ent in ran['entry']:
-		    ostr += self.format_row_start(also={'class': 'er'})
-		    for col in sec['columns']:
-			ostr += self.format_cell(ran.get('styles', {}).get(col, '1'), ent.get(col, ''))
-		    ostr += self.format_row_end()
+                for ent in ran['entry']:
+                    ostr += self.format_row_start(also={'class': 'er'})
+                    for col in sec['columns']:
+                        ostr += self.format_cell(ran.get('styles', {}).get(col, '1'), ent.get(col, ''))
+                    ostr += self.format_row_end()
 
             ostr += self.format_table_end()
             if sec.get('footer'):
@@ -915,7 +953,7 @@ of Matchbox International Ltd. and are used with permission.
     def format_matrix(self, llineup):
         ostr = ''
         maxes = {'s': 0, 'r': 0, 'e': 0}
-        #self.comment_dict('lineup', llineup)
+        # self.comment_dict('lineup', llineup)
         if llineup.get('graphics'):
             for graf in llineup['graphics']:
                 ostr += self.fmt_opt_img(graf, suffix='gif')
@@ -929,8 +967,9 @@ of Matchbox International Ltd. and are used with permission.
             ostr += self.fmt_anchor(sec.get('anchor'))
             ncols = sec.get('columns', llineup.get('columns', 4))
             if 'switch' in sec:
-                #exval = {False: 'expand', True: 'collapse'}[sec['switch']]
-                #ostr += '''<input id="%s_l" type="button" value="%s" onclick="toggle_visibility('%s','%s_l');">\n''' % (sec_id, exval, sec_id, sec_id)
+                # exval = {False: 'expand', True: 'collapse'}[sec['switch']]
+                # ostr += '''<input id="%s_l" type="button" value="%s"
+                # onclick="toggle_visibility('%s','%s_l');">\n''' % (sec_id, exval, sec_id, sec_id)
                 ostr += self.format_button_input_visibility(sec_id, sec['switch'])
                 ostr += sec.get('count', '')
             ostr += self.format_table_start(style_id=lin_id)
@@ -942,16 +981,18 @@ of Matchbox International Ltd. and are used with permission.
                 also['class'] = self.style_name(also.get('class'), 'sb', sec_id)
                 ostr += self.format_cell(0, sec['note'], also=also)
                 ostr += self.format_row_end()
-#            ostr += self.format_row_start()
-#            ostr += '<td>\n'
-            #ostr += self.format_table_start(id=sec_id, style_id=lin_id, also={'style': "border-width: 0; padding: 0;"})
+            # ostr += self.format_row_start()
+            # ostr += '<td>\n'
+            # ostr += self.format_table_start(id=sec_id, style_id=lin_id,
+            #                                 also={'style': "border-width: 0; padding: 0;"})
             rc = 0
             for ran in sec.get('range', []):
                 rc += 1
                 ran_id = ran.get('id', '')
                 ostr += self.fmt_anchor(ran.get('anchor'))
                 if ran.get('name') or ran.get('graphics'):
-                    ostr += self.format_range(ran.get('name', ''), None, ran.get('graphics', list()), cols=sec['columns'], id=ran.get('id', ''))
+                    ostr += self.format_range(ran.get('name', ''), None, ran.get('graphics', list()),
+                                              cols=sec['columns'], id=ran.get('id', ''))
                 if ran.get('note'):
                     ostr += self.format_row_start()
                     also = {'colspan': ncols}
@@ -968,7 +1009,7 @@ of Matchbox International Ltd. and are used with permission.
                     disp_id = ent.get('display_id')
                     if not disp_id:
                         disp_id = ran_id
-                    #disp_id += ent.get('st_suff', '')
+                    # disp_id += ent.get('st_suff', '')
                     also = {}
                     if ent.get('class'):
                         also['class'] = ent['class']
@@ -982,14 +1023,14 @@ of Matchbox International Ltd. and are used with permission.
                             ostr += self.format_row_end()
                             icol = 0
                             ostr += self.format_row_start(also={'class': 'er'})
-		    also['width'] = '%d%%' % (100/ncols)
+                    also['width'] = '%d%%' % (100 // ncols)
                     if ent.get('rowspan', 1) > 1:
                         spans[icol] = [ent.get('colspan', 1), ent['rowspan'] - 1]
                         also['rowspan'] = ent['rowspan']
                     if ent.get('colspan', 1) > 1:
                         also['colspan'] = ent['colspan']
                         also['width'] = '%d%%' % (int(ent['colspan']) * 100 / ncols)
-		    also.update(ent.get('also', {}))
+                    also.update(ent.get('also', {}))
                     ostr += self.format_cell(disp_id, ent['text'], also=also)
                     icol += ent.get('colspan', 1)
                     if icol >= ncols:
@@ -999,73 +1040,73 @@ of Matchbox International Ltd. and are used with permission.
                 if icol:
                     ostr += self.format_row_end()
                 maxes['r'] = max(maxes['r'], rc)
-            #ostr += self.format_table_end()
+            # ostr += self.format_table_end()
 #            ostr += self.format_cell_end()
 #            ostr += self.format_row_end()
             ostr += self.format_table_end()
             maxes['s'] = max(maxes['s'], sc)
-        #print 'sec %(s)d ran %(r)d ent %(e)d<br>' % maxes
-	if any(llineup.get('tail', [])):
-	    ostr += self.format_box_tail(llineup.get('tail'))
+        # print('sec %(s)d ran %(r)d ent %(e)d<br>' % maxes)
+        if any(llineup.get('tail', [])):
+            ostr += self.format_box_tail(llineup.get('tail'))
         return ostr
 
     def format_matrix_for_template(self, llineup, flip=False):
-	maxes = {'s': 0, 'r': 0, 'e': 0}
-	#self.comment_dict('lineup', llineup)
-	rows = sc = 0
-	llineup.setdefault('widthauto', False)
-	for sec in llineup.get('section', []):
-	    sc += 1
-	    sec['columns'] = ncols = sec.get('columns', llineup.get('columns', 4))
-	    rc = 0
-	    for ran in sec.get('range', []):
-		rc += 1
-		icol = ec = 0
-		spans = [[0, 0]] * ncols
-		entries = list()
-		if flip:
-		    ran['entry'] = useful.reflect(ran.get('entry', []), ncols, {})
-		for ent in ran.get('entry', []):
-		    ec += 1
-		    if icol == 0:
-			ent['firstent'] = True
-			rows += 1
-		    also = {}
-		    ent.setdefault('rowspan', 1)
-		    ent.setdefault('colspan', 1)
-		    if ent.get('class'):
-			also['class'] = ent['class']
-		    if ent.get('style'):
-			also['style'] = ent['style']
-		    thisspan = spans[icol]
-		    if thisspan[1]:
-			spans[icol] = [thisspan[0], thisspan[1] - 1]
-			icol += thisspan[0]
-			if icol >= ncols:
-			    ent['firstent'] = True
-			    icol = 0
-		    ent['width'] = also['width'] = '%d%%' % (100/ncols)
-		    if ent.get('rowspan', 1) > 1:
-			spans[icol] = [ent.get('colspan', 1), ent['rowspan'] - 1]
-			also['rowspan'] = ent['rowspan']
-		    if ent.get('colspan', 1) > 1:
-			also['colspan'] = ent['colspan']
-			also['width'] = '%d%%' % (int(ent['colspan']) * 100 / ncols)
-		    icol += int(ent['colspan'])
-		    also.update(ent.get('also', {}))
-		    if icol >= ncols:
-			icol = 0
-			ent['lastent'] = True
+        maxes = {'s': 0, 'r': 0, 'e': 0}
+        # self.comment_dict('lineup', llineup)
+        rows = sc = 0
+        llineup.setdefault('widthauto', False)
+        for sec in llineup.get('section', []):
+            sc += 1
+            sec['columns'] = ncols = sec.get('columns', llineup.get('columns', 4))
+            rc = 0
+            for ran in sec.get('range', []):
+                rc += 1
+                icol = ec = 0
+                spans = [[0, 0]] * ncols
+                entries = list()
+                if flip:
+                    ran['entry'] = useful.reflect(ran.get('entry', []), ncols, {})
+                for ent in ran.get('entry', []):
+                    ec += 1
+                    if icol == 0:
+                        ent['firstent'] = True
+                        rows += 1
+                    also = {}
+                    ent.setdefault('rowspan', 1)
+                    ent.setdefault('colspan', 1)
+                    if ent.get('class'):
+                        also['class'] = ent['class']
+                    if ent.get('style'):
+                        also['style'] = ent['style']
+                    thisspan = spans[icol]
+                    if thisspan[1]:
+                        spans[icol] = [thisspan[0], thisspan[1] - 1]
+                        icol += thisspan[0]
+                        if icol >= ncols:
+                            ent['firstent'] = True
+                            icol = 0
+                    ent['width'] = also['width'] = '%d%%' % (100 // ncols)
+                    if ent.get('rowspan', 1) > 1:
+                        spans[icol] = [ent.get('colspan', 1), ent['rowspan'] - 1]
+                        also['rowspan'] = ent['rowspan']
+                    if ent.get('colspan', 1) > 1:
+                        also['colspan'] = ent['colspan']
+                        also['width'] = '%d%%' % (int(ent['colspan']) * 100 / ncols)
+                    icol += int(ent['colspan'])
+                    also.update(ent.get('also', {}))
+                    if icol >= ncols:
+                        icol = 0
+                        ent['lastent'] = True
                     maxes['e'] = max(maxes['e'], ec)
-		    ent['also'] = also
-		    entries.append(ent)
-		ran['entry'] = entries
+                    ent['also'] = also
+                    entries.append(ent)
+                ran['entry'] = entries
                 maxes['r'] = max(maxes['r'], rc)
             maxes['s'] = max(maxes['s'], sc)
-	llineup['rowcount'] = rows
-	llineup['maxes'] = maxes
-        #print 'sec %(s)d ran %(r)d ent %(e)d<br>' % maxes
-	return llineup
+        llineup['rowcount'] = rows
+        llineup['maxes'] = maxes
+        # print('sec %(s)d ran %(r)d ent %(e)d<br>' % maxes)
+        return llineup
 
     def format_box_tail(self, tail):
         if not tail:
@@ -1084,16 +1125,16 @@ of Matchbox International Ltd. and are used with permission.
 
     def format_links(self, llineup):
         ostr = llineup.get('name', '') + '\n'
-        lin_id = llineup.get('id', '')
+        # lin_id = llineup.get('id', '')
         for sec in llineup.get('section', []):
-            sec_id = sec.get('id', '')
+            # sec_id = sec.get('id', '')
             self.fmt_anchor(sec.get('anchor'))
             if sec.get('name'):
                 ostr += '<h3>' + sec.get('name', '') + '</h3><p>'
             if sec.get('note'):
                 ostr += sec['note'] + '<br>'
             for ran in sec.get('range', []):
-                ran_id = ran.get('id', '')
+                # ran_id = ran.get('id', '')
                 self.fmt_anchor(ran.get('anchor'))
                 if ran.get('name') or ran.get('graphics'):
                     ostr += ran.get('name', '') + '<br>'
@@ -1117,49 +1158,49 @@ of Matchbox International Ltd. and are used with permission.
         return ostr
 
     def format_modal(self, modal_id, content):
-	ostr = '<div id="%s" class="modal">\n' % modal_id
-	ostr += '<div class="modal-content"><span class="close" id="%s.close">&times;</span>\n' % modal_id
-	ostr += content + '\n'
-	ostr += '</div>\n</div>\n'
-	return ostr
+        ostr = '<div id="%s" class="modal">\n' % modal_id
+        ostr += '<div class="modal-content"><span class="close" id="%s.close">&times;</span>\n' % modal_id
+        ostr += content + '\n'
+        ostr += '</div>\n</div>\n'
+        return ostr
 
     def format_template(self, template, **kwargs):
         if self.tail.get('flags'):
             self.flag_list = list(self.shown_flags)
             self.flag_list.sort(key=lambda x: self.flag_info[x][0])
-	titleimage = self.find_image_path(self.page_id.split('.'))
-	if titleimage:
-	    titleimage = '/' + titleimage
-	page_info = {
-	    'messages': useful.header_done(silent=True),
-	    'hierarchy': self.hierarchy,
-	    'is_beta': self.is_beta,
-	    'styles': self.styles,
-	    'title': self.title,
-	    'hide_title': self.hide_title,
-	    'is_admin': self.is_admin,
-	    'is_moderator': self.is_moderator,
-	    'is_user': self.is_user,
-	    'titleimage': titleimage,
-	    'tail': self.tail,
-	    'page_id': self.page_id,
-	    'description': self.description,
-	    'note': self.note,
-	    'pic_dir': self.pic_dir,
-	    'large': self.large,
-	    'verbose': self.verbose,
-	    'not_released': self.not_released,
-	    'flags': self.flags,
-	    'flag_info': self.flag_info,
-	    'shown_flags': self.shown_flags,
-	    'secure': self.secure,
-	    'extra': self.extra,
-	    'comment_button': self.comment_button,
-	    'footer': self.footer,
-	    'bamcamark': self.bamcamark,
-	    'token': self.format_form_token(useful.generate_token(6)),
-	}
-	output = useful.render_template(template, page=page_info, config_context=config, **kwargs)
-	if self.unittest:
-	    return "[redacted]"
-	return output
+        titleimage = self.find_image_path(self.page_id.split('.'))
+        if titleimage:
+            titleimage = '/' + titleimage
+        page_info = {
+            'messages': useful.header_done(silent=True),
+            'hierarchy': self.hierarchy,
+            'is_beta': self.is_beta,
+            'styles': self.styles,
+            'title': self.title,
+            'hide_title': self.hide_title,
+            'is_admin': self.is_admin,
+            'is_moderator': self.is_moderator,
+            'is_user': self.is_user,
+            'titleimage': titleimage,
+            'tail': self.tail,
+            'page_id': self.page_id,
+            'description': self.description,
+            'note': self.note,
+            'pic_dir': self.pic_dir,
+            'large': self.large,
+            'verbose': self.verbose,
+            'not_released': self.not_released,
+            'flags': self.flags,
+            'flag_info': self.flag_info,
+            'shown_flags': self.shown_flags,
+            'secure': self.secure,
+            'extra': self.extra,
+            'comment_button': self.comment_button,
+            'footer': self.footer,
+            'bamcamark': self.bamcamark,
+            'token': self.format_form_token(useful.generate_token(6)),
+        }
+        output = useful.render_template(template, page=page_info, config_context=config, **kwargs)
+        if self.unittest:
+            return "[redacted]"
+        return output

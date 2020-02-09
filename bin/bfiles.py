@@ -1,8 +1,9 @@
 #!/usr/local/bin/python
 
-import os, re, sys, time
+from io import open
+import os
+import time
 
-import mbdata
 import useful
 
 
@@ -57,15 +58,16 @@ class ArgList():
 
 class ArgFile():
     def __init__(self, fname):
-	if fname.startswith('/'):
-	    fname = fname[1:]
+        if fname.startswith('/'):
+            fname = fname[1:]
         self.filename = fname
-	useful.write_comment('trying to open', fname)
+        useful.write_comment('trying to open', fname)
         self.set_globals()
         try:
             self.handle = open(fname)
         except IOError:
-	    raise useful.SimpleError("""I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
+            raise useful.SimpleError(
+                """I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
         self.srcstat = os.fstat(self.handle.fileno())
         self.ignoreoverride = False
         self.dats = {}
@@ -78,11 +80,13 @@ class ArgFile():
         self.tail = {}
 
     def read(self):
-        self.tail['stat'] = time.strftime('Last updated %A, %d %B %Y at %I:%M:%S %p %Z.', time.localtime(self.srcstat.st_mtime))
+        self.tail['stat'] = time.strftime('Last updated %A, %d %B %Y at %I:%M:%S %p %Z.',
+                                          time.localtime(self.srcstat.st_mtime))
         try:
-	    return self.read_file(self.handle)
+            return self.read_file(self.handle)
         except IOError:
-	    raise useful.SimpleError("""I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
+            raise useful.SimpleError(
+                """I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
 
     def __getitem__(self, arg):
         return self.__dict__[arg]
@@ -130,22 +134,22 @@ class ArgFile():
         except IOError:
             return []
         return self.read_file(dbf)
-        fst = os.fstat(dbf.fileno())
-        db = dbf.readlines()
-        dblist = []
-        for line in db:
-            if line[0] == '#':
-                continue
-            llist = self.read_line(line)
-            if not llist:
-                continue
-            cmd = llist.get_arg()
-            if cmd == 'include':
-                dblist.extend(self.read_include(llist.get_arg()))
-            else:
-                llist.rewind()
-                dblist.append(llist)
-        return dblist
+        # fst = os.fstat(dbf.fileno())
+        # db = dbf.readlines()
+        # dblist = []
+        # for line in db:
+        #     if line[0] == '#':
+        #         continue
+        #     llist = self.read_line(line)
+        #     if not llist:
+        #         continue
+        #     cmd = llist.get_arg()
+        #     if cmd == 'include':
+        #         dblist.extend(self.read_include(llist.get_arg()))
+        #     else:
+        #         llist.rewind()
+        #         dblist.append(llist)
+        # return dblist
 
     def peek(self, datname):
         line = self.handle.readline()
@@ -193,7 +197,7 @@ class ArgFile():
         return None
 
     def parse_data(self, llist):
-        #llist.rewind()
+        # llist.rewind()
         key = llist.get_arg()
         fld = llist.get_arg()
         typ = llist.get_arg('')
@@ -222,8 +226,8 @@ class ArgFile():
             self.tail[arg] = 1
             arg = llist.get_arg()
 
-    def parse_restrict(self, llist):
-        restrict(llist[1])
+    # def parse_restrict(self, llist):
+    #     restrict(llist[1])
 
     def __len__(self):
         return len(self.dblist)

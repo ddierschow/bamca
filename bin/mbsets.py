@@ -2,7 +2,6 @@
 
 '''Old, file-based code.  My ability to care about this is severely limited.'''
 
-import os
 import basics
 import bfiles
 import config
@@ -44,7 +43,7 @@ class SetFile(bfiles.ArgFile):
             self.tables.append(self.db)
             self.db = {'model': []}
         self.db.update(dict(map(None, self.tablecols, llist[1:])))
-        self.db['cols'] = cols = self.db['cols'].split(',')
+        self.db['cols'] = self.db['cols'].split(',')
         self.db['header'] = self.header
         self.db['ncols'] = self.ncols
 
@@ -80,10 +79,10 @@ def do_set(pif, setfile, set_id=None):
             llineups.append(print_table(pif, db, setfile))
         else:
             llineups.append(print_no_table(pif, db))
-#    llineups = [
-#            print_table(pif, db, setfile)
-#	    if len(tables) == 1 or not db['title'] or set_id == db['label'] or set_id == 'all'  # or not set_id
-#	    else print_no_table(pif, db) for db in tables]
+    # llineups = [
+    #         print_table(pif, db, setfile)
+    #         if len(tables) == 1 or not db['title'] or set_id == db['label'] or set_id == 'all'  # or not set_id
+    #         else print_no_table(pif, db) for db in tables]
     return pif.render.format_template('sets.html', llineups=llineups)
 
 
@@ -99,25 +98,26 @@ def print_table(pif, db, setfile):
             ncols = ncols + 1
 
     for model in db['model']:
-	pif.render.comment('print_table', model)
+        pif.render.comment('print_table', model)
         showme = True
         for field in db['header']:
             if pif.form.has(field):
-                if model.get(field, '') != pif.form.get_str(field) or (not model.get(field, '') and not pif.form.get_str(field)):
+                if (model.get(field, '') != pif.form.get_str(field) or
+                        (not model.get(field, '') and not pif.form.get_str(field))):
                     showme = False
         if not showme:
             continue
         if 'text' in model:
             # Need to calculate the colspan better.
-	    entries.append({'text': model.get('text', ''), 'colspan': len(db['header']) - 1, 'style': '0'})
+            entries.append({'text': model.get('text', ''), 'colspan': len(db['header']) - 1, 'style': '0'})
             continue
         if 'section' in model:
             # Need to calculate the colspan better.
-            #ostr += '    <th colspan=%d valign=top>\n' % (len(db['header']) - 1)
-            #ostr += model['section']
-            #ostr += '</th></tr>\n'
-            #ostr += pif.render.format_section(None, model['section'], also={'colspan': (len(db['header']) - 1)})
-	    entries.append({'text': model.get('section', ''), 'colspan': len(db['header']) - 1, 'class': 'section'})
+            # ostr += '    <th colspan=%d valign=top>\n' % (len(db['header']) - 1)
+            # ostr += model['section']
+            # ostr += '</th></tr>\n'
+            # ostr += pif.render.format_section(None, model['section'], also={'colspan': (len(db['header']) - 1)})
+            entries.append({'text': model.get('section', ''), 'colspan': len(db['header']) - 1, 'class': 'section'})
             continue
         ifield = 0
         for field in db['header']:
@@ -129,31 +129,45 @@ def print_table(pif, db, setfile):
                 entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': db['ncols'] - 1})
             elif field == 'num':
                 modnums = [mod_num(prefix, modnum, model.get('rank')) for modnum in model.get(field, '').split(';')]
-                entries.append({'style': ifield, 'text': '<nobr>%s</nobr>' % "<br>".join(modnums), 'also': {'height': '8'}})
+                entries.append({'style': ifield,
+                                'text': '<nobr>%s</nobr>' % "<br>".join(modnums), 'also': {'height': '8'}})
             elif field == 'pic':
                 modnum = model.get('num', '').split(';')
                 rowspan = 2 if 'insetdesc' in db['header'] else 1
-                entries.append({'style': ifield, 'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']), (model.get('year', '') != 'not made'), dirs=setfile.dirs), 'rowspan': rowspan})
+                entries.append({
+                    'style': ifield,
+                    'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']),
+                                (model.get('year', '') != 'not made'), dirs=setfile.dirs),
+                    'rowspan': rowspan})
             elif field == 'fullpic':
                 modnum = model.get('num', '').split(';')
                 colspan = 2 if 'insetdesc' in db['header'] else repr(db['ncols'])
-                entries.append({'style': ifield, 'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']), (model.get('year', '') != 'not made'), dirs=setfile.dirs), 'colspan': colspan})
+                entries.append({
+                    'style': ifield,
+                    'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']),
+                                (model.get('year', '') != 'not made'), dirs=setfile.dirs),
+                    'colspan': colspan})
             elif field == 'name':
-		entries.append({'style': ifield, 'text': '<center><b>' + model.get(field, '') + '</b></center>'}
-		    if model.get(field, '') else {'style': ifield})
+                entries.append({
+                    'style': ifield, 'text': '<center><b>' + model.get(field, '') + '</b></center>'}
+                    if model.get(field, '') else {'style': ifield})
             else:
-		entries.append({'style': ifield, 'text': model.get(field, '')} if model.get(field, '') else {'style': ifield})
+                entries.append({'style': ifield,
+                                'text': model.get(field, '')} if model.get(field, '') else {'style': ifield})
             ifield += 1
-    llineup = {'anchor': db['label'], 'name': db['title'], 'columns': ncols, 'widthauto': True,
-	'section': [{'id': 'box', 'name': '',
-	    'range': [{'entry': entries}]}],
+    llineup = {
+        'anchor': db['label'], 'name': db['title'], 'columns': ncols, 'widthauto': True,
+        'section': [{'id': 'box', 'name': '',
+                     'range': [{'entry': entries}]}],
     }
     return pif.render.format_matrix_for_template(llineup)
 
 
 def print_no_table(pif, db):
-    return {'anchor': db['label'],
-	'header': '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.form.get_str('page') + '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db}
+    return {
+        'anchor': db['label'],
+        'header': '<h3><a href="/cgi-bin/sets.cgi?page=' + pif.form.get_str('page') +
+        '&set=%(label)s#%(label)s">%(title)s</a></h3>\n' % db}
 
 
 def mod_desc(desclist):
@@ -189,17 +203,19 @@ def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
         if suffix:
             m += suffix
         modnum.append(m)
-    ostr = pif.render.format_image_required(modnum, alt=mod_num(prefix, model[0], suffix), made=made, pdir=dirs.get(prefix))
+    ostr = pif.render.format_image_required(modnum, alt=mod_num(prefix, model[0], suffix), made=made,
+                                            pdir=dirs.get(prefix))
     return '<center>' + ostr + '</center>'
 
 
 def select_set(pif):
-    lran = {'name': "A few of the special sets produced by Matchbox in recent years:", 'entry':
-	['<b><a href="?page=%s">%s</a></b> - %s' %
-	    (ent['page_info.id'][5:], ent['page_info.title'], ent['page_info.description'])
-	    for ent in pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0", order='description,title')]}
+    lran = {
+        'name': "A few of the special sets produced by Matchbox in recent years:",
+        'entry': ['<b><a href="?page=%s">%s</a></b> - %s' %
+                  (ent['page_info.id'][5:], ent['page_info.title'], ent['page_info.description'])
+                  for ent in pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0", order='description,title')]}
     llineup = {'section': [{'id': 'i', 'range': [lran]}],
-	       'tail': [pif.render.format_button("back", link="..") + " to the main index."]}
+               'tail': [pif.render.format_button("back", link="..") + " to the main index."]}
     return pif.render.format_template('setsel.html', llineup=llineup)
 
 
