@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import vredit
+import vredit   # noqa: E402
 vredit.handle_form('vars', dbedit='am')

@@ -227,6 +227,7 @@ class PageInfoFile(object):
         self.render = self.dbh = None
         self.secure = secure.Security()
         self.htdocs = self.secure.docroot
+        config.IS_ALPHA = self.secure.is_alpha
         config.IS_BETA = self.secure.is_beta
         self.rawcookies = self.secure.get_cookies()
         user_id = self.rawcookies.get('id', '0')
@@ -248,6 +249,7 @@ class PageInfoFile(object):
         self.remote_addr = os.environ.get('REMOTE_ADDR', '127.0.0.1')
         self.secure_host = 'https://' + self.secure.host
         self.secure_prod = self.secure_host.replace('beta', 'www')
+        self.secure_prod = self.secure_host.replace('alpha', 'www')
         self.is_web = 'REQUEST_METHOD' in os.environ  # is apache!
         self.set_server_env()
         self.log = logger.Logger()
@@ -264,6 +266,7 @@ class PageInfoFile(object):
         os.chdir(self.secure.docroot)
         self.cwd = os.getcwd()
         self.render.is_beta = self.secure.is_beta
+        self.render.is_alpha = self.secure.is_alpha
         self.cgibin = '../cgi-bin'
 
         dbqlog = self.log.devnull if self.unittest else self.log.dbq
@@ -316,9 +319,11 @@ class PageInfoFile(object):
                 not refer.startswith('http://www.bamca.org') and
                 not refer.startswith('http://bamca.org') and
                 not refer.startswith('http://beta.bamca.org') and
+                not refer.startswith('http://alpha.bamca.org') and
                 not refer.startswith('https://www.bamca.org') and
                 not refer.startswith('https://bamca.org') and
-                not refer.startswith('https://beta.bamca.org'))
+                not refer.startswith('https://beta.bamca.org') and
+                not refer.startswith('https://alpha.bamca.org'))
 
     def log_start(self):
         if not self.argv and not self.is_allowed('m'):

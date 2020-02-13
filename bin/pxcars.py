@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 import copy
 import basics
 import bfiles

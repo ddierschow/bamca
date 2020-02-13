@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 import basics
 import imglib
 import masses
@@ -430,7 +430,7 @@ def command_info(pif):
             dcol['ask'] = 'X' if col[0] in tinfo.get('ask', []) else ''
             dcol['ro'] = 'X' if col[0] in tinfo.get('readonly', []) else ''
             print(cfmt % dcol)
-        print
+        print()
 
 
 cmds = [

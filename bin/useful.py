@@ -3,7 +3,7 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-from __future__ import print_function
+from sprint import sprint as print
 from io import open
 import filecmp
 import glob
@@ -188,6 +188,7 @@ def clean_id(str_id):
 
 
 def dump_dict_comment(t, d, keys=None):
+    return ''
     ostr = "<!-- dump %s:\n" % t
     ostr += pprint.pformat(d, indent=1, width=132)
     return ostr + '\n-->\n'
@@ -312,8 +313,8 @@ def reflect(in_iter, columns, pad=None):
     nents = len(in_iter)
     if nents < columns:
         return in_iter
-    colsize = (len(in_iter) - 1) / columns + 1
-    return itertools.chain(*itertools.izip_longest(*[in_iter[x:x + colsize] for x in range(
+    colsize = (len(in_iter) - 1) // columns + 1
+    return itertools.chain(*itertools.zip_longest(*[in_iter[x:x + colsize] for x in range(
         0, colsize * columns,  # len(in_iter),
         colsize)], fillvalue=pad))
 
@@ -574,7 +575,7 @@ def format_string(*args, **kwargs):
         elif not _format_web:
             return ' '.join([str(x) for x in args])
         elif args[0] == '#':
-            return '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
+            return ''  # '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
         elif args[0] == '!':
             return '<div class="warning">%s</div>' % ' '.join([str(x) for x in args[1:]])
         else:
@@ -618,7 +619,7 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
         if verbose:
             write_message(ch, ' '.join(cmd), nonl=True)
         ch = '|'
-        procs.append(subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr))
+        procs.append(subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr, text=True))
         inp = procs[-1].stdout
     output = ''
     while True:
@@ -633,7 +634,7 @@ def simple_process(cmd, msg='', inp=subprocess.PIPE, stderr=None, verbose=False)
     ch = '%'
     if verbose:
         write_message(ch, ' '.join(cmd), nonl=True)
-    proc = subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr)
+    proc = subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr, text=True)
     output = ''
     o, e = proc.communicate(msg)
     while proc.returncode is None:

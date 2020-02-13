@@ -361,7 +361,7 @@ def make_page_list(pif, format_type, fmt_link):
     llineup = {'id': 'main', 'name': '', 'section': [lsec]}
     for sec in secs:
         hidden = sec.flags & config.FLAG_PAGE_INFO_HIDDEN or sec.page_info.flags & config.FLAG_PAGE_INFO_HIDDEN
-        if '.' in sec.page_id and (pif.render.is_beta or not hidden):
+        if '.' in sec.page_id and (pif.render.is_alpha or pif.render.is_beta or not hidden):
             entries.append({'text': ('<i>%s</i>' if hidden else '%s') % fmt_link(sec)})
     pif.render.format_matrix_for_template(llineup)
     return pif.render.format_template('packpages.html', llineup=llineup)

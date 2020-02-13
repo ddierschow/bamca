@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from functools import reduce
 import copy
 import csv
@@ -132,7 +132,7 @@ picture_cols = [
     # ['bx', 'Bx'],
     # ['bx2', 'Bx'],
 ]
-picture_cols += zip(var_pic_keys, var_pic_hdrs) + [['description', 'Description']]
+picture_cols += list(zip(var_pic_keys, var_pic_hdrs)) + [['description', 'Description']]
 mades = {False: '<i>%(name)s</i>', True: '%(name)s'}
 prefixes = [  # need to phase this out somehow
     ['a_', '.' + config.IMG_DIR_ADD],
@@ -980,7 +980,7 @@ def list_attributes(pif, mod_id):
     attrs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))
     for attr in attrs:
         print(attr['attribute_name'],)
-    print
+    print()
 
 
 def clone_attributes(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
@@ -1129,9 +1129,9 @@ def update_descriptions(pif, *args):
                 print(messages)
             count += 1
         else:
-            print
+            print()
         pif.dbh.recalc_description(casting, showtexts, verbose)
-    print
+    print()
     print(count, "to go *")
 
 
@@ -1266,7 +1266,7 @@ def check_core(pif, *specs):
                 print('has bad', ' '.join(bad),)
 
             if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
-                print
+                print()
 
 
 # currently produces duplicates

@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from io import open
 import glob
 import itertools
@@ -610,7 +610,7 @@ def ads_main(pif):
     missing_pics = sorted(set(links.keys()) - set(pic_ims))
     lib_ims = sorted(set(ad_images(lib_dir)) - set(links.keys()))
     pic_ims = sorted(set(pic_ims) - set(links.keys()))
-    list_ents = {ent[0]: dict(itertools.izip_longest(['id', 'description', 'first_year', 'country', 'model_type'], ent))
+    list_ents = {ent[0]: dict(itertools.zip_longest(['id', 'description', 'first_year', 'country', 'model_type'], ent))
                  for ent in [x.strip().split('|') for x in open(pic_dir + '/list.dat').readlines()]}
     list_ids = sorted(set(list_ents.keys()) - set(links.keys()))
     link_ids = sorted(set(links.keys()) - set(missing_pics), key=lambda x: (links[x]['first_year'], links[x]['id']))
@@ -675,7 +675,7 @@ def check_boxes(pif):
                         print(picsize,)
                     else:
                         print(picsize.upper(),)
-            print
+            print()
 
     check_database(pif)
 

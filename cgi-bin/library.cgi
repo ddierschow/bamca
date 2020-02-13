@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import images
+import images   # noqa: E402
 images.library_main('editor')

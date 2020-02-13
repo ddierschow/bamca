@@ -26,10 +26,12 @@ foreach ($links as $ent) {
 	$sections[$ent['section_id']] = array();
     $sections[$ent['section_id']][] = array("ty" => $ent['link_type'], 'name' => $ent['name'], 'url' => $ent['url']);
 }
-if ($pif['is_beta'])
+if ($pif['is_beta'] or $pif['is_alpha'])
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'release', 'url' => "http://www.bamca.org/stuff.php"));
-else
+else {
+    array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'alpha', 'url' => "http://alpha.bamca.org/stuff.php"));
     array_unshift($sections['l1'], array('ty' => 'b', 'name' => 'beta', 'url' => "http://beta.bamca.org/stuff.php"));
+}
 
 $newerrors = Fetch("select id,health from buser.counter where not health=0", $pif);
 $errcounter = 0;

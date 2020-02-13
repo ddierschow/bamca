@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 # -*- coding: utf8 -*-
 
-from __future__ import print_function
+from sprint import sprint as print
 from functools import reduce
 from io import open
 import functools

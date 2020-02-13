@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from io import open
 import csv
 import json
@@ -232,7 +232,7 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 
 def get_man_sections(pif, year, region, section_types):
     wheres = ["page_id='year.%s'" % year]
-    if not pif.render.is_beta:
+    if pif.render.is_alpha or not pif.render.is_beta:
         wheres.append("not flags & %d" % config.FLAG_SECTION_HIDDEN)
     secs = pif.dbh.fetch_sections(wheres).tolist()
     if not secs:
@@ -979,7 +979,7 @@ def list_lineups(pif):
             llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs)
             comments |= llineup['comments']
             print(year, region, ':', ' '.join([x if x in llineup['comments'] else ' ' for x in ctypes]))
-    print
+    print()
     for comment in sorted(comments):
         print(comment, mbdata.comment_name[comment])
 

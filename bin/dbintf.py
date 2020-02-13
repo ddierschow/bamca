@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
-import MySQLdb
+from sprint import sprint as print
+import pymysql
 import os
 import sys
 import traceback
@@ -19,11 +19,11 @@ class DB(object):
         self.user_id = user_id
         self.nowrites = False
         self.logger = db_logger
-        if cfg['dbuser'] in DB.dbcs:
-            self.db = DB.dbcs[cfg['dbuser']]
+        if cfg['dbuser'] in self.dbcs:
+            self.db = self.dbcs[cfg['dbuser']]
         else:
-            DB.dbcs[cfg['dbuser']] = self.db = MySQLdb.connect(
-                user=cfg['dbuser'], passwd=cfg['dbpass'], db=cfg['dbname'])
+            self.dbcs[cfg['dbuser']] = self.db = pymysql.connect(
+                unix_socket="/tmp/mysql.sock", user=cfg['dbuser'], password=cfg['dbpass'], database=cfg['dbname'])
         self.lastrowid = None
         self.lastdescription = None
 
@@ -64,9 +64,9 @@ class DB(object):
                               os.environ.get('REMOTE_ADDR', ''), query))
             if args:
                 if logargs:
-                    self.logger.info('     args :', args)
+                    self.logger.info('     args : %s', args)
                 else:
-                    self.logger.info('     args :', len(args), 'redacted')
+                    self.logger.info('     args : %d %s', len(args), 'redacted')
         cu = self.db.cursor()
         try:
             nrows = cu.execute(query, args)
@@ -90,7 +90,7 @@ class DB(object):
                           os.environ.get('REMOTE_ADDR', ''), "%s rows %s id" % (len(resp), self.lastrowid)))
         return (resp, self.lastdescription, self.lastrowid)
 
-    def mockexecute(self, query, args=None, verbose=None, tag=''):
+    def mockexecute(self, query, args=None, logargs=None, verbose=None, tag=''):
         return ([], [], 0)
 
     # counter function

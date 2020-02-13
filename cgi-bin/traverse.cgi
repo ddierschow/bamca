@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import filsys
+import filsys   # noqa: E402
 filsys.main('editor', dbedit='am')

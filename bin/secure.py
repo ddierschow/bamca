@@ -3,7 +3,7 @@
 from io import open
 import os
 import sys
-import Cookie
+import http.cookies as Cookie
 import Crypto.Cipher.DES
 import config
 import enviro  # noqa
@@ -15,6 +15,7 @@ class Security(object):
     def __init__(self, siteid=None):
         self.cgibin = '../cgi-bin'
         self.is_beta = False
+        self.is_alpha = False
         self.read_version()
         self.set_env(siteid)
         self.read_config(siteid)
@@ -47,6 +48,8 @@ class Security(object):
         self.version = os.environ['BAMCA_VERSION']
         if os.environ['BAMCA_BETA'] == '1':
             self.is_beta = True
+        if os.environ['BAMCA_ALPHA'] == '1':
+            self.is_alpha = True
 
     def set_env(self, siteid):
         self.host = os.getenv('SERVER_NAME')
@@ -99,12 +102,16 @@ class Security(object):
         return cookie
 
     def cookie_decode(self, val):
-        return self.cipher.decrypt(Cookie._unquote(val)).strip()
+        cookieval = bytes(Cookie.SimpleCookie().value_decode(bytes(val))[0])
+        # cookieval = bytes(Cookie._unquote(val))
+        return self.cipher.decrypt(cookieval).strip()
 
     def cookie_encode(self, val):
         strval = str(val)
         strval += ' ' * (8 - len(strval) % 8)
-        return Cookie._quote(self.cipher.encrypt(strval))
+        cipherval = self.cipher.encrypt(bytes(strval))
+        return Cookie.SimpleCookie().value_encode(bytes(cipherval))[1]
+        # return Cookie._quote(str(cipherval))
 
     def get_cookies(self):
         cookie = None

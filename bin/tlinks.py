@@ -1,9 +1,9 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from io import open
 import os
-import urllib2
+import urllib
 import basics
 import config
 import mbdata
@@ -552,15 +552,15 @@ def check_link(pif, link, rejects=[], visible=False):
             if lurl.startswith('/'):
                 lurl = 'https://www.bamca.org' + lurl
             try:
-                url = urllib2.urlopen(urllib2.Request(
+                url = urllib.request.urlopen(urllib.request.Request(
                     lurl, headers={
                         'User-Agent':
                         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
                 lstatus = 'H' + str(url.code)
-            except urllib2.HTTPError as c:
+            except urllib.error.HTTPError as c:
                 print('http error:', c.code)
                 lstatus = 'H' + str(c.code)
-            except urllib2.URLError as c:
+            except urllib.error.URLError as c:
                 print('url error:', c.reason)
                 lstatus = 'U' + str(c.reason[0])
             except Exception:

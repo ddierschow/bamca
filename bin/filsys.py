@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+from sprint import sprint as print
 from io import open
 import datetime
 import filecmp
@@ -653,7 +654,7 @@ def write_php_config_file(pif):
         fout.append(ln)
     fout.append('?>\n')
     open('../htdocs/config.php', 'w').writelines(fout)
-    print
+    print()
 
 
 def write_jinja2_config_file(pif):
@@ -672,7 +673,7 @@ def write_jinja2_config_file(pif):
             ln = '{% set ' + ln.strip() + ' %}\n'
         fout.append(ln)
     open('../templates/config.html', 'w').writelines(fout)
-    print
+    print()
 
 
 def check_lib_man(pif):
@@ -680,7 +681,7 @@ def check_lib_man(pif):
     man_lib = set(os.listdir('.' + config.LIB_MAN_DIR))
     print("id's without libraries:")
     print(' '.join(sorted(man_ids - man_lib)))
-    print
+    print()
     print("libraries without id's:")
     print(' '.join(sorted(man_lib - man_ids)))
 

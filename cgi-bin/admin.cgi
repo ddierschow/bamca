@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import mannum
+import mannum   # noqa: E402
 mannum.admin_main('editor', dbedit='ma')

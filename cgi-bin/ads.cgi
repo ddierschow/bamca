@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import prints
+import prints   # noqa: E402
 prints.ads_main('ads')

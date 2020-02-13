@@ -61,6 +61,7 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .eb_tail_2   {border-width: 0; border-style: solid; border-collapse: collapse; text-align: left;}
 
 .beta {width: 100%; background-image: url("/pic/gfx/beta.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
+.alpha {width: 100%; background-image: url("/pic/gfx/alpha.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
 
 .modeltop    {width: 100%;}
 .modelnumber {text-align: center; font-size: medium; font-weight: bold; font-family: monospace; height: 16px; width: 24%;}

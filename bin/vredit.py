@@ -17,7 +17,7 @@ in some cases.
 Good luck.
 """
 
-from __future__ import print_function
+from sprint import sprint as print
 from functools import reduce
 from io import open
 import glob
@@ -148,7 +148,7 @@ def parse_file(pif, vid, fdir, fn, args=''):
             row = vid.transform_row(row)
             if not reduce(lambda x, y: x or bool(y), row[1:], False):
                 continue
-            rowd = dict(itertools.izip_longest(hdrs, row, fillvalue=""))
+            rowd = dict(itertools.zip_longest(hdrs, row, fillvalue=""))
             nrow = vid.row_column_change(fn, rowd)
             nrow['var'] = mbdata.normalize_var_id(fitab['casting'], nrow['var'])
             if nrow.get('is_valid'):

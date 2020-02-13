@@ -80,8 +80,11 @@ function GetPageInfo($page_id) {
     $pif['docroot'] = getenv('DOCUMENT_ROOT');
     $pif['cgibin'] = $pif['docroot'] . '/../cgi-bin';
     $pif['is_beta'] = 0;
+    $pif['is_alpha'] = 0;
     if (substr($pif['host'], 0, 5) == 'beta.')
 	$pif['is_beta'] = 1;
+    if (substr($pif['host'], 0, 5) == 'alpha.')
+	$pif['is_alpha'] = 1;
     $cfg = BarFile($pif['cgibin'] . '/.config', 'bamca.org');
     foreach (array_slice($cfg[0], 1) as $c) {
 	$nl = explode(',', trim($c));
@@ -130,7 +133,7 @@ function DoHead($pif) {
 
 function DoPageHeader($pif) {
     $IMG_DIR_ART = 'pic/gfx';
-    if (!$pif['is_beta'])
+    if (!$pif['is_beta'] && !$pif['is_alpha'])
 	echo "<script type=\"text/javascript\">
 
   var _gaq = _gaq || [];
@@ -167,6 +170,8 @@ function DoPageHeader($pif) {
     }
     if ($pif['is_beta'])
 	echo "<tr><td height=\"24\" class=\"beta\">&nbsp;</td></tr>\n";
+    if ($pif['is_alpha'])
+	echo "<tr><td height=\"24\" class=\"alpha\">&nbsp;</td></tr>\n";
     echo '<tr><td class="body">' . "\n";
     foreach ($pif['hierarchy'] as $hier) {
 	echo '<a href="' . $hier[0] . '">' . $hier[1] . "</a> <i class=\"fas fa-chevron-right\"></i>\n";
@@ -179,6 +184,8 @@ function DoPageFooter($pif) {
     echo "</td></tr>\n";
     if ($pif['is_beta'])
 	echo "<tr><td height=24 background=\"https://" . $pif['host'] . "/pic/gfx/beta.gif\">&nbsp;</td></tr>\n";
+    if ($pif['is_alpha'])
+	echo "<tr><td height=24 background=\"https://" . $pif['host'] . "/pic/gfx/alpha.gif\">&nbsp;</td></tr>\n";
     echo "</table>\n";
 }
 

@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import lineup
+import lineup   # noqa: E402
 lineup.main('year', 'year')

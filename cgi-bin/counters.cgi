@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import editor
+import editor   # noqa: E402
 editor.show_counters('counter')

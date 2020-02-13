@@ -49,7 +49,7 @@ class MatrixFile(object):
             ent['description'].append(ent['v.text_description'])
         if ent.get('matrix_model.description'):
             ent['description'].extend(ent['matrix_model.description'].split(';'))
-        ent['description'] = filter(None, ent['description'])
+        ent['description'] = [x for x in ent['description'] if x]
         ent['disp_id'] = ent['image'] = ent['link'] = ''
         ent['pdir'] = mat['pic_dir'] if mat['pic_dir'] else pif.render.pic_dir
         ent['disp_format'] = mat['disp_format']
@@ -159,7 +159,7 @@ class MatrixFile(object):
                 continue
             if ent.get('v.text_description'):
                 ent['description'].append(ent['v.text_description'])
-            ent['description'] = filter(None, ent['description'])
+            ent['description'] = [x for x in ent['description'] if x]
             ent['disp_id'] = ''
             ent['image'] = ''
             ent['link'] = ''
@@ -212,7 +212,7 @@ class MatrixFile(object):
                 continue
             if ent.get('text_description'):
                 ent['description'].append(ent['text_description'])
-            ent['description'] = filter(None, ent['description'])
+            ent['description'] = [x for x in ent['description'] if x]
             ent['disp_id'] = ''
             ent['image'] = ''
             ent['link'] = ''
@@ -268,7 +268,7 @@ class MatrixFile(object):
                 if pif.form.has('large'):
                     section['columns'] = 1
             ran = {'entry': []}
-            range_ids = table['ents'].keys()
+            range_ids = list(table['ents'].keys())
             range_ids.sort(key=lambda x: table['ents'][x][0]['display_order'])
             for range_id in range_ids:
                 if section['id'] == 'cat':
@@ -372,7 +372,7 @@ class MatrixFile(object):
             ent['href'] = "vars.cgi?mod=%(mod_id)s&var=%(var_id)s" % ent
         else:
             ent['href'] = "single.cgi?dir=%(spdir)s&pic=%(link)s&id=%(mod_id)s" % ent
-        ent['descriptions'] = filter(None, ent['description'])
+        ent['descriptions'] = [x for x in ent['description'] if x]
         if ent['descriptions'] and (not ent['flags'] & config.FLAG_MODEL_NO_VARIATION):
             pass
         elif ent.get('matrix_model.description', ''):

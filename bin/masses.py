@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 import os
 import re
 import requests
-import urlparse
+import urllib
 import basics
 import config
 import images
@@ -1333,7 +1333,7 @@ class LinkScraper(object):
     def scrape_link(self, url, lnk, txt):
         return {
             'page_id': self.calc_page_id(lnk, txt),
-            'url': urlparse.urljoin(url, self.clean_link(lnk)),
+            'url': urllib.parse.urljoin(url, self.clean_link(lnk)),
             'name': self.clean_name(lnk, txt),
         }
 
@@ -1354,11 +1354,11 @@ class LinkScraperPSDC(LinkScraper):
     lid = PSDC
 
     def is_valid_link(self, url, lnk):
-        return super(LinkScraperPSDC, self).is_valid_link(url, lnk) and ('index.htm' not in lnk)
+        return super().is_valid_link(url, lnk) and ('index.htm' not in lnk)
 
     def links_parse(self, url):
         lnks = []
-        for lnk in super(LinkScraperPSDC, self).links_parse(url):
+        for lnk in super().links_parse(url):
             for olnk in lnks:
                 if olnk[0] == lnk[0]:
                     olnk[1] = olnk[1].strip() + ' ' + lnk[1].strip()
@@ -1390,7 +1390,7 @@ class LinkScraperDAN(LinkScraper):
     lid = DAN
 
     def is_valid_link(self, url, lnk):
-        return lnk.startswith('../mb') or (super(LinkScraperDAN, self).is_valid_link(url, lnk) and
+        return lnk.startswith('../mb') or (super().is_valid_link(url, lnk) and
                                            not lnk.startswith('man') and not lnk.startswith('../') and
                                            not lnk.startswith('http://'))
 
@@ -1426,17 +1426,17 @@ class LinkScraperMBDB(LinkScraper):
 
     def links_parse(self, url):
         if 'list.php' in url:
-            return super(LinkScraperMBDB, self).links_parse(url)
+            return super().links_parse(url)
         topdata = self.url_fetch(url)
         top_re_str = r'''<a\s+href=['"](?P<u>list.php?[^'"]*)['"].*?>(?P<t>.*?)</a>'''
         toplinks = re.compile(top_re_str, re.I | re.M | re.S).findall(topdata)
         links = []
         for lnk in toplinks:
-            links.extend(super(LinkScraperMBDB, self).links_parse(urlparse.urljoin(url, lnk[0])))
+            links.extend(super().links_parse(urllib.parse.urljoin(url, lnk[0])))
         return links
 
     def is_valid_link(self, url, lnk):
-        return super(LinkScraperMBDB, self).is_valid_link(url, lnk) and not ('list.php' in lnk or 'index.php' in lnk)
+        return super().is_valid_link(url, lnk) and not ('list.php' in lnk or 'index.php' in lnk)
 
     def calc_page_id(self, lnk, txt):
         return 'single.MB' + self.clean_name(lnk, txt) if 'showcar.php' in lnk else ''
@@ -1449,9 +1449,9 @@ class LinkScraperMBXU(LinkScraper):
     lid = MBXU
 
     def url_fetch(self, url):
-        urlp = urlparse.urlparse(url)
-        url = urlparse.urlunparse(urlp[:3] + ('', '', ''))
-        data = urlparse.parse_qs(urlp.query)
+        urlp = urllib.parse.urlparse(url)
+        url = urllib.parse.urlunparse(urlp[:3] + ('', '', ''))
+        data = urllib.parse.parse_qs(urlp.query)
         return url_fetch(url, data)
 
 
@@ -1464,7 +1464,7 @@ class LinkScraperYT(LinkScraper):
     def_re = re.compile(r'''<a href="(?P<url>/watch\?[^"]*)"\s.*?\stitle="(?P<name>[^"]*)"''')
 
     def links_parse(self, url):
-        links = super(LinkScraperYT, self).links_parse(url)
+        links = super().links_parse(url)
         return [x for x in links if '/watch?' in x[0]]
 
     def calc_page_id(self, lnk, txt):

@@ -2,7 +2,7 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-from __future__ import print_function
+from sprint import sprint as print
 import cgi
 import copy
 import glob
@@ -35,6 +35,7 @@ class Presentation(object):
         self.page_id = page_id
         self.art_dir = config.IMG_DIR_ART
         self.is_beta = False
+        self.is_alpha = False
         self.title = 'BAMCA'
         self.unittest = False
         self.description = ''
@@ -64,7 +65,7 @@ class Presentation(object):
         # useful.html_done = False
         self.new_cookie = None
         self.footer = ''
-        self.bamcamark = mbdata.bamcamark('')
+        self.bamcamark = mbdata.bamcamark()
         self.filename = 'matchbox.csv'
         # if self.verbose:
         #     import datetime
@@ -277,11 +278,10 @@ class Presentation(object):
             print('Status:', status, http.client.responses.get(status, ''))
             # useful.html_done = True
             self.print_cookie()
-            print
+            print()
             if content == 'text/html':
                 self.is_html = True
                 print('<!DOCTYPE html>')
-                print
             useful.header_done()
 
     def set_cookie(self, cookie):
@@ -314,8 +314,10 @@ class Presentation(object):
         pagetitle = self.title
         if self.is_beta:
             pagetitle = 'BETA: ' + pagetitle
+        if self.is_alpha:
+            pagetitle = 'ALPHA: ' + pagetitle
 
-        ostr = '<html>\n<!-- This page rendered by the old-style rendering engine. -->\n'
+        ostr = '<html>\n'  # '<html>\n<!-- This page rendered by the old-style rendering engine. -->\n'
         ostr += '<head><meta charset="UTF-8"><title>%s</title>\n' % pagetitle
         ostr += '<link rel="icon" href="' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
         ostr += '<link rel="shortcut icon" href="' + self.art_dir + '/favicon.ico" type="image/x-icon" />\n'
@@ -327,11 +329,13 @@ class Presentation(object):
         ostr += '<link rel="stylesheet" href="%s/%s.css" type="text/css">\n' % (config.CSS_DIR, self.page_id)
 
         ostr += self.extra
-        if not self.is_beta:
+        if not self.is_beta and not self.is_alpha:
             ostr += javasc.def_google_analytics_js
         ostr += '</head>\n<body>\n'
         if self.is_beta:
             ostr += '<table width="100%"><tr><td height=24 class="beta">&nbsp;</td></tr><tr><td>\n'
+        elif self.is_alpha:
+            ostr += '<table width="100%"><tr><td height=24 class="alpha">&nbsp;</td></tr><tr><td>\n'
         ostr += self.show_location()
         if not self.hide_title:
             if self.title:
@@ -369,6 +373,8 @@ of Matchbox International Ltd. and are used with permission.
             ostr += '\n<font size=-1><i>%s</i></font>\n' % st
         if self.is_beta:
             ostr += '</td></tr><tr><td height=24 class="beta">&nbsp;</td></tr></table>\n'
+        elif self.is_alpha:
+            ostr += '</td></tr><tr><td height=24 class="alpha">&nbsp;</td></tr></table>\n'
         ostr += "</body>\n</html>\n"
         return ostr
 
@@ -600,7 +606,7 @@ of Matchbox International Ltd. and are used with permission.
         ostr += '''<a onclick="incrfield(%s,-1);">%s</a>''' % (field, but_dec)
         return ostr
 
-    def format_fa(fa_class, title):
+    def format_fa(self, fa_class, title):
         return '<i class="{} bold" title="{}"></i>'.format(fa_class, title)
 
     def format_button_up_down_select(self, id, vl=1):
@@ -1175,6 +1181,7 @@ of Matchbox International Ltd. and are used with permission.
             'messages': useful.header_done(silent=True),
             'hierarchy': self.hierarchy,
             'is_beta': self.is_beta,
+            'is_alpha': self.is_alpha,
             'styles': self.styles,
             'title': self.title,
             'hide_title': self.hide_title,

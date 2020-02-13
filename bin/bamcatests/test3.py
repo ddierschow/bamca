@@ -9,7 +9,7 @@ class TestOther(unittest.TestCase):
         os.putenv('SERVER_NAME', 'www.bamca.org')
 
     def assertOut(self, result):
-        self.assertUnequal(result, '')
+        self.assertNotEqual(result, '')
 
     # editor.EditorMain('editor')
     # editor.MassMain('editor')
@@ -67,26 +67,26 @@ class TestOther(unittest.TestCase):
 
     def test_Manno(self):
         import mannum
-        self.assertTrue(mannum.main(
+        self.assertNotEqual(mannum.main(
             'manno', args='section=all listtype= range=all start=1 syear=1953 end=999 eyear=2015 type_a=y type_9=n '
                           'type_o=m type_c=m type_b=m type_i=m type_2=m type_d=m type_e=m type_j=m type_1=m type_g=m '
                           'type_r=m type_f=m type_4=m type_m=m type_u=m type_p=m type_z=m type_l=m type_t=m type_8=m '
-                          'type_v=m type_h=m type_5=m type_x=m submit=1') != '')
-        self.assertTrue(mannum.main(
-            'manno', args='section=wr listtype= range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(mannum.main(
+                          'type_v=m type_h=m type_5=m type_x=m submit=1'), '')
+        self.assertNotEqual(mannum.main(
+            'manno', args='section=wr listtype= range=all start=1 syear=1953 end=999 eyear=2015 submit=1'), '')
+        self.assertNotEqual(mannum.main(
             'manno', args='section=sf listtype= range=some start=5 syear=1972 end=9 eyear=1974 nodesc=1 '
-                          'submit=1') != '')
-        self.assertTrue(mannum.main(
-            'manno', args='section=wr listtype=adl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(mannum.main(
-            'manno', args='section=mi listtype=pxl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(mannum.main(
-            'manno', args='section=wr listtype=thm range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(mannum.main(
-            'manno', args='section=wr listtype=ckl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
-        self.assertTrue(mannum.main(
-            'manno', args='section=wr listtype=vtl range=all start=1 syear=1953 end=999 eyear=2015 submit=1') != '')
+                          'submit=1'), '')
+        self.assertNotEqual(mannum.main(
+            'manno', args='section=wr listtype=adl range=all start=1 syear=1953 end=999 eyear=2015 submit=1'), '')
+        self.assertNotEqual(mannum.main(
+            'manno', args='section=mi listtype=pxl range=all start=1 syear=1953 end=999 eyear=2015 submit=1'), '')
+        self.assertNotEqual(mannum.main(
+            'manno', args='section=wr listtype=thm range=all start=1 syear=1953 end=999 eyear=2015 submit=1'), '')
+        self.assertNotEqual(mannum.main(
+            'manno', args='section=wr listtype=ckl range=all start=1 syear=1953 end=999 eyear=2015 submit=1'), '')
+        self.assertNotEqual(mannum.main(
+            'manno', args='section=wr listtype=vtl range=all start=1 syear=1953 end=999 eyear=2015 submit=1'), '')
 
     def test_Vmakes(self):
         import vmakes

@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+from sprint import sprint as print
 from io import open
 import binascii
 import copy
@@ -164,7 +165,7 @@ def run_line(ll):
     else:
         print(ll['link_line.url'], "- ignored")
     fix_files(ll['link_line.page_id'])
-    print
+    print()
 
 
 def clean_dir(page_id):
@@ -188,7 +189,7 @@ def main(pif):
             run_line(ll)
 
     if errors:
-        print
+        print()
         print('Errors found...')
         for err in errors:
             print(err[0]['link_line.page_id'], err[1])
@@ -316,7 +317,7 @@ def file_crc(fn):
             crc = binascii.crc32(contents, crc)
         else:
             break
-    # print
+    # print()
     return (crc,)
 
 

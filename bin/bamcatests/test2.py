@@ -6,7 +6,7 @@ import config
 class TestRender(unittest.TestCase):
 
     def assertOut(self, result):
-        self.assertUnequal(result, '')
+        self.assertNotEqual(result, '')
 
     def setUp(self):
         self.pif = basics.get_page_info('matrix.matchcaps', args="verbose=0")
@@ -59,46 +59,46 @@ class TestRender(unittest.TestCase):
         self.assertOut(self.pif.render.show_location())
 
     def test_get_flags(self):
-        self.assertTrue(type(self.pif.render.get_flags()) == dict)
+        self.assertTrue(isinstance(self.pif.render.get_flags(), dict))
 
     def test_show_flag(self):
         self.assertOut(self.pif.render.show_flag('US'))
 
     def test_find_image_file01(self):
-        self.assertTrue(self.pif.render.find_image_file(
-            '', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN) == ('', ''))
+        self.assertEqual(self.pif.render.find_image_file(
+            '', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN), ('', ''))
 
     def test_find_image_file02(self):
-        self.assertTrue(self.pif.render.find_image_file(
-            'mb001', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN) != ('', ''))
+        self.assertNotEqual(self.pif.render.find_image_file(
+            'mb001', vars=None, prefix='', largest='l', pdir=config.IMG_DIR_MAN), ('', ''))
 
     def test_find_image_file03(self):
-        self.assertTrue(self.pif.render.find_image_file('bamca', vars=None, prefix='', art=True) != ('', ''))
+        self.assertNotEqual(self.pif.render.find_image_file('bamca', vars=None, prefix='', art=True), ('', ''))
 
     def test_find_image_file04(self):
-        self.assertTrue(self.pif.render.find_image_file('BAMCA', vars=None, prefix='', art=True) != ('', ''))
+        self.assertNotEqual(self.pif.render.find_image_file('BAMCA', vars=None, prefix='', art=True), ('', ''))
 
     def test_find_image_file05(self):
-        self.assertTrue(self.pif.render.find_image_file('bamca', vars=None, prefix='') == ('', ''))
+        self.assertEqual(self.pif.render.find_image_file('bamca', vars=None, prefix=''), ('', ''))
 
     def test_find_image_file06(self):
-        self.assertTrue(self.pif.render.find_image_file('bamca.gif', vars=None, prefix='') == ('', ''))
+        self.assertEqual(self.pif.render.find_image_file('bamca.gif', vars=None, prefix=''), ('', ''))
 
     def test_find_image_file07(self):
-        self.assertTrue(self.pif.render.find_image_file(
-            'MB001', vars='03', prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
+        self.assertNotEqual(self.pif.render.find_image_file(
+            'MB001', vars='03', prefix='s', pdir=config.IMG_DIR_MAN), ('', ''))
 
     def test_find_image_file08(self):
-        self.assertTrue(self.pif.render.find_image_file(
-            'mb001', vars='03', nobase=True, prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
+        self.assertNotEqual(self.pif.render.find_image_file(
+            'mb001', vars='03', nobase=True, prefix='s', pdir=config.IMG_DIR_MAN), ('', ''))
 
     def test_find_image_file09(self):
-        self.assertTrue(self.pif.render.find_image_file(
-            'mb001', vars=['03'], prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
+        self.assertNotEqual(self.pif.render.find_image_file(
+            'mb001', vars=['03'], prefix='s', pdir=config.IMG_DIR_MAN), ('', ''))
 
     def test_find_image_file10(self):
-        self.assertTrue(self.pif.render.find_image_file(
-            'mb001', vars=['03'], nobase=True, prefix='s', pdir=config.IMG_DIR_MAN) != ('', ''))
+        self.assertNotEqual(self.pif.render.find_image_file(
+            'mb001', vars=['03'], nobase=True, prefix='s', pdir=config.IMG_DIR_MAN), ('', ''))
 
     def test_comment(self):
         self.assertIsNone(self.pif.render.comment('unittest'))
@@ -164,18 +164,18 @@ class TestRender(unittest.TestCase):
         self.assertOut(self.pif.render.format_section('sec', id='id'))
 
     def test_format_range(self):
-        self.assertTrue(self.pif.render.format_range(
-            'cont', 1, fn=[], also={}, large=False, nstyle={'color': 'black'}, cols=1, id='1') != '')
-        self.assertTrue(self.pif.render.format_range(
-            'cont', 1, fn=['2'], also={}, large=False, nstyle=None, cols=2, id='') != '')
-        self.assertTrue(self.pif.render.format_range(
-            'cont', 1, fn=['3'], also={}, large=True, nstyle=None, cols=3, id='') != '')
-        self.assertTrue(self.pif.render.format_range(
-            'cont', 1, fn=['4'], also={}, large=False, nstyle=None, cols=4, id='') != '')
+        self.assertNotEqual(self.pif.render.format_range(
+            'cont', 1, fn=[], also={}, large=False, nstyle={'color': 'black'}, cols=1, id='1'), '')
+        self.assertNotEqual(self.pif.render.format_range(
+            'cont', 1, fn=['2'], also={}, large=False, nstyle=None, cols=2, id=''), '')
+        self.assertNotEqual(self.pif.render.format_range(
+            'cont', 1, fn=['3'], also={}, large=True, nstyle=None, cols=3, id=''), '')
+        self.assertNotEqual(self.pif.render.format_range(
+            'cont', 1, fn=['4'], also={}, large=False, nstyle=None, cols=4, id=''), '')
 
     def test_format_link(self):
-        self.assertTrue(self.pif.render.format_link(
-            '.?z=1', '.', args={'a': '1'}, nstyle={'class': 'foo'}, also={}) != '')
+        self.assertNotEqual(self.pif.render.format_link(
+            '.?z=1', '.', args={'a': '1'}, nstyle={'class': 'foo'}, also={}), '')
         self.assertOut(self.pif.render.format_link('.', '.', args={'a': '1'}, nstyle={'class': 'foo'}, also={}))
         self.assertOut(self.pif.render.format_link('.', '', args={'a': '1'}, nstyle={'class': 'foo'}, also={}))
         self.assertOut(self.pif.render.format_link('', '.', args={'a': '1'}, nstyle={'class': 'foo'}, also={}))
@@ -245,20 +245,20 @@ class TestRender(unittest.TestCase):
         self.assertOut(self.pif.render.format_image_as_link('bamca', 'bamca logo', pdir=None, also={}))
 
     def test_format_image_optional(self):
-        self.assertTrue(self.pif.render.format_image_optional(
-            'cs-13', alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False) != '')
+        self.assertNotEqual(self.pif.render.format_image_optional(
+            'cs-13', alt=None, prefix='', suffix=None, pdir=None, also={}, vars=None, nopad=False), '')
 
     def test_format_image_required(self):
-        self.assertTrue(self.pif.render.format_image_required(
-            'foo', alt=None, vars=None, prefix='', suffix=None, pdir=None, also={}, made=True) != '')
+        self.assertNotEqual(self.pif.render.format_image_required(
+            'foo', alt=None, vars=None, prefix='', suffix=None, pdir=None, also={}, made=True), '')
 
     def test_format_image_list(self):
-        self.assertTrue(self.pif.render.format_image_list(
-            'c*', alt=None, wc='', prefix='', suffix='jpg', pdir=None) != '')
+        self.assertNotEqual(self.pif.render.format_image_list(
+            'c*', alt=None, wc='', prefix='', suffix='jpg', pdir=None), '')
 
     def test_format_image_sized(self):
-        self.assertTrue(self.pif.render.format_image_sized(
-            'mb002', vars=None, largest='g', suffix=None, pdir=config.IMG_DIR_MAN, required=False) != '')
+        self.assertNotEqual(self.pif.render.format_image_sized(
+            'mb002', vars=None, largest='g', suffix=None, pdir=config.IMG_DIR_MAN, required=False), '')
 
     def test_fmt_pseudo(self):
         self.assertOut(self.pif.render.fmt_pseudo('stuff <$img foo>'))
@@ -280,20 +280,20 @@ class TestRender(unittest.TestCase):
     def test_fmt_img(self):
         self.pif.render.verbose = True
         self.pif.render.verbose = False
-        self.assertTrue(self.pif.render.fmt_img(
+        self.assertNotEqual(self.pif.render.fmt_img(
             'mb003', alt=None, vars=None, prefix='s', suffix=None, pdir=config.IMG_DIR_MAN, largest=None, also={},
-            made=True, required=False, pad=False) != '')
+            made=True, required=False, pad=False), '')
 
     def test_fmt_no_pic(self):
         self.assertOut(self.pif.render.fmt_no_pic(made=True, prefix=''))
 
     def test_fmt_opt_img(self):
-        self.assertTrue(self.pif.render.fmt_opt_img(
-            'mb004', alt=None, prefix='s', suffix=None, pdir=config.IMG_DIR_MAN, also={}, vars=None, nopad=False) != '')
+        self.assertNotEqual(self.pif.render.fmt_opt_img(
+            'mb004', alt=None, prefix='s', suffix=None, pdir=config.IMG_DIR_MAN, also={}, vars=None, nopad=False), '')
 
     def test_fmt_anchor(self):
         self.assertOut(self.pif.render.fmt_anchor('a'))
-        self.assertTrue(self.pif.render.fmt_anchor('') == '')
+        self.assertEqual(self.pif.render.fmt_anchor(''), '')
 
     def test_format_bullet_list(self):
         self.assertOut(self.pif.render.format_bullet_list(['a', 'b', 'c']))

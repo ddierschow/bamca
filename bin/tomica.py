@@ -2,7 +2,7 @@
 # small: 200x120
 # large: 300x180
 
-from __future__ import print_function
+from sprint import sprint as print
 import basics
 import bfiles
 import config
@@ -178,7 +178,7 @@ def show_section_list(pif, sect):
     print('</tr>')
 
     print("</table>")
-    print
+    print()
 
 
 def run_file(pif, manf, start=0, end=9999, year=None):

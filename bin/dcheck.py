@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from io import open
 import datetime
 import filecmp
@@ -63,7 +63,7 @@ def check_tables(pif, *filelist):
     if filelist:
         for tab in filelist:
             check_table(pif, tab)
-            print
+            print()
     else:
         # found_ch = set()
         tabs = pif.dbh.dbi.execute('show tables')
@@ -72,7 +72,7 @@ def check_tables(pif, *filelist):
             if tab == 'counter':
                 continue
             check_table(pif, tab)
-            print
+            print()
         # print(found_ch)
 
 
@@ -325,7 +325,7 @@ def check_attribute_pictures(pif, *filelist):
 #        apics += ap
 #        apfnd += af
 #
-#    print
+#    print()
 #    print('%7d %5d  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%' %
 #          ((nmods, upics) +
 #           format_calc(apfnd, apics) + format_calc(mpfnd, mpics) + format_calc(cpfnd, cpics) +
@@ -427,7 +427,7 @@ def check_vs(pif):
     for ent in res[0]:
         if not ent[6]:
             print(ent[:6])
-    print
+    print()
 
 
 def long_form(pif):
@@ -448,7 +448,7 @@ def long_form(pif):
     fmt = pif.dbh.preformat_results(v)
     for ent in v:
         print(fmt % ent)
-    print
+    print()
 
 
 def l5p(pif):
@@ -467,7 +467,7 @@ v.var=vs.var_id
         vc.add(r[0])
         vsc.add(r[1])
     print(vc, '/', vsc)
-    print
+    print()
 
 
 ''' unidentified
@@ -647,7 +647,7 @@ def correllation(pif):
     print('in database but not in list:', set(db_cats.keys()) - set(mb_cats))
     for cat in set(mb_cats) - set(db_cats.keys()):
         print("insert into category (id, name, flags, image) values ('%s', '%s', 0, '');" % (cat, categories[cat]))
-    print
+    print()
 
 
 def by_ref(pif, *filelist):
@@ -668,7 +668,7 @@ def by_ref(pif, *filelist):
                       varsel['variation_select.category'])
             cats.add(var['variation.category'])
         print(ref, len(varsels), cats)
-    print
+    print()
 
 
 root = '/usr/local/www/bamca'
@@ -759,7 +759,7 @@ def check_images(pif):
         if checks[key]:
             print(key)
             checks[key](pif, key)
-            print
+            print()
 
 
 def check_blister(pif, dn):
@@ -862,7 +862,7 @@ def show_files(regions, files):
         if reg in files:
             for year in sorted(files[reg]):
                 print(year, reg, ' '.join(collapse(files[reg][year])))
-            print
+            print()
 
 
 def direct_files(pif, regions, files, dirs):
@@ -1050,7 +1050,7 @@ def check_var_data(pif, id_list):
                     print(var['var'],)
                     if var['picture_id']:
                         print('(%s)' % var['picture_id'],)
-            print
+            print()
 
 
 # ------- infra --------------------------------------------------------

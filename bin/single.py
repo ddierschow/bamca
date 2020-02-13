@@ -393,7 +393,8 @@ def show_lineup_appearances(pif, appearances):
         yd[appear['year']].setdefault(reg, set())
         yd[appear['year']][reg].add(appear['number'])
         rs.add(reg)
-    rl = filter(lambda x: x in rs, mbdata.regionlist)
+    # rl = filter(lambda x: x in rs, mbdata.regionlist)
+    rl = [x for x in mbdata.regionlist if x in rs]
     entries = []
 
     if not yd:

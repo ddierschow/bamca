@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from io import open
 import glob
 import os
@@ -207,7 +207,7 @@ def main(pif):
     count += count_pack(pif)
     count += count_pub(pif)
 
-    print
+    print()
     report('total', count)
 
 

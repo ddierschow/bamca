@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import pxcars
+import pxcars   # noqa: E402
 pxcars.cars_main('cars')

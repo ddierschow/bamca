@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from functools import reduce
 from io import open
 import functools
@@ -8,9 +8,10 @@ import http.client
 import os
 import sys
 import time
-import MySQLdb
+import pymysql
 import crawls
 import logger
+import pifile
 import useful
 
 
@@ -18,12 +19,15 @@ import useful
 
 
 def get_page_info(page_id, form_key='', defval='', args='', dbedit=None):
-    import pifile
-    pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
+    try:
+        pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
+    except Exception:
+        simple_html()
+        raise
     return pif
 
 
-def write_traceback_file(pif):
+def write_traceback_file(pif, e):
     import datetime
     import pprint
     import traceback
@@ -38,7 +42,7 @@ def write_traceback_file(pif):
         tb_file_name += 'unknown'
     erf = open(tb_file_name, 'w')
     erf.write("headline = '''%s'''\n" %
-              ' '.join([x.strip() for x in traceback.format_exception_only(sys.exc_type, sys.exc_value)]))
+              ' '.join([x.strip() for x in traceback.format_exception_only(type(e), e)]))
     erf.write("uri = '''%s'''\n" % os.environ.get('REQUEST_URI', ''))
     erf.write("tb = '''\n" + str_tb + "\n'''\n")
     erf.write("env = " + pprint.pformat(os.environ, indent=2, width=132) + "\n")
@@ -57,13 +61,13 @@ def simple_html(status=404):
     useful.write_comment()
 
 
-def handle_exception(pif, header_done=False, write_traceback=True):
+def handle_exception(pif, e, header_done=False, write_traceback=True):
     logger.Logger().exc.error('%s %s' % (
         os.environ.get('REMOTE_ADDR', '127.0.0.1'),
         os.environ.get('REQUEST_URI', 'unknown')))
     str_tb = ''
     if write_traceback:
-        str_tb = write_traceback_file(pif)
+        str_tb = write_traceback_file(pif, e)
     log_page_call(pif)
     if not pif or not pif.render or not pif.dbh:
         if not header_done:
@@ -265,21 +269,21 @@ def web_page(main_fn):
         #     print(useful.render_template('error.html', error=[e.value], page={'tail':''}))
         #     if pif:
         #         pif.log.debug.error('SimpleError: ' + str(e) + ' - ' + '''%s''' % os.environ.get('REQUEST_URI', ''))
-        #     handle_exception(pif, True, False)
+        #     handle_exception(pif, e, True, False)
         #     return
-        except MySQLdb.OperationalError:
+        except pymysql.OperationalError as e:
             simple_html()
             print('The database is currently down, and thus, this page is unable to be shown.<p>')
-            write_traceback_file(pif)
-            handle_exception(pif, True)
+            write_traceback_file(pif, e)
+            handle_exception(pif, e, True)
             return
         # except useful.Redirect as e:
         #     if not useful.is_header_done():
         #         pif.render.print_html()
         #     print(pif.render.format_template('forward.html', url=e.value, delay=e.delay))
         #     return
-        except Exception:
-            handle_exception(pif)
+        except Exception as e:
+            handle_exception(pif, e)
             return
 
         pif.start()
@@ -305,13 +309,13 @@ def web_page(main_fn):
             if not useful.is_header_done():
                 pif.render.print_html(status=302)
             print(pif.render.format_template('forward.html', url=e.value, delay=e.delay))
-        except MySQLdb.OperationalError:
+        except pymysql.OperationalError as e:
             if not useful.is_header_done():
                 pif.render.print_html(status=500)
             print('The database is currently down, and thus, this page is unable to be shown.<p>')
-            write_traceback_file(pif)
-        except Exception:
-            handle_exception(pif)
+            write_traceback_file(pif, e)
+        except Exception as e:
+            handle_exception(pif, e)
             raise
         useful.header_done(True)
         useful.write_comment()

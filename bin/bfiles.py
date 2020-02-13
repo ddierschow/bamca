@@ -10,7 +10,7 @@ import useful
 # --- barparse ----------------------------------------------------------
 
 
-class ArgList():
+class ArgList(object):
     def __init__(self, line):
         self.llist = []
         line = line.strip()
@@ -56,7 +56,7 @@ class ArgList():
         return str(self.llist) + ' (+%d)' % self.curarg
 
 
-class ArgFile():
+class ArgFile(object):
     def __init__(self, fname):
         if fname.startswith('/'):
             fname = fname[1:]
@@ -192,8 +192,8 @@ class ArgFile():
             if ret is not None:
                 return ret
             return False
-        if pclass.__bases__:
-            return pclass.__bases__[0].parse_field_line(self, pclass.__bases__[0], cmd, llist)
+#        if pclass.__bases__:
+#            return pclass.__bases__[0].parse_field_line(self, pclass.__bases__[0], cmd, llist)
         return None
 
     def parse_data(self, llist):
@@ -236,7 +236,7 @@ class ArgFile():
 class SimpleFile(ArgFile):
     def __init__(self, fname):
         self.dblist = []
-        ArgFile.__init__(self, fname)
+        super().__init__(fname)
 
     def parse_else(self, llist):
         llist.rewind()

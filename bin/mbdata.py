@@ -815,7 +815,7 @@ def normalize_var_id(mod, var_id):
     return var_id
 
 
-def bamcamark(year):
+def bamcamark(year=9999):
     if year <= 1969:
         return 'bamca-1.gif'
     if year <= 1974:

@@ -3,5 +3,5 @@
 import sys
 sys.path.append("../bin")
 
-import images
+import images   # noqa: E402
 images.upload_main('editor', dbedit='')

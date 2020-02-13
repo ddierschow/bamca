@@ -42,7 +42,7 @@ class SetFile(bfiles.ArgFile):
         if self.found:
             self.tables.append(self.db)
             self.db = {'model': []}
-        self.db.update(dict(map(None, self.tablecols, llist[1:])))
+        self.db.update(dict(zip(self.tablecols, llist[1:])))
         self.db['cols'] = self.db['cols'].split(',')
         self.db['header'] = self.header
         self.db['ncols'] = self.ncols
@@ -57,7 +57,7 @@ class SetFile(bfiles.ArgFile):
 
     def parse_m(self, llist):
         self.found = True
-        self.model = dict(map(None, self.db['cols'], llist[1:]))
+        self.model = dict(zip(self.db['cols'], llist[1:]))
         self.model['desc'] = []
         self.db['model'].append(self.model)
 

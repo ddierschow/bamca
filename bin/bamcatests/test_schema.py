@@ -15,8 +15,10 @@ class TestSchema(unittest.TestCase):
         buser_tablelist = [x[0] for x in self.pif.dbh.dbi.execute('show tables in buser')[0]]
         self.check_tables('buser', buser_tablelist)
 
-    def check_tables(self, dbname, tablelist):
-        for table in tablelist:
+    def check_tables(self, dbname, dblist):
+        dblist = [x[0] for x in self.pif.dbh.dbi.execute('show tables in {}'.format(dbname))[0]]
+        tilist = [x for x in tables.table_info if tables.table_info[x]['db'] == dbname]
+        for table in dblist:
             if table in tables.table_info:
                 t_info = tables.table_info[table]
                 if t_info['db'] != dbname:
@@ -32,10 +34,10 @@ class TestSchema(unittest.TestCase):
                 #     print("same")
             else:
                 print(table, ':', "missing from table_info")
-        for table in set(tables.table_info.keys()) - set(tablelist):
+        for table in set(tilist) - set(dblist):
             print(table, ': missing from database')
 
-        self.assertTrue(not (set(tables.table_info.keys()) - set(tablelist)))
+        self.assertEqual(set(tilist) - set(dblist), set())
 
 
 if __name__ == '__main__':  # pragma: no cover

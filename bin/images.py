@@ -1,6 +1,6 @@
 #!/usr/local/bin/python
 
-from __future__ import print_function
+from sprint import sprint as print
 from io import open
 import glob
 import logging
@@ -435,7 +435,7 @@ def show_redoer(pif, eform):
 
 class EditForm(imglib.ActionForm):
     def __init__(self, pif, tdir='.', fn=''):
-        super(EditForm, self).__init__(pif)
+        super().__init__(pif)
         self.edit = False
         self.fn = fn
         self.ot = ''
@@ -477,7 +477,7 @@ class EditForm(imglib.ActionForm):
         self.pth = ''
 
     def read(self, pif, edit=False):
-        super(EditForm, self).read(pif.form)
+        super().read(pif.form)
         self.edit = edit or pif.form.get_exists('edit')
         self.fn = pif.form.get_str("f", '')
         self.ot = pif.form.get_str('ot')
@@ -612,7 +612,7 @@ class EditForm(imglib.ActionForm):
 
         presets = imglib.read_presets(pdir)
 
-        xs, ys = super(EditForm, self).write(pif, fn)
+        xs, ys = super().write(pif, fn)
         print(pif.render.format_hidden_input(c=useful.url_quote(pif.form.get_str('c', ''), plus=True)))
         # xs, ys = imglib.get_size(full_path)
         if edit:
@@ -916,7 +916,7 @@ def imawidget_main(pif):
 class StitchForm(object):
     def __init__(self, verbose=False):
         self.verbose = verbose
-        super(StitchForm, self).__init__()
+        super().__init__()
 
     def read(self, pif):
         self.file_count = pif.form.get_int('fc')
@@ -1519,7 +1519,7 @@ def thumber_main(pif):
     # pif.restrict('a')
 
     print('Content-Type: image/gif')
-    print
+    print()
 
     dir = pif.form.get_str('d', '.')
     fil = pif.form.get_str('f', '')

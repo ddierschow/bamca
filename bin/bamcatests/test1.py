@@ -24,10 +24,10 @@ class TestPIF(unittest.TestCase):
         self.assertIsInstance(self.pif.dbh.dbi, dbintf.DB)
 
     def test_3(self):
-        self.assertTrue(len(self.pif.dbh.fetch('page_info', where='not health=0', tag='unittest')) == 0)
+        self.assertEqual(len(self.pif.dbh.fetch('page_info', where='not health=0', tag='unittest')), 0)
 
     def test_form_int(self):
-        self.assertTrue(self.pif.form.get_int('a', defval=0) == 0)
+        self.assertEqual(self.pif.form.get_int('a', defval=0), 0)
 
     # def test_Update(self):
     #     pass  # self.assertTrue(self.pif.Update(argfile)
@@ -39,16 +39,16 @@ class TestPIF(unittest.TestCase):
         pass  # self.assertTrue(self.pif.restrict(priv)
 
     def test_error_report(self):
-        self.assertTrue(self.pif.error_report() != '')
+        self.assertNotEqual(self.pif.error_report(), '')
 
     def test_form_find(self):
-        self.assertTrue(self.pif.form.find('b') == [])
+        self.assertEqual(self.pif.form.find('b'), [])
 
     def test_get_form(self):
-        pass  # self.assertTrue(self.pif.form.get_form() == {})
+        pass  # self.assertEqual(self.pif.form.get_form(), {})
 
     def test_form_search(self):
-        self.assertTrue(self.pif.form.search('a') == [])
+        self.assertEqual(self.pif.form.search('a'), [])
 
     def test_show_error(self):
         self.assertIsNone(self.pif.show_error())
@@ -56,13 +56,13 @@ class TestPIF(unittest.TestCase):
     def test_links(self):
         import tlinks
         listRejects, blacklist = tlinks.read_blacklist(self.pif)
-        self.assertTrue(type(listRejects) == list)
+        self.assertTrue(isinstance(listRejects, list))
         self.assertTrue(len(listRejects) > 0)
-        self.assertTrue(type(blacklist) == list)
+        self.assertTrue(isinstance(blacklist, list))
         self.assertTrue(len(blacklist) > 0)
-        self.assertTrue(tlinks.is_blacklisted('nope', blacklist) == '')
-        self.assertTrue(tlinks.fix_url('a/b') == 'a/b')
-        self.assertTrue(tlinks.fix_url('a/b/') == 'a/b')
+        self.assertEqual(tlinks.is_blacklisted('nope', blacklist), '')
+        self.assertEqual(tlinks.fix_url('a/b'), 'a/b')
+        self.assertEqual(tlinks.fix_url('a/b/'), 'a/b')
         all_links, highest_disp_order = tlinks.read_all_links(self.pif)
         self.assertTrue(len(all_links) > 0)
 
