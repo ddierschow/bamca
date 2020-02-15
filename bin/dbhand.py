@@ -1624,10 +1624,12 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     # - cookie
 
+    def delete_cookie(self, user_id, ip):
+        self.delete('cookie',
+                    where='(user_id={} and ip="{}") or (expire < NOW())'.format(user_id, ip),
+                    tag='DeleteCookie')
+
     def insert_cookie(self, user_id, ckey, ip, expires):
-        # remove where user_id and ip match
-        wheres = ['user_id={}'.format(user_id), 'ip="{}"'.format(ip)]
-        self.delete('cookie', where=wheres, tag='WriteCookie')
         values = {'user_id': user_id, 'ckey': ckey, 'ip': ip, 'expires': expires}
         return self.write('cookie', values=values, newonly=True, tag='WriteCookie')
 

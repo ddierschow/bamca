@@ -743,7 +743,7 @@ class Drawer(object):
                 # print('+', cmd, arg, file=sys.stderr)
                 self.__class__.__dict__[cmd](self, arg)
             else:
-                # print('?', cmd, args, file=sys.stderr)
+                pass  # print('?', cmd, args, file=sys.stderr)
 
     def save(self, ofn):
         if ofn:

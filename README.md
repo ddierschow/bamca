@@ -59,6 +59,10 @@ to these new templates, and more will follow as I have time.
     6.12 published Sunday, 14 October 2018 at 12:01 AM PDT
     6.13 published Sunday, 2 June 2019 at 12:01 AM PDT
 
+2020 - V7 - A server migration forced a rewrite to Python 3.
+
+    7.0 in beta
+
 There are many plans for things to add, but they require time, which
 is in short supply.  I'll do them when I can.  The most pressing
 projects are to fill in more variation and product pictures, and

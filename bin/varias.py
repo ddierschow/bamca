@@ -124,7 +124,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
     variation['references'] = ' '.join(list(set(vsform.selects.get(var_id, []))))
     variation['area'] = ', '.join([
         mbdata.get_countries().get(x, mbdata.areas.get(x, x)) for x in variation.get('area', '').split(';')])
-    data = sorted(variation.keys() + [d for d in vsform.attributes if d not in variation])
+    data = sorted(list(variation.keys()) + [d for d in vsform.attributes if d not in variation])
 
     lsec = {'columns': ['title', 'value'], 'id': 'single'}
     shown_attributes = [d for d in data if d not in not_individual_attributes]
@@ -552,7 +552,7 @@ class VarSearchForm(object):
     def read(self, form):
         self.attrs = {key: form.get_str(key) for key in self.attributes}
         self.attrq = dict()
-        for attr in self.attributes.keys() + ['text_note']:
+        for attr in list(self.attributes.keys()) + ['text_note']:
             if form.has(attr):
                 if attr == 'manufacture' and form.get_str(attr) == 'unset':
                     self.attrq[attr] = ''

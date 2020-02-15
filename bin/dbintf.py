@@ -24,12 +24,12 @@ class DB(object):
         self.lastrowid = None
         self.lastdescription = None
 
-    def set_config(self, config):
-        if config['dbuser'] in self.dbcs:
-            self.db = self.dbcs[config['dbuser']]
+    def set_config(self, cfg):
+        if cfg['dbuser'] in self.dbcs:
+            self.db = self.dbcs[cfg['dbuser']]
         else:
-            self.dbcs[config['dbuser']] = self.db = pymysql.connect(
-                unix_socket="/tmp/mysql.sock", user=config['dbuser'], password=config['dbpass'], database=config['dbname'])
+            self.dbcs[cfg['dbuser']] = self.db = pymysql.connect(
+                unix_socket="/tmp/mysql.sock", user=cfg['dbuser'], password=cfg['dbpass'], database=cfg['dbname'])
 
     def __repr__(self):
         return "'<db.DB instance>'"
@@ -37,9 +37,9 @@ class DB(object):
     def __str__(self):
         return "'<db.DB instance>'"
 
-    def __del__(self):
-        for cx in self.dbcs.values():
-            cx.close()
+#    def __del__(self):
+#        for cx in self.dbcs.values():
+#            cx.close()
 
     def escape_string(self, s):
         return self.db.escape_string(s)

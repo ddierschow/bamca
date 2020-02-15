@@ -119,8 +119,10 @@ def format_entry(pif, ent):
             flag = pif.render.show_flag(dlm)
             if flag:
                 ostr += useful.img_src(flag[1], also={'class': 'dlm'})
-            else:
+            elif dlm in dictFlag:
                 ostr += format_delimiter(pif, dictFlag[dlm])
+            else:
+                useful.write_comment('tlinks.format_entry: dlm {} not found {}'.format(dlm, dictFlag))
     # if cmt and is_large:
     #    ostr += '<br>' + '<br>'.join(cmt.split('|'))
     # else:
@@ -268,8 +270,8 @@ def add_page(pif):
     pif.render.set_page_extra(pif.render.reset_button_js)
 
     rejected, blacklist = read_blacklist(pif)
-    for l in blacklist:
-        if os.environ.get('REMOTE_ADDR') == l:
+    for ent in blacklist:
+        if pif.remote_addr == ent:
             raise useful.SimpleError(
                 "You have been banned from using this service because of previous abuses.  "
                 "If you have a problem with this, contact us via email, but don't hope for much.")

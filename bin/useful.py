@@ -646,4 +646,4 @@ def simple_process(cmd, msg='', inp=subprocess.PIPE, stderr=None, verbose=False)
 
 def url_quote(value, safe=None, plus=False):
     safe = safe if safe is not None else '' if plus else '/'
-    return urllib.parse.quote_plus(value, safe) if plus else urllib.quote(value, safe)
+    return urllib.parse.quote_plus(value, safe) if plus else urllib.parse.quote(value, safe)

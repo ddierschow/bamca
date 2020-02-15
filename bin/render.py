@@ -9,7 +9,6 @@ import glob
 import http.client
 import os
 import re
-import sys
 
 import config
 import javasc
@@ -287,7 +286,6 @@ class Presentation(object):
             useful.header_done()
 
     def set_cookie(self, cookie):
-        # sys.stderr.write(cookie.output() + '\n')
         self.new_cookie = cookie
 
     def print_cookie(self):  # pragma: no cover

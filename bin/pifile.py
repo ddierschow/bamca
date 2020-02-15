@@ -386,6 +386,7 @@ class PageInfoFile(object):
         user = user or self.user
         expire = (15 * 12 * 60 * 60) if ('a' in user.privs) else (60 * 365 * 24 * 60 * 60)
         ckey = str(uuid.uuid4())
+        self.dbh.delete_cookie(user.id, ip=os.environ.get('REMOTE_ADDR', 'unset'))
         self.dbh.insert_cookie(user.id, ckey=ckey, ip=os.environ.get('REMOTE_ADDR', 'unset'),
                                expires=datetime.datetime.now() + datetime.timedelta(seconds=expire))
         self.render.set_cookie(self.render.secure.make_cookie(ckey, user.privs, expires=expire))

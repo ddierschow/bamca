@@ -12,6 +12,7 @@ import config
 class Logger(object):
     def __init__(self):
         logdate = datetime.datetime.now().strftime('%Y%m')
+        log_level = os.environ.get('LOG_LEVEL', 'INFO')
         logging_config = {
             'version': 1,
             'disable_existing_loggers': False,
@@ -37,61 +38,61 @@ class Logger(object):
                     'formatter': 'informational'
                 },
                 'file': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.file.log',
                 },
                 'upload': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.upload.log',
                 },
                 'exc': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'single',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.exc' + logdate + '.log',
                 },
                 'url': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'single',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.url' + logdate + '.log',
                 },
                 'dbq': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'single',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.dbq' + logdate + '.log',
                 },
                 'bot': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'serious',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.bot' + logdate + '.log',
                 },
                 'count': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.count' + logdate + '.log',
                 },
                 'refer': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.refer.log',
                 },
                 'debug': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'serious',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.debug.log',
                 },
                 'root': {
-                    'level': os.environ.get('LOG_LEVEL', 'INFO'),
+                    'level': log_level,
                     'formatter': 'serious',
                     'class': 'logging.FileHandler',
                     'filename': '/home/bamca/logs/' + config.ENV + '.root.log',

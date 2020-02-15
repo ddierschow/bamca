@@ -1,7 +1,6 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-import os
 import string
 import uuid
 
@@ -116,6 +115,7 @@ def login_main(pif):
 
 @basics.web_page
 def logout_main(pif):
+    pif.dbh.delete_cookie(pif.user_id, ip=pif.remote_addr)
     pif.render.set_cookie(pif.render.secure.clear_cookie(['id']))
     raise useful.Redirect(pif.form.get_str('dest', '/'))
 
@@ -124,7 +124,7 @@ def logout_main(pif):
 
 
 def create(pif):
-    os.environ['PYTHON_EGG_CACHE'] = '/var/tmp'
+    # os.environ['PYTHON_EGG_CACHE'] = '/var/tmp'
     user_id = pif.form.get_str('user_id')
     p1 = pif.form.get_str('p')
     p2 = pif.form.get_str('p2')
@@ -150,7 +150,7 @@ def create(pif):
 
 
 def generate_signup_email(pif, user):
-    user['host'] = os.environ['SERVER_NAME']
+    user['host'] = pif.server_name
     user['secure_host'] = pif.secure_host
     user['validate'] = "{secure_host}/cgi-bin/validate.cgi?user_id={user_id}&vkey={vkey}".format(**user.todict())
     # user = {k: useful.url_quote(str(v), plus=True) for k, v in user.todict().items()}
@@ -315,7 +315,7 @@ def recover_main(pif):
 
 
 def generate_recovery_email(pif, user):
-    user['host'] = os.environ['SERVER_NAME']
+    user['host'] = pif.server_name
     user['secure_host'] = pif.secure_host
     user['recover'] = "{secure_host}/cgi-bin/recover.cgi?user_id={user_id}&vkey={vkey}".format(**user.todict())
     # user = {k: useful.url_quote(str(v), plus=True) for k, v in user.todict().items()}
