@@ -1,8 +1,8 @@
 #!/usr/local/bin/python
 
-from functools import reduce
 import copy
 import datetime
+from functools import reduce
 import re
 import time
 
@@ -24,6 +24,9 @@ class DBHandler(object):
         if not self.dbi:
             raise 'DB connect failed'
         # self.table_info = tables.table_info
+
+    def set_config(self, config):
+        self.dbi.set_config(config)
 
     def __repr__(self):
         return "'<dbhand.DBHandler instance>'"
@@ -427,9 +430,9 @@ class DBHandler(object):
             tables += ',casting_make'
         if page_id:
             wheres.append('section.page_id="%s"' % page_id)
-        if isinstance(where, list):
+        if where and isinstance(where, list):
             wheres += where
-        elif isinstance(where, str):
+        elif where and isinstance(where, str):
             wheres.append(where)
         if section_id:
             wheres.append('section.id="%s"' % section_id)
@@ -597,7 +600,7 @@ class DBHandler(object):
             wheres.append("casting_related.section_id='%s'" % section_id)
         left_joins = [("base_id as m", "casting_related.model_id=m.id")]
         left_joins += [("base_id as r", "casting_related.related_id=r.id")]
-        return self.fetch('casting_related', where=' and '.join(wheres), left_joins=left_joins, tag='CastingRelateds',
+        return self.fetch('casting_related', where=wheres, left_joins=left_joins, tag='CastingRelateds',
                           verbose=True)
         # return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and
         # casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
@@ -1440,7 +1443,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             wheres.append("region='" + region + "'")
         if page_id:
             wheres.append("page_id='" + page_id + "'")
-        return self.fetch('base_id,pack', where=' and '.join(wheres), tag='Packs')
+        return self.fetch('base_id,pack', where=wheres, tag='Packs')
 
     def add_new_pack(self, values):
         return self.write('pack', values=values, newonly=True)
@@ -1619,22 +1622,40 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     def delete_user(self, id):
         self.delete('user', 'id=%s' % id)
 
+    # - cookie
+
+    def insert_cookie(self, user_id, ckey, ip, expires):
+        # remove where user_id and ip match
+        wheres = ['user_id={}'.format(user_id), 'ip="{}"'.format(ip)]
+        self.delete('cookie', where=wheres, tag='WriteCookie')
+        values = {'user_id': user_id, 'ckey': ckey, 'ip': ip, 'expires': expires}
+        return self.write('cookie', values=values, newonly=True, tag='WriteCookie')
+
+    def fetch_cookie(self, ckey):
+        wheres = [
+            'cookie.ckey="{}"'.format(ckey),
+            'expires > NOW()',
+            'user.id=cookie.user_id',
+        ]
+        return tables.Results('cookie',
+                              self.fetch('cookie,user', where=wheres, tag='GetCookie')).last
+
     # - token
 
     def create_token(self):  # render.format_form_token is not currently using this.  sigh
         return useful.generate_token(6)
 
     def insert_token(self, token_id, verbose=False):
-        self.delete('token', where='current_timestamp()-created > 20', tag='Token', verbose=None)
+        self.delete('token', where='current_timestamp()-created > 20', tag='InsertToken', verbose=None)
         retval = True
         if token_id:
-            self.raw_execute('lock tables buser.token write', tag='Token')
-            ret = self.fetch('token', where={'id': token_id}, tag='Token', verbose=verbose)
+            self.raw_execute('lock tables buser.token write', tag='InsertToken')
+            ret = self.fetch('token', where={'id': token_id}, tag='InsertToken', verbose=verbose)
             if not ret:
-                ret = self.write('token', values={'id': token_id}, newonly=True, tag='Token', verbose=verbose)
+                ret = self.write('token', values={'id': token_id}, newonly=True, tag='InsertToken', verbose=verbose)
             else:
                 retval = False
-            self.raw_execute('unlock tables', tag='Token')
+            self.raw_execute('unlock tables', tag='InsertToken')
         return retval
 
     # - photographer

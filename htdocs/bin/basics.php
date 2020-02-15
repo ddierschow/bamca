@@ -6,17 +6,19 @@ include "db.php";
 
 $pif = 0;
 
-function CheckPerm($lev) {
+function CheckPerm($pif, $lev) {
     global $LOCKDOWN;
     $retval = !$LOCKDOWN;
-    if ($lev) {
-	passthru('../bin/secure.py ' . $lev, $retval);
+    if (array_key_exists('id', $_COOKIE)) {
+        if ($pif['privs']) {
+            $retval = strpos($pif['privs'], $lev) != false;
+        }
     }
     return $retval;
 }
 
 function NoAccess($pif, $access, $dest) {
-    $retval = CheckPerm($access);
+    $retval = strpos($pif['privs'], $access) != false;
     if (!$retval) {
 ?> 
 
@@ -31,10 +33,21 @@ window.location = "https://<?php echo $pif['host']; ?>/cgi-bin/login.cgi?dest=/<
     }
 }
 
-function CheckID() {
+function CheckID($pif) {
+    global $LOCKDOWN;
+    if ($LOCKDOWN)
+        $pif['privs'] = '';
+    else
+        $pif['privs'] = 'b';
+    $pif['user_id'] = 0;
     $retval = 0;
     if (array_key_exists('id', $_COOKIE)) {
-	passthru('../bin/secure.py id', $retval);
+        $cookie_id = $_COOKIE['id'];
+        $ret = Fetch('select user.id, user.privs from buser.user,buser.cookie where user.id=cookie.user_id and cookie.ckey="' . $cookie_id . '"', $pif);
+        if ($ret) {
+            $pif['user_id'] = $retval = $ret[0]['id'];
+            $pif['privs'] = $ret[0]['privs'];
+        }
     }
     return $retval;
 }
@@ -81,9 +94,10 @@ function GetPageInfo($page_id) {
     $pif['cgibin'] = $pif['docroot'] . '/../cgi-bin';
     $pif['is_beta'] = 0;
     $pif['is_alpha'] = 0;
+    $pif['user_id'] = 0;
     if (substr($pif['host'], 0, 5) == 'beta.')
 	$pif['is_beta'] = 1;
-    if (substr($pif['host'], 0, 5) == 'alpha.')
+    if (substr($pif['host'], 0, 6) == 'alpha.')
 	$pif['is_alpha'] = 1;
     $cfg = BarFile($pif['cgibin'] . '/.config', 'bamca.org');
     foreach (array_slice($cfg[0], 1) as $c) {
@@ -109,6 +123,21 @@ function GetPageInfo($page_id) {
 	    else
 		break;
 	}
+    }
+    global $LOCKDOWN;
+    if ($LOCKDOWN)
+        $pif['privs'] = '';
+    else
+        $pif['privs'] = 'b';
+    $pif['user_id'] = 0;
+    $retval = 0;
+    if (array_key_exists('id', $_COOKIE)) {
+        $cookie_id = $_COOKIE['id'];
+        $ret = Fetch('select user.id, user.privs from buser.user,buser.cookie where user.id=cookie.user_id and cookie.ckey="' . $cookie_id . '"', $pif);
+        if ($ret) {
+            $pif['user_id'] = $retval = $ret[0]['id'];
+            $pif['privs'] = $ret[0]['privs'];
+        }
     }
     $bad_ip = DBQuery($dbi, "select count(*) from blacklist where reason='ip' and target='" . getenv('REMOTE_ADDR') . "'");
 // not sure how to fix this yet
@@ -152,7 +181,7 @@ function DoPageHeader($pif) {
 //    if (!($pif['flags'] & 16)) {
 //	NoAccess($pif, 'b', '');
 //    }
-    $id = CheckID();
+    $id = CheckID($pif);
     echo '<table width="1024" class="body">' . "\n";
     if ($id > 0) {
 	$username = Fetch('select name from buser.user where id=' . $id, $pif);
@@ -160,10 +189,10 @@ function DoPageHeader($pif) {
 	echo '<tr><td class="loginbar">Welcome back, ' . $username . '! ('.$id.')';
 	DoTextButtonLink('log_out', "https://" . $pif['host'] . "/cgi-bin/logout.cgi");
 	DoTextButtonLink('user_profile', "https://" . $pif['host'] . "/cgi-bin/userprofile.cgi");
-	if (CheckPerm('u')) {
+	if (CheckPerm($pif, 'u')) {
 	    DoTextButtonLink('upload', "http://" . $pif['host'] . "/cgi-bin/upload.cgi");
 	}
-	if (CheckPerm('a')) {
+	if (CheckPerm($pif, 'a')) {
 	    DoTextButtonLink('control_panel', "http://" . $pif['host'] . "/stuff.php");
 	}
 	echo "</td></tr>\n";

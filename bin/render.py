@@ -9,6 +9,8 @@ import glob
 import http.client
 import os
 import re
+import sys
+
 import config
 import javasc
 import mbdata
@@ -285,6 +287,7 @@ class Presentation(object):
             useful.header_done()
 
     def set_cookie(self, cookie):
+        # sys.stderr.write(cookie.output() + '\n')
         self.new_cookie = cookie
 
     def print_cookie(self):  # pragma: no cover
@@ -293,16 +296,7 @@ class Presentation(object):
             os.environ['HTTP_COOKIE'] = self.new_cookie.output()
         else:
             incookie = self.secure.cookies if self.secure.cookies else self.secure.get_cookies()
-            if not incookie:
-                pass
-            elif 'id' not in incookie:
-                pass
-            elif '/' not in incookie['id'].value:
-                incookie['id']['expires'] = -1
-                print(incookie.output())
-                if 'HTTP_COOKIE' in os.environ:
-                    del os.environ['HTTP_COOKIE']
-            elif incookie['id'].value.split('/')[1] != os.environ['REMOTE_ADDR']:
+            if incookie and 'id' in incookie:
                 incookie['id']['expires'] = -1
                 print(incookie.output())
                 if 'HTTP_COOKIE' in os.environ:

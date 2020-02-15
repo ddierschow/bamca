@@ -1,8 +1,9 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-import basics
 import pytumblr
+
+import basics
 import useful
 
 TUMBLR_PHOTO = 'P'

@@ -6,9 +6,7 @@ import os
 import re
 import sys
 import time
-if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
-    import cgitb
-    cgitb.enable()
+import uuid
 
 import config
 import crawls
@@ -18,6 +16,10 @@ import mbdata
 import render
 import secure
 import useful
+
+if os.getenv('REQUEST_METHOD'):  # is this apache?  # pragma: no cover
+    import cgitb
+    cgitb.enable()
 
 # The file environ.py modifies the environment upon first import.
 # It sets PYTHON_EGG_CACHE; it adds /usr/local/bin to PATH;
@@ -230,14 +232,6 @@ class PageInfoFile(object):
         config.IS_ALPHA = self.secure.is_alpha
         config.IS_BETA = self.secure.is_beta
         self.rawcookies = self.secure.get_cookies()
-        user_id = self.rawcookies.get('id', '0')
-        if isinstance(user_id, str):
-            user_id = eval(user_id)
-        if isinstance(user_id, int):
-            self.id = user_id
-        elif isinstance(user_id, tuple):
-            user_id = user_id[0]
-        config.USER_ID = self.user_id = user_id
         self.unittest = bool(args)  # args comes from unittest only!
         self.argv = args.split() if args else sys.argv[1:]  # argv comes from command line only!
         self.form = BaseForm(cgi.FieldStorage(), self.argv)
@@ -258,10 +252,8 @@ class PageInfoFile(object):
         self.render.secure = self.secure
         self.render.unittest = self.unittest
         self.render.comment('form', self.form.get_form())
-        self.privs = set(self.rawcookies.get('pr', '')) & set(self.form.get_str('tprivs', 'bvuma'))
         self.secure.cookies = self.rawcookies.get('co')
-        if self.is_allowed(dbedit):
-            self.secure.set_config('edit')
+        self.privs = set()
 
         os.chdir(self.secure.docroot)
         self.cwd = os.getcwd()
@@ -270,8 +262,21 @@ class PageInfoFile(object):
         self.cgibin = '../cgi-bin'
 
         dbqlog = self.log.devnull if self.unittest else self.log.dbq
-        self.dbh = dbhand.DBHandler(self.secure.config, self.user_id, dbqlog, self.render.verbose)
+        self.dbh = dbhand.DBHandler(self.secure.config, 0, dbqlog, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
+        user_id = self.rawcookies.get('id', 0)
+        # sys.stderr.write('pifile checking %s\n' % user_id)
+        if user_id:
+            cookie = self.dbh.fetch_cookie(ckey=user_id)
+            # sys.stderr.write('found cookie %s\n' % cookie)
+            if cookie:
+                user_id = cookie.user_id
+                self.privs = set(cookie['user.privs']) & set(self.form.get_str('tprivs', 'bvuma'))
+        config.USER_ID = self.user_id = user_id
+        # sys.stderr.write('setting user_id %s\n' % user_id)
+        if self.is_allowed(dbedit):
+            self.secure.set_config('edit')
+            self.dbh.set_config(self.secure.config)
         self.render.is_admin = self.is_allowed('a')
         self.render.is_moderator = self.is_allowed('m')
         self.render.is_user = self.is_allowed('u')
@@ -376,6 +381,14 @@ class PageInfoFile(object):
             raise useful.Redirect('/')
         if priv and self.user and not(self.user.flags & config.FLAG_USER_VERIFIED):
             raise useful.Redirect('/cgi-bin/validate.cgi')
+
+    def create_cookie(self, user=None):
+        user = user or self.user
+        expire = (15 * 12 * 60 * 60) if ('a' in user.privs) else (60 * 365 * 24 * 60 * 60)
+        ckey = str(uuid.uuid4())
+        self.dbh.insert_cookie(user.id, ckey=ckey, ip=os.environ.get('REMOTE_ADDR', 'unset'),
+                               expires=datetime.datetime.now() + datetime.timedelta(seconds=expire))
+        self.render.set_cookie(self.render.secure.make_cookie(ckey, user.privs, expires=expire))
 
     # -- debugging and error handling -----------------------------------
 

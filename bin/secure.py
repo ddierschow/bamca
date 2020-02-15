@@ -1,11 +1,10 @@
 #!/usr/local/bin/python
 
+import http.cookies as Cookie
 from io import open
 import os
 import sys
-import http.cookies as Cookie
-import Crypto.Cipher.DES
-import config
+
 import enviro  # noqa
 
 
@@ -19,7 +18,6 @@ class Security(object):
         self.read_version()
         self.set_env(siteid)
         self.read_config(siteid)
-        self.cipher = Crypto.Cipher.DES.new(self.crypkey, Crypto.Cipher.DES.MODE_ECB)
         self.cookies = None
 
     def __str__(self):
@@ -94,24 +92,19 @@ class Security(object):
 
     def make_cookie(self, id, privs, expires=6000):
         cookie = Cookie.SimpleCookie()
-        cryp_str = self.cookie_encode(str(id) + '/' + os.environ['REMOTE_ADDR'] + '/' + privs)
+        cryp_str = self.cookie_encode(id)
         cookie['id'] = cryp_str
         cookie['id']['expires'] = expires
         cookie['id']['domain'] = self.cookie_domain()
         cookie['id']['path'] = '/'
         return cookie
 
-    def cookie_decode(self, val):
-        cookieval = bytes(Cookie.SimpleCookie().value_decode(bytes(val))[0])
-        # cookieval = bytes(Cookie._unquote(val))
-        return self.cipher.decrypt(cookieval).strip()
-
     def cookie_encode(self, val):
-        strval = str(val)
-        strval += ' ' * (8 - len(strval) % 8)
-        cipherval = self.cipher.encrypt(bytes(strval))
-        return Cookie.SimpleCookie().value_encode(bytes(cipherval))[1]
-        # return Cookie._quote(str(cipherval))
+        return Cookie.SimpleCookie().value_encode(val)[1]
+
+    def cookie_decode(self, val):
+        cookieval = Cookie.SimpleCookie().value_decode(val)[0]
+        return cookieval
 
     def get_cookies(self):
         cookie = None
@@ -121,7 +114,7 @@ class Security(object):
             try:
                 cookie.load(rawcookie)
             except Exception:
-                pass  # sys.stderr.write("cookie decode error\n")
+                sys.stderr.write("cookie decode error\n{}\n".format(rawcookie))
         else:
             pass  # sys.stderr.write("cookie missing error\n")
         if not cookie:
@@ -130,6 +123,7 @@ class Security(object):
             # sys.stderr.write("cookie empty error\n")
             return {}
         cookieval = self.cookie_decode(cookie['id'].value)
+        return {'id': cookieval, 'co': cookie}
         if '/' not in cookieval:
             # sys.stderr.write("cookie format error\n")
             return {}
@@ -144,16 +138,4 @@ class Security(object):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    sec = Security()
-    cook = sec.get_cookies()
-    sys.stderr.write('running secure %s\n' % sys.argv)
-    if sys.argv:
-        if sys.argv[1] == 'id':
-            sys.exit(int(cook.get('id', 0)))
-        elif sys.argv[1] == 'b' and not config.LOCKDOWN:
-            sys.stderr.write('not locked down\n')
-            sys.exit(1)
-        elif sys.argv[1] in 'bvuma':
-            if sys.argv[1] in cook.get('pr', ''):
-                sys.exit(1)
-    sys.exit(0)
+    pass

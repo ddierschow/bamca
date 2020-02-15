@@ -1,7 +1,9 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
+
 import sys
+
 import mbdata
 
 jsfun = '''<SCRIPT LANGUAGE="JavaScript">

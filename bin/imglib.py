@@ -2,13 +2,14 @@
 
 from sprint import sprint as print
 from functools import reduce
-from io import open
 import glob
+from io import open
 import os
+from PIL import Image, ImageDraw
 import stat
 import subprocess
 import sys
-from PIL import Image, ImageDraw
+
 import bfiles
 import config
 import imicon
@@ -739,10 +740,10 @@ class Drawer(object):
                 self.img = Image.new("RGB", (self.sx, self.sy), self.col)
                 self.drw = ImageDraw.Draw(self.img)
             elif cmd in self.__class__.__dict__:
-                print('+', cmd, arg, file=sys.stderr)
+                # print('+', cmd, arg, file=sys.stderr)
                 self.__class__.__dict__[cmd](self, arg)
             else:
-                print('?', cmd, args, file=sys.stderr)
+                # print('?', cmd, args, file=sys.stderr)
 
     def save(self, ofn):
         if ofn:

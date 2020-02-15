@@ -1,18 +1,19 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from io import open
 import glob
+from io import open
 import itertools
 import os
+
 import basics
 import bfiles
+from bxdata import box_lookups
 import config
 import imglib
 import mbdata
 import models
 import useful
-from bxdata import box_lookups
 
 
 # ----- package --------------------------------------------------------

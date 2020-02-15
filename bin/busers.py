@@ -3,6 +3,7 @@
 from sprint import sprint as print
 import os
 import string
+import uuid
 
 import basics
 import config
@@ -98,8 +99,7 @@ def login_main(pif):
         user = pif.dbh.fetch_user(user_id=pif.form.get_str('user_id'), passwd=pif.form.get_str('p'))
         if user:
             pif.dbh.update_user_last_login(user.id)
-            expire = (15 * 12 * 60 * 60) if ('a' in user.privs) else (60 * 365 * 24 * 60 * 60)
-            pif.render.set_cookie(pif.render.secure.make_cookie(user.id, user.privs, expires=expire))
+            pif.create_cookie(user)
             if not user.flags & config.FLAG_USER_VERIFIED:
                 raise useful.Redirect('/cgi-bin/validate.cgi')
             raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
@@ -143,8 +143,6 @@ def create(pif):
     if rec_id:
         user = pif.dbh.fetch_user(id=rec_id)
         generate_signup_email(pif, user)
-        # expire = (15 * 12 * 60 * 60) if ('a' in privs) else (60 * 365 * 24 * 60 * 60)
-        # pif.render.set_cookie(pif.render.secure.make_cookie(rec_id, '', expires=expire))
         useful.warn("Your account has been created.  Please check your email for the verification.")
         raise useful.Redirect("/cgi-bin/validate.cgi")
 
@@ -222,8 +220,8 @@ def change_password_main(pif):
             useful.warn("The new passwords don't match!")
         else:
             pif.dbh.update_password(pif.user_id, pif.form.get_str('p2'))
-            expire = (15 * 12 * 60 * 60) if ('a' in pif.user.privs) else (60 * 365 * 24 * 60 * 60)
-            pif.render.set_cookie(pif.render.secure.make_cookie(id, pif.user.privs, expires=expire))
+            pif.dbh.update_user(pif.user_id, ckey=uuid.uuid4())
+            pif.create_cookie()
             useful.warn("Your password has been changed.")
 
     entries = [

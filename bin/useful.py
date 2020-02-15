@@ -4,10 +4,11 @@
 # than standard libraries.
 
 from sprint import sprint as print
-from io import open
 import filecmp
 import glob
+from io import open
 import itertools
+import jinja2
 import os
 import pprint
 import random
@@ -16,8 +17,8 @@ import stat
 import string
 import subprocess
 import urllib
+
 import config  # bleagh
-import jinja2
 
 # html_done = False
 
@@ -575,7 +576,7 @@ def format_string(*args, **kwargs):
         elif not _format_web:
             return ' '.join([str(x) for x in args])
         elif args[0] == '#':
-            return ''  # '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
+            return '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
         elif args[0] == '!':
             return '<div class="warning">%s</div>' % ' '.join([str(x) for x in args[1:]])
         else:
@@ -645,4 +646,4 @@ def simple_process(cmd, msg='', inp=subprocess.PIPE, stderr=None, verbose=False)
 
 def url_quote(value, safe=None, plus=False):
     safe = safe if safe is not None else '' if plus else '/'
-    return urllib.quote_plus(value, safe) if plus else urllib.quote(value, safe)
+    return urllib.parse.quote_plus(value, safe) if plus else urllib.quote(value, safe)

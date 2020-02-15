@@ -1,14 +1,16 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from functools import reduce
-from io import open
 import functools
+from functools import reduce
 import http.client
+from io import open
 import os
+import pymysql
 import sys
 import time
-import pymysql
+
+import config
 import crawls
 import logger
 import pifile
@@ -31,7 +33,6 @@ def write_traceback_file(pif, e):
     import datetime
     import pprint
     import traceback
-    import config
     str_tb = traceback.format_exc()
     if pif and pif.unittest:
         return str_tb  # unit testing should not leave tb files sitting around.

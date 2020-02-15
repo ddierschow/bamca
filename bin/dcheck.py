@@ -1,13 +1,14 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from io import open
 import datetime
 import filecmp
 import glob
+from io import open
 import os
 import re
 import requests
+
 import basics
 import config
 import imglib

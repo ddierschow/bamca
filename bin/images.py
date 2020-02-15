@@ -1,8 +1,8 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from io import open
 import glob
+from io import open
 import logging
 import os
 import re
@@ -11,6 +11,7 @@ import stat
 import sys
 import time
 import traceback
+
 import basics
 import bfiles
 import config

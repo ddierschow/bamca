@@ -1,14 +1,15 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from functools import reduce
 import copy
 import csv
+from functools import reduce
 import glob
+from io import StringIO
 import json
 import os
 import sys
-from io import StringIO
+
 import basics
 import config
 import imglib

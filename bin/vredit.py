@@ -19,8 +19,8 @@ Good luck.
 
 from sprint import sprint as print
 from functools import reduce
-from io import open
 import glob
+from io import open
 import itertools
 import os
 import re

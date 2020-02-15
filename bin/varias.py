@@ -4,11 +4,11 @@ from sprint import sprint as print
 import csv
 import filecmp
 import glob
+from io import StringIO
 import json
 import os
 import re
 import sys
-from io import StringIO
 
 import basics
 import config

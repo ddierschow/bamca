@@ -556,7 +556,7 @@ table_info = {
             'id': 'ID', 'user_id': 'User ID', 'privs': 'Privs', 'email': 'Email', 'vkey': 'VKey',
             'first_name': 'First Name', 'last_name': 'Last Name', 'location': 'Location',
             'interests': 'Interests', 'flags': 'Flags', 'photographer_id': 'Photographer ID',
-            'last_login': 'Last Login',
+            'last_login': 'Last Login', 'ckey': 'CKey',
         },
         'ask': ['id', 'user_id', 'first_name', 'last_name'],
         'clinks': {
@@ -804,6 +804,12 @@ table_info = {
         'db': 'bamca',
         'id': ['id'],
         'columns': ['id', 'mod_id', 'var_id', 'model', 'variation', 'description', 'date'],
+    },
+    # cookie
+    'cookie': {
+        'db': 'buser',
+        'id': ['id'],
+        'columns': ['id', 'ckey', 'user_id', 'ip', 'expires'],
     },
 }
 for key in table_info:

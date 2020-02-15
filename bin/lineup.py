@@ -1,12 +1,13 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from io import open
 import csv
+from io import open
 import json
 import os
 import re
 import sys
+
 import basics
 import config
 import imglib

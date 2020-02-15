@@ -1,11 +1,12 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from io import open
 import datetime
+from io import open
 import os
 import pprint
 import re
+
 import basics
 import bfiles
 import config

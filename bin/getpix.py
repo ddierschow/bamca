@@ -1,10 +1,10 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from io import open
 import binascii
 import copy
 import filecmp
+from io import open
 import os
 import re
 import requests

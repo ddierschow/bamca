@@ -1,9 +1,10 @@
 #!/usr/local/bin/python
 
 import datetime
-import os
 import logging
 import logging.config
+import os
+
 import config
 
 

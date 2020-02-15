@@ -5,7 +5,7 @@ include "bin/basics.php";
 include "config.php";
 $pif = GetPageInfo("database");
 DoHead($pif);
-$isadmin = CheckPerm('a');
+$isadmin = CheckPerm($pif, 'a');
 $pif['isadmin'] = $isadmin;
 //$isadmin = 0;
 $pif['hierarchy'][0] = ['/', 'Home'];

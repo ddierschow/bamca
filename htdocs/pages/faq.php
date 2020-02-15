@@ -5,7 +5,7 @@ chdir('..');
 include "bin/basics.php";
 include "config.php";
 $pif = GetPageInfo("faq");
-$is_logged_in = CheckPerm('b');
+$is_logged_in = CheckPerm($pif, 'b');
 DoHead($pif);
 DoPageHeader($pif);
 ?>

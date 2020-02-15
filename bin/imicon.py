@@ -2,8 +2,8 @@
 
 from io import open
 import os
-import sys
 from PIL import Image
+import sys
 
 # =========================
 

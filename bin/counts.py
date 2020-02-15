@@ -1,10 +1,11 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
-from io import open
 import glob
+from io import open
 import os
 import re
+
 import basics
 import config
 import imglib
