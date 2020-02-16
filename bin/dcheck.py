@@ -1056,6 +1056,7 @@ def check_var_data(pif, id_list):
 
 # ------- infra --------------------------------------------------------
 
+
 cmds = [
     ('c', count_tables, "count tables: [-v]"),
     ('sch', check_schema, "check schema"),
@@ -1077,13 +1078,8 @@ cmds = [
 ]
 
 
-@basics.command_line
-def commands(pif):
-    useful.cmd_proc(pif, './dcheck.py', cmds)
-
-
 # ------- --------------------------------------------------------------
 
 
 if __name__ == '__main__':  # pragma: no cover
-    commands(dbedit='', switches='vl', options='s')
+    basics.process_command_list(cmds=cmds, dbedit='', switches='vl', options='s')

@@ -22,8 +22,8 @@ def show_list(title, tdir, fl, view=False):
         return ''
     # mlen = reduce(lambda x, y: max(x, len(y)), fl, 0)
     mlen = max([len(x) for x in fl])
-    cols = max(1, 160 / max(1, mlen))
-    clen = (len(fl) - 1) / cols + 1
+    cols = max(1, 160 // max(1, mlen))
+    clen = (len(fl) - 1) // cols + 1
     ffl = [fl[(x * clen):((x + 1) * clen)] for x in range(0, cols)]
     ostr = '<h4>%s (%d)</h4>\n' % (title, len(fl))
     ostr += "<table width=100%><tr valign=top>\n"
@@ -694,10 +694,5 @@ cmds = [
 ]
 
 
-@basics.command_line
-def commands(pif):
-    useful.cmd_proc(pif, './filsys.py', cmds)
-
-
 if __name__ == '__main__':  # pragma: no cover
-    commands('editor', dbedit='')
+    basics.process_command_list('editor', cmds=cmds, dbedit='')

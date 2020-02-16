@@ -1222,14 +1222,8 @@ cmds = [
 ]
 
 
-@basics.command_line
-def commands(pif):
-    useful.cmd_proc(pif, './lineup.py', cmds)
-
-
 # ---- ---------------------------------------
 
 
 if __name__ == '__main__':  # pragma: no cover
-
-    commands(page_id='editor', dbedit='')
+    basics.process_command_list(cmds=cmds, page_id='editor', dbedit='')

@@ -1,7 +1,4 @@
 #!/usr/local/bin/python
-
-import sys
-sys.path.append("../bin")
-
-import mannum   # noqa: E402
+import cgihook  # noqa: F401
+import mannum
 mannum.admin_main('editor', dbedit='ma')

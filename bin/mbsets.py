@@ -79,10 +79,6 @@ def do_set(pif, setfile, set_id=None):
             llineups.append(print_table(pif, db, setfile))
         else:
             llineups.append(print_no_table(pif, db))
-    # llineups = [
-    #         print_table(pif, db, setfile)
-    #         if len(tables) == 1 or not db['title'] or set_id == db['label'] or set_id == 'all'  # or not set_id
-    #         else print_no_table(pif, db) for db in tables]
     return pif.render.format_template('sets.html', llineups=llineups)
 
 
@@ -113,10 +109,6 @@ def print_table(pif, db, setfile):
             continue
         if 'section' in model:
             # Need to calculate the colspan better.
-            # ostr += '    <th colspan=%d valign=top>\n' % (len(db['header']) - 1)
-            # ostr += model['section']
-            # ostr += '</th></tr>\n'
-            # ostr += pif.render.format_section(None, model['section'], also={'colspan': (len(db['header']) - 1)})
             entries.append({'text': model.get('section', ''), 'colspan': len(db['header']) - 1, 'class': 'section'})
             continue
         ifield = 0

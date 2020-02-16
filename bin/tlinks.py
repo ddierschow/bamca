@@ -622,13 +622,8 @@ cmds = [
 ]
 
 
-@basics.command_line
-def commands(pif):
-    useful.cmd_proc(pif, './tlinks.py', cmds)
-
-
 # ---- ----------------------------------------------------
 
 
 if __name__ == '__main__':  # pragma: no cover
-    commands(dbedit='')
+    basics.process_command_list(cmds=cmds, dbedit='')

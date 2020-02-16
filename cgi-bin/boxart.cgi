@@ -1,7 +1,4 @@
 #!/usr/local/bin/python
-
-import sys
-sys.path.append("../bin")
-
-import prints   # noqa: E402
+import cgihook  # noqa: F401
+import prints
 prints.box_main('boxart')

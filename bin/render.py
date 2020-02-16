@@ -63,7 +63,6 @@ class Presentation(object):
         self.is_admin = False
         self.is_moderator = False
         self.is_user = False
-        # useful.html_done = False
         self.new_cookie = None
         self.footer = ''
         self.bamcamark = mbdata.bamcamark()
@@ -72,9 +71,6 @@ class Presentation(object):
         #     import datetime
         #     self.dump_file = open(os.path.join(config.LOG_ROOT,
         #                                        datetime.datetime.now().strftime('%Y%m%d.%H%M%S.log')), 'w')
-
-    # def __str__(self):
-    #    return str(self.__dict__)
 
     def __repr__(self):
         return "'<render.Presentation instance>'"

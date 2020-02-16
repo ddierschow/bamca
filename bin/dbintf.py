@@ -37,9 +37,10 @@ class DB(object):
     def __str__(self):
         return "'<db.DB instance>'"
 
-#    def __del__(self):
-#        for cx in self.dbcs.values():
-#            cx.close()
+    def __del__(self):
+        for key in list(self.dbcs.keys()):
+            self.dbcs[key].close()
+            del self.dbcs[key]
 
     def escape_string(self, s):
         return self.db.escape_string(s)

@@ -176,7 +176,6 @@ class BaseForm(object):
         elif sort:
             keylist.sort(key=sort)
         return keylist
-        # return filter(lambda x: x.startswith(start) and x.endswith(end) and has in x, self.form)
 
     def roots(self, start='', end='', has=''):
         if end:
@@ -265,15 +264,14 @@ class PageInfoFile(object):
         self.dbh = dbhand.DBHandler(self.secure.config, 0, dbqlog, self.render.verbose)
         self.dbh.dbi.nowrites = self.unittest
         user_id = self.rawcookies.get('id', 0)
-        # sys.stderr.write('pifile checking %s\n' % user_id)
         if user_id:
             cookie = self.dbh.fetch_cookie(ckey=user_id)
-            # sys.stderr.write('found cookie %s\n' % cookie)
             if cookie:
-                user_id = cookie.user_id
+                user_id = cookie.user.id
                 self.privs = set(cookie['user.privs']) & set(self.form.get_str('tprivs', 'bvuma'))
+            else:
+                user_id = 0
         config.USER_ID = self.user_id = user_id
-        # sys.stderr.write('setting user_id %s\n' % user_id)
         if self.is_allowed(dbedit):
             self.secure.set_config('edit')
             self.dbh.set_config(self.secure.config)

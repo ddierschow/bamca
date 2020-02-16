@@ -7,8 +7,17 @@ import os
 
 import config
 
-
 # you were looking for pretty?  hah.
+
+
+class UserIDFilter(logging.Filter):
+    '''Ram the user id into each and every log message.  Just cuz.'''
+
+    def filter(self, record):
+        record.user_id = config.USER_ID
+        return True
+
+
 class Logger(object):
     def __init__(self):
         logdate = datetime.datetime.now().strftime('%Y%m')
@@ -16,18 +25,23 @@ class Logger(object):
         logging_config = {
             'version': 1,
             'disable_existing_loggers': False,
+            'filters': {
+                'user_id_filter': {
+                    '()': UserIDFilter,
+                }
+            },
             'formatters': {
                 'single': {
-                    'format': '%(asctime)s [%(process)d] %(levelname)s {} - %(message)s'.format(config.USER_ID),
+                    'format': '%(asctime)s [%(process)d] %(levelname)s %(user_id)s - %(message)s',
                     'style': '%',
                 },
                 'serious': {
-                    'format': '%(asctime)s [%(process)d] %(levelname)s {} %(filename)s:%(lineno)d - %(message)s'.format(
-                        config.USER_ID),
+                    'format':
+                        '%(asctime)s [%(process)d] %(levelname)s %(user_id)s %(filename)s:%(lineno)d - %(message)s',
                     'style': '%',
                 },
                 'informational': {
-                    'format': '%(asctime)s %(levelname)s {} - %(message)s'.format(config.USER_ID),
+                    'format': '%(asctime)s %(levelname)s %(user_id)s - %(message)s',
                     'style': '%',
                 },
             },
@@ -35,72 +49,84 @@ class Logger(object):
                 'console': {
                     'level': 'DEBUG',
                     'class': 'logging.StreamHandler',
+                    'filters': ['user_id_filter'],
                     'formatter': 'informational'
                 },
                 'file': {
                     'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.file.log',
                 },
                 'upload': {
                     'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.upload.log',
                 },
                 'exc': {
                     'level': log_level,
                     'formatter': 'single',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.exc' + logdate + '.log',
                 },
                 'url': {
                     'level': log_level,
                     'formatter': 'single',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.url' + logdate + '.log',
                 },
                 'dbq': {
                     'level': log_level,
                     'formatter': 'single',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.dbq' + logdate + '.log',
                 },
                 'bot': {
                     'level': log_level,
                     'formatter': 'serious',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.bot' + logdate + '.log',
                 },
                 'count': {
                     'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.count' + logdate + '.log',
                 },
                 'refer': {
                     'level': log_level,
                     'formatter': 'informational',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.refer.log',
                 },
                 'debug': {
                     'level': log_level,
                     'formatter': 'serious',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.debug.log',
                 },
                 'root': {
                     'level': log_level,
                     'formatter': 'serious',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/home/bamca/logs/' + config.ENV + '.root.log',
                 },
                 'devnull': {
                     'level': 'CRITICAL',
                     'formatter': 'serious',
                     'class': 'logging.FileHandler',
+                    'filters': ['user_id_filter'],
                     'filename': '/dev/null',
                 },
             },

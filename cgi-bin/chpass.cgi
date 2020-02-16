@@ -1,7 +1,4 @@
 #!/usr/local/bin/python
-
-import sys
-sys.path.append("../bin")
-
-import busers   # noqa: E402
+import cgihook  # noqa: F401
+import busers
 busers.change_password_main('user', dbedit='')
