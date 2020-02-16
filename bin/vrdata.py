@@ -454,10 +454,10 @@ class VariationImportData(object):
 
 
 @basics.command_line
-def commands(pif):
+def main(pif):
     vid = VariationImportData()
     print(vid.transform_header("base no."))
 
 
 if __name__ == '__main__':  # pragma: no cover
-    commands()
+    main()

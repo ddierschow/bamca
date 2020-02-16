@@ -22,34 +22,34 @@ def show_list(title, tdir, fl, view=False):
         return ''
     # mlen = reduce(lambda x, y: max(x, len(y)), fl, 0)
     mlen = max([len(x) for x in fl])
-    cols = max(1, 160 / max(1, mlen))
-    clen = (len(fl) - 1) / cols + 1
+    cols = max(1, 160 // max(1, mlen))
+    clen = (len(fl) - 1) // cols + 1
     ffl = [fl[(x * clen):((x + 1) * clen)] for x in range(0, cols)]
-    ostr = '<h4>%s (%d)</h4>\n' % (title, len(fl))
+    ostr = '<h4>{} ({})</h4>\n'.format(title, len(fl))
     ostr += "<table width=100%><tr valign=top>\n"
     for cl in ffl:
-        ostr += "<td width=%d%%>\n" % (100 / cols)
+        ostr += "<td width={}%>\n".format(100 // cols)
         for f in cl:
             root, ext = useful.root_ext(f.strip())
             fst = os.stat(tdir + '/' + f)
             perms = fst[stat.ST_MODE]
             if f[0] == '.':
-                ostr += '<i>%s</i><br>\n' % f
+                ostr += '<i>{}</i><br>\n'.format(f)
             elif stat.S_ISDIR(perms):
-                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s">%s/</a><br>\n' % (tdir + '/' + f, f)
+                ostr += '<a href="/cgi-bin/traverse.cgi?d={}">{}/</a><br>\n'.format(tdir + '/' + f, f)
             elif tdir.startswith('../'):
-                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
+                ostr += '<a href="/cgi-bin/traverse.cgi?d={}&f={}">{}</a><br>\n'.format(tdir, f, f)
             elif f[-4:] == '.dat':
-                ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
+                ostr += '<a href="/cgi-bin/traverse.cgi?d={}&f={}">{}</a><br>\n'.format(tdir, f, f)
             elif (perms & 5) == 0:
-                ostr += '%s<br>\n' % f
+                ostr += '{}<br>\n'.format(f)
             elif ext in imglib.itypes:
                 if view:
-                    ostr += '<a href="/%s/%s">%s</a><br>\n' % (tdir, f, f)
+                    ostr += '<a href="/{}/{}">{}</a><br>\n'.format(tdir, f, f)
                 else:
-                    ostr += '<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s">%s</a><br>\n' % (tdir, f, f)
+                    ostr += '<a href="/cgi-bin/imawidget.cgi?d={}&f={}">{}</a><br>\n'.format(tdir, f, f)
             else:
-                ostr += '<a href="../%s">%s</a><br>\n' % (tdir + '/' + f, f)
+                ostr += '<a href="../{}">{}</a><br>\n'.format(tdir + '/' + f, f)
         ostr += "</td>\n"
     ostr += "</tr></table>\n"
     ostr += '<br><hr>\n'
@@ -68,19 +68,18 @@ def show_dir(pif, tform):
 
     if files['graf']:
         if tform.graf:
-            ostr += '<h4>%s (%d)</h4><div class="glist">\n' % (files['titles']['graf'], len(files['graf']))
+            ostr += '<h4>{} ({})</h4><div class="glist">\n'.format(files['titles']['graf'], len(files['graf']))
             for f in files['graf']:
                 perms = os.stat(tform.tdir + '/' + f)[stat.ST_MODE]
                 if (perms & 4) == 0:
-                    ostr += '%s<br>\n' % f
+                    ostr += '{}<br>\n'.format(f)
                 elif tform.graf:
-                    # ostr += '<a href="/cgi-bin/traverse.cgi?d=%s&f=%s"><img src="../%s" border=0>%s</a><br>' %
-                    # (tform.tdir, f, tform.tdir + '/' + f, f)
-                    ostr += ('<a href="imawidget.cgi?d=%s&f=%s&man=%s&newvar=%s&cy=0&suff=%s">'
-                             '<img src="../%s" border=0>%s</a><br>\n' %
-                             (tform.tdir, f, tform.mod, tform.var, tform.suff, tform.tdir + '/' + f, f))
+                    ostr += pif.render.format_link(
+                        'imawidget.cgi',
+                        '<img src="../{}/{}" border=0>{}'.format(tform.tdir, f, f),
+                        {'d': tform.tdir, 'f': f, 'man': tform.mod, 'newvar': tform.var, 'cy': 0, 'suff': tform.suff})
                 else:
-                    ostr += '<a href="../%s">%s</a><br>\n' % (tform.tdir + '/' + f, f)
+                    ostr += '<a href="../{}">{}</a><br>\n'.format(tform.tdir + '/' + f, f)
             ostr += '</div><hr>\n'
         else:
             ostr += show_list(files['titles']['graf'], tform.tdir, files['graf'], tform.view)
@@ -91,14 +90,14 @@ def show_dir(pif, tform):
     ostr += show_list(files['titles']['other'], tform.tdir, files['other'], tform.view)
 
     if pif.render.is_admin:
-        ostr += '<a href="upload.cgi?d=%s">%s</a>\n' % (tform.tdir, pif.render.format_button('upload'))
+        ostr += '<a href="upload.cgi?d={}">{}</a>\n'.format(tform.tdir, pif.render.format_button('upload'))
 
     if files['graf']:
         ostr += '<form action="traverse.cgi">\n' + pif.create_token()
-        ostr += '<a href="traverse.cgi?g=1&d=%s">%s</a> or \n' % (
+        ostr += '<a href="traverse.cgi?g=1&d={}">{}</a> or \n'.format(
             tform.tdir, pif.render.format_button('show all pictures'))
         ostr += 'Pattern <input type="text" name="p">\n'
-        ostr += '<input type="hidden" name="d" value="%s">\n' % tform.tdir
+        ostr += '<input type="hidden" name="d" value="{}">\n'.format(tform.tdir)
         ostr += pif.render.format_checkbox('du', [('1', 'Dupes',)])
         ostr += pif.render.format_checkbox('co', [('1', 'Compact',)])
         ostr += pif.render.format_checkbox('th', [('1', 'Thumbs',)])
@@ -149,23 +148,23 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
         inp = ''
         pic = pif.render.format_image_required([root], suffix=ext, also=nalso)
         if shlv or cate:
-            inp += ''' %s/<input type="text" name="lib.%s"> ''' % ("lib" if cate else "lib/man", arg)
+            inp += ''' {}/<input type="text" name="lib.{}"> '''.format("lib" if cate else "lib/man", arg)
             for man in sorted(mans.keys()):
                 for pref in mans[man]:
                     if root.startswith(pref):
                         inp += ' ' + man
         elif mss:
-            inp += '''<br><input type="text" name="var.%s"> var''' % arg
+            inp += '''<br><input type="text" name="var.{}"> var'''.format(arg)
         elif pms:
-            inp += '''<br><input type="text" name="nam.%s"> nam''' % arg
+            inp += '''<br><input type="text" name="nam.{}"> nam'''.format(arg)
         elif rsuf:
-            inp += '''<input type="text" name="rsfx.%s"> rsfx''' % arg
+            inp += '''<input type="text" name="rsfx.{}"> rsfx'''.format(arg)
         elif cred:
             fn = arg[:arg.find('.')] if '.' in arg else arg
             fn = fn[2:] if (fn[0] in 'sml' and fn[1] == '_') else fn
-            inp += '''<input type="text" name="cred.%s" size="12" value="%s"> cred''' % (fn, cred.get(fn, ''))
+            inp += '''<input type="text" name="cred.{}" size="12" value="{}"> cred'''.format(fn, cred.get(fn, ''))
         else:
-            pic = '<a href="imawidget.cgi?d=%s&f=%s&cy=0">%s</a>' % (pif.render.pic_dir, arg, pic)
+            pic = '<a href="imawidget.cgi?d={}&f=%s&cy=0">{}</a>'.format(pif.render.pic_dir, arg, pic)
             if arg == base:
                 inp = imginputs % {'f': arg, 'b': root + 'z.' + ext}
             elif base:
@@ -694,10 +693,5 @@ cmds = [
 ]
 
 
-@basics.command_line
-def commands(pif):
-    useful.cmd_proc(pif, './filsys.py', cmds)
-
-
 if __name__ == '__main__':  # pragma: no cover
-    commands('editor', dbedit='')
+    basics.process_command_list('editor', cmds=cmds, dbedit='')

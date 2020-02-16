@@ -1,7 +1,4 @@
 #!/usr/local/bin/python
-
-import sys
-sys.path.append("../bin")
-
-import others   # noqa: E402
+import cgihook  # noqa: F401
+import others
 others.main('custom')

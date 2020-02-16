@@ -1,14 +1,19 @@
 #!/usr/local/bin/python
 
 from sprint import sprint as print
+import datetime
 import functools
-from functools import reduce
+import getopt
+import glob
 import http.client
 from io import open
 import os
+import pprint
 import pymysql
+import random
 import sys
 import time
+import traceback
 
 import config
 import crawls
@@ -16,23 +21,25 @@ import logger
 import pifile
 import useful
 
+config.GURU_ID = ''.join(random.choice('0123456789ABCDEFGHJKLMNPRSTUVWXYZ') for i in range(10))
+
+tb_fmt = """headline = '''{}'''
+guru_id = '{}'
+uri = '''{}'''
+tb = '''
+{}
+'''
+env = {}
+"""
 
 # --- Web Pages ---------------------------------------------------------
 
 
 def get_page_info(page_id, form_key='', defval='', args='', dbedit=None):
-    try:
-        pif = pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
-    except Exception:
-        simple_html()
-        raise
-    return pif
+    return pifile.PageInfoFile(page_id, form_key, defval, args=args, dbedit=dbedit)
 
 
 def write_traceback_file(pif, e):
-    import datetime
-    import pprint
-    import traceback
     str_tb = traceback.format_exc()
     if pif and pif.unittest:
         return str_tb  # unit testing should not leave tb files sitting around.
@@ -42,11 +49,10 @@ def write_traceback_file(pif, e):
     else:
         tb_file_name += 'unknown'
     erf = open(tb_file_name, 'w')
-    erf.write("headline = '''%s'''\n" %
-              ' '.join([x.strip() for x in traceback.format_exception_only(type(e), e)]))
-    erf.write("uri = '''%s'''\n" % os.environ.get('REQUEST_URI', ''))
-    erf.write("tb = '''\n" + str_tb + "\n'''\n")
-    erf.write("env = " + pprint.pformat(os.environ, indent=2, width=132) + "\n")
+    erf.write(tb_fmt.format(' '.join([x.strip() for x in traceback.format_exception_only(type(e), e)]),
+              config.GURU_ID, os.environ.get('REQUEST_URI', ''), str_tb,
+              pprint.pformat(os.environ, indent=2, width=132)))
+
     if pif:
         erf.write(pif.error_report())
     erf.close()
@@ -63,12 +69,10 @@ def simple_html(status=404):
 
 
 def handle_exception(pif, e, header_done=False, write_traceback=True):
-    logger.Logger().exc.error('%s %s' % (
+    logger.Logger().exc.error('{} {}'.format(
         os.environ.get('REMOTE_ADDR', '127.0.0.1'),
         os.environ.get('REQUEST_URI', 'unknown')))
-    str_tb = ''
-    if write_traceback:
-        str_tb = write_traceback_file(pif, e)
+    str_tb = write_traceback_file(pif, e) if write_traceback else ''
     log_page_call(pif)
     if not pif or not pif.render or not pif.dbh:
         if not header_done:
@@ -77,7 +81,6 @@ def handle_exception(pif, e, header_done=False, write_traceback=True):
             print('<!--\n' + str_tb + '-->')
         final_exit()
     pif.dbh.set_health(pif.page_id)
-    import useful
     if not useful.is_header_done() and not header_done:
         simple_html()
     useful.header_done()
@@ -94,23 +97,26 @@ def final_exit():
     print("An alert has been sent and the problem will be fixed as soon as possible.</h3>")
 #    print("<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>")
 #    print("We'll get things going as soon as possible.")
+    print('<p><p>Guru Meditation ID: {}'.format(config.GURU_ID))
     sys.exit()
 
 
 def log_page_call(pif):
-    if not pif:
+    if pif and (pif.argv or pif.is_allowed('m')):
+        return  # it's me!  it's ME!
+    if os.getenv('HTTP_USER_AGENT', '') in crawls.crawlers:
+        logger.Logger().bot.info('{} {}'.format(pif.remote_addr, pif.request_uri))
+        return
+    if pif:
+        pif.dbh.increment_counter(pif.page_id)
+        pif.log.count.info(pif.page_id)
+        pif.log.url.info('{} {}'.format(pif.remote_addr, pif.request_uri))
+        if os.getenv('HTTP_USER_AGENT'):
+            pif.log.debug.info(os.getenv('HTTP_USER_AGENT'))
+        if pif.is_external_referrer():
+            pif.log.refer.info(os.environ['HTTP_REFERER'])
+    else:
         pass  # do something
-    elif not pif.argv and not pif.is_allowed('m'):
-        if os.getenv('HTTP_USER_AGENT', '') in crawls.crawlers:
-            pif.log.bot.info('%s %s' % (pif.remote_addr, pif.request_uri))
-        else:
-            pif.dbh.increment_counter(pif.page_id)
-            pif.log.count.info(pif.page_id)
-            pif.log.url.info('%s %s' % (pif.remote_addr, pif.request_uri))
-            if os.getenv('HTTP_USER_AGENT'):
-                pif.log.debug.info(os.getenv('HTTP_USER_AGENT'))
-            if pif.is_external_referrer():
-                pif.log.refer.info(os.environ['HTTP_REFERER'])
 
 
 # --- Command Lines -----------------------------------------------------
@@ -165,9 +171,6 @@ def get_req(sw, reqs=[]):
 
 def get_command_line(switches="", options="", long_options={}, version="", short_help="",
                      long_help="", envar=None, noerror=False, defaults={}, doglob=False):
-    import getopt
-    import glob
-
     switches, reqs = get_req(switches)
     options, reqs = get_req(options, reqs)
     loptions, reqs = get_req(long_options, reqs)
@@ -245,7 +248,7 @@ def get_command_line(switches="", options="", long_options={}, version="", short
             switch[key] = [defaults[key]]
 
     if doglob:
-        files = reduce(lambda x, y: x + y, [glob.glob(x) for x in files], [])
+        files = functools.reduce(lambda x, y: x + y, [glob.glob(x) for x in files], [])
 
     return (switch, files)
 
@@ -257,33 +260,21 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 def web_page(main_fn):
     @functools.wraps(main_fn)
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
-        # useful.write_comment('PID', os.getpid())
+        useful.write_comment('PID', os.getpid(), 'GURU', config.GURU_ID)
         pif = None
         try:
-            import pifile
             pif = (page_id if isinstance(page_id, pifile.PageInfoFile) else
                    get_page_info(page_id, form_key, defval, args, dbedit))
         except SystemExit:
             pass
-        # except useful.SimpleError as e:
-        #     simple_html(status=e.status)
-        #     print(useful.render_template('error.html', error=[e.value], page={'tail':''}))
-        #     if pif:
-        #         pif.log.debug.error('SimpleError: ' + str(e) + ' - ' + '''%s''' % os.environ.get('REQUEST_URI', ''))
-        #     handle_exception(pif, e, True, False)
-        #     return
         except pymysql.OperationalError as e:
             simple_html()
             print('The database is currently down, and thus, this page is unable to be shown.<p>')
             write_traceback_file(pif, e)
             handle_exception(pif, e, True)
             return
-        # except useful.Redirect as e:
-        #     if not useful.is_header_done():
-        #         pif.render.print_html()
-        #     print(pif.render.format_template('forward.html', url=e.value, delay=e.delay))
-        #     return
         except Exception as e:
+            simple_html()
             handle_exception(pif, e)
             return
 
@@ -301,7 +292,7 @@ def web_page(main_fn):
             if ret and not pif.unittest:
                 print(ret)
         except SystemExit:
-            pass
+            pass  # the happiest exception on earth
         except useful.SimpleError as e:
             if not useful.is_header_done():
                 pif.render.print_html(status=e.status)
@@ -331,9 +322,9 @@ def web_page(main_fn):
 def command_line(main_fn):
     @functools.wraps(main_fn)
     def call_main(page_id='cli', form_key='', defval='', args='', dbedit=None, switches='', options=''):
+        useful.header_done(False)
         pif = None
         try:
-            import pifile
             switch, filelist = get_command_line(switches, options)
             for f in filelist:
                 if f.startswith('page_id='):
@@ -352,6 +343,24 @@ def command_line(main_fn):
         except useful.SimpleError as e:
             print('***', e.value)
     return call_main
+
+
+# --- -------------------------------------------------------------------
+
+
+# useful.py:def cmd_proc(pif, script, cmds):
+# Main that processes command lists.
+def process_command_list(page_id='cli', form_key='', defval='', args='', dbedit=None, cmds=[], switches='', options=''):
+    pif = None
+    try:
+        switch, filelist = get_command_line(switches, options)
+        pif = get_page_info(page_id, form_key, defval, args, dbedit)
+        pif.switch, pif.filelist = switch, filelist
+        useful.cmd_proc(pif, './' + os.path.split(sys.argv[0])[1], cmds)
+    except SystemExit:
+        pass
+    except useful.SimpleError as e:
+        print('***', e.value)
 
 
 # --- -------------------------------------------------------------------

@@ -124,3 +124,5 @@ LOCKDOWN = 0
 # just puttin' this out here for future use
 USER_ID = 0
 IS_BETA = False
+IS_ALPHA = False
+GURU_ID = '__________'

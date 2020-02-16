@@ -1,7 +1,4 @@
 #!/usr/local/bin/python
-
-import sys
-sys.path.append("../bin")
-
-import editor   # noqa: E402
+import cgihook  # noqa: F401
+import editor
 editor.editor_main('editor', dbedit='am')

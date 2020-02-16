@@ -97,9 +97,17 @@ movetos = [
 ]
 
 
+def open_input_file(pth):
+    return open(pth, 'rb')
+
+
+def open_write_dev_null():
+    return open('/dev/null', 'wb')
+
+
 def get_size(fn):
     try:
-        p = useful.pipe_chain(open(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], stderr=subprocess.PIPE,
+        p = useful.pipe_chain(open_input_file(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], stderr=subprocess.PIPE,
                               verbose=False)
     except IOError:
         raise useful.SimpleError('Could not read ' + fn)
@@ -120,9 +128,9 @@ def img_info(f):
 
 def pipe_convert(src, dst, verbose=False):
     if src == dst:
-        return open(src).read()
+        return open_input_file(src).read()
     ctypes = import_file(src) + export_file(dst)
-    return useful.pipe_chain(open(src), ctypes, stderr=open('/dev/null', 'w'), verbose=verbose)
+    return useful.pipe_chain(open_input_file(pth), ctypes, stderr=open_write_dev_null(), verbose=verbose)
 
 
 def import_file(fn):
@@ -153,19 +161,19 @@ def corner_color(img, pixel):
     if pixel == 'ul':
         pval = img.getpixel((0, 0))
     elif pixel == 'ml':
-        pval = img.getpixel((0, oy / 2))
+        pval = img.getpixel((0, oy // 2))
     elif pixel == 'll':
         pval = img.getpixel((0, oy - 1))
     elif pixel == 'um':
-        pval = img.getpixel((ox / 2, 0))
+        pval = img.getpixel((ox // 2, 0))
     elif pixel == 'mm':
-        pval = img.getpixel((ox / 2, oy / 2))
+        pval = img.getpixel((ox // 2, oy // 2))
     elif pixel == 'lm':
-        pval = img.getpixel((ox / 2, oy - 1))
+        pval = img.getpixel((ox // 2, oy - 1))
     elif pixel == 'ur':
         pval = img.getpixel((ox - 1, 0))
     elif pixel == 'mr':
-        pval = img.getpixel((ox - 1, ox / 2))
+        pval = img.getpixel((ox - 1, ox // 2))
     elif pixel == 'lr':
         pval = img.getpixel((ox - 1, oy - 1))
     else:
@@ -247,7 +255,7 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
             x2 = xos - 1
         else:
             useful.write_message("fix x to target /", nonl=True)
-            x1 = max(0, x1 - (xts - xcs) / 2)
+            x1 = max(0, x1 - (xts - xcs) // 2)
             x2 = x1 + xts
     if ycs < yts:
         if yos < yts:
@@ -256,7 +264,7 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
             y2 = yos - 1
         else:
             useful.write_message("fix y to target /", nonl=True)
-            y1 = max(0, y1 - (yts - ycs) / 2)
+            y1 = max(0, y1 - (yts - ycs) // 2)
             y2 = y1 + yts
     useful.write_message("(", x1, y1, "/", x2, y2, ")", nonl=True)
     xcs = x2 - x1
@@ -264,9 +272,9 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
     # might revisit this, for images that are off center this might not be right
     if xts <= xos and yts <= yos and xcs <= xts and ycs <= yts:
         useful.write_message("shape expanding x and y")
-        x1 = x1 - (xts - xcs) / 2
+        x1 = x1 - (xts - xcs) // 2
         x2 = x1 + xts
-        y1 = y1 - (yts - ycs) / 2
+        y1 = y1 - (yts - ycs) // 2
         y2 = y1 + yts
         useful.write_message("(", x1, y1, ") (", x2, y2, ")", nonl=True)
         x1, x2, y1, y2 = normalize(x1, x2, y1, y2, xos, yos)
@@ -274,7 +282,7 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
         # too tall - expand x
         useful.write_message("shape expanding x", nonl=True)
         nxs = int(float(ycs) * ratio)
-        nx1 = x1 - (nxs - xcs) / 2
+        nx1 = x1 - (nxs - xcs) // 2
         nx2 = nx1 + nxs
         if nxs > xos:
             useful.write_message("off both edges")
@@ -296,8 +304,8 @@ def set_shape_sizes(x1, x2, y1, y2, xts, yts, xos, yos):
     elif xcs > int(float(ycs) * ratio):
         # too wide - expand y
         useful.write_message("shape expanding y", nonl=True)
-        nys = int(float(xcs) / ratio)
-        ny1 = y1 - (nys - ycs) / 2
+        nys = int(float(xcs) // ratio)
+        ny1 = y1 - (nys - ycs) // 2
         ny2 = ny1 + nys
         if nys > yos:
             useful.write_message("off both edges")
@@ -363,51 +371,51 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
         if xcs > xts:
             useful.write_message("shrinking", nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
-            ofi = useful.pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(x=xts) +
                                     export_file(nname, pth),
-                                    stderr=open('/dev/null', 'w'))
+                                    stderr=open_write_dev_null())
         elif xcs < xts:
             # dx = xts - xcs
             # dy = yts - ycs
             x1, x2, y1, y2 = normalize(x1, x2, y1, y2, xts, yts)
             useful.write_message("expanding", x1, x2, y1, y2, nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
-            ofi = useful.pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                                    stderr=open('/dev/null', 'w'))
+                                    stderr=open_write_dev_null())
         elif xos == xts and yos == yts and xos == xcs and yos == ycs:
             useful.write_message("copying", nonl=True)
-            ofi = open(pth).read()
+            ofi = open_input_file(pth).read()
         else:
             useful.write_message("cutting", nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
-            ofi = useful.pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                                    stderr=open('/dev/null', 'w'))
+                                    stderr=open_write_dev_null())
 
     else:
 
         if xts < x2 - x1:
             useful.write_message("trim shrinking x", nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
-            ofi = useful.pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(x=xts) +
                                     export_file(nname, pth),
-                                    stderr=open('/dev/null', 'w'))
+                                    stderr=open_write_dev_null())
         elif yts < y2 - y1:
             useful.write_message("trim shrinking y", nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
-            ofi = useful.pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(y=yts) +
                                     export_file(nname, pth),
-                                    stderr=open('/dev/null', 'w'))
+                                    stderr=open_write_dev_null())
         else:
             useful.write_message("trim cutting", nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
-            ofi = useful.pipe_chain(open(pth),
+            ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                                    stderr=open('/dev/null', 'w'))
+                                    stderr=open_write_dev_null())
 
     useful.write_message('')
     return ofi
@@ -428,24 +436,24 @@ def shrinker(pth, nname, bound, maxsize, rf):
     if xcs == xts and ycs == yts:
         useful.write_message("cutting")
         xts, yts = fix_axes(rf, xts, yts)
-        ofi = useful.pipe_chain(open(pth),
+        ofi = useful.pipe_chain(open_input_file(pth),
                                 import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
                                 export_file(nname, pth),
-                                stderr=open('/dev/null', 'w'))
-    elif xts / xcs < yts / ycs:
+                                stderr=open_write_dev_null())
+    elif xts // xcs < yts // ycs:
         useful.write_message("shrinking x")
         xts, yts = fix_axes(rf, xts, yts)
-        ofi = useful.pipe_chain(open(pth),
+        ofi = useful.pipe_chain(open_input_file(pth),
                                 import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
                                 resize(x=xts) + export_file(nname, pth),
-                                stderr=open('/dev/null', 'w'))
+                                stderr=open_write_dev_null())
     else:
         useful.write_message("shrinking y")
         xts, yts = fix_axes(rf, xts, yts)
-        ofi = useful.pipe_chain(open(pth),
+        ofi = useful.pipe_chain(open_input_file(pth),
                                 import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
                                 resize(y=yts) + export_file(nname, pth),
-                                stderr=open('/dev/null', 'w'))
+                                stderr=open_write_dev_null())
     return ofi
 
 
@@ -454,9 +462,9 @@ def cropper(pth, nname, bound, rf):
     useful.write_message('crop', x1, y1, x2, y2, ':', x2 - x1, y2 - y1, ':', rf)
     useful.write_message(pth)
     useful.write_message("cutting")
-    ofi = useful.pipe_chain(open(pth),
+    ofi = useful.pipe_chain(open_input_file(pth),
                             import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                            stderr=open('/dev/null', 'w'))
+                            stderr=open_write_dev_null())
     return ofi
 
 
@@ -542,8 +550,8 @@ def padder(pth, target_size):
     nc = (0, 0, 0)
     # bc = None
 
-    sx = (xts - xos) / 2
-    sy = (yts - yos) / 2
+    sx = (xts - xos) // 2
+    sy = (yts - yos) // 2
     ex = sx + xos - 1
     ey = sy + yos - 1
 
@@ -582,14 +590,14 @@ def iconner(in_path, name, logo=None, isizex=100, isizey=100):
     if thumb.size[1] != 120:
         useful.write_message('bad original size', thumb.size, nonl=True)
         return
-    thumb = thumb.resize((isizex, isizex * thumb.size[1] / thumb.size[0]), Image.NEAREST)
+    thumb = thumb.resize((isizex, isizex * thumb.size[1] // thumb.size[0]), Image.NEAREST)
     banner = Image.open(logo)
 
     text = imicon.Icon(isizex, isizey)
     # top = banner.size[1] + thumb.size[1]
-    texttop = isizey - 6 - (6 * len(name)) / 2
+    texttop = isizey - 6 - (6 * len(name)) // 2
     for n in name:
-        if len(n) > isizex / 6:
+        if len(n) > isizex // 6:
             text.charset("3x5.font")
             left = 50 - len(n) * 2
         else:
@@ -599,8 +607,8 @@ def iconner(in_path, name, logo=None, isizex=100, isizey=100):
         texttop = texttop + 6
     iconimage = text.getimage()
 
-    iconimage.paste(banner, ((isizex - banner.size[0]) / 2, 0))
-    iconimage.paste(thumb, ((isizex - thumb.size[0]) / 2, banner.size[1]))
+    iconimage.paste(banner, ((isizex - banner.size[0]) // 2, 0))
+    iconimage.paste(thumb, ((isizex - thumb.size[0]) // 2, banner.size[1]))
 
     # write out as png and job off the final conversion to netpbm.
     # doing this because I don't like how PIL disses GIFs.
@@ -632,18 +640,18 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 
     for f in fa:
         pipes = import_file(f[0]) + cut(f[3], f[4], f[5], f[6]) + resize(x=resize_x, y=resize_y)
-        outf = useful.pipe_chain(open(f[0]), pipes, verbose=verbose,
-                                 stderr=open('/dev/null', 'w'))
+        outf = useful.pipe_chain(open_input_file(pth), pipes, verbose=verbose,
+                                 stderr=open_write_dev_null())
         if verbose:
             useful.write_message('>', f[0] + '.pnm')
-        open(f[0] + '.pnm', 'w').write(outf)
+        open(f[0] + '.pnm', 'wb').write(outf)
         cat.append(f[0] + '.pnm')
-    outf = useful.pipe_chain(open('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
-                             stderr=open('/dev/null', 'w'))
+    outf = useful.pipe_chain(open_input_file(pth), [cat] + export_file(ofn), verbose=verbose,
+                             stderr=open_write_dev_null())
 
     if verbose:
         useful.write_message('>', ofn)
-    open(ofn, 'w').write(outf)
+    open(ofn, 'wb').write(outf)
 
     if not verbose:
         for f in fa:
@@ -1056,14 +1064,14 @@ def image_star(image_path, image_file, pic_id='', halfstar=False, target_x=400, 
         return 'fas', pic, 'yellow'
     ix, iy = img.size
     if target_x:
-        if ix < target_x / 2:
+        if ix < target_x // 2:
             return 'fas', pic, 'red'
         if ix < target_x:
             return 'fas', pic, 'green'
         if ix > target_x:
             return 'fas', pic, 'blue'
     else:
-        if iy < target_y / 2:
+        if iy < target_y // 2:
             return 'fas', pic, 'red'
         if iy < target_y:
             return 'fas', pic, 'green'
@@ -1112,7 +1120,7 @@ def simple_save(ofi, opth):
     if isinstance(ofi, Image.Image):
         ofi.save(opth)
     else:
-        open(opth, "w").write(ofi)
+        open(opth, "wb").write(ofi)
 
 
 def get_credit_file():

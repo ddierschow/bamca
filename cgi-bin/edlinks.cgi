@@ -1,7 +1,4 @@
 #!/usr/local/bin/python
-
-import sys
-sys.path.append("../bin")
-
-import tlinks   # noqa: E402
+import cgihook  # noqa: F401
+import tlinks
 tlinks.edit_links('editor', dbedit='am')

@@ -16,7 +16,7 @@ def print_users(pif):
     table_info = pif.dbh.table_info['user']
     entries = []
     for user in pif.dbh.fetch_users():
-        user['user_id'] = '<a href="user.cgi?id=%s">%s</a>' % (user.id, user.user_id)
+        user['user_id'] = '<a href="user.cgi?id={}">{}</a>'.format(user.id, user.user_id)
         flags = [x[1] for x in table_info.get('bits', {}).get('flags', []) if (user['flags'] & int(x[0], 16))]
         user['flags'] = '<br>'.join(flags)
         entries.append(user)
@@ -38,16 +38,15 @@ def print_user_form(pif, id):
     for col in table_info['columns']:
         title = table_info['title'][col]
         if col == 'id':
-            value = '<input type="hidden" name="id" value="%s"><div class="lefty">%s</div>' % (user[col], user[col])
+            value = '<input type="hidden" name="id" value="{}"><div class="lefty">{}</div>'.format(user[col], user[col])
             value += '<a href="user.cgi?delete=1&id={}">{}</a>'.format(
                 id, pif.render.format_button('delete', also={'style': 'float:right'}))
         elif col in table_info.get('bits', {}):
             value = pif.render.format_checkbox(col, table_info['bits'][col], useful.bit_list(user[col], format='%04x'))
         elif col == 'email':
-            value = '<input type="text" name="%s" value="%s" size=60>' % (col, user[col])
+            value = '<input type="text" name="{}" value="{}" size=60>'.format(col, user[col])
         else:
             value = pif.render.format_text_input(col, 80, value=user[col])
-            # value = '<input type="text" name="%s" value="%s">' % (col, user[col])
         entries.append({'title': title, 'value': value})
 
     lrange = dict(entry=entries, note='')
@@ -58,7 +57,7 @@ def print_user_form(pif, id):
         footer='{} -\n{} -\n{}</form>'.format(
             pif.render.format_button_input("save changes", "submit"),
             pif.render.format_button_reset("userform"),
-            pif.render.format_button("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id=%s" % id)))
+            pif.render.format_button("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id={}".format(id))))
     return pif.render.format_template('simplelistix.html', llineup=llineup)
 
 
@@ -203,7 +202,7 @@ def change_password_main(pif):
     else:
         user = pif.user
     if not user:
-        raise useful.SimpleError('That user record (%s) was not found.' % pif.user_id)
+        raise useful.SimpleError('That user record ({}) was not found.'.format(pif.user_id))
 
     if pif.is_allowed('a') and 'p1' in pif.form:
         user_id = pif.form.get_int('id')
@@ -357,7 +356,7 @@ def profile_main(pif):
     table_info = pif.dbh.table_info['user']
     user = pif.user
     if not user:
-        raise useful.SimpleError('That user record (%s) was not found.' % pif.user_id)
+        raise useful.SimpleError('That user record ({}) was not found.'.format(pif.user_id))
     if 'user_id' in pif.form:
         newuser = pif.dbh.fetch_user(user_id=pif.form.get_str('user_id'))
         if newuser and newuser.id != pif.form.get_int('id'):
@@ -384,7 +383,8 @@ def profile_main(pif):
     footer += pif.render.format_button_input() + "</form>"
     footer += pif.render.format_button('change password', '/cgi-bin/chpass.cgi')
     if user['photographer_id']:
-        footer += pif.render.format_button('your pictures', '/cgi-bin/photogs.cgi?id=%s' % user['photographer_id'])
+        footer += pif.render.format_button(
+            'your pictures', '/cgi-bin/photogs.cgi?id={}'.format(user['photographer_id']))
     lsection = dict(columns=['title', 'value'], range=[{'entry': entries}], note='',
                     noheaders=True, header=header, footer=footer)
     return pif.render.format_template(
@@ -406,10 +406,5 @@ cmds = [
 ]
 
 
-@basics.command_line
-def commands(pif):
-    useful.cmd_proc(pif, './busers.py', cmds)
-
-
 if __name__ == '__main__':  # pragma: no cover
-    commands(dbedit='')
+    basics.process_command_list(cmds=cmds)
