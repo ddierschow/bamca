@@ -154,7 +154,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     useful.write_message(url, '<br>')
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
-    print("Attempting upload...", url, '<br>')
+    useful.write_message("Attempting upload...", url, '<br>')
     try:
         up = requests.get(url).text
     except Exception as e:
