@@ -51,9 +51,9 @@ class BaseForm(object):
                 elif key.endswith('.y'):
                     if key[:-2] + '.x' not in cgi_form:
                         form[key] = field.value
-                elif 'filename' in field.__dict__:
+                elif hasattr(field, 'filename') and field.filename:
                     form[key + '.name'] = field.filename
-                    form[key] = field.value
+                    form[key] = field.file.read() if field.file else None
                 else:
                     form[key] = field.value
 

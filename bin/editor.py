@@ -35,7 +35,7 @@ def editor_start(pif):
 
 @basics.web_page
 def editor_main(pif):
-    pif.dbh.dbi.logger.info('form %s' % (str(pif.form.get_form())))
+    pif.dbh.dbi.logger.info('form {}'.format(pif.form.get_form()))
     pif.render.set_page_extra(pif.render.reset_button_js)
     pif.render.print_html()
     pif.restrict('a')
@@ -135,7 +135,7 @@ def show_single(pif, table_info, dats):
     for base_tab, base_rel in table_info.get('extends', {}).items():
         base_inf = pif.dbh.get_table_info(base_tab)
         base_rel = base_rel.split('/')
-        base_where = '%s="%s"' % (base_rel[1], dat[base_rel[0]])
+        base_where = '{}="{}"'.format(base_rel[1], dat[base_rel[0]])
         base_dats = pif.dbh.fetch(base_inf['name'], where=base_where, tag='ShowBaseTable', extras=True)
         if len(base_dats) > 1:
             pif.render.message('multiple instances of', base_tab, '!')
@@ -149,9 +149,9 @@ def show_single(pif, table_info, dats):
     header += '<form action="/cgi-bin/editor.cgi">\n'
     header += pif.create_token()
     header += '<input type="hidden" name="verbose" value="1">\n'
-    header += '<input type="hidden" name="table" value="%s">\n' % table_info['name']
+    header += '<input type="hidden" name="table" value="{}">\n'.format(table_info['name'])
     for f in table_info['id']:
-        header += '<input type="hidden" name="o_%s" value="%s">\n' % (f, dat.get(f, ''))
+        header += '<input type="hidden" name="o_{}" value="{}">\n'.format(f, dat.get(f, ''))
 
     columns = ['column', 'type', 'value', 'new value']
     entries = []
@@ -170,7 +170,7 @@ def show_single(pif, table_info, dats):
         # tinyint(N)
         # varchar(N)
         if col in table_info.get('readonly', []):
-            newvalue = '&nbsp;<input type=hidden name="%s" value="%s">' % (col, dat.get(col, ''))
+            newvalue = '&nbsp;<input type=hidden name="{}" value="{}">'.format(col, dat.get(col, ''))
         elif col in table_info.get('bits', {}):
             newvalue = pif.render.format_checkbox(
                 col, table_info['bits'][col], useful.bit_list(oldvalue, format='%04x'))
@@ -333,16 +333,16 @@ def make_cond(clinks, dat):
 
 def make_url_cond(clinks, dat):
     cond = make_cond(clinks, dat)
-    return '&'.join(['%s=%s' % x for x in cond.items()])
+    return '&'.join(['{}={}'.format(*x) for x in cond.items()])
 
 
 def make_col_value(table_info, col, dat):
     val = dat.get(col, '')
     if col in table_info.get('id', []):
-        return '<a href="?table=%s&%s">%s</a>' % (table_info['name'], make_url_cond(table_info['id'], dat), val)
+        return '<a href="?table={}&{}">{}</a>'.format(table_info['name'], make_url_cond(table_info['id'], dat), val)
     elif col in table_info.get('clinks', {}):
-        return '<a href="?table=%s&%s">%s</a>' % (table_info['clinks'][col]['tab'],
-                                                  make_url_cond(table_info['clinks'][col]['id'], dat), val)
+        return '<a href="?table={}&{}">{}</a>'.format(table_info['clinks'][col]['tab'],
+                                                      make_url_cond(table_info['clinks'][col]['id'], dat), val)
     return val
 
 
@@ -357,7 +357,7 @@ def show_multi_section(pif, table_info, dats, cols=None):
 
     header = ''  # '<b>' + table_info['name'] + '</b>\n'
     header += pif.render.format_button('show all', "?table=" + table_info['name'])
-    header += '\n%s entries\n' % len(entries)
+    header += '\n{} entries\n'.format(len(entries))
 
     lsection = {
         'columns': columns, 'note': '', 'header': header, 'footer': '<hr>\n',

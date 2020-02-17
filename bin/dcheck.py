@@ -35,12 +35,12 @@ def check_schema(pif):
 
 
 def check_schema_db(pif, db):
-    tablelist = pif.dbh.dbi.execute('show tables in %s' % db)
+    tablelist = pif.dbh.dbi.execute('show tables in {}'.format(db))
     for table in tablelist[0]:
         table = table[0]
         print(db, table, ':',)
         if table in pif.dbh.table_info:
-            desc = pif.dbh.dbi.execute('desc %s.%s' % (db, table))
+            desc = pif.dbh.dbi.execute('desc {}.{}'.format(db, table))
             dbcols = set([x[0] for x in desc[0]])
             ticols = set(pif.dbh.table_info[table]['columns'] + pif.dbh.table_info[table].get('extra_columns', []))
             if dbcols != ticols:
@@ -190,11 +190,12 @@ def check_attribute_pictures(pif, *filelist):
         pics = pif.dbh.fetch_attribute_pictures_by_type(pref)
         for pic in pics:
             if pic['attribute_picture.picture_id']:
-                pic_name = '%s_%s-%s.jpg' % (pic['attribute_picture.attr_type'],
-                                             pic['attribute_picture.mod_id'].lower(),
-                                             pic['attribute_picture.picture_id'])
+                pic_name = '{}_{}-{}.jpg'.format(pic['attribute_picture.attr_type'],
+                                                 pic['attribute_picture.mod_id'].lower(),
+                                                 pic['attribute_picture.picture_id'])
             else:
-                pic_name = '%s_%s.jpg' % (pic['attribute_picture.attr_type'], pic['attribute_picture.mod_id'].lower())
+                pic_name = '{}_{}.jpg'.format(
+                    pic['attribute_picture.attr_type'], pic['attribute_picture.mod_id'].lower())
             if pic_name in fl:
                 fl.remove(pic_name)
             else:
@@ -393,7 +394,7 @@ def check_var_vs_categories(pif):
 
 def cat2matrix(pif, cat, page_id):
     # id base_id section_id display_order page_id range_id mod_id flags shown_id name subname description
-    wheres = ["vs.mod_id=v.mod_id", "vs.var_id=v.var", "v.mod_id=b.id", "vs.category='%s'" % cat]
+    wheres = ["vs.mod_id=v.mod_id", "vs.var_id=v.var", "v.mod_id=b.id", "vs.category='{}'".format(cat)]
     seen = set()
     print("base_id|section_id|display_order|page_id|range_id|mod_id|flags|shown_id|name|subname|description")
     fmt = "%s|%s|%2s|%s|%2s|%s|%s|%s|%s|%s|%s"

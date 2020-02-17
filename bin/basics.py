@@ -23,6 +23,14 @@ import useful
 
 config.GURU_ID = ''.join(random.choice('0123456789ABCDEFGHJKLMNPRSTUVWXYZ') for i in range(10))
 
+tb_fmt = """headline = '''{}'''
+guru_id = '{}'
+uri = '''{}'''
+tb = '''
+{}
+'''
+env = {}
+"""
 
 # --- Web Pages ---------------------------------------------------------
 
@@ -41,12 +49,10 @@ def write_traceback_file(pif, e):
     else:
         tb_file_name += 'unknown'
     erf = open(tb_file_name, 'w')
-    erf.write("headline = '''%s'''\n" %
-              ' '.join([x.strip() for x in traceback.format_exception_only(type(e), e)]))
-    erf.write("guru_id = '%s'\n" % config.GURU_ID)
-    erf.write("uri = '''%s'''\n" % os.environ.get('REQUEST_URI', ''))
-    erf.write("tb = '''\n" + str_tb + "\n'''\n")
-    erf.write("env = " + pprint.pformat(os.environ, indent=2, width=132) + "\n")
+    erf.write(tb_fmt.format(' '.join([x.strip() for x in traceback.format_exception_only(type(e), e)]),
+              config.GURU_ID, os.environ.get('REQUEST_URI', ''), str_tb,
+              pprint.pformat(os.environ, indent=2, width=132)))
+
     if pif:
         erf.write(pif.error_report())
     erf.close()
@@ -63,7 +69,7 @@ def simple_html(status=404):
 
 
 def handle_exception(pif, e, header_done=False, write_traceback=True):
-    logger.Logger().exc.error('%s %s' % (
+    logger.Logger().exc.error('{} {}'.format(
         os.environ.get('REMOTE_ADDR', '127.0.0.1'),
         os.environ.get('REQUEST_URI', 'unknown')))
     str_tb = write_traceback_file(pif, e) if write_traceback else ''
@@ -99,12 +105,12 @@ def log_page_call(pif):
     if pif and (pif.argv or pif.is_allowed('m')):
         return  # it's me!  it's ME!
     if os.getenv('HTTP_USER_AGENT', '') in crawls.crawlers:
-        logger.Logger().bot.info('%s %s' % (pif.remote_addr, pif.request_uri))
+        logger.Logger().bot.info('{} {}'.format(pif.remote_addr, pif.request_uri))
         return
     if pif:
         pif.dbh.increment_counter(pif.page_id)
         pif.log.count.info(pif.page_id)
-        pif.log.url.info('%s %s' % (pif.remote_addr, pif.request_uri))
+        pif.log.url.info('{} {}'.format(pif.remote_addr, pif.request_uri))
         if os.getenv('HTTP_USER_AGENT'):
             pif.log.debug.info(os.getenv('HTTP_USER_AGENT'))
         if pif.is_external_referrer():

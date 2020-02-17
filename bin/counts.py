@@ -46,7 +46,7 @@ def count_combo_one_only(pdir, prefs, roots, suffs):
         for pref in prefs:
             for suff in suffs:
                 for ext in imglib.otypes:
-                    fl = glob.glob('./%s/%s%s%s.%s' % (pdir, pref, root, suff, ext))
+                    fl = glob.glob('./{}/{}{}{}.{}'.format(pdir, pref, root, suff, ext))
                     for fn in fl:
                         if os.path.exists(fn):
                             count += 1
@@ -71,7 +71,7 @@ def count_combo(pdir, prefs, roots, suffs):
         for pref in prefs:
             for suff in suffs:
                 for ext in imglib.otypes:
-                    fl = glob.glob('./%s/%s%s%s.%s' % (pdir, pref + '_' if pref else '', root, suff, ext))
+                    fl = glob.glob('./{}/{}{}{}.{}'.format(pdir, pref + '_' if pref else '', root, suff, ext))
                     for fn in fl:
                         if os.path.exists(fn):
                             count += 1
@@ -162,7 +162,7 @@ def count_var(pif):
         var_id = var['variation.var']
         if var['variation.picture_id']:
             var_id = var['variation.picture_id']
-        recs.append('%s-%s' % (var['variation.mod_id'].lower(), var_id.lower()))
+        recs.append('{}-{}'.format(var['variation.mod_id'].lower(), var_id.lower()))
     count = 0
     count += count_combo(config.IMG_DIR_MAN + '/var', [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM], recs, [''])
     return count
@@ -180,7 +180,7 @@ def count_from_file(fpath, tag, fld, pdir):
         lns = ln.strip().split('|')
         if lns and lns[0] == tag:
             pr_count += 1
-            if os.path.exists('%s/%s.jpg' % (pdir, lns[fld])):
+            if os.path.exists('{}/{}.jpg'.format(pdir, lns[fld])):
                 im_count += 1
     report(fpath, im_count, pr_count)
     return im_count

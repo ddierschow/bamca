@@ -498,7 +498,7 @@ of Matchbox International Ltd. and are used with permission.
         if nstyle:
             ostr += '<span' + useful.fmt_also(nstyle) + '>'
         if args:
-            args = "&".join([x + '=' + args[x] for x in args])
+            args = "&".join(['{}={}'.format(x, args[x]) for x in args])
             if '?' in url:
                 url += '&' + args
             else:

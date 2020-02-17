@@ -49,7 +49,7 @@ def format_mack_text(pif, amods):
 
     for mtype, mranks in sorted(bmods.items()):
         for mrank, mfiles in sorted(mranks.items()):
-            res.append({'id': '<b>%s<b>' % mrank})
+            res.append({'id': '<b>{}<b>'.format(mrank)})
             mmods = bmods[mtype][mrank]
             for mfile in files[files.index(min(mmods)):files.index(max(mmods)) + 1]:
                 ent = {
@@ -99,7 +99,7 @@ def format_mack_html(pif, amods):
 
 @basics.web_page
 def mack_lineup(pif):
-    pif.render.set_button_comment(pif, 'rg=%s&sec=%s&start=%s&end=%s' % (
+    pif.render.set_button_comment(pif, 'rg={}&sec={}&start={}&end={}'.format(
         pif.form.get_str('region', ''), pif.form.get_str('sect', ''),
         pif.form.get_str('start', ''), pif.form.get_str('end', '')))
     pif.render.hierarchy_append('/', 'Home')
@@ -119,7 +119,7 @@ def mack_lineup(pif):
     if not ranges:
         note = 'Your request produced no models.'
         if start > config.MAX_MACK_NUMBER:
-            note += '  Be sure to use numbers from 1 to %d.' % config.MAX_MACK_NUMBER
+            note += '  Be sure to use numbers from 1 to {}.'.format(config.MAX_MACK_NUMBER)
         if start > end:
             note += "  Use a start number that isn't higher than the end number."
         raise useful.SimpleError(note)
