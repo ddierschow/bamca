@@ -52,7 +52,7 @@ class DB(object):
             query = query.split(None, 1) + ['']
             query = query[0] + ' /* ' + tag + ' */ ' + query[1]
         if verbose:
-            useful.write_comment('DB.execute q : "%s"' % query)
+            useful.write_comment('DB.execute q : "{}"'.format(query))
             if args:
                 if logargs:
                     useful.write_comment('     args :', args)
@@ -60,17 +60,8 @@ class DB(object):
                     useful.write_comment('     args :', len(args), 'redacted')
             sys.stdout.flush()
         if self.logger:
-            # log_name = os.path.join(config.LOG_ROOT, config.ENV + datetime.datetime.now().strftime('.dbq%Y%m.log'))
-            # try:
-            #     open(log_name, 'a').write('%s %s%s %s %s\n' %
-            #                               (datetime.datetime.now().strftime('%Y%m%d.%H%M%S'), '/*mock*/'
-            #                                if self.nowrites else '',
-            #                                self.user_id, os.environ.get('REMOTE_ADDR', ''), query))
-            # except Exception:
-            #     pass
-            self.logger.info('q %s%s %s' %
-                             ('/*mock*/ ' if self.nowrites else '',
-                              os.environ.get('REMOTE_ADDR', ''), query))
+            self.logger.info('q {}{} {}'.format(
+                '/*mock*/ ' if self.nowrites else '', os.environ.get('REMOTE_ADDR', ''), query))
             if args:
                 if logargs:
                     self.logger.info('     args : %s', args)

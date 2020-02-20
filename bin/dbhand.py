@@ -61,11 +61,11 @@ class DBHandler(object):
 
     def get_editor_link(self, table, args):
         table_info = self.get_table_info(table)
-        url = '/cgi-bin/editor.cgi?table=%s' % table
+        url = '/cgi-bin/editor.cgi?table={}'.format(table)
         if table_info:
             for key in args:
                 if key in table_info['columns']:
-                    url += '&%s=%s' % (key, args[key])
+                    url += '&{}={}'.format(key, args[key])
         return url
 
     def table_cols(self, table):
@@ -130,7 +130,7 @@ class DBHandler(object):
         table_name = [self.make_tablename(x) for x in table_name]
         table_name = ','.join(table_name)
         if left_joins:
-            table_name = '(%s)' % table_name
+            table_name = '({})'.format(table_name)
             for lj in left_joins:
                 # do make_tablename on lj[0]
                 table_name += ' left join %s on (%s)' % tuple(lj)
@@ -144,9 +144,9 @@ class DBHandler(object):
             elif len(limit) == 1:
                 limit = str(limit[0])
             elif limit[1] == -1:
-                limit = '%d,%d' % (limit[0], 99999999)
+                limit = '{},{}'.format(limit[0], 99999999)
             else:
-                limit = '%d,%d' % limit
+                limit = '{},{}'.format(limit)
         results = self.dbi.select(table_name, cols=columns, args=args, where=where, group=group, order=order,
                                   distinct=distinct, limit=limit, logargs=logargs, tag=tag, verbose=verbose,
                                   outcols=outcols)
@@ -216,7 +216,7 @@ class DBHandler(object):
         # update table set flags = flags & ~turn_off | turn_on where
         return self.dbi.updateraw(
             table_name,
-            {'flags': 'flags & ~%d | %d' % (turn_off, turn_on)}, where, tag=tag, verbose=verbose)
+            {'flags': 'flags & ~{} | {}'.format(turn_off, turn_on)}, where, tag=tag, verbose=verbose)
 
     # end dbi interface section
 
@@ -257,9 +257,9 @@ class DBHandler(object):
         return tables.Results('section', self.fetch('section', where=wheres, tag='Section', verbose=verbose)).first
 
     def fetch_sections_by_page_type(self, page_type, sec_id=None, verbose=False):
-        where = 'section.page_id=page_info.id and page_info.format_type="%s"' % page_type
+        where = 'section.page_id=page_info.id and page_info.format_type="{}"'.format(page_type)
         if sec_id:
-            where += ' and section.id="%s"' % sec_id
+            where += ' and section.id="{}"'.format(sec_id)
         secs = self.fetch('section,page_info', where=where, order='display_order', tag='SectionByPageType',
                           verbose=verbose)
         return tables.Results('section', secs)
@@ -276,15 +276,15 @@ class DBHandler(object):
         return tables.Results('base_id', self.fetch('base_id', tag='BaseIDs'))
 
     def fetch_base_id(self, id):
-        return tables.Results('base_id', self.fetch('base_id', where="id='%s'" % id, tag='BaseID')).first
+        return tables.Results('base_id', self.fetch('base_id', where="id='{}'".format(id), tag='BaseID')).first
 
     def fetch_base_id_model_types(self):
         return tables.Results('base_id', self.fetch('base_id', columns=['model_type'], group='model_type',
                               order='model_type', tag='BaseIdModelType'))
 
     def rename_base_id(self, old_mod_id, new_mod_id):
-        self.write('base_id', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
-        self.write('casting', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
+        self.write('base_id', values={'id': new_mod_id}, where="id='{}'".format(old_mod_id), modonly=True)
+        self.write('casting', values={'id': new_mod_id}, where="id='{}'".format(old_mod_id), modonly=True)
         self.write('pack', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
         self.write('publication', values={'id': new_mod_id}, where="id='%s'" % old_mod_id, modonly=True)
         self.write('alias', values={'ref_id': new_mod_id}, where="ref_id='%s'" % old_mod_id, modonly=True)
@@ -347,7 +347,7 @@ class DBHandler(object):
     def fetch_castings_by_alias(self, alias_id):
         wheres = ["base_id.id=casting.id", "casting.id=alias.ref_id", "alias.id='%s'" % alias_id,
                   'casting.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
-# "casting.id=alias.ref_id and alias.id='%s'" % id
+        # "casting.id=alias.ref_id and alias.id='%s'" % id
         return self.fetch('base_id,alias,casting,section,page_info', where=wheres,
                           left_joins=[('vehicle_make', 'casting.make=vehicle_make.id')], tag='CastingsByAlias')
 

@@ -431,7 +431,7 @@ def file_copy(src, dst, trash=False):  # pragma: no cover
     if not trash:
         warn("copy", src, dst)
     try:
-        open(dst, 'w').write(open(src).read())
+        open(dst, 'wb').write(open(src, 'rb').read())
     except Exception as e:
         if not trash:
             warn("- failed -", e)
@@ -494,13 +494,17 @@ def file_save(pdir, fn, contents, overwrite=False):
                 addon += 1
             root += '_' + str(addon)
     fn = root + '.' + ext
-    open(pdir + '/' + fn, 'w').write(contents)
+    open(pdir + '/' + fn, 'wb' if isinstance(contents, bytes) else 'w').write(contents)
     return fn
 
 
 def show_error():
     import traceback
+    if _format_web:
+        print('<pre>')
     print(traceback.format_exc())
+    if _format_web:
+        print('</pre>')
 
 
 # File-level globals.  Not to be imported by any other file.
@@ -620,9 +624,10 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
         if verbose:
             write_message(ch, ' '.join(cmd), nonl=True)
         ch = '|'
-        procs.append(subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr, text=True))
+        procs.append(subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr))
+        # , text=True
         inp = procs[-1].stdout
-    output = ''
+    output = b''
     while True:
         o, e = procs[-1].communicate()
         output += o

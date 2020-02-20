@@ -154,7 +154,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     useful.write_message(url, '<br>')
     # mass_upload doesn't know the filename.
     upload_log(url, pdir)
-    print("Attempting upload...", url, '<br>')
+    useful.write_message("Attempting upload...", url, '<br>')
     try:
         up = requests.get(url).text
     except Exception as e:
@@ -196,9 +196,9 @@ class UploadForm(object):
         presets = imglib.read_presets(self.tdir)
         presets['cc'] = self.cc = pif.form.get_str('cc', presets.get('cc', ''))
         imglib.write_presets(self.tdir, presets)
-        self.fimage = pif.form.get_str('fi')
+        self.fimage = pif.form.get('fi')
         self.fname = pif.form.get_str('fi.name')
-        self.url_list = filter(None, [x.strip() for x in pif.form.get_str('ul').split('\n')])
+        self.url_list = [x.strip() for x in pif.form.get_str('ul').split('\n') if x]
         self.url = pif.form.get_str('u')
         self.urlfn = self.url[self.url.rfind('/') + 1:].lower() if self.url else ''
         if pif.form.get_str('n'):

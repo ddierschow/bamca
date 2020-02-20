@@ -53,7 +53,7 @@ class ArgList(object):
         return self.llist.__getitem__(s)
 
     def __str__(self):
-        return str(self.llist) + ' (+%d)' % self.curarg
+        return '{} (+{})'.format(self.llist, self.curarg)
 
 
 class ArgFile(object):

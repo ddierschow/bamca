@@ -81,7 +81,7 @@ database.  This work completed in 2010.
 There are still some old pages that run off of text files, but
 almost everything that has to do with 3-inch models is in the DB.
 <p>
-We also added a <a href="https://www.facebook.com/Bay-Area-Matchbox-Collectors-Association-BAMCA-106213056100271/">FaseBook page</a>.  Feel free to "like" it!
+We also added a <a href="https://www.facebook.com/Bay-Area-Matchbox-Collectors-Association-BAMCA-106213056100271/">FaceBook page</a>.  Feel free to "like" it!
 </td>
 </tr>
 
