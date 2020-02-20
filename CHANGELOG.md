@@ -1,4 +1,4 @@
-### 7.0 - unreleased
+### 7.0 - 2020-02-19
 
 - Python3!
 - flake8 compliant (see .flake8 file)
