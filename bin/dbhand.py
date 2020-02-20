@@ -141,12 +141,14 @@ class DBHandler(object):
         if limit:
             if isinstance(limit, int):
                 limit = str(limit)
+            elif isinstance(limit, str):
+                pass
             elif len(limit) == 1:
                 limit = str(limit[0])
             elif limit[1] == -1:
                 limit = '{},{}'.format(limit[0], 99999999)
             else:
-                limit = '{},{}'.format(limit)
+                limit = '{},{}'.format(*limit)
         results = self.dbi.select(table_name, cols=columns, args=args, where=where, group=group, order=order,
                                   distinct=distinct, limit=limit, logargs=logargs, tag=tag, verbose=verbose,
                                   outcols=outcols)
