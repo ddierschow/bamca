@@ -714,7 +714,7 @@ class MannoFile(object):
         return ret
 
     def run_man2csv_out(self, pif):
-        out_file = StringIO.StringIO()
+        out_file = StringIO()
         field_names = ["MAN #", "Mack #", "Year", "Scale", "Name", "Notes"]
         writer = csv.DictWriter(out_file, fieldnames=field_names)
         writer.writeheader()

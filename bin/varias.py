@@ -1281,7 +1281,7 @@ def do_model_json(pif, model, vsform, dvars, photogs):
 
 
 def do_model_csv(pif, model, vsform, dvars, photogs):
-    out_file = StringIO.StringIO()
+    out_file = StringIO()
     field_names = (['id'] + text_attributes + detail_attributes + [x['attribute_name'] for x in vsform.attr_recs] +
                    base_attributes + note_attributes + ['categories'])
     writer = csv.DictWriter(out_file, fieldnames=field_names)
