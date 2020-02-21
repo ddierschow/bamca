@@ -225,7 +225,7 @@ class BaseForm(object):
 class PageInfoFile(object):
     def __init__(self, page_id, form_key='', defval='', args='', dbedit=None):
         self.start_seconds = time.time()
-        self.render = self.dbh = None
+        self.render = self.dbh = self.log = None
         self.secure = secure.Security()
         self.htdocs = self.secure.docroot
         config.IS_ALPHA = self.secure.is_alpha
@@ -335,7 +335,7 @@ class PageInfoFile(object):
             else:
                 self.dbh.increment_counter(self.page_id)
                 self.log.count.info(self.page_id)
-                self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
+                # self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
                 if os.getenv('HTTP_USER_AGENT'):
                     self.log.debug.info(os.getenv('HTTP_USER_AGENT'))
                 refer = os.environ.get('HTTP_REFERER', '')

@@ -9,12 +9,17 @@ import config
 
 # you were looking for pretty?  hah.
 
+single_format = '%(asctime)s [%(process)d] %(levelname)s %(user_id)s %(guru)s - %(message)s'
+serious_format = '%(asctime)s [%(process)d] %(levelname)s %(user_id)s %(guru)s %(filename)s:%(lineno)d - %(message)s'
+informational_format = '%(asctime)s %(levelname)s %(user_id)s %(guru)s - %(message)s'
+
 
 class UserIDFilter(logging.Filter):
     '''Ram the user id into each and every log message.  Just cuz.'''
 
     def filter(self, record):
         record.user_id = config.USER_ID
+        record.guru = config.GURU_ID
         return True
 
 
@@ -32,16 +37,15 @@ class Logger(object):
             },
             'formatters': {
                 'single': {
-                    'format': '%(asctime)s [%(process)d] %(levelname)s %(user_id)s - %(message)s',
+                    'format': single_format,
                     'style': '%',
                 },
                 'serious': {
-                    'format':
-                        '%(asctime)s [%(process)d] %(levelname)s %(user_id)s %(filename)s:%(lineno)d - %(message)s',
+                    'format': serious_format,
                     'style': '%',
                 },
                 'informational': {
-                    'format': '%(asctime)s %(levelname)s %(user_id)s - %(message)s',
+                    'format': informational_format,
                     'style': '%',
                 },
             },

@@ -467,8 +467,8 @@ img_re = re.compile(r'src="(?P<u>[^"]*)"')
 def show_single(pif):
     model = pif.dbh.fetch_casting(pif.form.get_id('id'), extras=True, verbose=True)
     if not model:
-        raise useful.SimpleError("That ID wasn't found.")
-    pif.render.print_html(status=404 if not model else 200)
+        raise useful.SimpleError("That ID wasn't found.", status=404)
+    pif.render.print_html()
     # useful.write_comment('model', model)
     pic = pif.form.get_str('pic')
     pdir = pif.form.get_dir('dir')

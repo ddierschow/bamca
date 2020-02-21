@@ -68,12 +68,13 @@ def simple_html(status=404):
     useful.write_comment()
 
 
-def handle_exception(pif, e, header_done=False, write_traceback=True):
-    logger.Logger().exc.error('{} {}'.format(
+def handle_exception(pif, e, header_done=False, write_traceback=True, status_code='unset'):
+    log = pif.log if pif and pif.log else logger.Logger()
+    log.exc.error('{} {}'.format(
         os.environ.get('REMOTE_ADDR', '127.0.0.1'),
         os.environ.get('REQUEST_URI', 'unknown')))
     str_tb = write_traceback_file(pif, e) if write_traceback else ''
-    log_page_call(pif)
+    log_page_call(pif, status_code=status_code)
     if not pif or not pif.render or not pif.dbh:
         if not header_done:
             simple_html()
@@ -95,28 +96,30 @@ def handle_exception(pif, e, header_done=False, write_traceback=True):
 def final_exit():
     print("<p><h3>An error has occurred that prevents this page from displaying.  Our apologies.<br>")
     print("An alert has been sent and the problem will be fixed as soon as possible.</h3>")
-#    print("<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>")
-#    print("We'll get things going as soon as possible.")
+    # print("<p>We're doing some upgrades, and right now, not everything is playing nicely together.<br>")
+    # print("We'll get things going as soon as possible.")
     print('<p><p>Guru Meditation ID: {}'.format(config.GURU_ID))
     sys.exit()
 
 
-def log_page_call(pif):
+def log_page_call(pif, status_code='unset'):
     if pif and (pif.argv or pif.is_allowed('m')):
         return  # it's me!  it's ME!
+    status_code = pif.render.status_printed if pif and pif.render else status_code
+    log = pif.log if pif and pif.log else logger.Logger()
     if os.getenv('HTTP_USER_AGENT', '') in crawls.crawlers:
-        logger.Logger().bot.info('{} {}'.format(pif.remote_addr, pif.request_uri))
+        log.bot.info('{} {} {}'.format(os.environ.get('REMOTE_ADDR', '127.0.0.1'),
+                                       os.environ.get('REQUEST_URI', 'unknown'), status_code))
         return
     if pif:
         pif.dbh.increment_counter(pif.page_id)
-        pif.log.count.info(pif.page_id)
-        pif.log.url.info('{} {}'.format(pif.remote_addr, pif.request_uri))
-        if os.getenv('HTTP_USER_AGENT'):
-            pif.log.debug.info(os.getenv('HTTP_USER_AGENT'))
+        log.count.info(pif.page_id)
         if pif.is_external_referrer():
-            pif.log.refer.info(os.environ['HTTP_REFERER'])
-    else:
-        pass  # do something
+            log.refer.info(os.environ['HTTP_REFERER'])
+    log.url.info('{} {} {}'.format(os.environ.get('REMOTE_ADDR', '127.0.0.1'),
+                                   os.environ.get('REQUEST_URI', 'unknown'), status_code))
+    if os.getenv('HTTP_USER_AGENT'):
+        log.debug.info(os.getenv('HTTP_USER_AGENT'))
 
 
 # --- Command Lines -----------------------------------------------------
@@ -261,6 +264,7 @@ def web_page(main_fn):
     @functools.wraps(main_fn)
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
         useful.write_comment('PID', os.getpid(), 'GURU', config.GURU_ID)
+        status_code = 'unset'
         pif = None
         try:
             pif = (page_id if isinstance(page_id, pifile.PageInfoFile) else
@@ -268,14 +272,16 @@ def web_page(main_fn):
         except SystemExit:
             pass
         except pymysql.OperationalError as e:
+            status_code = 'db'
             simple_html()
             print('The database is currently down, and thus, this page is unable to be shown.<p>')
             write_traceback_file(pif, e)
-            handle_exception(pif, e, True)
+            handle_exception(pif, e, True, status_code=status_code)
             return
         except Exception as e:
+            status_code = 'exc'
             simple_html()
-            handle_exception(pif, e)
+            handle_exception(pif, e, status_code=status_code)
             return
 
         pif.start()
@@ -293,25 +299,30 @@ def web_page(main_fn):
                 print(ret)
         except SystemExit:
             pass  # the happiest exception on earth
+            status_code = 'exit'
         except useful.SimpleError as e:
             if not useful.is_header_done():
+                status_code = e.status
                 pif.render.print_html(status=e.status)
             print(pif.render.format_template('error.html', error=[e.value]))
         except useful.Redirect as e:
             if not useful.is_header_done():
+                status_code = 302
                 pif.render.print_html(status=302)
             print(pif.render.format_template('forward.html', url=e.value, delay=e.delay))
         except pymysql.OperationalError as e:
             if not useful.is_header_done():
+                status_code = 500
                 pif.render.print_html(status=500)
             print('The database is currently down, and thus, this page is unable to be shown.<p>')
             write_traceback_file(pif, e)
         except Exception as e:
-            handle_exception(pif, e)
+            status_code = 'exc'
+            handle_exception(pif, e, status_code=status_code)
             raise
         useful.header_done(True)
         useful.write_comment()
-        log_page_call(pif)
+        log_page_call(pif, status_code=status_code)
     return call_main
 
 

@@ -67,6 +67,7 @@ class Presentation(object):
         self.footer = ''
         self.bamcamark = mbdata.bamcamark()
         self.filename = 'matchbox.csv'
+        self.status_printed = 'unset'
         # if self.verbose:
         #     import datetime
         #     self.dump_file = open(os.path.join(config.LOG_ROOT,
@@ -273,6 +274,7 @@ class Presentation(object):
                 print("Content-Description: File Transfer\nContent-Disposition: attachment; "
                       "filename=%s\nExpires: 0" % self.filename)
             print('Status:', status, http.client.responses.get(status, ''))
+            self.status_printed = status
             # useful.html_done = True
             self.print_cookie()
             print()

@@ -107,8 +107,8 @@ def open_write_dev_null():
 
 def get_size(fn):
     try:
-        p = useful.pipe_chain(open_input_file(fn), import_file(fn) + [["/usr/local/bin/pamfile"]], stderr=subprocess.PIPE,
-                              verbose=False)
+        p = useful.pipe_chain(open_input_file(fn), import_file(fn) + [["/usr/local/bin/pamfile"]],
+                              stderr=subprocess.PIPE, verbose=False)
     except IOError:
         raise useful.SimpleError('Could not read ' + fn)
     # print('get_size', p)
@@ -130,7 +130,7 @@ def pipe_convert(src, dst, verbose=False):
     if src == dst:
         return open_input_file(src).read()
     ctypes = import_file(src) + export_file(dst)
-    return useful.pipe_chain(open_input_file(pth), ctypes, stderr=open_write_dev_null(), verbose=verbose)
+    return useful.pipe_chain(open_input_file(src), ctypes, stderr=open_write_dev_null(), verbose=verbose)
 
 
 def import_file(fn):
@@ -640,13 +640,13 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 
     for f in fa:
         pipes = import_file(f[0]) + cut(f[3], f[4], f[5], f[6]) + resize(x=resize_x, y=resize_y)
-        outf = useful.pipe_chain(open_input_file(pth), pipes, verbose=verbose,
+        outf = useful.pipe_chain(open_input_file(f[0]), pipes, verbose=verbose,
                                  stderr=open_write_dev_null())
         if verbose:
             useful.write_message('>', f[0] + '.pnm')
         open(f[0] + '.pnm', 'wb').write(outf)
         cat.append(f[0] + '.pnm')
-    outf = useful.pipe_chain(open_input_file(pth), [cat] + export_file(ofn), verbose=verbose,
+    outf = useful.pipe_chain(open_input_file('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
                              stderr=open_write_dev_null())
 
     if verbose:
