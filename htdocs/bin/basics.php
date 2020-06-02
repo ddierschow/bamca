@@ -53,7 +53,8 @@ function CheckID($pif) {
 }
 
 function DBConnect($pif) {
-    $dbi = mysqli_connect('localhost', $pif['dbuser'], $pif['dbpass'], $pif['dbname']);
+    //$dbi = mysqli_connect('localhost', $pif['dbuser'], $pif['dbpass'], $pif['dbname']);
+    $dbi = mysqli_connect('', $pif['dbuser'], $pif['dbpass'], $pif['dbname'], 0, '/var/run/mysql/mysql.sock');
     if ($dbi->connect_error) {
 	echo 'Connect Error (' . $dbi->connect_errno . ') ' . $dbi->connect_error;
 	return 0;
