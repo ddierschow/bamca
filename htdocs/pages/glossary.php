@@ -190,7 +190,7 @@ individuals or organization.</dt>
 <dt>Short Card</dt>
 <dd>Descriptive term for the shorter cards used in the ROW markets</dd>
 <dt>Superfast</dt>
-<dd>Subset of Matchbox used at various times in the history of the brand begining with the introduction of the Superfast wheels in 1969/1970</dd>
+<dd>Subset of Matchbox used at various times in the history of the brand beginning with the introduction of the Superfast wheels in 1969/1970</dd>
 <dt>Superfast Wheels</dt>
 <dd>A new style of faster rolling wheels introduced in 1969/1970 to counteract the introduction of Hot Wheels cars</dd>
 </dl>

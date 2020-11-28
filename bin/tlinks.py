@@ -4,6 +4,7 @@ from sprint import sprint as print
 from io import open
 import os
 import urllib
+import urllib.error
 
 import basics
 import config
