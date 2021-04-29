@@ -6,6 +6,7 @@ from sprint import sprint as print
 import cgi
 import copy
 import glob
+import html
 import http.client
 import os
 import re
@@ -567,14 +568,14 @@ of Matchbox International Ltd. and are used with permission.
         value = value or ''
         # showlengh = min(maxlength, showlength)
         return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s"%s%s>\n' % (
-            name, min(showlength, maxlength), maxlength, cgi.escape(str(value), True), useful.fmt_also(also),
+            name, min(showlength, maxlength), maxlength, html.escape(str(value), True), useful.fmt_also(also),
             (' id="%s"' % id) if id else '')
 
     def format_textarea_input(self, name, showlength=128, showheight=4, value=''):
         if not value:
             value = ''
         return '<textarea name="%s" cols="%d" rows="%d">%s</textarea>\n' % (
-            name, showlength, showheight, cgi.escape(str(value), True))
+            name, showlength, showheight, html.escape(str(value), True))
 
     def format_password_input(self, name, maxlength=80, showlength=24, value=''):
         return '<input name="%s" type="text" size="%d" maxlength="%d" value="%s">\n' % (
