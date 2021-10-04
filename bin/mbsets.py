@@ -116,9 +116,9 @@ def print_table(pif, db, setfile):
             if field == 'desc':
                 entries.append({'style': ifield, 'text': mod_desc(model.get(field, ''))})
             elif field == 'fulldesc':
-                entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': db['ncols']})
+                entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': int(db['ncols'])})
             elif field == 'insetdesc':
-                entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': db['ncols'] - 1})
+                entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': int(db['ncols']) - 1})
             elif field == 'num':
                 modnums = [mod_num(prefix, modnum, model.get('rank')) for modnum in model.get(field, '').split(';')]
                 entries.append({'style': ifield,
@@ -133,7 +133,7 @@ def print_table(pif, db, setfile):
                     'rowspan': rowspan})
             elif field == 'fullpic':
                 modnum = model.get('num', '').split(';')
-                colspan = 2 if 'insetdesc' in db['header'] else repr(db['ncols'])
+                colspan = 2 if 'insetdesc' in db['header'] else int(db['ncols'])
                 entries.append({
                     'style': ifield,
                     'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']),
@@ -148,7 +148,7 @@ def print_table(pif, db, setfile):
                                 'text': model.get(field, '')} if model.get(field, '') else {'style': ifield})
             ifield += 1
     llineup = {
-        'anchor': db['label'], 'name': db['title'], 'columns': ncols, 'widthauto': True,
+        'anchor': db['label'], 'name': db['title'], 'columns': int(ncols), 'widthauto': True,
         'section': [{'id': 'box', 'name': '',
                      'range': [{'entry': entries}]}],
     }
