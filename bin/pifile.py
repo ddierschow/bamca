@@ -244,6 +244,7 @@ class PageInfoFile(object):
         self.secure_prod = self.secure_host.replace('beta', 'www')
         self.secure_prod = self.secure_host.replace('alpha', 'www')
         self.is_web = 'REQUEST_METHOD' in os.environ  # is apache!
+        self.method = os.environ.get('REQUEST_METHOD', 'GET')
         self.set_server_env()
         self.log = logger.Logger()
         self.format_type = 'python'
