@@ -4,6 +4,7 @@ from sprint import sprint as print
 from io import open
 import os
 import urllib
+from urllib.error import HTTPError, URLError
 
 import basics
 import config
@@ -165,8 +166,8 @@ def read_config(pif, showall=False):
 
 def read_blacklist(pif):
     blacklist = pif.dbh.fetch_blacklist()
-    reject = [x['blacklist.target'] for x in filter(lambda x: x['blacklist.reason'] == 'site', blacklist)]
-    banned = [x['blacklist.target'] for x in filter(lambda x: x['blacklist.reason'] == 'ip', blacklist)]
+    reject = [x['blacklist.target'] for x in blacklist if x['blacklist.reason'] == 'site']
+    banned = [x['blacklist.target'] for x in blacklist if x['blacklist.reason'] == 'ip']
     return reject, banned
 
 
@@ -560,10 +561,10 @@ def check_link(pif, link, rejects=[], visible=False):
                         'User-Agent':
                         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
                 lstatus = 'H' + str(url.code)
-            except urllib.error.HTTPError as c:
+            except HTTPError as c:
                 print('http error:', c.code)
                 lstatus = 'H' + str(c.code)
-            except urllib.error.URLError as c:
+            except URLError as c:
                 print('url error:', c.reason)
                 lstatus = 'U' + str(c.reason[0])
             except Exception:

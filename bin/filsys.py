@@ -164,7 +164,7 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             fn = fn[2:] if (fn[0] in 'sml' and fn[1] == '_') else fn
             inp += '''<input type="text" name="cred.{}" size="12" value="{}"> cred'''.format(fn, cred.get(fn, ''))
         else:
-            pic = '<a href="imawidget.cgi?d={}&f=%s&cy=0">{}</a>'.format(pif.render.pic_dir, arg, pic)
+            pic = '<a href="imawidget.cgi?d={}&f={}&cy=0">{}</a>'.format(pif.render.pic_dir, arg, pic)
             if arg == base:
                 inp = imginputs % {'f': arg, 'b': root + 'z.' + ext}
             elif base:
@@ -172,9 +172,9 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             else:
                 inp = imginput % {'f': arg}
         if cpct:
-            ostr += '<div class="filc">%s<br>%s<br>%s</div>\n' % (pic, arg, inp)
+            ostr += '<div class="filc">{}<br>{}<br>{}</div>\n'.format(pic, arg, inp)
         else:
-            ostr += pif.render.format_cell(0, '%s<br>%s%s %s' % (pic, arg, inp, f_date))
+            ostr += pif.render.format_cell(0, '{}<br>{}{} {}'.format(pic, arg, inp, f_date))
             if mss or pms:
                 ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
     if not cpct:
@@ -382,12 +382,12 @@ def do_prod_masses(pif, tform):
         ofi = imglib.shrinker(pth, nname, q, ts, rf)
         imglib.simple_save(ofi, nname)
         images.file_log(nname, tform.tdir)
-        url = pif.secure_prod + nname
+        url = pif.secure_prod + nname[1:]
         link = pif.secure_prod
         title = nam
         if cred and not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
             title += ' credited to ' + photog.name
-        pif.render.message('Post to Tumblr: ', tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+        pif.render.message('Post to Tumblr: ', tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
         pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, nam))
 
 
@@ -686,10 +686,16 @@ def check_lib_man(pif):
     print(' '.join(sorted(man_lib - man_ids)))
 
 
+def write_version_file(pif):
+    print("Writing version file.")
+    open('version.txt', 'wt').write('''<?php\n$version = "{}";\n?>\n'''.format(os.environ['BAMCA_VERSION']))
+
+
 cmds = [
     ('p', write_php_config_file, "write php config"),
     ('j', write_jinja2_config_file, "write jinja2 config"),
     ('m', check_lib_man, "check libarary man id's"),
+    ('v', write_version_file, "write version file"),
 ]
 
 

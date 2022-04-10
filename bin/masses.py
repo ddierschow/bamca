@@ -408,10 +408,12 @@ def add_lm_main(pif):
 
 def add_lm_ask(pif):
     header = '<form action="mass.cgi">' + pif.create_token()
+    colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
     entries = [
         {'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4)},
         {'title': 'Number:', 'value': pif.render.format_text_input("number", 4, 4)},
         {'title': 'Mod ID:', 'value': pif.render.format_text_input("mod_id", 24, 4)},
+        {'title': 'Style:', 'value': pif.render.format_select("style_id", colors)},
         {'title': '', 'value': pif.render.format_button_input()},
     ]
     footer = pif.render.format_hidden_input({'type': 'lineup_model'})
@@ -435,16 +437,17 @@ def add_lm_enter(pif):
     number = pif.form.get_int('number')
 
     colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
+    regions = [x.id for x in secs]
     entries = [
         {'title': 'Page ID:', 'value': pif.render.format_text_input("page_id", 32, 32, value='year.%s' % year)},
         {'title': 'Mod ID:', 'value': pif.render.format_text_input("mod_id", 24, 24, value=mod_id)},
         {'title': 'Number:', 'value': pif.render.format_text_input("number", 4, 4, value=number)},
-        {'title': 'Display Order:', 'value': pif.render.format_text_input("display_order", 4, 4)},
+        {'title': 'Display Order:', 'value': pif.render.format_text_input("display_order", 4, 4, value='0')},
         {'title': 'Flags:', 'value':
             pif.render.format_checkbox('flags', tab['bits']['flags'], useful.bit_list(0, format='%04x'))},
-        {'title': 'Style:', 'value': pif.render.format_select("style_id", colors)},
+        {'title': 'Style:', 'value': pif.render.format_select("style_id", colors, selected=pif.form.get_str('style_id'))},
         {'title': 'Picture ID:', 'value': pif.render.format_text_input("picture_id", 12, 12, value='')},
-        {'title': 'Region:', 'value': pif.render.format_checkbox('region', [(x.id, x.id) for x in secs])},
+        {'title': 'Region:', 'value': pif.render.format_checkbox('region', zip(regions, regions), checked=regions)},
         {'title': 'Year:', 'value': pif.render.format_text_input("year", 6, 6, value=year)},
         {'title': 'Name:', 'value': pif.render.format_text_input("name", 64, 64, value=mod['name'])},
         # {'title': 'Variation:', 'value': pif.render.format_text_input("var", 8, 8)},
@@ -470,7 +473,7 @@ def add_lm_save(pif):
     for region in regions:
         lm['region'] = region
         lm['base_id'] = lm['year'] + region + '%03d' % int(lm['number'])
-        pif.dbh.dbi.insert_or_update('lineup_model', lm)
+        print(lm, pif.dbh.dbi.insert_or_update('lineup_model', lm, verbose=1))
     print(pif.render.format_tail())
 
 

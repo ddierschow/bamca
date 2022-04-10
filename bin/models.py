@@ -76,6 +76,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     else:
         mdict['lname'] = '%(img)s<br><b>%(name)s</b>' % mdict
     mdict['desclist'] = ''
+    useful.write_comment(mdict['id'], mdict['descs'])
     if not mdict.get('nodesc'):
         for s in mdict['descs']:
             if s in mbdata.arts:

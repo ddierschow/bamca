@@ -156,7 +156,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     upload_log(url, pdir)
     useful.write_message("Attempting upload...", url, '<br>')
     try:
-        up = requests.get(url).text
+        up = requests.get(url).content
     except Exception as e:
         if useful.is_header_done():
             useful.show_error()
@@ -800,7 +800,7 @@ class EditForm(imglib.ActionForm):
             url = pif.secure_prod + largest
             link = pif.secure_prod + '/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
             pif.render.message('Post to Tumblr: ',
-                               tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+                               tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
             pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, self.man, self.var))
 
         return largest

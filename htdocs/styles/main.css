@@ -1,4 +1,4 @@
-body         {color: #000000; background-color: #FFFFFF; padding: 0; width: 1024px;}
+body         {color: #000000; background-color: #FFFFFF; padding: 0; width: 1024px; font-family: 'Decalotype';}
 .body        {width: 1024px;}
 img          {vertical-align: middle; border-width: 0;}
 .centered    {margin-left: auto; margin-right: auto; display: block;}

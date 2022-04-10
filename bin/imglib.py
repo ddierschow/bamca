@@ -46,7 +46,8 @@ itypes = ['bmp', 'gif', 'ico', 'jpg', 'jpeg', 'png', 'tif', 'xbm']
 
 image_outputter = {
     'bmp': [['/usr/local/bin/ppmtobmp']],
-    'gif': [['/usr/local/bin/pnmquant', '256'], ['/usr/local/bin/ppmtogif']],
+    # 'gif': [['/usr/local/bin/pnmquant', '256'], ['/usr/local/bin/ppmtogif']],
+    'gif': [['/usr/local/bin/ppmtogif']],
     'ico': [['/usr/local/bin/ppmtowinicon']],
     'jpg': [['/usr/local/bin/pnmtojpeg']],
     'jpeg': [['/usr/local/bin/pnmtojpeg']],
@@ -134,7 +135,7 @@ def pipe_convert(src, dst, verbose=False):
 
 
 def import_file(fn):
-    fn = fn[fn.rfind('/') + 1:]
+    # fn = fn[fn.rfind('/') + 1:]
     fex = fn[fn.rfind('.') + 1:]
     if '?' in fex:
         fex = fex[:fex.find('?')]
@@ -198,6 +199,28 @@ def is_anim(f):
     except Exception:
         return False
     return img_is_anim(img)
+
+
+def mangler(ofn, ops, nfn):
+    intermediate = useful.pipe_chain(open_input_file(ofn), import_file(ofn) + ops,
+                                     stderr=open_write_dev_null(), verbose=True)
+    open('/tmp/imgfile', 'wb').write(intermediate)
+    if nfn.endswith('.gif'):
+        pass
+        # pnmcolormap 256 myimage.pnm >/tmp/colormap.pnm
+        # pnmremap -mapfile=/tmp/colormap.pnm myimage.pnm >myimage256.pnm
+        open('/tmp/colormap.pnm', 'wb').write(
+            useful.pipe_chain(open('/tmp/imgfile', 'rb'), [['/usr/local/bin/pnmcolormap', '256']],
+                              stderr=open_write_dev_null(), verbose=True))
+        intermediate = useful.pipe_chain(
+            open('/tmp/imgfile', 'rb'), [['/usr/local/bin/pnmremap', '-mapfile=/tmp/colormap.pnm']],
+            stderr=open_write_dev_null(), verbose=True)
+        open('/tmp/imgfile', 'wb').write(intermediate)
+        os.remove('/tmp/colormap.pnm')
+    final = useful.pipe_chain(open('/tmp/imgfile', 'rb'), export_file(nfn, ofn),
+                              stderr=open_write_dev_null(), verbose=True)
+    os.remove('/tmp/imgfile')
+    return final
 
 
 # transforms
@@ -374,7 +397,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
             ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(x=xts) +
                                     export_file(nname, pth),
-                                    stderr=open_write_dev_null())
+                                    stderr=open_write_dev_null(), verbose=True)
         elif xcs < xts:
             # dx = xts - xcs
             # dy = yts - ycs
@@ -383,7 +406,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
             xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                                    stderr=open_write_dev_null())
+                                    stderr=open_write_dev_null(), verbose=True)
         elif xos == xts and yos == yts and xos == xcs and yos == ycs:
             useful.write_message("copying", nonl=True)
             ofi = open_input_file(pth).read()
@@ -392,7 +415,7 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
             xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                                    stderr=open_write_dev_null())
+                                    stderr=open_write_dev_null(), verbose=True)
 
     else:
 
@@ -402,20 +425,20 @@ def shaper(pth, nname, bound, target_size, original_size, rf):
             ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(x=xts) +
                                     export_file(nname, pth),
-                                    stderr=open_write_dev_null())
+                                    stderr=open_write_dev_null(), verbose=True)
         elif yts < y2 - y1:
             useful.write_message("trim shrinking y", nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + resize(y=yts) +
                                     export_file(nname, pth),
-                                    stderr=open_write_dev_null())
+                                    stderr=open_write_dev_null(), verbose=True)
         else:
             useful.write_message("trim cutting", nonl=True)
             xts, yts = fix_axes(rf, xts, yts)
             ofi = useful.pipe_chain(open_input_file(pth),
                                     import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                                    stderr=open_write_dev_null())
+                                    stderr=open_write_dev_null(), verbose=True)
 
     useful.write_message('')
     return ofi
@@ -439,21 +462,23 @@ def shrinker(pth, nname, bound, maxsize, rf):
         ofi = useful.pipe_chain(open_input_file(pth),
                                 import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
                                 export_file(nname, pth),
-                                stderr=open_write_dev_null())
+                                stderr=open_write_dev_null(), verbose=True)
     elif xts // xcs < yts // ycs:
         useful.write_message("shrinking x")
         xts, yts = fix_axes(rf, xts, yts)
-        ofi = useful.pipe_chain(open_input_file(pth),
-                                import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
-                                resize(x=xts) + export_file(nname, pth),
-                                stderr=open_write_dev_null())
+#        ofi = useful.pipe_chain(open_input_file(pth),
+#                                import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
+#                                resize(x=xts) + export_file(nname, pth),
+#                                stderr=open_write_dev_null(), verbose=True)
+        ofi = mangler(pth, cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) + resize(x=xts), nname)
     else:
         useful.write_message("shrinking y")
         xts, yts = fix_axes(rf, xts, yts)
-        ofi = useful.pipe_chain(open_input_file(pth),
-                                import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
-                                resize(y=yts) + export_file(nname, pth),
-                                stderr=open_write_dev_null())
+#        ofi = useful.pipe_chain(open_input_file(pth),
+#                                import_file(pth) + cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) +
+#                                resize(y=yts) + export_file(nname, pth),
+#                                stderr=open_write_dev_null(), verbose=True)
+        ofi = mangler(pth, cut(x1, y1, x1 + xcs, y1 + ycs) + rot_flip(rf) + resize(y=yts), nname)
     return ofi
 
 
@@ -464,7 +489,7 @@ def cropper(pth, nname, bound, rf):
     useful.write_message("cutting")
     ofi = useful.pipe_chain(open_input_file(pth),
                             import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
-                            stderr=open_write_dev_null())
+                            stderr=open_write_dev_null(), verbose=True)
     return ofi
 
 
@@ -950,7 +975,7 @@ class ActionForm(object):
                 if cred:
                     title += ' credited to ' + photog.name
                 pif.render.message('Post to Tumblr: ',
-                                   tumblr.tumblr(pif).create_photo(caption=title, source=url, link=link))
+                                   tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
             pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, to_dir, to_name))
         return ret
 

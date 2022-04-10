@@ -547,7 +547,7 @@ def run_product_pics(pif, region):
 
     for page in sorted(pages.keys()):
         lmodlist = pif.dbh.fetch_simple_lineup_models(page[5:], region)
-        lmodlist = filter(lambda x: x['lineup_model.region'][0] in region_list, lmodlist)
+        lmodlist = [x for x in lmodlist if x['lineup_model.region'][0] in region_list]
         lmoddict = {x['lineup_model.number']: x for x in lmodlist}
         min_num = 1
         max_num = pages[page]['max_lineup_number']

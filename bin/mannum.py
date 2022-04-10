@@ -1320,6 +1320,36 @@ def check_casting_related(pif):
                     added.add((r, mod,))
 
 
+def add_casting_file(pif, *args):
+    keys = ('id', 'model_type', 'year', 'make', 'country', 'section_id', 'rawname')
+    for fn in args:
+        with open(fn, 'rt') as fh:
+            for ln in fh:
+                ln = dict(zip(keys, ln.strip().split('|')))
+                if pif.dbh.fetch_base_id(ln.get('id')):
+                    print("That ID is already in use.")
+                    continue
+                # base_id: id, first_year, model_type, rawname, description, flags
+                # casting: id, country, make, section_id
+                print(pif.dbh.add_new_base_id({
+                    'id': ln.get('id', ''),
+                    'first_year': ln.get('year', ''),
+                    'model_type': ln.get('model_type', ''),
+                    'rawname': ln.get('rawname', ''),
+                    'description': ln.get('description', ''),
+                    'flags': 0,
+                }))
+                print(pif.dbh.add_new_casting({
+                    'id': ln.get('id', ''),
+                    'country': ln.get('country', ''),
+                    'make': ln.get('make', ''),
+                    'section_id': ln.get('section_id', ''),
+                    'notes': '',
+                }))
+                add_attributes(pif, ln.get('id', ''), *ln.get('attributes', '').split(' '))
+            print(ln.get('id'), 'added')
+
+
 cmds = [
     ('d', delete_casting, "delete: mod_id"),
     ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
@@ -1335,6 +1365,7 @@ cmds = [
     ('cc', check_core, "check core: mod_id ..."),
     ('crc', check_casting_related, "check casting_related"),
     ('cra', add_casting_related, "add casting_related [-s section] mod_id mod_id ..."),
+    ('cf', add_casting_file, "add casting file"),
 ]
 
 

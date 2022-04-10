@@ -627,6 +627,8 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
         procs.append(subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr))
         # , text=True
         inp = procs[-1].stdout
+    if verbose:
+        write_message()
     output = b''
     while True:
         o, e = procs[-1].communicate()

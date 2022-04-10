@@ -512,7 +512,7 @@ class DBHandler(object):
             'filename': mod_id.lower(),
             'notmade': '*' if (mod.base_id.flags & config.FLAG_MODEL_NOT_MADE) else '',
             'linkid': mod_id,
-            'descs': filter(lambda x: x, mod.base_id.description.split(';')),
+            'descs': [x for x in mod.base_id.description.split(';') if x],
             'iconname': self.icon_name(mod.base_id.rawname),
             'shortname': self.short_name(mod.base_id.rawname),
             'casting_type': mbdata.model_types.get(mod.get('base_id.model_type', 'SF'), 'Casting'),
@@ -550,7 +550,7 @@ class DBHandler(object):
         mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & config.FLAG_MODEL_CASTING_REVISED) != 0
         mod['linkid'] = mod.get('mod_id', mod.get('id'))
         mod['link'] = "single.cgi?id"
-        mod['descs'] = filter(lambda x: x, mod['description'].split(';'))
+        mod['descs'] = [x for x in mod['description'].split(';') if x]
         mod['iconname'] = self.icon_name(mod.get('rawname', ''))
         mod['shortname'] = self.short_name(mod.get('rawname', ''))
         mod['casting_type'] = mbdata.model_types.get(mod.get('model_type', 'SF'), 'Casting')
@@ -1339,7 +1339,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         self.delete('link_line', where="id=%s" % id)
 
     def update_link_line(self, rec):
-        self.write('link_line', values=rec, where='id=%s' % rec['id'], modonly=True, tag='UpdateLinkLine')
+        return self.write('link_line', values=rec, where='id=%s' % rec['id'], modonly=True, tag='UpdateLinkLine')
 
     def insert_link_line(self, rec, verbose=False):
         return self.write('link_line', values=rec, newonly=True, tag='InsertLinkLine', verbose=verbose)
