@@ -296,7 +296,7 @@ def box_main(pif):
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/boxart.cgi', 'Lesney Era Boxes')
-    if pif.form.form:
+    if pif.form.has_any(['box', 'mod', 'style']):
         return show_boxes(pif)
     else:
         return box_ask(pif)
@@ -339,8 +339,8 @@ def count_boxes(pif):
 
 @basics.web_page
 def publication(pif):
-    pub_id = pif.form.get_str('id')
-    pub_type = pif.form.get_str('ty')
+    pub_id = pif.form.get_id('id')
+    pub_type = pif.form.get_id('ty')
     pif.render.print_html()
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
@@ -371,6 +371,8 @@ def get_section_by_model_type(pif, mtype):
 
 def publication_list(pif, mtype):
     sec = get_section_by_model_type(pif, mtype)
+    if not sec:
+        raise useful.SimpleError("That publication type was not found.")
     if sec.id == 'ads':
         raise useful.Redirect('ads.cgi?title=' + pif.form.get_str('title'))
     sobj = pif.form.search('title')
@@ -452,7 +454,7 @@ def single_publication(pif, pub_id):
         raise useful.SimpleError("That publication was not found.")
     # should just use man.section_id
     sec = get_section_by_model_type(pif, man.base_id.model_type)
-    pif.set_page_info(sec.page_info.id)
+    #pif.set_page_info(sec.page_info.id)  # obviously not right but I don't know what is.
     man['casting_type'] = 'Publication'
     man['name'] = man['base_id.rawname'].replace(';', ' ')
     imgs = pub_images(pif, pub_id.lower())

@@ -1110,7 +1110,7 @@ def casting_info(pif, mod_id):
 def update_descriptions(pif, *args):
     count = 0
     showtexts = verbose = False
-    # verbose = True
+    verbose = True
     # showtexts = True
     if not args:
         castings = pif.dbh.fetch_casting_ids()
@@ -1122,7 +1122,7 @@ def update_descriptions(pif, *args):
     for casting in castings:
         # sys.stdout.write(casting + ' ')
         sys.stdout.flush()
-        print(casting,)
+        print(casting, end=' ')
         fmt_invalid, messages, missing = pif.dbh.check_description_formatting(casting)
         if fmt_invalid:
             print('*')

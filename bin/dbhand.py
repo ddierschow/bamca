@@ -872,7 +872,8 @@ class DBHandler(object):
         nvar['var'] = var_id
         nvar['mod_id'] = mod_id
         nvar['flags'] = 0
-        self.write('variation', values=nvar, newonly=True, verbose=verbose)
+        nvar['imported'] = nvar['imported'] or None
+        self.write('variation', values=nvar, newonly=True, tag='InsertVar', verbose=verbose)
         attribute_list = self.fetch_attributes(mod_id)
         for attr in attribute_list:
             det = {'var_id': nvar['var'], 'mod_id': mod_id, 'attr_id': attr['attribute.id'],

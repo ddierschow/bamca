@@ -599,7 +599,7 @@ def add_pub_final(pif):
 
 def add_var_main(pif):
     useful.write_message(pif.form)
-    if pif.form.get_bool('store'):
+    if pif.form.get_str('store'):
         print(pif.render.format_head())
         useful.header_done()
         add_var_final(pif)
@@ -607,29 +607,35 @@ def add_var_main(pif):
         return
     elif pif.form.get_str('var'):
         return add_var_info(pif)
-    print(pif.render.format_head())
-    useful.header_done()
-    add_var_ask(pif)
-    print(pif.render.format_tail())
+    return add_var_ask(pif)
 
 
 def add_var_ask(pif):
-    print("<form>" + pif.create_token())
-    print("Man ID:", pif.render.format_text_input("mod_id", 8, 8, value=pif.form.get_str('mod_id')), '<br>')
-    print('Var ID:', pif.render.format_text_input("var", 8, 8, value=''), '<br>')
-    print('Date:', pif.render.format_text_input("date", 8, 8, value=''), '<br>')
-    print('Copy From:', pif.render.format_text_input("copy", 8, 8, value=''), '<br>')
-    print('Imported From:', pif.render.format_text_input("imported_from", 8, 8, value=''), '<br>')
-    print(pif.render.format_button_input('submit'))
-    print(pif.render.format_hidden_input({'type': 'var'}))
-    print("</form>")
-    print(pif.render.format_button('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'}))
-    print(pif.render.format_button('casting', '/cgi-bin/mass.cgi?type=casting'))
+    header = pif.render.format_form_start(token=pif.dbh.create_token())
+
+    rows = [
+        ('Man ID:', "mod_id", pif.form.get_str('mod_id')),
+        ('Var ID:', "var", ''),
+        ('Date:', "date", ''),
+        ('Copy From:', "copy", ''),
+        ('Imported From:', "imported_from", ''),
+    ]
+    entries = [{'title': x[0], 'value': pif.render.format_text_input(x[1], 8, 8, value=x[2])} for x in rows]
+
+    footer = pif.render.format_button_input('submit')
+    footer += pif.render.format_hidden_input({'type': 'var'})
+    footer += "<form>"
+    footer += pif.render.format_button('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
+    footer += pif.render.format_button('casting', '/cgi-bin/mass.cgi?type=casting')
+
+    lsection = dict(columns=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True,
+                    header=header, footer=footer)
+    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]), nofooter=True)
 
 
 var_id_columns = ['mod_id', 'var']
-var_attr_columns = ['body', 'base', 'additional_text', 'windows', 'interior']
-var_data_columns = ['category', 'area', 'date', 'note', 'manufacture', 'imported_from', 'imported_var']
+var_attr_columns = ['body', 'base', 'windows', 'interior']
+var_data_columns = ['category', 'note', 'additional_text', 'manufacture', 'area', 'date', 'imported_from', 'imported_var']
 var_record_columns = var_id_columns + var_attr_columns + var_data_columns
 
 
@@ -649,21 +655,11 @@ def add_var_info(pif):
     attr_names = [x['attribute.attribute_name'] for x in attrs]
     var = pif.dbh.fetch_variation(mod_id, var_id)
 
-    old_var_id = pif.form.get_str('copy')
-    if not var and old_var_id and old_var_id != var_id:
-        var = pif.dbh.fetch_variation(mod_id, old_var_id)
-        if var:
-            useful.write_message('copy_variation', mod_id, old_var_id, var_id)
-            var = pif.dbh.depref('variation', var)
-            var['var'] = var['imported_var'] = var_id
-            var['imported_from'] = pif.form.get_str('imported_from')
-            var['date'] = pif.form.get_str('date')
-            pif.dbh.insert_variation(mod_id, var_id, var)
-            raise useful.Redirect('vars.cgi?edit=1&mod=%s&var=%s' % (mod_id, var_id))
-
     print(pif.render.format_head())
     useful.header_done()
     print('<h3>%s</h3>' % mod['name'])
+    aliases = pif.dbh.fetch_aliases(mod_id)
+    print(' '.join(x['alias.id'] for x in aliases), '<br>')
     print('<form onsubmit="save.disabled=true; return true;">' + pif.create_token())
     if var:
         print('revising', pif.render.format_hidden_input({'store': 'update'}))
@@ -671,6 +667,19 @@ def add_var_info(pif):
     else:
         print('creating', pif.render.format_hidden_input({'store': 'insert'}))
         var = {}
+
+    old_var_id = pif.form.get_str('copy')
+    if not var and old_var_id and old_var_id != var_id:
+        nvar = pif.dbh.fetch_variation(mod_id, old_var_id)
+        if nvar:
+            useful.write_message('copy_variation', mod_id, old_var_id, var_id)
+            nvar = pif.dbh.depref('variation', nvar)
+            nvar['var'] = var['imported_var'] = var_id
+            nvar['imported_from'] = pif.form.get_str('imported_from')
+            nvar['date'] = pif.form.get_str('date')
+            for k, v in nvar.items():
+                var[k] = var.get(k, '') or v
+
     print('<table class="tb">')
     defs = {'mod_id': mod_id,
             'var': var_id,
@@ -679,7 +688,8 @@ def add_var_info(pif):
             'imported_from': pif.form.get_str('imported_from'),
             'imported_var': var_id,
             'date': pif.form.get_str('date')}
-    cats = [(x['category.id'], x['category.name']) for x in pif.dbh.fetch_category_counts()]
+    cats = sorted([(x['category.id'], x['category.name']) for x in pif.dbh.fetch_category_counts()],
+                  key=lambda x: x[1])
     for col in var_id_columns + [None] + var_attr_columns + attr_names + [None] + var_data_columns:
         if col:
             val = var.get(col) if var.get(col) else defs.get(col, '')
@@ -694,7 +704,9 @@ def add_var_info(pif):
     print("</table>")
     print(pif.render.format_button_input('save'))
     print(pif.render.format_hidden_input({'type': 'var'}))
-    print(pif.render.format_link('/cgi-bin/single.cgi?id=' + mod_id, mod_id))
+    print(pif.render.format_button('casting', '/cgi-bin/single.cgi?id=' + mod_id))
+    print(pif.render.format_button('vars', '/cgi-bin/vars.cgi?edt=1&mod=' + mod_id))
+    print(pif.render.format_button('search', '/cgi-bin/vsearch.cgi?ask=1&id=' + mod_id))
     print("</form>")
 
     for var in pif.dbh.fetch_variations(mod_id):
@@ -718,7 +730,8 @@ def add_var_final(pif):
     else:
         var = {}
     for col in var_record_columns + attr_names:
-        var[col] = pif.form.get_str(col)
+        if pif.form.get_str(col):
+            var[col] = pif.form.get_str(col)
     print(var, '<br>')
     if pif.duplicate_form:
         print('duplicate form submission detected')

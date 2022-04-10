@@ -22,7 +22,7 @@ if ($pif['bad_ip']) {
     echo "but don't hope for too much.";
 }
 else {
-    echo '<form action="/cgi-bin/comment.cgi" method="post" name="comment">' . "\n";
+    echo '<form action="/cgi-bin/comment.cgi" method="post" name="comment" enctype="multipart/form-data">' . "\n";
     reinput($_GET);
 ?>
 We welcome any comments you might have on the website.  Everything will be read, and if you provide

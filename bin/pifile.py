@@ -105,6 +105,10 @@ class BaseForm(object):
     def get_form(self):
         return self.form
 
+    @staticmethod
+    def clean(val):
+        return ''.join([x for x in str(val) if x >= ' ' and x <= '~' and x not in '|;'])
+
     def get(self, key, defval=None):
         return self.form.get(key, defval)
 
@@ -125,7 +129,7 @@ class BaseForm(object):
 
     def get_str(self, key, defval=''):
         try:
-            return str(self.form[key])
+            return self.clean(self.form[key])
         except Exception:
             return str(defval)
 
@@ -148,9 +152,9 @@ class BaseForm(object):
 
     def get_id(self, key, limit=99, defval=''):
         try:
-            return useful.clean_id(str(self.form[key][:limit]))
+            return useful.clean_id(self.form[key], limit)
         except Exception:
-            return useful.clean_id(str(defval[:limit]))
+            return useful.clean_id(defval, limit)
 
     def get_list(self, key=None, start=None, defval=None):
         ret = list()
@@ -344,7 +348,7 @@ class PageInfoFile(object):
                     self.log.refer.info(refer)
 
     def get_page_id(self, page_id, form_key, defval):
-        return useful.clean_id(self.calc_page_id(page_id, form_key, defval)[:20])
+        return useful.clean_id(self.calc_page_id(page_id, form_key, defval), 20)
 
     def calc_page_id(self, page_id, form_key, defval):
         if form_key:
