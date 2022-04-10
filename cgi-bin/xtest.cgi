@@ -7,7 +7,7 @@ sys.path.append("../bin")
 import cgi      # noqa: E402
 import os       # noqa: E402
 import basics   # noqa: E402
-import Cookie   # noqa: E402
+import http.cookies as Cookie   # noqa: E402
 import useful   # noqa: E402
 
 if __name__ == '__main__':

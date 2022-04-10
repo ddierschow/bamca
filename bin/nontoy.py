@@ -186,6 +186,8 @@ def calendar(pif):
 
 @basics.web_page
 def submit_comment(pif):
+    if pif.method == 'GET':
+        raise useful.Redirect('../pages/comment.php')
     pif.render.print_html()
     print(pif.render.format_head())
     # useful.write_message(pif.form)

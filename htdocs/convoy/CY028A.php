@@ -23,7 +23,7 @@ $models = [
 	'tdt' => 'black, white containers, DHL WORLDWIDE EXPRESS tampo',
     ],
 // 4. Red cab, black chassis, white containers with red trailer, "Big Top Circus" tampo
-    ['var' => '04a', 'mfg' => 'Macau', 'liv' => 'Big Top Circus',
+    ['var' => '04a', 'mfg' => 'Thailand', 'liv' => 'Big Top Circus',
 	'cdt' => 'red, black chassis', 'cva' => '12',
 	'tdt' => 'red, white containers, BIG TOP CIRCUS tampo',
     ],

@@ -1,11 +1,11 @@
-# mcc started sprinig 1966
+# mcc started spring 1966
 Matchbox Collector Club|3|3,4
 Matchbox Collector Club|4|1-4
 Matchbox Collector Club|5|1-4
 Matchbox Collector Club|6|1-4
 Matchbox Collector Club|7|2-4
 Matchbox Collector Club|8|1-4
-Matchbox Collector Club|0|1-4
+Matchbox Collector Club|9|1-4
 Matchbox Collector Club|10|1-4
 Matchbox Collector Club|11|1-4
 Matchbox Collector Club|12|1-4
@@ -19,6 +19,8 @@ UK Matchbox Club|5|1-6
 UK Matchbox Club|6|1-6
 UK Matchbox Club|7|1-6
 UK Matchbox Club|8|1-6
+# 16-2 is au 2000
+# 1-1 is jn 1985?
 MICA|1|3,5,6
 MICA|2|1,2,4-6
 MICA|3|1-6
@@ -40,6 +42,8 @@ MICA|18|1-6
 MICA|21|1-6
 NAMICA|11|3
 # aim starting may 1970
+AIM|1|
+AIM|2|
 AIM|3|1,3,4,6,8,10,11
 AIM|4|1-6,8-12
 AIM|5|1-12
@@ -54,11 +58,17 @@ AIM|13|1-12
 AIM|14|1-12
 AIM|15|1-12
 AIM|16|1-12
-AIM|17|1,3,5,7-11
-AIM|18|1-10
+AIM|17|1-12
+AIM|18|1-12
+AIM|19|1-12
+AIM|20|1-12
+AIM|21|
 AIM|22|7-12
 AIM|23|1-12
-AIM|27|9
+AIM|24|
+AIM|25|
+AIM|26|
+AIM|27|8-12
 # mbusa starting august 1977
 Matchbox USA|1|
 Matchbox USA|2|
@@ -99,10 +109,13 @@ Matchbox USA|36|5-11
 Matchbox USA|37|1-5,8-12
 Matchbox USA|38|1-6,8,10-12
 Matchbox USA|39|1-5,7-12
-Matchbox USA|40|3-12
-Matchbox USA|41|1-4
+Matchbox USA|40|2-12
+Matchbox USA|41|1-12
+Matchbox USA|42|1-7,9-12
+Matchbox USA|43|1-12
+Matchbox USA|44|1-6
 
-# mbusa missing
+# mbusa missing 63
 # 1977 all
 # 1978 all
 # 1979 all
@@ -111,26 +124,32 @@ Matchbox USA|41|1-4
 # 2013 all
 # 2015 january february
 # 2016 february april 
-# 2017 january
+# 2017 january august
+# 2020 march
+
+# au se oc no de ja fe ma ap my jn jl
+#  1  2  3  4  5  6  7  8  9 10 11 12
 
 # aim missing
-# may 1970 to april 1972
-# june september december 1972
-# january april november 1973
-# june august october 1986
-# april 1987
-# march 1988 onward
 # aim starting may 1970
+# 1970 may to december
+# 1971 all
+# 1972 january february march april june september december
+# 1973 january april november
+# 1990 june to december
+# 1991 january to november
+# 1993 june to december
+# 1994 all
+# 1995 all
+# 1996 january to november
+# 1997 june onward
 
-# mica missing
+# mica missing 25
 # 1-1, 2, 4
 # 2-3
-# 7-6
-# 8-3, 6
-# 9-2, 3
-# 12-2, 3, 4, 5, 6
-# 13-1, 3, 4, 5
-# 14-3
-# 15-4
-# 16-3
-# 17-1, 3 onward
+# 14-3 se/oc1998
+# 15-4 no/de1999
+# 16-3 oc2000
+# 19-1 to 20-6
+# 22-1 to 22-6
+# starting april 1985, ends april 2007 22-6?
