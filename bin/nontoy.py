@@ -211,9 +211,7 @@ def submit_comment(pif):
     pif.form.change_key('page', 'page_id')
     fn = "../../comments/comment." + datetime.datetime.now().strftime('%Y%m%d.%H%M%S')
 
-    if any(['http://' in mysubject, 'https://' in mysubject,
-            'http://' in mycomment, 'https://' in mycomment,
-            'http://' in myemail, 'https://' in myemail]):
+    if any([x in y for x in ('http://', 'https://') for y in (mysubject, mycomment, myemail)]):
         return comment_error(
             "Whoa there.  This isn't for submitting links.  Please use the SUGGEST A LINK feature from the link list.")
 

@@ -50,7 +50,7 @@ def prepro(pif):
 
 
 def code2(pif):
-    if pif.form.get_str('mod_id'):
+    if pif.form.get_id('mod_id'):
         return code2_model(pif)
 
     def prep_mod(pif, mod, cat):
@@ -80,7 +80,7 @@ def code2(pif):
 
 
 def code2_model(pif):
-    mod_id = pif.form.get_str('mod_id')
+    mod_id = pif.form.get_id('mod_id')
     cat_id = pif.form.get_str('cat')
     pif.render.print_html()
     pif.render.hierarchy_append('/', 'Home')

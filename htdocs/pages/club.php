@@ -125,6 +125,15 @@ A <a href="http://blog.bamca.org/">blog</a> was added to the site.
 </tr>
 
 <tr>
+<th class="leftbar">2020</th>
+<td>
+The site changed servers and support infrastructure, requiring everything to be upgrade.
+It was now running on a faster server with a newer database and newer versions of Python and
+PHP.
+</td>
+</tr>
+
+<tr>
 <th class="leftbar">The Future</th>
 <td>
 There's still much to do.  If you want to find out more, or how to contribute,

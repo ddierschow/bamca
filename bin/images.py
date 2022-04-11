@@ -519,9 +519,9 @@ class EditForm(imglib.ActionForm):
         self.read_file(pif.form.get_str('q'))
         if not self.pref:
             self.pref = pif.form.get_str('tysz')
-        if not self.man:
+        if not self.man and self.nname:
             self.man = self.nname[:self.nname.rfind('.')] if '.' in self.nname else self.nname
-            self.man = self.man[2:] if self.man[1] == '_' else self.man
+            self.man = self.man[2:] if len(self.man) > 1 and self.man[1] == '_' else self.man
         return self
 
     def read_file(self, q):
@@ -1785,6 +1785,21 @@ def count_images(pif):
     print(t)
 
 
+def check_credits(pif):
+    creds = pif.dbh.fetch_photo_credits(photographer_id='DT')
+    pif.dbh.depref('photo_credit', creds)
+    for cred in creds:
+        fn = '/'.join(pif.render.find_image_file(cred['name'], prefix='s', pdir=cred['path']))
+        if fn:
+            sz = imglib.get_size(fn)
+            if not sz:
+                print('size not found for', fn)
+            else:
+                print(sz, fn)
+        else:
+            print('file not found for', fn)
+
+
 def do_stuff(pif):
     imglib.get_credit_file()
 
@@ -1798,6 +1813,7 @@ cmds = {
     ('f', fix_pix, "fix pix: mod_id ..."),
     ('c', count_images, "count"),
     ('l', check_library, "check library"),
+    ('k', check_credits, "check credits"),
     ('x', do_stuff, "x"),
 }
 
