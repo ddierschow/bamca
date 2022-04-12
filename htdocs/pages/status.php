@@ -90,12 +90,16 @@ section to the website to gather this information.
 You can now display lists of models by where they were manufactured.  Unfortunately,
 a lot of variations are still missing this information.  I'd like to complete these lists.
 
+<li><h4>The Reader's Guide Project</h4>
+
+To help with researching information for this site, it sure would help to have an
+index of articles from the various newsletters that were published over the years.
+
 <li><h4>The Programming Project</h4>
 
 Much still needs to be done in the realm of the programming that supports this site.
 Some of this includes:
 <ul>
-<li>Convert more rendering code to Jinja2
 <li>Add an API
 <li>Create a mobile-frendly site
 <li>Redesign the database schema
@@ -133,8 +137,9 @@ I am missing the following Matchbox USA newsletters:
 <li>March through December of 2012
 <li>all issues from 2013
 <li>January and February of 2015
-<li>February and April  of 2016
+<li>February and April of 2016
 <li>January, 2017
+<li>March, 2020
 </ul>
 
 I am missing the following AIM newsletters:
@@ -142,10 +147,9 @@ I am missing the following AIM newsletters:
 <li>May, 1970 to April, 1972
 <li>June, September, December of 1972
 <li>January, April, November of 1973
-<li>June, August, October of 1986
-<li>April, 1987
-<li>March, 1988 to November, 1991
-<li>June, 1993 onward
+<li>June, 1990 to November, 1991
+<li>June, 1993 to November, 1996
+<li>June, 1997 onward
 </ul>
 
 I am missing the following MICA newsletters:

@@ -17,7 +17,7 @@ learning process.
 
 Milestones:
 
-1996 - V1 - This project was started as a page of links to sites
+1994 - V1 - This project was started as a page of links to sites
 that would be of interest to Matchbox collectors.
 
 1998 - V2 - We bought the domain name, and I started working on the

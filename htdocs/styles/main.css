@@ -155,6 +155,8 @@ it is also useful for targeting FF-only code */
 .gray   {color: #999999;}
 .ltgray {color: #CCCCCC;}
 .bold   {font-weight: bold;}
+.bgwhite    {background-color: #FFFFFF;}
+.bgoffwhite {background-color: #EEEEEE;}
 
 .stat {font-style: italic; font-size: small;}
 
