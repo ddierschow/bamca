@@ -1804,6 +1804,13 @@ def do_stuff(pif):
     imglib.get_credit_file()
 
 
+def set_photog_name(pif, photog_id, name):
+    photog = pif.dbh.fetch_photographer(photog_id)
+    values = photog.todict()
+    values['name'] = name
+    pif.dbh.write_photographer(photog_id, values, verbose=True)
+
+
 # ---- ---------------------------------------
 
 
@@ -1815,6 +1822,7 @@ cmds = {
     ('l', check_library, "check library"),
     ('k', check_credits, "check credits"),
     ('x', do_stuff, "x"),
+    ('n', set_photog_name, "set photographer name <id> <name>"),
 }
 
 

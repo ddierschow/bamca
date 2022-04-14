@@ -29,7 +29,8 @@ class DB(object):
             self.db = self.dbcs[cfg['dbuser']]
         else:
             self.dbcs[cfg['dbuser']] = self.db = pymysql.connect(
-                unix_socket="/var/run/mysql/mysql.sock", user=cfg['dbuser'], password=cfg['dbpass'], database=cfg['dbname'])
+                unix_socket="/var/run/mysql/mysql.sock",
+                user=cfg['dbuser'], password=cfg['dbpass'], database=cfg['dbname'])
 
     def __repr__(self):
         return "'<db.DB instance>'"

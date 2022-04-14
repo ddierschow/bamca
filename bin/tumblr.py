@@ -24,7 +24,7 @@ class Client(object):
         self.url = 'https://api.tumblr.com/'
 
     def create_photo(self, **kwargs):
-        url = self.url + '/v2/blog/bamca.tumblr.com/posts'
+        # url = self.url + '/v2/blog/bamca.tumblr.com/posts'
         return {}
 
 

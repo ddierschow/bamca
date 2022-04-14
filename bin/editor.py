@@ -58,6 +58,9 @@ def show_table(pif):
     dats = []
     if pif.duplicate_form:  # not pif.dbh.insert_token(pif.form.get_str('token')):
         print('duplicate form submission detected')
+    elif not table_info:
+        print('table not found')
+        return
     elif pif.form.has('save'):
         # rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
         pif.dbh.write(

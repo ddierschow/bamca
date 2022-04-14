@@ -263,7 +263,7 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 def web_page(main_fn):
     @functools.wraps(main_fn)
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
-        useful.write_comment('PID', os.getpid(), 'GURU', config.GURU_ID)
+        # useful.write_comment('PID', os.getpid(), 'GURU', config.GURU_ID)
         status_code = 'unset'
         pif = None
         try:

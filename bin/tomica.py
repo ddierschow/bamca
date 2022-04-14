@@ -150,7 +150,7 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
 
 def show_section_list(pif, sect):
     cols = 3
-    print('<table class="smallprint pagebreak" width="100%" id="%s">' % sect['label'])
+    print('<table class="smallprint pagebreak" width="100%" id="{}">'.format(sect['label']))
     print('<tr><td colspan=%d style="text-align: center; font-weight: bold;">%s</td></tr>' % (4 * cols, sect['name']))
     inmods = filter(lambda x: x['subid'] != 'X', sect['models'])
     mods = []

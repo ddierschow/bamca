@@ -55,7 +55,7 @@ class DBHandler(object):
         return {x: form.get_str(prefix + x, '') for x in self.get_table_info(table)['columns']}
 
     def get_table_info(self, table):
-        table_info = self.table_info[table]
+        table_info = self.table_info.get(table)
         # table_info['name'] = table
         return table_info
 
@@ -1681,6 +1681,10 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         rows = self.fetch('photographer,photo_credit,photo_credit c', where=wheres,
                           columns=cols, group='photo_credit.photographer_id', tag='PhotographerCounts', verbose=True)
         return tables.Results('photographer', rows)
+
+    def write_photographer(self, photographer_id, values, verbose=False):
+        where = f"id='{photographer_id}'"
+        return self.write('photographer', values=values, where=where, tag='WritePhotographer', verbose=verbose)
 
     # - photo_credit
 

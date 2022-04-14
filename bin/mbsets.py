@@ -118,7 +118,8 @@ def print_table(pif, db, setfile):
             elif field == 'fulldesc':
                 entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': int(db['ncols'])})
             elif field == 'insetdesc':
-                entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': int(db['ncols']) - 1})
+                entries.append(
+                    {'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': int(db['ncols']) - 1})
             elif field == 'num':
                 modnums = [mod_num(prefix, modnum, model.get('rank')) for modnum in model.get(field, '').split(';')]
                 entries.append({'style': ifield,

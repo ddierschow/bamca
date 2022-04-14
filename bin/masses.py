@@ -445,7 +445,8 @@ def add_lm_enter(pif):
         {'title': 'Display Order:', 'value': pif.render.format_text_input("display_order", 4, 4, value='0')},
         {'title': 'Flags:', 'value':
             pif.render.format_checkbox('flags', tab['bits']['flags'], useful.bit_list(0, format='%04x'))},
-        {'title': 'Style:', 'value': pif.render.format_select("style_id", colors, selected=pif.form.get_str('style_id'))},
+        {'title': 'Style:', 'value':
+            pif.render.format_select("style_id", colors, selected=pif.form.get_str('style_id'))},
         {'title': 'Picture ID:', 'value': pif.render.format_text_input("picture_id", 12, 12, value='')},
         {'title': 'Region:', 'value': pif.render.format_checkbox('region', zip(regions, regions), checked=regions)},
         {'title': 'Year:', 'value': pif.render.format_text_input("year", 6, 6, value=year)},
@@ -638,7 +639,8 @@ def add_var_ask(pif):
 
 var_id_columns = ['mod_id', 'var']
 var_attr_columns = ['body', 'base', 'windows', 'interior']
-var_data_columns = ['category', 'note', 'additional_text', 'manufacture', 'area', 'date', 'imported_from', 'imported_var']
+var_data_columns = ['category', 'note', 'additional_text', 'manufacture', 'area', 'date',
+                    'imported_from', 'imported_var']
 var_record_columns = var_id_columns + var_attr_columns + var_data_columns
 
 
@@ -879,7 +881,7 @@ def edit_casting_related(pif):
 
     crd_m = {x['casting_related.related_id']: x for x in crl_m}
     crd_r = {x['casting_related.model_id']: x for x in crl_r}
-    keys = set(crd_m.keys() + crd_r.keys())
+    keys = set(list(crd_m.keys()) + list(crd_r.keys()))
     if pif.form.has('r'):
         keys.add(pif.form.get_str('r'))
     print('<hr>')
@@ -2070,7 +2072,7 @@ def add_attr_pics_form(pif):
         pic = pif.render.format_link('upload.cgi?m={}&suff={}&d={}'.format(
             rec['mod_id'], rec['picture_id'], '.' + config.IMG_DIR_ADD),
             pif.render.fmt_img(img, alt='', pdir=config.IMG_DIR_ADD, required=True))
-        desc = '{} {}<br>{} {}<br>{}<br>'.format(
+        desc = '{} {}<br>{} {}<br>{}<br>{}{}'.format(
             pif.render.format_link('single.cgi?id=%s' % rec['mod_id'], rec['mod_id']),
             pif.render.format_button('edit', link=pif.dbh.get_editor_link('attribute_picture', {'id': recid})),
             pif.render.format_text_input('pic_id.%s' % recid, maxlength=4, showlength=4, value=rec['picture_id']),

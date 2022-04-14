@@ -75,9 +75,9 @@ def import_psdc(pif):
     q = get_links(pif, 'PSDC')
     ul = list(set([x['link_line.url'] for x in q]))
     pl = list(set(u_re.findall(u)))
-    for l in pl:
-        if not pref + l[0] in ul:
-            print(l[1], pref + l[0])
+    for ln in pl:
+        if not pref + ln[0] in ul:
+            print(ln[1], pref + ln[0])
 
 
 # ---- importers ------------------------------------------

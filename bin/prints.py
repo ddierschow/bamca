@@ -454,7 +454,7 @@ def single_publication(pif, pub_id):
         raise useful.SimpleError("That publication was not found.")
     # should just use man.section_id
     sec = get_section_by_model_type(pif, man.base_id.model_type)
-    #pif.set_page_info(sec.page_info.id)  # obviously not right but I don't know what is.
+    # pif.set_page_info(sec.page_info.id)  # obviously not right but I don't know what is.
     man['casting_type'] = 'Publication'
     man['name'] = man['base_id.rawname'].replace(';', ' ')
     imgs = pub_images(pif, pub_id.lower())

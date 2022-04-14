@@ -462,9 +462,9 @@ def make_plants(pif, mod_id, plants):
     return llineup
 
 
-img_re = re.compile(r'src="(?P<u>[^"]*)"')
 @basics.web_page
 def show_single(pif):
+    img_re = re.compile(r'src="(?P<u>[^"]*)"')
     model = pif.dbh.fetch_casting(pif.form.get_id('id'), extras=True, verbose=True)
     if not model:
         raise useful.SimpleError("That ID wasn't found.", status=404)

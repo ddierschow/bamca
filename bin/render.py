@@ -2,8 +2,6 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-from sprint import sprint as print
-import cgi
 import copy
 import glob
 import html
