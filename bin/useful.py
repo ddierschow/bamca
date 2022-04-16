@@ -190,22 +190,22 @@ def clean_id(str_id, limit=255):
 
 def dump_dict_comment(t, d, keys=None):
     return ''
-    ostr = "<!-- dump %s:\n" % t
+    ostr = f"<!-- dump {t}:\n"
     ostr += pprint.pformat(d, indent=1, width=132)
     return ostr + '\n-->\n'
 
 
 def dump_dict(t, d, keys=None):
-    return '%s<br>\n%s\n' % (t, pprint.pformat(d, indent=1, width=132))
+    return '{}<br>\n{}\n'.format(t, pprint.pformat(d, indent=1, width=132))
 
 
 def fmt_also(also={}, style={}):
     nalso = dict(style)
     nalso.update(also)
     ostr = ''
-    for tag in nalso:
-        if nalso.get(tag):
-            ostr = ostr + ' %s="%s"' % (tag, nalso[tag])
+    for tag, val in nalso.items():
+        if val:
+            ostr = ostr + f' {tag}="{val}"'
     return ostr
 
 
@@ -230,7 +230,10 @@ def bit_list(val, format="%02x"):
     bit = 1
     while val:
         if val & 1:
-            olst.append(format % bit)
+            if '%' in format:
+                olst.append(format % bit)
+            else:
+                olst.append(bit.format(format))
         val >>= 1
         bit *= 2
     return olst
@@ -582,7 +585,7 @@ def format_string(*args, **kwargs):
         elif args[0] == '#':
             return '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
         elif args[0] == '!':
-            return '<div class="warning">%s</div>' % ' '.join([str(x) for x in args[1:]])
+            return '<div class="warning">{}</div>'.format(' '.join([str(x) for x in args[1:]]))
         else:
             return ' '.join([str(x) for x in args]) + '<br>'
     return ''
@@ -603,9 +606,9 @@ def render_template(template, **kwargs):
 
 def command_help(script, cmds):
     # cmds is list of (cmd, function, help message)
-    write_message("%s [%s] ..." % (script, '|'.join([x[0] for x in cmds])))
-    for cmd in cmds:
-        write_message("  %s for %s" % (cmd[0], cmd[2]))
+    write_message("{} [{}] ...".format(script, '|'.join([x[0] for x in cmds])))
+    for cmd, func, hlp in cmds:
+        write_message(f"  {cmd} for {hlp}")
 
 
 def cmd_proc(pif, script, cmds):

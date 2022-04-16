@@ -98,6 +98,7 @@ class Tumblr(object):
         #     response = self.create_video(**kwargs)
         else:
             response = {'state': 'published'}
+        print(response)
         return response
 
 
@@ -116,15 +117,17 @@ def check_table(pif):
         print(post)
 
 
-def redo_posts(pif):
+def redo_posts(pif, *args):
+    args = [int(x) for x in args]
     posts = pif.dbh.fetch_tumblr_posts()
     print(len(posts), 'posts waiting')
     for post in posts:
-        print(post)
-        response = Tumblr(pif).redo(post)
-        print(response)
-        if response.get('state') != 'published':
-            break
+        if not args or post.id in args:
+            print(post)
+            response = Tumblr(pif).redo(post)
+            print(response)
+            if response.get('state') != 'published':
+                break
 
 
 cmds = {

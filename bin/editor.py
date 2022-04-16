@@ -53,7 +53,7 @@ def show_table(pif):
     def save_val(key):
         if key in table_info.get('bits', {}):
             return pif.form.get_bits(key)
-        return pif.form.get_str(key)
+        return pif.form.get_str(key, other='')
 
     dats = []
     if pif.duplicate_form:  # not pif.dbh.insert_token(pif.form.get_str('token')):
@@ -63,8 +63,9 @@ def show_table(pif):
         return
     elif pif.form.has('save'):
         # rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
+        values = {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}
         pif.dbh.write(
-            table_info['name'], {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
+            table_info['name'], values,
             pif.form.where(table_info['id'], 'o_'), tag='ShowTableSave', verbose=True)
         pif.render.message('record saved')
     elif pif.form.has('delete'):

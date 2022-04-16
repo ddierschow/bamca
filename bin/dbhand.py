@@ -580,6 +580,9 @@ class DBHandler(object):
             'casting', self.fetch('casting,base_id,variation', columns=columns, where=wheres,
                                   group='base_id.id', order='base_id.id', tag='CastingByPlant', verbose=verbose))
 
+    def delete_casting(self, where):
+        return self.delete('casting', self.make_where(where))
+
     # - casting_related
 
     def fetch_casting_relateds(self, mod_id=None, rel_id=None, section_id=None, flags=0, verbose=False):

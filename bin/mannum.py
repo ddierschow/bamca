@@ -946,9 +946,38 @@ def admin_main(pif):
 # ---- commands ------------------------------
 
 
-def delete_casting(pif, *args, **kwargs):
-    pif.render.message("delete not yet implemented")
-    pass  # DeleteCasting(pif, pif.argv[1], pif.argv[2])
+def delete_casting(pif, mod_id, *args, **kwargs):
+    pif.render.message("delete", mod_id)
+    pif.dbh.delete_base_id({'id': mod_id})
+    pif.dbh.delete_casting({'id': mod_id})
+    pif.dbh.delete_attribute({'mod_id': mod_id})
+    pif.dbh.delete_variation({'mod_id': mod_id})
+    pif.dbh.delete_detail({'mod_id': mod_id})
+
+    # If we're renaming, I'd like to also call out the pictures.
+    # filename_re = re.compile(r'(?P<path>.*/)(?P<p>[a-z]_)?(?P<m>[^-.]*)(?P<s>-[^.]*)?(?P<e>\..*)')
+    # none_blank = {None: ''}
+    patts = [
+        '.' + config.IMG_DIR_MAN + '/?_%s.*' % mod_id,
+        '.' + config.IMG_DIR_MAN + '/%s.*' % mod_id,
+        '.' + config.IMG_DIR_VAR + '/?_%s-*.*' % mod_id,
+        '.' + config.IMG_DIR_VAR + '/%s-*.*' % mod_id,
+        '.' + config.IMG_DIR_MAN_ICON + '/?_%s-*.*' % mod_id,
+        '.' + config.IMG_DIR_ADD + '/?_%s.*' % mod_id,
+        '.' + config.IMG_DIR_CAT + '/?_%s.*' % mod_id,
+        '.' + config.IMG_DIR_CAT + '/?_%s_*.*' % mod_id,
+        '.' + config.IMG_DIR_CAT + '/%s.*' % mod_id,
+        '.' + config.IMG_DIR_ADS + '/%s.*' % mod_id,
+        '.' + config.IMG_DIR_SET_PLAYSET + '/?_%s.*' % mod_id,
+        '.' + config.IMG_DIR_SET_PACK + '/?_%s.*' % mod_id,
+        '.' + config.IMG_DIR_PROD_PLAYSET + '/?_%s.*' % mod_id,
+        '.' + config.IMG_DIR_PROD_PACK + '/?_%s.*' % mod_id,
+        '.' + config.IMG_DIR_PROD_PACK + '/%s.*' % mod_id,
+    ]
+    pif.render.message("abandoning the following pics")
+    pics = reduce(lambda x, y: x + glob.glob(y.lower()), patts, list())
+    for pic in pics:
+        pif.render.message(pic)
 
 
 def search_name(pif, targ):
@@ -973,6 +1002,9 @@ def run_text_search(pif, *args):
 def add_attributes(pif, mod_id=None, *attr_list):
     if not mod_id or not attr_list:
         return
+    model = pif.dbh.fetch_casting(mod_id)
+    if not model:
+        print(f'{mod_id} does not exist.')
     for attr in attr_list:
         pif.dbh.insert_attribute(mod_id, attr)
 

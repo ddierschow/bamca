@@ -1,5 +1,6 @@
 GIT = /usr/local/bin/git
 RM = /bin/rm
+DATE != date +'%Y%m%d'
 
 all: configs test
 
@@ -20,3 +21,10 @@ deploy: clean
 
 clean:
 	$(RM) -f *~ *.pyc
+
+dumpdb:
+	@echo "This is looking for the database root password."
+	@echo "Dumping to bamca"
+	mysqldump -u root -p bamca > ../sql/bamca.mysql.$(DATE)
+	@echo "Dumping to buser"
+	mysqldump -u root -p buser > ../sql/buser.mysql.$(DATE)

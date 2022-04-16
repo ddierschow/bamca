@@ -336,6 +336,19 @@ def count_boxes(pif):
 
 # ----- pub ------------------------------------------------------------
 
+picdirs = {
+    'PK': 'pic/pub/pkg',
+    'PC': 'pic/pub/cat',
+    'DC': 'pic/pub/cat',
+    # 'RY': 'pic/pub/pkg',
+    # 'PZ': 'pic/pub/pkg',
+    'GM': 'pic/pub/game',
+    'BK': 'pic/pub/book',
+    'AD': 'pic/pub/ads',
+    # blister
+    # box
+}
+
 
 @basics.web_page
 def publication(pif):
@@ -452,6 +465,7 @@ def single_publication(pif, pub_id):
     man = pif.dbh.fetch_publication(pub_id).first
     if not man:
         raise useful.SimpleError("That publication was not found.")
+    pif.render.pic_dir = picdirs.get(man.base_id.model_type, pif.render.pic_dir)
     # should just use man.section_id
     sec = get_section_by_model_type(pif, man.base_id.model_type)
     # pif.set_page_info(sec.page_info.id)  # obviously not right but I don't know what is.

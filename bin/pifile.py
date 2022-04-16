@@ -106,8 +106,9 @@ class BaseForm(object):
         return self.form
 
     @staticmethod
-    def clean(val):
-        return ''.join([x for x in str(val) if x >= ' ' and x <= '~' and x not in '|;'])
+    def clean(val, other=None):
+        other = ';|' if other is None else other
+        return ''.join([x for x in str(val) if x >= ' ' and x <= '~' and x not in other])
 
     def get(self, key, defval=None):
         return self.form.get(key, defval)
@@ -127,9 +128,9 @@ class BaseForm(object):
     def get_exists(self, key):
         return key in self.form
 
-    def get_str(self, key, defval=''):
+    def get_str(self, key, defval='', other=None):
         try:
-            return self.clean(self.form[key])
+            return self.clean(self.form[key], other=other)
         except Exception:
             return str(defval)
 
