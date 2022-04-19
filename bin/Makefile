@@ -27,4 +27,4 @@ dumpdb:
 	@echo "Dumping to bamca"
 	mysqldump -u root -p bamca > ../sql/bamca.mysql.$(DATE)
 	@echo "Dumping to buser"
-	mysqldump -u root -p buser > ../sql/buser.mysql.$(DATE)
+	mysqldump -u root -p buser | python ../sql/scrub.py > ../sql/buser.mysql.$(DATE)

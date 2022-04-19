@@ -4,7 +4,8 @@ from sprint import sprint as print
 from io import open
 import os
 import urllib
-from urllib.error import HTTPError, URLError
+import urllib.error
+import urllib.request
 
 import basics
 import config
@@ -425,6 +426,7 @@ def edit_single(pif):
 
 
 def edit_multiple(pif, good=None):
+    stat = pif.form.get_str('stat')
     table_info = pif.dbh.table_info['link_line']
     page_id = ''
     sec_id = pif.form.get_str('sec', '')
@@ -436,11 +438,10 @@ def edit_multiple(pif, good=None):
         linklines = pif.dbh.fetch_link_lines(
             where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') "
                   "and page_id != 'links.rejects' and page_id != 'links.trash' and (flags & 32)=0")
-    elif pif.form.get_str('stat'):
+    elif stat:
         wheres = ["page_id != 'links.rejects' and page_id != 'links.trash'" if good else
-                  "page_id='links.rejects' or page_id='links.trash'",
-                  "last_status is NULL" if pif.form.get_str('stat') == 'None' else
-                  "last_status='%s'" % pif.form.get_str('stat')]
+                  "(page_id='links.rejects' or page_id='links.trash')",
+                  "last_status is NULL" if stat == 'None' else f"last_status='{stat}'"]
         linklines = pif.dbh.fetch_link_lines(where=wheres, order='id')
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
@@ -519,7 +520,7 @@ def edit_links(pif):
     if pif.form.get_str('id') or pif.form.get_str('add'):
         return edit_single(pif)
     elif pif.form.has_any(['as', 'sec', 'stat', 'page_id']):
-        return edit_multiple(pif, good=pif.form.get_str('good'))
+        return edit_multiple(pif, good=pif.form.get_bool('good'))
     else:
         return edit_choose(pif)
 
@@ -560,16 +561,17 @@ def check_link(pif, link, rejects=[], visible=False):
                     lurl, headers={
                         'User-Agent':
                         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
+                pif.render.message('http success:', url.code)
                 lstatus = 'H' + str(url.code)
-            except HTTPError as c:
-                print('http error:', c.code)
+            except urllib.error.HTTPError as c:
+                pif.render.message('http error:', c)
                 lstatus = 'H' + str(c.code)
-            except URLError as c:
-                print('url error:', c.reason)
-                lstatus = 'U' + str(c.reason[0])
-            except Exception:
+            except urllib.error.URLError as c:
+                pif.render.message('url error:', c)
+                lstatus = 'U' + str(c)
+            except Exception as e:
+                pif.render.message('Exception:', str(e))
                 lstatus = 'exc'
-        print(lstatus)
         if link.get('last_status') != lstatus:
             pif.dbh.update_link_line({'id': str(link['id']), 'last_status': lstatus})
 
