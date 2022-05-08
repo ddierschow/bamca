@@ -47,12 +47,6 @@
 <h4>{{ compare }}</h4>
 {% endfor %}
 
-{%- if baseplates %}{#- not currently implemented #}
-<center><h4>Base Plate Name{{ render.plural(baseplates) }}</h4>
-{{ showix.format_brlist(baseplates) }}
-</center><p>
-{%- endif %}
-
 {%- if plants.shown -%}{{ show_plants() }}{%- endif -%}
 
 {%- if appearances %}<center><b>Annual Lineups</b><p>{{ showix.format_listix(appearances) }}</center><p>{%- endif %}
@@ -144,14 +138,14 @@
 {% endfor %}
 </td></tr>
 {% endif %}
+{% if model.notes %}
+<tr><th colspan="{{ info_cols }}">Notes</th></tr>
+<tr><td colspan="{{ info_cols }}">
+{{ model.notes }}
+</td></tr>
+{% endif %}
 </table></center>
 
-{%- if model.notes %}
-<br>
-<center><div class="notes">{{ model.notes }}</div></center>
-{%- else %}
-<!-- no notes -->
-{%- endif %}
 {%- endmacro %}
 
 {%- macro show_plants() %}

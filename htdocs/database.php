@@ -335,7 +335,7 @@ function SectionManno($pif) {
     }
     echo "</td>\n";
     echo "  <td>ending at:</td>\n";
-    ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 1499, 1499, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
+    ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 9999, 9999, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
     if ($pif['isadmin']) {
 	HorzSpacer(1);
