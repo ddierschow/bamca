@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import glob
 from io import open
 import logging
@@ -18,6 +17,7 @@ import config
 import imglib
 import javasc
 import mbdata
+import render
 import tumblr
 import useful
 
@@ -121,6 +121,7 @@ def show_var_info(pif, mod_id, var_id):
             ostr += '<li>wheels: %s\n' % var['text_wheels']
             ostr += '<li>windows: %s\n' % var['text_windows']
             ostr += '<li>with: %s\n' % var['text_with']
+            ostr += '<li>note: %s %s\n' % (var['note'], var['date'])
             ostr += '</ul><hr>\n'
     return ostr
 
@@ -476,6 +477,7 @@ class EditForm(imglib.ActionForm):
         self.is_edited = False
         self.set_target_size((self.xts, self.yts))
         self.pth = ''
+        self.credfile = imglib.get_credit_file()
 
     def read(self, pif, edit=False):
         super().read(pif.form)
@@ -516,6 +518,11 @@ class EditForm(imglib.ActionForm):
         self.save = pif.form.get_bool('save')
         self.cc = pif.form.get_str('cc')
         self.credit = pif.form.get_str('credit')
+        if not self.credit:
+            for pref, cred in self.credfile.get(self.tdir[self.tdir.find('/') + 1:], {}).items():
+                if self.fn.startswith(pref):
+                    self.credit = cred
+                    break
         self.read_file(pif.form.get_str('q'))
         if not self.pref:
             self.pref = pif.form.get_str('tysz')
@@ -724,7 +731,7 @@ class EditForm(imglib.ActionForm):
             useful.file_delete(os.path.join(self.tdir, nname))
 
     def mass_resize(self, pif, desc=''):
-        print(self.__dict__, '<br>')
+        # print(self.__dict__, '<br>')
         var = self.var.lower()
         man = self.man.lower()
         print('mass_resize', 'pth', self.pth, 'tdir "%s"' % self.tdir, 'fn', self.fn, 'ot', self.ot,
@@ -1585,7 +1592,8 @@ def photographers(pif):
         pif.render.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog.photographer.name)
         pif.render.title = photog.photographer.name
         page = pif.form.get_int('p')
-        entries = [{'text': credit_show(pif, x)} for x in pif.dbh.fetch_photo_credits_page(photog_id, page=page)]
+        entries = [render.Entry(text=credit_show(pif, x))
+                   for x in pif.dbh.fetch_photo_credits_page(photog_id, page=page)]
         if page > 0:
             footer += pif.render.format_button('previous', link='photogs.cgi?id=%s&p=%d' % (photog_id, page - 1))
         if (page + 1) * 100 < photog['count']:
@@ -1599,11 +1607,11 @@ def photographers(pif):
             header += ' - ' + pif.render.format_button('visit website', link=photog.photographer.url)
     else:
         # hide private
-        entries = [{'text': photog_ind(pif, x)} for x in pif.dbh.fetch_photographer_counts()]
-    lsection = dict(range=[{'entry': entries}])
-    llineup = {'section': [lsection], 'header': header, 'footer': footer}
+        entries = [render.Entry(text=photog_ind(pif, x)) for x in pif.dbh.fetch_photographer_counts()]
+    lsection = render.Section(range=[render.Range(entry=entries)])
+    llineup = render.Matrix(section=[lsection], header=header, footer=footer)
     return pif.render.format_template('simplematrix.html', nofooter=True,
-                                      llineup=pif.render.format_matrix_for_template(llineup))
+                                      llineup=llineup.prep())
 
 
 # -- commands

@@ -4,7 +4,7 @@
 
 {{- render.format_button('mass', 'mass.cgi') }}
 {% for mass in masses %}
-{{- render.format_button(mass, 'mass.cgi?type=' + mass) }}
+{{- render.format_button(mass, 'mass.cgi?tymass=' + mass) }}
 {% endfor %}
 
 <div class="askt">
@@ -14,7 +14,7 @@
 <form>
 <input type="hidden" name="table" value="{{ table }}">
 <table class="tb">
-{%- for ask in table_info[table]['ask'] %}
+{%- for ask in table_data[table].ask %}
  <tr>
   <td class="eb_0 eb">{{ ask }}</td>
   <td class="eb_1 eb"><input type="text" name="{{ ask }}">  </td>

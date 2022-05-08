@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import glob
 from io import open
 import itertools
@@ -13,6 +12,7 @@ import config
 import imglib
 import mbdata
 import models
+import render
 import useful
 
 
@@ -116,7 +116,7 @@ def single_box(pif, mod, box):
     else:
         ostr = box['mod_id'] + '<br>'
     # ostr += pic_name + '<br>\n'
-    for col in pif.dbh.get_table_info('box_type')['columns']:
+    for col in pif.dbh.get_table_data('box_type').columns:
         if col not in ign_cols:
             if box[col]:
                 ostr += '<b>%s</b><ul>\n' % box_lookup(col, '_title')[0]
@@ -146,9 +146,9 @@ def single_box_type(pif):
         mod = mod[0]
         mod['id'] = mod['alias.id'] if mod['alias.ref_id'] else mod['casting.id']
 
-    lsection = dict(columns=['inf', 'pic'], headers={'inf': 'Box Information', 'pic': 'Box Picture'},
-                    range=[dict(entry=[single_box(pif, mod, x) for x in boxes], note='')], note='')
-    llistix = dict(section=[lsection])
+    lsection = render.Section(colist=['inf', 'pic'], headers={'inf': 'Box Information', 'pic': 'Box Picture'},
+                              range=[render.Range(entry=[single_box(pif, mod, x) for x in boxes])])
+    llistix = render.Listix(section=[lsection])
     return llistix
 
 
@@ -411,9 +411,9 @@ def publication_list(pif, mtype):
                 'flags': 'Flags', 'model_type': 'Type', 'id': 'ID', 'name': 'Name', 'picture': ''}
         cols = ['picture', 'name', 'description', 'first_year', 'country']
 
-        lrange = dict(entry=[x for x in entry if x], styles=dict(zip(cols, cols)))
-        lsection = dict(columns=cols, headers=hdrs, range=[lrange], note='', name=sec.name)
-        llistix = dict(section=[lsection])
+        lrange = render.Range(entry=[x for x in entry if x], styles=dict(zip(cols, cols)))
+        lsection = render.Section(colist=cols, headers=hdrs, range=[lrange], name=sec.name)
+        llistix = render.Listix(section=[lsection])
         return pif.render.format_template('simplelistix.html', llineup=llistix)
 
     cols = 4
@@ -421,14 +421,13 @@ def publication_list(pif, mtype):
     def pub_text_link(pub):
         pic = pif.render.fmt_img(pub['id'], prefix='s')
         name = pic + '<br>' + pub['name'] if pic else pub['name']
-        return {'text': pif.render.format_link("makes.cgi?make=" + pub['id'], name)}
+        return render.Entry(text=pif.render.format_link("makes.cgi?make=" + pub['id'], name))
 
     ents = [pub_text_link(pub_ent(x)) for x in pubs]
-    llineup = {'id': '', 'name': '', 'columns': cols, 'header': '', 'footer': '',
-               'section': [{'columns': cols, 'range': [{'entry': ents, 'id': 'makelist'}]}]}
+    llineup = render.Matrix(
+        id='', columns=cols, section=[render.Section(columns=cols, range=[render.Range(entry=ents, id='makelist')])])
 
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def make_relateds(pif, ref_id, pub_id, imgs):
@@ -492,17 +491,16 @@ def single_publication(pif, pub_id):
         upper_box += '<br>' if upper_box else ''
         upper_box += useful.printablize(man['base_id.description'])
 
-    lran = [{
-        'id': 'ran',
-        'entry': [{'text': pif.render.format_image_link_image(img[img.rfind('/') + 1:])}
-                  for img in sorted(imgs)] if imgs else [{'text': pif.render.format_image_link_image(pub_id)}]
-    } if len(imgs) > 1 else {}]
+    lran = [render.Range(
+        id='ran',
+        entry=[render.Entry(text=pif.render.format_image_link_image(img[img.rfind('/') + 1:]))
+               for img in sorted(imgs)] if imgs else [render.Entry(text=pif.render.format_image_link_image(pub_id))]
+    ) if len(imgs) > 1 else render.Range()]
     if relateds:
-        lran.append({'id': 'related', 'entry': relateds, 'name': 'Related Models'})
-    llineup = {'id': pub_id, 'name': '', 'section': [{'id': 'sec', 'range': lran, 'columns': 4}], 'columns': 4}
+        lran.append(render.Range(id='related', entry=relateds, name='Related Models'))
+    llineup = render.Matrix(id=pub_id, section=[render.Section(id='sec', range=lran, columns=4)], columns=4)
 
     pif.render.set_button_comment(pif, 'id=%s' % pub_id)
-    pif.render.format_matrix_for_template(llineup)
     context = {
         'title': man.get('name', ''),
         'note': '',
@@ -512,7 +510,7 @@ def single_publication(pif, pub_id):
         'rowspan': 5 if upper_box else 4,
         'left_bar_content': left_bar_content,
         'upper_box': upper_box,
-        'llineup': llineup,
+        'llineup': llineup.prep(),
     }
     return pif.render.format_template('pub.html', **context)
 

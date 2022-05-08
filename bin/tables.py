@@ -1,12 +1,12 @@
 #!/usr/local/bin/python
 
-# readonly hidden select checkbox
 # add ask bits clinks columns create db defaults editable elinks extends id readonly title tlinks
 table_info = {
     # page_info
     'page_info': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'flags', 'format_type', 'title', 'pic_dir', 'tail', 'description', 'note'],
         'clinks': {
             'id': {'tab': 'page_info', 'id': ['id/id']},
@@ -40,6 +40,7 @@ table_info = {
     'country': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'name', 'region'],
         'clinks': {
             'id': {'tab': 'country', 'id': ['id/id']},
@@ -55,6 +56,7 @@ table_info = {
     'section': {
         'db': 'bamca',
         'id': ['id', 'page_id'],
+        'saveid': True,
         'columns': [
             'id', 'page_id', 'display_order', 'category', 'flags', 'name', 'columns', 'start', 'pic_dir',
             'disp_format', 'link_format', 'img_format', 'note'
@@ -101,6 +103,7 @@ table_info = {
     'base_id': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'first_year', 'model_type', 'rawname', 'description', 'flags'],
         'clinks': {
             'id': {'tab': 'base_id', 'id': ['id/id']},
@@ -136,6 +139,7 @@ table_info = {
     'casting': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'extends': {'base_id': 'id/id'},
         'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'variation_digits'],
         'extra_columns': [
@@ -189,6 +193,7 @@ table_info = {
     'casting_related': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description', 'flags'],
         'clinks': {
             'id': {'tab': 'casting_related', 'id': ['id/id']},
@@ -211,6 +216,7 @@ table_info = {
     'attribute': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'mod_id', 'attribute_name', 'definition', 'title', 'visual', 'flags'],
         'clinks': {
             'id': {'tab': 'attribute', 'id': ['id/id']},
@@ -241,6 +247,7 @@ table_info = {
     'attribute_picture': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'mod_id', 'attr_id', 'attr_type', 'picture_id', 'description'],
         'clinks': {
             'id': {'tab': 'attribute_picture', 'id': ['id/id']},
@@ -267,6 +274,7 @@ table_info = {
     'variation': {
         'db': 'bamca',
         'id': ['mod_id', 'var'],
+        'saveid': True,
         'columns': [
             'mod_id', 'var', 'flags',
             'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with',
@@ -310,6 +318,7 @@ table_info = {
     'detail': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'mod_id', 'var_id', 'attr_id', 'description'],
         'clinks': {
             'attr_id': {'tab': 'attribute', 'id': ['id/attr_id']},
@@ -324,6 +333,7 @@ table_info = {
     'wheel': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'description'],
         'create': {
             'id': 'unset',
@@ -333,6 +343,7 @@ table_info = {
     'alias': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['pk', 'id', 'first_year', 'ref_id', 'section_id', 'type', 'flags'],
         'clinks': {
             'id': {'tab': 'alias', 'id': ['id/id']},
@@ -355,6 +366,7 @@ table_info = {
     'vehicle_type': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'ch', 'name'],
         'clinks': {
             'id': {'tab': 'vehicle_type', 'id': ['id/id']},
@@ -364,6 +376,7 @@ table_info = {
     'counter': {
         'db': 'buser',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'value', 'timestamp', 'health'],
         'clinks': {
             'id': {'tab': 'counter', 'id': ['id/id']},
@@ -373,6 +386,7 @@ table_info = {
     'vehicle_make': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'name', 'company_name', 'flags'],
         'clinks': {
             'id': {'tab': 'vehicle_make', 'id': ['id/id']},
@@ -392,6 +406,7 @@ table_info = {
     'casting_make': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'make_id', 'casting_id', 'flags'],
         'clinks': {
             'id': {'tab': 'casting_make', 'id': ['id/id']},
@@ -416,6 +431,8 @@ table_info = {
     'matrix_model': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
+        'extends': {'base_id': 'base_id/id'},
         'columns': [
             'id', 'base_id', 'page_id', 'section_id', 'display_order', 'range_id', 'mod_id', 'flags', 'shown_id',
             'name', 'subname', 'description'
@@ -450,6 +467,7 @@ table_info = {
     'region': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'parent', 'name'],
         'clinks': {
             'id': {'tab': 'region', 'id': ['id/id']},
@@ -466,6 +484,8 @@ table_info = {
     'lineup_model': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
+        'extends': {'base_id': 'base_id/id'},
         'columns': [
             'id', 'base_id', 'mod_id', 'number', 'display_order', 'flags', 'style_id', 'picture_id', 'region', 'year',
             'name', 'page_id'
@@ -476,6 +496,7 @@ table_info = {
             'year': {'tab': 'lineup_model', 'id': ['year/year']},
         },
         'tlinks': [
+            {'tab': 'base_id', 'id': ['base_id/id']},
             {'tab': 'variation_select', 'id': ['mod_id/mod_id']},
         ],
         'add': {
@@ -497,6 +518,7 @@ table_info = {
     'link_line': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': [
             'id', 'page_id', 'section_id', 'display_order', 'flags', 'associated_link', 'last_status', 'link_type',
             'country', 'url', 'name', 'description', 'note'
@@ -533,6 +555,7 @@ table_info = {
     'blacklist': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'reason', 'target'],
         'clinks': {
             'id': {'tab': 'blacklist', 'id': ['id/id']},
@@ -545,6 +568,7 @@ table_info = {
     'user': {
         'db': 'buser',
         'id': ['id'],
+        'saveid': False,
         'columns': [
             'id', 'user_id', 'privs', 'email', 'vkey', 'first_name', 'last_name', 'location', 'interests', 'flags',
             'photographer_id', 'last_login',
@@ -577,6 +601,7 @@ table_info = {
     'pack': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': True,
         'extends': {'base_id': 'id/id'},
         'columns': [
             'id', 'var', 'page_id', 'section_id', 'region', 'end_year', 'layout', 'product_code', 'material',
@@ -602,6 +627,7 @@ table_info = {
     'pack_model': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'pack_id', 'pack_var', 'mod_id', 'var_id', 'flags', 'display_order'],
         'clinks': {
             'id': {'tab': 'pack_model', 'id': ['id/id']},
@@ -618,6 +644,7 @@ table_info = {
     'publication': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': True,
         'extends': {'base_id': 'id/id'},
         'columns': ['id', 'country', 'section_id', 'isbn'],
         'clinks': {
@@ -641,6 +668,7 @@ table_info = {
     'variation_select': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': True,
         'columns': ['id', 'ref_id', 'mod_id', 'var_id', 'sec_id', 'ran_id', 'category'],
         'create': {
             'ref_id': 'unset',
@@ -664,6 +692,7 @@ table_info = {
     'box_type': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': [
             'id', 'mod_id', 'box_type', 'pic_id', 'box_size', 'additional_text', 'bottom', 'sides', 'end_flap',
             'model_name', 'year', 'notes'
@@ -680,6 +709,7 @@ table_info = {
     'book': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'author', 'title', 'publisher', 'year', 'isbn', 'flags', 'pic_id'],
         'ask': ['id'],
         'add': {
@@ -701,6 +731,7 @@ table_info = {
     'bayarea': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'name', 'address', 'city', 'state', 'phone', 'flags', 'url'],
         'ask': ['id'],
         'add': {
@@ -713,12 +744,14 @@ table_info = {
     'token': {
         'db': 'buser',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'created'],
     },
     # photographer
     'photographer': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': True,
         'columns': ['id', 'name', 'url', 'flags', 'example_id'],
         'ask': ['id'],
         'add': {
@@ -744,6 +777,7 @@ table_info = {
     'photo_credit': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'path', 'name', 'photographer_id'],
         'add': {
             'photo_credit': ['photographer_id/photographer_id'],
@@ -759,6 +793,7 @@ table_info = {
     'category': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'name', 'flags', 'image'],
         'add': {
             'category': ['id/id'],
@@ -783,6 +818,7 @@ table_info = {
     'user_item': {
         'db': 'buser',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'user_id', 'base_id', 'flags', 'own_type', 'comment'],
         'add': {
             'user_item': ['id/id'],
@@ -797,24 +833,56 @@ table_info = {
     'tumblr': {
         'db': 'buser',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'payload', 'response', 'post_type'],
     },
     # mbusa
     'mbusa': {
         'db': 'bamca',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'mod_id', 'var_id', 'model', 'variation', 'description', 'date'],
     },
     # cookie
     'cookie': {
         'db': 'buser',
         'id': ['id'],
+        'saveid': False,
         'columns': ['id', 'ckey', 'user_id', 'ip', 'expires'],
     },
 }
-for key in table_info:
-    table_info[key]['name'] = key
+home_db = 'bamca'
 
+
+class TableData(object):
+
+    def __init__(self, name, db, add=None, ask=None, bits=None, clinks=None, columns=None, create=None,
+                 defaults=None, editable=None, elinks=None, extends=None, extra_columns=None, formats=None, hidden=None,
+                 id=None, internals=None, readonly=None, saveid=False, title=None, tlinks=None):
+        self.db = db
+        self.name = name
+        self.add = add or {}
+        self.ask = ask or []
+        self.bits = bits or {}
+        self.clinks = clinks or {}
+        self.columns = columns or []
+        self.create = create or {}
+        self.defaults = defaults or {}
+        self.editable = editable or []
+        self.elinks = elinks or []
+        self.extends = extends or {}
+        self.extra_columns = extra_columns or []
+        self.formats = formats or []
+        self.hidden = hidden or []
+        self.id = id or []
+        self.internals = internals or []
+        self.readonly = readonly or []
+        self.saveid = saveid
+        self.title = title or {}
+        self.tlinks = tlinks or {}
+
+
+table_data = {x: TableData(x, **y) for x, y in table_info.items()}
 
 # -
 
@@ -824,7 +892,7 @@ for key in table_info:
 class Results(object):
 
     def __init__(self, table, results=None):
-        self._info = table_info[table]
+        self._data = table_data[table]
         self._results = None
         self.receive(results)
 
@@ -856,12 +924,12 @@ class Results(object):
         return len(self._results)
 
     def __getattr__(self, key):
-        return self._info[key]
+        return getattr(self._data, key)
 
     def __getitem__(self, key):
         if isinstance(key, int):
             return self._results[key]
-        return self._info[key]
+        return getattr(self._data, key)
 
     def depref(self, tables):
         if isinstance(tables, str):
@@ -952,3 +1020,6 @@ class Result(object):
                 if self[key] == subrec[key]:
                     del subrec[key]
         return self
+
+    def update(self, data):
+        self._record.update(data)

@@ -3,4 +3,4 @@ body {background-color: #FFFFCC;}
 .sh {font-size: large;}
 .eb {border-width: 0;}
 
-.eb_makelist {text-align: center; vertical-align: top; border-style: solid; border-width: 1px;}
+.eb_makelist {text-align: center; vertical-align: top; border-style: solid; border-width: 1px; width: 125px;}

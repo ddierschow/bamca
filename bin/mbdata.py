@@ -64,6 +64,7 @@ model_type_names = {
     'PZ': 'Puzzle',
     'GM': 'Game',
     'BK': 'Book',
+    'PD': 'Periodical',
     'AD': 'Advertisement',
     'MP': 'Multipack',
     'SE': 'Series',
@@ -71,28 +72,29 @@ model_type_names = {
 }
 
 model_types = {
-    'AC': 'Casting',           # Accessory
-    'ET': 'Casting',           # Early toy
-    'KS': 'Casting',           # King size
-    'RW': 'Casting',           # Regular wheel
-    'SB': 'Casting',           # Sky Buster
-    'SF': 'Casting',           # Superfast
-    'BR': 'Casting',           # Budget Range
-    'YY': 'Casting',           # YesterYear
-    'CH': 'Casting',           # Character Cars
-    'PS': 'Assembly',          # Playset
-    'CC': 'Case',              # Carrying Case
-    'PK': 'Publication',       # Packaging
-    'PC': 'Publication',       # Pocket Catalog
-    'DC': 'Publication',       # Dealer Catalog
-    'RY': 'Publication',       # Roadway
-    'PZ': 'Publication',       # Puzzle
-    'BK': 'Publication',       # Book
-    'GM': 'Publication',       # Game
-    'AD': 'Advertisement',     # Ad
-    'MP': 'Package',           # Multipack
-    'SE': 'Package',           # Series
-    'LI': 'Package',           # Lineup
+    'AC': 'Casting',            # Accessory
+    'ET': 'Casting',            # Early toy
+    'KS': 'Casting',            # King size
+    'RW': 'Casting',            # Regular wheel
+    'SB': 'Casting',            # Sky Buster
+    'SF': 'Casting',            # Superfast
+    'BR': 'Casting',            # Budget Range
+    'YY': 'Casting',            # YesterYear
+    'CH': 'Casting',            # Character Cars
+    'PS': 'Assembly',           # Playset
+    'CC': 'Case',               # Carrying Case
+    'PK': 'Publication',        # Packaging
+    'PC': 'Publication',        # Pocket Catalog
+    'DC': 'Publication',        # Dealer Catalog
+    'RY': 'Publication',        # Roadway
+    'PZ': 'Publication',        # Puzzle
+    'BK': 'Publication',        # Book
+    'GM': 'Publication',        # Game
+    'PD': 'Publication',        # Periodical
+    'AD': 'Advertisement',      # Ad
+    'MP': 'Package',            # Multipack
+    'SE': 'Package',            # Series
+    'LI': 'Package',            # Lineup
 }
 
 page_format_type = {
@@ -490,19 +492,21 @@ materials = {
 
 
 arts = {
-    'Rolamatics': 'rola-matics.gif',
-    'Choppers': 'choppers.gif',
-    'Real Talkin': 'realtalkin.gif',
-    'D.A.R.E.': 'dare.gif',
-    'Caterpillar': 'caterpillar.gif',
-    'Auto Steer': 'autosteer.gif',
-    'Collectibles': 'collectibles.gif',
-    'Jurassic Park': 'jurassic_park.gif',
-    'Jurassic World': 'jurassic_world.gif',
-    'Originals': 'originals.gif',
-    'Premieres': 'premiere.gif',
-    'Color Changers': 'colorchangers.gif',
-    'Convoy': 'convoy.gif',
+    'Rolamatics': 'rola-matics',
+    'Choppers': 'choppers',
+    'Real Talkin': 'realtalkin',
+    'D.A.R.E.': 'dare',
+    'Caterpillar': 'caterpillar',
+    'Auto Steer': 'autosteer',
+    'Collectibles': 'collectibles',
+    'Jurassic Park': 'jurassic_park',
+    'Jurassic World': 'jurassic_world',
+    'Originals': 'originals',
+    'Premieres': 'premiere',
+    'Color Changers': 'colorchangers',
+    'Convoy': 'convoy',
+    'Moving Parts': 'movingparts',
+    'Speed Kings': 'speed-kings',
 }
 
 
@@ -516,6 +520,12 @@ model_adds = [
     ["a_", "Customization%(s)s", "<p>", 1],
     ["f_", "Advertisement%(s)s", "<p>", 1],
     ["e_", "Error Model%(s)s", "<p>", 1],
+]
+
+var_adds = [
+    ["b_", "Base%(s)s", "<p>", 1],
+    ["d_", "Detail%(s)s", " ", 1],
+    ["i_", "Interior%(s)s", "<p>", 1],
 ]
 
 
@@ -728,8 +738,17 @@ dirs = bidict.bidict({
     'pssky': config.IMG_DIR_SKY[1:],
 })
 
+deco_types = (
+    ('', 'unset'),
+    ('d', 'decals'),
+    ('l', 'labels'),
+    ('t', 'tampo'),
+    ('n', 'no'),
+    ('h', 'handpainted'),
+)
 
 # ----------------------------------------------------------------------
+
 
 def get_mime_type(listtype):
     return mime_types.get(listtype, 'text/html')
@@ -774,7 +793,7 @@ def get_mack_number(cid):
             return ('MB', int(id_m.group('n')), id_m.group('l'))
         if id_m.group('p') == 'RW':
             return ('', int(id_m.group('n')), id_m.group('l'))
-    return None
+    return (None, None, None)
 
 
 def get_region_tree(region):

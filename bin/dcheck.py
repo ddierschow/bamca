@@ -39,10 +39,11 @@ def check_schema_db(pif, db):
     for table in tablelist[0]:
         table = table[0]
         print(db, table, ':',)
-        if table in pif.dbh.table_info:
+        table_data = pif.dbh.get_table_data(table)
+        if table_data:
             desc = pif.dbh.dbi.execute('desc {}.{}'.format(db, table))
             dbcols = set([x[0] for x in desc[0]])
-            ticols = set(pif.dbh.table_info[table]['columns'] + pif.dbh.table_info[table].get('extra_columns', []))
+            ticols = set(table_data.columns + table_data.extra_columns)
             if dbcols != ticols:
                 print("differ")
                 print("  db:", sorted(dbcols - ticols))
@@ -50,7 +51,7 @@ def check_schema_db(pif, db):
             else:
                 print("same")
         else:
-            print("missing from table_info")
+            print("missing from table_data")
 
 
 # ------- check tables -------------------------------------------------

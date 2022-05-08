@@ -46,14 +46,14 @@
 <table class="{{ render.class_id('tb', section.id) }}">
 {%- if section.name %}
  <tr>
-  <th{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
+  <th{% if section.colist|length > 1 %} colspan="{{ section.colist|length }}"{% endif %} class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
  </tr>
 {%- endif %}
 {%- if not section.noheaders %}
 <tr class="er">
-{%- for col in section.columns %}
-{#-  <th class="{{ render.class_id('eh', section.id) }} {{ render.class_id('eh', range.id) }}">{{ section.get('headers', {}).get(col, col) }}</th> #}
-  <th class="{{ render.class_id('eh', col, range.id, section.id) }}">{{ section.get('headers', {}).get(col, col) }}</th>
+{%- for col in section.colist %}
+{#-  <th class="{{ render.class_id('eh', section.id) }} {{ render.class_id('eh', range.id) }}">{{ section.headers.get(col, col) }}</th> #}
+  <th class="{{ render.class_id('eh', col, range.id, section.id) }}">{{ section.headers.get(col, col) }}</th>
 {%- endfor -%}
 </tr>
 {%- endif %}
@@ -61,27 +61,29 @@
 {{- render.fmt_anchor(range.anchor) }}
 {%- if range.name %}
  <tr>
-  <th{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="{{ render.class_id('sh', range.id) }}">{{ range.name }}</th>
+  <th{% if section.colist|length > 1 %} colspan="{{ section.colist|length }}"{% endif %} class="{{ render.class_id('sh', range.id) }}">{{ range.name }}</th>
  </tr>
 {%- endif %}
 {%- for entry in range.entry %}
-{%- if entry %}
 <tr class="er ln{{ loop.cycle('1', '0') }}">
-{%- for col in section.columns %}
-  <td class="{{ render.class_id('eb', range.get('styles', {}).get(col, entry.get('style', '1'))) }}">{{ entry[col] or '&nbsp;' }}</td>
+{%- if entry %}
+{%- for col in section.colist %}
+  <td class="{{ render.class_id('eb', range.styles.get(col, entry.get('style', '1'))) }}">{{ entry[col] or '&nbsp;' }}</td>
 {%- endfor %}
-</tr>
+{%- else %}
+  <td class="{{ render.class_id('eb', range.styles.get(col, entry.get('style', '1'))) }}" colspan="{{ section.colist|length }}"></td>
 {%- endif -%}
+</tr>
 {%- endfor -%}
 {%- if range.note -%}
 <tr class="er">
-  <td{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="eb">{{ range.note }}</td>
+  <td{% if section.colist|length > 1 %} colspan="{{ section.colist|length }}"{% endif %} class="eb">{{ range.note }}</td>
 </tr>
 {%- endif -%}
 {%- endfor -%}
 {%- if section.note -%}
 <tr class="er">
-  <td{% if section.columns|length > 1 %} colspan="{{ section.columns|length }}"{% endif %} class="eb">{{ section.note }}</td>
+  <td{% if section.colist|length > 1 %} colspan="{{ section.colist|length }}"{% endif %} class="eb">{{ section.note }}</td>
 </tr>
 {%- endif -%}
 </table>
@@ -116,20 +118,20 @@
 {%- if range.name or range.graphics %}
  <tr>
 {%- if section.columns == 1 %}
-  <th class="{{ render.class_id('rh', range.class, range.id) }}">{{ range.graphics }}&nbsp;{{ range.name }}&nbsp;</th>
+  <th class="{{ render.class_id('rh', range.class_name, range.id) }}">{{ range.graphics }}&nbsp;{{ range.name }}&nbsp;</th>
 {%- elif section.columns == 2 %}
-  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
-  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
+  <th class="{{ render.class_id('rh', range.class_name, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
+  <th class="{{ render.class_id('rh', range.class_name, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
 {%- else %}
-  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
-  <th{% if section.columns > 3 %} colspan="{{ section.columns - 2 }}"{% endif %} class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
-  <th class="{{ render.class_id('rh', range.class, range.id) }}">&nbsp;</th>
+  <th width="{{ 100 // section.columns }}%" class="{{ render.class_id('rh', range.class_name, range.id) }}">&nbsp;{{ range.graphics }}&nbsp;</th>
+  <th{% if section.columns > 3 %} colspan="{{ section.columns - 2 }}"{% endif %} class="{{ render.class_id('rh', range.class_name, range.id) }}">&nbsp;{{ range.name }}&nbsp;</th>
+  <th width="{{ 100 // section.columns }}%" class="{{ render.class_id('rh', range.class_name, range.id) }}">&nbsp;</th>
 {%- endif %}
  </tr>
 {%- endif -%}
 {%- for entry in range.entry %}
 {%- if entry.firstent %} <tr class="er">{% endif %}
-  <td{%- if not lmatrix.widthauto %} width="{{ entry.width }}"{% endif %} class="{{ render.class_id('eb', range.id, entry.display_id) }} {{ render.class_id('', entry.class) }}"{% if entry.colspan > 1 %} colspan="{{ entry.colspan }}"{% endif %}{% if entry.rowspan > 1 %} rowspan="{{ entry.rowspan }}"{% endif %}>
+  <td{%- if not lmatrix.widthauto %} width="{{ entry.width }}"{% endif %} class="{{ render.class_id('eb', range.id, entry.display_id) }} {{ render.class_id('', range.class_name, entry.class_name) }}"{% if entry.colspan > 1 %} colspan="{{ entry.colspan }}"{% endif %}{% if entry.rowspan > 1 %} rowspan="{{ entry.rowspan }}"{% endif %}>
 {{- entry_formatter(entry) }}
   </td>
 {%- if entry.lastent or loop.last %} </tr>{% endif %}

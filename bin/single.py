@@ -10,6 +10,7 @@ import imglib
 import mbdata
 import mflags
 import models
+import render
 import useful
 
 # http://beta.bamca.org/cgi-bin/single.cgi?dir=pic/prod/mworld&pic=2017u079&ref=year.2017&sub=67&id=MB895
@@ -257,8 +258,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         links.append('<a href="vars.cgi?recalc=1&mod=%s">Recalculate</a>' % mod_id)
         links.append('<a href="%s">Casting</a>' % pif.dbh.get_editor_link('casting', {'id': mod_id}))
         links.append('<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id}))
-        links.append('<a href="mass.cgi?type=related&mod_id=%s">Relateds</a>' % mod_id)
-        links.append('<a href="mass.cgi?type=alias&mod_id=%s">Aliases</a>' % mod_id)
+        links.append('<a href="mass.cgi?tymass=related&mod_id=%s">Relateds</a>' % mod_id)
+        links.append('<a href="mass.cgi?tymass=alias&mod_id=%s">Aliases</a>' % mod_id)
         links.append('<a href="vars.cgi?edt=1&mod=%s">Variations</a>' % mod_id)
         links.append('<a href="vars.cgi?adl=1&mod=%s">Attr Edit</a>' % mod_id)
         links.append('<a href="vars.cgi?vdt=1&mod=%s">Details</a>' % mod_id)
@@ -287,7 +288,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         if ref.startswith('year.'):
             ref_link = pif.dbh.get_editor_link('lineup_model', {'year': ref[5:], 'mod_id': mod_id})
         elif ref.startswith('matrix.'):
-            ref_link = pif.dbh.get_editor_link('matrix_model', {'page_id': ref, 'mod_id': id})
+            ref_link = pif.dbh.get_editor_link('matrix_model', {'page_id': ref, 'mod_id': mod_id})
         elif ref.startswith('packs.'):
             ref_link = pif.dbh.get_editor_link('pack_model', {'pack_id': pif.form.get_str('sec'), 'mod_id': mod_id})
         if pic:
@@ -423,14 +424,14 @@ def show_lineup_appearances(pif, appearances):
                                         for appear in sorted(yd[yr][reg])]) if yd[yr].get(reg) else '&nbsp;'
             entries.append(entry)
 
-    llineup = {
-        'id': 'lappear', 'name': '',
-        'section': [{
-            'id': 'la', 'name': '', 'columns': columns, 'headers': mbdata.regions,
-            'range': [{'entry': entries}],
-        }],
-    }
-    return llineup
+    llistix = render.Listix(
+        id='lappear', name='',
+        section=[render.Section(
+            id='la', name='', colist=columns, headers=mbdata.regions,
+            range=[render.Range(entry=entries)],
+        )],
+    )
+    return llistix
 
 
 def make_plants(pif, mod_id, plants):
@@ -452,14 +453,15 @@ def make_plants(pif, mod_id, plants):
             url, useful.img_src(flag[1], also={'title': plant['manufacture']}) if flag[1] else flag[0])
         entry[plant['manufacture']] = pif.render.format_link(url, str(plant['count']))
 
-    llineup = {
-        'id': 'lplants', 'name': '', 'shown': len(plants) > 0,
-        'section': [{
-            'id': 'la', 'name': '', 'columns': columns, 'headers': headers,
-            'range': [{'entry': [entry]}],
-        }],
-    }
-    return llineup
+    llistix = render.Listix(
+        id='lplants', name='',
+        section=[render.Section(
+            id='la', name='', colist=columns, headers=headers,
+            range=[render.Range(entry=[entry])],
+        )],
+    )
+    llistix.shown = len(plants) > 0
+    return llistix
 
 
 @basics.web_page
@@ -538,12 +540,13 @@ def show_single(pif):
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
     model['imgid'] = [model['id']]
+    vehicle_types = [mbdata.model_icons.get(x) for x in model['vehicle_type']]
     descs = []
     for s in model['descs']:
         if s.startswith('same as '):
             model['imgid'].append(s[8:])
         if s in mbdata.arts:
-            descs.append(pif.render.format_image_icon('c_' + mbdata.arts[s]))
+            vehicle_types.append('c_' + mbdata.arts[s])
         elif s:
             descs.append("<i>%s</i>" % s)
     model['descs'] = descs
@@ -556,26 +559,27 @@ def show_single(pif):
         model['country_flag'] = pif.render.format_image_flag(model['country'])
         model['country_name'] = mflags.FlagList()[model['country']]
 
-    def make_make_link(make, name):
-        if not make:
-            return ''
-        if not name:
-            name = 'unlicensed'
-        pic = pif.render.fmt_img(make, prefix='u', pdir=config.IMG_DIR_MAKE)
-        if pic:
-            name = pic + '<br>' + name
-        return pif.render.format_link("makes.cgi?make=" + make, name)
-
-    model['make_name'] = make_make_link(model.get('make', ''), model.get('vehicle_make.name', ''))
+#    def make_make_link(make, name):
+#        if not make:
+#            return ''
+#        pic = (pif.render.fmt_img(make, prefix='u', pdir=config.IMG_DIR_MAKE) if name else
+#               pif.render.format_image_art('mbx.gif'))
+#        name = name or 'unlicensed'
+#        if pic:
+#            name = pic + '<br>' + name
+#        return pif.render.format_link("makes.cgi?make=" + make, name)
+#
+#    model['make_name'] = make_make_link(model.get('make', ''), model.get('vehicle_make.name', ''))
 
     def make_make(make):
         return {
-            'image': pif.render.fmt_img(make['vehicle_make.id'], prefix='u', pdir=config.IMG_DIR_MAKE),
-            'id': make['vehicle_make.id'],
-            'name': make['vehicle_make.name'],
-            'company_name': make['vehicle_make.company_name'],
-            'flags': make['vehicle_make.flags'] | make['casting_make.flags'],
-            'link': 'makes.cgi?make=%s' % make['vehicle_make.id'],
+            'image': (pif.render.fmt_img(make['casting_make.make_id'], prefix='u', pdir=config.IMG_DIR_MAKE)
+                      if make['casting_make.make_id'] else ''),
+            'id': make['casting_make.make_id'],
+            'name': 'Unlicensed' if make['casting_make.make_id'] == 'unl' else make.get('vehicle_make.name', ''),
+            'company_name': make.get('vehicle_make.company_name', ''),
+            'flags': (make.get('vehicle_make.flags') or 0) | (make.get('casting_make.flags') or 0),
+            'link': 'makes.cgi?make=%s' % make['casting_make.make_id'],
         }
 
     model['makes'] = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
@@ -597,7 +601,7 @@ def show_single(pif):
         'icon_id':
             mod_id if os.path.exists(useful.relpath('.', config.IMG_DIR_MAN_ICON, 'i_' + mod_id.lower() + '.gif'))
             else '',
-        'vehicle_type': [mbdata.model_icons.get(x) for x in model['vehicle_type']],
+        'vehicle_type': vehicle_types,
         'rowspan': '4',
         'left_bar_content': show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations),
         'model': model,

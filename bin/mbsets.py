@@ -5,6 +5,7 @@
 import basics
 import bfiles
 import config
+import render
 import useful
 
 modnumlist = []
@@ -90,7 +91,7 @@ def print_table(pif, db, setfile):
     ncols = 0
     for field in db['header']:
         if field in setfile.colheads:
-            entries.append({'text': setfile.colheads[field], 'style': str(ncols)})
+            entries.append(render.Entry(text=setfile.colheads[field], style=str(ncols)))
             ncols = ncols + 1
 
     for model in db['model']:
@@ -105,55 +106,56 @@ def print_table(pif, db, setfile):
             continue
         if 'text' in model:
             # Need to calculate the colspan better.
-            entries.append({'text': model.get('text', ''), 'colspan': len(db['header']) - 1, 'style': '0'})
+            entries.append(render.Entry(text=model.get('text', ''), colspan=len(db['header']) - 1, style='0'))
             continue
         if 'section' in model:
             # Need to calculate the colspan better.
-            entries.append({'text': model.get('section', ''), 'colspan': len(db['header']) - 1, 'class': 'section'})
+            entries.append(render.Entry(text=model.get('section', ''), colspan=len(db['header']) - 1,
+                                        class_name='section'))
             continue
         ifield = 0
         for field in db['header']:
             if field == 'desc':
-                entries.append({'style': ifield, 'text': mod_desc(model.get(field, ''))})
+                entries.append(render.Entry(style=ifield, texts=mod_desc(model.get(field, ''))))
             elif field == 'fulldesc':
-                entries.append({'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': int(db['ncols'])})
+                entries.append(render.Entry(style=ifield, text=mod_desc(model.get('desc', '')),
+                                            colspan=int(db['ncols'])))
             elif field == 'insetdesc':
                 entries.append(
-                    {'style': ifield, 'text': mod_desc(model.get('desc', '')), 'colspan': int(db['ncols']) - 1})
+                    render.Entry(style=ifield, text=mod_desc(model.get('desc', '')), colspan=int(db['ncols']) - 1))
             elif field == 'num':
                 modnums = [mod_num(prefix, modnum, model.get('rank')) for modnum in model.get(field, '').split(';')]
-                entries.append({'style': ifield,
-                                'text': '<nobr>%s</nobr>' % "<br>".join(modnums), 'also': {'height': '8'}})
+                entries.append(render.Entry(style=ifield,
+                               text='<nobr>%s</nobr>' % "<br>".join(modnums), also={'height': '8'}))
             elif field == 'pic':
                 modnum = model.get('num', '').split(';')
                 rowspan = 2 if 'insetdesc' in db['header'] else 1
-                entries.append({
-                    'style': ifield,
-                    'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']),
-                                (model.get('year', '') != 'not made'), dirs=setfile.dirs),
-                    'rowspan': rowspan})
+                entries.append(render.Entry(
+                    style=ifield,
+                    text=img(pif, prefix, modnum, model.get('rank'), int(db['digits']),
+                             (model.get('year', '') != 'not made'), dirs=setfile.dirs),
+                    rowspan=rowspan))
             elif field == 'fullpic':
                 modnum = model.get('num', '').split(';')
                 colspan = 2 if 'insetdesc' in db['header'] else int(db['ncols'])
-                entries.append({
-                    'style': ifield,
-                    'text': img(pif, prefix, modnum, model.get('rank'), int(db['digits']),
-                                (model.get('year', '') != 'not made'), dirs=setfile.dirs),
-                    'colspan': colspan})
+                entries.append(render.Entry(
+                    style=ifield,
+                    text=img(pif, prefix, modnum, model.get('rank'), int(db['digits']),
+                             (model.get('year', '') != 'not made'), dirs=setfile.dirs),
+                    colspan=colspan))
             elif field == 'name':
-                entries.append({
-                    'style': ifield, 'text': '<center><b>' + model.get(field, '') + '</b></center>'}
-                    if model.get(field, '') else {'style': ifield})
+                entries.append(render.Entry(
+                    style=ifield, text='<center><b>' + model.get(field, '') + '</b></center>')
+                    if model.get(field, '') else render.Entry(style=ifield))
             else:
-                entries.append({'style': ifield,
-                                'text': model.get(field, '')} if model.get(field, '') else {'style': ifield})
+                entries.append(render.Entry(style=ifield,
+                               text=model.get(field, '')) if model.get(field, '') else render.Entry(style=ifield))
             ifield += 1
-    llineup = {
-        'anchor': db['label'], 'name': db['title'], 'columns': int(ncols), 'widthauto': True,
-        'section': [{'id': 'box', 'name': '',
-                     'range': [{'entry': entries}]}],
-    }
-    return pif.render.format_matrix_for_template(llineup)
+    llineup = render.Matrix(
+        name=db['title'], columns=int(ncols), widthauto=True,
+        section=[render.Section(id='box', anchor=db['label'], range=[render.Range(entry=entries)])],
+    )
+    return llineup.prep()
 
 
 def print_no_table(pif, db):

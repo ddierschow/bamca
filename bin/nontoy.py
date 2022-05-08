@@ -12,6 +12,7 @@ import bfiles
 import config
 import images
 import mbdata
+import render
 import useful
 
 # pagename = 'biblio'
@@ -65,18 +66,18 @@ def biblio(pif):
 
     page_info = biblios.get(pif.page_name, {})
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    lsection = sections[0].todict() if sections else dict(note='')
+    lsection = render.Section(section=sections[0] if sections else None)
     tab_name = page_info.get('tab', pif.page_name)
     row_links = page_info.get('links', {})
     table = pif.dbh.depref(tab_name, pif.dbh.fetch(tab_name, where='flags&1=0', tag='biblio', verbose=True))
 
-    lrange = dict(entry=list(), note='')
-    lsection.update(dict(columns=list(), headers=dict(), range=[lrange]))
+    lrange = render.Range(entry=list())
+    lsection.range = [lrange]
 
     editable = pif.form.get_bool('edit') and pif.is_allowed('a')
     if editable:
-        lsection['columns'].append('edit')
-        lsection['headers']['edit'] = '&nbsp;'
+        lsection.colist.append('edit')
+        lsection.headers['edit'] = '&nbsp;'
         row_link_formatters['edit'] = lambda x: (
             '%s/cgi-bin/editor.cgi?table=%s&id=%s' % (pif.secure_host, tab_name, x[0]))
     for arg in page_info['show']:
@@ -85,20 +86,20 @@ def biblio(pif):
         if arg.startswith('*'):
             key = key[1:]
             hdr = '<a href="biblio.cgi?page=%s&sort=%s">%s</a>' % (pif.page_name, key, hdr[1:])
-        lsection['columns'].append(key)
-        lsection['headers'][key] = hdr
+        lsection.colist.append(key)
+        lsection.headers[key] = hdr
 
     sortkey = []
     this_sort = pif.form.get_str('sort', page_info.get('sort'))
     if this_sort:
         if this_sort.isdigit():
-            this_sort = max(0, min(len(lsection['columns']) - 1, int(this_sort)))
-            this_sort = lsection['columns'][this_sort]
+            this_sort = max(0, min(len(lsection.colist) - 1, int(this_sort)))
+            this_sort = lsection.colist[this_sort]
         sortkey.append(this_sort)
     if page_info.get('lastsort'):
         sortkey.append(page_info.get('lastsort'))
     if sortkey:
-        table.sort(key=lambda x: [x[y] for y in sortkey if y in lsection['columns']])
+        table.sort(key=lambda x: [x[y] for y in sortkey if y in lsection.colist])
 
     def bib_field(fdict, field):
         cont = str(fdict.get(field, '&nbsp'))
@@ -107,7 +108,7 @@ def biblio(pif):
             if field == 'edit':
                 cont = str(fdict['id'])
             cmd, arg = row_links[field].split(':')
-            arg = [str(fdict.get(x, lsection.get(x, ''))) for x in arg.split(',')]
+            arg = [str(fdict.get(x, getattr(lsection, x, ''))) for x in arg.split(',')]
             if ''.join(arg):
                 url = row_link_formatters[cmd](arg)
 
@@ -121,10 +122,9 @@ def biblio(pif):
 
         return pif.render.format_link(url, cont) + edlink
 
-    lrange['entry'] = [{field: bib_field(fdict, field) for field in lsection['columns']}
-                       for fdict in table]
+    lrange.entry = [{field: bib_field(fdict, field) for field in lsection.colist} for fdict in table]
     pif.render.set_button_comment(pif)
-    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]))
+    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]))
 
 
 # -- calendar
@@ -150,8 +150,8 @@ def calendar(pif):
     dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
 
     lrange = None
-    lsection = dict(columns=list(), headers=dict(), range=list(), note='')
-    llistix = dict(section=[lsection])
+    lsection = render.Section()
+    llistix = render.Listix(section=[lsection])
 
     for llist in dblist:
 
@@ -160,27 +160,27 @@ def calendar(pif):
         if (cmd == 'h'):
             for iarg in range(1, llist.args()):
                 arg = llist.get_arg('&nbsp;')
-                lsection['columns'].append(arg)
-                lsection['headers'][arg] = arg
+                lsection.colist.append(arg)
+                lsection.headers[arg] = arg
 
         elif (cmd == 'm'):
-            lrange['entry'].append(dict(zip(lsection['columns'], event(pif, 'meet', llist))))
+            lrange.entry.append(dict(zip(lsection.colist, event(pif, 'meet', llist))))
 
         elif (cmd == 's'):
-            lrange['entry'].append(dict(zip(lsection['columns'], event(pif, 'show', llist))))
+            lrange.entry.append(dict(zip(lsection.colist, event(pif, 'show', llist))))
 
         elif (cmd == 'n'):
             if lrange:
-                lsection['range'].append(lrange)
-            lrange = dict(entry=list(), name=llist.get_arg('&nbsp;', 1))
+                lsection.range.append(lrange)
+            lrange = render.Range(entry=list(), name=llist.get_arg('&nbsp;', 1))
 
         elif (cmd == 'e'):
             if lrange:
-                lsection['range'].append(lrange)
+                lsection.range.append(lrange)
             lrange = None
 
     if lrange:
-        lsection['range'].append(lrange)
+        lsection.range.append(lrange)
 
     return pif.render.format_template('simplelistix.html', llineup=llistix)
 
@@ -261,20 +261,15 @@ def counts_main(pif):
 
     things = []
     for mt in sorted(set(mbdata.model_types.values())):
-        section = {
-            'name': mt,
-            'columns': ['name', 'count', 'vars'],
-            'headers': {'name': 'Model Type', 'count': 'Count', 'vars': 'Variations'},
-            'range': [{
-                'entry': [x for x in counts[0] if x['type'] == mt],
-            }],
-        }
-        tot = sum([x['count'] for x in section['range'][0]['entry']])
-        vc = sum([x['vars'] for x in section['range'][0]['entry']])
-        section['range'][0]['entry'].append({'name': 'total', 'count': tot, 'vars': vc})
+        section = render.Section(
+            name=mt,
+            colist=['name', 'count', 'vars'],
+            headers={'name': 'Model Type', 'count': 'Count', 'vars': 'Variations'},
+            range=[render.Range(entry=[x for x in counts[0] if x['type'] == mt])],
+        )
+        tot = sum([x['count'] for x in section.range[0].entry])
+        vc = sum([x['vars'] for x in section.range[0].entry])
+        section.range[0].entry.append({'name': 'total', 'count': tot, 'vars': vc})
         if tot:
             things.append(section)
-    llineup = {
-        'section': things,
-    }
-    return pif.render.format_template('simplelistix.html', llineup=llineup)
+    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=things))

@@ -10,6 +10,7 @@ import urllib.request
 import basics
 import config
 import mbdata
+import render
 import useful
 
 
@@ -319,11 +320,11 @@ flag_check_names = [
 def edit_single(pif):
     listCats, listIndices, dictCats, listRejectCats = read_config(pif, True)
     listCats.append(('single', 'single'))
-    table_info = pif.dbh.table_info['link_line']
+    table_data = pif.dbh.get_table_data('link_line')
     link_id = pif.form.get_str('id')
     if pif.form.get_str('save'):
         all_links, highest_disp_order = read_all_links(pif)
-        nlink = {x: pif.form.get_str(x) for x in table_info['columns']}
+        nlink = {x: pif.form.get_str(x) for x in table_data.columns}
         nlink['flags'] = 0
         if pif.form.get_str('section_id') == 'single':
             pass
@@ -344,7 +345,7 @@ def edit_single(pif):
         pif.dbh.delete_link_line(link_id)
         return "<br>deleted<br>"
     elif pif.form.get_str('reject'):
-        nlink = {x: pif.form.get_str(x, '') for x in table_info['columns']}
+        nlink = {x: pif.form.get_str(x, '') for x in table_data.columns}
         nlink['page_id'] = 'links.rejects'
         nlink['display_order'] = 1
         nlink['section_id'] = pif.form.get_str('rejects_sec')
@@ -371,7 +372,7 @@ def edit_single(pif):
     header += '<input type="hidden" name="o_id" value="%s">\n' % link['link_line.id']
 
     entries = []
-    for col in table_info['columns']:
+    for col in table_data.columns:
         col_long = 'link_line.' + col
         coltype = descs.get(col).get('type', 'unknown')
         value = useful.printablize(link.get(col_long, ''))
@@ -379,7 +380,7 @@ def edit_single(pif):
         # entries.append({'text': '<a href="%s">%s</a>' % (link.get(col_long, ''), link.get(col_long, ''))
         #                if col == 'url' else link[col_long]})
         entries.append({'text': '<a href="%s">%s</a>' % (value, value) if col == 'url' else value})
-        if col in table_info.get('readonly', []):
+        if col in table_data.readonly:
             cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
         # elif col == 'page_id':
         #     cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
@@ -416,18 +417,17 @@ def edit_single(pif):
         pif.render.format_button("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
     ])
 
-    llineup = {
-        'id': 'tl', 'name': 'Edit Link', 'columns': 3, 'widthauto': True,
-        'section': [{'id': 's', 'name': '', 'range': [{'entry': entries}]}],
-        'header': header, 'footer': footer,
-    }
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup = render.Matrix(
+        id='tl', name='Edit Link', columns=3, widthauto=True,
+        section=[render.Section(id='s', range=[render.Range(entry=entries)])],
+        header=header, footer=footer,
+    )
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def edit_multiple(pif, good=None):
     stat = pif.form.get_str('stat')
-    table_info = pif.dbh.table_info['link_line']
+    table_data = pif.dbh.get_table_data('link_line')
     page_id = ''
     sec_id = pif.form.get_str('sec', '')
     if pif.form.get_str('as'):
@@ -451,26 +451,25 @@ def edit_multiple(pif, good=None):
         linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page_id'), order="display_order")
     pif.render.message(len(linklines), 'lines')
 
-    entries = [{'text': col} for col in table_info['columns']]
+    entries = [render.Entry(text=col) for col in table_data.columns]
     for link in linklines:
         pif.dbh.depref('link_line', link)
-        for col in table_info['columns']:
+        for col in table_data.columns:
             val = link.get(col, '')
             if col == 'id':
-                entries.append({'text': '<a href="?id=' + str(val) + '">' + str(val) + '</a>'})
+                entries.append(render.Entry(text='<a href="?id=' + str(val) + '">' + str(val) + '</a>'))
             elif col == 'url':
-                entries.append({'text': '<a href="%s">%s</a>' % (val, val)})
+                entries.append(render.Entry(text='<a href="%s">%s</a>' % (val, val)))
             else:
-                entries.append({'text': useful.printablize(val)})
+                entries.append(render.Entry(text=useful.printablize(val)))
     footer = pif.render.format_button("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
 
-    llineup = {
-        'id': 'tl', 'name': 'Edit Link', 'columns': len(table_info['columns']),
-        'section': [{'id': 's', 'name': '', 'range': [{'entry': entries}]}],
-        'footer': footer,
-    }
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup = render.Matrix(
+        id='tl', name='Edit Link', columns=len(table_data.columns),
+        section=[render.Section(id='s', range=[render.Range(entry=entries)])],
+        footer=footer,
+    )
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def edit_choose(pif):

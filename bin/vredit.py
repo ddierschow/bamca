@@ -63,7 +63,7 @@ var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'area', 'date',
 def parse_file(pif, vid, fdir, fn, args=''):
     modids, fitabs = read_file(pif, vid, fdir, fn)
     if not modids:
-        modids = [pif.form.get_str('m')]
+        modids = [pif.form.get_raw('m')]
     varfile = {
         'filename': fn,
         'stat': {IS_GOOD},
@@ -453,15 +453,15 @@ def show_base_id(pif, mod):
     # base id form
     print("<h3>Base ID</h3>")
     base_id_info = pif.dbh.describe_dict('base_id')
-    base_id_tab = tables.table_info['base_id']
+    base_id_tab = tables.table_data['base_id']
     print('<form method="post" name="base_id">' + pif.create_token())
     print("<table border=1>")
     print("<tr><th>Column</th><th>Value</th></tr>")
-    for col in base_id_tab['columns']:
+    for col in base_id_tab.columns:
         print("<tr><td>%s</td><td>" % col)
-        if col in base_id_tab.get('bits', {}):
+        if col in base_id_tab.bits:
             print(pif.render.format_checkbox(
-                "base_id." + col, base_id_tab['bits'][col], useful.bit_list(mod[col], format='%04x')))
+                "base_id." + col, base_id_tab.bits[col], useful.bit_list(mod[col], format='%04x')))
         else:
             flen = int(paren_re.search(base_id_info[col]['type']).group('len'))
             print(pif.render.format_text_input("base_id." + col, flen, min(80, flen), mod[col]))
@@ -478,7 +478,7 @@ def show_casting(pif, mod, file_id):
     print('<form method="post" name="casting">' + pif.create_token())
     print("<table border=1>")
     print("<tr><th>Column</th><th>Value</th><th>&nbsp;</th></tr>")
-    for col in tables.table_info['casting']['columns'] + tables.table_info['casting']['extra_columns']:
+    for col in tables.table_data['casting'].columns + tables.table_data['casting'].extra_columns:
         if casting_info[col]['type'] == 'text':
             flen = 65535
             # make this a text box instead of a text input.
@@ -731,13 +731,13 @@ def show_settings(pif, vid, fn):
 @basics.web_page
 def handle_form(pif):
     pif.render.print_html()
-    mod_id = pif.form.get_str('m')
+    mod_id = pif.form.get_raw('m')
     if not mod_id:
-        mod_id = pif.form.get_str('mod_id')
+        mod_id = pif.form.get_raw('mod_id')
     if mod_id:
         pif.render.title = 'Variations - ' + mod_id
     elif pif.form.has('f'):
-        pif.render.title = 'Variations - ' + pif.form.get_str('f')
+        pif.render.title = 'Variations - ' + pif.form.get_raw('f')
     print(pif.render.format_head())
     useful.header_done()
     if not pif.is_allowed('a'):
@@ -747,14 +747,14 @@ def handle_form(pif):
     vid = vrdata.VariationImportData()
     vid.verbose = pif.render.verbose
     nvars = list()
-    file_dir = pif.form.get_str('d', 'src/mbxf')
+    file_dir = pif.form.get_raw('d', 'src/mbxf')
 
     print(pif.form, '<br>')
     if pif.form.has("recalc"):  # doesn't really fit the pattern
         print("recalc<br>")
         for k in pif.form.keys(end='.var'):
-            nvars.append(k[0:-4] + "=" + pif.form.get_str(k))
-    elif pif.duplicate_form:  # not pif.dbh.insert_token(pif.form.get_str('token')):
+            nvars.append(k[0:-4] + "=" + pif.form.get_raw(k))
+    elif pif.duplicate_form:  # not pif.dbh.insert_token(pif.form.get_raw('token')):
         print('duplicate form submission detected')
     else:
         do_action(pif, mod_id)
@@ -762,11 +762,11 @@ def handle_form(pif):
 
     # args = ''
     if pif.form.has('settings'):
-        show_settings(pif, vid, pif.form.get_str('f'))
+        show_settings(pif, vid, pif.form.get_raw('f'))
     elif pif.form.has('f'):
-        show_file(pif, vid, file_dir, pif.form.get_str('f'), ' '.join(nvars))
+        show_file(pif, vid, file_dir, pif.form.get_raw('f'), ' '.join(nvars))
     else:
-        show_index(pif, vid, file_dir, start=pif.form.get_str('s'),
+        show_index(pif, vid, file_dir, start=pif.form.get_raw('s'),
                    num=pif.form.get_int('n', 100), ff=int(pif.form.get_int('ff')))
 
     print(pif.render.format_tail())
@@ -781,12 +781,12 @@ def save_attribute(pif, attr_id, mod_id):
         if attr_id > 4:
             for key in attr:
                 if pif.form.has(key + '.%d' % attr_id):
-                    attr[key] = pif.form.get_str(key + '.%d' % attr_id)
+                    attr[key] = pif.form.get_raw(key + '.%d' % attr_id)
             pif.dbh.update_attribute(attr, attr_id)
 
-        if pif.form.get_str("description.%d" % attr_id) != "":
+        if pif.form.get_raw("description.%d" % attr_id) != "":
             rec = {"mod_id": mod_id, "var_id": "", "attr_id": attr_id,
-                   "description": pif.form.get_str("description.%d" % attr_id)}
+                   "description": pif.form.get_raw("description.%d" % attr_id)}
             where = {"mod_id": mod_id, "var_id": "", "attr_id": attr_id}
             print('detail', rec, where)
             print(pif.dbh.write("detail", rec, where))
@@ -807,21 +807,21 @@ def do_action(pif, mod_id):
         for k in pif.form.keys(end='n.definition'):  # pretty sure these are the new guys
             attr = k[0:-12]
             print("n_def", k, attr)
-            rec = {"mod_id": mod_id, "attribute_name": pif.form.get_str(attr + "n.attribute_name"),
-                   "title": pif.form.get_str(attr + "n.attribute_name").replace('_', ' ').title(),
-                   "definition": pif.form.get_str(k)}
+            rec = {"mod_id": mod_id, "attribute_name": pif.form.get_raw(attr + "n.attribute_name"),
+                   "title": pif.form.get_raw(attr + "n.attribute_name").replace('_', ' ').title(),
+                   "definition": pif.form.get_raw(k)}
             pif.dbh.write("attribute", rec,
-                          {"mod_id": mod_id, "attribute_name": pif.form.get_str(attr + "n.attribute_name")})
+                          {"mod_id": mod_id, "attribute_name": pif.form.get_raw(attr + "n.attribute_name")})
         for k in pif.form.keys(start='attribute_name.'):
             attr = k[15:]
             print("def", k, attr)
-            rec = {"mod_id": mod_id, "attribute_name": pif.form.get_str('attribute_name.' + attr),
-                   "title": pif.form.get_str('title.' + attr),
-                   "definition": pif.form.get_str(k), "visual": pif.form.get_str("visual." + attr, '1')}
+            rec = {"mod_id": mod_id, "attribute_name": pif.form.get_raw('attribute_name.' + attr),
+                   "title": pif.form.get_raw('title.' + attr),
+                   "definition": pif.form.get_raw(k), "visual": pif.form.get_raw("visual." + attr, '1')}
             pif.dbh.write("attribute", rec, {"id": attr}, modonly=True)
-            if pif.form.get_str("description." + attr, '') != "":
+            if pif.form.get_raw("description." + attr, '') != "":
                 rec = {"mod_id": mod_id, "var_id": "", "attr_id": attr,
-                       "description": pif.form.get_str("description." + attr)}
+                       "description": pif.form.get_raw("description." + attr)}
                 where = {"mod_id": mod_id, "var_id": "", "attr_id": attr}
                 print("detail", rec, where, "<br>")
                 pif.dbh.write("detail", rec, where)
@@ -843,19 +843,19 @@ def do_action(pif, mod_id):
             if k == 'base_id.flags':
                 rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
             else:
-                rec[k[8:]] = pif.form.get_str(k)
-        pif.dbh.write("base_id", rec, {"id": pif.form.get_str("base_id.id")})
+                rec[k[8:]] = pif.form.get_raw(k)
+        pif.dbh.write("base_id", rec, {"id": pif.form.get_raw("base_id.id")})
     elif pif.form.has("save_casting"):
         print("save casting<br>")
         rec = dict()
-        for k in tables.table_info['casting']['columns'] + tables.table_info['casting']['extra_columns']:
-            rec[k] = pif.form.get_str('casting.' + k)
-        pif.dbh.write("casting", rec, {"id": pif.form.get_str("casting.id")})
-        pif.dbh.recalc_description(pif.form.get_str('casting.id'))
+        for k in tables.table_data['casting'].columns + tables.table_data['casting'].extra_columns:
+            rec[k] = pif.form.get_raw('casting.' + k)
+        pif.dbh.write("casting", rec, {"id": pif.form.get_raw("casting.id")})
+        pif.dbh.recalc_description(pif.form.get_raw('casting.id'))
     elif pif.form.has("save"):
         print("save")
-        pif.dbh.update_variation({'imported_from': 'was ' + pif.form.get_str('current_file')},
-                                 {'imported_from': pif.form.get_str('current_file'), 'mod_id': mod_id})
+        pif.dbh.update_variation({'imported_from': 'was ' + pif.form.get_raw('current_file')},
+                                 {'imported_from': pif.form.get_raw('current_file'), 'mod_id': mod_id})
         attrs = pif.dbh.fetch_attributes(mod_id)
         attr_lup = dict()
         for attr in attrs:
@@ -866,9 +866,9 @@ def do_action(pif, mod_id):
             rec = {"mod_id": mod_id}
             rec["imported"] = time.time()
             det = dict()
-            for vk in pif.form.keys(start=pif.form.get_str(k)):
-                vv = pif.form.get_str(vk)
-                kk = vk[len(pif.form.get_str(k)) + 1:]
+            for vk in pif.form.keys(start=pif.form.get_raw(k)):
+                vv = pif.form.get_raw(vk)
+                kk = vk[len(pif.form.get_raw(k)) + 1:]
                 if vv == '\\b':
                     vv = ''
                 if kk == 'orignum':
@@ -898,16 +898,16 @@ def do_action(pif, mod_id):
         pif.dbh.delete_variation(where={"mod_id": mod_id})
     elif pif.form.has("delattr"):
         print("delattr<br>")
-        pif.dbh.delete_attribute({"id": pif.form.get_str('delattr')})
-        pif.dbh.delete_detail({"attr_id": pif.form.get_str('delattr')})
+        pif.dbh.delete_attribute({"id": pif.form.get_raw('delattr')})
+        pif.dbh.delete_detail({"attr_id": pif.form.get_raw('delattr')})
     elif pif.form.has("addattr"):
         print("addattr<br>")
-        print('adding', mod_id, pif.form.get_str('addattr'))
-        print(pif.dbh.insert_attribute(mod_id, pif.form.get_str('addattr')), '<br>')
+        print('adding', mod_id, pif.form.get_raw('addattr'))
+        print(pif.dbh.insert_attribute(mod_id, pif.form.get_raw('addattr')), '<br>')
     elif pif.form.has("fix_numbers"):
         print("fix numbers<br>")
         for k in pif.form.keys(end='.orignum'):
             # somewhere right around here we want to use vrdata.compare_var_ids
-            if pif.form.get_str(k) != k[0:-8]:
+            if pif.form.get_raw(k) != k[0:-8]:
                 # retvar = -999
-                varias.rename_variation(pif, mod_id, pif.form.get_str(k), k[0:-8])
+                varias.rename_variation(pif, mod_id, pif.form.get_raw(k), k[0:-8])

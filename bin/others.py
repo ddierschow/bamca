@@ -4,6 +4,7 @@ import basics
 import config
 import mbdata
 import models
+import render
 import useful
 
 
@@ -16,8 +17,12 @@ def create_section(pif, attribute_type):
         mod['img'] = pif.render.format_link('/' + mod['img'], txt=mod['attribute_picture.description'])
         return mod
     mods = pif.dbh.fetch_attribute_pictures_by_type(attribute_type, 'attribute_picture.mod_id')
-    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lsec['range'] = [{'entry': [{'text': models.add_model_thumb_pic_link(pif, prep_mod(mod))} for mod in mods]}]
+    sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    lsec = render.Section(
+        section=sect,
+        range=[render.Range(entry=[
+            render.Entry(text=models.add_model_thumb_pic_link(pif, prep_mod(x))) for x in mods])]
+    )
     return lsec
 
 
@@ -30,9 +35,8 @@ def errors(pif):
 
     lsec = create_section(pif, 'e')
 
-    llineup = {'section': [lsec], 'columns': lsec['columns']}
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup = render.Matrix(section=[lsec], columns=lsec.columns)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def prepro(pif):
@@ -44,9 +48,8 @@ def prepro(pif):
 
     lsec = create_section(pif, 'p')
 
-    llineup = {'section': [lsec]}
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup = render.Matrix(section=[lsec], columns=lsec.columns)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def code2(pif):
@@ -66,17 +69,17 @@ def code2(pif):
     pif.render.hierarchy_append('/cgi-bin/code2.cgi', 'Code 2 Models')
     pif.render.set_button_comment(pif)
 
-    llineup = {'section': []}
-    for lsec in pif.dbh.fetch_sections({'page_id': pif.page_id}):
-        if not section_id or section_id == lsec['id']:
+    llineup = render.Matrix()
+    for sect in pif.dbh.fetch_sections({'page_id': pif.page_id}):
+        lsec = render.Section(section=sect)
+        if not section_id or section_id == lsec.id:
             if section_id:
-                pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % section_id, lsec['name'])
-            mods = pif.dbh.fetch_castings_by_category(lsec['page_id'], lsec['category'])
-            lsec['range'] = [{'entry': [{'text': prep_mod(pif, mod, lsec['category'])} for mod in mods]}]
-            llineup['section'].append(lsec)
+                pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % section_id, lsec.name)
+            mods = pif.dbh.fetch_castings_by_category(sect['page_id'], sect['category'])
+            lsec.range = [render.Range(entry=[render.Entry(text=prep_mod(pif, mod, sect['category'])) for mod in mods])]
+            llineup.section.append(lsec)
 
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def code2_model(pif):
@@ -91,25 +94,21 @@ def code2_model(pif):
     mod = pif.dbh.modify_man_item(pif.dbh.fetch_casting(mod_id))
     img = pif.render.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
     header = '<center>%s<br><b>%s: %s</b></center><p>' % (img, mod['id'], mod['name'])
-    lsec = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id)
-    if not lsec:
+    sect = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id)
+    if not sect:
         raise useful.SimpleError('No models found.')
-    lsec = lsec.todict()
-    pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec['id'], lsec['name'])
+    lsec = render.Section(section=sect)
+    pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec.id, lsec.name)
     pif.render.hierarchy_append('/cgi-bin/code2.cgi?mod_id=%s&cat=%s' % (mod['id'], cat_id), mod['id'])
-    lsec['range'] = [{'entry': []}]
+    lsec.range = [render.Range(entry=[])]
     mvars = pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id)
     for var in mvars:
         # useful.write_comment(var)
-        entry = {'text': models.add_model_var_pic_link(pif, pif.dbh.depref('v', var))}
-        lsec['range'][0]['entry'].append(entry)
+        entry = render.Entry(text=models.add_model_var_pic_link(pif, pif.dbh.depref('v', var)))
+        lsec.range[0].entry.append(entry)
 
-    llineup = {
-        'section': [lsec],
-        'header': header,
-    }
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup = render.Matrix(section=[lsec], header=header)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 # Brazil, Bulgaria, China, England, Hong Kong, Hungary, Japan, Macau, Thailand, no origin, [blank]
@@ -119,7 +118,7 @@ def plants(pif):
 
     def prep_entry(pif, name, code):
         img = pif.render.format_image_art('flag_' + code) if code else pif.render.fmt_no_pic()
-        return {'text': pif.render.format_link('?id=%s' % (code if code else 'unset'), img + '<br>' + name)}
+        return render.Entry(text=pif.render.format_link('?id=%s' % (code if code else 'unset'), img + '<br>' + name))
 
     pif.render.print_html()
     pif.render.hierarchy_append('/', 'Home')
@@ -127,12 +126,11 @@ def plants(pif):
     pif.render.hierarchy_append('/cgi-bin/plants.cgi', 'By Manufacturing Plant')
     pif.render.set_button_comment(pif)
 
-    llineup = {'section': [{'columns': 3, 'range': [
-        {'id': 'ix', 'entry': [prep_entry(pif, *x) for x in mbdata.plants]}
-    ]}]}
+    llineup = render.Matrix(section=[render.Section(columns=3, range=[
+        render.Range(id='ix', entry=[prep_entry(pif, *x) for x in mbdata.plants])
+    ])])
 
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def plant_models(pif):
@@ -156,14 +154,13 @@ def plant_models(pif):
         mod['img'] = pif.render.format_link(
             '/cgi-bin/vars.cgi?manufacture=%s&mod=%s' % (plant_d.get(plant_id, 'unset'), mod['id']),
             txt='%d Variation%s' % (mod.get('count', -1), 's' if mod.get('count', -1) != 1 else ''))
-        entries.append({'text': models.add_model_thumb_pic_link(pif, mod)})
+        entries.append(render.Entry(text=models.add_model_thumb_pic_link(pif, mod)))
 
-    llineup = {
-        'section': [{'range': [{'entry': entries}]}],
-        'columns': 3,
-    }
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup = render.Matrix(
+        section=[render.Section(range=[render.Range(entry=entries)])],
+        columns=3,
+    )
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def custom_create_section(pif, attribute_type):
@@ -205,11 +202,13 @@ def custom_create_section(pif, attribute_type):
         img, modal = prep_mod(mod)
         modd[mod_id]['img'].append(img)
         modals.append(modal)
-    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lsec['range'] = [
-        {'entry': [{'text': models.add_model_thumb_pic_link(pif, mod[1])} for mod in sorted(modd.items())]}]
-    lsec['footer'] = '\n'.join(modals)
-    return lsec
+    sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    return render.Section(
+        section=sect,
+        range=[render.Range(
+            entry=[render.Entry(text=models.add_model_thumb_pic_link(pif, mod[1])) for mod in sorted(modd.items())])],
+        footer='\n'.join(modals)
+    )
 
 
 def custom(pif):
@@ -222,9 +221,8 @@ def custom(pif):
 
     lsec = custom_create_section(pif, 'a')
 
-    llineup = {'section': [lsec], 'columns': lsec['columns']}
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup = render.Matrix(section=[lsec])
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 @basics.web_page

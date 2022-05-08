@@ -3,6 +3,7 @@
 import config
 import mbdata
 import mflags
+import render
 import useful
 
 
@@ -70,7 +71,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
         mdict['flag'] = pif.render.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})
     elif mdict['unlicensed'] == '-':
         mdict['flag'] = pif.render.format_image_art('mbx.gif')
-    pif.render.comment('FLAG?', mdict.get('id'), mdict.get('country'), mdict.get('flag'))
+    pif.render.comment('FLAG?', mdict['id'], mdict['country'], mdict['flag'])
     if mdict.get('link'):
         mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(img)s<br><b>%(name)s</b></a>' % mdict
     else:
@@ -80,7 +81,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     if not mdict.get('nodesc'):
         for s in mdict['descs']:
             if s in mbdata.arts:
-                mdict['desclist'] += "   <br>\n" + pif.render.format_image_icon('c_' + mbdata.arts[s])
+                mdict['desclist'] += "   <br>\n" + pif.render.format_image_icon('c_' + mbdata.arts[s] + '.gif')
             elif s:
                 mdict['desclist'] += "   <br><i>" + s + "</i>\n"
     return mdict
@@ -107,6 +108,10 @@ def add_model_table_product_link(pif, mdict):
     ostr += '</td><td class="modelnumber">'
     ostr += mdict['displayed_id']
     ostr += '</td><td class="modelicons">'
+    if pif.is_allowed('a'):
+        # breaks packs
+        ref_link = pif.dbh.get_editor_link('lineup_model', {'year': mdict.get('year'), 'mod_id': mdict.get('mod_id')})
+        ostr += pif.render.format_link(ref_link, '<i class="fas fa-edit gray"></i>')
     if mdict.get('not_made'):
         ostr += mbdata.comment_icon.get('n', '')
     if mdict.get('is_reused_product_picture'):  # pragma: no cover
@@ -245,13 +250,6 @@ def add_icons(pif, type_id, base_id, vehicle_type):
     return ostr
 
 
-var_adds = [
-    ["b_", "Base%(s)s", "<p>", 1],
-    ["d_", "Detail%(s)s", " ", 1],
-    ["i_", "Interior%(s)s", "<p>", 1],
-]
-
-
 def show_adds(pif, mod_id, var_id=''):
     photo_credits = {x['photo_credit.name']: x['photographer.name']
                      for x in pif.dbh.fetch_photo_credits(path='.' + config.IMG_DIR_ADD)}
@@ -262,10 +260,10 @@ def show_adds(pif, mod_id, var_id=''):
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
-    adds = var_adds if var_id else mbdata.model_adds
+    adds = mbdata.var_adds if var_id else mbdata.model_adds
     ostr = ''
     for add in adds:
-        imgs = pif.render.find_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
+        imgs = pif.render.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
         if imgs:
             ostr += '<h3>%s</h3>\n' % add[1] % {'s': useful.plural(imgs)}
             for img in imgs:
@@ -296,10 +294,10 @@ def make_adds(pif, mod_id, var_id=''):
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
     pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
-    adds = var_adds if var_id else mbdata.model_adds
+    adds = mbdata.var_adds if var_id else mbdata.model_adds
     outd = []
     for add in adds:
-        imgs = pif.render.find_image_list(img_id, wc='-*', prefix=add[0], pdir=pdir)
+        imgs = pif.render.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
         if imgs:
             elem = {'title': add[1] % {'s': useful.plural(imgs)}, 'entry': [],
                     'columns': add[3]}
@@ -356,13 +354,14 @@ def add_model_var_pic_link(pif, vdict):
 def make_page_list(pif, format_type, fmt_link):
     pif.render.set_button_comment(pif)
     secs = pif.dbh.fetch_sections_by_page_type(format_type)
-    lsec = [x for x in secs if x.page_id == format_type][0]
     entries = list()
-    lsec['range'] = [{'entry': entries}]
-    llineup = {'id': 'main', 'name': '', 'section': [lsec]}
     for sec in secs:
         hidden = sec.flags & config.FLAG_PAGE_INFO_HIDDEN or sec.page_info.flags & config.FLAG_PAGE_INFO_HIDDEN
         if '.' in sec.page_id and (pif.render.is_alpha or pif.render.is_beta or not hidden):
-            entries.append({'text': ('<i>%s</i>' if hidden else '%s') % fmt_link(sec)})
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('packpages.html', llineup=llineup)
+            entries.append(render.Entry(text=('<i>%s</i>' if hidden else '%s') % fmt_link(sec)))
+    lsec = render.Section(
+        section=[x for x in secs if x.page_id == format_type][0],
+        range=[render.Range(entry=entries)]
+    )
+    llineup = render.Matrix(id='main', section=[lsec])
+    return pif.render.format_template('packpages.html', llineup=llineup.prep())

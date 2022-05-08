@@ -5,6 +5,7 @@ from sprint import sprint as print
 import basics
 import imglib
 import masses
+import render
 import useful
 
 
@@ -24,8 +25,8 @@ def editor_start(pif):
                     "</ul></b>", pif.render.format_button('clear', '?clear=1'))
 
     context = {
-        'table_info': pif.dbh.table_info,
-        'asks': sorted([t for t in pif.dbh.table_info if 'ask' in pif.dbh.table_info[t]]),
+        'table_data': pif.dbh.table_data,
+        'asks': sorted([t.name for t in pif.dbh.table_data.values() if t.ask]),
         'masses': [x[0] for x in masses.mass_mains_list],
     }
     return pif.render.format_template('editorask.html', **context)
@@ -39,130 +40,128 @@ def editor_main(pif):
     pif.render.set_page_extra(pif.render.reset_button_js)
     pif.render.print_html()
     pif.restrict('a')
-    if pif.form.get_str('promote'):
-        return imglib.promote_picture(pif, pif.form.get_str('mod'), pif.form.get_str('var'))
-    if pif.form.get_str('table'):
+    if pif.form.get_raw('promote'):
+        return imglib.promote_picture(pif, pif.form.get_raw('mod'), pif.form.get_raw('var'))
+    if pif.form.get_raw('table'):
         return show_table(pif)
     return editor_start(pif)
 
 
 def show_table(pif):
     pif.render.message(str(pif.form.get_form()))
-    table_info = pif.dbh.get_table_info(pif.form.get_str('table'))
+    table_data = pif.dbh.get_table_data(pif.form.get_raw('table'))
 
     def save_val(key):
-        if key in table_info.get('bits', {}):
-            return pif.form.get_bits(key)
-        return pif.form.get_str(key, other='')
+        return pif.form.get_bits(key) if key in table_data.bits else pif.form.get_raw(key)
 
     dats = []
-    if pif.duplicate_form:  # not pif.dbh.insert_token(pif.form.get_str('token')):
+    if pif.duplicate_form:  # not pif.dbh.insert_token(pif.form.get_raw('token')):
         print('duplicate form submission detected')
-    elif not table_info:
+    elif not table_data:
         print('table not found')
         return
     elif pif.form.has('save'):
         # rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
-        values = {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}
+        values = {x: save_val(x) for x in table_data.columns + table_data.extra_columns}
+        #    if table_data.saveid or x not in table_data.id}
         pif.dbh.write(
-            table_info['name'], values,
-            pif.form.where(table_info['id'], 'o_'), tag='ShowTableSave', verbose=True)
+            table_data.name, values, pif.form.where(table_data.id, 'o_'), tag='ShowTableSave', verbose=True)
         pif.render.message('record saved')
     elif pif.form.has('delete'):
-        pif.dbh.delete(table_info['name'], pif.form.where(table_info['id'], 'o_'))
+        pif.dbh.delete(table_data.name, pif.form.where(table_data.id, 'o_'))
         pif.form.delete('id')
         pif.render.message('record deleted')
     elif pif.form.has('clone'):
         # this should be done in memory without saving yet
         pif.dbh.write(
-            table_info['name'],
-            {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])},
-            pif.form.where(table_info['id'], 'o_'), newonly=True, tag='ShowTableClone')
+            table_data.name,
+            {x: save_val(x) for x in table_data.columns + table_data.extra_columns},
+            pif.form.where(table_data.id, 'o_'), newonly=True, tag='ShowTableClone')
         # del pif.form.delete('id')
         pif.render.message('record cloned')
         pif.form.delete('clone')
     elif pif.form.has('add'):
-        pif.render.message('add' + table_info.get('name', 'unset'))
-#        print(table_info, '<br>')
-        # adds = table_info.get('add', {})
-        creat = table_info.get('create', {})
+        pif.render.message('add' + (table_data.name or 'unset'))
+#        print(table_data, '<br>')
+        # adds = table_data.add
+        creat = table_data.create
         cond = {}
-        for id in table_info['columns']:
+        for id in table_data.columns:
             pif.form.default(id, creat.get(id, save_val(id)))
             cond[id] = save_val(id)
         dats = [cond]
         print('new record')
 
     if not dats:
-        where = pif.form.where(table_info['columns'] + table_info.get('extra_columns', []))
-        dats = pif.dbh.fetch(table_info['name'], where=where, tag='ShowTable', extras=True)
+        where = pif.form.where(table_data.columns + table_data.extra_columns)
+        dats = pif.dbh.fetch(table_data.name, where=where, tag='ShowTable', extras=True)
 
     header = footer = ''
-#    header = '<b>' + table_info['name'] + '</b>'
-#    header += pif.render.format_button('show all', "?table=" + table_info['name'])
+#    header = '<b>' + table_data.name + '</b>'
+#    header += pif.render.format_button('show all', "?table=" + table_data.name)
     lsections = []
 
     if len(dats) > 1:
-        lsections.extend(show_multi(pif, table_info, dats))
+        lsections.extend(show_multi(pif, table_data, dats))
     elif len(dats) == 1:
-        lsections.extend(show_single(pif, table_info, dats))
+        lsections.extend(show_single(pif, table_data, dats))
     else:
         lsections.extend(show_none(
-            pif, table_info, {x: save_val(x) for x in table_info['columns'] + table_info.get('extra_columns', [])}))
-    if table_info['name'] in table_info.get('add', {}):
+            pif, table_data, {x: save_val(x) for x in table_data.columns + table_data.extra_columns}))
+    if table_data.name in table_data.add:
         cond = {'add': '1'}
         footer += pif.render.format_button(
-            'add', "?table=" + table_info['name'] + "&" + "&".join([x + '=' + cond[x] for x in cond]))
-    lsections[0]['header'] = header + lsections[0].get('header', '')
-    lsections[0]['footer'] = lsections[0].get('footer', '') + footer
-    lsections.extend(show_sub_tables(pif, table_info, dats[0] if len(dats) == 1 else None))
-    llistix = {'section': lsections}
+            'add', "?table=" + table_data.name + "&" + "&".join([x + '=' + cond[x] for x in cond]))
+    lsections[0].header = header + lsections[0].header
+    lsections[0].footer += footer
+    lsections.extend(show_sub_tables(pif, table_data, dats[0] if len(dats) == 1 else None))
+    llistix = render.Listix(section=lsections)
     return pif.render.format_template('simplelistix.html', llineup=llistix)
 
 
-def show_multi(pif, table_info, dats, cols=None):
+def show_multi(pif, table_data, dats, cols=None):
     if pif.form.has('order') and dats:
-        sort_ord = table_info['name'] + '.' + pif.form.get_str('order')
+        sort_ord = table_data.name + '.' + pif.form.get_raw('order')
         if sort_ord in dats[0]:
             dats.sort(key=lambda x: x[sort_ord])
-    lsections = [show_multi_section(pif, table_info, dats, cols)]
+    lsections = [show_multi_section(pif, table_data, dats, cols)]
     return lsections
 
 
-def show_single(pif, table_info, dats):
-    dat = pif.dbh.depref(table_info['name'], dats[0])
+def show_single(pif, table_data, dats):
+    dat = pif.dbh.depref(table_data.name, dats[0])
     dats = [dat]
-    adds = table_info.get('add', {})
-    descs = pif.dbh.describe_dict(table_info['name'])
+    adds = table_data.add
+    descs = pif.dbh.describe_dict(table_data.name)
 
     lsections = []
-    for base_tab, base_rel in table_info.get('extends', {}).items():
-        base_inf = pif.dbh.get_table_info(base_tab)
+    for base_tab, base_rel in table_data.extends.items():
+        base_dat = pif.dbh.get_table_data(base_tab)
         base_rel = base_rel.split('/')
         base_where = '{}="{}"'.format(base_rel[1], dat[base_rel[0]])
-        base_dats = pif.dbh.fetch(base_inf['name'], where=base_where, tag='ShowBaseTable', extras=True)
+        base_dats = pif.dbh.fetch(base_dat.name, where=base_where, tag='ShowBaseTable', extras=True)
         if len(base_dats) > 1:
             pif.render.message('multiple instances of', base_tab, '!')
         elif not base_dats:
             pif.render.message('no instances of', base_tab, '!')
         else:
-            lsections.extend(show_single(pif, base_inf, base_dats))
+            lsections.extend(show_single(pif, base_dat, base_dats))
 
-    header = '<b>' + table_info['name'] + '</b>'
-    header += pif.render.format_button('show all', "?table=" + table_info['name'])
+    header = '<b>' + table_data.name + '</b>'
+    header += pif.render.format_button('show all', "?table=" + table_data.name)
     header += '<form action="/cgi-bin/editor.cgi">\n'
     header += pif.create_token()
     header += '<input type="hidden" name="verbose" value="1">\n'
-    header += '<input type="hidden" name="table" value="{}">\n'.format(table_info['name'])
-    for f in table_info['id']:
+    header += '<input type="hidden" name="table" value="{}">\n'.format(table_data.name)
+    for f in table_data.id:
         header += '<input type="hidden" name="o_{}" value="{}">\n'.format(f, dat.get(f, ''))
 
     columns = ['column', 'type', 'value', 'new value']
     entries = []
 
-    for col in table_info['columns'] + table_info.get('extra_columns', []):
+    for col in table_data.columns + table_data.extra_columns:
         coltype = descs.get(col).get('type', 'unknown')
-        oldvalue = make_col_value(table_info, col, dat)
+        oldvalue = make_col_value(table_data, col, dat)
         newvalue = coltype
         # char(N)
         # datetime
@@ -173,11 +172,11 @@ def show_single(pif, table_info, dats):
         # timestamp
         # tinyint(N)
         # varchar(N)
-        if col in table_info.get('readonly', []):
+        if col in table_data.readonly:
             newvalue = '&nbsp;<input type=hidden name="{}" value="{}">'.format(col, dat.get(col, ''))
-        elif col in table_info.get('bits', {}):
+        elif col in table_data.bits:
             newvalue = pif.render.format_checkbox(
-                col, table_info['bits'][col], useful.bit_list(oldvalue, format='%04x'))
+                col, table_data.bits[col], useful.bit_list(oldvalue, format='%04x'))
         elif coltype == 'text':
             newvalue = pif.render.format_textarea_input(col, value=dat.get(col, ''))
         elif coltype.startswith('varchar('):
@@ -221,31 +220,30 @@ def show_single(pif, table_info, dats):
     footer = pif.render.format_button_input("save")
     footer += pif.render.format_button_input("delete")
 
-    if table_info['name'] in adds:
+    if table_data.name in adds:
         footer += pif.render.format_button(
-            'add', "?table=" + table_info['name'] + "&add=1&" + make_url_cond(adds[table_info['name']], dat))
-        del adds[table_info['name']]
+            'add', "?table=" + table_data.name + "&add=1&" + make_url_cond(adds[table_data.name], dat))
+        del adds[table_data.name]
         footer += pif.render.format_button_input('clone')
     footer += '</form>\n'
-    for elink in table_info.get('elinks', []):
+    for elink in table_data.elinks:
         footer += pif.render.format_button(elink['name'], elink['url'] % dat) + '<br>\n'
     footer += '<hr>\n'
 
-    lrange = {'entry': entries, 'styles': {'column': 0}}
-    lsections.append({'columns': columns, 'range': [lrange], 'note': '',
-                      'headers': dict(zip(columns, columns)), 'header': header, 'footer': footer})
+    lrange = render.Range(entry=entries, styles={'column': 0})
+    lsections.append(render.Section(colist=columns, range=[lrange], header=header, footer=footer))
     return lsections
 
 
-def show_sub_tables(pif, table_info, dat=None):
+def show_sub_tables(pif, table_data, dat=None):
     columns = ['column', 'type', 'value', 'new value']
-    adds = table_info.get('add', {})
+    adds = table_data.add
     lsections = []
-    lsections.append({'entry': [], 'header': '<h3>Subtables</h3>\n'})
+    lsections.append(render.Section(colist=[], header='<h3>Subtables</h3>\n'))
 
     anchors = []
-    for subtab in table_info.get('tlinks', []):
-        if subtab['tab'] in table_info.get('extends', {}):
+    for subtab in table_data.tlinks:
+        if subtab['tab'] in table_data.extends:
             continue
         try:
             if not eval(subtab.get('if', '1')):
@@ -264,35 +262,36 @@ def show_sub_tables(pif, table_info, dat=None):
         if dat and 'id' in subtab:
             cond = make_cond(subtab['id'], dat)
             lsection = show_sub_table_section(
-                pif, pif.dbh.get_table_info(subtab['tab']), cond, ref=subtab.get('ref', {}))
-            lsection['header'] = header + pif.render.format_button('show', "?table=" + subtab['tab'] + "&" + "&".join([
-                x + '=' + str(cond[x]) for x in cond])) + '\n' + lsection['header']
+                pif, pif.dbh.get_table_data(subtab['tab']), cond, ref=subtab.get('ref', {}))
+            lsection.header = header + pif.render.format_button('show', "?table=" + subtab['tab'] + "&" + "&".join([
+                x + '=' + str(cond[x]) for x in cond])) + '\n' + lsection.header
         else:
             header += pif.render.format_button('show', "?table=" + subtab['tab'])
             # if subtab['tab'] in adds:
             #     ostr += pif.render.format_button('add', "?table=" + subtab['tab'] + "&" + "&".join([
             #         x + '=' + str(cond[x]) forx in cond]))
-            lsection = {'columns': columns, 'range': [{'entry': [], 'styles': {'column': 0}}], 'note': '',
-                        'headers': dict(zip(columns, columns)), 'header': header}
-        lsection['anchor'] = subtab['tab']
+            lsection = render.Section(colist=columns, range=[render.Range(entry=[], styles={'column': 0})],
+                                      header=header)
+        lsection.anchor = subtab['tab']
         anchors.append(subtab['tab'])
         lsections.append(lsection)
 
     return lsections
 
 
-def show_none(pif, table_info, dat):
+def show_none(pif, table_data, dat):
     pif.render.message("No records found.")
-    adds = table_info.get('add', {})
-    header = '<b>' + table_info['name'] + '</b>'
-    header += pif.render.format_button('show all', "?table=" + table_info['name'])
+    adds = table_data.add
+    header = '<b>' + table_data.name + '</b>'
+    header += pif.render.format_button('show all', "?table=" + table_data.name)
     lsections = []
-    lsections.append({'header': header})
-    if table_info['name'] in adds:
-        cond = make_url_cond(adds[table_info['name']], dat)
-        lsections.append({'header': pif.render.format_button('add', "?table=" + table_info['name'] + "&add=1&" + cond)})
-        del adds[table_info['name']]
-    for subtab in table_info.get('tlinks', []):
+    lsections.append(render.Section(header=header))
+    if table_data.name in adds:
+        cond = make_url_cond(adds[table_data.name], dat)
+        lsections.append(render.Section(
+            header=pif.render.format_button('add', "?table=" + table_data.name + "&add=1&" + cond)))
+        del adds[table_data.name]
+    for subtab in table_data.tlinks:
         if not eval(subtab.get('if', '1')):
             continue
         header = "<hr>" + subtab['tab']
@@ -307,14 +306,14 @@ def show_none(pif, table_info, dat):
                     cond[fr] = eval(to[1:])
                 else:
                     cond[fr] = dat.get(to, '')
-            lsection = show_sub_table_section(pif, pif.dbh.get_table_info(subtab['tab']), cond,
+            lsection = show_sub_table_section(pif, pif.dbh.get_table_data(subtab['tab']), cond,
                                               ref=subtab.get('ref', {}))
-            lsection['header'] = '{}{}\n{}'.format(
+            lsection.header = '{}{}\n{}'.format(
                 header, pif.render.format_button(
                     'show', "?table=" + subtab['tab'] + "&" + "&".join([x + '=' + str(cond[x]) for x in cond])),
-                lsection['header'])
+                lsection.header)
         else:
-            lsection = {header + 'header': pif.render.format_button('show', "?table=" + subtab['tab'])}
+            lsection = render.Section(header=header + pif.render.format_button('show', "?table=" + subtab['tab']))
         lsections.append(lsection)
         if subtab['tab'] in adds:  # ummmm?
             cond = {'add': '1'}
@@ -340,57 +339,56 @@ def make_url_cond(clinks, dat):
     return '&'.join(['{}={}'.format(*x) for x in cond.items()])
 
 
-def make_col_value(table_info, col, dat):
+def make_col_value(table_data, col, dat):
     val = dat.get(col, '')
-    if col in table_info.get('id', []):
-        return '<a href="?table={}&{}">{}</a>'.format(table_info['name'], make_url_cond(table_info['id'], dat), val)
-    elif col in table_info.get('clinks', {}):
-        return '<a href="?table={}&{}">{}</a>'.format(table_info['clinks'][col]['tab'],
-                                                      make_url_cond(table_info['clinks'][col]['id'], dat), val)
+    if col in table_data.id:
+        return '<a href="?table={}&{}">{}</a>'.format(table_data.name, make_url_cond(table_data.id, dat), val)
+    elif col in table_data.clinks:
+        return '<a href="?table={}&{}">{}</a>'.format(table_data.clinks[col]['tab'],
+                                                      make_url_cond(table_data.clinks[col]['id'], dat), val)
     return val
 
 
-def show_multi_section(pif, table_info, dats, cols=None):
+def show_multi_section(pif, table_data, dats, cols=None):
     columns = [
-        col for col in (cols if cols else table_info['columns'] + table_info.get('extra_columns', []))
-        if col not in table_info.get('hidden', [])]
+        col for col in (cols if cols else table_data.columns + table_data.extra_columns)
+        if col not in table_data.hidden]
     entries = [
-        {x: make_col_value(table_info, x, dat) for x in columns}
-        for dat in pif.dbh.depref(table_info['name'], dats)
+        {x: make_col_value(table_data, x, dat) for x in columns}
+        for dat in pif.dbh.depref(table_data.name, dats)
     ]
 
-    header = ''  # '<b>' + table_info['name'] + '</b>\n'
-    header += pif.render.format_button('show all', "?table=" + table_info['name'])
+    header = ''  # '<b>' + table_data.name + '</b>\n'
+    header += pif.render.format_button('show all', "?table=" + table_data.name)
     header += '\n{} entries\n'.format(len(entries))
 
-    lsection = {
-        'columns': columns, 'note': '', 'header': header, 'footer': '<hr>\n',
-        'range': [{'entry': entries, 'styles': dict.fromkeys(table_info.get('id', []), '2')}],
-        'headers': dict(zip(columns, columns))}
+    lsection = render.Section(
+        colist=columns, header=header, footer='<hr>\n',
+        range=[{'entry': entries, 'styles': dict.fromkeys(table_data.id, '2')}])
     return lsection
 
 
-def show_sub_table_section(pif, table_info, cond, ref={}):
+def show_sub_table_section(pif, table_data, cond, ref={}):
     # need to make this handle subtab['ref']
     # {'tab': 'detail', 'id': ['mod_id/mod_id', 'var_id/var'],
     #  'ref': {'attr_id': ['attribute', 'id', 'attribute_name']}},
     # so in this case: ref = {'attr_id': ['attribute', 'id', 'attribute_name']}
-    tname = table_info['name']
+    tname = table_data.name
     if ref:
-        cols = [table_info['name'] + '.' + x for x in table_info['columns'] + table_info.get('extra_columns', [])]
+        cols = [table_data.name + '.' + x for x in table_data.columns + table_data.extra_columns]
         lcond = {}
         for key in ref:
             lcond[key] = ref[key][0] + '.' + ref[key][1]
             cols.append(ref[key][0] + '.' + ref[key][2])
             tname += ',' + ref[key][0]  # this will break if we do two columns
-        where = " and ".join([table_info['name'] + '.' + x + "='" + cond[x] + "'" for x in cond])
+        where = " and ".join([table_data.name + '.' + x + "='" + cond[x] + "'" for x in cond])
         if lcond:
-            where += " and " + " and ".join([table_info['name'] + '.' + x + "=" + lcond[x] for x in lcond])
+            where += " and " + " and ".join([table_data.name + '.' + x + "=" + lcond[x] for x in lcond])
     else:
-        cols = table_info['columns'] + table_info.get('extra_columns', [])
-        where = " and ".join([table_info['name'] + '.' + x + "='" + str(cond[x]) + "'" for x in cond])
+        cols = table_data.columns + table_data.extra_columns
+        where = " and ".join([table_data.name + '.' + x + "='" + str(cond[x]) + "'" for x in cond])
     dats = pif.dbh.fetch(tname, columns=cols, where=where, tag='show_sub_table_section')
-    return show_multi_section(pif, table_info, dats, cols)
+    return show_multi_section(pif, table_data, dats, cols)
 
 
 # ------- counters -------------------------------------------------
@@ -403,7 +401,7 @@ def show_counters(pif):
     pif.render.set_page_extra(pif.render.reset_button_js)
 
     res = pif.dbh.depref('counter', pif.dbh.fetch_counters())
-    sortorder = pif.form.get_str('s', 'id')
+    sortorder = pif.form.get_raw('s', 'id')
     revorder = pif.form.get_int('r')
     res.sort(key=lambda x: x[sortorder])
     if revorder:
@@ -411,11 +409,11 @@ def show_counters(pif):
 
     columns = ['id', 'value', 'timestamp', 'health']
     headers = dict(zip(columns, ['ID', 'Value', 'Timestamp', 'Health']))
-    lsection = dict(
-        columns=columns, range=[{'entry': useful.printablize(res)}], note='',
+    lsection = render.Section(
+        colist=columns, range=[render.Range(entry=useful.printablize(res))], note='',
         headers={col: pif.render.format_link('?s=' + col + '&r=1' if col == sortorder and not revorder else '',
                                              headers[col]) for col in columns})
-    return pif.render.format_template('simplelistix.html', llineup=dict(section=[lsection]))
+    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]))
 
 
 # ------- ----------------------------------------------------------
@@ -427,13 +425,13 @@ def command_info(pif):
     tabs = pif.dbh.fetch_tables()
     for table in tabs[0]:
         print(table[0])
-        tinfo = pif.dbh.table_info.get(table[0])
+        tdata = pif.dbh.get_table_data(table[0])
         tab = pif.dbh.fetch_table(table[0])
         for col in tab[0]:
             dcol = dict(zip(desc_cols, col))
-            dcol['listed'] = 'X' if col[0] in (tinfo['columns'] + tinfo.get('extra_columns', [])) else ''
-            dcol['ask'] = 'X' if col[0] in tinfo.get('ask', []) else ''
-            dcol['ro'] = 'X' if col[0] in tinfo.get('readonly', []) else ''
+            dcol['listed'] = 'X' if col[0] in (tdata.columns + tdata.extra_columns) else ''
+            dcol['ask'] = 'X' if col[0] in tdata.ask else ''
+            dcol['ro'] = 'X' if col[0] in tdata.readonly else ''
             print(cfmt % dcol)
         print()
 

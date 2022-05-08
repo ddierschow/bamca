@@ -16,6 +16,7 @@ import imglib
 import mbdata
 import mflags
 import models
+import render
 import single
 import useful
 import varias
@@ -308,21 +309,24 @@ class MannoFile(object):
     # ----- castings --------------------------------------------
 
     def show_section_manno_template(self, pif, sect):
+        lsec = render.Section(
+            section=sect,
+            anchor=sect['id'],
+            range=[render.Range(entry=[
+                render.Entry(data=x)
+                for x in models.generate_model_table_pic_link_dict(pif, self.mdict, sect['model_ids'])])]
+        )
         if pif.form.get_bool('large'):
-            sect['columns'] = 1
-        sect['anchor'] = sect['id']
-        sect['id'] = ''
-        sect['range'] = [{'entry': models.generate_model_table_pic_link_dict(pif, self.mdict, sect['model_ids'])}]
-        return sect
+            lsec.columns = 1
+        return lsec
 
     def run_manno_template(self, pif):
-        llineup = dict(columns=4)
-        llineup['section'] = self.run_thing(pif, self.show_section_manno_template)
+        llineup = render.Matrix(columns=4)
+        llineup.section = self.run_thing(pif, self.show_section_manno_template)
         pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (
             pif.form.get_str('selection'), pif.form.get_str('range'),
             pif.form.get_str('start'), pif.form.get_str('end')))
-        pif.render.format_matrix_for_template(llineup)
-        return pif.render.format_template('mannum.html', llineup=llineup)
+        return pif.render.format_template('mannum.html', llineup=llineup.prep())
 
     # ----- check list ------------------------------------------
 
@@ -450,7 +454,7 @@ class MannoFile(object):
             mdict['im'] = ''.join(['<i class="%s"></i>' % vers[x] for x in sorted(mdict['ver'])])
             makes = pif.dbh.fetch_casting_makes(mod)
             mdict['make'] = '<br>'.join([
-                pif.render.format_link("/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
+                pif.render.format_link(f"/cgi-bin/makes.cgi?make={x['vehicle_make.id']}", str(x['vehicle_make.name']))
                 for x in makes
             ])
             if mdict['make']:
@@ -462,21 +466,22 @@ class MannoFile(object):
 
     def get_section_admin(self, pif, sect):
         cols = admin2_cols if pif.form.get_bool('t') else admin_cols
-        sect['columns'] = [x[0] for x in cols]
-        sect['headers'] = dict(cols)
-        sect['range'] = [{
-            'entry': self.get_admin_entries(pif, sect['model_ids']),
-            'styles': {x[0]: x[0] for x in cols},
-        }]
-        return sect
+        return render.Section(
+            section=sect,
+            colist=[x[0] for x in cols],
+            headers=dict(cols),
+            range=[render.Range(
+                entry=self.get_admin_entries(pif, sect.model_ids),
+                styles={x[0]: x[0] for x in cols})
+            ])
 
     def run_admin_list_template(self, pif):
-        llineup = dict()
-        llineup['section'] = self.run_thing(pif, self.get_section_admin)
+        llistix = render.Listix()
+        llistix.section = self.run_thing(pif, self.get_section_admin)
         pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (
             pif.form.get_str('selection'), pif.form.get_str('range'),
             pif.form.get_str('start'), pif.form.get_str('end')))
-        return pif.render.format_template('simplelistix.html', llineup=llineup)
+        return pif.render.format_template('simplelistix.html', llineup=llistix)
 
     # ----- links -----------------------------------------------
 
@@ -493,21 +498,22 @@ class MannoFile(object):
             yield mdict
 
     def get_section_links(self, pif, sect):
-        sect['columns'] = [x[0] for x in links_cols]
-        sect['headers'] = dict(links_cols)
-        sect['range'] = [{
-            'entry': self.get_links_entries(pif, sect['model_ids']),
-            'styles': {x[0]: x[0] for x in links_cols},
-        }]
-        return sect
+        return render.Section(
+            section=sect,
+            colist=[x[0] for x in links_cols],
+            headers=dict(links_cols),
+            range=[render.Range(
+                entry=self.get_links_entries(pif, sect['model_ids']),
+                styles={x[0]: x[0] for x in links_cols})],
+        )
 
     def run_links_list_template(self, pif):
-        llineup = dict()
-        llineup['section'] = self.run_thing(pif, self.get_section_links)
+        llistix = render.Listix()
+        llistix.section = self.run_thing(pif, self.get_section_links)
         pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (
             pif.form.get_str('selection'), pif.form.get_str('range'),
             pif.form.get_str('start'), pif.form.get_str('end')))
-        return pif.render.format_template('simplelistix.html', llineup=llineup)
+        return pif.render.format_template('simplelistix.html', llineup=llistix)
 
     # ----- picture -----------------------------------------------
 
@@ -558,7 +564,7 @@ class MannoFile(object):
             mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
             mdict.update({
                 'img': self.show_list_pic(pif, ['', '.' + config.IMG_DIR_MAN], mdict['id'], mbdata.IMG_SIZ_SMALL)[1],
-                'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
+                'vid': '<a href="vars.cgi?edt=1&mod=%(id)s">%(id)s</a>' % mdict,
                 'first_year': '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (
                     useful.relpath(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year']),
                 'name': mades[int(mdict['made'])] % mdict,
@@ -578,22 +584,23 @@ class MannoFile(object):
             if not mdict['made']:
                 mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
             mdict['d_'] = single.fmt_var_pic(*self.show_attr_pics(pif, mod))
+            useful.write_comment(mdict)
             yield mdict
 
     def get_section_picture(self, pif, sect):
-        sect['columns'] = [x[0] for x in picture_cols]
-        sect['headers'] = dict(picture_cols)
-        sect['range'] = [{
-            'entry': self.get_picture_model_entries(pif, sect['model_ids']),
-            'styles': {x[0]: x[0] for x in picture_cols},
-        }]
-        return sect
+        return render.Section(
+            colist=[x[0] for x in picture_cols],
+            headers=dict(picture_cols),
+            range=[render.Range(
+                entry=[x for x in self.get_picture_model_entries(pif, sect['model_ids'])],
+                styles={x[0]: x[0] for x in picture_cols},
+            )])
 
     def run_picture_list(self, pif):
         self.totals = [{'tag': x, 'have': 0, 'total': 0} for x in var_pic_hdrs]
-        llineup = dict()
-        llineup['section'] = self.run_thing(pif, self.get_section_picture)
-        llineup['totals'] = self.totals
+        llineup = render.Listix()
+        llineup.section = self.run_thing(pif, self.get_section_picture)
+        llineup.totals = self.totals
         return llineup
 
     def run_picture_list_template(self, pif):
@@ -642,7 +649,8 @@ class MannoFile(object):
         elif mdict['unlicensed'] == '-':
             mdict['flag'] = pif.render.format_image_art('mbx.gif')
         mdict['makename'] = ' - '.join([
-            pif.render.format_link("/cgi-bin/makes.cgi?make=" + x['vehicle_make.id'], x['vehicle_make.name'])
+            pif.render.format_link("/cgi-bin/makes.cgi?make={}".format(
+                x.get('vehicle_make.id', '???')), x.get('vehicle_make.name', 'unset'))
             for x in pif.dbh.fetch_casting_makes(mdict['id'])
         ])
         mdict['name'] = pif.render.format_link(
@@ -763,20 +771,17 @@ class MannoFile(object):
 
     # ----- tilley list -----------------------------------------
 
-    var_pic_cols = ['ID', 'Description', 'Type', 'Date', 'Cred', 'Pic', 'T', 'S', 'M', 'L']
+    var_pic_cols = ['ID', 'Description', 'Type', 'Date', 'Cat', 'Cred', 'Pic', 'T', 'S', 'M', 'L']
 
     def get_section_credit_list(self, pif, sect):
-        sect['range'] = list()
-        sect['anchor'] = sect['id']
-        sect['id'] = ''
-        ran = {'entry': list()}
+        ents = []
         for mod_id in sect['model_ids']:
-            ran['entry'].extend(self.list_var_pics(pif, self.mdict[mod_id]))
-        sect['range'].append(ran)
-
-        sect['columns'] = self.var_pic_cols
-        sect['headers'] = dict(zip(self.var_pic_cols, self.var_pic_cols))
-        return sect
+            mod_row, var_rows = self.list_var_pics(pif, self.mdict[mod_id])
+            if var_rows:
+                ents.extend([mod_row] + var_rows)
+        section = render.Section(section=sect, colist=self.var_pic_cols, anchor=sect['id'], id='',
+                                 range=[render.Range(entry=ents)])
+        return section
 
     def run_var_credit_list(self, pif):
         self.pic0 = pif.form.get_str('pic0')
@@ -795,8 +800,8 @@ class MannoFile(object):
         # an entry contains a dict of cells, keys in columns.
         #     <text>
 
-        llineup = dict()
-        llineup['section'] = self.run_thing(pif, self.get_section_credit_list)
+        llineup = render.Listix()
+        llineup.section = self.run_thing(pif, self.get_section_credit_list)
         return llineup
 
     def list_var_pics(self, pif, mod):
@@ -825,7 +830,7 @@ class MannoFile(object):
         for var in varlist:
             if var['picture_id']:
                 continue
-            if var['variation_type'] not in self.var_type:
+            if var['variation_type'] and var['variation_type'] not in self.var_type:
                 continue
             # var['varsel'] = pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
             var['phcred'] = credits.get(('%s-%s' % (var['mod_id'], var['var'])).lower(), '')
@@ -839,7 +844,7 @@ class MannoFile(object):
             elif not self.photognot:
                 continue
             # cat_vs = set([x['variation_select.category'] for x in var['varsel']])
-            cat = ' '  # .join(cat_vs)
+            cat = var['category']  # .join(cat_vs)
             var_row = {
                 'ID': var['mod_id'] + '-' + var['var'],
                 'Description': var['text_description'],
@@ -874,7 +879,8 @@ class MannoFile(object):
         #         return [mod_row, {'Description': 'all relevant pictures credited'}]
         #     if not self.photognot and mod_row['Cred'] != self.photog:
         #         return [mod_row, {'Description': 'no relevant pictures credited'}]
-        return [mod_row] + var_rows
+        useful.write_comment(str([mod_row] + var_rows))
+        return mod_row, var_rows
 
     # ----- main ------------------------------------------------
 
@@ -933,7 +939,7 @@ def admin_main(pif):
         first_year = int(limits['min(base_id.first_year)'])
         last_year = int(limits['max(base_id.first_year)'])
         # listtype = pif.form.get_str('listtype')
-        llineup = {}
+        llineup = render.Listix()
         return pif.render.format_template(
             'manadm.html',
             pagetype=0,
@@ -1382,6 +1388,30 @@ def add_casting_file(pif, *args):
             print(ln.get('id'), 'added')
 
 
+def add_linkline(pif, mod_id, ass_link, dest):
+    # 15 is mbxu
+    page_id = 'single.' + mod_id
+    section_id = 'single'
+    if ass_link == '15':
+        url = f'http://www.mbx-u.com/models-detail-ver-listing.php?model={dest}'
+
+    # load for mod_id/ass_link/dest
+    lines = pif.dbh.fetch_link_lines(
+        page_id=page_id, section=section_id, where=[f'name="{dest}"', f'associated_link="{ass_link}"'])
+    if lines:
+        print(mod_id, ass_link, dest, 'already exists')
+    else:
+        rec = {
+            'page_id': page_id, 'section_id': section_id, 'display_order': 0, 'flags': 0, 'associated_link': ass_link,
+            'last_status': '--', 'link_type': 'l', 'name': dest, 'url': url}
+        print(pif.dbh.insert_link_line(rec, verbose=True))
+
+# page_id       | sect_id | do | flags | ass_link | lt | url                      | name   |
+#
+# single.MB1003 | single  |  7 |     0 |       15 | l  | http://www.mbx-u.com/... | SF0950 |
+# single.MB1004 | single  |  1 |     0 |       15 | l  | http://www.mbx-u.com/... | SF0951 |
+
+
 cmds = [
     ('d', delete_casting, "delete: mod_id"),
     ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
@@ -1398,6 +1428,7 @@ cmds = [
     ('crc', check_casting_related, "check casting_related"),
     ('cra', add_casting_related, "add casting_related [-s section] mod_id mod_id ..."),
     ('cf', add_casting_file, "add casting file"),
+    ('ll', add_linkline, "add link line"),
 ]
 
 

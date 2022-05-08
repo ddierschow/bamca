@@ -6,6 +6,7 @@ import basics
 import config
 import mbdata
 import models
+import render
 import useful
 
 # ---------------------------------------------------------------------
@@ -54,13 +55,14 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
 
     pack_ids_found = []
-    llineup = dict(section=[])
+    llineup = render.Listix()
     sec_id = sec if sec else sections[0]['id'] if sections else '5packs'
     num_mods = 2 if sec_id == '2packs' else 10 if sec_id == '10packs' else 5
     for lsection in sections:
         if sec and lsection['id'] != sec:
             continue
 
+        lsec = render.Section(section=lsection)
         packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
         cols = ['pic', 'name', 'year', 'product_code']
         heads = ['', 'Name', 'Year', 'Product Code']
@@ -111,22 +113,21 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
         entries.sort(key=lambda x: (x[pif.form.get_str('order', 'name')], x['name'], x['first_year']))
         if pif.is_allowed('a'):  # pragma: no cover
             if format_type == 'packs':
-                lsection.name += ' ' + pif.render.format_button(
-                    'see', "packs.cgi?page=%s&sec=%s" % (pif.form.get_str('page'), lsection.id))
-            lsection.name += ' ' + pif.render.format_button(
-                'add', "mass.cgi?type=pack&section_id=%s&num=%s" % (lsection.id, num_mods))
+                lsec.name += ' ' + pif.render.format_button(
+                    'see', "packs.cgi?page=%s&sec=%s" % (pif.form.get_str('page'), lsec.id))
+            lsec.name += ' ' + pif.render.format_button(
+                'add', "mass.cgi?type=pack&section_id=%s&num=%s" % (lsec.id, num_mods))
 
-        lsection['columns'] = cols
-        lsection['headers'] = heads
-        lsection['range'] = [dict(entry=entries, note='', styles=dict(zip(cols, cols)))]
-        lsection['note'] = ''
-        llineup['section'].append(lsection)
-    # useful.write_comment(llineup)
+        lsec.colist = cols
+        lsec.headers = heads
+        lsec.range = [render.Range(entry=entries, note='', styles=dict(zip(cols, cols)))]
+        lsec.note = ''
+        llineup.section.append(lsec)
     context = {
         'page_id': pif.page_id,
         'years': sorted(years),
         'regions': [(x, mbdata.regions[x]) for x in sorted(regions)],
-        'llineup': llineup,
+        'llineup': llineup.prep(),
         'section_id': sec_id,
         'num': num_mods,
         # 'lid': calc_pack_select(pif, packs),
@@ -165,7 +166,7 @@ def do_single_pack(pif, format_type, pid):
     pif.render.hierarchy_append('', packs[0]['base_id.rawname'].replace(';', ' '))
     pif.render.print_html()
 
-    llineup = dict(section=[], tail=[''], id='')
+    llineup = render.Matrix(tail=[''])
     for pack in packs:
         pack_id = pack['pack.id']
         pack['longid'] = pack_id + ('-' + pack['pack.var'] if pack['pack.var'] else '')
@@ -200,10 +201,9 @@ def do_single_pack(pif, format_type, pid):
             layout[4] = 4 - (layout[0] - layout[1])
 
         pif.render.comment('pack:', pack)
-        entries = [{
-            'text': show_pack(pif, pack, layout[3]),
-            'class': 'width_' + layout[3],
-            'display_id': '0', 'colspan': layout[1], 'rowspan': layout[2]}]
+        entries = [render.Entry(
+            text=show_pack(pif, pack, layout[3]), class_name='width_' + layout[3],
+            display_id='0', colspan=layout[1], rowspan=layout[2])]
         for mod in sorted(pmodels.keys()):
             pif.render.comment("do_single_pack mod", pmodels[mod])
 
@@ -217,9 +217,10 @@ def do_single_pack(pif, format_type, pid):
                     pmodels[mod]['no_variation'] = 1
                     tcomments.add('v')
 
-            entries.append({'text': show_pack_model(pif, pmodels[mod]), 'display_id': 1})
+            entries.append(render.Entry(text=show_pack_model(pif, pmodels[mod]), display_id=1))
 
-        llineup['section'].append(dict(id='', columns=layout[0], anchor=pack['id'], range=[{'entry': entries}]))
+        llineup.section.append(render.Section(id='', columns=layout[0], anchor=pack['id'],
+                                              range=[render.Range(entry=entries)]))
 
     # left bar
     left_bar_content = ''
@@ -240,7 +241,6 @@ def do_single_pack(pif, format_type, pid):
         left_bar_content += '</center>\n'
 
     pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
-    pif.render.format_matrix_for_template(llineup)
     context = {
         'title': packs[0]['name'],
         'note': packs[0]['note'],
@@ -249,7 +249,7 @@ def do_single_pack(pif, format_type, pid):
         'vehicle_type': '',
         'rowspan': 4,
         'left_bar_content': left_bar_content,
-        'llineup': llineup,
+        'llineup': llineup.prep(),
         'relateds': relateds,
     }
     return pif.render.format_template('pack.html', **context)

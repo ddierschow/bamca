@@ -5,6 +5,7 @@ import config
 import mbdata
 import mflags
 import models
+import render
 import useful
 import varias
 
@@ -62,31 +63,25 @@ def get_casting_id(id):
 
 
 def create_var_lineup(pif, mods, var_id):
-    llineup = {'columns': 4}
-    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lran = {'entry': []}
+    sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    lran = render.Range()
     for mod in mods:
         for var in pif.dbh.fetch_variation_query_by_id(mod['id'], var_id):
             var['name'] = var['base_id.rawname'].replace(';', ' ')
-            lran['entry'].append({'text': varias.add_model_var_table_pic_link(pif, var)})
-    lsec['range'] = [lran]
-    lsec['columns'] = 4
-    llineup['section'] = [lsec]
-    return llineup
+            lran.entry.append(render.Entry(text=varias.add_model_var_table_pic_link(pif, var)))
+    lsec = render.Section(section=sect, range=[lran], columns=4)
+    return render.Matrix(columns=4, section=[lsec])
 
 
 def create_lineup(pif, mods):
     flago = mflags.FlagList()
-    llineup = {'columns': 4}
-    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lran = {'entry': []}
+    sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    lran = render.Range()
     for mod in mods:
         mod = pif.dbh.modify_man_item(mod)
-        lran['entry'].append({'text': models.add_model_table_pic_link(pif, mod, flago=flago)})
-    lsec['range'] = [lran]
-    lsec['columns'] = 4
-    llineup['section'] = [lsec]
-    return llineup
+        lran.entry.append(render.Entry(text=models.add_model_table_pic_link(pif, mod, flago=flago)))
+    lsec = render.Section(section=sect, range=[lran], columns=4)
+    return render.Matrix(columns=4, section=[lsec])
 
 
 @basics.web_page
@@ -127,8 +122,7 @@ def run_search(pif):
         pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
         llineup = create_lineup(pif, mods)
 
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def get_mack_numbers(pif, mod_id):
@@ -144,6 +138,8 @@ def get_mack_numbers(pif, mod_id):
 
     ret = []
     mack = mbdata.get_mack_number(mod_id)
+    if mack[0] is None:
+        return ret
     if mod_id.startswith('RW') or mod_id in ('MI740', 'MI816', 'MI861') or (mack and mack[0] and mack[2]):
         ret.append(fmt_mack_id(mack))
     aliases = sorted(pif.dbh.fetch_aliases(mod_id), key=lambda x: (-x['alias.flags'], x['alias.ref_id']))
@@ -157,10 +153,9 @@ descs = ['body', 'base', 'interior', 'windows', 'wheels']
 
 
 def date_search(pif, dt=None, yr=None):
-    llineup = {'columns': 4}
-    lsec = {}
-    lran = {}
-    llineup['header'] = llineup['footer'] = ''
+    llineup = render.Matrix(columns=4)
+    lsec = render.Section()
+    lran = render.Range()
     if dt:
         pif.render.title = dt
         vars = pif.dbh.fetch_variations_by_date(dt)
@@ -203,27 +198,26 @@ def date_search(pif, dt=None, yr=None):
                 '<i>' + var['variation.note'] + '</i> ' + cats + '\n<ul>' + desc + '</ul>\n'
             )
         vars.sort(key=lambda x: x['sort'])
-        lran['entry'] = [{'text': x['shown']} for x in vars]
-        lsec['columns'] = 1
-        llineup['header'] += (
+        lran.entry = [render.Entry(text=x['shown']) for x in vars]
+        lsec.columns = 1
+        llineup.header += (
             'Verified: %d of %d<br><form action="/cgi-bin/mass.cgi?type=dates" method="post">' % (ver_count, len(vars)))
-        llineup['footer'] += pif.render.format_button_input() + '</form>'
+        llineup.footer += pif.render.format_button_input() + '</form>'
     else:
         pif.render.title = 'Search Dates'
         dates = pif.dbh.fetch_variation_dates(yr=yr)
-        lran['entry'] = [{
-            'text': pif.render.format_link('/cgi-bin/msearch.cgi?date=1&dt=%s' % dt['date'],
-                                           '%s (%s)' % (dt['date'], dt['count(*)']))} for dt in dates if dt['date']]
-        lsec['columns'] = 6
-    lsec['range'] = [lran]
-    llineup['section'] = [lsec]
-    llineup['footer'] += '<hr>'
-    llineup['footer'] += (
+        lran.entry = [render.Entry(
+            text=pif.render.format_link('/cgi-bin/msearch.cgi?date=1&dt=%s' % dt['date'],
+                                        '%s (%s)' % (dt['date'], dt['count(*)']))) for dt in dates if dt['date']]
+        lsec.columns = 6
+    lsec.range = [lran]
+    llineup.section = [lsec]
+    llineup.footer += '<hr>'
+    llineup.footer += (
         '<form action="/cgi-bin/msearch.cgi">Year = /<input type="hidden" name="date" value="1">'
         '<input type="text" name="yr"> <input type="submit" name="submit" value="GO" class="textbutton"></form>\n')
-    llineup['footer'] += (
+    llineup.footer += (
         '<form action="/cgi-bin/msearch.cgi">Mod ID: <input type="text" name="id" size="12"> '
         'Var ID: <input type="text" name="var" size="12"> '
         '<input type="submit" name="submit" value="GO" class="textbutton"></form>\n')
-    pif.render.format_matrix_for_template(llineup, flip=True)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())

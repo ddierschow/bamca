@@ -5,6 +5,7 @@ import uuid
 
 import basics
 import config
+import render
 import useful
 
 
@@ -12,17 +13,17 @@ import useful
 
 
 def print_users(pif):
-    table_info = pif.dbh.table_info['user']
+    table_data = pif.dbh.get_table_data('user')
     entries = []
     for user in pif.dbh.fetch_users():
         user['user_id'] = '<a href="user.cgi?id={}">{}</a>'.format(user.id, user.user_id)
-        flags = [x[1] for x in table_info.get('bits', {}).get('flags', []) if (user['flags'] & int(x[0], 16))]
+        flags = [x[1] for x in table_data.bits.get('flags', []) if (user['flags'] & int(x[0], 16))]
         user['flags'] = '<br>'.join(flags)
         entries.append(user)
 
-    lsection = dict(columns=table_info['columns'], headers=table_info['title'], range=[{'entry': entries}], note='')
-    llineup = {'section': [lsection], 'columns': lsection['columns']}
-    return pif.render.format_template('simplelistix.html', llineup=llineup)
+    llistix = render.Listix(section=[
+        render.Section(colist=table_data.columns, headers=table_data.title, range=[render.Range(entry=entries)])])
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
 
 
 def print_user_form(pif, id):
@@ -33,31 +34,31 @@ def print_user_form(pif, id):
     cols = ['title', 'value']
     heads = dict(zip(cols, ['Titles', 'Values']))
     entries = []
-    table_info = pif.dbh.table_info['user']
-    for col in table_info['columns']:
-        title = table_info['title'][col]
+    table_data = pif.dbh.get_table_data('user')
+    for col in table_data.columns:
+        title = table_data.title[col]
         if col == 'id':
             value = '<input type="hidden" name="id" value="{}"><div class="lefty">{}</div>'.format(user[col], user[col])
             value += '<a href="user.cgi?delete=1&id={}">{}</a>'.format(
                 id, pif.render.format_button('delete', also={'style': 'float:right'}))
-        elif col in table_info.get('bits', {}):
-            value = pif.render.format_checkbox(col, table_info['bits'][col], useful.bit_list(user[col], format='%04x'))
+        elif col in table_data.bits:
+            value = pif.render.format_checkbox(col, table_data.bits[col], useful.bit_list(user[col], format='%04x'))
         elif col == 'email':
             value = '<input type="text" name="{}" value="{}" size=60>'.format(col, user[col])
         else:
             value = pif.render.format_text_input(col, 80, value=user[col])
         entries.append({'title': title, 'value': value})
 
-    lrange = dict(entry=entries, note='')
-    lsection = dict(columns=cols, headers=heads, range=[lrange], note='',
-                    header='<form name="userform" method="post" action="/cgi-bin/user.cgi">' + pif.create_token())
-    llineup = dict(
-        section=[lsection],
-        footer='{} -\n{} -\n{}</form>'.format(
-            pif.render.format_button_input("save changes", "submit"),
-            pif.render.format_button_reset("userform"),
-            pif.render.format_button("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id={}".format(id))))
-    return pif.render.format_template('simplelistix.html', llineup=llineup)
+    lrange = render.Range(entry=entries, note='')
+    lsection = render.Section(colist=cols, headers=heads, range=[lrange],
+                              header=pif.render.format_form_start(action='/cgi-bin/user.cgi',
+                                                                  name='userform', method='post', token=True),
+                              footer='{} -\n{} -\n{}</form>'.format(
+        pif.render.format_button_input("save changes", "submit"),
+        pif.render.format_button_reset("userform"),
+        pif.render.format_button("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id={}".format(id))))
+    llistix = render.Listix(section=[lsection])
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
 
 
 def delete_user(pif):
@@ -69,7 +70,7 @@ def update_user(pif):
     if newuser and newuser.id != pif.form.get_int('id'):
         raise useful.SimpleError('The requested user ID is already in use.')
     pif.form.set_val('flags', pif.form.get_bits('flags'))
-    pif.dbh.update_user(pif.form.get_int('id'), **pif.form.get_dict(keylist=pif.dbh.table_info['user']['columns']))
+    pif.dbh.update_user(pif.form.get_int('id'), **pif.form.get_dict(keylist=pif.dbh.get_table_data('user').columns))
 
 
 @basics.web_page
@@ -152,7 +153,6 @@ def generate_signup_email(pif, user):
     user['secure_host'] = pif.secure_host
     user['validate'] = "{secure_host}/cgi-bin/validate.cgi?user_id={user_id}&vkey={vkey}".format(**user.todict())
     # user = {k: useful.url_quote(str(v), plus=True) for k, v in user.todict().items()}
-    print(user)
     msg = '''To: "{user_id}" <{email}>
 From: "Account Verification" <webmaster@{host}>
 Subject: Verify your account
@@ -227,18 +227,17 @@ def change_password_main(pif):
         {'title': 'New password:', 'value': '<input type="password" name="p1">'},
         {'title': 'Retry new password:', 'value': '<input type="password" name="p2">'},
     ]
-    lsection = {
-        'columns': ['title', 'value'],
-        'range': [{'entry': entries}],
-        'note': '',
-        'noheaders': True,
-        'header': pif.render.format_form_start(method='post', token=pif.dbh.create_token()),
-        'footer': pif.render.format_hidden_input({'id': user['id']}) + pif.render.format_button_input() + "</form>",
-    }
+    lsection = render.Section(
+        colist=['title', 'value'],
+        range=[render.Range(entry=entries)],
+        noheaders=True,
+        header=pif.render.format_form_start(method='post', token=pif.dbh.create_token()),
+        footer=pif.render.format_hidden_input({'id': user['id']}) + pif.render.format_button_input() + "</form>",
+    )
     return pif.render.format_template(
         'simplelistix.html',
         header='''<br>You have requested to change your password.<br>''',
-        llineup={'section': [lsection]}, nofooter=True)
+        llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 # ------ validate
@@ -317,7 +316,6 @@ def generate_recovery_email(pif, user):
     user['secure_host'] = pif.secure_host
     user['recover'] = "{secure_host}/cgi-bin/recover.cgi?user_id={user_id}&vkey={vkey}".format(**user.todict())
     # user = {k: useful.url_quote(str(v), plus=True) for k, v in user.todict().items()}
-    print(user)
     msg = '''To: "{user_id}" <{email}>
 From: "Account Verification" <webmaster@{host}>
 Subject: Reset your password
@@ -352,7 +350,7 @@ def profile_main(pif):
 
     if not pif.user_id:
         raise useful.SimpleError("It doesn't look like you're logged in!")
-    table_info = pif.dbh.table_info['user']
+    table_data = pif.dbh.get_table_data('user')
     user = pif.user
     if not user:
         raise useful.SimpleError('That user record ({}) was not found.'.format(pif.user_id))
@@ -367,11 +365,11 @@ def profile_main(pif):
     # if email changed, clear verified
 
     header = pif.render.format_form_start(method='post', token=pif.dbh.create_token())
-    rows = table_info['editable']
+    rows = table_data.editable
     desc = pif.dbh.describe_dict('user')
 
     def prof_row(row):
-        return {'title': table_info['title'][row], 'value': pif.render.format_text_input(
+        return {'title': table_data.title[row], 'value': pif.render.format_text_input(
             row, desc[row]['length'], 80, value=user[row]) + (
             '<br>If you change your email address, you will have to verify the new one.' if row == 'email' else '')}
 
@@ -384,13 +382,13 @@ def profile_main(pif):
     if user['photographer_id']:
         footer += pif.render.format_button(
             'your pictures', '/cgi-bin/photogs.cgi?id={}'.format(user['photographer_id']))
-    lsection = dict(columns=['title', 'value'], range=[{'entry': entries}], note='',
-                    noheaders=True, header=header, footer=footer)
+    lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
+                              noheaders=True, header=header, footer=footer)
     return pif.render.format_template(
         'simplelistix.html',
         header=('''<br>Currently this information is only available to administrators of this website.  We're '''
                 '''looking at possibly doing more in the future though.<br><br>'''),
-        llineup=dict(section=[lsection]), nofooter=True)
+        llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 # ------

@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import csv
 import filecmp
 import glob
@@ -15,6 +14,7 @@ import config
 import imglib
 import mbdata
 import models
+import render
 import single
 import useful
 
@@ -29,9 +29,12 @@ hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'log
 detail_attributes = ['base', 'body', 'interior', 'windows']
 base_attributes = ['additional_text', 'base_name', 'base_number', 'tool_id', 'company_name', 'copyright',
                    'production_id', 'manufacture']
-not_individual_attributes = text_attributes + note_attributes + hidden_attributes + base_attributes
-internal_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from'] + note_attributes + \
-    internal_desc_attributes + hidden_attributes + detail_attributes + base_attributes
+system_attributes = ['_any', '_catdefs', '_categories', '_catlist', '_code', '_copy_base_from', '_credit',
+                     '_dir', '_has_pic', '_lnk', '_picture', '_repic']
+not_individual_attributes = (text_attributes + note_attributes + hidden_attributes + base_attributes +
+                             system_attributes + ['vs', 'link', 'categories'])
+internal_attributes = (['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from'] + note_attributes +
+                       internal_desc_attributes + hidden_attributes + detail_attributes + base_attributes)
 form_attributes = note_attributes + detail_attributes + base_attributes + ['logo_type']
 
 list_columns = ['ID', 'Description', 'Details', 'Picture']
@@ -62,7 +65,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
             if not variation.get(attr):
                 variation[attr] = det
     elif addnew:
-        variation = {x: '' for x in pif.dbh.table_info['variation']['columns']}
+        variation = {x: '' for x in pif.dbh.get_table_data('variation').columns}
         variation['var'] = var_id
         variation['mod_id'] = mod_id
     else:
@@ -126,33 +129,38 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
         mbdata.get_countries().get(x, mbdata.areas.get(x, x)) for x in variation.get('area', '').split(';')])
     data = sorted(list(variation.keys()) + [d for d in vsform.attributes if d not in variation])
 
-    lsec = {'columns': ['title', 'value'], 'id': 'single'}
+    lsec = render.Section(colist=['title', 'value'], id='single')
     shown_attributes = [d for d in data if d not in not_individual_attributes]
     if edit:
-        lsec['headers'] = {'title': 'Title', 'value': 'Value', 'field': 'Field', 'new': 'New', 'pic': 'Picture Var'}
-        lsec['columns'] = ['field', 'title', 'value', 'new']
+        lsec.headers = {'title': 'Title', 'value': 'Value', 'field': 'Field', 'new': 'New', 'pic': 'Picture Var'}
+        lsec.colist = ['field', 'title', 'value', 'new']
         if variation['picture_id']:
-            lsec['columns'].append('pic')
+            lsec.colist.append('pic')
             picture_variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, variation['picture_id']))
-        ranges = [{'name': 'Identification Attributes', 'id': 'det', '_attrs': id_attributes}]
+        ranges = [render.Range(name='Identification Attributes', id='det')]
+        ranges[0]._attrs = id_attributes
         base_attributes.extend(['logo_type', '_copy_base_from'])
     else:
-        lsec['headers'] = {'title': 'Title', 'value': 'Value'}
-        lsec['columns'] = ['title', 'value']
-        ranges = [{'name': 'Description Texts', 'id': 'det', '_attrs': text_attributes[1:]}]
+        lsec.headers = {'title': 'Title', 'value': 'Value'}
+        lsec.colist = ['title', 'value']
+        ranges = [render.Range(name='Description Texts', id='det')]
+        ranges[0]._attrs = text_attributes[1:]
         variation['text_base'] += (' ' + ' '.join([
             pif.render.format_image_icon('l_base-' + x, mbdata.base_logo_dict.get(x)) for x in variation['logo_type']]))
-    ranges.extend([
-        {'name': 'Individual Attributes', 'id': 'det', '_attrs': shown_attributes},
-        {'name': 'Information on Base', 'id': 'det', '_attrs': base_attributes},
-        {'name': 'Notes', 'id': 'det', '_attrs': note_attributes},
-    ])
+    ran1 = render.Range(name='Individual Attributes', id='det')
+    ran1._attrs = shown_attributes
+    ran2 = render.Range(name='Information on Base', id='det')
+    ran2._attrs = base_attributes
+    ran3 = render.Range(name='Notes', id='det')
+    ran3._attrs = note_attributes
+    ranges.extend([ran1, ran2, ran3])
     for lran in ranges:
-        lran['entry'] = show_details(
-            pif, lran['_attrs'], vsform.attributes, man, variation, attr_pics, ran_id=lran['id'], photogs=photogs,
+        lran.entry = show_details(
+            pif, lran._attrs, vsform.attributes, man, variation, attr_pics, ran_id=lran.id, photogs=photogs,
             picture_var=picture_variation)
-    lsec['range'] = ranges
-    llistix = {'id': 'single', 'section': [lsec]}
+    lsec.range = ranges
+    llistix = render.Listix(id='single', section=[lsec])
+    llistix.dump()
 
     appearances = show_appearances(pif, mod_id, var_id, pics=True)
     adds = models.show_adds(pif, mod_id, var_id)
@@ -268,6 +276,7 @@ def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='
                 'new': pif.render.format_select(
                     "phcred." + variation['var'], photogs, selected=variation.get('_credit', ''), blank='')}
     if field in ('vs', 'link', 'categories') or field.startswith('_'):
+        useful.write_comment('show_detail not writing', field)
         return {}
     title = attributes[field]['title']
     value = variation.get(field, '')
@@ -361,7 +370,8 @@ def show_var_image(pif, attr_pic, img, title, caption='', var_img_credit=''):
 
 def show_details(pif, data, attributes, model, variation, attr_pics={}, ran_id='', photogs=[], picture_var=None):
     return [show_detail(pif, d, attributes, model, variation, attr_pics, ran_id=ran_id, photogs=photogs,
-                        picture_var=picture_var) for d in data if d in variation or d.startswith('_')]
+                        picture_var=picture_var) for d in data if d in variation]
+# or d.startswith('_')]
 
 
 def save_variation(pif, mod_id, var_id):
@@ -515,14 +525,14 @@ class VarSearchForm(object):
     ]
 
     def __init__(self, pif, mod_id):
-        tinf = pif.dbh.table_info['variation']
+        tinf = pif.dbh.get_table_data('variation')
         self.page_id = pif.page_id
         self.mod_id = mod_id
         self.attr_pics = {x['attribute.attribute_name']: x
                           for x in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id))}
         self.attr_recs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))
         attributes = {x['attribute_name']: x for x in self.attr_recs}
-        attributes.update({x: {'title': tinf['title'].get(x, x.replace('_', ' ').title())} for x in tinf['columns']})
+        attributes.update({x: {'title': tinf.title.get(x, x.replace('_', ' ').title())} for x in tinf.columns})
         attributes['references'] = {'title': 'References', 'definition': 'varchar(256)'}
         attributes['category'] = {'title': 'Category', 'definition': 'varchar(256)'}
         for vardesc in pif.dbh.describe('variation'):
@@ -607,8 +617,8 @@ class VarSearchForm(object):
             pif.render.format_checkbox('ci', [(1, 'Case insensitive')], checked=[1])  # + ' - ' +
             # pif.render.format_select('listtype', self.output_types, selected=mbdata.LISTTYPE_NORMAL)
         })
-        lsections = [dict(columns=['title', 'value'], range=[{'entry': entries}],
-                          note='', noheaders=True, footer='<br>')]
+        lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
+                     noheaders=True, footer='<br>')]
 
         entries = []
         for key in sorted(set(self.attributes.keys()) - set(hidden_attributes) - set(text_attributes)):
@@ -656,9 +666,9 @@ class VarSearchForm(object):
             'not': '&nbsp;'
         })
 
-        lsections.append(dict(columns=['title', 'value', 'contains', 'not'],
-                              range=[{'entry': entries}], note='', noheaders=True))
-        return dict(section=lsections)
+        lsections.append(render.Section(colist=['title', 'value', 'contains', 'not'],
+                         range=[render.Range(entry=entries)], noheaders=True))
+        return render.Listix(section=lsections)
 
     def cate_match(self, var):
         category = var['_catlist']
@@ -735,8 +745,8 @@ class VarSearchForm(object):
         return retval
 
     def pic_match(self, var):
-        retval = (self.with_pics and var['_has_pic'] or self.without_pics and not var['_has_pic']) and \
-                 (not self.own_pics_only or not var['picture_id'])
+        retval = ((self.with_pics and var['_has_pic'] or self.without_pics and not var['_has_pic']) and
+                  (not self.own_pics_only or not var['picture_id']))
         return retval
 
     def model_match(self, var):
@@ -991,9 +1001,9 @@ def quickie_modal(pif, mod_id, var_id, field):
     return ''
 
 
-# mbdata.LISTTYPE_LARGE
+# mbdata.LISTTYPE_LARGE mbdata.LISTTYPE_EDITOR listix
 def do_model_list(pif, model, vsform, dvars, photogs):
-    llineup = {'id': 'vars', 'section': []}
+    llistix = render.Listix(id='vars', section=[])
 
     edit = pif.form.get_bool(mbdata.LISTTYPE_EDITOR) and pif.is_allowed('a')
     credits = {x['photo_credit.name'].lower(): x['photographer.id']
@@ -1003,37 +1013,36 @@ def do_model_list(pif, model, vsform, dvars, photogs):
     if edit:  # pragma: no cover
         list_columns.append('Notes')
     for code in vsform.codes:
-        lsec = {
-            'id': 'code_%d dt_%s' % (code, 'e'), 'name': 'Code %d Models' % code, 'range': list(), 'switch': code != 1,
-            'headers': dict(zip(list_columns, list_columns)),
-            'columns': list_columns,
-        }
-        lran = {'id': 'ran', 'entry': []}
+        lsec = render.Section(
+            id='code_%d dt_%s' % (code, 'e'), name='Code %d Models' % code, range=list(), switch=code != 1,
+            colist=list_columns,
+        )
+        lran = render.Range(id='ran', entry=[])
         for var_id in sorted(dvars.keys()):
             var = dvars[var_id]
             pif.render.comment(var)
             if var['_code'] == code:
-                lran['entry'].append(do_var_for_list(
+                lran.entry.append(do_var_for_list(
                     pif, edit, model, var, vsform.attributes, vsform.varsels, prev, credits, photogs))
                 prev = var
 
-        lran['styles'] = {'Description': 'lefty'}
-        if len(lran['entry']):
-            lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
-            lsec['range'].append(lran)
-            llineup['section'].append(lsec)
+        lran.styles = {'Description': 'lefty'}
+        if len(lran.entry):
+            lsec.count = '%d entries' % len(lran.entry) if len(lran.entry) > 1 else '1 entry'
+            lsec.range.append(lran)
+            llistix.section.append(lsec)
 
-    llineup['footer'] = (related_casting_links(
+    llistix.footer = (related_casting_links(
         pif, model['id'],
         url="vars.cgi?%s=1&mod=" % (mbdata.LISTTYPE_EDITOR if edit else mbdata.LISTTYPE_LARGE)) + '<br>' +
         pif.render.format_button("show as grid", 'vars.cgi?mod=%s' % model['id']))
-    return llineup
+    return llistix
 
 
-# mbdata.LISTTYPE_DETAIL
+# mbdata.LISTTYPE_DETAIL listix
 def do_model_detail(pif, model, vsform, dvars, photogs):
     mod_id = model['id']
-    llineup = {'id': 'vars', 'section': []}
+    llistix = render.Listix(id='vars')
 
     credits = {x['photo_credit.name'].lower(): x['photographer.id']
                for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod_id, verbose=False)}
@@ -1041,69 +1050,62 @@ def do_model_detail(pif, model, vsform, dvars, photogs):
     mack = mack[0]['alias.id'] if mack else 'All Models'
 
     if 1:  # mixed
-        lsec = {
-            'id': 'dt_%s' % 'd', 'name': str(mack), 'range': list(),
-            'headers': dict(zip(detail_columns, detail_columns)),
-            'columns': detail_columns,
-        }
-        lran = {'id': 'ran', 'entry': []}
-        lran['entry'] = [do_var_detail(pif, model, var, credits, vsform.varsels)
-                         for var_id, var in sorted(dvars.items())]
-        lran['styles'] = {'Description': 'lefty'}
-        lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
-        lsec['range'].append(lran)
-        llineup['section'].append(lsec)
+        lsec = render.Section(
+            id='dt_d', name=str(mack), range=list(),
+            colist=detail_columns,
+        )
+        lran = render.Range(id='ran', styles={'Description': 'lefty'})
+        lran.entry = [do_var_detail(pif, model, var, credits, vsform.varsels)
+                      for var_id, var in sorted(dvars.items())]
+        lsec.count = '%d entries' % len(lran.entry) if len(lran.entry) > 1 else '1 entry'
+        lsec.range.append(lran)
+        llistix.section.append(lsec)
 
     else:
         for code in vsform.codes:
-            lsec = {
-                'id': 'code_%d dt_%s' % (code, 'd'), 'name': 'Code %d Models' % code, 'range': list(),
-                'switch': code != 1,
-                'headers': dict(zip(detail_columns, detail_columns)),
-                'columns': detail_columns,
-            }
-            lran = {'id': 'ran', 'entry': []}
-            lran['entry'] = [do_var_detail(pif, model, var, credits, vsform.varsels)
-                             for var_id, var in sorted(dvars.items()) if var['_code'] == code]
-            lran['styles'] = {'Description': 'lefty'}
-            if len(lran['entry']):
-                lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
-                lsec['range'].append(lran)
-                llineup['section'].append(lsec)
-    llineup['footer'] = related_casting_links(pif, mod_id, url="vars.cgi?vdt=1&mod=")
-    return llineup
+            lsec = render.Section(
+                id='code_%d dt_%s' % (code, 'd'), name='Code %d Models' % code, range=list(),
+                switch=code != 1,
+                colist=detail_columns,
+            )
+            lran = render.Range(id='ran', entry=[])
+            lran.entry = [do_var_detail(pif, model, var, credits, vsform.varsels)
+                          for var_id, var in sorted(dvars.items()) if var['_code'] == code]
+            lran.styles = {'Description': 'lefty'}
+            if len(lran.entry):
+                lsec.count = '%d entries' % len(lran.entry) if len(lran.entry) > 1 else '1 entry'
+                lsec.range.append(lran)
+                llistix.section.append(lsec)
+    llistix.footer = related_casting_links(pif, mod_id, url="vars.cgi?vdt=1&mod=")
+    return llistix
 
 
-# mbdata.LISTTYPE_ADMIN
+# mbdata.LISTTYPE_ADMIN listix
 def do_model_editor(pif, model, vsform, dvars, photogs):
     mod_id = model['id']
-    llineup = {'id': 'vars', 'section': [], 'header': '<form action="vars.cgi">'}
+    llistix = render.Listix(id='vars', section=[])
     # detail_attributes = ['base', 'body', 'interior', 'windows']
     attrs = ['var'] + [x['attribute_name'] for x in vsform.attr_recs]
 
     mack = sorted(pif.dbh.fetch_aliases(mod_id, type_id='mack'), key=lambda x: -x['alias.flags'])
     mack = mack[0]['alias.id'] if mack else 'All Models'
 
-    lsec = {
-        'id': 'ed', 'name': 'All Models', 'range': list(),
-        'headers': dict(zip(attrs, attrs)),
-        'columns': attrs,
-    }
-    lran = {'id': 'ran', 'entry': []}
+    lsec = render.Section(id='ed', name='All Models', colist=attrs, header='<form action="vars.cgi">')
+    lran = render.Range(id='ran')
 
     def attr_edit(v, x):
         return v.get(x, '') + '<br>' + pif.render.format_text_input(v['var'] + '.' + x, 80, 16, v.get(x, ''))
 
-    lran['entry'] = [{x: attr_edit(v, x) for x in attrs} for var_id, v in sorted(dvars.items())]
-    lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
-    lsec['range'].append(lran)
-    llineup['section'].append(lsec)
+    lran.entry = [{x: attr_edit(v, x) for x in attrs} for var_id, v in sorted(dvars.items())]
+    lsec.count = '%d entries' % len(lran.entry) if len(lran.entry) > 1 else '1 entry'
+    lsec.range.append(lran)
+    llistix.section.append(lsec)
 
-    llineup['footer'] = related_casting_links(pif, mod_id, url="vars.cgi?vdt=1&mod=")
-    llineup['footer'] += pif.render.format_button_input('save')
-    llineup['footer'] += pif.render.format_hidden_input(mod=mod_id)
-    llineup['footer'] += '</form>'
-    return llineup
+    llistix.footer = related_casting_links(pif, mod_id, url="vars.cgi?vdt=1&mod=")
+    llistix.footer += pif.render.format_button_input('save')
+    llistix.footer += pif.render.format_hidden_input(mod=mod_id)
+    llistix.footer += '</form>'
+    return llistix
 
 
 def related_casting_links(pif, mod_id, url):
@@ -1133,55 +1135,50 @@ def do_model_checklist(pif, model, vsform, dvars, photogs):
 
 # mbdata.LISTTYPE_THUMBNAIL
 def do_model_thumbnail(pif, model, vsform, dvars, photogs):
-    llineup = {'id': 'vars', 'section': []}
+    llineup = render.Matrix(id='vars', section=[])
 
     for code in vsform.codes:
-        lsec = {
-            'id': 'code_%d dt_%s' % (code, 'g'), 'name': 'Code %d Models' % code, 'range': list(), 'switch': code != 1,
-            'columns': 4,
-        }
-        lran = {
-            'id': 'ran',
-            'entry': [var for var_id, var in sorted(dvars.items()) if var['_code'] == code],
-            'styles': {'Description': 'lefty'},
-        }
-        if lran['entry']:
-            lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
+        lsec = render.Section(
+            id='code_%d dt_%s' % (code, 'g'), name=f'Code {code} Models', switch=code != 1, columns=4)
+        lran = render.Range(
+            id='ran',
+            entry=[render.Entry(data=var) for var_id, var in sorted(dvars.items()) if var['_code'] == code],
+            styles={'Description': 'lefty'},
+        )
+        if lran.entry:
+            lsec.count = '%d entries' % len(lran.entry) if len(lran.entry) > 1 else '1 entry'
             while len(lran['entry']) < 4:
-                lran['entry'].append({'text': '', 'class': 'blank'})
-            lsec['range'].append(lran)
-            llineup['section'].append(lsec)
+                lran.entry.append(render.Entry(text='', class_name='blank'))
+            lsec.range.append(lran)
+            llineup.section.append(lsec)
 
-    pif.render.format_matrix_for_template(llineup)
-    return llineup
+    return llineup.prep()
 
 
 # mbdata.LISTTYPE_NORMAL
 def do_model_grid(pif, model, vsform, dvars, photogs):
-    llineup = {
-        'id': 'vars', 'section': [], 'footer': '<br>' +
+    llineup = render.Matrix(
+        id='vars', footer='<br>' +
         pif.render.format_button("show as list", 'vars.cgi?lrg=1&mod=%s' % model['id'])
-    }
+    )
 
     for code in vsform.codes:
-        lsec = {
-            'id': 'code_%d dt_%s' % (code, 'g'), 'name': 'Code %d Models' % code, 'range': list(), 'switch': code != 1,
-            'columns': 4,
-        }
-        lran = {
-            'id': 'ran',
-            'entry': [var for var_id, var in sorted(dvars.items()) if var['_code'] == code],
-            'styles': {'Description': 'lefty'},
-        }
-        if lran['entry']:
-            lsec['count'] = '%d entries' % len(lran['entry']) if len(lran['entry']) > 1 else '1 entry'
-            while len(lran['entry']) < 4:
-                lran['entry'].append({'text': '', 'class': 'blank'})
-            lsec['range'].append(lran)
-            llineup['section'].append(lsec)
+        lsec = render.Section(
+            id='code_%d dt_%s' % (code, 'g'), name='Code %d Models' % code, switch=code != 1, columns=4,
+        )
+        lran = render.Range(
+            id='ran',
+            entry=[render.Entry(data=var) for var_id, var in sorted(dvars.items()) if var['_code'] == code],
+            styles={'Description': 'lefty'},
+        )
+        if lran.entry:
+            lsec.count = '%d entries' % len(lran.entry) if len(lran.entry) > 1 else '1 entry'
+            while len(lran.entry) < 4:
+                lran.entry.append(render.Entry(text='', class_name='blank'))
+            lsec.range.append(lran)
+            llineup.section.append(lsec)
 
-    pif.render.format_matrix_for_template(llineup)
-    return llineup
+    return llineup.prep()
 
 
 def save_model(pif, mod_id):
@@ -1267,7 +1264,6 @@ def do_model_json(pif, model, vsform, dvars, photogs):
 
     for code in vsform.codes:
         lsec = {'id': 'code_%d' % code, 'name': 'Code %d Models' % code, 'entry': list()}
-        # lran = {'id': 'ran', 'entry': []}
         for var_id in sorted(dvars.keys()):
             var = dvars[var_id]
             if var['_code'] == code:
@@ -1547,33 +1543,31 @@ def var_search(pif):
     mods.sort(key=lambda x: x['v.mod_id'] + '-' + x['v.var'])
     nmods = len(mods)
 
-    llineup = {'note': '%d variations found matching search' % nmods, 'columns': 4, 'tail': ['', '']}
+    llineup = render.Matrix(note='%d variations found matching search' % nmods, columns=4, tail=['', ''])
     start = pif.form.get_int('start')
     mods = mods[start:start + modsperpage]
-    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lran = {'entry': []}
+    sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    lran = render.Range()
     for mod in mods:
         mod['name'] = mod['base_id.rawname'].replace(';', ' ')
-        lran['entry'].append({'text': add_model_var_table_pic_link(pif, mod)})
-    lsec['range'] = [lran]
-    lsec['columns'] = 4
-    llineup['section'] = [lsec]
+        lran.entry.append(render.Entry(text=add_model_var_table_pic_link(pif, mod)))
+    lsec = render.Section(section=sect, range=[lran], columns=4)
+    llineup.section = [lsec]
     qf = pif.form.reformat(vfields) + '&' + pif.form.reformat(cfields)
     if pif.render.verbose:
         qf += '&verbose=1'
     qf += '&codes=%s' % codes
     if start > 0:
-        llineup['tail'][1] += pif.render.format_button(
+        llineup.tail[1] += pif.render.format_button(
             "previous", 'vsearch.cgi?%s&start=%d' % (qf, max(start - modsperpage, 0))) + ' '
     if start + modsperpage < nmods:
-        llineup['tail'][1] += pif.render.format_button(
+        llineup.tail[1] += pif.render.format_button(
             "next", 'vsearch.cgi?%s&start=%d' % (qf, min(start + modsperpage, nmods)))
 
     pif.render.set_button_comment(pif, 'casting=%s&base=%s&body=%s&interior=%s&wheels=%s&windows=%s' % (
         pif.form.get_str('casting'), pif.form.get_str('base'), pif.form.get_str('body'),
         pif.form.get_str('interior'), pif.form.get_str('wheels'), pif.form.get_str('windows')))
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 # ----- commands ------------------------------------------
@@ -1993,7 +1987,7 @@ def check_variation_select(pif):
 
 # not in use right now
 def check_table_data(pif):
-    for table in pif.dbh.table_info:
+    for table in pif.dbh.table_data:
         print(table)
         dats = pif.dbh.dbi.execute('select * from ' + table)[0]
         cols = pif.dbh.describe(table)
@@ -2116,7 +2110,7 @@ def show_cats(pif, *mod_ids):
 
 
 def check_tilley_credits(pif):
-    mans = imglib.get_tilleyfile()
+    mans = imglib.get_tilley_file()
     dn = 'lib/man/'
     for man in sorted(mans):
         # print(man, ':')
@@ -2166,6 +2160,7 @@ cmds = [
     ('f', run_search_command, "search: obj ..."),
     ('i', info, "info: fields mod_id var_id"),
     ('v', add_value, "value: mod_id var_id-or-default-or-all attribute value"),
+    ('mp', rename_variation_pictures, "picture: old_mod_id, old_var_id, new_mod_id, new_var_id"),
     ('cb', copy_base, "copy base: mod_id var_id var_id"),
     ('l', list_variations, "list: mod_id"),
     ('p', list_variation_pictures, "pictures: mod_id"),
