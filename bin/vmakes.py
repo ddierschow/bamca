@@ -9,7 +9,7 @@ import imglib
 import mbdata
 import mflags
 import models
-import useful
+import render
 
 
 # -------- makes -----------------------------------
@@ -61,51 +61,54 @@ def makes_main(pif):
     if make:
         llineup = show_makes(pif, makedict, makes)
     else:
-        makes = ['unk', 'unl'] + sorted([x[0] for x in makelist], key=lambda x: makedict[x]['name'])
+        makes = sorted([x[0] for x in makelist], key=lambda x: makedict[x]['name'])
         llineup = makes_form(pif, makedict, makes)
     pif.render.set_button_comment(pif, 'make=%s&text=%s' % (pif.form.get_str('make', ''), pif.form.get_str('text', '')))
     if pif.is_allowed('a'):  # pragma: no cover
         if make and make != 'text':
             footer += pif.render.format_button('edit', link=pif.dbh.get_editor_link('vehicle_make', {'id': make}))
-    llineup['footer'] = footer
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('simplematrix.html', llineup=llineup)
+    llineup.footer = footer
+    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def makes_form(pif, makedict, makes):
+    firsties = sorted(set([x['name'][0].upper() for x in makedict.values()]))
     cols = 8
-    # makelist.sort(key=lambda x: x[1])
-    # makelist = [['unk', 'unknown'], ['unl', 'unlicensed']] + makelist
-    # makes.cgi?make=alv
 
     def make_make_link(mdict):
         if not mdict:
-            return {'text': ''}
+            return render.Entry(text='')
         pic = pif.render.fmt_img(mdict['id'], prefix='t', pdir=config.IMG_DIR_MAKE)
-        name = pic + '<br>' + mdict['name'] if pic else mdict['name']
-        return {'text': pif.render.format_link("makes.cgi?make=" + mdict['id'], name),
-                'class': 'bgno' if mdict['flags'] else 'bgok'}
+        name = (pic + '<br>' + mdict['name']) if pic else mdict['name']
+        return render.Entry(text=pif.render.format_link("makes.cgi?make=" + mdict['id'], name),
+                            class_name='bgno' if mdict['flags'] else 'bgok')
 
-    ents = [make_make_link(makedict.get(x)) for x in useful.reflect(makes, cols)]
-    llineup = {
-        'id': '', 'name': '', 'columns': cols,
-        'section': [{'columns': cols, 'range': [{'entry': ents, 'id': 'makelist'}]}],
-        'header': '<hr>Choose a make:<br>', 'footer': '<hr>' + str(len(makedict))}
+    llineup = render.Matrix(
+        columns=cols,
+        header='<hr>Choose a make:<br>',
+        footer='<hr>' + str(len(makedict)),
+        section=[render.Section(columns=cols, range=[
+            render.Range(name='Other', id='makelist', entry=[
+                make_make_link(makedict.get(x)) for x in ['unk', 'unl']] +
+                [render.Entry(text='&nbsp;', colspan=cols - 2)])])]
+    )
+    for first in firsties:
+        ents = [make_make_link(makedict.get(x)) for x in makes if x.startswith(first.lower())]
+        ents += [render.Entry(text='&nbsp;', colspan=cols - (len(ents) % cols))] if len(ents) % cols else []
+        section = render.Section(columns=cols, range=[
+            render.Range(name=first, entry=ents, id='makelist')])
+        llineup.section.append(section)
     return llineup
 
 
 def show_make_selection(pif, make_id, makedict):
     casting_make = make_id
-    lsec = dict()  # pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     make = makedict.get(make_id, {})
-    lsec['anchor'] = make_id
-    lsec['range'] = []
-    lsec['note'] = ''
-    lsec['id'] = ''
-    lsec['columns'] = 4
-    lsec['name'] = pif.render.fmt_img(
-        make_id, prefix='t', pdir=config.IMG_DIR_MAKE) + '<br>' + make.get('company_name', make_id)
-    lran = {'id': '', 'name': '', 'anchor': '', 'note': '', 'entry': []}
+    lsec = render.Section(  # pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+        anchor=make_id, columns=4, name=pif.render.fmt_img(
+            make_id, prefix='t', pdir=config.IMG_DIR_MAKE) + '<br>' + make.get('company_name', make_id)
+    )
+    lran = render.Range()
     where = '' if pif.is_allowed('a') else "section.page_id='manno'"
     if make_id == 'unk':
         casting_make = ''
@@ -128,19 +131,19 @@ def show_make_selection(pif, make_id, makedict):
     mlist.sort(key=lambda x: x['name'])
     for mdict in mlist:
         # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
-        lran['entry'].append({'text': models.add_model_table_pic_link(pif, mdict, flago=models.flago)})
+        lran.entry.append(render.Entry(text=models.add_model_table_pic_link(pif, mdict, flago=models.flago)))
 
-    lsec['range'].append(lran)
+    lsec.range.append(lran)
     return lsec
 
 
 def show_makes(pif, makedict, makes):
-    llineup = {'id': '', 'name': '', 'section': [], 'footer': ''}
+    llineup = render.Matrix()
     models.flago = mflags.FlagList()
 
     for make_id in makes:
         lsec = show_make_selection(pif, make_id, makedict)
-        llineup['section'].append(lsec)
+        llineup.section.append(lsec)
     return llineup
 
 

@@ -5,6 +5,7 @@ import re
 import basics
 import config
 import mbdata
+import render
 import useful
 
 d_re = re.compile(r'%\d*d')
@@ -242,7 +243,7 @@ class MatrixFile(object):
         self.tables.append(mat)
 
     def matrix(self, pif):
-        llineup = {'id': pif.page_name, 'section': [], 'note': '\n'.join(self.text), 'columns': 4, 'tail': ''}
+        llineup = render.Matrix(id=pif.page_name, note='\n'.join(self.text), columns=4)
         comments = set()
 
         for table in self.tables:
@@ -251,38 +252,37 @@ class MatrixFile(object):
                 img = pif.render.format_image_optional(table['id'], pdir=table['pic_dir'], nopad=True)
                 if img:
                     section_name += '<br>' + img
-            section = {'id': table['id'], 'name': section_name, 'range': [], 'anchor': table['id'],
-                       'columns': table['columns']}
+            section = render.Section(id=table['id'], name=section_name, anchor=table['id'], columns=table['columns'])
             if pif.is_allowed('a'):  # pragma: no cover
-                if section['id'] == 'cat':
+                if section.id == 'cat':
                     dates = sorted(self.dates)
                     if len(self.dates) == 1:
-                        section['name'] += " %s" % dates[0]
+                        section.name += " %s" % dates[0]
                     elif len(self.dates) > 1:
-                        section['name'] += " %s-%s" % (dates[0], dates[-1])
+                        section.name += " %s-%s" % (dates[0], dates[-1])
                 else:
-                    section['name'] += " (%s/%s)" % (pif.page_id, section['id']) + ' '
-                    section['name'] += pif.render.format_button(
+                    section.name += " (%s/%s)" % (pif.page_id, section.id) + ' '
+                    section.name += pif.render.format_button(
                         "add", "editor.cgi?table=matrix_model&page_id=%s&section_id=%s&add=1" %
-                        (pif.page_id, section['id']))
+                        (pif.page_id, section.id))
 
                 if pif.form.has('large'):
-                    section['columns'] = 1
-            ran = {'entry': []}
+                    section.columns = 1
+            ran = render.Range(entry=[])
             range_ids = list(table['ents'].keys())
             range_ids.sort(key=lambda x: table['ents'][x][0]['display_order'])
             for range_id in range_ids:
-                if section['id'] == 'cat':
-                    ran['entry'].append(self.add_cell(pif, table['ents'][range_id], table, comments))
+                if section.id == 'cat':
+                    ran.entry.append(self.add_cell(pif, table['ents'][range_id], table, comments))
                 else:
                     mods = self.find_matrix_variations(table['ents'][range_id], pif.page_id, table['id'], str(range_id))
                     if mods:
-                        ran['entry'].append(self.add_cell(pif, mods, table, comments))
-            section['range'].append(ran)
-            llineup['section'].append(section)
-        # llineup['tail'] = [pif.render.format_image_art('bamca_sm'), '']
+                        ran.entry.append(self.add_cell(pif, mods, table, comments))
+            section.range.append(ran)
+            llineup.section.append(section)
+        # llineup.tail = [pif.render.format_image_art('bamca_sm'), '']
         pif.render.set_button_comment(pif, '')
-        llineup['tail'] = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
+        llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
         return llineup
 
     def find_matrix_variations(self, ents, page_id, sec_id, ran_id):
@@ -320,6 +320,7 @@ class MatrixFile(object):
             if ent['image']:
                 varimage = ent['image']
 
+        entry = render.Entry()
         if ent['flags'] & config.FLAG_MODEL_NO_VARIATION:
             ent['picture_only'] = 1
         elif not ent['mod_id']:
@@ -379,7 +380,7 @@ class MatrixFile(object):
         elif ent.get('matrix_model.description', ''):
             ent['descriptions'] = ent['matrix_model.description'].split(';')
 
-        ent['anchor'] = '%s' % ent['number']
+        entry.anchor = '%s' % ent['number']
 
         desclist = list()
         for var in ent.get('descriptions', []):
@@ -407,7 +408,8 @@ class MatrixFile(object):
 
         ent['display_id'] = pif.page_name
 
-        return ent
+        entry.data = ent
+        return entry
 
 
 def select_matrix(pif):
@@ -432,8 +434,7 @@ def main(pif):
     matf = MatrixFile(pif)
     if matf.tables:
         llineup = matf.matrix(pif)
-        pif.render.format_matrix_for_template(llineup)
-        return pif.render.format_template('matrix.html', llineup=llineup)
+        return pif.render.format_template('matrix.html', llineup=llineup.prep())
     return pif.render.format_template('matrixsel.html', llineup=select_matrix(pif))
 
 
@@ -458,6 +459,5 @@ def cats_main(pif):
     matf = MatrixFile(pif)
     if matf.tables:
         llineup = matf.matrix(pif)
-        pif.render.format_matrix_for_template(llineup)
-        return pif.render.format_template('matrix.html', llineup=llineup)
+        return pif.render.format_template('matrix.html', llineup=llineup.prep())
     return pif.render.format_template('matrixsel.html', llineup=select_cats(pif))

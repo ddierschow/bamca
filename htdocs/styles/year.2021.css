@@ -1,0 +1,19 @@
+/* 1 MBX.Metro */
+/* 2 MBX.Off-Road */
+/* 3 MBX.Showroom */
+/* 4 MBX.Highway */
+
+body {background-color: #DC5923;}
+
+.tb {background-color: #CCCCCC;}
+.sh {color: #FFFFFF; background-color: #000000;}
+.rh {background-color: #FFFFFF; color: #000000;}
+.eb {background-color: #DDDDDD;}
+
+.eb_1 {background-color: #CCCCFF;}
+.eb_2 {background-color: #FFCCCC;}
+.eb_3 {background-color: #FFFF99;}
+.eb_4 {background-color: #CCFFCC;}
+.eb_5 {background-color: #FFFFFF;}
+
+.varentry {background-color: #FFFFFF;}

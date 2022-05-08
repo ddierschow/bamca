@@ -2,40 +2,40 @@
 {%- import "showix.html" as showix -%}
 {% block page_body %}
 
-{% macro matrix_formatter(mdict) %}
-{{ render.fmt_anchor(mdict.anchor) }}
-{%- if mdict.prodpic -%}
-<table width="100%"><tr><td width="400"><img src="/{{ mdict.prodpic }}"></td><td>
+{% macro matrix_formatter(ent) %}
+{{ render.fmt_anchor(ent.anchor) }}
+{%- if ent.data.prodpic -%}
+<table width="100%"><tr><td width="400"><img src="/{{ ent.data.prodpic }}"></td><td>
 {%- endif -%}
 <center>
 <table width="100%"><tr>
 <td width="40%" class="modelstars">
-{%- if mdict.no_casting -%}<i class="fas fa-star green"></i>
-{%- elif not mdict.picture_only -%}
-    {%- if mdict.no_specific_image -%}<i class="fas fa-star"></i>{%- endif -%}
-    {%- if mdict.no_variation -%}<i class="fas fa-star red"></i>{%- endif -%}
+{%- if ent.data.no_casting -%}<i class="fas fa-star green"></i>
+{%- elif not ent.data.picture_only -%}
+    {%- if ent.data.no_specific_image -%}<i class="fas fa-star"></i>{%- endif -%}
+    {%- if ent.data.no_variation -%}<i class="fas fa-star red"></i>{%- endif -%}
 {%- endif -%}
 </td>
-<td width="20%" class="modelnumber">{{ mdict.displayed_id }}</td>
+<td width="20%" class="modelnumber">{{ ent.data.displayed_id }}</td>
 <td width="40%" class="modelicons">
-{% if mdict.no_vs %}<i class="fas fa-star orange"></i>{% endif %}
-{% if mdict.not_made %}<i class="fas fa-ban red"></i>{% endif %}
-{% if mdict.is_reused_product_picture %}<i class="fas fa-star yellow"></i>{% endif %}
-{% if mdict.is_product_picture %}<i class="fas fa-camera-retro"></i>{% endif %}
+{% if ent.data.no_vs %}<i class="fas fa-star orange"></i>{% endif %}
+{% if ent.data.not_made %}<i class="fas fa-ban red"></i>{% endif %}
+{% if ent.data.is_reused_product_picture %}<i class="fas fa-star yellow"></i>{% endif %}
+{% if ent.data.is_product_picture %}<i class="fas fa-camera-retro"></i>{% endif %}
 </td></tr></table>
-{% if mdict.href %}<a href="{{ mdict.href }}">{% endif %}
-<table><tr><td class="spicture"><center>{{ mdict.imgstr }}</center></td></tr></table>
-<span class="modelname">{{ mdict.name }}</span>
-{% if mdict.href %}</a>{% endif %}
-{% if mdict.subnames %}{% for subname in mdict.subnames %}<br>{{ subname }}{% endfor %}{% endif %}
+{% if ent.data.href %}<a href="{{ ent.data.href }}">{% endif %}
+<table><tr><td class="spicture"><center>{{ ent.data.imgstr }}</center></td></tr></table>
+<span class="modelname">{{ ent.data.name }}</span>
+{% if ent.data.href %}</a>{% endif %}
+{% if ent.data.subnames %}{% for subname in ent.data.subnames %}<br>{{ subname }}{% endfor %}{% endif %}
 
-{% if mdict.descriptions %}<table class="vartable">
-{% for var in mdict['descriptions'] %}<tr><td class="varentry">{{ var }}</td></tr>{% endfor %}
+{% if ent.data.descriptions %}<table class="vartable">
+{% for var in ent.data['descriptions'] %}<tr><td class="varentry">{{ var }}</td></tr>{% endfor %}
 </table>
 {% endif %}
 </center>
-{{ mdict.additional }}
-{%- if mdict.prodpic -%}
+{{ ent.data.additional }}
+{%- if ent.data.prodpic -%}
 </td></tr></table>
 {%- endif -%}
 {% endmacro %}

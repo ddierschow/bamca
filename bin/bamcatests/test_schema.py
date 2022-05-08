@@ -17,15 +17,15 @@ class TestSchema(unittest.TestCase):
 
     def check_tables(self, dbname, dblist):
         dblist = [x[0] for x in self.pif.dbh.dbi.execute('show tables in {}'.format(dbname))[0]]
-        tilist = [x for x in tables.table_info if tables.table_info[x]['db'] == dbname]
+        tilist = [x for x, y in tables.table_data.items() if y.db == dbname]
         for table in dblist:
-            if table in tables.table_info:
-                t_info = tables.table_info[table]
-                if t_info['db'] != dbname:
+            if table in tables.table_data:
+                t_data = tables.table_data[table]
+                if t_data.db != dbname:
                     continue
                 desc = self.pif.dbh.dbi.execute('desc ' + table)
                 dbcols = set([x[0] for x in desc[0]])
-                ticols = set(t_info['columns'] + t_info.get('extra_columns', []))
+                ticols = set(t_data.columns + t_data.extra_columns)
                 if dbcols != ticols:
                     print(table, ':', "differ")
                     print("  db:", sorted(dbcols - ticols))
@@ -33,7 +33,7 @@ class TestSchema(unittest.TestCase):
                 # else:
                 #     print("same")
             else:
-                print(table, ':', "missing from table_info")
+                print(table, ':', "missing from table_data")
         for table in set(tilist) - set(dblist):
             print(table, ': missing from database')
 

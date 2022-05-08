@@ -128,6 +128,13 @@ class BaseForm(object):
     def get_exists(self, key):
         return key in self.form
 
+    def get_raw(self, key, defval=''):
+        # only use this for trusted inputs
+        try:
+            return self.form[key]
+        except Exception:
+            return str(defval)
+
     def get_str(self, key, defval='', other=None):
         try:
             return self.clean(self.form[key], other=other)
@@ -196,7 +203,7 @@ class BaseForm(object):
         return [key for key in self.form if key == field or key.startswith(field + '.')]
 
     def reformat(self, fields):
-        return '&'.join(['%s=%s' % (x, self.get_str(x)) for x in fields])
+        return '&'.join(['{}={}'.format(x, self.get_str(x)) for x in fields])
 
     def where(self, cols=None, prefix=""):
         wheres = list()
@@ -299,7 +306,7 @@ class PageInfoFile(object):
         page_info = self.dbh.fetch_page(page_id)
         if not page_info:
             raise useful.SimpleError(
-                'Your request is incorrect (bad page id, %s).  Please try something else.' % self.page_id,
+                f'Your request is incorrect (bad page id, {self.page_id}).  Please try something else.',
                 status=404)
         self.render.set_page_info(page_info)
         if self.render.flags & config.FLAG_PAGE_INFO_ADMIN_ONLY:
@@ -337,11 +344,10 @@ class PageInfoFile(object):
     def log_start(self):
         if not self.argv and not self.is_allowed('m'):
             if os.getenv('HTTP_USER_AGENT', '') in crawls.crawlers:
-                self.log.bot.info('%s %s' % (self.remote_addr, self.request_uri))
+                self.log.bot.info(f'{self.remote_addr} {self.request_uri}')
             else:
                 self.dbh.increment_counter(self.page_id)
                 self.log.count.info(self.page_id)
-                # self.log.url.info('%s %s' % (self.remote_addr, self.request_uri))
                 if os.getenv('HTTP_USER_AGENT'):
                     self.log.debug.info(os.getenv('HTTP_USER_AGENT'))
                 refer = os.environ.get('HTTP_REFERER', '')

@@ -19,23 +19,6 @@ class TestRender(unittest.TestCase):
         self.pif.render.verbose = False
         self.assertIsNone(self.pif.render.print_html())
 
-    def test_FormatTable(self):
-        self.assertOut(self.pif.render.format_table(
-            {'also': {'class': 'table'}, 'id': 'table', 'rows': [
-                {'ids': [], 'also': {}, 'cells': [
-                    {'col': None, 'content': "&nbsp;", 'hdr': True, 'also': {}, 'large': False, 'id': ''},
-                    {'col': None, 'content': "&nbsp;", 'hdr': True, 'also': {}, 'large': False, 'id': ''}
-                ]},
-                {'ids': ['id'], 'also': {}, 'cells': [
-                    {'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': False, 'id': ''},
-                    {'col': None, 'content': "", 'hdr': False, 'also': {}, 'large': False, 'id': ''}
-                ]},
-                {'ids': ['id'], 'also': {}, 'cells': [
-                    {'col': None, 'content': "&nbsp;", 'hdr': False, 'also': {}, 'large': True, 'id': '1'},
-                    {'col': None, 'content': "", 'hdr': False, 'also': {}, 'large': True, 'id': '2'}
-                ]}
-            ]}))
-
     def teststr(self):
         self.assertOut(str(self.pif.render))
 
@@ -150,28 +133,6 @@ class TestRender(unittest.TestCase):
 
     def test_format_cell_end(self):
         pass  # self.assertOut(self.pif.render.format_cell_end(col=0, hdr=False, large=False))
-
-    def test_format_rows(self):
-        pass  # self.assertOut(self.pif.render.format_rows(rows))
-
-    def test_format_cells(self):
-        pass  # self.assertOut(self.pif.render.format_cells(cells))
-
-    def test_format_section(self):
-        self.assertOut(self.pif.render.format_section('sec'))
-        self.assertOut(self.pif.render.format_section('sec', fn='sw-1'))
-        self.assertOut(self.pif.render.format_section('sec', cols=2))
-        self.assertOut(self.pif.render.format_section('sec', id='id'))
-
-    def test_format_range(self):
-        self.assertNotEqual(self.pif.render.format_range(
-            'cont', 1, fn=[], also={}, large=False, nstyle={'color': 'black'}, cols=1, id='1'), '')
-        self.assertNotEqual(self.pif.render.format_range(
-            'cont', 1, fn=['2'], also={}, large=False, nstyle=None, cols=2, id=''), '')
-        self.assertNotEqual(self.pif.render.format_range(
-            'cont', 1, fn=['3'], also={}, large=True, nstyle=None, cols=3, id=''), '')
-        self.assertNotEqual(self.pif.render.format_range(
-            'cont', 1, fn=['4'], also={}, large=False, nstyle=None, cols=4, id=''), '')
 
     def test_format_link(self):
         self.assertNotEqual(self.pif.render.format_link(
@@ -298,22 +259,8 @@ class TestRender(unittest.TestCase):
     def test_format_bullet_list(self):
         self.assertOut(self.pif.render.format_bullet_list(['a', 'b', 'c']))
 
-    def test_format_matrix(self):
-        # a lineup consists of a header (outside of the table) plus a set of sections, each in its own table.
-        #     id, name, section, graphics, note, columns, tail
-        # a section consists of a header (inside the table) plus a set of ranges.
-        #     id, name, anchor, columns, note, range, switch, count
-        # a range consists of a header plus a set of entries.
-        #     id, name, anchor, note, graphics, entry, note
-        # an entry contains the contents of a cell plus cell controls
-        #     display_id, text, rowspan, colspan, class, st_suff, style, also,
-        pass
-
     def test_format_box_tail(self):
         self.assertOut(self.pif.render.format_box_tail('tail'))
-
-    def test_format_links(self):
-        pass  # self.assertOut(self.pif.render.format_links(llineup))
 
     def test_clear_cookie(self):
         self.assertOut(self.pif.render.secure.clear_cookie(keys=[]))

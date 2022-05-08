@@ -4,9 +4,9 @@
 {%- macro mack_entry(entry) %}
   <center>
    <table class="entry">
-    <tr><td width="100%"><a href="{{ entry.href }}"><center><font face="Courier">{{ entry.id|upper }}</font></center></a></td></tr>
-    <tr><td><a href="{{ entry.href }}"><center>{{ entry.imgstr }}</center></a></td></tr>
-    <tr><td><a href="{{ entry.href }}"><center>{{ entry.name }}</center></a></td></tr>
+    <tr><td width="100%" class="modelnumber"><a href="{{ entry.data.href }}"><center>{{ entry.data.id|upper }}</center></a></td></tr>
+    <tr><td><a href="{{ entry.data.href }}"><center>{{ entry.data.imgstr }}</center></a></td></tr>
+    <tr><td><a href="{{ entry.data.href }}"><center>{{ entry.data.name }}</center></a></td></tr>
    </table>
   </center>
 {% endmacro -%}

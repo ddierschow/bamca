@@ -1,11 +1,11 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import string  # don't judge me
 
 import basics
 import config
 import mbdata
+import render
 import single
 import useful
 
@@ -13,20 +13,36 @@ import useful
 # ----- mack -----------------------------------------------------------
 
 
+def mack_sort(x):
+    # series number letter
+    return f'{x[0][1]:03}{x[0][0] or "  "}{len(x[0][2])}{x[0][2][0]}'
+
+
 def mack_models(pif, start, end, series):
     mseries = 'MB' if 'RW' not in series else None if 'SF' in series else ''
     amods = [(mbdata.get_mack_number(rec['alias.id']), rec,) for rec in pif.dbh.fetch_aliases(type_id='mack')]
     mmods = [(mbdata.get_mack_number(rec['base_id.id']), rec,) for rec in
              pif.dbh.fetch_casting_list('sf') + pif.dbh.fetch_casting_list('rw')]
-    amods = sorted([x for x in mmods + amods
-                    if (x and x[0] and int(x[0][1]) >= start and int(x[0][1]) <= end and
-                        not (mseries is not None and mseries != x[0][0]))],
-                   key=lambda x: (x[0][1], x[0][0], x[0][2]))
+    amods = sorted([(x, y) for x, y in mmods + amods
+                    if (x and x[1] and int(x[1]) >= start and int(x[1]) <= end and
+                        not (mseries is not None and mseries != x[0]))],
+                   key=lambda x: mack_sort(x))
     return amods
 
 
 ranks = list(range(1, config.MAX_MACK_NUMBER + 1))
 files = list(string.ascii_lowercase) + [x + x for x in string.ascii_lowercase]
+
+
+def format_mack_html(pif, amods):
+    res = [render.Entry(data={
+        'id': f'{x[0]}{x[1]:02}-{x[2]}',
+        'name': y['base_id.rawname'].replace(';', ' '),
+        'href': 'single.cgi?id=' + y['base_id.id'],
+        'imgstr': pif.render.format_image_required(y['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
+        'mack_id_unf': x,  # for internal use
+    }, class_name='rw' if not x[0] else 'sf' if x[0] == 'MB' else 'mb') for x, y in amods]
+    return [render.Range(entry=res)] if res else []
 
 
 def format_mack_text(pif, amods):
@@ -49,15 +65,16 @@ def format_mack_text(pif, amods):
 
     for mtype, mranks in sorted(bmods.items()):
         for mrank, mfiles in sorted(mranks.items()):
-            res.append({'id': '<b>{}<b>'.format(mrank)})
+            res.append({'id': f'<b>{mrank}<b>', 'style': 'blue'})
             mmods = bmods[mtype][mrank]
             for mfile in files[files.index(min(mmods)):files.index(max(mmods)) + 1]:
                 ent = {
-                    'id': '%s%02s-%s' % (mtype, mrank, mfile),
+                    'id': f'{mtype}{mrank:02}-{mfile}',
                     'name': '',
                     'man': '',
                     'year': '',
                     'error': '',
+                    'primary': '',
                     'mack_id_unf': (mtype, mrank, mfile),  # for internal use
                     'class': 'rw' if not mtype else 'sf' if mtype == 'MB' else 'mb',
                 }
@@ -66,15 +83,25 @@ def format_mack_text(pif, amods):
                     res.append(ent)
                     continue
                 for mod in mfiles[mfile]:
+                    primary = (
+                        '<i class="fas fa-check"></i>' if
+                        not mod.get('alias.id') or (mod.get('alias.flags', 0) & config.FLAG_ALIAS_PRIMARY) != 0
+                        else '')
                     modlink = pif.render.format_link('single.cgi?id=' + mod['base_id.id'], mod['base_id.id'])
                     if ent['man']:
+                        ent['primary'] = '<br>'.join([ent['primary'], primary])
                         ent['man'] = '<br>'.join([ent['man'], modlink])
                         ent['name'] = '<br>'.join([ent['name'], mod['base_id.rawname'].replace(';', ' ')])
-                        ent['year'] = '<br>'.join([ent['year'], mod['alias.first_year']])
+                        ent['year'] = '<br>'.join([ent['year'],
+                                                  mod.get('alias.first_year') or '<span class="red">missing</span>'])
                     else:
+                        ent['primary'] = primary
                         ent['man'] = modlink
                         ent['name'] = mod['base_id.rawname'].replace(';', ' ')
-                        ent['year'] = mod.get('alias.first_year', mod.get('base_id.first_year', ''))
+                        if not mod.get('alias.id'):
+                            ent['year'] = mod.get('base_id.first_year') or '<span class="red">missing</span>'
+                        else:
+                            ent['year'] = mod.get('alias.first_year') or '<span class="red">missing</span>'
                 if len(mfiles[mfile]) > 1:
                     for shared in sharedsets:
                         if not (set([x['base_id.id'] for x in mfiles[mfile]]) - shared):
@@ -82,19 +109,7 @@ def format_mack_text(pif, amods):
                     else:
                         ent['error'] = ' <span class="warning">not shared</span>'
                 res.append(ent)
-    return [{'entry': res}] if res else []
-
-
-def format_mack_html(pif, amods):
-    res = [{
-        'id': '%s%02s-%s' % x[0],
-        'name': x[1]['base_id.rawname'].replace(';', ' '),
-        'href': 'single.cgi?id=' + x[1]['base_id.id'],
-        'imgstr': pif.render.format_image_required(x[1]['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
-        'mack_id_unf': x[0],  # for internal use
-        'class': 'rw' if not x[0][0] else 'sf' if x[0][0] == 'MB' else 'mb',
-    } for x in amods]
-    return [{'entry': res}] if res else []
+    return [render.Range(entry=res)] if res else []
 
 
 @basics.web_page
@@ -124,15 +139,14 @@ def mack_lineup(pif):
             note += "  Use a start number that isn't higher than the end number."
         raise useful.SimpleError(note)
 
-    lsec = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-    lsec['range'] = ranges
-    llineup = {'section': [lsec]}
+    lsec = render.Section(section=pif.dbh.fetch_sections({'page_id': pif.page_id})[0], range=ranges)
     if text_list:
-        lsec['headers'] = {'id': 'Mack ID', 'man': 'MAN ID', 'name': 'Name', 'year': 'Year', 'error': ''}
-        lsec['columns'] = ['id', 'man', 'name', 'year', 'error']
+        llineup = render.Listix(section=[lsec])
+        lsec.headers = {'id': 'Mack ID', 'man': 'MAN ID', 'name': 'Name', 'year': 'Year', 'error': ''}
+        lsec.colist = ['id', 'man', 'primary', 'name', 'year', 'error']
         return pif.render.format_template('simplelistix.html', llineup=llineup)
-    pif.render.format_matrix_for_template(llineup)
-    return pif.render.format_template('mack.html', llineup=llineup)
+    llineup = render.Matrix(section=[lsec])
+    return pif.render.format_template('mack.html', llineup=llineup.prep())
 
 
 # ----- ----------------------------------------------------------------
@@ -152,7 +166,7 @@ def check_man_mappings(pif, sections):
 
 def check_mack_ranges(pif):
     letters = list('abcdefghijklmnopqrstuvwyz') + ['aa']
-    ranks = {}
+    aranks = {}
     amods = mack_models(pif, 1, config.MAX_MACK_NUMBER, ['SF'])
     ranges = format_mack_html(pif, amods)
     num = 0
@@ -160,10 +174,10 @@ def check_mack_ranges(pif):
         for mod in ran['entry']:
             if num != int(mod['mack_id_unf'][1]):
                 num = int(mod['mack_id_unf'][1])
-                ranks[num] = set()
-            ranks[num].add(mod['mack_id_unf'][2])
-    for num in range(1, config.MAX_MACK_NUMBER + 1):
-        s = ranks.get(num)
+                aranks[num] = set()
+            aranks[num].add(mod['mack_id_unf'][2])
+    for num in ranks:
+        s = aranks.get(num)
         if s:
             missing = ''
             for li in range(letters.index(max(s))):
@@ -174,11 +188,11 @@ def check_mack_ranges(pif):
             s1 = min(s)
             s2 = max(s)
             if s1 != s2:
-                print('| %3d : %s-%s%-3s' % (num, s1, s2, missing))
+                print(f'| {num:3} : {s1}-{s2}{missing:-3}')
             else:
-                print('| %3d : %s  %-3s' % (num, s1, missing))
+                print(f'| {num:3} : {s1}  {missing:-3}')
         else:
-            print('| %3d :       ' % num)
+            print(f'| {num:3} :       ')
 
 
 # ----- ----------------------------------------------------------------
