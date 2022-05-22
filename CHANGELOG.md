@@ -1,3 +1,17 @@
+### 7.2 - 2022-05-22
+
+- Rewriting of lots of internals
+- Begin redesign of tampo/labels/deco/etc
+- Made model icons work again
+- Fix advertisements
+- Add database tables for readers' guide
+
+### 7.1 - 2022-05-08
+
+- Rewriting of lots of internals
+- Redesign vehicle makes list
+- Minor changes to single model page
+
 ### 7.0.1 - 2022-04-09
 
 - Minor fixes

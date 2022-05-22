@@ -204,14 +204,14 @@ def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
 
 
 def select_set(pif):
-    lran = {
-        'name': "A few of the special sets produced by Matchbox in recent years:",
-        'entry': ['<b><a href="?page=%s">%s</a></b> - %s' %
-                  (ent['page_info.id'][5:], ent['page_info.title'], ent['page_info.description'])
-                  for ent in pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0", order='description,title')]}
-    llineup = {'section': [{'id': 'i', 'range': [lran]}],
-               'tail': [pif.render.format_button("back", link="..") + " to the main index."]}
-    return pif.render.format_template('setsel.html', llineup=llineup)
+    lran = render.Range(
+        name="A few of the special sets produced by Matchbox over the years:",
+        entry=['<b><a href="?page=%s">%s</a></b> - %s' %
+               (ent['page_info.id'][5:], ent['page_info.title'], ent['page_info.description'])
+               for ent in pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0", order='description,title')])
+    llineup = render.Listix(section=[render.Section(id='i', range=[lran])],
+                            tail=[pif.render.format_button_link("back", "..") + " to the main index."])
+    return pif.render.format_template('simpleulist.html', llineup=llineup)
 
 
 @basics.web_page

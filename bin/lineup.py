@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import csv
 from io import open
 import json
@@ -30,6 +29,7 @@ import useful
 # X.02 | Catalogs                               | pub      |
 # X.03 | Advertisements                         | pub      |
 # X.11 | Series                                 | series   |
+# X.15 | Moving Parts
 # X.17 | Promotional                            | promo    |
 # X.21 | Early Lesney Toys                      | ks       |
 # X.22 | Major Packs                            | ks       |
@@ -316,12 +316,12 @@ def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
     else:
         ostr += render_lineup_model_var(pif, mdict, comments)
     if large:
-        # ostr += '<br>' + pif.render.format_button("edit", pif.dbh.get_editor_link(
+        # ostr += '<br>' + pif.render.format_button_link("edit", pif.dbh.get_editor_link(
         #     'lineup_model', {'id': mdict['lineup_model.id']}))
         ostr += '<br>'.join([
-            'name' + pif.render.format_text_input('description.%s' % mdict['id'], 64, value=mdict['name']),
-            'style' + pif.render.format_text_input('style_id.%s' % mdict['id'], 4, value=mdict['style_id']),
-            pif.render.format_checkbox('halfstar.%s' % mdict['id'], [(1, 'multi')], checked=[mdict.get('halfstar', 0)]),
+            'name' + pif.form.put_text_input('description.%s' % mdict['id'], 64, value=mdict['name']),
+            'style' + pif.form.put_text_input('style_id.%s' % mdict['id'], 4, value=mdict['style_id']),
+            pif.form.put_checkbox('halfstar.%s' % mdict['id'], [(1, 'multi')], checked=[mdict.get('halfstar', 0)]),
             '</center></td></tr></table>'])
     return render.Entry(
         text=ostr,
@@ -404,7 +404,6 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
         lsec.range = [render.Range(entry=[
             render_lineup_model(pif, x, comments, unroll=unroll, large=large)
             for x in mainsec['mods'] if not multi or len(x['cvarlist']) > 1],
-            name=mainsec['name'],
             id=mainsec['id'],
             note=mainsec['note'])]
     for sec in xsecs:
@@ -420,9 +419,9 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
     llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
     if large:
         llineup.header = (
-            '<form action="mass.cgi" method="post">\n<input type="hidden" name="type" value="lineup_desc">\n' +
+            '<form action="mass.cgi" method="post">\n<input type="hidden" name="tymass" value="lineup_desc">\n' +
             pif.create_token())
-        llineup.footer = pif.render.format_button_input() + '</form>\n'
+        llineup.footer = pif.form.put_button_input() + '</form>\n'
 #    if pif.is_allowed('a'):  # pragma: no cover
 #        llineup['tail'][1] += '<br>multivars %s %s ' % (year, region) + ' '.join(multivars) + '<br>'
     return llineup
@@ -435,10 +434,10 @@ def render_lineup_year(pif, mainsec, secs, xsecs, large=False):
     # region = mainsec['region']
     llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs, large=large, multi=pif.form.get_bool('multi'))
 #    if year > mainsec['first_year']:
-#       footer += pif.render.format_button("previous_year", link='?year=%s&region=%s' %
+#       footer += pif.render.format_button_link("previous_year", '?year=%s&region=%s' %
 #                                          (year - 1, pif.form.get_stru('region')))
 #    if year < mainsec['last_year']:
-#       footer += pif.render.format_button("following_year", link='?year=%s&region=%s' %
+#       footer += pif.render.format_button_link("following_year", '?year=%s&region=%s' %
 #                                          (year + 1, pif.form.get_stru('region')))
     pif.render.set_footer(footer)
     pif.render.bamcamark = mbdata.bamcamark(year)
@@ -727,17 +726,17 @@ def select_lineup(pif, region, year):
     llineup = render.Matrix(section=[lsec], header='<form>\n', footer='</form>')
     years = pif.dbh.fetch_lineup_years()
     while years:
-        lines = pif.render.format_radio('year', [(x['year'], x['year']) for x in years[:ypp]],
+        lines = pif.form.put_radio('year', [(x['year'], x['year']) for x in years[:ypp]],
                                         checked=year, sep='<br>\n')
         lran.entry.append(render.Entry(text=lines))
         years = years[ypp:]
     lran.entry.append(
-        render.Entry(text=pif.render.format_radio('region', [(x, mbdata.regions[x]) for x in mbdata.regionlist[1:]],
+        render.Entry(text=pif.form.put_radio('region', [(x, mbdata.regions[x]) for x in mbdata.regionlist[1:]],
                                                   checked=region, sep='<br>\n')))
     lran.entry.append(render.Entry(
-        text=pif.render.format_checkbox('lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types],
+        text=pif.form.put_checkbox('lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types],
                                         sep='<br>\n') +
-        '<p>' + pif.render.format_button_input()))
+        '<p>' + pif.form.put_button_input()))
     lsec.columns = len(lran.entry)
     return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 

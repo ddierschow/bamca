@@ -113,10 +113,10 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
         entries.sort(key=lambda x: (x[pif.form.get_str('order', 'name')], x['name'], x['first_year']))
         if pif.is_allowed('a'):  # pragma: no cover
             if format_type == 'packs':
-                lsec.name += ' ' + pif.render.format_button(
+                lsec.name += ' ' + pif.render.format_button_link(
                     'see', "packs.cgi?page=%s&sec=%s" % (pif.form.get_str('page'), lsec.id))
-            lsec.name += ' ' + pif.render.format_button(
-                'add', "mass.cgi?type=pack&section_id=%s&num=%s" % (lsec.id, num_mods))
+            lsec.name += ' ' + pif.render.format_button_link(
+                'add', "mass.cgi?tymass=pack&section_id=%s&num=%s" % (lsec.id, num_mods))
 
         lsec.colist = cols
         lsec.headers = heads
@@ -149,7 +149,7 @@ def modify_pack_admin(pif, pack):
             stars += '<i class="fas fa-star black"></i> '
     pack['stars'] = stars
     pack['edlink'] = (
-        '<a href="mass.cgi?verbose=1&type=pack&section_id=%(section_id)s&pack=%(id)s&var=%(var)s&num=">%(longid)s</a>'
+        '<a href="mass.cgi?verbose=1&tymass=pack&section_id=%(section_id)s&pack=%(id)s&var=%(var)s&num=">%(longid)s</a>'
         % pack)
     relateds = pif.dbh.fetch_packs_related(pack['id'])
     pack['rel'] = ' '.join(sorted([x['pack.id'] for x in relateds]))
@@ -232,7 +232,7 @@ def do_single_pack(pif, format_type, pid):
         left_bar_content += ('<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' %
                              pif.render.pic_dir.replace('/pic/', '/lib/'))
         left_bar_content += (
-            '<b><a href="mass.cgi?verbose=1&type=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' %
+            '<b><a href="mass.cgi?verbose=1&tymass=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' %
             (packs[0]['section_id'], pack_id))
         left_bar_content += ('<b><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' %
                              (pif.render.pic_dir.replace('pic', 'lib'), pack_id))
@@ -389,22 +389,6 @@ def show_pack_model(pif, mdict):
         mdict['displayed_id'] = mdict['disp_format'] % (mdict['shown_id'])
 
     return models.add_model_table_product_link(pif, mdict)
-
-
-def edit_model(pif, mdict):
-    ostr = pif.render.format_row_start()
-    ostr += '<input type="hidden" name="pm.id.%s" value="%s">\n' % (mdict['pack_model.id'], mdict['pack_model.id'])
-    ostr += ('<input type="hidden" name="pm.pack_id.%s" value="%s">\n' %
-             (mdict['pack_model.id'], mdict['pack_model.pack_id']))
-    ostr += pif.render.format_cell(0, 'mod ' + pif.render.format_text_input("pm.mod_id.%s" % mdict['pack_model.id'],
-                                                                            8, 8, value=mdict['pack_model.mod_id']))
-    ostr += pif.render.format_cell(0, 'var ' + pif.render.format_text_input(
-        "pm.var_id.%s" % mdict['pack_model.id'], 20, 20, value='/'.join(mdict['vars'])) +
-        ' (' + str(mdict['pack_model.var_id']) + ')')
-    ostr += pif.render.format_cell(0, 'disp ' + pif.render.format_text_input(
-        "pm.display_order.%s" % mdict['pack_model.id'], 2, 2, value=mdict['pack_model.display_order']))
-    ostr += pif.render.format_row_end()
-    return ostr
 
 
 # ---- main -----------------------------------------------------------

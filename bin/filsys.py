@@ -89,25 +89,25 @@ def show_dir(pif, tform):
     ostr += show_list(files['titles']['other'], tform.tdir, files['other'], tform.view)
 
     if pif.render.is_admin:
-        ostr += '<a href="upload.cgi?d={}">{}</a>\n'.format(tform.tdir, pif.render.format_button('upload'))
+        ostr += '<a href="upload.cgi?d={}">{}</a>\n'.format(tform.tdir, pif.form.put_text_button('upload'))
 
     if files['graf']:
         ostr += '<form action="traverse.cgi">\n' + pif.create_token()
         ostr += '<a href="traverse.cgi?g=1&d={}">{}</a> or \n'.format(
-            tform.tdir, pif.render.format_button('show all pictures'))
+            tform.tdir, pif.form.put_text_button('show all pictures'))
         ostr += 'Pattern <input type="text" name="p">\n'
         ostr += '<input type="hidden" name="d" value="{}">\n'.format(tform.tdir)
-        ostr += pif.render.format_checkbox('du', [('1', 'Dupes',)])
-        ostr += pif.render.format_checkbox('co', [('1', 'Compact',)])
-        ostr += pif.render.format_checkbox('th', [('1', 'Thumbs',)])
-        ostr += pif.render.format_checkbox('si', [('1', 'Sized',)])
-        ostr += pif.render.format_checkbox('mr', [('1', 'Recent',)])
+        ostr += pif.form.put_checkbox('du', [('1', 'Dupes',)])
+        ostr += pif.form.put_checkbox('co', [('1', 'Compact',)])
+        ostr += pif.form.put_checkbox('th', [('1', 'Thumbs',)])
+        ostr += pif.form.put_checkbox('si', [('1', 'Sized',)])
+        ostr += pif.form.put_checkbox('mr', [('1', 'Recent',)])
         if pif.render.is_admin:
             lty = [('nrm', 'Normal',), ('shc', 'Categorize',), ('mss', 'VMass',), ('pms', 'PMass',),
                    ('shm', 'Shelve',), ('suf', 'Resuffix',), ('crd', 'Credit',)]
             ostr += '<br>'
-            ostr += pif.render.format_radio('lty', lty, 'nrm')
-        ostr += pif.render.format_button_input()
+            ostr += pif.form.put_radio('lty', lty, 'nrm')
+        ostr += pif.form.put_button_input()
         ostr += '<br>\n'
         ostr += 'Size X <input type="text" name="sx">\n'
         ostr += 'Size Y <input type="text" name="sy">\n'
@@ -197,7 +197,7 @@ def show_imgs(pif, tform):
     img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss,
                 'pms': tform.pms, 'cpct': tform.cpct}
     if tform.mss:
-        print('Credit ' + pif.render.format_text_input('credit', 4, value=pif.form.get_str('credit')))
+        print('Credit ' + pif.form.put_text_input('credit', 4, value=pif.form.get_str('credit')))
         print('<br>')
         img_args['targs'] = [(x, os.stat(x).st_size)
                              for x in sorted(glob.glob('.' + config.IMG_DIR_VAR + '/l_' + tform.dirname + '-*.*'))]
@@ -205,7 +205,7 @@ def show_imgs(pif, tform):
                                for x in pif.dbh.fetch_photo_credits_for_vars(config.IMG_DIR_VAR, tform.dirname)}
     elif tform.pms:
         # maybe put size here?  assume m_
-        print('Credit ' + pif.render.format_text_input('credit', 4))
+        print('Credit ' + pif.form.put_text_input('credit', 4))
         print('<input type="hidden" name="tysz" value="m">')
         print('<br>')
         img_args['targs'] = []
@@ -288,8 +288,8 @@ def show_imgs(pif, tform):
         print('<input type="hidden" name="lty" value="pms">')
     elif tform.cred:
         print('<input type="hidden" name="lty" value="crd">')
-    print(pif.render.format_button_input())
-    print('<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.render.format_button('upload')))
+    print(pif.form.put_button_input())
+    print('<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.form.put_text_button('upload')))
     print('</form>')
 
 
@@ -393,13 +393,13 @@ def do_prod_masses(pif, tform):
 def show_file(pif, tform):
     if not os.path.exists(tform.tdir + '/' + tform.fnam):
         raise useful.SimpleError('Path does not exist.')
-    print(pif.render.format_button('delete', link=pif.request_uri + '&delete=1&act=1'))
+    print(pif.render.format_button_link('delete', link=pif.request_uri + '&delete=1&act=1'))
     if os.path.exists(os.path.join(tform.tdir, 'archive')):
-        print(pif.render.format_button('archive', link=pif.request_uri + '&archive=1&act=1'))
+        print(pif.render.format_button_link('archive', link=pif.request_uri + '&archive=1&act=1'))
     if os.path.exists(os.path.join(tform.tdir, 'fixed')):
-        print(pif.render.format_button('fixed', link=pif.request_uri + '&fixed=1&act=1'))
+        print(pif.render.format_button_link('fixed', link=pif.request_uri + '&fixed=1&act=1'))
     if os.path.exists(os.path.join(tform.tdir, 'spam')) or os.path.exists(os.path.join(tform.tdir, '..', 'spam')):
-        print(pif.render.format_button('spam', link=pif.request_uri + '&spam=1&act=1'))
+        print(pif.render.format_button_link('spam', link=pif.request_uri + '&spam=1&act=1'))
     root, ext = useful.root_ext(tform.fnam)
     if not os.path.exists(tform.tdir + '/' + tform.fnam):
         print("file not found")

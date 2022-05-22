@@ -657,3 +657,11 @@ def simple_process(cmd, msg='', inp=subprocess.PIPE, stderr=None, verbose=False)
 def url_quote(value, safe=None, plus=False):
     safe = safe if safe is not None else '' if plus else '/'
     return urllib.parse.quote_plus(value, safe) if plus else urllib.parse.quote(value, safe)
+
+
+def make_button_name(name):
+    return name.replace('<br>', '_').replace(' ', '_').lower()
+
+
+def make_button_label(name):
+    return name.replace('_', ' ').upper()

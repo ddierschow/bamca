@@ -126,7 +126,7 @@ def single_box(pif, mod, box):
     istr = pif.render.format_image_selectable(pics, pic_name)
     if pif.is_allowed('ma'):
         istr = '<a href="upload.cgi?d=.%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, pic_name + '.jpg', istr)
-        istr += '<br>' + pif.render.format_button("edit", link=pif.dbh.get_editor_link('box_type', {'id': box['id']}))
+        istr += '<br>' + pif.render.format_button_link("edit", pif.dbh.get_editor_link('box_type', {'id': box['id']}))
     istr += '<center>' + pif.render.format_image_selector(pics, pic_name) + '</center>'
     ent = {'inf': ostr, 'pic': istr}
     return ent
@@ -265,15 +265,15 @@ def show_boxes(pif):
                     ent[picsize] = {'txt': ostr}
                 ent['s']['txt'] += '<br>%s box variations - %s' % (
                     mod['count'],
-                    pif.render.format_button('see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
+                    pif.render.format_button_link('see the boxes', '?mod=%s&ty=%s' % (mod['id'], box_style)))
                 ent['s']['txt'] += ' - %s pics' % mod['pics']
             else:
                 largest = 'mmpss'[len(picroots)]
                 pic = ''.join([get_box_image(pif, picroot, largest=largest) for picroot in picroots])
                 ent['box'] = {'txt': "<center>%s<br>%s" % (hdr, pic)}
                 ent['box']['txt'] += '<br>%s box variation%s - %s' % (
-                    mod['count'], 's' if mod['count'] != 1 else '', pif.render.format_button(
-                        'see the boxes', link='?mod=%s&ty=%s' % (mod['id'], box_style)))
+                    mod['count'], 's' if mod['count'] != 1 else '', pif.render.format_button_link(
+                        'see the boxes', '?mod=%s&ty=%s' % (mod['id'], box_style)))
                 if pif.is_allowed('ma'):
                     ent['box']['txt'] += ' - %s pics' % mod['pics']
                 ent['box']['txt'] += '</center>'
@@ -454,9 +454,9 @@ def make_relateds(pif, ref_id, pub_id, imgs):
                 related['link'], related['linkid'], pif.render.pic_dir, pic, ref_id, pub_id)
             related['img'] = '<a href="%(link)s">%(img)s</a>' % related
         related['descs'] = '<br>'.join(['<div class="varentry">%s</div>' % x for x in related['descs']])
-        retval.append({
-            'text': '<span class="modelnumber">%(id)s</span><br>\n%(img)s<br>\n<b>%(name)s</b>\n<br>%(descs)s\n' %
-            related})
+        retval.append(render.Entry(
+            text='<span class="modelnumber">%(id)s</span><br>\n%(img)s<br>\n<b>%(name)s</b>\n<br>%(descs)s\n' %
+            related))
     return retval
 
 
@@ -501,6 +501,7 @@ def single_publication(pif, pub_id):
     llineup = render.Matrix(id=pub_id, section=[render.Section(id='sec', range=lran, columns=4)], columns=4)
 
     pif.render.set_button_comment(pif, 'id=%s' % pub_id)
+    llineup.dump()
     context = {
         'title': man.get('name', ''),
         'note': '',
@@ -591,7 +592,7 @@ def ads_main(pif):
                     pif.dbh.get_editor_link('publication', {'id': ent['id']}), '<i class="fas fa-edit"></i>')
             else:
                 post += ' ' + pif.render.format_link(
-                    '/cgi-bin/mass.cgi?type=ads&id=%s&description=%s&year=%s&country=%s' % (
+                    '/cgi-bin/mass.cgi?tymass=ads&id=%s&description=%s&year=%s&country=%s' % (
                         ent['id'], useful.url_quote(ent['description'], plus=True), ent['first_year'], cy),
                     '<i class="far fa-plus-square"></i>')
             if floc:
@@ -630,36 +631,32 @@ def ads_main(pif):
     list_ids = sorted(set(list_ents.keys()) - set(links.keys()))
     link_ids = sorted(set(links.keys()) - set(missing_pics), key=lambda x: (links[x]['first_year'], links[x]['id']))
 
-    plinks = list()
-    for pic_id in link_ids:
-        plinks.append(fmt_pub(links[pic_id]))
-    ranges.append({'entry': plinks})
+    ranges.append(render.Range(entry=[fmt_pub(links[x]) for x in link_ids]))
 
     plinks = [fmt_pub(list_ents[lid]) for lid in list_ids]
     if plinks:
-        ranges.append({'name': 'More information is needed on these (year, location).', 'entry': plinks})
+        ranges.append(render.Range(name='More information is needed on these (year, location).',
+                      entry=plinks))
 
     if pif.is_allowed('ma'):
         plinks = [fmt_pub({'id': ent, 'description': ent, 'first_year': '', 'model_type': ''}, lib_dir)
                   for ent in lib_ims]
         if plinks:
-            ranges.append({'name': '<i>Nonpublished ads</i>', 'entry': plinks})
+            ranges.append(render.Range(name='<i>Nonpublished ads</i>', entry=plinks))
 
         missing = [fmt_pub(links[pic_id]) for pic_id in missing_pics]
         if missing:
-            ranges.append({'name': '<i>Database entries missing pictures</i>', 'entry': missing})
+            ranges.append(render.Range(name='<i>Database entries missing pictures</i>', entry=missing))
 
-    lsecs = [
-        {'id': 'print', 'name': 'Print Advertising', 'range': ranges},
-        {'id': 'video', 'name': 'Video Advertising', 'range': [{'entry': vlinks}]},
-    ]
-
-    pif.render.set_footer(pif.render.format_button('back', '/') + ' to the index.')
+    pif.render.set_footer(pif.render.format_button_link('back', '/') + ' to the index.')
     if pif.is_allowed('ma'):
         pif.render.set_footer(
             pif.render.format_link('/cgi-bin/upload.cgi?d=%s' % lib_dir, 'Upload new ad') + ' - ' +
             pif.render.format_link('/cgi-bin/edlinks.cgi?page_id=links.others&sec=Lvideoads&add=1', 'Add new video'))
-    llineup = {'section': lsecs}
+    llineup = render.Listix(section=[
+        render.Section(id='print', name='Print Advertising', range=ranges),
+        render.Section(id='video', name='Video Advertising', range=[render.Range(entry=vlinks)]),
+    ])
     return pif.render.format_template('simpleulist.html', llineup=llineup)
 
 

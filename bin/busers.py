@@ -40,23 +40,23 @@ def print_user_form(pif, id):
         if col == 'id':
             value = '<input type="hidden" name="id" value="{}"><div class="lefty">{}</div>'.format(user[col], user[col])
             value += '<a href="user.cgi?delete=1&id={}">{}</a>'.format(
-                id, pif.render.format_button('delete', also={'style': 'float:right'}))
+                id, pif.form.put_text_button('delete', also={'style': 'float:right'}))
         elif col in table_data.bits:
-            value = pif.render.format_checkbox(col, table_data.bits[col], useful.bit_list(user[col], format='%04x'))
+            value = pif.form.put_checkbox(col, table_data.bits[col], useful.bit_list(user[col], format='%04x'))
         elif col == 'email':
             value = '<input type="text" name="{}" value="{}" size=60>'.format(col, user[col])
         else:
-            value = pif.render.format_text_input(col, 80, value=user[col])
+            value = pif.form.put_text_input(col, 80, value=user[col])
         entries.append({'title': title, 'value': value})
 
     lrange = render.Range(entry=entries, note='')
     lsection = render.Section(colist=cols, headers=heads, range=[lrange],
-                              header=pif.render.format_form_start(action='/cgi-bin/user.cgi',
+                              header=pif.form.put_form_start(action='/cgi-bin/user.cgi',
                                                                   name='userform', method='post', token=True),
                               footer='{} -\n{} -\n{}</form>'.format(
-        pif.render.format_button_input("save changes", "submit"),
-        pif.render.format_button_reset("userform"),
-        pif.render.format_button("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id={}".format(id))))
+        pif.form.put_button_input("save changes", "submit"),
+        pif.form.put_button_reset("userform"),
+        pif.render.format_button_link("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id={}".format(id))))
     llistix = render.Listix(section=[lsection])
     return pif.render.format_template('simplelistix.html', llineup=llistix)
 
@@ -231,8 +231,8 @@ def change_password_main(pif):
         colist=['title', 'value'],
         range=[render.Range(entry=entries)],
         noheaders=True,
-        header=pif.render.format_form_start(method='post', token=pif.dbh.create_token()),
-        footer=pif.render.format_hidden_input({'id': user['id']}) + pif.render.format_button_input() + "</form>",
+        header=pif.form.put_form_start(method='post', token=pif.dbh.create_token()),
+        footer=pif.form.put_hidden_input({'id': user['id']}) + pif.form.put_button_input() + "</form>",
     )
     return pif.render.format_template(
         'simplelistix.html',
@@ -364,23 +364,23 @@ def profile_main(pif):
             useful.warn('Updating your profile failed.')
     # if email changed, clear verified
 
-    header = pif.render.format_form_start(method='post', token=pif.dbh.create_token())
+    header = pif.form.put_form_start(method='post', token=pif.dbh.create_token())
     rows = table_data.editable
     desc = pif.dbh.describe_dict('user')
 
     def prof_row(row):
-        return {'title': table_data.title[row], 'value': pif.render.format_text_input(
+        return {'title': table_data.title[row], 'value': pif.form.put_text_input(
             row, desc[row]['length'], 80, value=user[row]) + (
             '<br>If you change your email address, you will have to verify the new one.' if row == 'email' else '')}
 
     entries = [prof_row(row) for row in rows]
     if user['flags'] & config.FLAG_USER_BAMCA_MEMBER:
         entries[0]['value'] += ' ' + pif.render.fmt_art('bamca_member')
-    footer = pif.render.format_hidden_input({'id': user['id']})
-    footer += pif.render.format_button_input() + "</form>"
-    footer += pif.render.format_button('change password', '/cgi-bin/chpass.cgi')
+    footer = pif.form.put_hidden_input({'id': user['id']})
+    footer += pif.form.put_button_input() + "</form>"
+    footer += pif.render.format_button_link('change password', '/cgi-bin/chpass.cgi')
     if user['photographer_id']:
-        footer += pif.render.format_button(
+        footer += pif.render.format_button_link(
             'your pictures', '/cgi-bin/photogs.cgi?id={}'.format(user['photographer_id']))
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
                               noheaders=True, header=header, footer=footer)

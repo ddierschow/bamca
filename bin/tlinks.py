@@ -39,7 +39,7 @@ def single_link(pif, link):
     pif.render.hierarchy_append('', 'Specific Link')
     extra = ''
     if pif.is_allowed('m'):  # pragma: no cover
-        extra = '- ' + pif.render.format_button("edit", "edlinks.cgi?id=%s" % link['id'])
+        extra = '- ' + pif.render.format_button_link("edit", "edlinks.cgi?id=%s" % link['id'])
     return pif.render.format_template('tlink.html', link=link, extra=extra)
 
 
@@ -385,36 +385,36 @@ def edit_single(pif):
         # elif col == 'page_id':
         #     cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
         elif col == 'section_id':
-            cell = pif.render.format_select(
+            cell = pif.form.put_select(
                 'section_id', listCats, selected=value, blank='Please choose one from the list')
         elif col == 'flags':
-            cell = pif.render.format_checkbox("flags", flag_check_names, useful.bit_list(link[col_long]))
+            cell = pif.form.put_checkbox("flags", flag_check_names, useful.bit_list(link[col_long]))
         elif col == 'country':
-            cell = pif.render.format_select_country('country', value)
+            cell = pif.form.put_select_country('country', value)
         elif col == 'link_type':
-            cell = pif.render.format_select(col, link_type_names, selected=value)
+            cell = pif.form.put_select(col, link_type_names, selected=value)
         elif col == 'associated_link':
-            cell = pif.render.format_select(col, asslinks, selected=value)
+            cell = pif.form.put_select(col, asslinks, selected=value)
         elif coltype.startswith('varchar('):
             colwidth = int(coltype[8:-1])
-            cell = pif.render.format_text_input(col, colwidth, 64, value=value)
+            cell = pif.form.put_text_input(col, colwidth, 64, value=value)
         elif coltype.startswith('int('):
             if link[col_long] is None:
                 value = 0
             colwidth = int(coltype[4:-1])
-            cell = pif.render.format_text_input(col, colwidth, value=value)
+            cell = pif.form.put_text_input(col, colwidth, value=value)
         else:
             cell = coltype
         entries.append({'text': cell})
 
     footer = ''.join([
-        pif.render.format_button_input("save"),
-        pif.render.format_button_input("delete"),
-        pif.render.format_button_input("test"),
-        pif.render.format_button_input("reject"),
-        pif.render.format_select('rejects_sec', listRejectCats, blank='Please choose one from the list'),
+        pif.form.put_button_input("save"),
+        pif.form.put_button_input("delete"),
+        pif.form.put_button_input("test"),
+        pif.form.put_button_input("reject"),
+        pif.form.put_select('rejects_sec', listRejectCats, blank='Please choose one from the list'),
         '</form>',
-        pif.render.format_button("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
+        pif.render.format_button_link("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
     ])
 
     llineup = render.Matrix(
@@ -462,7 +462,7 @@ def edit_multiple(pif, good=None):
                 entries.append(render.Entry(text='<a href="%s">%s</a>' % (val, val)))
             else:
                 entries.append(render.Entry(text=useful.printablize(val)))
-    footer = pif.render.format_button("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
+    footer = pif.render.format_button_link("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
 
     llineup = render.Matrix(
         id='tl', name='Edit Link', columns=len(table_data.columns),

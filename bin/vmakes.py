@@ -55,7 +55,7 @@ def makes_main(pif):
         footer = '<ul>' + '\n'.join([
             '<li>' + pif.render.format_link(x['link_line.url'], x['link_line.name']) for x in links]) + '</ul>\n'
         if pif.is_allowed('a'):  # pragma: no cover
-            footer += pif.render.format_button(
+            footer += pif.render.format_button_link(
                 'ADD LINK', 'editor.cgi?table=link_line&add=1&page_id=makes&section_id=%s&link_type=l' % make)
 
     if make:
@@ -66,7 +66,7 @@ def makes_main(pif):
     pif.render.set_button_comment(pif, 'make=%s&text=%s' % (pif.form.get_str('make', ''), pif.form.get_str('text', '')))
     if pif.is_allowed('a'):  # pragma: no cover
         if make and make != 'text':
-            footer += pif.render.format_button('edit', link=pif.dbh.get_editor_link('vehicle_make', {'id': make}))
+            footer += pif.render.format_button_link('edit', link=pif.dbh.get_editor_link('vehicle_make', {'id': make}))
     llineup.footer = footer
     return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
 

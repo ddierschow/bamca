@@ -1,4 +1,6 @@
+import os
 import unittest
+
 import basics
 import config
 
@@ -9,6 +11,7 @@ class TestRender(unittest.TestCase):
         self.assertNotEqual(result, '')
 
     def setUp(self):
+        os.putenv('LOG_LEVEL', 'CRITICAL')
         self.pif = basics.get_page_info('matrix.matchcaps', args="verbose=0")
         self.pif.render.verbose = True
         self.pif.render.verbose = False
@@ -143,52 +146,52 @@ class TestRender(unittest.TestCase):
         self.assertOut(self.pif.render.format_link('', '.', args={'a': '1'}, nstyle={'class': 'foo'}, also={'a': '1'}))
 
     def test_format_checkbox(self):
-        self.assertOut(self.pif.render.format_checkbox('foo', options=[('1', '1')], checked=[]))
+        self.assertOut(self.pif.form.put_checkbox('foo', options=[('1', '1')], checked=[]))
 
     def test_format_radio(self):
-        self.assertOut(self.pif.render.format_radio('bar', options=[('2', '2')], checked='', sep=''))
+        self.assertOut(self.pif.form.put_radio('bar', options=[('2', '2')], checked='', sep=''))
 
     def test_format_select(self):
-        self.assertOut(self.pif.render.format_select('baz', options=['3'], selected='3', id='a'))
+        self.assertOut(self.pif.form.put_select('baz', options=['3'], selected='3', id='a'))
 
     def test_format_text_input(self):
-        self.assertOut(self.pif.render.format_text_input('asdf', 10))
-        self.assertOut(self.pif.render.format_text_input('asdf', maxlength=80, showlength=24, value='val'))
+        self.assertOut(self.pif.form.put_text_input('asdf', 10))
+        self.assertOut(self.pif.form.put_text_input('asdf', maxlength=80, showlength=24, value='val'))
 
     def test_format_password_input(self):
-        self.assertOut(self.pif.render.format_password_input('pass', maxlength=80, showlength=24, value=''))
+        self.assertOut(self.pif.form.put_password_input('pass', maxlength=80, showlength=24, value=''))
 
     def test_format_hidden_input(self):
-        self.assertOut(self.pif.render.format_hidden_input({'1': '2', '3': '4'}))
-        self.assertOut(self.pif.render.format_hidden_input(a='2', c='4'))
+        self.assertOut(self.pif.form.put_hidden_input({'1': '2', '3': '4'}))
+        self.assertOut(self.pif.form.put_hidden_input(a='2', c='4'))
 
     def test_format_button_up_down(self):
-        self.assertOut(self.pif.render.format_button_up_down('updn'))
+        self.assertOut(self.pif.form.put_button_up_down('updn'))
 
     def test_format_button_up_down_select(self):
-        self.assertOut(self.pif.render.format_button_up_down_select('updn', vl=1))
-        self.assertOut(self.pif.render.format_button_up_down_select('updn', vl=-1))
+        self.assertOut(self.pif.form.put_button_up_down_select('updn', vl=1))
+        self.assertOut(self.pif.form.put_button_up_down_select('updn', vl=-1))
 
     def test_format_button_input_visibility(self):
-        self.assertOut(self.pif.render.format_button_input_visibility('updn', collapsed=False))
-        self.assertOut(self.pif.render.format_button_input_visibility('updn', collapsed=True))
+        self.assertOut(self.pif.form.put_button_input_visibility('updn', collapsed=False))
+        self.assertOut(self.pif.form.put_button_input_visibility('updn', collapsed=True))
 
     def test_format_button_input(self):
-        self.assertOut(self.pif.render.format_button_input(bname="submit", also={}))
-        self.assertOut(self.pif.render.format_button_input(bname="see the models", also={}))
-        self.assertOut(self.pif.render.format_button_input(bname="unittest", name="no really", also={}))
+        self.assertOut(self.pif.form.put_button_input(bname="submit", also={}))
+        self.assertOut(self.pif.form.put_button_input(bname="see the models", also={}))
+        self.assertOut(self.pif.form.put_button_input(bname="unittest", name="no really", also={}))
 
     def test_format_text_button(self):
-        self.assertOut(self.pif.render.format_text_button('see the models', also={}))
-        self.assertOut(self.pif.render.format_text_button("submit", also={}))
-        self.assertOut(self.pif.render.format_text_button("unittest", also={}))
-        self.assertOut(self.pif.render.format_text_button("yodel", also={}))
+        self.assertOut(self.pif.form.put_text_button('see the models', also={}))
+        self.assertOut(self.pif.form.put_text_button("submit", also={}))
+        self.assertOut(self.pif.form.put_text_button("unittest", also={}))
+        self.assertOut(self.pif.form.put_text_button("yodel", also={}))
 
     def test_format_button(self):
-        self.assertOut(self.pif.render.format_button('pictures', link='', image='', args={}, also={}, lalso={}))
+        self.assertOut(self.pif.render.format_button_link('pictures', '', image='', args={}, also={}, lalso={}))
 
     def test_format_button_reset(self):
-        self.assertOut(self.pif.render.format_button_reset('thing'))
+        self.assertOut(self.pif.form.put_button_reset('thing'))
 
     # def test_set_button_comment(self):
     #     self.pif.render.set_button_comment(self.pif, args=None)
@@ -255,12 +258,6 @@ class TestRender(unittest.TestCase):
     def test_fmt_anchor(self):
         self.assertOut(self.pif.render.fmt_anchor('a'))
         self.assertEqual(self.pif.render.fmt_anchor(''), '')
-
-    def test_format_bullet_list(self):
-        self.assertOut(self.pif.render.format_bullet_list(['a', 'b', 'c']))
-
-    def test_format_box_tail(self):
-        self.assertOut(self.pif.render.format_box_tail('tail'))
 
     def test_clear_cookie(self):
         self.assertOut(self.pif.render.secure.clear_cookie(keys=[]))

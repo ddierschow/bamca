@@ -2,6 +2,7 @@
 
 import cgi
 import datetime
+import html
 import os
 import re
 import sys
@@ -233,6 +234,145 @@ class BaseForm(object):
     def checks(self, *args):
         return [self.get_bool(x) for x in args]
 
+    # -- make them forms
+
+    def put_form_start(self, action=None, name=None, method=None, also={}, token=None):
+        args = f' action="{action}"' if action else ''
+        args += f' name="{name}"' if name else ''
+        args += f' method="{method}"' if method else ''
+        args += useful.fmt_also(also)
+        return f'<form{args}>\n' + (self.put_form_token(token) if token else '')
+
+    def put_form_end(self):
+        return '</form>\n'
+
+    def put_form_token(self, token, name="token"):
+        return f'<input type="hidden" name="{name}" value="{token}">\n'
+
+    def put_checkbox(self, name, options, checked=[], sep='\n'):
+        return ''.join([
+            '<nobr><input type="checkbox" name="{}" value="{}" id="{}"{}> <label for="{}">{}</label></nobr>{}'.format(
+                name, x[0], name + str(x[0]), ' CHECKED' if x[0] in checked else '', name + str(x[0]), x[1], sep)
+            for x in options])
+
+    def put_radio(self, name, options, checked='', sep='\n'):
+        return ''.join(['<input type="radio" id="{}" name="{}" value="{}"{}> <label for="{}">{}</label>{}'.format(
+            name + str(x[0]), name, x[0], ' CHECKED' if x[0] == checked else '', name + str(x[0]), x[1], sep)
+            if x else sep for x in options])
+
+    def put_select_country(self, name, selected='', id=None):
+        return self.put_select(name, mbdata.countries, selected='', id=None, blank='')
+
+    def put_select(self, name, options, selected='', blank=None, id=None):
+        ostr = f'<select name="{name}"'
+        if id:
+            ostr += f' id="{id}"'
+        ostr += '>\n'
+        if blank is not None:
+            ostr += '<option value=""{}>{}\n'.format(' SELECTED' if selected == '' else '', blank)
+        for option in options:
+            k, v = (option, option) if isinstance(option, str) else option
+            ostr += '<option value="{}"{}>{}\n'.format(k, ' SELECTED' if k == selected else '', v)
+        ostr += '</select>'
+        return ostr
+
+    def put_text_input(self, name, maxlength, showlength=24, value='', id=None, also={}):
+        value = value or ''
+        # showlengh = min(maxlength, showlength)
+        return '<input name="{}" type="text" size="{}" maxlength="{}" value="{}"{}{}>\n'.format(
+            name, min(showlength, maxlength), maxlength, html.escape(str(value), True), useful.fmt_also(also),
+            f' id="{id}"' if id else '')
+
+    def put_textarea_input(self, name, showlength=128, showheight=4, value=''):
+        value = '' or html.escape(str(value), True)
+        return f'<textarea name="{name}" cols="{showlength}" rows="{showheight}">{value}</textarea>\n'
+
+    def put_password_input(self, name, maxlength=80, showlength=24, value=''):
+        return '<input name="{}" type="text" size="{}" maxlength="{}" value="{}">\n'.format(
+            name, min(showlength, maxlength), maxlength, value)
+
+    def put_hidden_input(self, *values, **kvalues):
+        ret = [f'<input type="hidden" name="{k}" value="{v}">\n' for k, v in kvalues.items()]
+        if values:
+            ret += [f'<input type="hidden" name="{k}" value="{v}">\n' for k, v in values[0].items()]
+        return ''.join(ret)
+
+    # -- buttons
+
+    def put_button_up_down(self, field):
+        but_inc = self.put_fa("UP")
+        but_dec = self.put_fa("DOWN")
+        return f'<a onclick="incrfield({field}, 1);">{but_inc}</a><a onclick="incrfield({field},-1);">{but_dec}</a>'''
+
+    def put_fa(self, title):
+        fas = {
+            "TOP": "fas fa-angle-double-up",
+            "UP": "fas fa-angle-up",
+            "DOWN": "fas fa-angle-down",
+            "BOTTOM": "fas fa-angle-double-down",
+        }
+        return '<div class="textbutton textupdown"><i class="{} bold" title="{}"></i></div>'.format(
+            fas[title], title)
+
+    def put_button_up_down_select(self, id, vl=1):
+        ostr = ''
+        but_max = self.put_fa("TOP")
+        but_inc = self.put_fa("UP")
+        but_dec = self.put_fa("DOWN")
+        but_min = self.put_fa("BOTTOM")
+        if vl > 0:
+            ostr += f'''<a onclick="settsel('{id}');">{but_max}</a>\n'''
+            ostr += f'''<a onmousedown="toggleOnSel('{id}', 1);" onmouseup="toggleOff();">{but_inc}</a>\n'''
+            ostr += f'''<a onmousedown="toggleOnSel('{id}',-1);" onmouseup="toggleOff();">{but_dec}</a>\n'''
+            ostr += f'''<a onclick="setbsel('{id}');">{but_min}</a>\n'''
+        else:
+            ostr += f'''<a onclick="setbsel('{id}');">{but_max}</a>\n'''
+            ostr += f'''<a onmousedown="toggleOnSel('{id}',-1);" onmouseup="toggleOff();">{but_inc}</a>\n'''
+            ostr += f'''<a onmousedown="toggleOnSel('{id}', 1);" onmouseup="toggleOff();">{but_dec}</a>\n'''
+            ostr += f'''<a onclick="settsel('{id}');">{but_min}</a>\n'''
+        return ostr
+
+    def put_button_input_visibility(self, id, collapsed=False):
+        fname = 'expand' if collapsed else 'collapse'
+        bname = useful.make_button_label(fname)
+        also = {
+            'id': id + '_l',
+            'name': bname,
+            'value': bname,
+            'onclick': f"toggle_visibility('{id}','{id}_l'); return false;",
+            'class': 'textbutton',
+        }
+        return '<button type="submit"{}>{}</button>\n'.format(useful.fmt_also(also), bname)
+
+    def put_button_input(self, bname="submit", name=None, also=None):
+        bname = useful.make_button_label(bname)
+        name = name if name else bname
+        altname = useful.make_button_label(bname)
+        also = also if also else {}
+        imalso = {'class': 'textbutton', 'alt': altname}
+        # also['onsubmit'] = 'this.disabled=true;'
+        inputname = useful.make_button_name(name)
+        # also['onclick'] = 'this.disabled=true; var e=document.createElement("input"); e.type="text"; e.name="%s";
+        # e.value="1"; this.form.appendChild(e); this.form.submit();' % inputname
+        # return '<input type="submit" name="%s" value="%s"%s>\n' % (inputname, value, useful.fmt_also(imalso, also))
+        return '<button type="submit" name="{}" value="{}"{}>{}</button>\n'.format(
+            inputname, altname, useful.fmt_also(imalso, also), altname)
+
+    def put_text_button(self, name, also={}):
+        bname = useful.make_button_label(name)
+        imalso = dict({'class': 'textbutton'})
+        imalso['onsubmit'] = 'this.disabled=true;'
+        imalso.update(also)
+        btn = '<div{}>{}</div>'.format(useful.fmt_also(imalso), bname)
+        return btn
+
+    def put_button_input_paste(self, id):
+        return self.put_text_button('paste', also={
+            'onclick': f"paste_from_clippy('{id}'); return false;"})
+
+    def put_button_reset(self, name):
+        return self.put_text_button('reset', also={'onClick': f'ResetForm(document.{name});'})
+
 
 class PageInfoFile(object):
     def __init__(self, page_id, form_key='', defval='', args='', dbedit=None):
@@ -372,7 +512,7 @@ class PageInfoFile(object):
 
     def create_token(self, name="token"):
         token = self.dbh.create_token()
-        return self.render.format_form_token(token, name)
+        return self.form.put_form_token(token, name)
 
     # -- access control -------------------------------------------------
 

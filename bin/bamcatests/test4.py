@@ -1,12 +1,14 @@
+import os
 import unittest
+
 import useful
 
 
 class TestUseful(unittest.TestCase):
 
     def setUp(self):
-        import os
         os.putenv('SERVER_NAME', 'www.bamca.org')
+        os.putenv('LOG_LEVEL', 'CRITICAL')
 
     def test_form_int(self):
         pass  # self.assertEqual(useful.form_int('', 0), '0')

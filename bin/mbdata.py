@@ -413,7 +413,7 @@ model_icons = {
 }
 
 # not complete
-model_small_icons = {
+model_small_icons = {  # not in use
     "a": "fa-plane",
     "o": "fa-ship",
     "b": "fa-bus",
@@ -528,6 +528,13 @@ var_adds = [
     ["i_", "Interior%(s)s", "<p>", 1],
 ]
 
+var_types = {
+    'c': 'Core',
+    '1': 'C1',
+    '2': 'C2',
+    'f': 'F',
+    'p': '2P',
+}
 
 LISTTYPE_NORMAL = ''
 LISTTYPE_LARGE = 'lrg'
@@ -544,6 +551,7 @@ LISTTYPE_MULTIYEAR = 'myr'
 LISTTYPE_TILLEY = 'til'
 LISTTYPE_EDITOR = 'edt'
 LISTTYPE_DETAIL = 'vdt'
+LISTTYPE_DESCR = 'vds'
 
 mime_types = {
     LISTTYPE_CSV: 'text/csv',
@@ -739,13 +747,16 @@ dirs = bidict.bidict({
 })
 
 deco_types = (
-    ('', 'unset'),
+    ('', ''),
     ('d', 'decals'),
     ('l', 'labels'),
     ('t', 'tampo'),
     ('n', 'no'),
     ('h', 'handpainted'),
+    ('f', 'fusion printed'),
+    ('i', 'inkjet printed'),
 )
+deco_types_dict = dict(deco_types)
 
 # ----------------------------------------------------------------------
 

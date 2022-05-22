@@ -237,7 +237,7 @@ class UploadForm(object):
             'restrict': restrict,
             'desc': desc,
             'var': var,
-            'edit': pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s' % self.image) if self.image else '',
+            'edit': pif.render.format_button_link('edit', 'imawidget.cgi?d=%s&f=%s' % self.image) if self.image else '',
         }
         return pif.render.format_template('upload.html', **context)
 
@@ -428,7 +428,7 @@ def show_redoer(pif, eform):
         print('<form action="imawidget.cgi" name="myForm">' + pif.create_token())
         # print('<input type="text" value="" name="q" id="q">')
         eform.write(pif, edit=False)
-        # print('Bounds:', pif.render.format_text_input('q', 20, value=pif.form.get_str('q')))
+        # print('Bounds:', pif.form.put_text_input('q', 20, value=pif.form.get_str('q')))
         print('<input type="hidden" value="%s" name="f">' % eform.fn)
         # print('<input type="hidden" value="%s" name="d">' % eform.tdir)
         print('</form>')
@@ -609,8 +609,8 @@ class EditForm(imglib.ActionForm):
 
         print(pif.render.format_link('traverse.cgi?d=%s' % pdir, pdir), '/')
         print(pif.render.format_link('traverse.cgi?d=%s&f=%s' % (pdir, fn), fn))
-        print(pif.render.format_button("show", os.path.join('/', pdir, fn)))
-        print(pif.render.format_button("upload", "upload.cgi?d=%s&n=%s" % (pdir, fn)))
+        print(pif.render.format_button_link("show", os.path.join('/', pdir, fn)))
+        print(pif.render.format_button_link("upload", "upload.cgi?d=%s&n=%s" % (pdir, fn)))
         print('<br>')
 
         full_path = os.path.join(pdir, fn)
@@ -621,47 +621,47 @@ class EditForm(imglib.ActionForm):
         presets = imglib.read_presets(pdir)
 
         xs, ys = super().write(pif, fn)
-        print(pif.render.format_hidden_input(c=useful.url_quote(pif.form.get_str('c', ''), plus=True)))
+        print(pif.form.put_hidden_input(c=useful.url_quote(pif.form.get_str('c', ''), plus=True)))
         # xs, ys = imglib.get_size(full_path)
         if edit:
             print('<div class="lefty">')
             # print('(%d, %d)' % (xs, ys))
-            print(pif.render.format_radio('tysz', [('q', '')], presets.get('tysz', '')))
+            print(pif.form.put_radio('tysz', [('q', '')], presets.get('tysz', '')))
             print('x: <input name="x" type="text" size="4" value="%s">' % config.DEFAULT_X_SIZE)
             print('y: <input name="y" type="text" size="4" value="%s">' % config.DEFAULT_Y_SIZE)
-            print(pif.render.format_radio(
+            print(pif.form.put_radio(
                 'tysz', [(siz, siz.upper()) for siz in mbdata.image_size_types],
                 presets.get('tysz', mbdata.IMG_SIZ_SMALL)))
-            print('-', pif.render.format_checkbox("unlv", [(1, "V")], presets.get("unlv", [])))
-            print(pif.render.format_checkbox("unlh", [(1, "H")], presets.get("unlh", [])))
-            print(pif.render.format_button_input('keep'))
-            print(pif.render.format_checkbox("rl", [(1, "RL")], presets.get("rl", [])))
-            print(pif.render.format_checkbox("rh", [(1, "RH")], presets.get("rh", [])))
-            print(pif.render.format_checkbox("rr", [(1, "RR")], presets.get("rr", [])))
-            print(pif.render.format_checkbox("fh", [(1, "FH")], presets.get("fh", [])))
-            print(pif.render.format_checkbox("fv", [(1, "FV")], presets.get("fv", [])))
-            print(pif.render.format_select('ot', imglib.otypes, 'jpg'))
-            print(pif.render.format_checkbox("pr", [(1, "pr")], presets.get("pr", [])))
+            print('-', pif.form.put_checkbox("unlv", [(1, "V")], presets.get("unlv", [])))
+            print(pif.form.put_checkbox("unlh", [(1, "H")], presets.get("unlh", [])))
+            print(pif.form.put_button_input('keep'))
+            print(pif.form.put_checkbox("rl", [(1, "RL")], presets.get("rl", [])))
+            print(pif.form.put_checkbox("rh", [(1, "RH")], presets.get("rh", [])))
+            print(pif.form.put_checkbox("rr", [(1, "RR")], presets.get("rr", [])))
+            print(pif.form.put_checkbox("fh", [(1, "FH")], presets.get("fh", [])))
+            print(pif.form.put_checkbox("fv", [(1, "FV")], presets.get("fv", [])))
+            print(pif.form.put_select('ot', imglib.otypes, 'jpg'))
+            print(pif.form.put_checkbox("pr", [(1, "pr")], presets.get("pr", [])))
             print('<br>')
-            # print('Name:', pif.render.format_text_input('newname', 20, value=pif.form.get_str('newname', '')))
-            print(pif.render.format_button_input('resize'))
-            print(pif.render.format_button_input('crop'))
-            print(pif.render.format_button_input('crop/shrink', 'shrink'))
-            print(pif.render.format_button_input('wipe'))
-            print(pif.render.format_button_input('pad'))
+            # print('Name:', pif.form.put_text_input('newname', 20, value=pif.form.get_str('newname', '')))
+            print(pif.form.put_button_input('resize'))
+            print(pif.form.put_button_input('crop'))
+            print(pif.form.put_button_input('crop/shrink', 'shrink'))
+            print(pif.form.put_button_input('wipe'))
+            print(pif.form.put_button_input('pad'))
             # if pif.is_allowed('m'):  # pragma: no cover
-            #     print('Var: ' + pif.render.format_text_input('v', 8, value=pif.form.get_str('v', '')))
-            print(pif.render.format_checkbox("repl", [(1, "Replace")], presets.get("repl", [])))
-            print(pif.render.format_checkbox("save", [(1, "Save")], presets.get("save", [])))
-        print(pif.render.format_button_input('mass'))
-        print(pif.render.format_button_input('clean'))
+            #     print('Var: ' + pif.form.put_text_input('v', 8, value=pif.form.get_str('v', '')))
+            print(pif.form.put_checkbox("repl", [(1, "Replace")], presets.get("repl", [])))
+            print(pif.form.put_checkbox("save", [(1, "Save")], presets.get("save", [])))
+        print(pif.form.put_button_input('mass'))
+        print(pif.form.put_button_input('clean'))
         photogs = [(x.photographer.id, x.photographer.name)
                    for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
-        print(pif.render.format_link('/cgi-bin/mass.cgi?type=photogs', 'Credit'))
-        print(pif.render.format_select('credit', photogs, selected=self.credit, blank=''))
+        print(pif.render.format_link('/cgi-bin/mass.cgi?tymass=photogs', 'Credit'))
+        print(pif.form.put_select('credit', photogs, selected=self.credit, blank=''))
         print('Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q]))
         print('<br><span id="ima_info"></span>&nbsp;')
-        print(pif.render.format_hidden_input(cc=presets.get('cc', '')))
+        print(pif.form.put_hidden_input(cc=presets.get('cc', '')))
         return xs, ys
 
     def save_file(self, ofi):
@@ -874,7 +874,7 @@ def imawidget_main(pif):
             show_editor(pif, eform)
         elif eform.mass:
             if eform.man and eform.var:
-                print(pif.render.format_button("promote", 'editor.cgi?mod=%s&var=%s&promote=1' % (
+                print(pif.render.format_button_link("promote", 'editor.cgi?mod=%s&var=%s&promote=1' % (
                     eform.man, eform.var)))
             eform.mass_resize(pif, "from library")
         elif eform.wipe:
@@ -911,7 +911,7 @@ def imawidget_main(pif):
         is_edited = False
 
     if is_edited:
-        print(pif.render.format_button(
+        print(pif.render.format_button_link(
             'replace',
             'upload.cgi?act=1&d=%s&f=%s&newname=%s&rename=1&cpmv=m&ov=1' % (eform.tdir, eform.nname, eform.fn)))
 
@@ -965,7 +965,7 @@ class StitchForm(object):
 
         header += '<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">\n{}'.format(
             pif.create_token())
-        header += pif.render.format_hidden_input(fc=self.file_count + 1)
+        header += pif.form.put_hidden_input(fc=self.file_count + 1)
         # columns = ['name', 'image']
         print(header)
         print(pif.render.format_table_start())
@@ -982,26 +982,26 @@ class StitchForm(object):
                     self.limit_y = min(y, self.limit_y)
                     fn_size = '<br>' + str((x, y))
                 print(pif.render.format_cell(1, fn + fn_size))
-                print(pif.render.format_hidden_input({'fn_' + num: fn}))
+                print(pif.form.put_hidden_input({'fn_' + num: fn}))
             else:
                 print(pif.render.format_cell(
-                    1, pif.render.format_text_input('fn_%d' % self.file_count, 80) + '<br>' +
+                    1, pif.form.put_text_input('fn_%d' % self.file_count, 80) + '<br>' +
                     self.fsl[0]['fn'].strip()))
                 print(pif.render.format_cell(
-                    1, pif.render.format_button_input() + ' ' +
-                    pif.render.format_button_input('finalize') + '<br>' +
-                    pif.render.format_checkbox('or', [('h', 'horizontal')]), also={'colspan': 2}))
-                print(pif.render.format_cell(1, 'x ' + pif.render.format_text_input('limit_x', 5, value=self.limit_x)))
-                print(pif.render.format_cell(1, 'y ' + pif.render.format_text_input('limit_y', 5, value=self.limit_y)))
+                    1, pif.form.put_button_input() + ' ' +
+                    pif.form.put_button_input('finalize') + '<br>' +
+                    pif.form.put_checkbox('or', [('h', 'horizontal')]), also={'colspan': 2}))
+                print(pif.render.format_cell(1, 'x ' + pif.form.put_text_input('limit_x', 5, value=self.limit_x)))
+                print(pif.render.format_cell(1, 'y ' + pif.form.put_text_input('limit_y', 5, value=self.limit_y)))
             if 'x1' in fs:
                 print(pif.render.format_cell(1, str(fs['x1']), also={'width': 40}))
-                print(pif.render.format_hidden_input({'x1_' + num: fs['x1']}))
+                print(pif.form.put_hidden_input({'x1_' + num: fs['x1']}))
                 print(pif.render.format_cell(1, str(fs['y1']), also={'width': 40}))
-                print(pif.render.format_hidden_input({'y1_' + num: fs['y1']}))
+                print(pif.form.put_hidden_input({'y1_' + num: fs['y1']}))
                 print(pif.render.format_cell(1, str(fs['x2']), also={'width': 40}))
-                print(pif.render.format_hidden_input({'x2_' + num: fs['x2']}))
+                print(pif.form.put_hidden_input({'x2_' + num: fs['x2']}))
                 print(pif.render.format_cell(1, str(fs['y2']), also={'width': 40}))
-                print(pif.render.format_hidden_input({'y2_' + num: fs['y2']}))
+                print(pif.form.put_hidden_input({'y2_' + num: fs['y2']}))
             elif fn:
                 if not os.path.exists(fn):
                     print(pif.render.format_cell(1, 'Nonexistant: ' + os.getcwd() + '/' + fn, also={'colspan': 4}))
@@ -1083,11 +1083,11 @@ class StitchForm(object):
         # orig = input_files[0][input_files[0].rfind('/') + 1:]
         print('<br><form>Final resting place:')
         print(pif.create_token())
-        print(pif.render.format_text_input('o', 80, value='%s' % input_files[0]))
-        print(pif.render.format_hidden_input(f='%s/%s' % (d, f)))
+        print(pif.form.put_text_input('o', 80, value='%s' % input_files[0]))
+        print(pif.form.put_hidden_input(f='%s/%s' % (d, f)))
         for fn in input_files:
-            print(pif.render.format_hidden_input({'in': fn}))
-        print(pif.render.format_button_input('finish'))
+            print(pif.form.put_hidden_input({'in': fn}))
+        print(pif.form.put_button_input('finish'))
         print('</form>')
 
 
@@ -1116,7 +1116,7 @@ def casting_pictures(pif, mod_id, direc):
     if fl:
         print('<h3>%s</h3>' % direc)
         if direc == '.' + config.IMG_DIR_ADD:
-            print(pif.render.format_button('describe', pif.dbh.get_editor_link('attribute_picture',
+            print(pif.render.format_button_link('describe', pif.dbh.get_editor_link('attribute_picture',
                   {'mod_id': mod_id})) + '<br>')
         for fn in fl:
             print('<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&man=%s"><img src="../%s">%s</a> ' % (
@@ -1167,7 +1167,9 @@ def create_icon(pif, mod_id, name, title='mb2', isizex=100, isizey=100):
 
     in_path = os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg')
     icon_file = os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i_' + mod_id + '.gif')
-    open(icon_file, 'w').write(imglib.iconner(in_path, name, logo=logo, isizex=100, isizey=100))
+    image = imglib.iconner(in_path, name, logo=logo, isizex=100, isizey=100)
+    if image:
+        open(icon_file, 'wb').write(image)
 
 
 def get_man_dict(pif):
@@ -1179,11 +1181,11 @@ def get_man_dict(pif):
     return mans
 
 
-def icon_main(pif, mod_ids):
+def icon_main(pif, *mod_ids):
     title = pif.switch['b'][-1] if pif.switch['b'] else 'mb2'
     mandict = pif.dbh.fetch_casting_dict()
 
-    if pif.switch['a']:
+    if mod_ids and mod_ids[0] == '-a':
         for man in mandict:
             name = mandict[man]['iconname']
             if pif.switch['n']:
@@ -1347,14 +1349,14 @@ def show_library_dir(pif, tdir, grafs=0):
     show_library_list(pif, files['titles']['exe'], tdir, files['exe'])
     show_library_list(pif, files['titles']['other'], tdir, files['other'])
 
-    print('<a href="upload.cgi?d=%s&m=%s">%s</a>' % (tdir, tdir[7:], pif.render.format_button('upload')))
+    print('<a href="upload.cgi?d=%s&m=%s">%s</a>' % (tdir, tdir[7:], pif.form.put_text_button('upload')))
 
     if files['graf']:
         print('<form action="traverse.cgi">' + pif.create_token())
-        print('<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tdir, pif.render.format_button('show all pictures')))
+        print('<a href="traverse.cgi?g=1&d=%s">%s</a> or ' % (tdir, pif.form.put_text_button('show all pictures')))
         print('Pattern <input type="text" name="p">')
         print('<input type="hidden" name="d" value="%s">' % tdir)
-        print(pif.render.format_button_input())
+        print(pif.form.put_button_input())
         print('</form>')
 
 
@@ -1376,8 +1378,8 @@ def library_img(pif, args, base=''):
             inp = imginputs % {'f': arg, 'b': base}
         else:
             inp = imginput % {'f': arg}
-        inp += ' ' + pif.render.format_button('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
-        inp += ' ' + pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (
+        inp += ' ' + pif.render.format_button_link('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
+        inp += ' ' + pif.render.format_button_link('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (
             pif.render.pic_dir + '/' + arg))
         print(pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (
             pif.render.pic_dir, arg,
@@ -1400,8 +1402,8 @@ def show_library_imgs(pif, patt):
     print('<input type="hidden" name="d" value="%s">' % pif.render.pic_dir)
     print('<input type="hidden" name="sc" value="1">')
     # print('<input type="hidden" name="pre" value="man">')
-    print(pif.render.format_button_input())
-    print('<a href="upload.cgi?d=%s&r=1">%s</a>' % (pif.form.get_str('d', '.'), pif.render.format_button('upload')))
+    print(pif.form.put_button_input())
+    print('<a href="upload.cgi?d=%s&r=1">%s</a>' % (pif.form.get_str('d', '.'), pif.form.put_button('upload')))
     print('</form>')
 
 
@@ -1595,16 +1597,16 @@ def photographers(pif):
         entries = [render.Entry(text=credit_show(pif, x))
                    for x in pif.dbh.fetch_photo_credits_page(photog_id, page=page)]
         if page > 0:
-            footer += pif.render.format_button('previous', link='photogs.cgi?id=%s&p=%d' % (photog_id, page - 1))
+            footer += pif.render.format_button_link('previous', 'photogs.cgi?id=%s&p=%d' % (photog_id, page - 1))
         if (page + 1) * 100 < photog['count']:
             if footer:
                 footer += ' - '
-            footer += pif.render.format_button('next', link='photogs.cgi?id=%s&p=%d' % (photog_id, page + 1))
+            footer += pif.render.format_button_link('next', 'photogs.cgi?id=%s&p=%d' % (photog_id, page + 1))
         header += '%s credit%s' % (photog['count'], 's' if photog.count != 1 else '')
         if photog["count"] > 100:
             header += ' - Page %d' % (page + 1)
         if photog.photographer.url:
-            header += ' - ' + pif.render.format_button('visit website', link=photog.photographer.url)
+            header += ' - ' + pif.render.format_button_link('visit website', photog.photographer.url)
     else:
         # hide private
         entries = [render.Entry(text=photog_ind(pif, x)) for x in pif.dbh.fetch_photographer_counts()]

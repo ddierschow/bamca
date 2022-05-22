@@ -262,7 +262,7 @@ class MatrixFile(object):
                         section.name += " %s-%s" % (dates[0], dates[-1])
                 else:
                     section.name += " (%s/%s)" % (pif.page_id, section.id) + ' '
-                    section.name += pif.render.format_button(
+                    section.name += pif.render.format_button_link(
                         "add", "editor.cgi?table=matrix_model&page_id=%s&section_id=%s&add=1" %
                         (pif.page_id, section.id))
 
@@ -390,10 +390,10 @@ class MatrixFile(object):
 
         ent['additional'] = ''
         if pif.is_allowed('a'):  # pragma: no cover
-            ent['additional'] += pif.render.format_button(
+            ent['additional'] += pif.render.format_button_link(
                 "edit", pif.dbh.get_editor_link('matrix_model', {'id': ent['id']}))
             pic = ent['link']
-            ent['additional'] += pif.render.format_button(
+            ent['additional'] += pif.render.format_button_link(
                 "upload",
                 "upload.cgi?d=%s&n=%s&c=%s&link=%s" % (
                     pif.render.pic_dir.replace('pic', 'lib'), pic, pic,
@@ -413,17 +413,16 @@ class MatrixFile(object):
 
 
 def select_matrix(pif):
-    lran = dict(id='ml', entry=list())
-    lran['name'] = "A few of the special sets produced by Matchbox in recent years:"
+    lran = render.Range(id='ml', name="A few of the special sets produced by Matchbox in recent years:")
     ser = pif.dbh.fetch_pages("id like 'matrix.%'", order='description, title')
     for ent in ser:
         ent['page_info.id'] = ent['page_info.id'].split('.', 1)[-1]
         link = '<b><a href="?page=%(page_info.id)s">%(page_info.title)s</a></b> - %(page_info.description)s' % ent
         if not (ent['page_info.flags'] & 1):
-            lran['entry'].append(link)
+            lran.entry.append(link)
         elif pif.is_allowed('a'):  # pragma: no cover
-            lran['entry'].append('<i>' + link + '</i>')
-    return dict(section=[{'id': 'ml', 'range': [lran]}])
+            lran.entry.append('<i>' + link + '</i>')
+    return render.Listix(section=[render.Section(id='ml', range=[lran])])
 
 
 @basics.web_page
@@ -435,20 +434,19 @@ def main(pif):
     if matf.tables:
         llineup = matf.matrix(pif)
         return pif.render.format_template('matrix.html', llineup=llineup.prep())
-    return pif.render.format_template('matrixsel.html', llineup=select_matrix(pif))
+    return pif.render.format_template('simpleulist.html', llineup=select_matrix(pif))
 
 
 def select_cats(pif):
-    lran = dict(id='ml', entry=list())
-    lran['name'] = "Model categories:"
+    lran = render.Range(id='ml', name="Model categories:")
     cats = pif.dbh.fetch_categories()
     for ent in cats:
         link = '<b><a href="?cat=%(id)s">%(name)s</a> (%(id)s)</b>' % ent
         if ent['flags'] & config.FLAG_CATEGORY_INDEXED:
-            lran['entry'].append(link)
+            lran.entry.append(link)
         elif pif.is_allowed('a'):  # pragma: no cover
-            lran['entry'].append('<i>' + link + '</i>')
-    return dict(section=[{'id': 'ml', 'range': [lran]}])
+            lran.entry.append('<i>' + link + '</i>')
+    return render.Listix(section=[render.Section(id='ml', range=[lran])])
 
 
 @basics.web_page
@@ -460,4 +458,4 @@ def cats_main(pif):
     if matf.tables:
         llineup = matf.matrix(pif)
         return pif.render.format_template('matrix.html', llineup=llineup.prep())
-    return pif.render.format_template('matrixsel.html', llineup=select_cats(pif))
+    return pif.render.format_template('simpleulist.html', llineup=select_cats(pif))

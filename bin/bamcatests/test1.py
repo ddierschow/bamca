@@ -1,4 +1,6 @@
+import os
 import unittest
+
 import basics
 import dbintf
 import dbhand
@@ -9,6 +11,7 @@ import render
 class TestPIF(unittest.TestCase):
 
     def setUp(self):
+        os.putenv('LOG_LEVEL', 'CRITICAL')
         self.pif = basics.get_page_info('editor')
 
     def test_1(self):

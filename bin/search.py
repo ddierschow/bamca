@@ -162,6 +162,8 @@ def date_search(pif, dt=None, yr=None):
         last = None
         ver_count = 0
         for var in vars:
+            vss = pif.dbh.fetch_variation_selects(mod_id=var['variation.mod_id'], var_id=var['variation.var'])
+            vs = ', '.join(['-'.join([y[x] for x in ['ref_id', 'sec_id', 'ran_id']]) for y in vss])
             verified = ['1'] if var['variation.flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else []
             id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
             ver_count += 1 if verified else 0
@@ -189,20 +191,22 @@ def date_search(pif, dt=None, yr=None):
                 var['variation.mod_id'], vars=[var['variation.picture_id'] or 'unmatchable', var['variation.var']],
                 also={'class': 'righty'}, nobase=True, largest='s')
             var['shown'] += (
-                pif.render.format_hidden_input({'v.' + mvid: '1'}) +
-                pif.render.format_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
-                pif.render.format_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
+                pif.form.put_hidden_input({'v.' + mvid: '1'}) +
+                pif.form.put_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
+                pif.form.put_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
                 pif.render.format_link(
                     '/cgi-bin/vars.cgi?mod=%s&var=%s&edit=1' % (var['variation.mod_id'], var['variation.var']),
                     '(%s) %s' % (var['variation.var'], var['variation.text_description'])) + done +
-                '<i>' + var['variation.note'] + '</i> ' + cats + '\n<ul>' + desc + '</ul>\n'
+                '<i>' + var['variation.note'] + '</i> ' + '-' + vs + '-' +
+                cats + '\n<ul>' + desc + '</ul>\n'
             )
         vars.sort(key=lambda x: x['sort'])
         lran.entry = [render.Entry(text=x['shown']) for x in vars]
         lsec.columns = 1
         llineup.header += (
-            'Verified: %d of %d<br><form action="/cgi-bin/mass.cgi?type=dates" method="post">' % (ver_count, len(vars)))
-        llineup.footer += pif.render.format_button_input() + '</form>'
+            'Verified: %d of %d<br><form action="/cgi-bin/mass.cgi?tymass=dates" method="post">' %
+            (ver_count, len(vars)))
+        llineup.footer += pif.form.put_button_input() + '</form>'
     else:
         pif.render.title = 'Search Dates'
         dates = pif.dbh.fetch_variation_dates(yr=yr)

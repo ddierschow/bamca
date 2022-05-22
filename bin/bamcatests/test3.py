@@ -1,12 +1,14 @@
+import os
 import unittest
+
 import basics
 
 
 class TestOther(unittest.TestCase):
 
     def setUp(self):
-        import os
         os.putenv('SERVER_NAME', 'www.bamca.org')
+        os.putenv('LOG_LEVEL', 'CRITICAL')
 
     def assertOut(self, result):
         self.assertNotEqual(result, '')
@@ -47,11 +49,11 @@ class TestOther(unittest.TestCase):
         self.assertIsNone(lineup.main(
             'year', 'year', args='n=1 num=5 syear=1971 region=U prodpic=1 enum=15 eyear=1980 submit=1'))
 
-    def test_Mack(self):
+    def test_mack(self):
         import cmackl
         self.assertIsNone(cmackl.mack_lineup('mack', args='see_the_models=1 verbose=1'))
 
-    def test_Links(self):
+    def test_links(self):
         import tlinks
         self.assertOut(tlinks.links('links', 'page', 'toylinks', args="verbose=1"))
         self.assertOut(tlinks.links('links', 'page', 'toylinks', args="page=clubs"))
@@ -65,7 +67,7 @@ class TestOther(unittest.TestCase):
         self.assertOut(tlinks.add_page('addlink', args="verbose=0"))
 #    tlinks.edit_links('editor')
 
-    def test_Manno(self):
+    def test_manno(self):
         import mannum
         self.assertNotEqual(mannum.main(
             'manno', args='section=all listtype= range=all start=1 syear=1953 end=999 eyear=2015 type_a=y type_9=n '
@@ -88,7 +90,7 @@ class TestOther(unittest.TestCase):
         self.assertNotEqual(mannum.main(
             'manno', args='section=wr listtype=vtl range=all start=1 syear=1953 end=999 eyear=2015 submit=1'), '')
 
-    def test_Vmakes(self):
+    def test_vmakes(self):
         import vmakes
         self.assertIsNone(vmakes.makes_main('makes', args='verbose=1'))
         self.assertIsNone(vmakes.makes_main('makes', args='make=text text=austin submit=1'))
@@ -96,7 +98,7 @@ class TestOther(unittest.TestCase):
         self.assertIsNone(vmakes.makes_main('makes', args='make=unl text=austin submit=1'))
         self.assertIsNone(vmakes.makes_main('makes', args='make=isu see_the_models=1'))
 
-    def test_Matrix1(self):
+    def test_matrix1(self):
         import matrix
         self.assertOut(matrix.main('matrix', 'page', args='page=character verbose=1'))
 

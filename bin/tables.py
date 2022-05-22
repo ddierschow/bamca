@@ -68,15 +68,15 @@ table_info = {
         },
         'tlinks': [
             {'tab': 'matrix_model', 'id': ['section_id/id', 'page_id/page_id'],
-             'if': "dats and dats[0]['page_id'].startswith('matrix.')"},
-            {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/*dats[0]["id"][0]'],
-             'if': "dats and dats[0]['page_id'].startswith('year.')"},
+             'if': "dat and dat['page_id'].startswith('matrix.')"},
+            {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/*dat["id"][0]'],
+             'if': "dat and dat['page_id'].startswith('year.')"},
             {'tab': 'lineup_model', 'id': ['year/*dat["page_id"][5:]', 'region/id'],
-             'if': "dats and dats[0]['page_id'].startswith('year.')"},
+             'if': "dat and dat['page_id'].startswith('year.')"},
             {'tab': 'link_line', 'id': ['section_id/id', 'page_id/page_id'],
-             'if': "dats and dats[0]['page_id'].startswith('links.')"},
+             'if': "dat and dat['page_id'].startswith('links.')"},
             {'tab': 'pack', 'id': ['section_id/id', 'page_id/page_id'],
-             'if': "dats and dats[0]['page_id'].startswith('packs.')"},
+             'if': "dat and dat['page_id'].startswith('packs.')"},
         ],
         'add': {
             'section': ['page_id/page_id'],
@@ -276,10 +276,11 @@ table_info = {
         'id': ['mod_id', 'var'],
         'saveid': True,
         'columns': [
-            'mod_id', 'var', 'flags',
-            'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with',
-            'text_text', 'base', 'body', 'interior', 'windows', 'manufacture', 'additional_text', 'base_name',
-            'base_number', 'tool_id', 'production_id', 'copyright', 'company_name', 'logo_type', 'area', 'date',
+            'mod_id', 'var', 'flags', 'text_description',
+            'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with', 'text_text',
+            'base', 'body', 'deco', 'deco_type', 'interior', 'windows',
+            'manufacture', 'additional_text', 'base_name', 'base_number', 'base_scale', 'tool_id', 'production_id',
+            'copyright', 'company_name', 'logo_type', 'base_reads', 'area', 'date',
             'note', 'picture_id', 'imported', 'imported_from', 'imported_var', 'category', 'variation_type'],
         'title': {
             'mod_id': 'Model ID', 'var': 'Variation ID', 'text_description': 'Description',
@@ -311,7 +312,7 @@ table_info = {
         'internals': [
             'base', 'body', 'interior', 'windows',
             'manufacture', 'additional_text', 'base_name', 'base_number', 'tool_id',
-            'copyright', 'company_name', 'production_id',  # 'logo_type',
+            'copyright', 'company_name', 'production_id', 'base_scale', 'base_reads',  # 'logo_type',
         ],
     },
     # detail
@@ -664,6 +665,37 @@ table_info = {
         },
         'ask': ['id', 'section_id'],
     },
+    # periodical
+    'periodical': {
+        'db': 'bamca',
+        'id': ['id'],
+        'saveid': True,
+        'columns': ['id', 'pub_id', 'volume', 'issue', 'date', 'pages'],
+        'clinks': {
+            'book': {'tab': 'book', 'id': ['id/pub_id']},
+        },
+        'add': {
+            'article': ['mod_id/id'],
+        },
+        'create': {
+        },
+        'ask': ['pub_id', 'volume', 'issue', 'date'],
+    },
+    # article
+    'article': {
+        'db': 'bamca',
+        'id': ['id'],
+        'saveid': True,
+        'columns': ['id', 'per_id', 'title', 'author', 'page'],
+        'clinks': {
+            'pub_id': {'tab': 'periodical', 'id': ['id/per_id']},
+        },
+        'add': {
+        },
+        'create': {
+        },
+        'ask': ['id', 'per_id', 'title'],
+    },
     # variation_select
     'variation_select': {
         'db': 'bamca',
@@ -1006,7 +1038,14 @@ class Result(object):
         self._record.setdefault(key, val)
 
     def get(self, key, val=None):
-        return self._record.get(key, val)
+        rec = object.__getattribute__(self, '_record')
+        tab = object.__getattribute__(self, '_table')
+        if '.' in key:
+            k1, k2 = key.split('.', 1)
+            return rec[k1][k2]
+        if tab in rec:
+            rec = rec[tab]
+        return rec.get(key, val)
 
     def depref(self, tables):
         if isinstance(tables, str):

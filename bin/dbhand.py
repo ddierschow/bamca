@@ -68,12 +68,15 @@ class DBHandler(object):
         return [f'{table}.{x}' for x in self.get_table_data(table).columns]
 
     def make_where(self, form, cols=None, prefix=""):
-        if not cols:
-            cols = form.keys()
         wheres = list()
-        for col in cols:
-            if prefix + col in form:
-                wheres.append(col + "='" + str(form.get(prefix + col, '')) + "'")
+        if isinstance(form, dict):
+            for col in cols or form:
+                if prefix + col in form:
+                    wheres.append(col + "='" + str(form.get(prefix + col, '')) + "'")
+        elif isinstance(form, list):
+            wheres.extend(form)
+        elif form:
+            wheres.append(form)
         return ' and '.join(wheres)
 
     def raw_execute(self, query, args=None, logargs=True, tag='RawExecute'):
@@ -202,7 +205,7 @@ class DBHandler(object):
         if newonly:
             return self.dbi.insert(table_name, values, args, logargs, tag=tag, verbose=verbose)
         elif modonly:
-            return self.dbi.update(table_name, values, where, args, logargs, tag=tag, verbose=verbose)
+            return self.dbi.update(table_name, values, self.make_where(where), args, logargs, tag=tag, verbose=verbose)
         else:
             return self.dbi.insert_or_update(table_name, values, args, logargs, tag=tag, verbose=verbose)
 
@@ -282,31 +285,37 @@ class DBHandler(object):
                               order='model_type', tag='BaseIdModelType'))
 
     def rename_base_id(self, old_mod_id, new_mod_id):
-        self.write('base_id', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True)
-        self.write('casting', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True)
-        self.write('pack', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True)
-        self.write('publication', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True)
-        self.write('alias', values={'ref_id': new_mod_id}, where=f"ref_id='{old_mod_id}'", modonly=True)
-        self.write('attribute', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('attribute_picture', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('casting_related', values={'model_id': new_mod_id}, where=f"model_id='{old_mod_id}'", modonly=True)
+        tag = 'RenameBaseId'
+        self.write('base_id', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('casting', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('pack', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('publication', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('alias', values={'ref_id': new_mod_id}, where=f"ref_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('attribute', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('attribute_picture', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'",
+                   modonly=True, tag=tag)
+        self.write('casting_related', values={'model_id': new_mod_id}, where=f"model_id='{old_mod_id}'",
+                   modonly=True, tag=tag)
         self.write('casting_related', values={'related_id': new_mod_id}, where=f"related_id='{old_mod_id}'",
-                   modonly=True)
-        self.write('detail', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('lineup_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('matrix_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('pack_model', values={'pack_id': new_mod_id}, where=f"pack_id='{old_mod_id}'", modonly=True)
-        self.write('pack_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('variation', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('variation_select', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
-        self.write('variation_select', values={'sec_id': new_mod_id}, where=f"sec_id='{old_mod_id}'", modonly=True)
-        self.write('box_type', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
+                   modonly=True, tag=tag)
+        self.write('detail', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('lineup_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('matrix_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('pack_model', values={'pack_id': new_mod_id}, where=f"pack_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('pack_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('variation', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('variation_select', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'",
+                   modonly=True, tag=tag)
+        self.write('variation_select', values={'sec_id': new_mod_id}, where=f"sec_id='{old_mod_id}'",
+                   modonly=True, tag=tag)
+        self.write('box_type', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
         self.write('link_line', values={'page_id': f'single.{new_mod_id}'}, where=f"page_id='single.{old_mod_id}'",
-                   modonly=True)
-        self.write('mbusa', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True)
+                   modonly=True, tag=tag)
+        self.write('mbusa', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
 
     def update_base_id(self, id, values):
-        return self.write('base_id', values=self.make_values('base_id', values), where=f"id='{id}'", modonly=True)
+        return self.write('base_id', values=self.make_values('base_id', values), where=f"id='{id}'", modonly=True,
+                          tag='UpdateBaseId')
 
     def add_new_base_id(self, values):
         return self.write('base_id', values=self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
@@ -364,13 +373,13 @@ class DBHandler(object):
         return self.fetch("base_id,casting,alias,section,page_info", where=wheres, extras=True, tag='Aliases')
 
     def update_alias(self, pk, values):
-        return self.write('alias', values=values, where=f"pk={pk}", modonly=True)
+        return self.write('alias', values=values, where=f"pk={pk}", modonly=True, tag='UpdateAlias')
 
     def add_alias(self, values):
-        return self.write('alias', values=values, newonly=True)
+        return self.write('alias', values=values, newonly=True, tag='AddAlias')
 
     def delete_alias(self, pk):
-        return self.delete('alias', f'pk={pk}')
+        return self.delete('alias', f'pk={pk}', tag='DeleteAlias')
 
     # - casting
 
@@ -649,7 +658,7 @@ class DBHandler(object):
         self.delete('attribute', self.make_where(where))
 
     def update_attribute(self, values, id):
-        self.write('attribute', values=values, where=self.make_where({'id': id}), modonly=True)
+        self.write('attribute', values=values, where=self.make_where({'id': id}), modonly=True, tag='UpdateAttr')
 
     def clone_attributes(self, old_mod_id, new_mod_id):
         # insert into attribute (mod_id, attribute_name, definition, title, flags) select 'MB900', attribute_name,
@@ -662,12 +671,13 @@ class DBHandler(object):
     def update_attribute_for_mod(self, mod_id, attr_name):
         rec = {"mod_id": mod_id, "attribute_name": attr_name,
                "title": attr_name.replace('_', ' ').title(), "definition": 'varchar(64)'}
-        return self.write("attribute", values=rec, where={"mod_id": mod_id, "attribute_name": attr_name}, modonly=True)
+        return self.write("attribute", values=rec, where={"mod_id": mod_id, "attribute_name": attr_name},
+                          modonly=True, tag='UpdateAttrForMod')
 
     def insert_attribute(self, mod_id, attr_name):
         rec = {"mod_id": mod_id, "attribute_name": attr_name,
                "title": attr_name.replace('_', ' ').title(), "definition": 'varchar(64)'}
-        return self.write("attribute", values=rec, newonly=True)
+        return self.write("attribute", values=rec, newonly=True, tag='InsertAttr')
 
     # - attribute_picture
 
@@ -876,7 +886,7 @@ class DBHandler(object):
         for attr in attribute_list:
             det = {'var_id': nvar['var'], 'mod_id': mod_id, 'attr_id': attr['attribute.id'],
                    'description': attributes.get(attr['attribute.attribute_name'], '')}
-            self.write('detail', values=det, newonly=True, verbose=verbose)
+            self.write('detail', values=det, newonly=True, verbose=verbose, tag='InsertVar')
 
     def update_variation_bare(self, var, verbose=False):
         where = {'mod_id': var.get('variation.mod_id', ''), 'var': var.get('variation.var', '')}
@@ -901,11 +911,11 @@ class DBHandler(object):
     # - variation_select
 
     def fetch_variation_selects_for_ref(self, ref_id, sec_id='', ran_id=''):
-        wheres = ["ref_id='%s'" % ref_id]
+        wheres = [f"ref_id='{ref_id}'"]
         if sec_id:
-            wheres.append("sec_id='%s'" % sec_id)
+            wheres.append(f"sec_id='{sec_id}'")
             if ran_id:
-                wheres.append("ran_id='%s'" % ran_id)
+                wheres.append(f"ran_id='{ran_id}'")
         return self.fetch('variation_select', where=wheres, tag='VariationSelectsForRef')
 
     def fetch_variation_selects(self, mod_id=None, var_id=None, ref_id=None, sec_id=None, ran_id=None, category=None,
@@ -965,12 +975,12 @@ class DBHandler(object):
     def update_variation_selects_for_variation(self, mod_id, var_id, ref_ids):
         self.delete('variation_select', where="mod_id='%s' and var_id='%s'" % (mod_id, var_id))
         for ref_id in ref_ids:
-            cat_id = sub_id = ran_id = ''
+            cat_id = sec_id = ran_id = ''
             if ref_id.find(':') >= 0:
                 ref_id, cat_id = ref_id.split(':', 1)
             if ref_id.find('/') >= 0:
-                ref_id, sub_id = ref_id.split('/', 1)
-            sec_id, ran_id = sub_id.split('.') if '.' in sub_id else (sub_id, '')
+                ref_id, sec_id = ref_id.split('/', 1)
+            sec_id, ran_id = sec_id.split('.') if '.' in sec_id else (sec_id, '')
             self.write('variation_select',
                        values={'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sec_id': sec_id,
                                'ran_id': ran_id, 'category': cat_id},
@@ -980,23 +990,24 @@ class DBHandler(object):
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):
         sec_id, ran_id = sub_id.split('.') if '.' in sub_id else (sub_id, '')
         self.write('variation_select', values={'sec_id': sec_id, 'ran_id': ran_id},
-                   where="ref_id='%s' and sec_id='%s' and ran_id='%s'" % (ref_id, sec_id, ran_id), modonly=True)
+                   where="ref_id='%s' and sec_id='%s' and ran_id='%s'" % (ref_id, sec_id, ran_id),
+                   modonly=True, tag='UpdateVarSelSubId')
 
     # some packs use ran_id and this might not work for them
-    def update_variation_select_pack(self, pms, page_id=None, sub_id=''):
-        if not sub_id or not page_id:
+    def update_variation_select_pack(self, pms, page_id=None, sec_id=''):
+        if not sec_id or not page_id:
             return
-        self.delete('variation_select', where="ref_id='%s' and sub_id='%s'" % (page_id, sub_id))
-        sec_id, ran_id = sub_id.split('.') if sub_id and '.' in sub_id else (sub_id, '')
+        self.delete('variation_select', where="ref_id='%s' and sec_id='%s'" % (page_id, sec_id))
+        sec_id, ran_id = sec_id.split('.') if sec_id and '.' in sec_id else (sec_id, '')
         for pm in pms:
             for var_id in list(set([x for x in pm['var_id'].split('/') if x])):
                 self.write('variation_select', values={'mod_id': pm['mod_id'], 'var_id': var_id, 'ref_id': page_id,
-                                                       'sec_id': pm['pack_id']}, newonly=True)
+                                                       'sec_id': pm['pack_id']}, newonly=True, tag='UpdateVarSelPack')
 
     # working through sub_id
-    def update_variation_selects_for_ref(self, mod_vars, ref_id='', sub_id='', category=''):
+    def update_variation_selects_for_ref(self, mod_vars, ref_id='', sec_id='', category=''):
         # mod vars is list of tuple (mod_id, var_id)
-        old_vs = self.fetch_variation_selects_for_ref(ref_id=ref_id, sub_id=sub_id)
+        old_vs = self.fetch_variation_selects_for_ref(ref_id=ref_id, sec_id=sec_id)
         for vs in old_vs:
             modvar = (vs['variation_select.mod_id'], vs['variation_select.var_id'])
             if modvar not in mod_vars:
@@ -1007,12 +1018,12 @@ class DBHandler(object):
                     self.write(
                         'variation_select',
                         values={'mod_id': vs['variation_select.mod_id'], 'var_id': vs['variation_select.var_id'],
-                                'ref_id': ref_id, 'sub_id': sub_id, 'category': category},
+                                'ref_id': ref_id, 'sec_id': sec_id, 'category': category},
                         where='id=%s' % vs['variation_select.id'], tag='UVSFRcat')
 
         for modvar in mod_vars:
             self.write('variation_select', values={'mod_id': modvar[0], 'var_id': modvar[1], 'ref_id': ref_id,
-                                                   'sub_id': sub_id, 'category': category}, newonly=True)
+                                                   'category': category}, newonly=True, tag='UVSFRcat2')
 
     def delete_variation_select(self, where):
         self.delete('variation_select', where=self.make_where(where))
@@ -1050,15 +1061,18 @@ class DBHandler(object):
         return mvars
 
     def update_detail(self, values, where, verbose=False):
-        return self.write('detail', values=values, where=self.make_where(where), modonly=True, verbose=verbose)
+        return self.write('detail', values=values, where=self.make_where(where), verbose=verbose, tag='UpdateDet')
+        # modonly=True,
 
     def update_details(self, mod_id, var_id, details, verbose=False):
         for attr, val in details.items():
             where = {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr}
-            self.update_detail({'description': val}, where=where)
+            det = {'description': val}
+            det.update(where)
+            self.update_detail(det, where=where)
 
     def add_or_update_detail(self, values, where, verbose=False):
-        return self.write('detail', values=values, where=self.make_where(where), verbose=verbose)
+        return self.write('detail', values=values, where=self.make_where(where), verbose=verbose, tag='AddOrUpdateDet')
 
     def delete_detail(self, where):
         return self.delete('detail', where=self.make_where(where))
@@ -1135,7 +1149,7 @@ class DBHandler(object):
         return self.delete('counter', self.make_where(where), tag='DeleteCounter')
 
     def set_health(self, page_id, verbose=False):
-        self.write('counter', values={'id': page_id}, newonly=True)
+        self.write('counter', values={'id': page_id}, newonly=True, tag='SetHealth')
         return self.increment('counter', ['health'], "id='%s'" % page_id, tag='SetHealth', verbose=verbose)
 
     def clear_health(self):
@@ -1255,8 +1269,9 @@ class DBHandler(object):
 
     def insert_lineup_model(self, values, newonly=True):
         # useful.write_message(values, '<br>')
-        self.write('lineup_model', values=self.make_values('lineup_model', values), newonly=newonly, verbose=True,
-                   tag='InsertLineupModel')
+        values = self.make_values('lineup_model', values)
+        del values['id']
+        self.write('lineup_model', values=values, newonly=newonly, verbose=True, tag='InsertLineupModel')
 
     def update_lineup_model(self, where, values, verbose=False):
         # useful.write_message(where, values, '<br>')
@@ -1447,14 +1462,15 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         return self.fetch('base_id,pack', where=wheres, tag='Packs')
 
     def add_new_pack(self, values):
-        return self.write('pack', values=values, newonly=True)
+        return self.write('pack', values=values, newonly=True, tag='AddNewPack')
 
     def insert_pack(self, pack_id, page_id=None):
         section_id = None
         if page_id:
             section_id = page_id[page_id.rfind('.') + 1:]
-        self.write('base_id', values={'id': pack_id}, newonly=True)
-        return self.write('pack', values={'id': pack_id, 'page_id': page_id, 'section_id': section_id}, newonly=True)
+        self.write('base_id', values={'id': pack_id}, newonly=True, tag='InsertPack')
+        return self.write('pack', values={'id': pack_id, 'page_id': page_id, 'section_id': section_id}, newonly=True,
+                          tag='InsertPack')
 
     def delete_pack(self, id):
         self.delete('pack', "id='%s'" % id)
@@ -1467,7 +1483,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         return self.fetch(tables, columns=cols, where=wheres, tag='PacksRelated')
 
     def update_pack(self, id, values):
-        self.write('pack', values=self.make_values('pack', values), where="id='%s'" % id, modonly=True)
+        self.write('pack', values=self.make_values('pack', values), where="id='%s'" % id, modonly=True, tag='UpdPack')
 
     # - pack_model
 
@@ -1478,11 +1494,11 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     def add_new_pack_models(self, pms):
         for pm in pms:
-            self.write('pack_model', values=pm)
+            self.write('pack_model', values=pm, tag='AddNewPackModels')
 
     def update_pack_models(self, pms):
         for pm in pms:
-            self.write('pack_model', values=pm, where="id=%s" % pm['id'])
+            self.write('pack_model', values=pm, where="id=%s" % pm['id'], tag='UpdatePackModels')
 
     def fetch_pack_model(self, id):
         return self.fetch('pack_model', where='id=%s' % id, tag='PackModel')
@@ -1849,7 +1865,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # ^prepend = prepended text
     # +append = appended text
     # #default if value is blank
-    def parse_detail_format(self, fmt):
+    def parse_detail_format(self, fmt, deco_type):
         attr_re = re.compile(r'%\((?P<a>[^)]*)\)s')
         is_opt = False
         attr_name = fmt_prepend = fmt_append = default = ''
@@ -1858,35 +1874,37 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             is_opt = True
             fmt = fmt[1:]
 
-        if fmt.find('#') >= 0:
+        if '#' in fmt:
             default = fmt[fmt.find('#') + 1:]
             fmt = fmt[:fmt.find('#')]
 
-        if fmt.find('+') >= 0:
+        if '+' in fmt:
             fmt_append = fmt[fmt.find('+') + 1:]
             fmt = fmt[:fmt.find('+')]
-        if fmt.find('^') >= 0:
+        if '^' in fmt:
             fmt_prepend = fmt[fmt.find('^') + 1:]
             fmt = fmt[:fmt.find('^')]
 
         if fmt.startswith('*'):
             attr_name = fmt[1:]
-            fmt = '%%(%s)s %s' % (attr_name, attr_name.replace('_', ' '))
+            title = self.titles.get(attr_name, {}).get(deco_type, attr_name.replace('_', ' '))
+            fmt = '%%(%s)s %s' % (attr_name, title)
         elif fmt.startswith('='):
             attr_name = fmt[1:]
-            fmt = '%s %%(%s)s' % (attr_name.replace('_', ' '), attr_name)
+            title = self.titles.get(attr_name, {}).get(deco_type, attr_name.replace('_', ' '))
+            fmt = '%s %%(%s)s' % (title, attr_name)
         elif fmt.startswith('&'):
             attr_name = fmt[1:]
             fmt = '%%(%s)s' % attr_name
         elif '%' in fmt:  # raw format
             # MI818 still needs this, at the least.
-            attr_m = attr_re.search(fmt)
-            if attr_m:
+            if attr_m := attr_re.search(fmt):
                 attr_name = attr_m.group('a')
         else:  # literal string
             attr_name = None
-        return attr_name, fmt, default, fmt_prepend, fmt_append, is_opt
+        return attr_name, f'{fmt_prepend} {fmt} {fmt_append}'.strip(), default, is_opt
 
+    titles = {'deco': dict(mbdata.deco_types)}
     # TODO: make front wheels / rear wheels combine when they are the same.
     # &front_wheels+on front|&rear_wheels+on rear|*hubs
     # &front_wheels+on front|&rear_wheels+on rear
@@ -1894,6 +1912,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # *front_wheels|&front_hubs+hubs|*rear_wheels|&rear_hubs+hubs
     # &front_wheels+on front
     # &front_wheels_hubs+on front|&rear_wheels_hubs+on rear
+
     def recalc_description(self, mod_id, showtexts=False, verbose=False):
         '''Main call to create text_* from format_* and attributes.'''
         # verbose = True
@@ -1906,7 +1925,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             def fmt_detail(fmt):
 
                 def fmt_subdetail(fmt):
-                    attr_name, fmt, default, fmt_prepend, fmt_append, is_opt = self.parse_detail_format(fmt)
+                    attr_name, fmt, default, is_opt = self.parse_detail_format(fmt, var['deco_type'])
                     if attr_name:
                         if attr_name not in var:
                             useful.write_debug_message('!', attr_name)
@@ -1914,8 +1933,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                         value = var.get(attr_name)
                         if not value or (is_opt and (value == 'no' or value == '-')):
                             return attr_name, default
-                    fmt = fmt_prepend + ' ' + fmt + ' ' + fmt_append
-                    return attr_name, fmt.strip()
+                    return attr_name, fmt
 
                 if fmt[0] == '@':
                     return [fmt_subdetail(subformat) for subformat in fmt[1:].split('/')]
@@ -1965,7 +1983,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         for cas_col in cas_cols:
             if casting.get(cas_col):
                 for fmt in casting[cas_col].split('|'):
-                    attr = self.parse_detail_format(fmt)[0]
+                    attr = self.parse_detail_format(fmt, 't')[0]
                     if attr and attr not in attributes:
                         messages += '%s ! %s %s%s\n' % (mod_id, cas_col, fmt, linesep)
                         missing.append(attr)

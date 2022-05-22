@@ -1,4 +1,6 @@
+import os
 import unittest
+
 import basics
 import tables
 
@@ -6,6 +8,7 @@ import tables
 class TestTables(unittest.TestCase):
 
     def setUp(self):
+        os.putenv('LOG_LEVEL', 'CRITICAL')
         self.pif = basics.get_page_info('year.1953', args="verbose=0")
 
     def test_main(self):

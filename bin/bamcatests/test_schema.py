@@ -1,5 +1,6 @@
-from __future__ import print_function
+import os
 import unittest
+
 import basics
 import tables
 
@@ -7,6 +8,7 @@ import tables
 class TestSchema(unittest.TestCase):
 
     def setUp(self):
+        os.putenv('LOG_LEVEL', 'CRITICAL')
         self.pif = basics.get_page_info('editor')
 
     def test_schema(self):

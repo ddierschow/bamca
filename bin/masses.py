@@ -38,13 +38,13 @@ def mass_main(pif):
 
 def mass_ask(pif):
     # header = '<form method="post">' + pif.create_token()
-    header = pif.render.format_form_start(method='post', token=pif.dbh.create_token())
+    header = pif.form.put_form_start(method='post', token=pif.dbh.create_token())
 
     rows = ['select', 'table', 'where', 'order']
-    entries = [{'title': row, 'value': pif.render.format_text_input(row, 256, 80)} for row in rows]
+    entries = [{'title': row, 'value': pif.form.put_text_input(row, 256, 80)} for row in rows]
 
-    footer = pif.render.format_hidden_input(verbose=1)
-    footer += pif.render.format_button_input()
+    footer = pif.form.put_hidden_input(verbose=1)
+    footer += pif.form.put_button_input()
     footer += "</form>"
     footer += mass_sections(pif)
 
@@ -59,16 +59,16 @@ def mass_select(pif):
     table_data = pif.dbh.get_table_data(pif.form.get_raw('table'))
     rows = pif.dbh.fetch(pif.form.get_raw('table'), columns=columns + table_data.id, where=pif.form.get_raw('where'),
                          order=pif.form.get_raw('order'), tag='mass_select')
-    header = pif.render.format_form_start(method='post', token=pif.dbh.create_token())
-    header += pif.render.format_hidden_input(table=pif.form.get_raw('table'),
+    header = pif.form.put_form_start(method='post', token=pif.dbh.create_token())
+    header += pif.form.put_hidden_input(table=pif.form.get_raw('table'),
                                              select=pif.form.get_raw('select'), verbose=1)
-    footer = pif.render.format_button_input("save") + "</form>"
+    footer = pif.form.put_button_input("save") + "</form>"
     entries = []
 
     for row in rows:
         entries.append({
             col: (row[col] if col in table_data.id else
-                  pif.render.format_text_input(col + "." + '.'.join([str(row[x]) for x in table_data.id]),
+                  pif.form.put_text_input(col + "." + '.'.join([str(row[x]) for x in table_data.id]),
                   256, 40, row[col])) for col in columns})
 
     lsection = render.Section(colist=columns, range=[render.Range(entry=entries)],
@@ -98,7 +98,7 @@ def mass_save(pif):
 
 
 def mass_type_reinput(pif):
-    return pif.render.format_hidden_input({'tymass': pif.form.get_raw('tymass')})
+    return pif.form.put_hidden_input({'tymass': pif.form.get_raw('tymass')})
 
 
 # ------- variation dates ------------------------------------------
@@ -144,50 +144,50 @@ def aliases_ask(pif):
     cols = ['pk', 'id', 'type', 'ref_id', 'first_year', 'primary', 'section_id', 'del']
     entries = [
         {
-            'pk': str(x['pk']) + pif.render.format_hidden_input(pk=x['pk']),
-            'id': pif.render.format_text_input("id." + str(x['pk']), 12, value=x['id']),
-            'type': pif.render.format_text_input("type." + str(x['pk']), 16, value=x['type']),
-            'ref_id': pif.render.format_text_input("ref_id." + str(x['pk']), 12, value=x['ref_id']),
-            'first_year': pif.render.format_text_input("first_year." + str(x['pk']), 4, value=x['first_year']),
-            'primary': pif.render.format_checkbox(
+            'pk': str(x['pk']) + pif.form.put_hidden_input(pk=x['pk']),
+            'id': pif.form.put_text_input("id." + str(x['pk']), 12, value=x['id']),
+            'type': pif.form.put_text_input("type." + str(x['pk']), 16, value=x['type']),
+            'ref_id': pif.form.put_text_input("ref_id." + str(x['pk']), 12, value=x['ref_id']),
+            'first_year': pif.form.put_text_input("first_year." + str(x['pk']), 4, value=x['first_year']),
+            'primary': pif.form.put_checkbox(
                 'primary.' + str(x['pk']), [('1', '')], checked=['1' if x['flags'] & 2 else '0']),
-            'section_id': pif.render.format_text_input("section_id." + str(x['pk']), 20, value=x['section_id']),
-            'del': pif.render.format_checkbox('del.' + str(x['pk']), [('1', '')]),
+            'section_id': pif.form.put_text_input("section_id." + str(x['pk']), 20, value=x['section_id']),
+            'del': pif.form.put_checkbox('del.' + str(x['pk']), [('1', '')]),
         } for x in aliases
     ]
     adds = [
         {
-            'id': pif.render.format_text_input("id.0", 12),
-            'first_year': pif.render.format_text_input("first_year.0", 4),
-            'ref_id': pif.render.format_text_input("ref_id.0", 12, value=mod_id),
-            'section_id': pif.render.format_text_input("section_id.0", 20),
-            'type': pif.render.format_text_input("type.0", 16),
-            'primary': pif.render.format_checkbox("primary.0", [('1', '')]),
+            'id': pif.form.put_text_input("id.0", 12),
+            'first_year': pif.form.put_text_input("first_year.0", 4),
+            'ref_id': pif.form.put_text_input("ref_id.0", 12, value=mod_id),
+            'section_id': pif.form.put_text_input("section_id.0", 20),
+            'type': pif.form.put_text_input("type.0", 16),
+            'primary': pif.form.put_checkbox("primary.0", [('1', '')]),
         }
     ]
     copys = [
         {
-            'mod id': pif.render.format_text_input("copy_id.0", 12),
+            'mod id': pif.form.put_text_input("copy_id.0", 12),
         }
     ]
 
-# {'title': "Section ID:", 'value': pif.render.format_text_input("section_id", 256, 80, value='single')},
-# {'title': "Associated Link:", 'value': pif.render.format_select('associated_link', [(0, '')] + [(x['link_line.id'],
+# {'title': "Section ID:", 'value': pif.form.put_text_input("section_id", 256, 80, value='single')},
+# {'title': "Associated Link:", 'value': pif.form.put_select('associated_link', [(0, '')] + [(x['link_line.id'],
 #  x['link_line.name']) for x in asslinks])},
-# {'title': '', 'value': pif.render.format_button_input()},
+# {'title': '', 'value': pif.form.put_button_input()},
 
     # header = '<form name="mass" action="mass.cgi">' + pif.create_token()
-    header = pif.render.format_form_start(name='mass', action='mass.cgi', token=pif.dbh.create_token())
-    header += 'Mod ID: ' + mod_id + pif.render.format_hidden_input(mod_id=mod_id)
+    header = pif.form.put_form_start(name='mass', action='mass.cgi', token=pif.dbh.create_token())
+    header += 'Mod ID: ' + mod_id + pif.form.put_hidden_input(mod_id=mod_id)
     footer = mass_type_reinput(pif) + "</form><p>"
 
     lsections = [
         render.Section(colist=cols, range=[render.Range(entry=entries)], header=header,
-                       footer=pif.render.format_button_input('save') + footer),
+                       footer=pif.form.put_button_input('save') + footer),
         render.Section(colist=cols, range=[render.Range(entry=adds)], header=header,
-                       footer=pif.render.format_button_input('add') + footer),
+                       footer=pif.form.put_button_input('add') + footer),
         render.Section(colist=['mod id'], range=[render.Range(entry=copys)], header=header,
-                       footer=pif.render.format_button_input('copy') + footer),
+                       footer=pif.form.put_button_input('copy') + footer),
     ]
     return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
@@ -289,14 +289,14 @@ def add_lineup_main(pif):
 
 def add_lineup_ask(pif):
     # header = '<form action="mass.cgi">' + pif.create_token()
-    header = pif.render.format_form_start(action='mass.cgi', token=pif.dbh.create_token())
+    header = pif.form.put_form_start(action='mass.cgi', token=pif.dbh.create_token())
     entries = [
-        {'title': 'Number of models:', 'value': pif.render.format_text_input("num", 8, 8)},
-        {'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4)},
-        {'title': 'Region:', 'value': pif.render.format_text_input("region", 4, 4)},
-        {'title': 'Model List File:', 'value': pif.render.format_text_input("models", 80, 80)},
+        {'title': 'Number of models:', 'value': pif.form.put_text_input("num", 8, 8)},
+        {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4)},
+        {'title': 'Region:', 'value': pif.form.put_text_input("region", 4, 4)},
+        {'title': 'Model List File:', 'value': pif.form.put_text_input("models", 80, 80)},
         {'title': '', 'value': 'bar file: num|man_id|style|name'},
-        {'title': '', 'value': pif.render.format_button_input()},
+        {'title': '', 'value': pif.form.put_button_input()},
     ]
     footer = mass_type_reinput(pif)
     footer += "</form>"
@@ -360,37 +360,37 @@ def add_lineup_list(pif):
     region = pif.form.get_raw('region')
 
     entries = [
-        {'title': 'Page ID:', 'value': pif.render.format_text_input("page_id", 20, 20, value='year.%s' % year)},
-        {'title': 'Year:', 'value': pif.render.format_text_input("year", 20, 20, value=year)},
-        {'title': 'Region:', 'value': pif.render.format_text_input("region", 4, 4, value=region)},
-        {'title': 'Picture Directory:', 'value': pif.render.format_text_input("picdir", 80, 80)},
-        {'title': 'Section Title:', 'value': pif.render.format_text_input(
+        {'title': 'Page ID:', 'value': pif.form.put_text_input("page_id", 20, 20, value=f'year.{year}')},
+        {'title': 'Year:', 'value': pif.form.put_text_input("year", 20, 20, value=year)},
+        {'title': 'Region:', 'value': pif.form.put_text_input("region", 4, 4, value=region)},
+        {'title': 'Picture Directory:', 'value': pif.form.put_text_input("picdir", 80, 80)},
+        {'title': 'Section Title:', 'value': pif.form.put_text_input(
             "sec_title", 80, 80, value='Matchbox %s %s Lineup' % (year, mbdata.regions[region]))},
-        {'title': 'Link Format:', 'value': pif.render.format_text_input(
+        {'title': 'Link Format:', 'value': pif.form.put_text_input(
             "link_fmt", 20, 20, value='%s%s%%03d' % (year[2:], region.lower()))},
-        {'title': 'Columns:', 'value': pif.render.format_text_input("cols", 1, 1)},
-        {'title': '', 'value': pif.render.format_button_input('save')},
+        {'title': 'Columns:', 'value': pif.form.put_text_input("cols", 1, 1)},
+        {'title': '', 'value': pif.form.put_button_input('save')},
     ]
     lsections = [render.Section(
         colist=['title', 'value'], range=[render.Range(entry=entries)], note='Page and Section', noheaders=True,
-        header=pif.render.format_form_start(action='mass.cgi', token=pif.dbh.create_token()))]
+        header=pif.form.put_form_start(action='mass.cgi', token=pif.dbh.create_token()))]
     entries = []
     for cnt, mod, style_id, name in modlist:
         cnt = int(cnt)
         mod = mod.strip()
         entries.append({
-            'number': "%s" % cnt,
-            'mod_id': pif.render.format_text_input("mod_id.%d" % cnt, 12, 12, value=mod),
-            'style_id': pif.render.format_text_input("style_id.%d" % cnt, 3, 3, value=style_id),
-            'name': pif.render.format_text_input("name.%d" % cnt, 64, 64, value=name),
+            'number': str(cnt),
+            'mod_id': pif.form.put_text_input(f"mod_id.{cnt}", 12, 12, value=mod),
+            'style_id': pif.form.put_text_input(f"style_id.{cnt}", 3, 3, value=style_id),
+            'name': pif.form.put_text_input(f"name.{cnt}", 64, 64, value=name),
         })
 #    for cnt in range(0, num_models):
 #        name = modlist.pop(0)
 #        entries.append({
 #            'number': "%s" % (cnt + 1),
-#            'mod_id': pif.render.format_text_input("mod_id.%d" % (cnt + 1), 12, 12, value=castings.get(name, '')),
-#            'style_id': pif.render.format_text_input("style_id.%d" % (cnt + 1), 3, 3, value='0'),
-#            'name': pif.render.format_text_input("name.%d" % (cnt + 1), 64, 64, value=name),
+#            'mod_id': pif.form.put_text_input("mod_id.%d" % (cnt + 1), 12, 12, value=castings.get(name, '')),
+#            'style_id': pif.form.put_text_input("style_id.%d" % (cnt + 1), 3, 3, value='0'),
+#            'name': pif.form.put_text_input("name.%d" % (cnt + 1), 64, 64, value=name),
 #        })
     footer = mass_type_reinput(pif)
     footer += "</form>"
@@ -423,11 +423,11 @@ def add_lm_ask(pif):
     header = '<form action="mass.cgi">' + pif.create_token()
     colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
     entries = [
-        {'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4)},
-        {'title': 'Number:', 'value': pif.render.format_text_input("number", 4, 4)},
-        {'title': 'Mod ID:', 'value': pif.render.format_text_input("mod_id", 24, 4)},
-        {'title': 'Style:', 'value': pif.render.format_select("style_id", colors)},
-        {'title': '', 'value': pif.render.format_button_input()},
+        {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4)},
+        {'title': 'Number:', 'value': pif.form.put_text_input("number", 4, 4)},
+        {'title': 'Mod ID:', 'value': pif.form.put_text_input("mod_id", 24, 4)},
+        {'title': 'Style:', 'value': pif.form.put_select("style_id", colors)},
+        {'title': '', 'value': pif.form.put_button_input()},
     ]
     footer = mass_type_reinput(pif)
     footer += "</form>"
@@ -452,20 +452,20 @@ def add_lm_enter(pif):
     colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
     regions = [x.id for x in secs]
     entries = [
-        {'title': 'Page ID:', 'value': pif.render.format_text_input("page_id", 32, 32, value='year.%s' % year)},
-        {'title': 'Mod ID:', 'value': pif.render.format_text_input("mod_id", 24, 24, value=mod_id)},
-        {'title': 'Number:', 'value': pif.render.format_text_input("number", 4, 4, value=number)},
-        {'title': 'Display Order:', 'value': pif.render.format_text_input("display_order", 4, 4, value='0')},
+        {'title': 'Page ID:', 'value': pif.form.put_text_input("page_id", 32, 32, value=f'year.{year}')},
+        {'title': 'Mod ID:', 'value': pif.form.put_text_input("mod_id", 24, 24, value=mod_id)},
+        {'title': 'Number:', 'value': pif.form.put_text_input("number", 4, 4, value=number)},
+        {'title': 'Display Order:', 'value': pif.form.put_text_input("display_order", 4, 4, value='0')},
         {'title': 'Flags:', 'value':
-            pif.render.format_checkbox('flags', tab.bits['flags'], useful.bit_list(0, format='%04x'))},
+            pif.form.put_checkbox('flags', tab.bits['flags'], useful.bit_list(0, format='%04x'))},
         {'title': 'Style:', 'value':
-            pif.render.format_select("style_id", colors, selected=pif.form.get_raw('style_id'))},
-        {'title': 'Picture ID:', 'value': pif.render.format_text_input("picture_id", 12, 12, value='')},
-        {'title': 'Region:', 'value': pif.render.format_checkbox('region', zip(regions, regions), checked=regions)},
-        {'title': 'Year:', 'value': pif.render.format_text_input("year", 6, 6, value=year)},
-        {'title': 'Name:', 'value': pif.render.format_text_input("name", 64, 64, value=mod['name'])},
-        # {'title': 'Variation:', 'value': pif.render.format_text_input("var", 8, 8)},
-        {'title': '', 'value': pif.render.format_button_input('save')},
+            pif.form.put_select("style_id", colors, selected=pif.form.get_raw('style_id'))},
+        {'title': 'Picture ID:', 'value': pif.form.put_text_input("picture_id", 12, 12, value='')},
+        {'title': 'Region:', 'value': pif.form.put_checkbox('region', zip(regions, regions), checked=regions)},
+        {'title': 'Year:', 'value': pif.form.put_text_input("year", 6, 6, value=year)},
+        {'title': 'Name:', 'value': pif.form.put_text_input("name", 64, 64, value=mod['name'])},
+        # {'title': 'Variation:', 'value': pif.form.put_text_input("var", 8, 8)},
+        {'title': '', 'value': pif.form.put_button_input('save')},
     ]
 
     columns = ['title', 'value']
@@ -500,26 +500,26 @@ def add_casting_main(pif):
         return add_casting_final(pif)
 
     entries = [
-        {'title': "ID:", 'value': pif.render.format_text_input("id", 8, 8, value=f'{pif.form.get_raw("id")}')},
-        {'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
-        {'title': 'Model Type:', 'value': pif.render.format_select(
+        {'title': "ID:", 'value': pif.form.put_text_input("id", 8, 8, value=f'{pif.form.get_raw("id")}')},
+        {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
+        {'title': 'Model Type:', 'value': pif.form.put_select(
             'model_type', [x.model_type for x in pif.dbh.fetch_base_id_model_types()], selected='SF')},
-        {'title': 'Name:', 'value': pif.render.format_text_input("rawname", 80, 80, value='')},
-        {'title': 'Description:', 'value': pif.render.format_text_input("description", 80, 80, value='')},
+        {'title': 'Name:', 'value': pif.form.put_text_input("rawname", 80, 80, value='')},
+        {'title': 'Description:', 'value': pif.form.put_text_input("description", 80, 80, value='')},
         {'title': 'Flags:', 'value':
-            pif.render.format_checkbox('notmade', [('not', 'Not Made')]) +
-            pif.render.format_checkbox('revised', [('is', 'Revised')])},
-        {'title': 'Country:', 'value': pif.render.format_select_country('country')},
-        {'title': 'Make:', 'value': pif.render.format_select(
+            pif.form.put_checkbox('notmade', [('not', 'Not Made')]) +
+            pif.form.put_checkbox('revised', [('is', 'Revised')])},
+        {'title': 'Country:', 'value': pif.form.put_select_country('country')},
+        {'title': 'Make:', 'value': pif.form.put_select(
             'make', [('unl', 'MBX')] + [(x['vehicle_make.id'], x['vehicle_make.name'])
                                         for x in pif.dbh.fetch_vehicle_makes()], blank='')},
-        {'title': 'Section:', 'value': pif.render.format_select(
+        {'title': 'Section:', 'value': pif.form.put_select(
             'section_id', [(x['section.id'], x['section.name'])
                            for x in pif.dbh.fetch_sections(where="page_id like 'man%'")],
             selected=pif.form.get_raw('section_id'))},
-        {'title': 'Attributes:', 'value': pif.render.format_text_input('attributes', 80, 80)},
-        {'title': 'Mack:', 'value': pif.render.format_text_input('mack', 8, 8)},
-        {'title': '', 'value': pif.render.format_button_input('save')},
+        {'title': 'Attributes:', 'value': pif.form.put_text_input('attributes', 80, 80)},
+        {'title': 'Mack:', 'value': pif.form.put_text_input('mack', 8, 8)},
+        {'title': '', 'value': pif.form.put_button_input('save')},
     ]
 
     header = '<form name="mass" action="mass.cgi">' + pif.create_token()
@@ -531,16 +531,17 @@ def add_casting_main(pif):
 
 
 def add_casting_final(pif):
+    casting_id = pif.form.get_raw('id')
     ostr = str(pif.form.get_form()) + '<br>\n'
     if pif.duplicate_form:
         print('duplicate form submission detected')
     else:
-        if pif.dbh.fetch_base_id(pif.form.get_raw('id')):
+        if pif.dbh.fetch_base_id(casting_id):
             raise useful.SimpleError("That ID is already in use.")
         # base_id: id, first_year, model_type, rawname, description, flags
         # casting: id, country, make, section_id
         ostr += str(pif.dbh.add_new_base_id({
-            'id': pif.form.get_raw('id'),
+            'id': casting_id,
             'first_year': pif.form.get_raw('year'),
             'model_type': pif.form.get_raw('model_type'),
             'rawname': pif.form.get_raw('rawname'),
@@ -549,22 +550,22 @@ def add_casting_final(pif):
                       (config.FLAG_MODEL_CASTING_REVISED if pif.form.get_raw('revised') == 'is' else 0)),
         })) + '<br>\n'
         ostr += str(pif.dbh.add_new_casting({
-            'id': pif.form.get_raw('id'),
+            'id': casting_id,
             'country': pif.form.get_raw('country'),
             'make': pif.form.get_raw('make'),
             'section_id': pif.form.get_raw('section_id'),
             'notes': '',
         })) + '<br>\n'
-        mannum.add_attributes(pif, pif.form.get_raw('id'), *pif.form.get_raw('attributes').split(' '))
+        mannum.add_attributes(pif, casting_id, *pif.form.get_raw('attributes').split(' '))
         if pif.form.get_raw('make'):
             ostr += str(pif.dbh.add_casting_make(
-                mod_id=pif.form.get_raw('id'), make_id=pif.form.get_raw('make'), verbose=True)) + '<br>\n'
+                mod_id=casting_id, make_id=pif.form.get_raw('make'), verbose=True)) + '<br>\n'
         if pif.form.get_raw('mack'):
             ostr += str(pif.dbh.add_alias(
                 {'id': pif.form.get_raw('mack'), 'first_year': pif.form.get_raw('year'),
-                 'ref_id': pif.form.get_raw('id'), 'type': 'mack', 'flags': 2})) + '<br>\n'
+                 'ref_id': casting_id, 'type': 'mack', 'flags': 2})) + '<br>\n'
     print(pif.render.format_template('blank.html', content=ostr))
-    raise useful.Redirect('single.cgi?id=%s' % pif.form.get_raw('id'))
+    raise useful.Redirect(f'single.cgi?id={casting_id}')
 
 
 # ------- add pub -------------------------------------------------
@@ -574,19 +575,19 @@ def add_pub_main(pif):
     if pif.form.has('save'):
         return add_pub_final(pif)
     entries = [
-        {'title': "ID:", 'value': pif.render.format_text_input("id", 8, 8, value='')},
-        {'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
-        {'title': 'Model Type:', 'value': pif.render.format_select('model_type', sorted(
+        {'title': "ID:", 'value': pif.form.put_text_input("id", 8, 8, value='')},
+        {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
+        {'title': 'Model Type:', 'value': pif.form.put_select('model_type', sorted(
             mbdata.model_type_names.items()), selected='BK')},
-        {'title': 'Name:', 'value': pif.render.format_text_input("rawname", 80, 80, value='')},
-        {'title': 'Description:', 'value': pif.render.format_text_input("description", 80, 80, value='')},
-        {'title': 'Made:', 'value': pif.render.format_checkbox('notmade', [('not', 'not')])},
-        {'title': 'Country:', 'value': pif.render.format_select_country('country')},
-        {'title': 'ISBN:', 'value': pif.render.format_text_input("isbn", 20, 20, value='')},
-        # {'title': 'Section:', 'value': pif.render.format_select('section_id', [
+        {'title': 'Name:', 'value': pif.form.put_text_input("rawname", 80, 80, value='')},
+        {'title': 'Description:', 'value': pif.form.put_text_input("description", 80, 80, value='')},
+        {'title': 'Made:', 'value': pif.form.put_checkbox('notmade', [('not', 'not')])},
+        {'title': 'Country:', 'value': pif.form.put_select_country('country')},
+        {'title': 'ISBN:', 'value': pif.form.put_text_input("isbn", 20, 20, value='')},
+        # {'title': 'Section:', 'value': pif.form.put_select('section_id', [
         #     (x['section.id'], x['section.name']) for x in pif.dbh.fetch_sections(where="page_id like 'man%'")],
         #     selected=pif.form.get_raw('section_id'))},
-        {'title': '', 'value': pif.render.format_button_input('save')},
+        {'title': '', 'value': pif.form.put_button_input('save')},
     ]
 
     header = '<form name="mass" action="mass.cgi">' + pif.create_token()
@@ -640,7 +641,7 @@ def add_var_main(pif):
 
 
 def add_var_ask(pif):
-    header = pif.render.format_form_start(token=pif.dbh.create_token())
+    header = pif.form.put_form_start(token=pif.dbh.create_token())
 
     rows = [
         ('Man ID:', "mod_id", pif.form.get_raw('mod_id')),
@@ -649,13 +650,13 @@ def add_var_ask(pif):
         ('Copy From:', "copy", ''),
         ('Imported From:', "imported_from", 'mbusa'),
     ]
-    entries = [{'title': x[0], 'value': pif.render.format_text_input(x[1], 8, 8, value=x[2])} for x in rows]
+    entries = [{'title': x[0], 'value': pif.form.put_text_input(x[1], 8, 8, value=x[2])} for x in rows]
 
-    footer = pif.render.format_button_input('submit')
+    footer = pif.form.put_button_input('submit')
     footer += mass_type_reinput(pif)
     footer += "<form>"
-    footer += pif.render.format_button('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
-    footer += pif.render.format_button('casting', '/cgi-bin/mass.cgi?tymass=casting')
+    footer += pif.render.format_button_link('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
+    footer += pif.render.format_button_link('casting', '/cgi-bin/mass.cgi?tymass=casting')
 
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                               header=header, footer=footer)
@@ -663,16 +664,17 @@ def add_var_ask(pif):
 
 
 var_id_columns = ['mod_id', 'var']
-var_attr_columns = ['body', 'base', 'windows', 'interior']
+var_attr_columns = ['body', 'base', 'windows', 'interior', 'deco']
 var_data_columns = ['category', 'note', 'additional_text', 'manufacture', 'area', 'date',
                     'imported_from', 'imported_var', 'references']
-var_record_columns = var_id_columns + var_attr_columns + var_data_columns
+var_record_columns = var_id_columns + var_attr_columns + var_data_columns + ['deco_type']
 
 
 def add_var_info(pif):
     mod_id = pif.form.get_raw('mod_id')
     date = pif.form.get_raw('date')
     mod = pif.dbh.fetch_casting(mod_id)
+    var_id = pif.form.get_raw('var')
     if not mod:
         mod = pif.dbh.fetch_casting_by_id_or_alias(mod_id)
         if not mod:
@@ -683,7 +685,7 @@ def add_var_info(pif):
     mod_id = mod['id']
     img = pif.render.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM,
                                            also={'style': 'float: right;'})
-    var_id = mbdata.normalize_var_id(mod, pif.form.get_raw('var'))
+    var_id = mbdata.normalize_var_id(mod, var_id)
     attrs = pif.dbh.fetch_attributes(mod_id)
     attr_names = [x['attribute.attribute_name'] for x in attrs]
     var = pif.dbh.fetch_variation(mod_id, var_id) or {}
@@ -717,9 +719,9 @@ def add_var_info(pif):
     header += ' '.join(x['alias.id'] for x in aliases) + '<br>'
     header += '<form onsubmit="save.disabled=true; return true;">' + pif.create_token()
     if var:
-        header += 'revising' + pif.render.format_hidden_input(store='update')
+        header += 'revising' + pif.form.put_hidden_input(store='update')
     else:
-        header += 'creating' + pif.render.format_hidden_input(store='insert')
+        header += 'creating' + pif.form.put_hidden_input(store='insert')
 
     entries = []
     defs = {'mod_id': mod_id,
@@ -734,16 +736,18 @@ def add_var_info(pif):
             val = var.get(col) if var and var.get(col) else defs.get(col, '')
             entries.append(
                 {'title': col, 'value': val, 'input':
-                 pif.render.format_select(col, sorted(cats), val, blank='') if col == 'category' else
-                 pif.render.format_select(col, sorted(plants), val, blank='') if col == 'manufacture' else
-                 pif.render.format_text_input(col, 64, 32, value=val)})
+                 pif.form.put_text_input(col, 64, 32, value=val) +
+                 pif.form.put_select('deco_type', mbdata.deco_types, var.get('deco_type')) if col == 'deco' else
+                 pif.form.put_select(col, sorted(cats), val, blank='') if col == 'category' else
+                 pif.form.put_select(col, sorted(plants), val, blank='') if col == 'manufacture' else
+                 pif.form.put_text_input(col, 64, 32, value=val)})
         else:
             entries.append({})
-    footer = pif.render.format_button_input('save')
+    footer = pif.form.put_button_input('save')
     footer += mass_type_reinput(pif)
-    footer += pif.render.format_button('casting', f'/cgi-bin/single.cgi?id={mod_id}')
-    footer += pif.render.format_button('vars', f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}')
-    footer += pif.render.format_button('search', f'/cgi-bin/vsearch.cgi?ask=1&id={mod_id}')
+    footer += pif.render.format_button_link('casting', f'/cgi-bin/single.cgi?id={mod_id}')
+    footer += pif.render.format_button_link('vars', f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}')
+    footer += pif.render.format_button_link('search', f'/cgi-bin/vsearch.cgi?ask=1&id={mod_id}')
     footer += "</form>"
 
     for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
@@ -819,7 +823,7 @@ def show_all_casting_related(pif):
     print('<form action="mass.cgi" onsubmit="save.disabled=true; return true;">' + pif.create_token())
     print('<table border=1>')
     print(mass_type_reinput(pif))
-    print(pif.render.format_hidden_input(section_id=section_id))
+    print(pif.form.put_hidden_input(section_id=section_id))
     cnt = 0
     for cr in crd_m:
         cnt += 1
@@ -856,7 +860,7 @@ def show_all_casting_related(pif):
             cnt, crd_m[cr].get('casting_related.section_id', '')))
         print('</tr>')
     print('</table>')
-    print(pif.render.format_button_input('save'))
+    print(pif.form.put_button_input('save'))
     print('</form><hr>')
     print(pif.render.format_tail())
 
@@ -865,9 +869,9 @@ def edit_casting_related_ask(pif):
     useful.write_message('edit_casting_related_ask')
     header = '<form action="mass.cgi">' + pif.create_token()
     entries = [
-        {'title': 'Model:', 'value': pif.render.format_text_input("mod_id", 16, 16)},
-        {'title': '', 'value': pif.render.format_button_input()},
-        {'title': '', 'value': pif.render.format_button("show all", "mass.cgi?tymass=related&show_all=1")},
+        {'title': 'Model:', 'value': pif.form.put_text_input("mod_id", 16, 16)},
+        {'title': '', 'value': pif.form.put_button_input()},
+        {'title': '', 'value': pif.render.format_button_link("show all", "mass.cgi?tymass=related&show_all=1")},
     ]
     footer = mass_type_reinput(pif)
     footer += "</form>"
@@ -931,13 +935,13 @@ def edit_casting_related(pif):
 
     def show_rel(num, cr):
         print('<td>', cr.get('casting_related.id', ''))
-        print(pif.render.format_hidden_input({f'i.{num}': cr.get('casting_related.id', 0)}), '</td>')
+        print(pif.form.put_hidden_input({f'i.{num}': cr.get('casting_related.id', 0)}), '</td>')
         for tag, key, wid in [
                 ('m', 'casting_related.model_id', 12),
                 ('r', 'casting_related.related_id', 12),
                 ('d', 'casting_related.description', 256),
                 ('f', 'casting_related.flags', 4)]:
-            print('<td>', pif.render.format_text_input(
+            print('<td>', pif.form.put_text_input(
                 f'{tag}.{num}', wid, min(wid, 48), value=str(cr.get(key, '0' if tag == 'f' else ''))), '</td>')
 
     print('<form name="edit" method="post" action="mass.cgi">' + pif.create_token())
@@ -966,13 +970,13 @@ def edit_casting_related(pif):
             print('<td colspan=4></td>')
         print('</tr>')
         print('<tr>')
-        print('<td>%s</td>' % pif.render.format_checkbox('rev', [(str(num), 'R')], checked=revised))
+        print('<td>%s</td>' % pif.form.put_checkbox('rev', [(str(num), 'R')], checked=revised))
         if rel_id in crd_r:
             print('<td colspan=4>%s</td>' % pif.render.format_image_required(
                 mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL))
         else:
             print('<td colspan=4></td>')
-        print('<td>%s</td>' % pif.render.format_checkbox('rev', [(str(num + 1), 'R')], checked=revised))
+        print('<td>%s</td>' % pif.form.put_checkbox('rev', [(str(num + 1), 'R')], checked=revised))
         if rel_id in crd_m:
             print('<td colspan=4>%s</td>' % pif.render.format_image_required(
                 rel_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL))
@@ -993,17 +997,17 @@ def edit_casting_related(pif):
         num += 1
     print('</table>')
 
-    print(pif.render.format_button_input('save'))
-    print(pif.render.format_hidden_input(mod_id=pif.form.get_raw('mod_id')))
+    print(pif.form.put_button_input('save'))
+    print(pif.form.put_hidden_input(mod_id=pif.form.get_raw('mod_id')))
     print(mass_type_reinput(pif))
-    print(pif.render.format_hidden_input({'section_id': section_id}))
+    print(pif.form.put_hidden_input({'section_id': section_id}))
     print('</form><hr>')
     if pif.form.has('mod_id'):
         print('<form name="add" action="mass.cgi" onsubmit="add.disabled=true; return true;">' + pif.create_token())
-        print(pif.render.format_hidden_input({'mod_id': pif.form.get_raw('mod_id'), 'tymass': 'related'}))
-        print(pif.render.format_text_input('r', 12))
-        print(pif.render.format_button_input('add'))
-        print(pif.render.format_hidden_input({'section_id': section_id}))
+        print(pif.form.put_hidden_input({'mod_id': pif.form.get_raw('mod_id'), 'tymass': 'related'}))
+        print(pif.form.put_text_input('r', 12))
+        print(pif.form.put_button_input('add'))
+        print(pif.form.put_hidden_input({'section_id': section_id}))
         print('</form>')
     print(pif.render.format_tail())
 
@@ -1030,15 +1034,15 @@ def add_pack_ask(pif):
         pid = pid[pid.find('.') + 1:]
     header = '<form action="mass.cgi">' + pif.create_token()
     entries = [
-        {'title': 'Section ID:', 'value': pif.render.format_text_input("section_id", 12, 12, value=pid)},
-        {'title': 'Pack ID:', 'value': pif.render.format_text_input("pack", 12, 12)},
-        {'title': 'Var ID:', 'value': pif.render.format_text_input("var", 12, 12)},
+        {'title': 'Section ID:', 'value': pif.form.put_text_input("section_id", 12, 12, value=pid)},
+        {'title': 'Pack ID:', 'value': pif.form.put_text_input("pack", 12, 12)},
+        {'title': 'Var ID:', 'value': pif.form.put_text_input("var", 12, 12)},
         {'title': 'Number of Models:',
-         'value': pif.render.format_text_input("num", 4, 4, value=pif.form.get_raw('num'))},
-        {'title': '', 'value': pif.render.format_button_input()},
+         'value': pif.form.put_text_input("num", 4, 4, value=pif.form.get_raw('num'))},
+        {'title': '', 'value': pif.form.put_button_input()},
     ]
     footer = mass_type_reinput(pif)
-    footer += pif.render.format_hidden_input({'verbose': '1'})
+    footer += pif.form.put_hidden_input({'verbose': '1'})
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
                               header=header, footer=footer)
@@ -1118,8 +1122,8 @@ def add_pack_form(pif):
             'pack.note': '',
         }
 
-    header += pif.render.format_button("edit", f"imawidget.cgi?d=.{config.IMG_DIR_PROD_PACK}&f={pack_id}.jpg")
-    header += pif.render.format_button("upload", "upload.cgi?d=.%s&n=%s" % (
+    header += pif.render.format_button_link("edit", f"imawidget.cgi?d=.{config.IMG_DIR_PROD_PACK}&f={pack_id}.jpg")
+    header += pif.render.format_button_link("upload", "upload.cgi?d=.%s&n=%s" % (
         config.IMG_DIR_PROD_PACK.replace('pic', 'lib'), pack_id))
     header += '%(pack.page_id)s/%(pack.id)s<br>' % pack
     header += '/'.join(pack_img) + '<br>'
@@ -1152,7 +1156,7 @@ def add_pack_form(pif):
     llistix.section.append(entry_form(pif, 'pack', pack))
     llistix.section.append(entry_form(
         pif, 'lineup_model', linmod,
-        note=pif.render.format_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['lineup_model.id'] else [])))
+        note=pif.form.put_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['lineup_model.id'] else [])))
     llistix.section[-1].header = 'in use: %s<br>\n' % ', '.join(x_linmods) + llistix.section[-1].header
 
     # editor
@@ -1162,13 +1166,13 @@ def add_pack_form(pif):
     # related
     relateds = pif.dbh.fetch_packs_related(pack_id)
     footer = 'related '
-    footer += pif.render.format_button('edit', link='?tymass=related&section_id=packs&mod_id=%s' % pack_id)
+    footer += pif.render.format_button_link('edit', '?tymass=related&section_id=packs&mod_id=%s' % pack_id)
     footer += '<br>\n'
     for rel in relateds:
         footer += rel['pack.id'] + '<br>\n'
 
-    footer += pif.render.format_button_input("save")
-    footer += pif.render.format_button_input("delete")
+    footer += pif.form.put_button_input("save")
+    footer += pif.form.put_button_input("delete")
     footer += '</form>'
     llistix.section[-1].footer = footer
 
@@ -1196,19 +1200,19 @@ def add_pack_model(pif, pack, long_pack_id):
     entries = [
         {
             'mod':
-                pif.render.format_hidden_input({'pm.id.%s' % key: mod.get('pack_model.id', '0'),
+                pif.form.put_hidden_input({'pm.id.%s' % key: mod.get('pack_model.id', '0'),
                                                 'pm.pack_id.%s' % key: long_pack_id}) +
                 pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
                                        mod.get('pack_model.mod_id', '')) + ' ' +
-                pif.render.format_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
-            'var': 'var ' + pif.render.format_text_input(
+                pif.form.put_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
+            'var': 'var ' + pif.form.put_text_input(
                 "pm.var_id.%s" % key, 80, 20,
                 value='{} ({})'.format('/'.join(list(set(mod.get('vars', '')))),
                                        mod.get('pack_model.var_id', ''))),
-            'disp': 'disp ' + pif.render.format_text_input(
+            'disp': 'disp ' + pif.form.put_text_input(
                 "pm.display_order.%s" % key, 2, 2, value=mod.get('pack_model.display_order', '')),
-            'edit': pif.render.format_button(
-                'edit', link=pif.dbh.get_editor_link('pack_model',
+            'edit': pif.render.format_button_link(
+                'edit', pif.dbh.get_editor_link('pack_model',
                                                      pif.dbh.make_id('pack_model', mod, 'pack_model' + '.'))),
         } for key, mod in sorted(pmodels.items())]
     return dict(colist=cols, range=[{'entry': entries}], noheaders=True, header='pack_model<br>')
@@ -1313,17 +1317,17 @@ def entry_form(pif, tab, dat, div_id=None, note=''):
     paren_re = re.compile(r'''\((?P<n>\d*)\)''')
     if not div_id:
         div_id = tab
-    header = tab + ' ' + pif.render.format_button('edit', link=pif.dbh.get_editor_link(
+    header = tab + ' ' + pif.render.format_button_link('edit', pif.dbh.get_editor_link(
         tab, pif.dbh.make_id(tab, dat, tab + '.')))
-    header += pif.render.format_button_input_visibility(div_id) + ' ' + note + '<br>'
+    header += pif.form.put_button_input_visibility(div_id) + ' ' + note + '<br>'
     descs = pif.dbh.describe_dict(tab)
     entries = []
     for col in pif.dbh.get_table_data(tab).columns:
         coltype = descs.get(col).get('type')
         colwidth = int(paren_re.search(coltype).group('n'))
-        entries.append({'title': col, 'type': coltype, 'value': str(dat.get(tab + '.' + col, '')),
-                        'new_value': pif.render.format_text_input(
-            tab + '.' + col, colwidth, min(colwidth, 80), value=dat.get(tab + '.' + col, ''))})
+        entries.append({'title': col, 'type': coltype, 'value': str(dat.get(col, '')),
+                        'new_value': pif.form.put_text_input(
+            tab + '.' + col, colwidth, min(colwidth, 80), value=dat.get(col, ''))})
     return render.Section(colist=['title', 'type', 'value', 'new_value'], range=[render.Range(entry=entries)],
                           noheaders=True, header=header)
 
@@ -1565,15 +1569,15 @@ def add_links_ask(pif):
     asslinks = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE)
 
     entries = [
-        {'title': "URL to scrape:", 'value': pif.render.format_text_input("url", 256, 80, value='')},
-        {'title': "Section ID:", 'value': pif.render.format_text_input("section_id", 256, 80, value='single')},
-        {'title': "Associated Link:", 'value': pif.render.format_select(
+        {'title': "URL to scrape:", 'value': pif.form.put_text_input("url", 256, 80, value='')},
+        {'title': "Section ID:", 'value': pif.form.put_text_input("section_id", 256, 80, value='single')},
+        {'title': "Associated Link:", 'value': pif.form.put_select(
             'associated_link', [(0, '')] + [(x['link_line.id'], x['link_line.name']) for x in asslinks])},
-        {'title': '', 'value': pif.render.format_button_input()},
+        {'title': '', 'value': pif.form.put_button_input()},
     ]
 
     header = '<form name="mass" action="mass.cgi">' + pif.create_token()
-    footer = pif.render.format_hidden_input({'tymass': 'links'}) + "</form><p>"
+    footer = pif.form.put_hidden_input({'tymass': 'links'}) + "</form><p>"
 
     for lnk in asslinks:
         if lnk['link_line.id'] in link_scraper:
@@ -1629,18 +1633,18 @@ def add_links_scrape(pif):
             found += 1
             continue
         entries.append({
-            'ch': pif.render.format_checkbox('ch.' + str(cnt), [('1', '')], checked=['1']),
+            'ch': pif.form.put_checkbox('ch.' + str(cnt), [('1', '')], checked=['1']),
             'url':
                 pif.render.format_link(dat['url']) +
-                pif.render.format_hidden_input({'url.' + str(cnt): dat['url']}),
-            'page_id': pif.render.format_text_input('page_id.' + str(cnt), 256, 20, dat['page_id']),
-            'name': pif.render.format_text_input('name.' + str(cnt), 256, 40, dat['name']),
-            'description': pif.render.format_text_input('description.' + str(cnt), 256, 20, ''),
-            'country': pif.render.format_text_input('country.' + str(cnt), 2, 2, ''),
+                pif.form.put_hidden_input({'url.' + str(cnt): dat['url']}),
+            'page_id': pif.form.put_text_input('page_id.' + str(cnt), 256, 20, dat['page_id']),
+            'name': pif.form.put_text_input('name.' + str(cnt), 256, 40, dat['name']),
+            'description': pif.form.put_text_input('description.' + str(cnt), 256, 20, ''),
+            'country': pif.form.put_text_input('country.' + str(cnt), 2, 2, ''),
         })
         cnt += 1
-    footer = pif.render.format_button_input('save')
-    footer += pif.render.format_hidden_input({'tymass': 'links'})
+    footer = pif.form.put_button_input('save')
+    footer += pif.form.put_hidden_input({'tymass': 'links'})
     footer += "%d found and dropped" % found
     footer += "</form>"
 
@@ -1703,28 +1707,28 @@ def add_book_ask(pif, book_id=None):
     header = '<form name="mass" action="mass.cgi">' + pif.create_token()
     entries = [
         {'title': "ID:",
-         'value': pif.render.format_text_input("id", 64, 64, value='') + pif.render.format_button_input('clone')},
+         'value': pif.form.put_text_input("id", 64, 64, value='') + pif.form.put_button_input('clone')},
     ]
-    lsections = [dict(colist=['title', 'value'], range=[{'entry': entries}], note='', noheaders=True,
-                      header=header, footer='<br>')]
+    lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
+                                header=header, footer='<br>')]
     entries = [
         {'title': "Author:",
-         'value': pif.render.format_text_input("author", 64, 64, value=book.get('book.author', ''))},
-        {'title': "Title:", 'value': pif.render.format_text_input("title", 64, 64, value=book.get('book.title', ''))},
+         'value': pif.form.put_text_input("author", 64, 64, value=book.get('book.author', ''))},
+        {'title': "Title:", 'value': pif.form.put_text_input("title", 64, 64, value=book.get('book.title', ''))},
         {'title': "Publisher:",
-         'value': pif.render.format_text_input("publisher", 32, 32, value=book.get('book.publisher', ''))},
-        {'title': "Year:", 'value': pif.render.format_text_input("year", 4, 4, value=book.get('book.year', ''))},
-        {'title': "ISBN:", 'value': pif.render.format_text_input("isbn", 16, 16, value=book.get('book.isbn', ''))},
-        {'title': "Hidden:", 'value': pif.render.format_checkbox('hidden', [('1', 'yes')])},
+         'value': pif.form.put_text_input("publisher", 32, 32, value=book.get('book.publisher', ''))},
+        {'title': "Year:", 'value': pif.form.put_text_input("year", 4, 4, value=book.get('book.year', ''))},
+        {'title': "ISBN:", 'value': pif.form.put_text_input("isbn", 16, 16, value=book.get('book.isbn', ''))},
+        {'title': "Hidden:", 'value': pif.form.put_checkbox('hidden', [('1', 'yes')])},
         {'title': "Picture ID:",
-         'value': pif.render.format_text_input("pic_id", 16, 16, value=book.get('book.pic_id', ''))},
-        {'title': "Picture URL:", 'value': pif.render.format_text_input("pic_url", 256, 80, value='')},
+         'value': pif.form.put_text_input("pic_id", 16, 16, value=book.get('book.pic_id', ''))},
+        {'title': "Picture URL:", 'value': pif.form.put_text_input("pic_url", 256, 80, value='')},
         {'title': '', 'value': '{}{}{}{}'.format(
-            pif.render.format_button_input('save'), pif.render.format_button_reset('mass'),
-            pif.render.format_button('book', 'biblio.cgi?edit=1'),
-            pif.render.format_button('edit', 'editor.cgi?table=book'))}
+            pif.form.put_button_input('save'), pif.form.put_button_reset('mass'),
+            pif.render.format_button_link('book', 'biblio.cgi?edit=1'),
+            pif.render.format_button_link('edit', 'editor.cgi?table=book'))}
     ]
-    footer = pif.render.format_hidden_input({'tymass': 'book'}) + "</form><p>"
+    footer = pif.form.put_hidden_input({'tymass': 'book'}) + "</form><p>"
     lsections.append(render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
                                     noheaders=True, footer=footer))
     return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
@@ -1798,15 +1802,15 @@ def add_ads_ask(pif):
     if yr:
         name += ' - ' + yr
     entries = [
-        {'title': "ID:", 'value': pif.render.format_text_input("id", 64, 64, value=ad_id)},
-        {'title': "Raw Name:", 'value': pif.render.format_text_input("rawname", 64, 64, value=name)},
-        {'title': "Description:", 'value': pif.render.format_text_input("description", 64, 64, desc)},
-        {'title': "Year:", 'value': pif.render.format_text_input("first_year", 4, 4, value=yr)},
-        {'title': "Country:", 'value': pif.render.format_text_input("country", 16, 16, value=cy)},
-        {'title': '', 'value': pif.render.format_button_input('save') + pif.render.format_button_reset('mass')},
+        {'title': "ID:", 'value': pif.form.put_text_input("id", 64, 64, value=ad_id)},
+        {'title': "Raw Name:", 'value': pif.form.put_text_input("rawname", 64, 64, value=name)},
+        {'title': "Description:", 'value': pif.form.put_text_input("description", 64, 64, desc)},
+        {'title': "Year:", 'value': pif.form.put_text_input("first_year", 4, 4, value=yr)},
+        {'title': "Country:", 'value': pif.form.put_text_input("country", 16, 16, value=cy)},
+        {'title': '', 'value': pif.form.put_button_input('save') + pif.form.put_button_reset('mass')},
     ]
-    footer = pif.render.format_hidden_input({'tymass': 'ads'})
-    footer += pif.render.format_hidden_input({'o_id': o_ad_id})
+    footer = pif.form.put_hidden_input({'tymass': 'ads'})
+    footer += pif.form.put_hidden_input({'o_id': o_ad_id})
     footer += "</form><p>" + pif.render.format_image_required(o_ad_id, pdir=config.IMG_DIR_ADS, largest='e')
     lsections = []
     lsections.append(render.Section(colist=['title', 'value'],
@@ -1861,14 +1865,14 @@ def add_matrix_ask(pif):
         pid = pid[pid.find('.') + 1:]
     header = '<form action="mass.cgi">' + pif.create_token()
     entries = [
-        {'title': 'Year:', 'value': pif.render.format_text_input("year", 4, 4)},
-        {'title': 'Page ID:', 'value': pif.render.format_text_input("page_id", 24, 24)},
-        {'title': 'Section ID:', 'value': pif.render.format_text_input("section_id", 12, 12, value=pid)},
-        {'title': 'Number of Models:', 'value': pif.render.format_text_input("num", 4, 4)},
-        {'title': '', 'value': pif.render.format_button_input()},
+        {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4)},
+        {'title': 'Page ID:', 'value': pif.form.put_text_input("page_id", 24, 24)},
+        {'title': 'Section ID:', 'value': pif.form.put_text_input("section_id", 12, 12, value=pid)},
+        {'title': 'Number of Models:', 'value': pif.form.put_text_input("num", 4, 4)},
+        {'title': '', 'value': pif.form.put_button_input()},
     ]
-    footer = pif.render.format_hidden_input({'tymass': 'matrix'})
-    footer += pif.render.format_hidden_input({'verbose': '1'})
+    footer = pif.form.put_hidden_input({'tymass': 'matrix'})
+    footer += pif.form.put_hidden_input({'verbose': '1'})
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
                               header=header, footer=footer)
@@ -1896,10 +1900,10 @@ def add_matrix_form(pif):
         header += id_attributes(pif, 'page_info', page)
     else:
         page = {
-            'page_info.id': page_id,
-            'page_info.flags': 1,
-            'page_info.format_type': 'matrix',
-            'page_info.pic_dir': 'pic/prod/series',
+            'id': page_id,
+            'flags': 1,
+            'format_type': 'matrix',
+            'pic_dir': 'pic/prod/series',
         }
 
     if section:
@@ -1927,20 +1931,20 @@ def add_matrix_form(pif):
     }
 
     llistix = render.Listix(note=header)
-    llistix.section.append(entry_form(pif, 'page_info', page))
-    llistix.section.append(entry_form(pif, 'section', section))
+    llistix.section.append(entry_form(pif, 'page_info', page if isinstance(page, dict) else page.todict()))
+    llistix.section.append(entry_form(pif, 'section', section if isinstance(section, dict) else section.todict()))
     llistix.section.append(entry_form(
         pif, 'lineup_model', linmod,
-        note=pif.render.format_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['lineup_model.id'] else [])))
+        note=pif.form.put_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['lineup_model.id'] else [])))
 
     mm, category = add_matrix_model(pif, section)
     llistix.section.append(mm)
     llistix.section[0].range[-1].entry.append({
         'title': 'category', 'type': 'varchar(8)', 'value': category,
-        'new_value': pif.render.format_text_input('category', 8, 8, value=category) + ' for variation_select'})
+        'new_value': pif.form.put_text_input('category', 8, 8, value=category) + ' for variation_select'})
 
     footer = ''
-    footer += pif.render.format_button_input("save")
+    footer += pif.form.put_button_input("save")
     footer += '</form>'
     llistix.section[-1].footer = footer
 
@@ -1974,30 +1978,30 @@ def add_matrix_model(pif, section):
 
     entries = [
         {
-            'mod_id': pif.render.format_hidden_input({
+            'mod_id': pif.form.put_hidden_input({
                 'mm.id.%s' % key: mod.get('matrix_model.id', '0'),
                 'mm.matrix_id.%s' % key:
                     mod.get('matrix_model.matrix_id', '')}) +
                 pif.render.format_link("single.cgi?id=%s" % mod.get('matrix_model.mod_id', ''),
                                        mod.get('matrix_model.mod_id', '')) + ' ' +
-                pif.render.format_text_input("mm.mod_id.%s" % key, 8, 8, value=mod.get('matrix_model.mod_id', '')),
-            'var_id': pif.render.format_text_input(
+                pif.form.put_text_input("mm.mod_id.%s" % key, 8, 8, value=mod.get('matrix_model.mod_id', '')),
+            'var_id': pif.form.put_text_input(
                 "mm.var_id.%s" % key, 20, 20, value='/'.join(sorted(set(mod.get('vars', []))))),
-            'display_order': 'disp ' + pif.render.format_text_input(
+            'display_order': 'disp ' + pif.form.put_text_input(
                 "mm.display_order.%s" % key, 3, 3, value=mod.get('matrix_model.display_order', '')),
-            'edit': pif.render.format_button(
-                'edit', link=pif.dbh.get_editor_link(
+            'edit': pif.render.format_button_link(
+                'edit', pif.dbh.get_editor_link(
                     'matrix_model',
                     pif.dbh.make_id('matrix_model', mod, 'matrix_model' + '.'))) + str(mod.get('matrix_model.id', '')),
-            'name': pif.render.format_text_input("mm.name.%s" % key, 80, 20, value=mod_name(mod)),
-            'range_id': pif.render.format_text_input(
+            'name': pif.form.put_text_input("mm.name.%s" % key, 80, 20, value=mod_name(mod)),
+            'range_id': pif.form.put_text_input(
                 "mm.range_id.%s" % key, 4,
                 value=mod.get('matrix_model.range_id', mod.get('matrix_model.display_order', '0'))),
-            'flags': pif.render.format_text_input("mm.flags.%s" % key, 4, value=str(mod.get('matrix_model.flags', 0))),
+            'flags': pif.form.put_text_input("mm.flags.%s" % key, 4, value=str(mod.get('matrix_model.flags', 0))),
         }
         for key, mod in sorted(mmodels.items())]
 
-    return dict(colist=cols, range=[{'entry': entries}], noheaders=True, header='matrix_model<br>'), category
+    return render.Section(colist=cols, range=[render.Range(entry=entries)], header='matrix_model<br>'), category
 
 
 def add_matrix_save(pif):
@@ -2005,12 +2009,14 @@ def add_matrix_save(pif):
     page_info = pif.form.get_dict(start='page_info.')
     section = pif.form.get_dict(start='section.')
     lineup_model = pif.form.get_dict(start='lineup_model.')
-    # useful.write_message(page_info)
+    # useful.write_message('page_info', page_info)
     pif.dbh.insert_or_update_page(page_info)
-    # useful.write_message(section)
+    # useful.write_message('section', section)
     pif.dbh.insert_or_update_section(section)
     if not pif.form.get_int('nope'):
-        # useful.write_message(lineup_model)
+        useful.write_message('lineup_model', lineup_model)
+        if 'id' in lineup_model and not lineup_model['id']:
+            del lineup_model['id']
         pif.dbh.insert_lineup_model(lineup_model, newonly=False)
     thisis = {'page_id': page_info['id'], 'section_id': section['id']}
     modvars = []
@@ -2026,6 +2032,8 @@ def add_matrix_save(pif):
         mm.update(thisis)
         useful.write_message('matrix_model', mm)
         pif.dbh.insert_or_update_matrix_model(mm, verbose=True)
+    useful.write_message('MODVARS', modvars)
+    useful.write_message('ref_id', page_info['id'], 'sec_id', section['id'], 'category', category)
     pif.dbh.update_variation_selects_for_ref(modvars, ref_id=page_info['id'], sec_id=section['id'], category=category)
     useful.write_message(modvars, page_info['id'], section['id'], category)
     return
@@ -2087,15 +2095,15 @@ def add_attr_pics(pif):
 def add_attr_pics_ask(pif):
     header = '<form action="mass.cgi">' + pif.create_token()
     entries = [
-        {'title': 'Type:', 'value': pif.render.format_select('attr_type', mbdata.image_adds_list, blank='')},
+        {'title': 'Type:', 'value': pif.form.put_select('attr_type', mbdata.image_adds_list, blank='')},
         {'title': '', 'value': '{} {} {} {}'.format(
-            pif.render.format_button_input(),
-            pif.render.format_button('customs', link='/cgi-bin/custom.cgi'),
-            pif.render.format_button('errors', link='/cgi-bin/errors.cgi'),
-            pif.render.format_button('prepros', link='/cgi-bin/prepro.cgi'))}
+            pif.form.put_button_input(),
+            pif.render.format_button_link('customs', '/cgi-bin/custom.cgi'),
+            pif.render.format_button_link('errors', '/cgi-bin/errors.cgi'),
+            pif.render.format_button_link('prepros', '/cgi-bin/prepro.cgi'))}
     ]
-    footer = pif.render.format_hidden_input({'tymass': 'attrpics'})
-    footer += pif.render.format_hidden_input({'verbose': '1'})
+    footer = pif.form.put_hidden_input({'tymass': 'attrpics'})
+    footer += pif.form.put_hidden_input({'verbose': '1'})
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'],
                               range=[render.Range(entry=entries)], noheaders=True, header=header, footer=footer)
@@ -2118,16 +2126,16 @@ def add_attr_pics_form(pif):
             pif.render.fmt_img(img, alt='', pdir=config.IMG_DIR_ADD, required=True))
         desc = '{} {}<br>{} {}<br>{}<br>{}{}'.format(
             pif.render.format_link('single.cgi?id=%s' % rec['mod_id'], rec['mod_id']),
-            pif.render.format_button('edit', link=pif.dbh.get_editor_link('attribute_picture', {'id': recid})),
-            pif.render.format_text_input('pic_id.%s' % recid, maxlength=4, showlength=4, value=rec['picture_id']),
-            pif.render.format_checkbox('do.%s' % recid, [('1', 'save')], checked=rec['do']),
-            pif.render.format_checkbox('rm.%s' % recid, [('1', 'del')]),
-            pif.render.format_hidden_input({'mod_id.%s' % recid: rec['mod_id'], 'img.%s' % recid: img}),
-            pif.render.format_text_input(
+            pif.render.format_button_link('edit', pif.dbh.get_editor_link('attribute_picture', {'id': recid})),
+            pif.form.put_text_input('pic_id.%s' % recid, maxlength=4, showlength=4, value=rec['picture_id']),
+            pif.form.put_checkbox('do.%s' % recid, [('1', 'save')], checked=rec['do']),
+            pif.form.put_checkbox('rm.%s' % recid, [('1', 'del')]),
+            pif.form.put_hidden_input({'mod_id.%s' % recid: rec['mod_id'], 'img.%s' % recid: img}),
+            pif.form.put_text_input(
                 'desc.%s' % recid, maxlength=128, showlength=40,
                 value='{}<br>Credit: {}'.format(
                     rec['description'],
-                    pif.render.format_select('crd.%s' % recid, photogs, selected=credits.get(img), blank=''))))
+                    pif.form.put_select('crd.%s' % recid, photogs, selected=credits.get(img), blank=''))))
         return {
             'pic': pic,
             'desc': desc,
@@ -2135,7 +2143,7 @@ def add_attr_pics_form(pif):
 
     header = '<hr>\n'
     header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
-    header += pif.render.format_hidden_input({'verbose': 1, 'tymass': 'attrpics', 'attr_type': pref})
+    header += pif.form.put_hidden_input({'verbose': 1, 'tymass': 'attrpics', 'attr_type': pref})
 
     llistix = render.Listix(note=header)
     entries = [attr_pic_rec(rec, rec['id']) for rec in rl]
@@ -2147,7 +2155,7 @@ def add_attr_pics_form(pif):
     llistix.section.append(lsec)
 
     footer = ''
-    footer += pif.render.format_button_input("save")
+    footer += pif.form.put_button_input("save")
     footer += '</form>'
     llistix.section[-1].footer = footer
 
@@ -2244,20 +2252,20 @@ def add_photogs_form(pif):
     def photog_rec(rec):
         recid = rec['id']
         return {
-            'X': pif.render.format_checkbox('X.%s' % recid, [('1', '')],
+            'X': pif.form.put_checkbox('X.%s' % recid, [('1', '')],
                                             checked='1' if not rec['flags'] & config.FLAG_ITEM_HIDDEN else ''),
-            'id': pif.render.format_text_input('id.%s' % recid, maxlength=4, showlength=4, value=rec['id']),
-            'name': pif.render.format_text_input('name.%s' % recid, maxlength=32, showlength=32, value=rec['name']),
-            'url': pif.render.format_text_input('url.%s' % recid, maxlength=128, showlength=64, value=rec['url']),
+            'id': pif.form.put_text_input('id.%s' % recid, maxlength=4, showlength=4, value=rec['id']),
+            'name': pif.form.put_text_input('name.%s' % recid, maxlength=32, showlength=32, value=rec['name']),
+            'url': pif.form.put_text_input('url.%s' % recid, maxlength=128, showlength=64, value=rec['url']),
         }
 
     header = '<hr>\n'
     header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
-    header += pif.render.format_hidden_input({'verbose': 1, 'tymass': 'photogs'})
+    header += pif.form.put_hidden_input({'verbose': 1, 'tymass': 'photogs'})
 
     footer = ''
-    footer += pif.render.format_button_input("save")
-    footer += pif.render.format_button('add', link='/cgi-bin/editor.cgi?table=photographer&id=&add=1')
+    footer += pif.form.put_button_input("save")
+    footer += pif.render.format_button_link('add', '/cgi-bin/editor.cgi?table=photographer&id=&add=1')
     footer += '</form>'
 
     entries = [photog_rec(rec) for rec in photographers]
@@ -2310,4 +2318,4 @@ mass_mains_hidden = {
 
 
 def mass_sections(pif):
-    return '\n'.join([pif.render.format_button(x, link=f'?tymass={x}') for x, y in mass_mains_list])
+    return '\n'.join([pif.render.format_button_link(x, f'?tymass={x}') for x, y in mass_mains_list])

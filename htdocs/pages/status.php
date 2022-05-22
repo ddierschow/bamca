@@ -10,12 +10,21 @@ DoPageHeader($pif);
 ?>
 
 <?php
-$version = '';
+$version = $next_down_time = '';
 include "version.txt";
 if ($version) {
-    echo "Current Release Version: " . $version . "<p>";
+    echo "<b>Current Release Version:</b> " . $version . "<br>\n";
 }
+if ($next_down_time) {
+    echo "<b>Next Down Time Expected:</b> " . $next_down_time . "<br>\n";
+}
+$answer = Fetch("select count(*) from casting", $pif)[0];
+echo "<b>Number of Castings:</b> " . $answer[array_key_first($answer)] . "<br>\n";
+$answer = Fetch("select count(*) from variation", $pif)[0];
+echo "<b>Number of Variations:</b> " . $answer[array_key_first($answer)] . "<br>\n";
 ?>
+
+<p>
 
 <h2 class="section">There are Several Projects Going On</h2>
 

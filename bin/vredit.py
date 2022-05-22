@@ -336,8 +336,8 @@ def show_index(pif, vid, fdir, start=None, num=100, ff=0):
         next = dats[-1]
 #    dats = dats[:num]
     rows = (num - 1) / cols + 1
-    print(pif.render.format_button("next", "?d=" + fdir + "&s=" + next + "&n=" + str(num)), '-')
-    print(pif.render.format_button("previous", "?d=" + fdir + "&s=" + prev + "&n=" + str(num)))
+    print(pif.render.format_button_link("next", "?d=" + fdir + "&s=" + next + "&n=" + str(num)), '-')
+    print(pif.render.format_button_link("previous", "?d=" + fdir + "&s=" + prev + "&n=" + str(num)))
     print('<table width="100%"><tr>')
     for col in range(0, cols):
         irow = 0
@@ -392,15 +392,15 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         print("<tr>")
         print('<td style="background-color: %s">' % bg_color[attr['attribute_name'] in hdrs + var_record_cols])
         print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', {'id': attr['id']}), attr['id']))
-        print("<td>%s</td>" % pif.render.format_text_input(
+        print("<td>%s</td>" % pif.form.put_text_input(
             "attribute_name.%(id)d" % attr, 32, 32, attr["attribute_name"]))
-        print("<td>%s</td>" % pif.render.format_text_input("definition.%(id)d" % attr, 32, 32, attr["definition"]))
-        print("<td>%s</td>" % pif.render.format_text_input("title.%(id)d" % attr, 32, 32, attr["title"]))
-        print("<td>%s</td>" % pif.render.format_checkbox("visual.%(id)d" % attr, [(1, '')], [attr['visual']]))
-        print("<td>%s</td>" % pif.render.format_text_input(
+        print("<td>%s</td>" % pif.form.put_text_input("definition.%(id)d" % attr, 32, 32, attr["definition"]))
+        print("<td>%s</td>" % pif.form.put_text_input("title.%(id)d" % attr, 32, 32, attr["title"]))
+        print("<td>%s</td>" % pif.form.put_checkbox("visual.%(id)d" % attr, [(1, '')], [attr['visual']]))
+        print("<td>%s</td>" % pif.form.put_text_input(
             "description.%(id)d" % attr, 64, 32, dets.get(attr["attribute_name"], "")))
-        print("<td>%s</td>" % pif.render.format_button_input(bname="save", name='renattr.%d' % attr['id']))
-        print("<td>%s</td>" % pif.render.format_button("delete", "?f=%s&delattr=%d" % (file_id, attr['id'])))
+        print("<td>%s</td>" % pif.form.put_button_input(bname="save", name='renattr.%d' % attr['id']))
+        print("<td>%s</td>" % pif.render.format_button_link("delete", "?f=%s&delattr=%d" % (file_id, attr['id'])))
         print("</tr>")
         var_desc[attr["attribute_name"]] = attr["definition"]
     for attr in common_attrs:
@@ -409,19 +409,19 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', {'id': attr['id']}), attr['id']))
         print("<td>%s</td>" % (
             attr["attribute_name"] +
-            pif.render.format_hidden_input({"attribute_name.%(id)d" % attr: attr["attribute_name"]})))
+            pif.form.put_hidden_input({"attribute_name.%(id)d" % attr: attr["attribute_name"]})))
         print("<td>%s</td>" % attr["definition"])
         print("<td>%s</td>" % attr["title"])
         if attr['attribute_name'] == 'base':
-            print("<td>%s</td>" % pif.render.format_checkbox("visualbase", [(1, '')], [1 if visual_base else 0]))
+            print("<td>%s</td>" % pif.form.put_checkbox("visualbase", [(1, '')], [1 if visual_base else 0]))
         else:
             print("<td>%s</td>" % ('X' if attr['visual'] else ''))
-        print("<td>%s</td>" % pif.render.format_text_input(
+        print("<td>%s</td>" % pif.form.put_text_input(
             "description.%(id)d" % attr, 64, 32, dets.get(attr["attribute_name"], "")))
-        print("<td>%s</td>" % pif.render.format_button_input(bname="save", name='renattr.%d' % attr['id']))
+        print("<td>%s</td>" % pif.form.put_button_input(bname="save", name='renattr.%d' % attr['id']))
         print("<td></td>")
         print("<td>%s</td>" % pif.render.format_link(
-            '/cgi-bin/vedit.cgi', txt=pif.render.format_button(bname="none"),
+            '/cgi-bin/vedit.cgi', txt=pif.form.put_text_button(bname="none"),
             args={'attribute_name.%s' % attr['id']: attr['attribute_name'], 'd': 'src/mbxf',
                   'description.%s' % attr['id']: 'none', 'f': file_id, 'm': mod_id, 'mod_id': mod_id,
                   'renattr.%s' % attr['id']: 'SAVE'}))
@@ -431,14 +431,14 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         if hdr not in var_record_cols and hdr not in [x['attribute_name'] for x in attrs]:
             print("<tr>")
             print("<td>new</td>")
-            print("<td>%s</td>" % pif.render.format_text_input("%dn.attribute_name" % cnt, 32, 32, hdr))
-            print("<td>%s</td>" % pif.render.format_text_input("%dn.definition" % cnt, 32, 32, "varchar(64)"))
+            print("<td>%s</td>" % pif.form.put_text_input("%dn.attribute_name" % cnt, 32, 32, hdr))
+            print("<td>%s</td>" % pif.form.put_text_input("%dn.definition" % cnt, 32, 32, "varchar(64)"))
             print("</tr>")
             cnt += 1
             var_desc[hdr] = "varchar(64)"
     print("</table>")
-    print(pif.render.format_button_input('add'))
-    print(pif.render.format_button_input('add new'))
+    print(pif.form.put_button_input('add'))
+    print(pif.form.put_button_input('add new'))
     print("</form>")
 
 
@@ -460,14 +460,14 @@ def show_base_id(pif, mod):
     for col in base_id_tab.columns:
         print("<tr><td>%s</td><td>" % col)
         if col in base_id_tab.bits:
-            print(pif.render.format_checkbox(
+            print(pif.form.put_checkbox(
                 "base_id." + col, base_id_tab.bits[col], useful.bit_list(mod[col], format='%04x')))
         else:
             flen = int(paren_re.search(base_id_info[col]['type']).group('len'))
-            print(pif.render.format_text_input("base_id." + col, flen, min(80, flen), mod[col]))
+            print(pif.form.put_text_input("base_id." + col, flen, min(80, flen), mod[col]))
         print("</td></tr>")
     print("</table>")
-    print(pif.render.format_button_input('save', 'save base id'))
+    print(pif.form.put_button_input('save', 'save base id'))
     print("</form>")
 
 
@@ -483,19 +483,19 @@ def show_casting(pif, mod, file_id):
             flen = 65535
             # make this a text box instead of a text input.
             print("<tr><td>%s</td><td>%s</td>" % (
-                col, pif.render.format_textarea_input("casting." + col, 80, 4, mod[col])))
+                col, pif.form.put_textarea_input("casting." + col, 80, 4, mod[col])))
         else:
             flen = int(paren_re.search(casting_info[col]['type']).group('len'))
             print("<tr><td>%s</td><td>%s</td>" % (
-                col, pif.render.format_text_input("casting." + col, flen, min(flen, 128), mod[col])))
+                col, pif.form.put_text_input("casting." + col, flen, min(flen, 128), mod[col])))
         print("<td>%s</td></tr>" % casting_help(pif, col, mod))
     print("</table>")
-    print(pif.render.format_button_input('save', 'save casting'))
+    print(pif.form.put_button_input('save', 'save casting'))
     print("</form>")
 
     fmt_invalid, messages, missing = pif.dbh.check_description_formatting(mod['id'], '<br>')
     for attr in missing:
-        print(pif.render.format_button("add", "?f=%s&m=%s&addattr=%s" % (file_id, mod['id'], attr)), attr, '<br>')
+        print(pif.render.format_button_link("add", "?f=%s&m=%s&addattr=%s" % (file_id, mod['id'], attr)), attr, '<br>')
     if fmt_invalid:
         print(messages)
     print('<br>')
@@ -523,11 +523,11 @@ def casting_help(pif, col, mod):
     if col == 'rawname':
         return ' | '.join(mod.get('iconname', list()))
     if col == 'vehicle_type':
-        return pif.render.format_button("help", "../pages/types.php", lalso={'target': '_blank'})
+        return pif.render.format_button_link("help", "../pages/types.php", lalso={'target': '_blank'})
     if col == 'country':
-        return pif.render.format_button("help", "../pages/countries.php", lalso={'target': '_blank'})
+        return pif.render.format_button_link("help", "../pages/countries.php", lalso={'target': '_blank'})
     if col == 'make':
-        return pif.render.format_button("help", "../pages/makes.php", lalso={'target': '_blank'})
+        return pif.render.format_button_link("help", "../pages/makes.php", lalso={'target': '_blank'})
     if col == 'flags':
         return "NOT_MADE = 1"
     if col == 'section_id':
@@ -607,11 +607,11 @@ def show_model_table(pif, varfile, fitab):
     print('<input type="hidden" name="mod_id" value="%s">' % mod['id'])
     show_variations(pif, varfile, fitab, mod['id'])
 
-    print(pif.render.format_button_input('save'))
-    print(pif.render.format_button_input('recalc'))
-    print(pif.render.format_button_input('delete all'))
-    print(pif.render.format_button_input('fix numbers'))
-    print(pif.render.format_button_input('delete orphans'))
+    print(pif.form.put_button_input('save'))
+    print(pif.form.put_button_input('recalc'))
+    print(pif.form.put_button_input('delete all'))
+    print(pif.form.put_button_input('fix numbers'))
+    print(pif.form.put_button_input('delete orphans'))
     print('</form>')
 
 
@@ -668,7 +668,7 @@ def show_variations(pif, varfile, fitab, mod_id):
                 text_color[dbdet == fidet], bg_color[dbdet == fidet]))
             print(str(dbvar.get(hdr, '')) + "<br>")
             if dbdet != fidet or hdr == 'var':
-                print(pif.render.format_text_input(
+                print(pif.form.put_text_input(
                     rec['var'] + '.' + hdr, int(varfile['var_desc'][hdr][8:-1]), 16, fidet if fidet else '\\b'))
             elif hdr == 'imported_from':
                 print('<input type="hidden" name="%s.imported_from" value="%s">' % (rec['var'], varfile['filename']))
@@ -810,15 +810,15 @@ def do_action(pif, mod_id):
             rec = {"mod_id": mod_id, "attribute_name": pif.form.get_raw(attr + "n.attribute_name"),
                    "title": pif.form.get_raw(attr + "n.attribute_name").replace('_', ' ').title(),
                    "definition": pif.form.get_raw(k)}
-            pif.dbh.write("attribute", rec,
-                          {"mod_id": mod_id, "attribute_name": pif.form.get_raw(attr + "n.attribute_name")})
+            pif.dbh.write("attribute", rec, pif.dbh.make_where(
+                {"mod_id": mod_id, "attribute_name": pif.form.get_raw(attr + "n.attribute_name")}))
         for k in pif.form.keys(start='attribute_name.'):
             attr = k[15:]
             print("def", k, attr)
             rec = {"mod_id": mod_id, "attribute_name": pif.form.get_raw('attribute_name.' + attr),
                    "title": pif.form.get_raw('title.' + attr),
                    "definition": pif.form.get_raw(k), "visual": pif.form.get_raw("visual." + attr, '1')}
-            pif.dbh.write("attribute", rec, {"id": attr}, modonly=True)
+            pif.dbh.write("attribute", rec, pif.dbh.make_where({"id": attr}), modonly=True)
             if pif.form.get_raw("description." + attr, '') != "":
                 rec = {"mod_id": mod_id, "var_id": "", "attr_id": attr,
                        "description": pif.form.get_raw("description." + attr)}

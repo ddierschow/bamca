@@ -45,8 +45,8 @@ itypes = ['bmp', 'gif', 'ico', 'jpg', 'jpeg', 'png', 'tif', 'xbm']
 
 image_outputter = {
     'bmp': [['/usr/local/bin/ppmtobmp']],
-    # 'gif': [['/usr/local/bin/pnmquant', '256'], ['/usr/local/bin/ppmtogif']],
-    'gif': [['/usr/local/bin/ppmtogif']],
+    'gif': [['/usr/local/bin/pnmquant', '256'], ['/usr/local/bin/ppmtogif']],
+    # 'gif': [['/usr/local/bin/ppmtogif']],
     'ico': [['/usr/local/bin/ppmtowinicon']],
     'jpg': [['/usr/local/bin/pnmtojpeg']],
     'jpeg': [['/usr/local/bin/pnmtojpeg']],
@@ -638,8 +638,7 @@ def iconner(in_path, name, logo=None, isizex=100, isizey=100):
     # doing this because I don't like how PIL disses GIFs.
     tmp_pth = '/tmp/iconner.png'
     iconimage.save(tmp_pth)
-    ofi = pipe_convert(tmp_pth, '.gif', verbose=True)
-    os.unlink(tmp_pth)
+    ofi = pipe_convert(tmp_pth, '.gif')
     return ofi
 
 
@@ -1005,13 +1004,13 @@ class ActionForm(object):
         print('<input type=hidden name="d" value="%s">' % self.tdir)
         print('<input type=hidden name="fi" value="%s">' % fn)
         print('<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&v=%s&cy=%s">%s</a>' % (
-              self.tdir, fn, self.var, self.cycle, pif.render.format_button('edit')))
-        print(pif.render.format_button_input('delete'))
-        print(pif.render.format_button_input('trash'))
-        print(pif.render.format_button('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (self.tdir + '/' + fn)))
+              self.tdir, fn, self.var, self.cycle, pif.form.put_text_button('edit')))
+        print(pif.form.put_button_input('delete'))
+        print(pif.form.put_button_input('trash'))
+        print(pif.render.format_button_link('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (self.tdir + '/' + fn)))
         print('New name: <input type="text" size="32" name="newname" value="%s">' % fn)
-        print(pif.render.format_button_input('rename'))
-        print(pif.render.format_radio('cpmv', [('c', 'copy'), ('m', 'move')], self.cpmv))
+        print(pif.form.put_button_input('rename'))
+        print(pif.form.put_radio('cpmv', [('c', 'copy'), ('m', 'move')], self.cpmv))
         if pif.is_allowed('m'):  # pragma: no cover
             if self.ov:
                 print('<input type=checkbox name="ov" value="1" checked>')
@@ -1019,20 +1018,20 @@ class ActionForm(object):
                 print('<input type=checkbox name="ov" value="1">')
             print('overwrite<br>')
             print('Man: <input type="text" size="12" name="man" value="%s">' % self.man)  # get_man(pif)
-            print(pif.render.format_button_up_down('man'))
-            print(pif.render.format_button_input('move to library', 'lib'))
-            print('Category:', pif.render.format_select('cat', mbdata.img_sel_cat, self.cat))
-            print(pif.render.format_button_input('move to bin', 'mvbin'))
-            print(pif.render.format_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))]))
-            print(pif.render.format_checkbox("tu", [("1", "tumblr")], checked=[str(int(self.tumblr))]))
+            print(pif.form.put_button_up_down('man'))
+            print(pif.form.put_button_input('move to library', 'lib'))
+            print('Category:', pif.form.put_select('cat', mbdata.img_sel_cat, self.cat))
+            print(pif.form.put_button_input('move to bin', 'mvbin'))
+            print(pif.form.put_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))]))
+            print(pif.form.put_checkbox("tu", [("1", "tumblr")], checked=[str(int(self.tumblr))]))
             print('<input type=checkbox name="inc" value="1"> increment name')
             print('<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var)
-            print('Prefix:', pif.render.format_select('pref', self.picture_prefixes(), self.pref, blank=''))
+            print('Prefix:', pif.form.put_select('pref', self.picture_prefixes(), self.pref, blank=''))
             print('Suffix: <input type="text" size="5" name="suff" value="%s">' % self.suff)
-            print(pif.render.format_button_input('select to casting', 'select'))
-            print('Move to:', pif.render.format_select('moveto', self.sel_moveto, self.dest, blank=''))
+            print(pif.form.put_button_input('select to casting', 'select'))
+            print('Move to:', pif.form.put_select('moveto', self.sel_moveto, self.dest, blank=''))
             # useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
-            print(pif.render.format_button_input('select to category', 'selcat'))
+            print(pif.form.put_button_input('select to category', 'selcat'))
             print('<br>')
 
         return x, y

@@ -36,9 +36,6 @@ def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
     return thismods['picture_id'].replace('w', region)
 
 
-var_types = ['c', '1', '2', 'f', 'p']
-
-
 def calc_var_pics(pif, var):
     has_de = 1 if len(var['text_description']) > 0 else 0
     has_ba = 1 if len(var['text_base']) > 0 else 0
@@ -62,18 +59,17 @@ code2cats = set(['ASAP', 'C2', 'CCI', 'CQ', 'NC', 'WR', 'YF'])
 
 def calc_var_type(pif, var):
     ty_var = ''
-    if not var['picture_id']:
-        if any([var['manufacture'].startswith(x) for x in mbdata.other_plants]):
-            ty_var = 'p'
-        elif (any([x['category.flags'] & config.FLAG_MODEL_CODE_2 for x in var['vs']]) or
-              code2cats & set(var['category'].split())):
-            ty_var = '2'
-        elif var['var'].startswith('f'):
-            ty_var = 'f'
-        elif any([x['variation_select.category'] == 'MB' for x in var['vs']]):
-            ty_var = 'c'
-        else:
-            ty_var = '1'
+    if any([var['manufacture'].startswith(x) for x in mbdata.other_plants]):
+        ty_var = 'p'
+    elif (any([x['category.flags'] & config.FLAG_MODEL_CODE_2 for x in var['vs']]) or
+          code2cats & set(var['category'].split())):
+        ty_var = '2'
+    elif var['var'].startswith('f'):
+        ty_var = 'f'
+    elif any([x['variation_select.category'] == 'MB' for x in var['vs']]):
+        ty_var = 'c'
+    else:
+        ty_var = '1'
     return ty_var
 
 
@@ -263,6 +259,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         links.append('<a href="vars.cgi?edt=1&mod=%s">Variations</a>' % mod_id)
         links.append('<a href="vars.cgi?adl=1&mod=%s">Attr Edit</a>' % mod_id)
         links.append('<a href="vars.cgi?vdt=1&mod=%s">Details</a>' % mod_id)
+        links.append('<a href="vars.cgi?vds=1&mod=%s">Descriptions</a>' % mod_id)
         links.append('<a href="vsearch.cgi?ask=1&id=%s">Search</a>' % mod_id)
         links.append(
             '<a href="pics.cgi?m=%s">Pics</a>' % mod_id.lower() +

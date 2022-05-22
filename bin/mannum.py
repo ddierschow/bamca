@@ -36,8 +36,8 @@ vt_cols = [
     ['name', 'name'],
     ['sel', 'sel'],
 ]
-vt_fmtb = reduce(lambda x, y: x + '<td>%(' + y[0] + ')s</td>', vt_cols, '<tr>') + '</tr>'
-vt_fmth = reduce(lambda x, y: x + '<th>%(' + y[0] + ')s</th>', vt_cols, '<tr>') + '</tr>'
+vt_fmtb = '<tr>{}</tr>'.format(''.join(['<td>%({})s</td>'.format(y[0]) for y in vt_cols]))
+vt_fmth = '<tr>{}</tr>'.format(''.join(['<th>%({})s</th>'.format(y[0]) for y in vt_cols]))
 admin_cols = [
     ['own', 'X'],
     ['vid', 'ID'],
@@ -136,22 +136,6 @@ picture_cols = [
 ]
 picture_cols += list(zip(var_pic_keys, var_pic_hdrs)) + [['description', 'Description']]
 mades = {False: '<i>%(name)s</i>', True: '%(name)s'}
-prefixes = [  # need to phase this out somehow
-    ['a_', '.' + config.IMG_DIR_ADD],
-    ['b_', '.' + config.IMG_DIR_ADD],
-    ['d_', '.' + config.IMG_DIR_ADD],
-    ['e_', '.' + config.IMG_DIR_ADD],
-    ['i_', '.' + config.IMG_DIR_ADD],
-    ['h_', '.' + config.IMG_DIR_MAN],
-    ['l_', '.' + config.IMG_DIR_MAN],
-    ['m_', '.' + config.IMG_DIR_MAN],
-    ['p_', '.' + config.IMG_DIR_ADD],
-    ['r_', '.' + config.IMG_DIR_ADD],
-    ['s_', '.' + config.IMG_DIR_MAN],
-    ['t_', '.' + config.IMG_DIR_MAN],
-    ['z_', '.' + config.IMG_DIR_ADD],
-    ['icon', '.' + config.IMG_DIR_MAN_ICON],
-]
 format_attributes = ['format_description', 'format_body', 'format_interior', 'format_windows', 'format_base',
                      'format_wheels', 'format_with']
 
@@ -517,12 +501,28 @@ class MannoFile(object):
 
     # ----- picture -----------------------------------------------
 
+    picprefixes = [
+        ['a_', 'a'],
+        ['b_', 'a'],
+        ['d_', 'a'],
+        ['e_', 'a'],
+        ['i_', 'a'],
+        ['p_', 'a'],
+        ['r_', 'a'],
+        ['z_', 'a'],
+
+        ['l_', 'm'],
+        ['m_', 'm'],
+        ['s_', 'm'],
+        ['t_', 'm'],
+
+        ['icon', 'i'],
+    ]
+
     def show_list_pic(self, pif, prefix, mod_id, txt):
-        mod_id = mod_id.replace('/', '_')
-        root = prefix[1] + '/' + prefix[0] + mod_id.lower()
-        cnt = (len(glob.glob(root + '.jpg')) + len(glob.glob(root + '-*.jpg')) +
-               len(glob.glob(root + '.gif')) + len(glob.glob(root + '-*.gif')))
-        return [prefix[0], txt.upper() if cnt == 1 else str(cnt) if cnt > 1 else '-']
+        mod_id = mod_id.replace('/', '_').lower()
+        pset = self.addpics.get(mod_id, set()) if prefix[1] == 'a' else self.manpics.get(mod_id, set())
+        return [prefix[0], txt.upper() if prefix[0][0] in pset else '-']
 
     def show_box_pics(self, box_types):
 
@@ -554,6 +554,40 @@ class MannoFile(object):
                 cnt += 1
         return cnt, tot
 
+    def count_list_var_pics(self, pif, mod_id):  # called from elsewhere
+        vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
+        needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
+        found_c = found_f = found_a = found_1 = found_2 = found_p = 0
+        # nf = []
+        for var in vars:
+            if not var['picture_id']:
+                ty_var, is_found = self.calc_var_pics(pif, var)
+
+                needs_a += 1
+                found_a += is_found
+                if ty_var == 'p':
+                    needs_p += 1
+                    found_p += is_found
+                elif ty_var == 'f':
+                    needs_f += 1
+                    found_f += is_found
+                elif ty_var == 'c':
+                    needs_c += 1
+                    found_c += is_found
+                elif ty_var == '2':
+                    needs_2 += 1
+                    found_2 += is_found
+                else:
+                    needs_1 += 1
+                    found_1 += is_found
+        return (found_a, found_c, found_1, found_2, found_f, found_p), \
+               (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p), \
+               (None,)
+
+    def calc_var_pics(self, pif, var):
+        is_found = var['var'] in self.varpics.get(var['mod_id'], {})
+        return single.calc_var_type(pif, var), is_found
+
     def get_picture_model_entries(self, pif, model_ids):
         photogs = {x['photo_credit.name'].lower(): x['photographer.id']
                    for x in pif.dbh.fetch_photo_credits_for_models('.' + config.IMG_DIR_MAN)}
@@ -561,9 +595,9 @@ class MannoFile(object):
             vcredits = {x['photo_credit.name'].lower(): x['photographer.id']
                         for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod)}
             mdict = self.mdict[mod]
-            mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in prefixes]))
+            mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in self.picprefixes]))
             mdict.update({
-                'img': self.show_list_pic(pif, ['', '.' + config.IMG_DIR_MAN], mdict['id'], mbdata.IMG_SIZ_SMALL)[1],
+                'img': self.show_list_pic(pif, ['s_', '.' + config.IMG_DIR_MAN], mdict['id'], mbdata.IMG_SIZ_SMALL)[1],
                 'vid': '<a href="vars.cgi?edt=1&mod=%(id)s">%(id)s</a>' % mdict,
                 'first_year': '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (
                     useful.relpath(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year']),
@@ -571,7 +605,7 @@ class MannoFile(object):
                 'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
                 'credit': '<a href="vars.cgi?vdt=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
                 'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], mdict['id'], 'i')[1]})
-            founds, needs, cnts = single.count_list_var_pics(pif, mdict['id'])
+            founds, needs, _ = single.count_list_var_pics(pif, mdict['id'])
             # mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
             for ipix in range(0, 6):
                 self.totals[ipix]['have'] += founds[ipix]
@@ -584,7 +618,7 @@ class MannoFile(object):
             if not mdict['made']:
                 mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
             mdict['d_'] = single.fmt_var_pic(*self.show_attr_pics(pif, mod))
-            useful.write_comment(mdict)
+            # useful.write_comment(mdict)
             yield mdict
 
     def get_section_picture(self, pif, sect):
@@ -604,6 +638,34 @@ class MannoFile(object):
         return llineup
 
     def run_picture_list_template(self, pif):
+        def pathsplit(x):  # a_b-c.d
+            _, b = os.path.split(x)
+            b, d = os.path.splitext(b)
+            c = b.rfind('-') if '-' in b else 0  # it's never zero
+            b, c = (b[:c], b[c + 1:]) if c else (b, '')
+            return b[0:1], b[2:], c, d[1:] if d and d[1:] in render.graphic_types else ''
+
+        self.manpics = {}
+        for pic in glob.glob('.' + config.IMG_DIR_MAN + '/?_*.*') + glob.glob('.' + config.IMG_DIR_MAN_ICON + '/?_*.*'):
+            a, b, c, d = pathsplit(pic)
+            if d:
+                self.manpics.setdefault(b, set())
+                self.manpics[b].add(a)
+
+        self.varpics = {}
+        for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_*.*'):
+            a, b, c, d = pathsplit(pic)
+            if d and c:
+                self.varpics.setdefault(b, set())
+                self.varpics[b].add(c)
+
+        self.addpics = {}
+        for pic in glob.glob('.' + config.IMG_DIR_ADD + '/?_*.*'):
+            a, b, c, d = pathsplit(pic)
+            if d:
+                self.addpics.setdefault(b, set())
+                self.addpics[b].add(a)
+
         llineup = self.run_picture_list(pif)
         pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (
             pif.form.get_str('selection'), pif.form.get_str('range'),
@@ -656,16 +718,16 @@ class MannoFile(object):
         mdict['name'] = pif.render.format_link(
             lnk, mdict['id'] + '<br>' + mdict['rawname'] + '<br>' + mdict['flag'] + '<br>' + mdict['makename'])
         mdict['img'] = pif.render.format_link(lnk, pif.render.format_image_required(img, made=mdict['made']))
-        mdict['sel'] = pif.render.format_checkbox(
+        mdict['sel'] = pif.form.put_checkbox(
             'vt_' + mdict['id'],
             [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])],
             checked=mdict['vehicle_type']) + '<br>'
-        mdict['sel'] += pif.render.format_checkbox(
+        mdict['sel'] += pif.form.put_checkbox(
             'vt_' + mdict['id'],
             [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[14:])],
             checked=mdict['vehicle_type']) + '<br>'
-        mdict['sel'] += 'make: ' + pif.render.format_text_input('vm_' + mdict['id'], 3, 3, value=mdict['make'])
-        mdict['sel'] += 'country: ' + pif.render.format_text_input('co_' + mdict['id'], 2, 2, value=mdict['country'])
+        mdict['sel'] += 'make: ' + pif.form.put_text_input('vm_' + mdict['id'], 3, 3, value=mdict['make'])
+        mdict['sel'] += 'country: ' + pif.form.put_text_input('co_' + mdict['id'], 2, 2, value=mdict['country'])
         return mdict
 
     def show_vt_model_table(self, pif, mdict, flago):
@@ -850,7 +912,7 @@ class MannoFile(object):
                 'Description': var['text_description'],
                 'Cat': cat,
                 'Date': var['date'],
-                'Type': varias.var_types.get(var['variation_type'], var['variation_type']),
+                'Type': mbdata.var_types.get(var['variation_type'], var['variation_type']),
                 'Cred': var['phcred'],
                 'Pic': var['picture_id'],
             }
@@ -879,7 +941,7 @@ class MannoFile(object):
         #         return [mod_row, {'Description': 'all relevant pictures credited'}]
         #     if not self.photognot and mod_row['Cred'] != self.photog:
         #         return [mod_row, {'Description': 'no relevant pictures credited'}]
-        useful.write_comment(str([mod_row] + var_rows))
+        # useful.write_comment(str([mod_row] + var_rows))
         return mod_row, var_rows
 
     # ----- main ------------------------------------------------
@@ -928,7 +990,6 @@ def main(pif):
 @basics.web_page
 def admin_main(pif):
     pif.render.print_html()
-    useful.write_message(pif.form)
     if pif.form.has('section'):
         manf = MannoFile(pif, madeonly=True)
         llineup = manf.format_output(pif, mbdata.LISTTYPE_TILLEY)
