@@ -22,10 +22,10 @@ errors = []
 
 def fix_files(page_id):
     dn = useful.relpath('.', config.LIB_MAN_DIR, page_id[7:].lower())
-    os.system('sudo chown bamca:www %s' % dn)
-    os.system('sudo chmod 775 %s' % dn)
-    os.system('sudo chown bamca:www %s/*.*' % dn)
-    os.system('sudo chmod 664 %s/*.*' % dn)
+    os.system(f'sudo chown bamca:www {dn}')
+    os.system(f'sudo chmod 775 {dn}')
+    os.system(f'sudo chown bamca:www {dn}/*.*')
+    os.system(f'sudo chmod 664 {dn}/*.*')
 
 
 def grab_page(url):
@@ -178,7 +178,7 @@ def clean_dir(page_id):
 
 @basics.command_line
 def main(pif):
-    where = ' and '.join(['associated_link=%s' % x for x in pif.switch['a']])
+    where = ' and '.join([f'associated_link={x}' for x in pif.switch['a']])
     if pif.filelist:
         for arg in pif.filelist:
             for ll in pif.dbh.fetch_link_lines(page_id='single.' + arg, section='single', where=where):
@@ -272,7 +272,7 @@ def crc_dir(destdir, subdirs=None):
 
     print("+", destdir, end='')
     fl = os.listdir(destdir)
-    print("(%d)" % len(fl))
+    print(f"({len(fl)})")
     files = dict()
     fullfiles = dict()
     for f in fl:

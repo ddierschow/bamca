@@ -52,7 +52,7 @@ def print_user_form(pif, id):
     lrange = render.Range(entry=entries, note='')
     lsection = render.Section(colist=cols, headers=heads, range=[lrange],
                               header=pif.form.put_form_start(action='/cgi-bin/user.cgi',
-                                                                  name='userform', method='post', token=True),
+                                                             name='userform', method='post', token=True),
                               footer='{} -\n{} -\n{}</form>'.format(
         pif.form.put_button_input("save changes", "submit"),
         pif.form.put_button_reset("userform"),

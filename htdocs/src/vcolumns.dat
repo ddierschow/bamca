@@ -1,5 +1,6 @@
 |cate|category
 |note;from_CY_number|note
+|tampo|deco
 
 LS01a|body_casting|gap_between_door_and_fender;year_on_base;front_bumper;infill_above_gas_tank
 LS01a|cab_base|cab_base;grille
@@ -792,3 +793,8 @@ MI835|wheels|front_wheels;rear_wheels
 LS73b|wheels_hubs|front_wheels;rear_wheels
 MI1773|wheels|front_wheels;rear_wheels
 GTbr1718|windows_roof_light|windows;roof_light
+GTbr0304|base_text|base_reads
+GTbr0910|base_text|base_reads
+GTbr2930|base_text|additional_text
+LS73a|base_numbers|base_number
+LS73a|labels|deco

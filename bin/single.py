@@ -243,7 +243,7 @@ def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
             mack_nums.append(((alias[0] & config.FLAG_ALIAS_PRIMARY) != 0,) + mack_id)
     mack_nums.sort(key=lambda x: x[2])
     # if aliases.flags == 2, put it first or bold it or something
-    return [('<b>' if x[0] else '') + '-'.join([str(y) for y in x[1:]]).upper() + ('</b>' if x[0] else '')
+    return [('<b>' if x[0] else '') + '-'.join([str(y) for y in x[1:] if y]).upper() + ('</b>' if x[0] else '')
             for x in mack_nums]
 
 

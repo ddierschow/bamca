@@ -20,7 +20,7 @@ href_re = re.compile(r'''<a href=".*?">''')
 
 
 def report(area, im_count, pr_count=0):
-    print("%-23s %6d / %6d" % (area, im_count, pr_count))
+    print(f"{area:<23} {im_count:6} / {pr_count:6}")
 
 
 def count_html(fpath):
@@ -99,10 +99,10 @@ def get_year(pif, region, year):
 
 def get_years(pif, region, ystart, yend, pr_count, im_count):
     for year in range(ystart, yend + 1):
-        count = get_year(pif, region, year)
-        pr_count += count[0]
-        im_count += count[1]
-        print("    %s  %s  %-4d / %-4d" % (year, region, count[1], count[0]))
+        l_pr, l_im = get_year(pif, region, year)
+        pr_count += l_pr
+        im_count += l_im
+        print("    {year}  {region}  {l_pr:4} / {l_im:4}")
     return pr_count, im_count
 
 

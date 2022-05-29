@@ -29,7 +29,7 @@ import useful
 # X.02 | Catalogs                               | pub      |
 # X.03 | Advertisements                         | pub      |
 # X.11 | Series                                 | series   |
-# X.15 | Moving Parts
+# X.15 | Moving Parts                           | series   |
 # X.17 | Promotional                            | promo    |
 # X.21 | Early Lesney Toys                      | ks       |
 # X.22 | Major Packs                            | ks       |
@@ -726,19 +726,40 @@ def select_lineup(pif, region, year):
     llineup = render.Matrix(section=[lsec], header='<form>\n', footer='</form>')
     years = pif.dbh.fetch_lineup_years()
     while years:
-        lines = pif.form.put_radio('year', [(x['year'], x['year']) for x in years[:ypp]],
-                                        checked=year, sep='<br>\n')
+        lines = pif.form.put_radio('year', [(x['year'], x['year']) for x in years[:ypp]], checked=year, sep='<br>\n')
         lran.entry.append(render.Entry(text=lines))
         years = years[ypp:]
     lran.entry.append(
         render.Entry(text=pif.form.put_radio('region', [(x, mbdata.regions[x]) for x in mbdata.regionlist[1:]],
-                                                  checked=region, sep='<br>\n')))
+                                             checked=region, sep='<br>\n')))
     lran.entry.append(render.Entry(
-        text=pif.form.put_checkbox('lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types],
-                                        sep='<br>\n') +
+        text=pif.form.put_checkbox(
+            'lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types], sep='<br>\n') +
         '<p>' + pif.form.put_button_input()))
     lsec.columns = len(lran.entry)
     return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+
+
+def show_all_lineups(pif):
+    grid = {'': {
+        'X.01': 'pkg', 'X.02': 'cat', 'X.03': 'ads', 'X.11': 'series', 'X.15': 'mvp', 'X.17': 'promo',
+        'X.21': 'early', 'X.22': 'major', 'X.23': 'ks', 'X.24': 'rwr', 'X.25': 'srigs', 'X.31': 'moy',
+        'X.41': 'acc', 'X.51': 'bui', 'X.61': 'ps', 'X.62': 'gs', 'X.63': '5p', 'X.64': 'l5p', 'X.65': 't5p',
+        'X.66': '9/10', 'X.67': '2p', 'X.71': 'rwy', 'X.72': 'gm/pz', 'X.73': 'books',
+    }}
+    cols = set([' year'])
+    for sec in pif.dbh.fetch_sections_by_page_type('lineup'):
+        year = sec['section.page_id'][5:]
+        sec_id = sec['section.id']
+        if not sec_id.startswith('X'):
+            sec_id = sec_id[0]
+        grid.setdefault(year, {' year': year})
+        grid[year][sec_id] = '<i>X</i>' if sec['section.flags'] & config.FLAG_SECTION_HIDDEN else 'X'
+        cols.add(sec_id)
+
+    llineup = render.Listix(section=[
+        render.Section(range=[render.Range(entry=[y for x, y in sorted(grid.items())])], colist=sorted(cols))])
+    return pif.render.format_template('simplelistix.html', llineup=llineup.prep())
 
 
 # --------- multiyear lineup ------------------------
@@ -843,6 +864,8 @@ def main(pif):
         return year_lineup_main(pif, listtype)
     pif.render.print_html()
     pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
+    if pif.form.get_bool('large'):
+        return show_all_lineups(pif)
     return select_lineup(pif, pif.form.get_str('region', 'W').upper(), pif.form.get_str('year', '0'))
 
 

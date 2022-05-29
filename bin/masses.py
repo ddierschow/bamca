@@ -60,8 +60,7 @@ def mass_select(pif):
     rows = pif.dbh.fetch(pif.form.get_raw('table'), columns=columns + table_data.id, where=pif.form.get_raw('where'),
                          order=pif.form.get_raw('order'), tag='mass_select')
     header = pif.form.put_form_start(method='post', token=pif.dbh.create_token())
-    header += pif.form.put_hidden_input(table=pif.form.get_raw('table'),
-                                             select=pif.form.get_raw('select'), verbose=1)
+    header += pif.form.put_hidden_input(table=pif.form.get_raw('table'), select=pif.form.get_raw('select'), verbose=1)
     footer = pif.form.put_button_input("save") + "</form>"
     entries = []
 
@@ -1201,7 +1200,7 @@ def add_pack_model(pif, pack, long_pack_id):
         {
             'mod':
                 pif.form.put_hidden_input({'pm.id.%s' % key: mod.get('pack_model.id', '0'),
-                                                'pm.pack_id.%s' % key: long_pack_id}) +
+                                           'pm.pack_id.%s' % key: long_pack_id}) +
                 pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
                                        mod.get('pack_model.mod_id', '')) + ' ' +
                 pif.form.put_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
@@ -1213,7 +1212,7 @@ def add_pack_model(pif, pack, long_pack_id):
                 "pm.display_order.%s" % key, 2, 2, value=mod.get('pack_model.display_order', '')),
             'edit': pif.render.format_button_link(
                 'edit', pif.dbh.get_editor_link('pack_model',
-                                                     pif.dbh.make_id('pack_model', mod, 'pack_model' + '.'))),
+                                                pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
         } for key, mod in sorted(pmodels.items())]
     return dict(colist=cols, range=[{'entry': entries}], noheaders=True, header='pack_model<br>')
 
@@ -2253,7 +2252,7 @@ def add_photogs_form(pif):
         recid = rec['id']
         return {
             'X': pif.form.put_checkbox('X.%s' % recid, [('1', '')],
-                                            checked='1' if not rec['flags'] & config.FLAG_ITEM_HIDDEN else ''),
+                                       checked='1' if not rec['flags'] & config.FLAG_ITEM_HIDDEN else ''),
             'id': pif.form.put_text_input('id.%s' % recid, maxlength=4, showlength=4, value=rec['id']),
             'name': pif.form.put_text_input('name.%s' % recid, maxlength=32, showlength=32, value=rec['name']),
             'url': pif.form.put_text_input('url.%s' % recid, maxlength=128, showlength=64, value=rec['url']),

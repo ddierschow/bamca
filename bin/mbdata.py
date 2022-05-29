@@ -676,10 +676,11 @@ img_sel_cat = [
 
 base_logo = [
     ('', '(unknown)'),
-    ('a', '(no logo)'),
+    ('0', '(no logo)'),
+    ('a', 'straight "MATCHBOX"'),
     ('b', 'straight "MATCHBOX" SERIES'),
     ('c', 'straight MATCHBOX (R)'),
-    ('d', 'italic MATCHBOX'),
+    ('d', 'italic "MATCHBOX"'),
     ('e', 'italic MATCHBOX TM'),
     ('f', 'italic MATCHBOX (R)'),
     ('g', 'elliptical MATCHBOX'),
@@ -694,13 +695,15 @@ base_logo_dict = dict(base_logo)
 
 base_logo_2 = [
     ('', ''),
-    ('0', '(no logo)'),
     ('1', 'straight SUPERFAST'),
-    ('2', 'Superfast with wheel'),
-    ('3', 'straight MAJOR PACK'),
-    ('4', 'straight KING SIZE'),
-    ('5', 'script Super Kings'),
-    ('6', 'script Speed Kings'),
+    ('2', 'italic SUPERFAST'),
+    ('3', 'Superfast with wheel'),
+    ('4', 'straight MAJOR PACK'),
+    ('5', 'straight KING SIZE'),
+    ('6', 'script Super Kings'),
+    ('7', 'script Speed Kings'),
+    ('8', 'straight MODELS OF YESTERYEAR'),
+    ('9', 'italic MODELS OF YESTERYEAR'),
     ('z', 'elephant'),
 ]
 base_logo_2_dict = dict(base_logo_2)
@@ -748,8 +751,10 @@ dirs = bidict.bidict({
 
 deco_types = (
     ('', ''),
-    ('d', 'decals'),
-    ('l', 'labels'),
+    ('d', 'decal'),
+    ('ds', 'decals'),
+    ('l', 'label'),
+    ('ls', 'labels'),
     ('t', 'tampo'),
     ('n', 'no'),
     ('h', 'handpainted'),
@@ -757,6 +762,10 @@ deco_types = (
     ('i', 'inkjet printed'),
 )
 deco_types_dict = dict(deco_types)
+components = {
+    'wheels': {'h': 'hub', 'r': 'rim', 's': 'spoke', 't': 'tire', '_': ''},
+    'deco': {'b': 'body', 'c': 'cab', 'h': 'hood', 'r': 'roof', 's': 'side', 'w': 'wing', '_': ','},
+}
 
 # ----------------------------------------------------------------------
 

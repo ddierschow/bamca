@@ -39,7 +39,7 @@ form_attributes = note_attributes + detail_attributes + base_attributes + ['logo
 
 list_columns = ['ID', 'Description', 'Details', 'Picture']
 detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Or', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Lo',
-                  'Ba', 'Bo', 'In', 'Wh', 'Wi', 'W/']
+                  'Ba', 'Bo', 'In', 'Wh', 'Wi', 'W/', 'BT']
 
 fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
 
@@ -249,7 +249,7 @@ def show_appearances(pif, mod_id, var_id, pics=False):
             appears.append(
                 pif.render.format_link('code2.cgi?section=' + vs.sec_id, vs.page_info.title + ' - ' + vs.section.name))
         elif not vs.get('ref_id', ''):
-            if vs.get('category.flags', 0) & config.FLAG_CATEGORY_INDEXED:
+            if (vs.get('category.flags') or 0) & config.FLAG_CATEGORY_INDEXED:
                 appears.append(pif.render.format_link("cats.cgi?cat=%(category.id)s" % vs, vs['category.name']))
         elif pif.is_allowed('a'):  # pragma: no cover
             appears.append('<i>ref_id = ' + str(vs.ref_id) +
@@ -435,6 +435,12 @@ def save_variation(pif, mod_id, var_id):
     useful.write_message('phcred', phcred, '<br>')
     pif.render.message('Credit added: ',
                        pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var_dict['var']))
+#    ty_var = single.calc_var_type(pif, var_bare)  # needs vs
+#    if ty_var != var['variation_type']:
+#        useful.write_message(var['mod_id'], var['var'], ty_var)
+#        # pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var['mod_id'], 'var': var['var']})
+#        wheres = pif.dbh.make_where(var, cols=['mod_id', 'var'])
+#        pif.dbh.write('variation', {'variation_type': ty_var}, wheres, modonly=True, tag='FixVarType')
     if repic:
         rename_variation_pictures(pif, mod_id, var_dict['var'], mod_id, repic)
     pif.dbh.recalc_description(mod_id)
@@ -568,7 +574,7 @@ class VarSearchForm(object):
         self.varsels = varsels
 
     def read(self, form):
-        self.attrs = {key: form.get_str(key) for key in self.attributes}
+        self.attrs = {key: form.get_raw(key) for key in self.attributes}
         self.attrq = dict()
         for attr in list(self.attributes.keys()) + ['text_note']:
             if form.has(attr):
@@ -862,6 +868,7 @@ def do_var_detail(pif, model, var, credits, varsels):
         'Wh': mk_star(has_wh, not model['format_wheels']),
         'Wi': mk_star(has_wi, not model['format_windows']),
         'W/': mk_star(has_wt, not model['format_with']),
+        'BT': mk_star(has_wt, not model['format_text']),
         'style': 'c2' if var['_code'] == 2 else ''
     }
     for sz in mbdata.image_size_types:
@@ -896,7 +903,7 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
         if d.startswith('_') or d == 'text_description' or d == 'category' or not var[d] or d in hidden_attributes:
             continue
         elif d in text_attributes:
-            infs['desc1'].append(d)
+            pass  # infs['desc1'].append(d)
         elif d in note_attributes:
             if d in attributes:
                 infs['desc2'].append(d)
@@ -906,6 +913,7 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
             if d == 'deco' and var['deco_type']:
                 var['deco'] += ' - ' + mbdata.deco_types_dict.get(var['deco_type'], var['deco_type'])
             infs['dets1'].append(d)
+    infs['desc1'] = [x for x in text_attributes if var.get(x)]
 
     def attr_star(model, var):
         return sum([int(bool(var['text_' + x]) or not model['format_' + x]) for x in desc_attributes])
@@ -927,8 +935,11 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
     id_text += '</center>'
 
     def show_list(descs):
+        def show_det(x):
+            return '; '.join([y.replace('~', ':') for y in x.split('|')])
+
         return '<br>'.join(['<span class="%s">%s: %s</span>\n' % (
-            ("diff" if var[d] != prev.get(d, var[d]) else "same"), attributes[d]['title'], var[d])
+            ("diff" if var[d] != prev.get(d, var[d]) else "same"), attributes[d]['title'], show_det(var[d]))
             for d in descs])
         # return ('<table class="long_tab">' +
         #     '\n'.join([
@@ -2196,7 +2207,7 @@ def copy_base_info(pif, mod_id, var_dict, old_var_id):
         useful.write_message('copying base info', mod_id, var_dict['var'], old_var_id)
         for attr in base_attributes + ['logo_type']:
             if not var_dict.get(attr):
-                var_dict[attr] = other_var[attr]
+                var_dict[attr] = other_var[attr] or ''
     return var_dict
 
 

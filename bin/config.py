@@ -112,6 +112,8 @@ FLAG_LINK_LINE_DISABLED                 = 0x0100
 
 FLAG_PHOTOGRAPHER_PRIVATE               = 0x0002
 
+FLAG_BOOK_MAGAZINE                      = 0x0010
+
 FLAG_ITEM_HIDDEN                        = 0x0001
 
 FLAG_USER_BAMCA_MEMBER                  = 0x0010

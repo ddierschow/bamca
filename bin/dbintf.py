@@ -65,9 +65,9 @@ class DB(object):
                 '/*mock*/ ' if self.nowrites else '', os.environ.get('REMOTE_ADDR', ''), query))
             if args:
                 if logargs:
-                    self.logger.info('     args : %s', args)
+                    self.logger.info(f'     args : {args}')
                 else:
-                    self.logger.info('     args : %d %s', len(args), 'redacted')
+                    self.logger.info(f'     args : {len(args)} redacted')
         cu = self.db.cursor()
         try:
             nrows = cu.execute(query, args)
@@ -88,7 +88,7 @@ class DB(object):
         cu.close()
         self.logger.info('a %s%s %s' %
                          ('/*mock*/ ' if self.nowrites else '',
-                          os.environ.get('REMOTE_ADDR', ''), "%s rows %s id" % (len(resp), self.lastrowid)))
+                          os.environ.get('REMOTE_ADDR', ''), f"{len(resp)} rows {self.lastrowid} id"))
         return (resp, self.lastdescription, self.lastrowid)
 
     def mockexecute(self, query, args=None, logargs=None, verbose=None, tag=''):
@@ -100,8 +100,8 @@ class DB(object):
         if not self.db:
             return None
         res, desc, lid = self.execute(
-            """insert buser.counter (id, value, timestamp) values ('%s', 0, now()) on duplicate key """
-            """update value=value+1, timestamp=now()""" % countid, verbose=False)
+            "insert buser.counter (id, value, timestamp) values ('%s', 0, now()) on duplicate key "
+            "update value=value+1, timestamp=now()" % countid, verbose=False)
         self.execute('commit')
         return res
 
@@ -134,7 +134,7 @@ class DB(object):
 
     def describe(self, table, verbose=None):
         if self.db:
-            res, desc, lid = self.execute('desc %s' % table, verbose=verbose)
+            res, desc, lid = self.execute(f'desc {table}', verbose=verbose)
             if res:
                 return [dict(zip(desc_cols, x)) for x in res]
         return list()
@@ -144,21 +144,21 @@ class DB(object):
         if self.db:
             query = 'select '
             if tag:
-                query += "/* %s */ " % tag
+                query += f"/* {tag} */ "
             if distinct:
                 query += 'distinct '
             if cols:
-                query += '''%s from %s''' % (','.join(cols), table)
+                query += f'''{','.join(cols)} from {table}'''
             else:
-                query += '''* from %s''' % (table)
+                query += f'''* from {table}'''
             if where:
-                query += ''' where %s''' % where
+                query += f''' where {where}'''
             if group:
-                query += ''' group by %s''' % group
+                query += f''' group by {group}'''
             if order:
-                query += ''' order by %s''' % order
+                query += f''' order by {order}'''
             if limit:
-                query += ''' limit %s''' % limit
+                query += f''' limit {limit}'''
             # useful.write_comment(query)
             res, desc, lid = self.execute(query, args, logargs=logargs, verbose=verbose)
             if not cols:
@@ -172,7 +172,7 @@ class DB(object):
     def rawquery(self, query, args=None, logargs=True, tag='', verbose=None):
         if self.db:
             if tag:
-                query.insert(1, '/* %s */' % tag)
+                query.insert(1, f'/* {tag} */')
             res, desc, lid = self.execute(query, args, logargs, verbose=verbose)
             if not desc:
                 return list()
@@ -196,8 +196,8 @@ class DB(object):
             vals = ','.join(vals)
             query = 'insert '
             if tag:
-                query += "/* %s */ " % tag
-            query += '''into %s (%s) values (%s) on duplicate key update %s''' % (table, cols, vals, setlist)
+                query += f"/* {tag} */ "
+            query += f'into {table} ({cols}) values ({vals}) on duplicate key update {setlist}'
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose, tag=tag)
             else:
@@ -212,7 +212,7 @@ class DB(object):
         if self.db:
             query = 'update '
             # if tag:
-            #     query += "/* %s */ " % tag
+            #     query += f"/* {tag} */ "
             if isinstance(values, dict):
                 setlist = ','.join([x + "=" + (self.db.literal(str(values[x])) if values[x] is not None else 'NULL')
                                     for x in values])
@@ -220,9 +220,9 @@ class DB(object):
                 setlist = ','.join(values)
             else:
                 setlist = values
-            query += '''%s set %s''' % (table, setlist)
+            query += f'{table} set {setlist}'
             if where:
-                query += ''' where %s;''' % where
+                query += f' where {where};'
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose, tag=tag)
             else:
@@ -235,11 +235,11 @@ class DB(object):
         if self.db:
             query = 'update '
             if tag:
-                query += "/* %s */ " % tag
+                query += f"/* {tag} */ "
             setlist = ','.join([x + "=" + values[x] for x in values])
-            query += '''%s set %s''' % (table, setlist)
+            query += '{table} set {setlist}'
             if where:
-                query += ''' where %s;''' % where
+                query += f' where {where};'
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose)
             else:
@@ -252,11 +252,11 @@ class DB(object):
         if self.db:
             query = 'update '
             if tag:
-                query += "/* %s */ " % tag
+                query += f"/* {tag} */ "
             setlist = ','.join([x + "=" + str(values[x]) for x in values])
-            query += '''%s set %s''' % (table, setlist)
+            query += f'{table} set {setlist}'
             if where:
-                query += ''' where %s;''' % where
+                query += f' where {where};'
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query, verbose=verbose)
             else:
@@ -269,13 +269,13 @@ class DB(object):
         if self.db:
             query = 'insert '
             if tag:
-                query += "/* %s */ " % tag
+                query += f"/* {tag} */ "
             cols = []
             vals = []
             for key in inits:
                 cols.append(key)
                 vals.append(self.db.literal(inits[key]))
-            query += '''into %s (%s) values (%s)''' % (table, ','.join(cols), ','.join(vals))
+            query += 'into %s (%s) values (%s)' % (table, ','.join(cols), ','.join(vals))
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose)
             else:
@@ -288,10 +288,10 @@ class DB(object):
         if self.db:
             query = 'delete '
             if tag:
-                query += "/* %s */ " % tag
-            query += '''from %s''' % table
+                query += f"/* {tag} */ "
+            query += f'from {table}'
             if where:
-                query += ''' where %s''' % where
+                query += f' where {where}'
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query, verbose=verbose)
             else:

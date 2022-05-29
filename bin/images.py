@@ -54,11 +54,11 @@ auto_credits = [
 
 def file_log(fn, tdir):
     # open(os.path.join(config.LOG_ROOT, "file.log"), "a").write('|'.join([fn, tdir, str(config.USER_ID)]) + '\n')
-    logging.getLogger('file').info('%s %s' % (tdir, fn))
+    logging.getLogger('file').info(f'{tdir} {fn}')
 
 
 def upload_log(url, pdir):
-    logging.getLogger('upload').info('%s %s' % (pdir, url))
+    logging.getLogger('upload').info('{pdir} {url}')
 
 
 def get_next_upload_filename():

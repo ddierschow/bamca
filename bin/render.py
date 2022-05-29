@@ -4,7 +4,6 @@
 
 import copy
 import glob
-import html
 import http.client
 import os
 import re
@@ -322,7 +321,7 @@ of Matchbox International Ltd. and are used with permission.
     def set_button_comment(self, pif, args=None):
         args = f'page={pif.page_id}' + (f'&{args}' if args else '')
         ostr = self.format_button_link("comment on<br>this page", f'../pages/comment.php?{args}',
-                                  also={'class': 'textbutton comment'}, lalso=dict())
+                                       also={'class': 'textbutton comment'}, lalso=dict())
         if pif.is_allowed('a'):  # pragma: no cover
             ostr += self.format_button_link(
                 "pictures", f"traverse.cgi?d={self.pic_dir}", also={'class': 'textbutton comment'}, lalso=dict())

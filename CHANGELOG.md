@@ -1,3 +1,8 @@
+### 7.3 - 2022-05-29
+
+- Rewrite a lot of attribute formatting, including better deco and wheels
+- Add more base logos
+
 ### 7.2 - 2022-05-22
 
 - Rewriting of lots of internals

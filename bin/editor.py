@@ -255,7 +255,7 @@ def show_sub_tables(pif, table_data, dat=None):
 
         if dat and subtab['tab'] in adds:
             header += pif.render.format_button_link('add', "?table=" + subtab['tab'] + "&" +
-                                               make_url_cond(adds[subtab['tab']], dat))
+                                                    make_url_cond(adds[subtab['tab']], dat))
             del adds[subtab['tab']]
 
         cond = dict()
@@ -263,8 +263,9 @@ def show_sub_tables(pif, table_data, dat=None):
             cond = make_cond(subtab['id'], dat)
             lsection = show_sub_table_section(
                 pif, pif.dbh.get_table_data(subtab['tab']), cond, ref=subtab.get('ref', {}))
-            lsection.header = header + pif.render.format_button_link('show', "?table=" + subtab['tab'] + "&" + "&".join([
-                x + '=' + str(cond[x]) for x in cond])) + '\n' + lsection.header
+            lsection.header = header + pif.render.format_button_link(
+                'show', "?table=" + subtab['tab'] + "&" + "&".join([
+                    x + '=' + str(cond[x]) for x in cond])) + '\n' + lsection.header
         else:
             header += pif.render.format_button_link('show', "?table=" + subtab['tab'])
             # if subtab['tab'] in adds:

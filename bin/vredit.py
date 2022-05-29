@@ -17,7 +17,7 @@ in some cases.
 Good luck.
 """
 
-from sprint import sprint as print
+import datetime
 from functools import reduce
 import glob
 from io import open
@@ -25,7 +25,6 @@ import itertools
 import os
 import re
 import sys
-import time
 
 import basics
 import config
@@ -198,6 +197,7 @@ def read_html_file(pif, vid, fdir, fn):
 
 def read_dat_file(pif, vid, fdir, fn):
     fn = fdir + '/' + fn + '.dat'
+    print("Reading", fn, "<br>")
     modids = list()
     fitabs = list()
     fitab = list()
@@ -421,7 +421,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         print("<td>%s</td>" % pif.form.put_button_input(bname="save", name='renattr.%d' % attr['id']))
         print("<td></td>")
         print("<td>%s</td>" % pif.render.format_link(
-            '/cgi-bin/vedit.cgi', txt=pif.form.put_text_button(bname="none"),
+            '/cgi-bin/vedit.cgi', txt=pif.form.put_text_button("none"),
             args={'attribute_name.%s' % attr['id']: attr['attribute_name'], 'd': 'src/mbxf',
                   'description.%s' % attr['id']: 'none', 'f': file_id, 'm': mod_id, 'mod_id': mod_id,
                   'renattr.%s' % attr['id']: 'SAVE'}))
@@ -864,7 +864,7 @@ def do_action(pif, mod_id):
         var_cols = pif.dbh.columns("variation")
         for k in pif.form.keys(end='.var'):
             rec = {"mod_id": mod_id}
-            rec["imported"] = time.time()
+            rec["imported"] = str(datetime.datetime.now())
             det = dict()
             for vk in pif.form.keys(start=pif.form.get_raw(k)):
                 vv = pif.form.get_raw(vk)

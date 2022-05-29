@@ -64,6 +64,7 @@ to these new templates, and more will follow as I have time.
     7.0 published Thursday, 20 February 2020 at 12:01 AM PST
     7.1 published Sunday, 8 May 2022 at 12:01 AM PDT
     7.2 published Sunday, 22 May 2022 at 12:01 AM PDT
+    7.3 published Sunday, 29 May 2022 at 12:01 AM PDT
 
 
 There are many plans for things to add, but they require time, which

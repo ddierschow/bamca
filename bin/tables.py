@@ -310,10 +310,14 @@ table_info = {
             ]
         },
         'internals': [
-            'base', 'body', 'interior', 'windows',
+            'base', 'body', 'interior', 'windows', 'deco',
             'manufacture', 'additional_text', 'base_name', 'base_number', 'tool_id',
             'copyright', 'company_name', 'production_id', 'base_scale', 'base_reads',  # 'logo_type',
         ],
+        'meta': [
+            'mod_id', 'var', 'flags', 'text_description', 'text_base', 'text_body', 'text_interior', 'text_wheels',
+            'text_windows', 'text_with', 'text_text', 'area', 'date', 'note', 'picture_id', 'imported',
+            'imported_from', 'imported_var', 'category', 'variation_type'],
     },
     # detail
     'detail': {
@@ -890,7 +894,7 @@ class TableData(object):
 
     def __init__(self, name, db, add=None, ask=None, bits=None, clinks=None, columns=None, create=None,
                  defaults=None, editable=None, elinks=None, extends=None, extra_columns=None, formats=None, hidden=None,
-                 id=None, internals=None, readonly=None, saveid=False, title=None, tlinks=None):
+                 id=None, internals=None, meta=None, readonly=None, saveid=False, title=None, tlinks=None):
         self.db = db
         self.name = name
         self.add = add or {}
@@ -908,6 +912,7 @@ class TableData(object):
         self.hidden = hidden or []
         self.id = id or []
         self.internals = internals or []
+        self.meta = meta or []
         self.readonly = readonly or []
         self.saveid = saveid
         self.title = title or {}

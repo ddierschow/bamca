@@ -271,7 +271,7 @@ def show_imgs(pif, tform):
                         print(img(pif, [fn], rsuf=tform.rsuf, **img_args))
                 print('</table>')
                 print('<hr>')
-    print('<input type="hidden" name="d" value="%s">' % tform.tdir)
+    print(f'<input type="hidden" name="d" value="{tform.tdir}">')
     print('<input type="hidden" name="sc" value="1">')
     if tform.cate:
         print('<input type="hidden" name="pre" value="">')

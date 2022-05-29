@@ -104,7 +104,8 @@ mup_re = re.compile(r'<[^>]*>', re.S)
 
 
 def get_html_tables(fn, markups=True):
-    f = open(fn, encoding="utf-8", errors="surrogateescape").read()
+    print("Reading", fn, "<br>")
+    f = open(fn, encoding="utf-8", errors="ignore").read()
     f = cmt_re.sub('', f)
     f = hln_re.sub('', f)
     f = div_re.sub('', f)
@@ -315,6 +316,15 @@ class VariationImportData(object):
 
         self.debug('RCC 6', row)
         self.row_change(row, self.post_change.get(file_id, []) + self.post_change.get('', []))
+
+        date = row.get('date', '')
+        if date.count('/') == 1:
+            m, y = date.split('/')
+            m = m.strip()
+            y = y.strip()
+            if y.isdigit():
+                y = ('20' if y < '53' else '19') + y
+            row['date'] = f'{y}-{m}' if m else f'{y}'
 
         self.debug('RCC 7', row)
         for hdr in row:

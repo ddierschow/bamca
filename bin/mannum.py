@@ -55,6 +55,7 @@ admin_cols = [
     ['varids', 'Vars'],
     ['varl', 'VarL'],
     ['notes', 'Nt'],
+    ['attr', 'Attr'],
     ['im', 'Im'],
     ['de', 'De'],
     ['fo', 'Fo'],
@@ -64,6 +65,7 @@ admin_cols = [
     ['wh', 'Wh'],
     ['wi', 'Wi'],
     ['w/', 'W/'],
+    ['bt', 'BT'],
     # ['description', 'Description'],
     # ['mydesc', 'Mine'],
 ]
@@ -358,8 +360,8 @@ class MannoFile(object):
 
     def show_list_var_info(self, pif, mdict):
         mvars = pif.dbh.fetch_variations(mdict['id'])
-        fields = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
-        keys = ['de', 'ba', 'bo', 'in', 'wh', 'wi', 'w/']
+        fields = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
+        keys = ['de', 'ba', 'bo', 'in', 'wh', 'wi', 'w/', 'bt']
         ver = set()
         t2k = dict(zip(fields, keys))
         td = {x: 0 for x in keys}
@@ -426,7 +428,7 @@ class MannoFile(object):
             mdict.update({
                 'fvyear': '', 'lvyear': '',
                 'notes': 'N' if mdict['notes'] else '',
-                'vid': '<a href="vars.cgi?mod=%(id)s">%(id)s</a>' % mdict,
+                'vid': '<a href="vars.cgi?edt=1&mod=%(id)s">%(id)s</a>' % mdict,
                 'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
             if mdict['flags'] & config.FLAG_MODEL_CASTING_REVISED:
                 mdict['vid'] = '<nobr>' + mdict['vid'] + '<i class="fas fa-circle green"></i><nobr>'
@@ -441,6 +443,7 @@ class MannoFile(object):
                 pif.render.format_link(f"/cgi-bin/makes.cgi?make={x['vehicle_make.id']}", str(x['vehicle_make.name']))
                 for x in makes
             ])
+            mdict['attr'] = '<br>'.join(sorted([x['attribute.attribute_name'] for x in pif.dbh.fetch_attributes(mod)]))
             if mdict['make']:
                 mdict['make'] = pif.render.format_link("/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make'])
             relateds = [x['casting_related.related_id']
@@ -1089,13 +1092,13 @@ def clone_attributes(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
     pif.dbh.clone_attributes(old_mod_id, new_mod_id)
     vals = pif.dbh.fetch('casting', columns=format_attributes, where={'id': old_mod_id})
     if vals:
-        pif.dbh.write('casting', values=vals[0], where="id='%s'" % new_mod_id, modonly=True)
+        pif.dbh.write_casting(values=vals[0], id=new_mod_id)
     vals = pif.dbh.fetch('detail', where={'mod_id': old_mod_id, 'var_id': ''})
     # print(vals)
     for val in vals:
         val = pif.dbh.depref('detail', val)
         val['mod_id'] = new_mod_id
-        pif.dbh.write('detail', values=val, newonly=True)
+        pif.dbh.write_detail(values=val, where=None, newonly=True)
     # insert into detail (select 'MB880', '', attr_id, description from detail where mod_id='MB153' and var_id='');
 
 
@@ -1473,6 +1476,27 @@ def add_linkline(pif, mod_id, ass_link, dest):
 # single.MB1004 | single  |  1 |     0 |       15 | l  | http://www.mbx-u.com/... | SF0951 |
 
 
+def fix_deco_tampo(pif, *args):
+    for mod_id in args:
+        attr = [x for x in pif.dbh.fetch_attributes(mod_id) if x['attribute.attribute_name'] == 'decals']
+        if not attr:
+            print('!', mod_id, 'no decals')
+            continue
+        attr = attr[0]
+        mod = pif.dbh.fetch_casting(mod_id, extras=True)
+        dets = pif.dbh.fetch_details(mod_id, nodefaults=True)
+        for var in pif.dbh.fetch_variations_bare(mod_id):
+            var['variation.deco'] = dets.get(var['variation.var'], {}).get('decals', '')
+            var['variation.deco_type'] = 'd'
+            pif.dbh.update_variation_bare(var, verbose=True)
+        pif.dbh.delete_attribute({'id': attr['attribute.id']})
+        pif.dbh.delete_detail({'attr_id': attr['attribute.id']})
+        pif.dbh.write_casting(
+            {'format_description': mod['format_description'].replace('decals', 'deco'),
+             'format_body': mod['format_body'].replace('decals', 'deco')}, id=mod_id, verbose=True)
+        pif.dbh.recalc_description(mod_id, showtexts=True, verbose=True)
+
+
 cmds = [
     ('d', delete_casting, "delete: mod_id"),
     ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
@@ -1490,6 +1514,7 @@ cmds = [
     ('cra', add_casting_related, "add casting_related [-s section] mod_id mod_id ..."),
     ('cf', add_casting_file, "add casting file"),
     ('ll', add_linkline, "add link line"),
+    ('fdt', fix_deco_tampo, "fix deco tampo mod_id ..."),
 ]
 
 

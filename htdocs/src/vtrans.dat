@@ -74,8 +74,9 @@
 >impr.|improved |
 >int.|interior |
 >inv.|inverted |
->irid.|iridescent |
->irid>|iridescent |
+>irid.|pearly |
+>irid>|pearly |
+>iridescent>|pearly |
 >lavnd.|lavender |
 >laven.|lavender |
 >let.|letters |

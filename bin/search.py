@@ -131,21 +131,16 @@ def get_mack_numbers(pif, mod_id):
         if m[0]:
             ostr += '%s-' % m[0]
         if m[2]:
-            ostr += '%03d-%s' % m[1:]
+            ostr += '%03d-%2s' % m[1:]
         else:
             ostr += '%03d' % m[1]
         return ostr
 
     ret = []
     mack = mbdata.get_mack_number(mod_id)
-    if mack[0] is None:
-        return ret
-    if mod_id.startswith('RW') or mod_id in ('MI740', 'MI816', 'MI861') or (mack and mack[0] and mack[2]):
+    if mack[0] is not None and mod_id.startswith('RW') or mod_id in (
+            'MI740', 'MI816', 'MI861') or (mack and mack[0] and mack[2]):
         ret.append(fmt_mack_id(mack))
-    aliases = sorted(pif.dbh.fetch_aliases(mod_id), key=lambda x: (-x['alias.flags'], x['alias.ref_id']))
-    ret += [fmt_mack_id(mbdata.get_mack_number(x['alias.id'])) for x in aliases]
-    if not mack or not mack[2]:
-        ret.append(mod_id)
     return ret
 
 
@@ -167,9 +162,12 @@ def date_search(pif, dt=None, yr=None):
             verified = ['1'] if var['variation.flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else []
             id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
             ver_count += 1 if verified else 0
-            macks = get_mack_numbers(pif, var['variation.mod_id'])
-            var['sort'] = macks[0] if macks else var['variation.mod_id']
-            mvid = "%s-%s" % (var['variation.mod_id'], var['variation.var'])
+            mod_id = var['variation.mod_id']
+            aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack') if x['alias.flags'] & config.FLAG_ALIAS_PRIMARY]
+            mack_id = aliases[0] if aliases else mod_id
+            macks = get_mack_numbers(pif, mack_id)
+            var['sort'] = macks[0] if macks else mod_id
+            mvid = "%s-%s" % (mod_id, var['variation.var'])
 
             done = all([var['variation.text_' + x] != '' for x in ['description'] + descs])  # ignore text_with for now
             done = ' <i class="fas fa-star %s"></i>\n' % ('green' if done else 'red')
@@ -178,24 +176,23 @@ def date_search(pif, dt=None, yr=None):
             if var['variation.text_with']:
                 desc += '<li>with: ' + var['variation.text_with']
             var['shown'] = ''
-            if last != var['variation.mod_id']:
+            if last != mod_id:
                 var['shown'] += (
+                    pif.render.format_link(f'/cgi-bin/single.cgi?id={mod_id}', f'<b>{mack_id} ({mod_id}) ') +
                     pif.render.format_link(
-                        '/cgi-bin/single.cgi?id=%s' % (var['variation.mod_id']), '<b>%s ' % '/'.join(macks)) +
-                    pif.render.format_link(
-                        '/cgi-bin/vars.cgi?mod=%s' % (var['variation.mod_id']),
+                        f'/cgi-bin/vars.cgi?mod={mod_id}',
                         '%s</b><br>' % var['base_id.rawname'].replace(';', ' '))
                 )
-                last = var['variation.mod_id']
+                last = mod_id
             var['shown'] += pif.render.format_image_optional(
-                var['variation.mod_id'], vars=[var['variation.picture_id'] or 'unmatchable', var['variation.var']],
+                mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var['variation.var']],
                 also={'class': 'righty'}, nobase=True, largest='s')
             var['shown'] += (
                 pif.form.put_hidden_input({'v.' + mvid: '1'}) +
                 pif.form.put_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
                 pif.form.put_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
                 pif.render.format_link(
-                    '/cgi-bin/vars.cgi?mod=%s&var=%s&edit=1' % (var['variation.mod_id'], var['variation.var']),
+                    '/cgi-bin/vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var['variation.var']),
                     '(%s) %s' % (var['variation.var'], var['variation.text_description'])) + done +
                 '<i>' + var['variation.note'] + '</i> ' + '-' + vs + '-' +
                 cats + '\n<ul>' + desc + '</ul>\n'
