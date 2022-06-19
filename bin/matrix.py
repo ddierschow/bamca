@@ -397,7 +397,7 @@ class MatrixFile(object):
                 "upload",
                 "upload.cgi?d=%s&n=%s&c=%s&link=%s" % (
                     pif.render.pic_dir.replace('pic', 'lib'), pic, pic,
-                    useful.url_quote(pif.secure_prod + '/cgi-bin/matrix.cgi?page=' + pif.page_id)))
+                    useful.url_quote('/cgi-bin/matrix.cgi?page=' + pif.page_id)))
 
         ent.setdefault('displayed_id', '&nbsp;')
         if ent.get('disp_format'):

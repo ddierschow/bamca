@@ -16,6 +16,7 @@ import re
 import stat
 import string
 import subprocess
+from subprocess import PIPE
 import urllib
 
 import config  # bleagh
@@ -222,7 +223,7 @@ def set_and_add_list(d, k, ln):
 
 
 def any_char_match(t1, t2):
-    return bool(set(list(t1)) & set(list(t2)))
+    return bool(set(list(t1 or '')) & set(list(t2 or '')))
 
 
 def bit_list(val, format="%02x"):
@@ -627,7 +628,7 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
         if verbose:
             write_message(ch, ' '.join(cmd), nonl=True)
         ch = '|'
-        procs.append(subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr))
+        procs.append(subprocess.Popen(cmd, stdin=inp, stdout=PIPE, stderr=stderr))
         # , text=True
         inp = procs[-1].stdout
     if verbose:
@@ -641,11 +642,11 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
     return output
 
 
-def simple_process(cmd, msg='', inp=subprocess.PIPE, stderr=None, verbose=False):
+def simple_process(cmd, msg='', inp=PIPE, stderr=None, verbose=False):
     ch = '%'
     if verbose:
         write_message(ch, ' '.join(cmd), nonl=True)
-    proc = subprocess.Popen(cmd, stdin=inp, stdout=subprocess.PIPE, stderr=stderr, text=True)
+    proc = subprocess.Popen(cmd, stdin=inp, stdout=PIPE, stderr=stderr, text=True)
     output = ''
     o, e = proc.communicate(msg)
     while proc.returncode is None:

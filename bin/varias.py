@@ -21,12 +21,12 @@ import useful
 
 id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from', 'references', '_repic', '_credit']
 note_attributes = ['area', 'date', 'note', 'category']
-internal_desc_attributes = ['description', 'base', 'body', 'deco', 'interior', 'windows']
+internal_desc_attributes = ['description', 'base', 'body', 'deco', 'interior', 'wheels', 'windows']
 desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
 text_attributes = ['text_' + x for x in desc_attributes]
 format_attributes = ['format_' + x for x in desc_attributes]
 hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type', 'deco_type']
-detail_attributes = ['base', 'body', 'deco', 'interior', 'windows']
+detail_attributes = ['base', 'body', 'deco', 'interior', 'wheels', 'windows']
 base_attributes = ['additional_text', 'base_name', 'base_number', 'base_scale', 'tool_id', 'company_name', 'copyright',
                    'production_id', 'manufacture', 'base_reads']
 system_attributes = ['_any', '_catdefs', '_categories', '_catlist', '_code', '_copy_base_from', '_credit',
@@ -624,7 +624,7 @@ class VarSearchForm(object):
         useful.write_comment(pif.form)
 
         entries = [{'title': self.attributes[x]['title'],
-                    'value': pif.form.put_text_input(x, 64, 64)} for x in text_attributes]
+                    'value': pif.form.put_text_input(x, 64, 128)} for x in text_attributes]
         entries.append({'title': 'Note', 'value': pif.form.put_text_input('text_note', 64, 64)})
         entries.append({
             'title': '', 'value':
@@ -833,7 +833,7 @@ def do_var_detail(pif, model, var, credits, varsels):
 
     varsel = varsels.get(var['var'], [])  # pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
     phcred = credits.get(('%(mod_id)s-%(var)s' % var).lower(), '')
-    ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt = single.calc_var_pics(pif, var)
+    ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt, has_bt = single.calc_var_pics(pif, var)
     cat_v = set(var['category'].split())
     cat_vs = set([x['variation_select.category'] for x in varsel])
     cat = ' '.join(cat_v)
@@ -868,7 +868,7 @@ def do_var_detail(pif, model, var, credits, varsels):
         'Wh': mk_star(has_wh, not model['format_wheels']),
         'Wi': mk_star(has_wi, not model['format_windows']),
         'W/': mk_star(has_wt, not model['format_with']),
-        'BT': mk_star(has_wt, not model['format_text']),
+        'BT': mk_star(has_bt, not model['format_text']),
         'style': 'c2' if var['_code'] == 2 else ''
     }
     for sz in mbdata.image_size_types:
@@ -1124,11 +1124,11 @@ def do_model_descriptions(pif, model, vsform, dvars, photogs):
             return (x[0] + x[x.find('_') + 1]).upper()
         return x[0].upper() + x[1]
 
-    columns = ['var', 'flags', 'base', 'body', 'deco', 'interior', 'windows', 'manufacture', 'additional_text',
-               'base_name', 'base_number', 'base_scale', 'tool_id', 'production_id',
+    columns = ['var', 'flags', 'base', 'body', 'deco', 'interior', 'wheels', 'windows', 'manufacture',
+               'additional_text', 'base_name', 'base_number', 'base_scale', 'tool_id', 'production_id',
                'copyright', 'company_name', 'logo_type', 'base_reads', 'note', 'variation_type'] + attrs
-    headers = ['var', 'Fl', 'Ba', 'Bo', 'De', 'In', 'Wi', 'Ma', 'AT', 'BN', 'B#', 'BS', 'TI', 'PI', 'CR', 'CN', 'LT',
-               'No', 'VT'] + [mk_hdr(x) for x in attrs]
+    headers = ['var', 'Fl', 'Ba', 'Bo', 'De', 'In', 'Wh', 'Wi', 'Ma', 'AT', 'BN', 'B#', 'BS', 'TI', 'PI', 'CR', 'CN',
+               'LT', 'BR', 'No', 'VT'] + [mk_hdr(x) for x in attrs]
 
     return render.Listix(id='vars', section=[render.Section(
         id='dt_d', name=str(mack), colist=columns, headers=headers, header='<br>' + ', '.join(columns),
@@ -1714,30 +1714,30 @@ def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
     if not mod:
         print(mod_id, 'not found')
         return
-    attrs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id, with_global=True))
-
-    for attr in attrs:
-        if attr['attribute_name'] == attribute:
-            break
-    else:
+    attrs = {x['attribute_name']: x for x in pif.dbh.depref('attribute', pif.dbh.fetch_attributes(mod_id))}
+    if attribute not in (detail_attributes + list(attrs.keys())):
         print(attribute, 'not found')
         return
-
-    var = {}
+    attr = attrs.get(attribute)
+    vars = {x['var']: x for x in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))}
+    # var = {}
     if var_id == 'default':
         var_id = ''
         var_id_list = []
     elif var_id == 'all':
         var_id = '*'
-        var_id_list = [x['variation.var'] for x in pif.dbh.fetch_variations(mod_id)]
+        var_id_list = [x for x, y in vars.items() if not y.get(attribute)]
+    elif var_id == 'force':
+        var_id = '*'
+        var_id_list = list(vars.keys())
+    elif var_id not in vars:
+        print(var_id, 'not found')
+        return
     else:
-        var = [pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, var_id))]
+        # var = [vars[var_id]]
         var_id_list = [var_id]
-        if not var:
-            print(var_id, 'not found')
-            return
 
-    print(mod_id, var_id_list, attribute, attr['id'], '=>', value)
+    print(mod_id, var_id_list, attribute, attr['id'] if attr else None, '=>', value)
     if var_id:
         for var_id in var_id_list:
             if attribute in detail_attributes and var_id:
@@ -1829,7 +1829,7 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
             pic_id = model['picture_id'] if model['picture_id'] else model['var']
             varsel = pif.dbh.fetch_variation_selects(model['mod_id'], model['var'])
             phcred = credits.get(('%s-%s' % (model['mod_id'], pic_id)).lower(), '')
-            ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = single.calc_var_pics(pif, model)
+            ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_bt = single.calc_var_pics(pif, model)
             cat_v = set(model['category'].split())
             cat_vs = set([x['variation_select.category'] for x in varsel])
             cat = ' '.join(cat_v)
@@ -1848,6 +1848,7 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
                 'In': mk_star(has_in),
                 'Wh': mk_star(has_wh),
                 'Wi': mk_star(has_wi),
+                'BT': mk_star(has_bt),
             }
             row.update(check_picture_sizes(config.IMG_DIR_VAR, model['mod_id'] + '-' + pic_id + '.jpg', mk_star))
             # for sz in mbdata.image_size_types:
@@ -1916,7 +1917,7 @@ def list_photo_credits(pif, photog_id=None):
         for model in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
             if model['picture_id']:
                 continue
-            ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi = single.calc_var_pics(pif, model)
+            ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_bt = single.calc_var_pics(pif, model)
             if mbdata.var_types.get(ty_var, ty_var) == 'C2':
                 continue
             phcred = credits.get(('%s-%s' % (model['mod_id'], model['var'])).lower(), '')
@@ -2220,7 +2221,7 @@ cmds = [
     ('m', move_variation, "move: old_mod_id old_var_id new_mod_id [new_var_id]"),
     ('f', run_search_command, "search: obj ..."),
     ('i', info, "info: fields mod_id var_id"),
-    ('v', add_value, "value: mod_id var_id-or-default-or-all attribute value"),
+    ('v', add_value, "value: mod_id var_id-or-default-or-all-or-force attribute value"),
     ('mp', rename_variation_pictures, "picture: old_mod_id, old_var_id, new_mod_id, new_var_id"),
     ('cb', copy_base, "copy base: mod_id var_id var_id"),
     ('l', list_variations, "list: mod_id"),

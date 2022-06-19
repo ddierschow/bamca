@@ -3,9 +3,9 @@
 
 {%- macro man_entry(entry) -%}
   <center>
-   <table class="entry">
+   <table class="entry" id="{{ entry.data.shown_id }}">
     <tr><td></td><td width="32"><i><font size="-1">{{ entry.data.first_year }}</font></i></td>
-    <td width="136"><center><font face="Courier">{{ entry.data.id }}</font></center></td>
+    <td width="136"><center><font face="Courier">{{ entry.data.shown_id }}</font></center></td>
     <td width="32">{{ entry.data.flag }}</td><td></td></tr>
     <tr><td colspan="5"><center>
      {{ entry.data.lname }}

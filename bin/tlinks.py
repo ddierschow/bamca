@@ -320,24 +320,44 @@ flag_check_names = [
 def edit_single(pif):
     listCats, listIndices, dictCats, listRejectCats = read_config(pif, True)
     listCats.append(('single', 'single'))
+    listMakes = [(x['vehicle_make.id'], x['vehicle_make.name']) for x in pif.dbh.fetch_vehicle_makes()]
     table_data = pif.dbh.get_table_data('link_line')
     link_id = pif.form.get_str('id')
+    nlink = {x: pif.form.get_str(x) for x in table_data.columns}
     if pif.form.get_str('save'):
         all_links, highest_disp_order = read_all_links(pif)
-        nlink = {x: pif.form.get_str(x) for x in table_data.columns}
-        nlink['flags'] = 0
-        if pif.form.get_str('section_id') == 'single':
-            pass
+        if not nlink['id']:
+            nlink['flags'] = 0
+            if nlink['section_id'] == 'single' or nlink['page_id'] == 'makes':
+                pass
+            else:
+                nlink['page_id'] = 'links.' + dictCats.get(
+                    pif.form.get_str('section_id', ''), pif.form.get_str('section_id', ''))
+            nlink['display_order'] = highest_disp_order.get((nlink['page_id'], nlink['section_id']), 0) + 1
+            for flag in pif.form.get_list('flags'):
+                nlink['flags'] += int(flag, 16)
+            if nlink['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE:
+                nlink['last_status'] = 'NoVer'
+            del nlink['id']
+            pif.render.message(nlink)
+            pif.dbh.insert_link_line(nlink)
+            pif.render.message('<br>record added<br>')
         else:
-            nlink['page_id'] = 'links.' + dictCats.get(
-                pif.form.get_str('section_id', ''), pif.form.get_str('section_id', ''))
-        nlink['display_order'] = highest_disp_order.get((nlink['page_id'], nlink['section_id']), 0) + 1
-        for flag in pif.form.get_list('flags'):
-            nlink['flags'] += int(flag, 16)
-        if nlink['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE:
-            nlink['last_status'] = 'NoVer'
-        pif.dbh.update_link_line(nlink)
-        pif.render.message('<br>record saved<br>')
+            nlink['flags'] = 0
+            if pif.form.get_str('section_id') == 'single':
+                pass
+            elif pif.form.get_str('page_id') == 'makes':
+                pass
+            else:
+                nlink['page_id'] = 'links.' + dictCats.get(
+                    pif.form.get_str('section_id', ''), pif.form.get_str('section_id', ''))
+            nlink['display_order'] = highest_disp_order.get((nlink['page_id'], nlink['section_id']), 0) + 1
+            for flag in pif.form.get_list('flags'):
+                nlink['flags'] += int(flag, 16)
+            if nlink['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE:
+                nlink['last_status'] = 'NoVer'
+            pif.dbh.update_link_line(nlink)
+            pif.render.message('<br>record saved<br>')
     elif pif.form.get_str('test'):
         link = pif.dbh.fetch_link_line(link_id)[0]
         check_link(pif, link)  # don't care about blacklist here, just actual check
@@ -352,18 +372,28 @@ def edit_single(pif):
         nlink['flags'] = 0
         pif.dbh.update_link_line(nlink)
         pif.render.message('<br>record rejected<br>')
-    elif pif.form.get_str('add'):
-        link_id = (
-            # pif.dbh.insert_link_line(
-            #     {'page_id': pif.form.get_str('page_id', ''), 'section_id': pif.form.get_str('sec')})
-            # pif.form.set_val('id',
-            pif.dbh.insert_link_line(
-                {'page_id': pif.form.get_str('page_id'), 'country': '', 'flags': 1, 'link_type': 'l'}))
 
-    links = pif.dbh.fetch_link_lines(where="id='%s'" % link_id)
-    if not links:
-        raise useful.SimpleError("That ID wasn't found.")
-    link = links[0]
+    if pif.form.get_str('add'):
+        link = {
+            'link_line.id': '',
+            'link_line.page_id': pif.form.get('page_id', ''),
+            'link_line.section_id': pif.form.get('sec', ''),
+            'link_line.display_order': 0,
+            'link_line.flags': 1,
+            'link_line.associated_link': '',
+            'link_line.last_status': '-',
+            'link_line.link_type': 'l',
+            'link_line.country': '',
+            'link_line.url': '',
+            'link_line.name': '',
+            'link_line.description': '',
+            'link_line.note': '',
+        }
+    else:
+        links = pif.dbh.fetch_link_lines(where="id='%s'" % link_id)
+        if not links:
+            raise useful.SimpleError("That ID wasn't found.")
+        link = links[0]
     asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name'])
                             for x in pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE)]
     descs = pif.dbh.describe_dict('link_line')
@@ -375,37 +405,40 @@ def edit_single(pif):
     for col in table_data.columns:
         col_long = 'link_line.' + col
         coltype = descs.get(col).get('type', 'unknown')
-        value = useful.printablize(link.get(col_long, ''))
-        entries.append({'text': col})
+        val = useful.printablize(link.get(col_long, ''))
         # entries.append({'text': '<a href="%s">%s</a>' % (link.get(col_long, ''), link.get(col_long, ''))
         #                if col == 'url' else link[col_long]})
-        entries.append({'text': '<a href="%s">%s</a>' % (value, value) if col == 'url' else value})
         if col in table_data.readonly:
-            cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
+            cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, val)
         # elif col == 'page_id':
-        #     cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, value)
+        #     cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, val)
         elif col == 'section_id':
-            cell = pif.form.put_select(
-                'section_id', listCats, selected=value, blank='Please choose one from the list')
+            if link['link_line.page_id'] == 'makes':
+                cell = pif.form.put_select(
+                    'section_id', listMakes, selected=val, blank='Please choose one from the list')
+            else:
+                cell = pif.form.put_select(
+                    'section_id', listCats, selected=val, blank='Please choose one from the list')
         elif col == 'flags':
-            cell = pif.form.put_checkbox("flags", flag_check_names, useful.bit_list(link[col_long]))
+            cell = pif.form.put_checkbox("flags", table_data.bits['flags'],
+                                         useful.bit_list(link[col_long], format='%04x'))
         elif col == 'country':
-            cell = pif.form.put_select_country('country', value)
+            cell = pif.form.put_select_country('country', val)
         elif col == 'link_type':
-            cell = pif.form.put_select(col, link_type_names, selected=value)
+            cell = pif.form.put_select(col, link_type_names, selected=val)
         elif col == 'associated_link':
-            cell = pif.form.put_select(col, asslinks, selected=value)
+            cell = pif.form.put_select(col, asslinks, selected=val)
         elif coltype.startswith('varchar('):
             colwidth = int(coltype[8:-1])
-            cell = pif.form.put_text_input(col, colwidth, 64, value=value)
+            cell = pif.form.put_text_input(col, colwidth, 64, value=val)
         elif coltype.startswith('int('):
             if link[col_long] is None:
-                value = 0
+                val = 0
             colwidth = int(coltype[4:-1])
-            cell = pif.form.put_text_input(col, colwidth, value=value)
+            cell = pif.form.put_text_input(col, colwidth, value=val)
         else:
             cell = coltype
-        entries.append({'text': cell})
+        entries.append({'col': col, 'old': f'<a href="{val}">{val}</a>' if col == 'url' else val, 'edit': cell})
 
     footer = ''.join([
         pif.form.put_button_input("save"),
@@ -417,12 +450,12 @@ def edit_single(pif):
         pif.render.format_button_link("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
     ])
 
-    llineup = render.Matrix(
-        id='tl', name='Edit Link', columns=3, widthauto=True,
-        section=[render.Section(id='s', range=[render.Range(entry=entries)])],
-        header=header, footer=footer,
+    llineup = render.Listix(
+        id='tl', name='Edit Link',
+        section=[render.Section(id='s', range=[render.Range(entry=entries)],
+                 colist=['col', 'old', 'edit'], header=header, footer=footer)]
     )
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.render.format_template('simplelistix.html', llineup=llineup.prep())
 
 
 def edit_multiple(pif, good=None):
@@ -443,6 +476,9 @@ def edit_multiple(pif, good=None):
                   "(page_id='links.rejects' or page_id='links.trash')",
                   "last_status is NULL" if stat == 'None' else f"last_status='{stat}'"]
         linklines = pif.dbh.fetch_link_lines(where=wheres, order='id')
+    elif pif.form.get_str('page_id') == 'makes':
+        page_id = 'makes'
+        linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page_id'), order="section_id")
     elif sec_id:
         linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
         section = pif.dbh.fetch_section(sec_id)
@@ -450,26 +486,22 @@ def edit_multiple(pif, good=None):
     else:
         linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page_id'), order="display_order")
     pif.render.message(len(linklines), 'lines')
+    pif.dbh.depref('link_line', linklines)
 
-    entries = [render.Entry(text=col) for col in table_data.columns]
-    for link in linklines:
-        pif.dbh.depref('link_line', link)
-        for col in table_data.columns:
-            val = link.get(col, '')
-            if col == 'id':
-                entries.append(render.Entry(text='<a href="?id=' + str(val) + '">' + str(val) + '</a>'))
-            elif col == 'url':
-                entries.append(render.Entry(text='<a href="%s">%s</a>' % (val, val)))
-            else:
-                entries.append(render.Entry(text=useful.printablize(val)))
+    def mangle_item(col, val):
+        return (f'<a href="?id={val}">{val}</a>' if col == 'id' else
+                f'<a href="{val}">{val}</a>' if col == 'url' else useful.printablize(val))
+
+    entries = [{col: mangle_item(col, link.get(col, '')) for col in table_data.columns}
+               for link in linklines]
     footer = pif.render.format_button_link("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
 
-    llineup = render.Matrix(
-        id='tl', name='Edit Link', columns=len(table_data.columns),
-        section=[render.Section(id='s', range=[render.Range(entry=entries)])],
-        footer=footer,
+    llineup = render.Listix(
+        id='tl', name='Edit Link',
+        section=[render.Section(id='s', colist=table_data.columns, range=[render.Range(entry=entries)],
+                                footer=footer)]
     )
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.render.format_template('simplelistix.html', llineup=llineup.prep())
 
 
 def edit_choose(pif):
@@ -516,7 +548,7 @@ def edit_choose(pif):
 @basics.web_page
 def edit_links(pif):
     pif.render.print_html()
-    if pif.form.get_str('id') or pif.form.get_str('add'):
+    if pif.form.get_str('id') or pif.form.get_str('add') or pif.form.get_str('save'):
         return edit_single(pif)
     elif pif.form.has_any(['as', 'sec', 'stat', 'page_id']):
         return edit_multiple(pif, good=pif.form.get_bool('good'))

@@ -278,7 +278,7 @@ table_info = {
         'columns': [
             'mod_id', 'var', 'flags', 'text_description',
             'text_base', 'text_body', 'text_interior', 'text_wheels', 'text_windows', 'text_with', 'text_text',
-            'base', 'body', 'deco', 'deco_type', 'interior', 'windows',
+            'base', 'body', 'deco', 'deco_type', 'interior', 'wheels', 'windows',
             'manufacture', 'additional_text', 'base_name', 'base_number', 'base_scale', 'tool_id', 'production_id',
             'copyright', 'company_name', 'logo_type', 'base_reads', 'area', 'date',
             'note', 'picture_id', 'imported', 'imported_from', 'imported_var', 'category', 'variation_type'],
@@ -310,7 +310,7 @@ table_info = {
             ]
         },
         'internals': [
-            'base', 'body', 'interior', 'windows', 'deco',
+            'base', 'body', 'interior', 'wheels', 'windows', 'deco',
             'manufacture', 'additional_text', 'base_name', 'base_number', 'tool_id',
             'copyright', 'company_name', 'production_id', 'base_scale', 'base_reads',  # 'logo_type',
         ],
@@ -760,6 +760,7 @@ table_info = {
         'bits': {
             'flags': [
                 ('0001', 'Hidden'),
+                ('0010', 'Mag'),
             ]
         },
     },

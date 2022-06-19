@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+import glob
 import os
 
 import basics
@@ -64,11 +65,11 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
 
         lsec = render.Section(section=lsection)
         packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
-        cols = ['pic', 'name', 'year', 'product_code']
-        heads = ['', 'Name', 'Year', 'Product Code']
+        cols = ['pic', 'name', 'year', 'product_code', 'material']
+        heads = ['', 'Name', 'Year', 'Product Code', 'Material']
         if verbose:
-            cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'material', 'stars', 'rel']
-            heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Mat', 'Models', 'Related']
+            cols = ['edlink'] + cols + ['region', 'country', 'layout', 'thumb', 'stars', 'rel']
+            heads = ['Pack ID'] + heads + ['Rg', 'Cy', 'Ly', 'Th', 'Models', 'Related']
         elif lsection['flags'] & config.FLAG_SECTION_SHOW_IDS:
             cols = ['id'] + cols + ['regionname']
             heads = ['ID'] + heads + ['Region']
@@ -104,6 +105,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
                 pack['name'] = '<a href="?page=%(page)s&id=%(id)s">%(name)s</a>' % pack
                 pack['pic'] = mbdata.comment_icon.get('c') if imgsizes(
                     pif, pif.render.pic_dir, pack['id'].lower()) else ''
+                pack['material'] = mbdata.materials.get(pack['material'], '')
                 has_note = has_note or bool(pack['note'])
                 if verbose:
                     modify_pack_admin(pif, pack)
@@ -169,6 +171,7 @@ def do_single_pack(pif, format_type, pid):
     llineup = render.Matrix(tail=[''])
     for pack in packs:
         pack_id = pack['pack.id']
+        page_id = pack['pack.page_id']
         pack['longid'] = pack_id + ('-' + pack['pack.var'] if pack['pack.var'] else '')
         db_relateds = pif.dbh.fetch_packs_related(pack_id)
         relateds = [
@@ -225,7 +228,7 @@ def do_single_pack(pif, format_type, pid):
     # left bar
     left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        left_bar_content += '<br><center>'
+        left_bar_content += f'<br><center>{page_id}/{pack_id}<p>'
         left_bar_content += ('<p><b><a href="%s">Base ID</a></b><br>\n' %
                              pif.dbh.get_editor_link('base_id', {'id': pack_id}))
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
@@ -258,7 +261,8 @@ def do_single_pack(pif, format_type, pid):
 def imgsizes(pif, pdir, pic_id):
     sizes_found = []
     for imgsize in mbdata.image_size_types:
-        if os.path.exists(os.path.join(pdir, imgsize + '_' + pic_id + '.jpg')):
+        if (glob.glob(os.path.join(pdir, imgsize + '_' + pic_id + '.jpg')) or
+                glob.glob(os.path.join(pdir, imgsize + '_' + pic_id + '-*.jpg'))):
             sizes_found.append(imgsize.upper())
     return ' '.join(sizes_found)
 
@@ -339,25 +343,31 @@ def show_pack(pif, pack, picsize):
         pics.append(cont_pic)
     ostr = pif.render.format_image_selector(pics, 'ps') + '<br>'
     ostr += pif.render.format_image_selectable(pics, 'ps')
+    if pack['credit']:
+        ostr += '<div class="credit">Photo credit: %s</div>' % pack['credit']
 
     # Ideally this would come from section.flags but we don't have that here.
     # So this is a giant FAKE OUT
-    if pack['credit']:
-        ostr += '<div class="credit">Photo credit: %s</div>' % pack['credit']
     if pack['var']:
         ostr = '<b>' + pack['id'] + '-' + pack['var'] + '</b><br>' + ostr
+
+    year = pack['first_year'] if pack['first_year'] else ''
+    if pack['first_year'] and pack['end_year'] and pack['end_year'] != pack['first_year']:
+        year += '-' + pack['end_year']
+    prod_title = [pack['base_id.rawname']]
+    if year:
+        prod_title.append(year)
+    ostr += '<h4 class="prodtitle">{}</h4>'.format(' - '.join(prod_title))
+
     pack['country'] = mbdata.get_country(pack['country'])
     pack['material'] = mbdata.materials.get(pack['material'], '')
     if pack['product_code']:
-        ostr += '<br>' + pack['product_code']
+        ostr += pack['product_code'] + '<br>'
     if pack['region']:
-        ostr += '<br>' + mbdata.regions[pack['region']]
+        ostr += mbdata.regions[pack['region']] + '<br>'
     ostr += '<p>'
-    if pack['first_year']:
-        if pack['end_year'] and pack['end_year'] != pack['first_year']:
-            ostr += '<b>%(first_year)s-%(end_year)s</b><br>' % pack
-        else:
-            ostr += '<b>%(first_year)s</b><br>' % pack
+    if pack['first_year'] and pack['end_year'] and pack['end_year'] != pack['first_year']:
+        ostr += '<b>%(first_year)s-%(end_year)s</b><br>' % pack
     dets = filter(None, [pack['country'], pack['material']])
     ostr += ' - '.join(dets)
     return '<center>' + ostr + '</center>'

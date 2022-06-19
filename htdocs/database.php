@@ -17,36 +17,42 @@ $MAX_NUMBER = $answer[0]['max(number)'];
 $answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
 $MAN_YEAR_START = $answer[0]['min(first_year)'];
 $MAN_YEAR_END = $answer[0]['max(first_year)'];
+$NCOLS = 1;
 
-$sections = array();
-$sections[] = array("tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi");
-$sections[] = array("tag" => "year", "name" => "Year", "fn" => 'SectionYear', "scr" => "lineup.cgi");
-$sections[] = array("tag" => "rank", "name" => "Lineup Number", "fn" => 'SectionRank', "scr" => "lineup.cgi");
-$sections[] = array("tag" => "manno", "name" => "MAN Number", "fn" => 'SectionManno', "scr" => "manno.cgi");
-$sections[] = array("tag" => "mack", "name" => "Mack Number", "fn" => 'SectionMack', "scr" => "mack.cgi");
-$sections[] = array("tag" => "makes", "name" => "Make", "fn" => 'SectionMakes', "scr" => "makes.cgi");
-$sections[] = array("tag" => "search", "name" => "Text Search", "fn" => 'SectionSearch', "scr" => "msearch.cgi");
-$sections[] = array("tag" => "vsearch", "name" => "Variation Text Search", "fn" => 'SectionVSearch', "scr" => "vsearch.cgi");
-$sections[] = array("tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi");
-if ($pif['isadmin'])
-    $sections[] = array("tag" => "pubs", "name" => "Publications", "fn" => 'SectionPubs', "scr" => "pub.cgi");
-$sections[] = array("tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi");
-$sections[] = array("tag" => "cats", "name" => "Categories", "fn" => 'SectionCats', "scr" => "cats.cgi");
-$sections[] = array("tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();');
-$sections[] = array("tag" => "code2", "name" => "Code 2 Models", "fn" => 'SectionCode2', "scr" => "code2.cgi");
-$sections[] = array("tag" => "plants", "name" => "Location of Manufacture", "fn" => 'SectionPlant', "scr" => "plants.cgi");
-$sections[] = array("tag" => "other", "name" => "Other Database Pages", "fn" => 'SectionOther');
+$sections = [
+    ["sep" => "t"],
+    ["tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi"],
+    ["tag" => "year", "name" => "Year", "fn" => 'SectionYear', "scr" => "lineup.cgi"],
+    ["tag" => "rank", "name" => "Lineup Number", "fn" => 'SectionRank', "scr" => "lineup.cgi"],
+    ["tag" => "manno", "name" => "MAN Number", "fn" => 'SectionManno', "scr" => "manno.cgi"],
+    ["tag" => "mack", "name" => "Mack Number", "fn" => 'SectionMack', "scr" => "mack.cgi"],
+    ["tag" => "makes", "name" => "Make", "fn" => 'SectionMakes', "scr" => "makes.cgi"],
+    ["sep" => "c"],
+    ["tag" => "search", "name" => "Text Search", "fn" => 'SectionSearch', "scr" => "msearch.cgi"],
+    ["tag" => "vsearch", "name" => "Variation Text Search", "fn" => 'SectionVSearch', "scr" => "vsearch.cgi"],
+    ["tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi"],
+    ["tag" => "pubs", "name" => "Publications", "fn" => 'SectionPubs', "scr" => "pub.cgi", "perm" => $isadmin],
+    ["tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi"],
+    ["tag" => "cats", "name" => "Categories", "fn" => 'SectionCats', "scr" => "cats.cgi"],
+    ["tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();'],
+    ["tag" => "code2", "name" => "Code 2 Models", "fn" => 'SectionCode2', "scr" => "code2.cgi"],
+    ["tag" => "plants", "name" => "Location of Manufacture", "fn" => 'SectionPlant', "scr" => "plants.cgi"],
+    ["sep" => "b"],
+    ["tag" => "other", "name" => "Other Database Pages", "fn" => 'SectionOther'],
+    ["sep" => "e"],
+];
 
-$pages = array();
-$pages[] = array("title" => "About", "desc" => "About this website", "url" => '/pages/about.php');
-$pages[] = array("title" => "Toy Links", "desc" => "Links to other sites of interest", "url" => '/cgi-bin/links.cgi');
-$pages[] = array("title" => "Bibliograpy", "desc" => "Books relevant to collectors", "url" => '/cgi-bin/biblio.cgi');
-$pages[] = array("title" => "Comparisons", "desc" => "Between various Matchbox castings", "url" => '/cgi-bin/compare.cgi');
-$pages[] = array("title" => "Errors", "desc" => "Matchbox manufacturing errors", "url" => '/cgi-bin/errors.cgi');
-$pages[] = array("title" => "Ads", "desc" => "Matchbox advertising", "url" => '/cgi-bin/ads.cgi');
-$pages[] = array("title" => "Customizations", "desc" => "Customizaed Matchbox toys", "url" => '/cgi-bin/custom.cgi');
-$pages[] = array("title" => "Photographers", "desc" => "Contributors to this site", "url" => '/cgi-bin/photogs.cgi');
-$pages[] = array("title" => "Other Products", "desc" => "A few other products from Matchbox", "url" => '/pages/other.php');
+$pages = [
+    ["title" => "About", "desc" => "About this website", "url" => '/pages/about.php'],
+    ["title" => "Toy Links", "desc" => "Links to other sites of interest", "url" => '/cgi-bin/links.cgi'],
+    ["title" => "Bibliograpy", "desc" => "Books relevant to collectors", "url" => '/cgi-bin/biblio.cgi'],
+    ["title" => "Comparisons", "desc" => "Between various Matchbox castings", "url" => '/cgi-bin/compare.cgi'],
+    ["title" => "Errors", "desc" => "Matchbox manufacturing errors", "url" => '/cgi-bin/errors.cgi'],
+    ["title" => "Ads", "desc" => "Matchbox advertising", "url" => '/cgi-bin/ads.cgi'],
+    ["title" => "Customizations", "desc" => "Customizaed Matchbox toys", "url" => '/cgi-bin/custom.cgi'],
+    ["title" => "Photographers", "desc" => "Contributors to this site", "url" => '/cgi-bin/photogs.cgi'],
+    ["title" => "Other Products", "desc" => "A few other products from Matchbox", "url" => '/pages/other.php'],
+];
 //prepro.cgi pub.cgi library.cgi package.cgi
 
 DoResetJavascript();
@@ -57,18 +63,40 @@ DoPageHeader($pif);
 echo "<hr><p>\n";
 echo "<div class=\"maintable\"><center><ul class=\"header-links\">\n";
 foreach ($sections as $sec) {
-    echo " <li class=\"header-link-item\"><a href=\"#$sec[tag]\" class=\"textbutton\">&nbsp;By $sec[name]&nbsp;</a></li>\n";
+    if (array_key_exists("sep", $sec))
+        continue;
+    if (!array_key_exists("perm", $sec) || $sec["perm"])
+        echo " <li class=\"header-link-item\"><a href=\"#$sec[tag]\" class=\"textbutton\">&nbsp;By $sec[name]&nbsp;</a></li>\n";
 }
-echo "</ul></center></div>
-
-<table class=\"maintable\">
-";
+echo "</ul></center></div>\n\n";
 
 foreach ($sections as $sec) {
-    Section($sec);
+    if (array_key_exists("sep", $sec)) {
+        if ($sec["sep"] == 't') {
+            echo "<table width=\"100%\"><tr><td width=\"" . (100 / $NCOLS) . "%\">\n";
+            echo "<table>\n";
+        }
+        else if ($sec["sep"] == 'c' && $NCOLS == 2) {
+            echo "</table>\n";
+            echo "</td>\n";
+            echo "<td width=\"50%\">\n";
+            echo "<table>\n";
+        }
+        else if ($sec["sep"] == 'b' && $NCOLS == 2) {
+            echo "</table>\n";
+            echo "</td></tr>\n";
+            echo "<tr><td colspan=\"2\">\n";
+            echo "<table>\n";
+        }
+        else if ($sec["sep"] == 'e') {
+            echo "</table>\n";
+            echo "</td></tr></table>\n";
+        }
+    }
+    else if (!array_key_exists("perm", $sec) || $sec["perm"])
+        Section($sec);
 }
 
-echo "</table>\n";
 PageFooter();
 
 DoFoot($pif);
@@ -203,7 +231,7 @@ function ChooseRegion($nrows, $tag) {
 }
 
 function RegionNote() {
-    echo "<td colspan=\"2\">Note that Australian dealers might carry either<br>USA or International assortments after 2001.</td>\n";
+    echo "<td colspan=\"2\">Note that Australian dealers might carry either USA or International assortments after 2001.</td>\n";
 }
 
 //---- beginning of sections -------------------------------------
@@ -219,13 +247,6 @@ function SectionID($pif) {
 function SectionYear($pif) {
     global $LINE_YEAR_START, $LINE_YEAR_END;
 
-    echo "\n<table>\n <tr>\n  <td>Year: </td>\n";
-    SelectYear('year', 'yearYear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
-    HorzSpacer(4);
-    ChooseRegion(3, 'year');
-    #echo "  </td>\n";
-    HorzSpacer(4);
-    echo "  <td rowspan=\"4\">\n";
     $ptypes = [
 	["man", "Main line models", 1],
 	["series", "Series", 1],
@@ -236,8 +257,14 @@ function SectionYear($pif) {
 	["bld", "Buildings", 1],
 	["pub", "Publications", 1]
     ];
-    Checks('checkbox', 'year', 'lty', $ptypes);
-    echo "  </td>\n</tr>\n<tr><td>\n";
+
+    echo "\n<table>\n <tr>\n  <td>Year: </td>\n";
+    SelectYear('year', 'yearYear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
+    HorzSpacer(4);
+    ChooseRegion(3, 'year');
+    echo "  </td>\n";
+    #HorzSpacer(4);
+    echo "</tr>\n<tr><td>\n";
     if ($pif['isadmin']) {
 	echo " List type:</td><td width=\"180\">\n";
 	$sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
@@ -252,15 +279,19 @@ function SectionYear($pif) {
     } else {
 	echo " </td><td width=\"180\">\n";
     }
-    echo "  </td>\n</tr>\n<tr><td colspan=\"2\" rowspan=\"2\">\n";
-    if ($pif['isadmin']) {
+    echo "  </td>\n</tr>\n<tr>"; #<td colspan=\"2\" rowspan=\"2\">\n";
+    echo "  <td colspan=\"2\" rowspan=\"2\">\n";
+    Checks('checkbox', 'year', 'lty', $ptypes);
+    echo "  </td>\n";
+    #echo " </td></tr>\n<tr>";
+    /*if ($pif['isadmin']) {
 	echo "<p>\n<i>";
 	#echo "Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
 	Checks('checkbox', 'year', 'unroll', [['1', 'Unroll']], '<p>');
 	Checks('checkbox', 'year', 'multi', [['1', 'Multi Only']], '');
 	echo "</i>";
-    }
-    echo " </td></tr>\n<tr>";
+    }*/
+    echo "</tr><tr>";
     RegionNote();
     echo " </tr>\n</table>\n";
 }
@@ -269,33 +300,33 @@ function SectionRank($pif) {
     global $LINE_YEAR_START, $LINE_YEAR_END, $MAX_NUMBER;
 
     echo "<input type=\"hidden\" name=\"byrank\" value=\"1\">";
-    echo "<table>\n <tr>\n  <td height=\"32\">Lineup number:<br>(1-$MAX_NUMBER)\n  </td>";
+    echo "<table>\n <tr>\n  <td height=\"32\">Lineup&nbsp;number:<br>(1-$MAX_NUMBER)\n  </td>";
     ChooseNum('num', 'rankSNum', 3, 1, $MAX_NUMBER);
-    HorzSpacer(1);
-    echo "  <td style=\"text-align: right;\">\nStart year:\n  </td>\n";
-    SelectYear('syear', 'rankSyear', $LINE_YEAR_START, $LINE_YEAR_START, $LINE_YEAR_END);
-    HorzSpacer(2);
-    ChooseRegion(3, 'rank');
+    HorzSpacer(6);
+    ChooseRegion(4, 'rank');
     echo "</tr><tr>\n<td>\n";
     if ($pif['isadmin']) {
-	echo "<i>Ending number:<br>\n(1-$MAX_NUMBER)</i>\n";
+	echo "<i>Ending&nbsp;number:<br>\n(1-$MAX_NUMBER)</i>\n";
     }
     echo "  </td>\n";
     if ($pif['isadmin'])
 	ChooseNum('enum', 'rankENum', 3, 1, $MAX_NUMBER);
     else
-	echo "  <td></td>\n";
-    HorzSpacer(1);
+	echo "  <td>&nbsp;</td>\n";
+    echo "</tr><tr>\n";
+    echo "  <td style=\"text-align: right;\">\nStart year:\n  </td>\n";
+    SelectYear('syear', 'rankSyear', $LINE_YEAR_START, $LINE_YEAR_START, $LINE_YEAR_END);
+    echo "</tr><tr>\n";
     echo "  <td style=\"text-align: right;\">End year:</td>\n";
     SelectYear('eyear', 'rankEyear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
-    echo " </tr>\n <tr>\n  <td colspan=\"6\" rowspan=\"2\">\n";
+    echo " </tr>\n <tr>\n  <td colspan=\"2\" rowspan=\"2\">\n";
     if ($pif['isadmin']) {
-	echo "<br><i>\n";
+	echo "<i>\n";
 	Checks('checkbox', 'rank', 'large', [['1', 'Large']]);
 	Checks('checkbox', 'rank', 'prodpic', [['1', 'Product Pics']], '');
 	echo "</i>\n";
     }
-    echo "  </td>\n </tr>\n <tr>";
+    echo "  </td>\n";
     RegionNote();
     echo " </tr>\n</table>";
 }
@@ -328,20 +359,13 @@ function SectionManno($pif) {
 	SelectYear('syear', 'manSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
     }
     echo " </tr>\n <tr><td colspan=\"2\">";
-    if ($pif['isadmin']) {
-	echo "<i>";
-	Checks('checkbox', 'manno', 'large', [['1', 'Large']], '');
-	echo "</i>";
-    }
     echo "</td>\n";
     echo "  <td>ending at:</td>\n";
     ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 9999, 9999, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
-    if ($pif['isadmin']) {
-	HorzSpacer(1);
-	echo "<td>End year:</td>\n";
-	SelectYear('eyear', 'manEyear', $MAN_YEAR_END + 1, $MAN_YEAR_START, $MAN_YEAR_END);
-    }
+    HorzSpacer(2);
+    echo "<td>End year:</td>\n";
+    SelectYear('eyear', 'manEyear', $MAN_YEAR_END + 1, $MAN_YEAR_START, $MAN_YEAR_END);
     echo " </tr>\n <tr><td colspan=\"4\">List type:\n";
     $sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
 	   ['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],
@@ -357,6 +381,12 @@ function SectionManno($pif) {
 	$sl[] = ['flags' => 0, 'val' => 'txt', 'title' => 'Text List'];
     }
     Select('listtype', 'selList', $sl);
+    echo "</td><td colspan=2>\n";
+    if ($pif['isadmin']) {
+	echo "<i>";
+	Checks('checkbox', 'manno', 'large', [['1', 'Large']], '');
+	echo "</i>";
+    }
 
     echo "  </td>\n </tr>\n</table>\n";
     echo '<button type="submit" value="+" name="+" class="textbutton" style="width: 16px;" onclick="toggle_visibility(\'ynm\',\'ynm_l\'); return false;" id="ynm_l">+</button>';

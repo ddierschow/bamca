@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import glob
 from io import open
 import os
@@ -11,7 +10,7 @@ import config
 import imglib
 import lineup
 import mbdata
-import multip
+# import multip
 
 
 # Start here
@@ -147,11 +146,13 @@ def count_pack(pif):
 def count_man(pif):
     recs = pif.dbh.fetch_casting_list()
     count = 0
-    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE, 'z'],
+    count += count_combo(config.IMG_DIR_MAN, [mbdata.IMG_SIZ_SMALL],
                          [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(
         config.IMG_DIR_ADD, ['a', 'b', 'e', 'i', 'p', 'r'], [x['base_id.id'].lower() for x in recs], [''])
     count += count_combo(config.IMG_DIR_MAN_ICON, ['i'], [x['base_id.id'].lower() for x in recs], [''])
+    count += count_combo(config.IMG_DIR_MAN, ['z'],
+                         [x['base_id.id'].lower() for x in recs], [''])
     return count
 
 
@@ -164,12 +165,12 @@ def count_var(pif):
             var_id = var['variation.picture_id']
         recs.append('{}-{}'.format(var['variation.mod_id'].lower(), var_id.lower()))
     count = 0
-    count += count_combo(config.IMG_DIR_MAN + '/var', [mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM], recs, [''])
+    count += count_combo(config.IMG_DIR_MAN + '/var', [mbdata.IMG_SIZ_SMALL], recs, [''])
     return count
 
 
 def count_box(pif):
-    pr_count, im_count = multip.count_boxes(pif)
+    pr_count, im_count = 0, 0  # multip.count_boxes(pif)
     report("box", im_count, pr_count)
     return im_count
 
@@ -200,9 +201,9 @@ def main(pif):
     count += count_directory(config.IMG_DIR_BLISTER)
     count += count_directory(config.IMG_DIR_PROD_CODE_2)
     count += count_directory(config.IMG_DIR_PROD_COLL_64)
-    count += count_html(config.IMG_DIR_ADS + '/index.php')
-    count += count_html(config.IMG_DIR_ERRORS + '/index.html')
-    count += count_lineups(pif)
+    # count += count_html(config.IMG_DIR_ADS + '/index.php')
+    # count += count_html(config.IMG_DIR_ERRORS + '/index.html')
+    # count += count_lineups(pif)
     count += count_man(pif)
     count += count_var(pif)
     count += count_pack(pif)

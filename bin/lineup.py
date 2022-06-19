@@ -37,7 +37,9 @@ import useful
 # X.24 | Real Working Rigs                      | ks       |
 # X.25 | Super Rigs                             | ks       |
 # X.31 | Models of Yesteryear                   | yy       |
+# X.32 | Dinky                                  | yy       |
 # X.41 | Accessory Packs                        | acc      |
+# X.42 | Skybusters                             | sb       |
 # X.51 | Buildings                              | bld      |
 # X.61 | Presentation Sets                      | pack     |
 # X.62 | Gift Sets                              | pack     |
@@ -575,7 +577,7 @@ def run_product_pics(pif, region):
         )
         lran.entry.append(ent)
         for mnum in range(min_num, max_num + 1):
-            ifmt, pdir = get_product_image(pages[page], mnum)
+            ifmt, pdir = get_product_image(pages[page], mnum)  # this isnt working - no section
             spdir = mbdata.dirs.inverse.get(pdir, pdir)
             lmod = lmoddict.get(mnum, {})
             lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', pif.form.get_strl('region'))
@@ -628,8 +630,8 @@ def gather_rank_pages(pif, pages, region):
 
 def get_product_image(page, mnum):
     if page:
-        if page.get('section'):
-            section = page['section'][0]
+        if page.section:
+            section = page.section[0]
             # useful.write_comment('get_product_image section', section['page_id'], section['id'])
             return section['img_format'], page['pic_dir']
         # useful.write_comment('get_product_image no section')

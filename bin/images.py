@@ -751,7 +751,7 @@ class EditForm(imglib.ActionForm):
         ddir = self.dest if self.dest else self.tdir
         outnam = '_' + nname_root + ot
         if self.tdir.startswith('lib/prod') or self.tdir.startswith('./lib/prod'):
-            prefs = 'smlh'
+            prefs = 'm'
         elif self.tdir.startswith('lib/set') or self.tdir.startswith('./lib/set'):
             prefs = 'smlh'
         elif self.tdir.startswith('lib/pub') or self.tdir.startswith('./lib/pub'):
@@ -1072,14 +1072,14 @@ class StitchForm(object):
         print(pif.render.format_table_end())
 
         print('Stitching...', final)
-        imglib.stitcher(final, fa, pif.form.get_str('or') == 'h', minx, miny, self.limit_x, self.limit_y, verbose=False)
+        imglib.stitcher(final, fa, pif.form.get_str('or') == 'h', minx, miny, self.limit_x, self.limit_y, verbose=True)
         time.sleep(2)
         print('... Finished.<br>')
         sys.stdout.flush()
         # print('<a href="../' + final + '">' + final + '<br>')
         # print('<img src="../' + final + '"></a>')
         d, f = os.path.split(final)
-        show_picture(pif, f, d)
+        show_picture(pif, f, d)    # this right here doesn't work but everything else seems to
         # orig = input_files[0][input_files[0].rfind('/') + 1:]
         print('<br><form>Final resting place:')
         print(pif.create_token())

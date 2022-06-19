@@ -6,6 +6,7 @@ import glob
 from io import open
 import os
 import re
+import requests
 import stat
 
 import basics
@@ -690,11 +691,103 @@ def write_version_file(pif):
     open('version.txt', 'wt').write('''<?php\n$version = "{}";\n?>\n'''.format(os.environ['BAMCA_VERSION']))
 
 
+wiki_transform = {
+    "References": '',
+    "External links": '',
+    "1 to 100 range": 'MB',
+    "1-100 Series": 'MB',
+    "1-100 series": 'MB',
+    "1-102 Series": 'MB',
+    "1-120 Series": 'MB',
+    "1-120 range": 'MB',
+    "1-125 Series": 'MB',
+    "1-75 Range": 'MB',
+    "1-75 Series": 'MB',
+    "1-75 range": 'MB',
+    "1-75 series": 'MB',
+    "10-Packs": '10P',
+    "5-Packs": '5P',
+    "900 Range": 'TP',
+    "900": 'TP',
+    "Accesory Packs": 'AP',
+    "Accessory Packs": 'AP',
+    "Action Farming": 'FM',
+    "Additional 2008 releases": 'Other',
+    "Additional 2011 Releases": 'Other',
+    "Additional 2012 Releases": 'Other',
+    "Adventure 2000": 'A2K',
+    "Battle Kings": 'BK',
+    "Coca-Cola Series": 'CK',
+    "Construction": 'CS',
+    "Convoy": 'CY',
+    "Convoys": 'CY',
+    "Dinky Collection": 'DY',
+    "Emergency": 'EM',
+    "King Size": 'KS',
+    "Lesney Editions": 'LE',
+    "Licensed 5-Packs": 'L5P',
+    "Major Packs": 'MP',
+    "Matchbox 75": 'MB',
+    "Matchbox Across America 50th Birthday Series": 'AAM',
+    "Matchbox Birthday Hunts": 'BH',
+    "Matchbox Originals": 'MO',
+    "Matchbox Series 1-75": 'MB',
+    "Matchbox Series No. 1-42": 'MB',
+    "Matchbox Series Nos 1 to 29": 'MB',
+    "Matchbox Series Nos. 1-75": 'MB',
+    "Matchbox Series": 'MB',
+    "Models of Yesteryear": 'MOY',
+    "New Superfast": 'NSF',
+    "Other Series": 'Other',
+    "Other series": 'Other',
+    "Real Working Rigs": 'RWR',
+    "Sea Kings": 'SeaK',
+    "See also": 'Other',
+    "Series 1-75": 'MB',
+    "Sky Busters": 'SB',
+    "Sky-Busters": 'SB',
+    "Skybusters": 'SB',
+    "Specials": 'Spec',
+    "Speed Kings": 'SpK',
+    "Super Convoys": 'SCY',
+    "Super Kings": 'SK',
+    "SuperKings": 'SK',
+    "Superkings": 'SK',
+    "Two Packs": 'TP',
+}
+
+
+def write_wiki_file(pif):
+    url = "https://matchbox.fandom.com/wiki/List_of_{}_Matchbox"
+    link_re = re.compile(r'<h2><span class="mw-headline" id="(?P<id>[^"]*)">(?P<n>[^<]*)</span>')
+    with open('pages/wikidat.php', 'wt') as fh:
+        fh.write('<?php\n\n$dat = [\n')
+
+        # $d = [1 => ['a' => '1', 'b' => 2], ['c' => '3', 'd' => '4']];
+        year = 1953
+        while (True):
+            base_url = url.format(year)
+            page = requests.get(base_url)
+            if page.status_code != 200:
+                break
+            fh.write(f'  {year} => [\n    "{year}" => "{base_url}",\n')
+            for k, v in link_re.findall(page.text):
+                v = wiki_transform.get(v.strip(), v)
+                if v:
+                    fh.write(f'    "{k}" => "{v}",\n')
+            fh.write('  ],\n')
+            year += 1
+            print('.', end='', flush=True)
+        fh.write('];\n?>\n')
+    print()
+
+
 cmds = [
     ('p', write_php_config_file, "write php config"),
     ('j', write_jinja2_config_file, "write jinja2 config"),
     ('m', check_lib_man, "check libarary man id's"),
     ('v', write_version_file, "write version file"),
+    ('w', write_wiki_file, "write wiki file"),
 ]
 
 

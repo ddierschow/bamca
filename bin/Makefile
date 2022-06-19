@@ -11,7 +11,7 @@ configs: ../templates/config.html ../htdocs/config.php
 	./filsys.py j
 
 test:
-	./check
+	./checks.py
 
 deploy: clean
 	$(GIT) reset --hard HEAD

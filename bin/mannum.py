@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import copy
 import csv
 from functools import reduce
@@ -173,11 +172,11 @@ class MannoFile(object):
             slist = pif.dbh.fetch_sections({'page_id': pif.page_id})
         if not slist:
             raise useful.SimpleError('Requested section not found. %s' % self.section)
-        aliases = pif.dbh.fetch_aliases()
+#        aliases = pif.dbh.fetch_aliases()
         adict = dict()
-        for alias in aliases:
-            adict.setdefault(alias['alias.ref_id'], list())
-            adict[alias['alias.ref_id']].append(alias)
+#        for alias in aliases:
+#            adict.setdefault(alias['alias.ref_id'], list())
+#            adict[alias['alias.ref_id']].append(alias)
         self.mdict = dict()
         self.sdict = dict()
         self.slist = list()
@@ -201,7 +200,7 @@ class MannoFile(object):
         for casting in pif.dbh.fetch_casting_list(section_id=self.section):  # (page_id=pif.page_id):
             self.add_casting(pif, casting, aliases=adict.get(casting['base_id.id'], []))
         if withaliases:
-            for alias in pif.dbh.fetch_aliases(where="alias.section_id != ''"):
+            for alias in pif.dbh.fetch_aliases(where=["alias.section_id != ''", "alias.type in ('MP','MB')"]):
                 if alias['alias.section_id']:
                     # self.add_casting(pif, alias)
                     self.add_alias(pif, alias)
@@ -211,12 +210,12 @@ class MannoFile(object):
         aliases = [x for x in aliases if x['alias.type'] == 'mack']
         manitem['mack'] = ','.join(single.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
         if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
-            self.add_item(manitem)
+            self.add_item(manitem['id'], manitem)
 
     def add_alias(self, pif, alias):
-        manitem = pif.dbh.modify_man_item(alias)
-        if manitem['alias.section_id'] in self.sdict:
-            manitem['id'] = manitem['alias.id']
+        if alias['alias.section_id'] in self.sdict:
+            manitem = pif.dbh.modify_man_item(alias)
+            manitem['section_id'] = manitem['alias.section_id']
             if 'ref_id' in manitem:
                 refitem = copy.deepcopy(self.mdict[manitem['ref_id']])
                 if manitem['first_year']:
@@ -224,19 +223,20 @@ class MannoFile(object):
                 refitem['id'] = manitem['id']
                 refitem['descs'] = manitem['descs']
                 refitem['descs'].append('same as ' + manitem['ref_id'])
+                refitem['vehicle_type'] = manitem['vehicle_type']
                 manitem = refitem
-            self.add_item(manitem)
+            self.add_item(manitem['alias.id'], manitem)
 
-    def add_item(self, manitem):
-        if self.is_item_shown(manitem):
+    def add_item(self, man_id, manitem):
+        if self.is_item_shown(manitem) and man_id not in self.mdict:
             manitem['nodesc'] = self.nodesc
             manitem['type_desc'] = self.types(manitem['vehicle_type'])
-            self.sdict[manitem['section_id']]['model_ids'].append(manitem['id'])
-            self.mdict[manitem['id']] = manitem
+            self.sdict[manitem['section_id']]['model_ids'].append(man_id)
+            self.mdict[man_id] = manitem
             # useful.write_message('ai', manitem['id'])
 
     def types(self, typespec):
-        return ', '.join(filter(None, [self.tdict.get(t) for t in typespec]))
+        return ', '.join(filter(None, [self.tdict.get(t) for t in typespec or []]))
 
     def run_thing(self, pif, FunctionShowSection):
         sections = list()
@@ -265,26 +265,32 @@ class MannoFile(object):
         if mod['first_year'] and (self.firstyear > int(mod['first_year']) or self.lastyear < int(mod['first_year'])):
             return False
 
-        if self.vehtypes.get('y') or self.vehtypes.get('n'):
-            if useful.any_char_match(self.vehtypes['n'], mod['vehicle_type']):
+        vt_y = self.vehtypes.get('y', [])
+        vt_n = self.vehtypes.get('n', [])
+        at_y = self.addtypes.get('y', [])
+        at_n = self.addtypes.get('n', [])
+        pt_y = self.pictypes.get('y', [])
+        pt_n = self.pictypes.get('n', [])
+        if vt_y or vt_n:
+            if useful.any_char_match(vt_n, mod['vehicle_type'] or []):
                 return False
-            if self.vehtypes['y'] and not useful.any_char_match(self.vehtypes['y'], mod['vehicle_type']):
+            if vt_y and not useful.any_char_match(vt_y, mod['vehicle_type']):
                 return False
 
-        if self.addtypes.get('y') or self.addtypes.get('n'):
+        if at_y or at_n:
             add_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(
                 useful.relpath('.', config.IMG_DIR_ADD, "?_" + mod['id'].lower() + '*.*'))]))
-            if useful.any_char_match(self.addtypes['n'], add_pics):
+            if useful.any_char_match(at_n, add_pics):
                 return False
-            if self.addtypes['y'] and not useful.any_char_match(self.addtypes['y'], add_pics):
+            if at_y and not useful.any_char_match(at_y, add_pics):
                 return False
 
-        if self.pictypes.get('y') or self.pictypes.get('n'):
+        if pt_y or pt_n:
             mod_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(
                 useful.relpath('.', config.IMG_DIR_MAN, "?_" + mod['id'].lower() + '*.*'))]))
-            if useful.any_char_match(self.pictypes['n'], mod_pics):
+            if useful.any_char_match(pt_n, mod_pics):
                 return False
-            if self.pictypes['y'] and not useful.any_char_match(self.pictypes['y'], mod_pics):
+            if pt_y and not useful.any_char_match(pt_y, mod_pics):
                 return False
 
         if self.madeonly and not mod['made']:
@@ -557,7 +563,7 @@ class MannoFile(object):
                 cnt += 1
         return cnt, tot
 
-    def count_list_var_pics(self, pif, mod_id):  # called from elsewhere
+    def count_list_var_pics(self, pif, mod_id):
         vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
         needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
         found_c = found_f = found_a = found_1 = found_2 = found_p = 0
@@ -982,8 +988,7 @@ def main(pif):
     if not pif.form.has('section'):
         raise useful.SimpleError("Please select a range to display.")
 
-    manf = MannoFile(pif)
-    # manf = MannoFile(pif, withaliases=True)
+    manf = MannoFile(pif, withaliases=True)
     return manf.format_output(pif, listtype)
 
 
@@ -1476,25 +1481,43 @@ def add_linkline(pif, mod_id, ass_link, dest):
 # single.MB1004 | single  |  1 |     0 |       15 | l  | http://www.mbx-u.com/... | SF0951 |
 
 
-def fix_deco_tampo(pif, *args):
+def fix_variation(pif, *args):
     for mod_id in args:
-        attr = [x for x in pif.dbh.fetch_attributes(mod_id) if x['attribute.attribute_name'] == 'decals']
-        if not attr:
-            print('!', mod_id, 'no decals')
-            continue
-        attr = attr[0]
-        mod = pif.dbh.fetch_casting(mod_id, extras=True)
-        dets = pif.dbh.fetch_details(mod_id, nodefaults=True)
-        for var in pif.dbh.fetch_variations_bare(mod_id):
-            var['variation.deco'] = dets.get(var['variation.var'], {}).get('decals', '')
-            var['variation.deco_type'] = 'd'
-            pif.dbh.update_variation_bare(var, verbose=True)
-        pif.dbh.delete_attribute({'id': attr['attribute.id']})
-        pif.dbh.delete_detail({'attr_id': attr['attribute.id']})
-        pif.dbh.write_casting(
-            {'format_description': mod['format_description'].replace('decals', 'deco'),
-             'format_body': mod['format_body'].replace('decals', 'deco')}, id=mod_id, verbose=True)
-        pif.dbh.recalc_description(mod_id, showtexts=True, verbose=True)
+        # attrs = {x['attribute.attribute_name']: x for x in pif.dbh.fetch_attributes(mod_id)}
+        # mod = pif.dbh.fetch_casting(mod_id, extras=True)
+        vdets = pif.dbh.fetch_details(mod_id, nodefaults=True)
+        for var in pif.dbh.fetch_variations(mod_id):
+            var_id = var['variation.var']
+            nvar = {'variation.var': var['variation.var'], 'variation.mod_id': var['variation.mod_id']}
+            if 1:  # wheels
+                dets = vdets.get(var_id, {})
+                desc = []
+                if var.get('variation.wheels'):
+                    desc.append(var['variation.wheels'])
+                if dets.get('wheels_hubs'):
+                    desc.append(dets['wheels_hubs'] + ' hub')
+                if dets.get('front_wheels'):
+                    if dets['front_wheels'] == dets.get('rear_wheels'):
+                        desc.append(dets['front_wheels'])
+                    else:
+                        desc.append(dets['front_wheels'] + ' front')
+                if dets.get('rear_wheels'):
+                    if dets.get('front_wheels') != dets['rear_wheels']:
+                        desc.append(dets['rear_wheels'] + ' rear')
+                if dets.get('hubs'):
+                    desc.append(dets['hubs'] + ' hub')
+                if dets.get('tires'):
+                    desc.append(dets['tires'] + ' tire')
+                nvar['variation.wheels'] = ', '.join(desc)
+                print(var_id, '>', nvar['variation.wheels'])
+            elif 0:  # deco
+                dets = vdets.get(var_id, {})
+                label = dets.get('label', '')
+                if label and label != 'no':
+                    nvar['variation.deco_type'] = 'l'
+                    nvar['variation.deco'] = label
+                print(var_id, '>', nvar['variation.deco_type'], nvar['variation.deco'])
+            pif.dbh.update_variation_bare(nvar)
 
 
 cmds = [
@@ -1514,7 +1537,7 @@ cmds = [
     ('cra', add_casting_related, "add casting_related [-s section] mod_id mod_id ..."),
     ('cf', add_casting_file, "add casting file"),
     ('ll', add_linkline, "add link line"),
-    ('fdt', fix_deco_tampo, "fix deco tampo mod_id ..."),
+    ('fv', fix_variation, "fix variation mod_id ..."),
 ]
 
 

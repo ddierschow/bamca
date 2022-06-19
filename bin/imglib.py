@@ -6,7 +6,6 @@ from io import open
 import os
 from PIL import Image, ImageDraw
 import stat
-import subprocess
 import sys
 
 import bfiles
@@ -108,7 +107,7 @@ def open_write_dev_null():
 def get_size(fn):
     try:
         p = useful.pipe_chain(open_input_file(fn), import_file(fn) + [["/usr/local/bin/pamfile"]],
-                              stderr=subprocess.PIPE, verbose=False)
+                              stderr=useful.PIPE, verbose=False)
     except IOError:
         raise useful.SimpleError('Could not read ' + fn)
     # print('get_size', p)

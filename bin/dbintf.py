@@ -237,7 +237,7 @@ class DB(object):
             if tag:
                 query += f"/* {tag} */ "
             setlist = ','.join([x + "=" + values[x] for x in values])
-            query += '{table} set {setlist}'
+            query += f'{table} set {setlist}'
             if where:
                 query += f' where {where};'
             if self.nowrites:

@@ -1,3 +1,8 @@
+### 7.4 - 2022-06-19
+
+- Added transitional King Size models to the Super Kings list
+- Minor revision to single casting page when showing an associated product
+
 ### 7.3 - 2022-05-29
 
 - Rewrite a lot of attribute formatting, including better deco and wheels

@@ -163,7 +163,8 @@ def date_search(pif, dt=None, yr=None):
             id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
             ver_count += 1 if verified else 0
             mod_id = var['variation.mod_id']
-            aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack') if x['alias.flags'] & config.FLAG_ALIAS_PRIMARY]
+            aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(
+                mod_id, 'mack') if x['alias.flags'] & config.FLAG_ALIAS_PRIMARY]
             mack_id = aliases[0] if aliases else mod_id
             macks = get_mack_numbers(pif, mack_id)
             var['sort'] = macks[0] if macks else mod_id

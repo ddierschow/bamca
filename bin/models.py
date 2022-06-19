@@ -84,6 +84,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
                 mdict['desclist'] += "   <br>\n" + pif.render.format_image_icon('c_' + mbdata.arts[s] + '.gif')
             elif s:
                 mdict['desclist'] += "   <br><i>" + s + "</i>\n"
+    mdict['shown_id'] = mdict.get('alias.id') or mdict['id']
     return mdict
 
 

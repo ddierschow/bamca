@@ -56,7 +56,7 @@ def makes_main(pif):
             '<li>' + pif.render.format_link(x['link_line.url'], x['link_line.name']) for x in links]) + '</ul>\n'
         if pif.is_allowed('a'):  # pragma: no cover
             footer += pif.render.format_button_link(
-                'ADD LINK', 'editor.cgi?table=link_line&add=1&page_id=makes&section_id=%s&link_type=l' % make)
+                'ADD LINK', f'edlinks.cgi?page_id=makes&sec={make}&add=1')
 
     if make:
         llineup = show_makes(pif, makedict, makes)

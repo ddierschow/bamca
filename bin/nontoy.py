@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import datetime
 from io import open
 import os
@@ -24,10 +23,12 @@ squish_re = re.compile(r'\s\s*')
 
 biblios = {
     'biblio': {
+        'mags': 0,
         'tab': 'book',
-        'show': ['*Author', '*Title', '*Publisher', '*Year', 'ISBN'],
+        'headers': ['*Author', '*Title', '*Publisher', '*Year', 'ISBN'],
+        'show': ['author', 'title', 'publisher', 'year', 'isbn'],
         'sort': 'author',
-        'lastsort': 'title',
+        'lastsort': 'title',  # last sorting key
         'links': {
             'title': 'pic:pic_id',
             'edit': 'edit:id',
@@ -35,7 +36,8 @@ biblios = {
     },
     'bayarea': {
         'tab': 'bayarea',
-        'show': ['*Name', 'Address', '*City', 'State', 'Phone'],
+        'headers': ['*Name', 'Address', '*City', 'State', 'Phone'],
+        'show': ['name', 'address', 'city', 'state', 'phone'],
         'sort': 'name',
         'lastsort': 'name',
         'links': {
@@ -44,12 +46,36 @@ biblios = {
             'edit': 'edit:id',
         },
     },
+    'mag': {
+        'mags': config.FLAG_BOOK_MAGAZINE,
+        'tab': 'book',
+        'headers': ['*Editor', '*Title', '*Publisher', '*First Year'],
+        'show': ['editor', 'title', 'publisher', 'year'],
+        'sort': 'title',
+        'lastsort': 'title',
+        'links': {
+            'title': 'issues:id',
+            'edit': 'edit:id',
+        },
+    },
+    'issues': {
+        'tab': 'periodical',
+        'headers': ['*Volume', 'Issue', '*Date', 'Pages'],
+        'show': ['volume', 'issue', 'date', 'pages'],
+        'sort': 'date',
+        'lastsort': 'date',
+        'links': {
+        },
+    },
 }
 
 
 # links (both site links and map links) aren't working.
 @basics.web_page
 def biblio(pif):
+    pif.render.hierarchy_append('/', 'Home')
+    pif.render.hierarchy_append(pif.request_uri, pif.render.title)
+
     def pic_formatter(x):
         img = pif.render.find_image_file([str(y) for y in x])
         return ('/' + '/'.join(pif.render.find_image_file([str(y) for y in x]))) if ''.join(img) else ''
@@ -58,10 +84,14 @@ def biblio(pif):
         'map': lambda x: '' if '' in x else (map_url + ','.join(x)).replace(' ', '+'),
         'url': lambda x: x[0],
         'pic': pic_formatter,
+        'issues': lambda x: f'biblio.cgi?page=issues&id={x[0]}',
     }
 
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append(pif.request_uri, pif.render.title)
+    period_id = pif.form.get_str('id') if pif.page_id == 'mag' else None
+    if period_id:
+        # crumb
+        pass
+
     pif.render.print_html()
 
     page_info = biblios.get(pif.page_name, {})
@@ -69,7 +99,15 @@ def biblio(pif):
     lsection = render.Section(section=sections[0] if sections else None)
     tab_name = page_info.get('tab', pif.page_name)
     row_links = page_info.get('links', {})
-    table = pif.dbh.depref(tab_name, pif.dbh.fetch(tab_name, where='flags&1=0', tag='biblio', verbose=True))
+    print(pif.page_id, tab_name)
+
+    wheres = [f'flags&{config.FLAG_ITEM_HIDDEN}=0']
+    if page_info.get('mags') is not None:
+        wheres.append(f'flags&{config.FLAG_BOOK_MAGAZINE}={page_info["mags"]}')
+    if period_id:
+        wheres.append(f'pub_id={period_id}')
+    # period
+    table = pif.dbh.depref(tab_name, pif.dbh.fetch(tab_name, where=wheres, tag='Biblio', verbose=True))
 
     lrange = render.Range(entry=list())
     lsection.range = [lrange]
@@ -80,12 +118,10 @@ def biblio(pif):
         lsection.headers['edit'] = '&nbsp;'
         row_link_formatters['edit'] = lambda x: (
             '%s/cgi-bin/editor.cgi?table=%s&id=%s' % (pif.secure_host, tab_name, x[0]))
-    for arg in page_info['show']:
-        hdr = arg
-        key = arg.lower().replace(' ', '_')
-        if arg.startswith('*'):
-            key = key[1:]
-            hdr = '<a href="biblio.cgi?page=%s&sort=%s">%s</a>' % (pif.page_name, key, hdr[1:])
+    for key, hdr in zip(page_info['show'], page_info['headers']):
+        if hdr.startswith('*'):
+            hdr = hdr[1:]
+            hdr = f'<a href="biblio.cgi?page={pif.page_name}&sort={key}">{hdr}</a>'
         lsection.colist.append(key)
         lsection.headers[key] = hdr
 
@@ -96,8 +132,8 @@ def biblio(pif):
             this_sort = max(0, min(len(lsection.colist) - 1, int(this_sort)))
             this_sort = lsection.colist[this_sort]
         sortkey.append(this_sort)
-    if page_info.get('lastsort'):
-        sortkey.append(page_info.get('lastsort'))
+    if page_info.get('lastsort') and page_info['lastsort'] not in sortkey:
+        sortkey.append(page_info['lastsort'])
     if sortkey:
         table.sort(key=lambda x: [x[y] for y in sortkey if y in lsection.colist])
 
@@ -200,7 +236,7 @@ def submit_comment(pif):
     myemail = pif.form.get_str('myemail')
     credit = pif.form.get_str('credit')
     fname = pif.form.get_str('pic.name')
-    fimage = pif.form.get_str('pic')
+    fimage = pif.form.get('pic')
     pif.form.delete('pic')
 
     def comment_error(msg):

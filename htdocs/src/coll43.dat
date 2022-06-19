@@ -4,10 +4,10 @@ style|.table|bgc,#CC9933|c,#990000|bw,2px|p,1px|bsp,1px
 style|.section|bgc,#663333|fz,x-large|c,#FFFFFF
 style|.cell,0|fz,medium|h,8px|c,#FFFFFF|bw,2px
 style|.cell,1|fz,large|h,8px|c,#FFFFFF|va,middle|bw,2px
-style|.cell,2|bgc,#FFFF00|w,300px|c,#000000|p,0|bw,2px
-style|.cell,3|bgc,#FFFFFF|va,top|c,#000000|bw,2px
+style|.cell,2|bgc,#FFFF00|va,top|c,#000000|p,0|bw,2px
+style|.cell,3|bgc,#FFFFFF|w,300px|c,#000000|bw,2px
 style|.hcell|fw,bold|ta,center
-cells|num|name|pic|insetdesc
+cells|year|num|name|pic|insetdesc
 
 field|num|No.
 field|name|Model Name

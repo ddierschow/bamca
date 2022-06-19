@@ -52,7 +52,7 @@ file_list_class = {
     IS_DIFFERENT_NUMBER: 'different',
 }
 
-var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'area', 'date', 'note', 'manufacture',
+var_record_cols = ['var', 'body', 'base', 'windows', 'interior', 'wheels', 'area', 'date', 'note', 'manufacture',
                    'additional_text', 'imported_from', 'imported_var']
 
 
@@ -231,7 +231,6 @@ def show_file_link(fn, ft, show_as):
 
 def get_model_rec(pif, mn):
     modrec = pif.dbh.fetch_casting(mn, extras=True)
-    modrec = pif.dbh.depref('casting', modrec)
 
     # debug("fetch_casting", mn, modrec)
     if not modrec:
@@ -239,9 +238,10 @@ def get_model_rec(pif, mn):
         # debug("fetch_alias", mn, modrec)
         if modrec:
             modrec = pif.dbh.depref('alias', modrec)
-            modrec = pif.dbh.depref('casting', modrec)
             modrec = pif.dbh.depref('base_id', modrec)
             modrec['id'] = modrec['ref_id']
+
+    modrec = pif.dbh.depref('casting', modrec)
 
     # debug('GetModRec', modrec)
     return modrec
@@ -481,7 +481,6 @@ def show_casting(pif, mod, file_id):
     for col in tables.table_data['casting'].columns + tables.table_data['casting'].extra_columns:
         if casting_info[col]['type'] == 'text':
             flen = 65535
-            # make this a text box instead of a text input.
             print("<tr><td>%s</td><td>%s</td>" % (
                 col, pif.form.put_textarea_input("casting." + col, 80, 4, mod[col])))
         else:

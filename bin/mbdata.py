@@ -31,7 +31,7 @@ regionparents = {
     'L': 'W',
 }
 
-model_texts = ['Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With']
+model_texts = ['Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With', 'Base Text']
 
 lineup_types = [
     ("man", "Main line models"),
@@ -473,7 +473,7 @@ comment_icon = {
 }
 
 
-desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with']
+desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
 
 
 packsize = {'2': '2', '3': '3', '4': '4', '5': '5', '8': '8', 't': '10', 'w': '20'}
@@ -507,6 +507,7 @@ arts = {
     'Convoy': 'convoy',
     'Moving Parts': 'movingparts',
     'Speed Kings': 'speed-kings',
+    'Mattel Creations': 'mattelcreations',
 }
 
 

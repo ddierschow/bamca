@@ -8,7 +8,7 @@ $pif = 0;
 
 function CheckPerm($pif, $lev) {
     global $LOCKDOWN;
-    $retval = !$LOCKDOWN;
+    $retval = !$LOCKDOWN && $lev == 'b';
     if (array_key_exists('id', $_COOKIE)) {
         if ($pif['privs']) {
             $retval = strpos($pif['privs'], $lev) != false;

@@ -317,8 +317,9 @@ class DBHandler(object):
         return self.write('base_id', values=self.make_values('base_id', values), where=f"id='{id}'", modonly=True,
                           tag='UpdateBaseId')
 
-    def add_new_base_id(self, values):
-        return self.write('base_id', values=self.make_values('base_id', values), newonly=True, tag="AddNewBaseId")
+    def add_new_base_id(self, values, verbose=False):
+        return self.write('base_id', values=self.make_values('base_id', values), newonly=True, tag="AddNewBaseId",
+                          verbose=verbose)
 
     def delete_base_id(self, where):
         return self.delete('base_id', self.make_where(where))
@@ -360,8 +361,12 @@ class DBHandler(object):
                           left_joins=[('vehicle_make', 'casting.make=vehicle_make.id')], tag='CastingsByAlias')
 
     def fetch_aliases(self, ref_id=None, type_id=None, where=None):
-        wheres = ["base_id.id=casting.id", "casting.id=alias.ref_id",
-                  'casting.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
+        wheres = ["base_id.id=alias.ref_id",
+                  'alias.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
+        left_joins = [
+            ('casting', "casting.id=base_id.id"),
+            ('pack', "pack.id=base_id.id"),
+        ]
         if ref_id:
             wheres.append(f"alias.ref_id='{ref_id}'")
         if type_id:
@@ -370,7 +375,8 @@ class DBHandler(object):
             wheres += where
         elif isinstance(where, str):
             wheres.append(where)
-        return self.fetch("base_id,casting,alias,section,page_info", where=wheres, extras=True, tag='Aliases')
+        return self.fetch("alias,base_id,section,page_info", where=wheres, left_joins=left_joins,
+                          extras=True, tag='Aliases', verbose=True)
 
     def update_alias(self, pk, values):
         return self.write('alias', values=values, where=f"pk={pk}", modonly=True, tag='UpdateAlias')
@@ -399,13 +405,17 @@ class DBHandler(object):
         return recs[0] if recs else None
 
     def fetch_casting(self, id, extras=False, verbose=False, tag='Casting'):
-        wheres = ['base_id.id=casting.id', f'casting.id="{id}"']
+        verbose = True
+
+        wheres = ['base_id.id=casting.id', f'casting.id="{id}"',
+                  'casting.section_id=section.id', 'section.page_id="manno"']
         cols = (
             self.make_columns('base_id', extras=extras) +
             self.make_columns('casting', extras=extras) +
+            self.make_columns('section', extras=extras) +
             ['(select count(*) from variation where variation.mod_id=casting.id) as vars'])
         manlist = self.fetch(
-            "casting,base_id", left_joins=[("vehicle_make", "casting.make=vehicle_make.id")], columns=cols,
+            "casting,base_id,section", left_joins=[("vehicle_make", "casting.make=vehicle_make.id")], columns=cols,
             where=wheres, extras=extras, one=True, tag=tag, verbose=verbose)
         if manlist:
             return self.modify_man_item(manlist)
@@ -535,12 +545,20 @@ class DBHandler(object):
         mod = self.depref('casting,publication,base_id', mod)
         mod.setdefault('make', '')
 
-        if mod.get('id'):
+        if mod.get('pack.id'):
+            mod['name'] = mod.get('rawname', '').replace(';', ' ')
+            mod['unlicensed'] = '?'  # {'unl': '-', '': '?'}.get(mod['make'], ' ')
+            mod.setdefault('description', '')
+            mod['made'] = True  # not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
+            mod['visual_id'] = self.default_id(mod['id'])
+            mod['link'] = "packs.cgi?id"
+        elif mod.get('id'):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
             mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
             mod.setdefault('description', '')
             mod['made'] = not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
             mod['visual_id'] = self.default_id(mod['id'])
+            mod['link'] = "single.cgi?id"
         else:
             mod['id'] = ''
             mod['name'] = ''
@@ -549,11 +567,11 @@ class DBHandler(object):
             mod['description'] = ''
             mod['made'] = False
             mod['visual_id'] = ''
+            mod['link'] = "single.cgi?id"
         mod['filename'] = mod['id'].lower()
         mod['notmade'] = '' if mod['made'] else '*'
         mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & config.FLAG_MODEL_CASTING_REVISED) != 0
         mod['linkid'] = mod.get('mod_id', mod.get('id'))
-        mod['link'] = "single.cgi?id"
         mod['descs'] = [x for x in mod['description'].split(';') if x]
         mod['iconname'] = self.icon_name(mod.get('rawname', ''))
         mod['shortname'] = self.short_name(mod.get('rawname', ''))
@@ -728,9 +746,8 @@ class DBHandler(object):
         for varrec in varrecs:
             detrec = detrecs.get(varrec['variation.var'], {})
             for key in detrec:
-                if not varrec.get('variation.' + key):
-                    varrec['variation.' + key] = detrec[key]
-            # varrec.update(detrecs.get(varrec['variation.var'], {}))
+                if not varrec.get(f'variation.{key}'):
+                    varrec[f'variation.{key}'] = detrec[key]
             varrec['vs'] = []
             for vs in vsrecs:
                 if vs['variation_select.var_id'] == varrec['variation.var']:
@@ -971,7 +988,8 @@ class DBHandler(object):
     #                                            (old_var_id, mod_id), modonly=True)
 
     def update_variation_selects_for_variation(self, mod_id, var_id, ref_ids):
-        self.delete('variation_select', where=f"mod_id='{mod_id}' and var_id='{var_id}'")
+        o_vs = self.depref('variation_select',
+                           self.fetch('variation_select', where=f"mod_id='{mod_id}' and var_id='{var_id}'"))
         for ref_id in ref_ids:
             cat_id = sec_id = ran_id = ''
             if ref_id.find(':') >= 0:
@@ -979,10 +997,18 @@ class DBHandler(object):
             if ref_id.find('/') >= 0:
                 ref_id, sec_id = ref_id.split('/', 1)
             sec_id, ran_id = sec_id.split('.') if '.' in sec_id else (sec_id, '')
-            self.write('variation_select',
-                       values={'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sec_id': sec_id,
-                               'ran_id': ran_id, 'category': cat_id},
-                       newonly=True, verbose=1, tag='UpdateVSForV')
+
+            for vs in o_vs:
+                if (vs['ref_id'] == ref_id and vs['sec_id'] == sec_id and vs['ran_id'] == ran_id and
+                        vs['category'] == cat_id):
+                    o_vs.remove(vs)
+                    break
+            else:
+                values = {'mod_id': mod_id, 'var_id': var_id, 'ref_id': ref_id, 'sec_id': sec_id, 'ran_id': ran_id,
+                          'category': cat_id}
+                self.write('variation_select', values=values, newonly=True, verbose=1, tag='UpdateVSForV')
+        for vs in o_vs:
+            self.delete_variation_select(where=f'id={o_vs["id"]}')
 
     # this needs to be native sec_id.ran_id instead of sub_id
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):
@@ -992,15 +1018,16 @@ class DBHandler(object):
                    modonly=True, tag='UpdateVarSelSubId')
 
     # some packs use ran_id and this might not work for them
-    def update_variation_select_pack(self, pms, page_id=None, sec_id=''):
+    def update_variation_select_pack(self, pms, page_id=None, sec_id='', verbose=False):
         if not sec_id or not page_id:
             return
-        self.delete('variation_select', where=f"ref_id='{page_id}' and sec_id='{sec_id}'")
+        self.delete('variation_select', where=f"ref_id='{page_id}' and sec_id='{sec_id}'", verbose=verbose)
         sec_id, ran_id = sec_id.split('.') if sec_id and '.' in sec_id else (sec_id, '')
         for pm in pms:
             for var_id in list(set([x for x in pm['var_id'].split('/') if x])):
-                self.write('variation_select', values={'mod_id': pm['mod_id'], 'var_id': var_id, 'ref_id': page_id,
-                                                       'sec_id': pm['pack_id']}, newonly=True, tag='UpdateVarSelPack')
+                self.write('variation_select', values={
+                    'mod_id': pm['mod_id'], 'var_id': var_id, 'ref_id': page_id, 'sec_id': pm['pack_id']},
+                    newonly=True, tag='UpdateVarSelPack', verbose=verbose)
 
     # working through sub_id
     def update_variation_selects_for_ref(self, mod_vars, ref_id='', sec_id='', category=''):
@@ -1460,8 +1487,8 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             wheres.append(f"page_id='{page_id}'")
         return self.fetch('base_id,pack', where=wheres, tag='Packs')
 
-    def add_new_pack(self, values):
-        return self.write('pack', values=values, newonly=True, tag='AddNewPack')
+    def add_new_pack(self, values, verbose=False):
+        return self.write('pack', values=values, newonly=True, tag='AddNewPack', verbose=verbose)
 
     def insert_pack(self, pack_id, page_id=None):
         section_id = None
@@ -1490,9 +1517,9 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         return self.raw_execute("insert into pack_model (pack_id,display_order) "
                                 f"select'{pack_id}', 1+count(*) from pack_model where pack_id='{pack_id}'")
 
-    def add_new_pack_models(self, pms):
+    def add_new_pack_models(self, pms, verbose=False):
         for pm in pms:
-            self.write('pack_model', values=pm, tag='AddNewPackModels')
+            self.write('pack_model', values=pm, tag='AddNewPackModels', verbose=verbose)
 
     def update_pack_models(self, pms):
         for pm in pms:
@@ -1889,7 +1916,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             attr_name = fmt[1:]
             fmt = f'{get_title(attr_name)} %({attr_name})s'
         elif fmt.startswith('&'):
-            attr_name = '_' + fmt[1:]
+            attr_name = fmt[1:]
             fmt = f'%({attr_name})s'
         elif '%' in fmt:  # raw format
             # MI818 still needs this, at the least.
@@ -1967,8 +1994,8 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                         if '~' in w:
                             t, w = w.split('~')
                             t = cmps.get(t, t)
-                        val = val + (cmps.get('_', '') if val and w else '') + f' {w} {t}'
-                        _val = _val + (cmps.get('_', '') if _val and w else '') + f' {w}'
+                        val += (cmps.get('_', '') if val and w else '') + f' {w} {t}'
+                        _val += (cmps.get('_', '') if _val and w else '') + f' {w}'
                     var[k] = val.strip()
                     var['_' + k] = _val.strip()
             self.update_variation(

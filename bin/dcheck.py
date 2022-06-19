@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 import datetime
 import filecmp
 import glob
@@ -1056,7 +1055,42 @@ def check_var_data(pif, id_list):
             print()
 
 
+def check_plants(pif):
+    known = set(['Brazil', 'Bulgaria', 'China', 'England', 'Hong Kong', 'Hungary', 'Japan', 'Macau', 'Thailand'])
+    for mod_id in pif.dbh.fetch_casting_ids():
+        res = [x['manufacture'] for x in pif.dbh.fetch(
+            'variation', columns=['manufacture'], where=f'mod_id="{mod_id}"', distinct=True)]
+        if len(res) > 5 or set(res) - known:
+            print(mod_id, '-', ' '.join([f'"{x}"' for x in res]))
+
+
+def check_missing_variations(pif, *filelist):
+    def num_num(var_id):
+        num = 0
+        for x in var_id:
+            if not x.isdigit():
+                break
+            num = num * 10 + int(x)
+        return num
+
+    for mod in sorted(pif.dbh.fetch_casting_ids()):
+        relateds = [x['casting_related.related_id']
+                    for x in pif.dbh.fetch_casting_relateds(section_id='single', mod_id=mod)
+                    if x['casting_related.flags'] & config.FLAG_CASTING_RELATED_SHARED] + [mod]
+        num_set = set([num_num(x['variation.var']) for x in pif.dbh.fetch(
+            'variation', where="mod_id in (" + ','.join([f'"{x}"' for x in relateds]) + ')', tag='MissingVar')])
+        if num_set:
+            targ_set = set(range(1, max(num_set) + 1))
+            diff_set = targ_set - num_set
+            if diff_set:
+                print(mod, sorted(diff_set))
+
+
 # ------- infra --------------------------------------------------------
+
+def run_test(pif, mod_id):
+    mod = pif.dbh.fetch_base_id(mod_id)
+    print(mod.rawname)
 
 
 cmds = [
@@ -1077,6 +1111,9 @@ cmds = [
     ('pic', check_pictures, "check_pictures"),
     ('prod', check_products, "check_products"),
     ('var', check_variations, "check_variations"),
+    ('plants', check_plants, "check_plants"),
+    ('mv', check_missing_variations, "check_missing_variations"),
+    ('t', run_test, "run_test"),
 ]
 
 

@@ -10,6 +10,7 @@ import images
 import mannum
 import mbdata
 import render
+import tables
 import useful
 
 
@@ -663,7 +664,7 @@ def add_var_ask(pif):
 
 
 var_id_columns = ['mod_id', 'var']
-var_attr_columns = ['body', 'base', 'windows', 'interior', 'deco']
+var_attr_columns = ['body', 'base', 'windows', 'interior', 'deco', 'wheels']
 var_data_columns = ['category', 'note', 'additional_text', 'manufacture', 'area', 'date',
                     'imported_from', 'imported_var', 'references']
 var_record_columns = var_id_columns + var_attr_columns + var_data_columns + ['deco_type']
@@ -1086,7 +1087,9 @@ def add_pack_form(pif):
     if not year.isdigit():
         year = '0000'
     base_id = pif.dbh.fetch_base_id(id=pack_id)
-    pack = pif.dbh.fetch_pack(id=pack_id, var=pif.form.get_raw('var'))
+    useful.write_message('base_id', pack_id, base_id)
+    pack = tables.Results('pack', pif.dbh.fetch_pack(id=pack_id, var=pif.form.get_raw('var')))
+    useful.write_message('pack', pack_id, pif.form.get_raw('var'), pack)
     pack_img = pif.render.find_image_file(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
 
     header = '<hr>\n'
@@ -1096,66 +1099,69 @@ def add_pack_form(pif):
     header += '<input type="hidden" name="tymass" value="pack">\n'
 
     if base_id:
-        header += id_attributes(pif, 'base_id', base_id.base_id)
+        header += id_attributes(pif, 'base_id', base_id)
+    else:
+        base_id = {
+            'id': pack_id,
+            'first_year': year,
+            'model_type': 'MP',
+            'rawname': '',
+            'description': '',
+            'flags': 0,
+        }
     if pack:
         pack = pack[0]
         header += id_attributes(pif, 'pack', pack)
     else:
         pack = {
-            'base_id.id': base_id['base_id.id'] if base_id else pack_id,
-            'base_id.first_year': base_id['base_id.first_year'] if base_id else year,
-            'base_id.model_type': base_id['base_id.model_type'] if base_id else 'MP',
-            'base_id.rawname': base_id['base_id.rawname'] if base_id else '',
-            'base_id.description': base_id['base_id.description'] if base_id else '',
-            'base_id.flags': base_id['base_id.flags'] if base_id else 0,
-            'pack.id': pack_id,
-            'pack.var': pif.form.get_raw('var'),
-            'pack.page_id': page_id,
-            'pack.section_id': section_id,
-            'pack.end_year': year,
-            'pack.region': 'W',
-            'pack.layout': pack_layout.get(section_id, '5v'),
-            'pack.product_code': '',
-            'pack.material': 'C',
-            'pack.country': 'TH',
-            'pack.note': '',
+            'id': pack_id,
+            'var': pif.form.get_raw('var'),
+            'page_id': page_id,
+            'section_id': section_id,
+            'end_year': year,
+            'region': 'W',
+            'layout': pack_layout.get(section_id, '5v'),
+            'product_code': '',
+            'material': 'C',
+            'country': 'TH',
+            'note': '',
         }
 
     header += pif.render.format_button_link("edit", f"imawidget.cgi?d=.{config.IMG_DIR_PROD_PACK}&f={pack_id}.jpg")
     header += pif.render.format_button_link("upload", "upload.cgi?d=.%s&n=%s" % (
         config.IMG_DIR_PROD_PACK.replace('pic', 'lib'), pack_id))
-    header += '%(pack.page_id)s/%(pack.id)s<br>' % pack
+    header += '%(page_id)s/%(id)s<br>' % pack
     header += '/'.join(pack_img) + '<br>'
     header += '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (
-        pack_img + (pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')))
+        pack_img + (pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g'),))
     header += '<a href="imawidget.cgi?d=.%s&f=%s.jpg">%s</a><br>' % (
         config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
     header += pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK) + '<br>'
 
-    pack_num = int(pack['pack.note'][2:-1]) if pack['pack.note'].startswith('(#') else 0
+    pack_num = int(pack['note'][2:-1]) if pack['note'].startswith('(#') else 0
     linmod = pif.dbh.fetch_lineup_model(where=f"mod_id='{pack_id}'")
     linmod = linmod[0] if linmod else {
-        'lineup_model.id': 0,  # delete later
-        'lineup_model.base_id': '%s%s%02d' % (year, lineup_sec.replace('.', ''), pack_num),
-        'lineup_model.mod_id': pack_id,
-        'lineup_model.number': pack_num,
-        'lineup_model.flags': 0,
-        'lineup_model.style_id': '',
-        'lineup_model.picture_id': '',
-        'lineup_model.region': lineup_sec,
-        'lineup_model.year': year,
-        'lineup_model.name': pack['base_id.rawname'],
-        'lineup_model.page_id': 'year.' + year,
+        'id': 0,  # delete later
+        'base_id': '%s%s%02d' % (year, lineup_sec.replace('.', ''), pack_num),
+        'mod_id': pack_id,
+        'number': pack_num,
+        'flags': 0,
+        'style_id': '',
+        'picture_id': '',
+        'region': lineup_sec,
+        'year': year,
+        'name': base_id['rawname'],
+        'page_id': 'year.' + year,
     }
-    x_linmods = [x['lineup_model.base_id'][7:] for x in pif.dbh.fetch_lineup_models(year, lineup_sec)
-                 if x.get('lineup_model.region') == lineup_sec]
+    x_linmods = [x['base_id'][7:] for x in pif.dbh.fetch_lineup_models(year, lineup_sec)
+                 if x.get('region') == lineup_sec]
     x_linmods.sort()
     llistix = render.Listix(note=header)
-    llistix.section.append(entry_form(pif, 'base_id', pack))
+    llistix.section.append(entry_form(pif, 'base_id', base_id))
     llistix.section.append(entry_form(pif, 'pack', pack))
     llistix.section.append(entry_form(
         pif, 'lineup_model', linmod,
-        note=pif.form.put_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['lineup_model.id'] else [])))
+        note=pif.form.put_checkbox('nope', [('1', 'nope')], ['1'] if not linmod.get('id') else [])))
     llistix.section[-1].header = 'in use: %s<br>\n' % ', '.join(x_linmods) + llistix.section[-1].header
 
     # editor
@@ -1182,9 +1188,9 @@ def add_pack_model(pif, pack, long_pack_id):
     # there may be a better way to do this.
     cols = ['mod', 'var', 'disp', 'edit']
     pmodels = {x + 1: {'pack_model.display_order': x + 1} for x in range(pif.form.get_int('num'))}
-    if pack.get('base_id.id'):
+    if pack.get('id'):
         model_list = pif.dbh.fetch_pack_models(
-            pack_id=pack['pack.id'], pack_var=pack['pack.var'], page_id=pack.get('pack.page_id'))
+            pack_id=pack['id'], pack_var=pack['var'], page_id=pack.get('page_id'))
 
         # for mod in pif.dbh.modify_man_items([x for x in model_list if x['pack_model.pack_id'] == long_pack_id]):
         for mod in pif.dbh.modify_man_items(model_list):
@@ -1206,15 +1212,14 @@ def add_pack_model(pif, pack, long_pack_id):
                 pif.form.put_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
             'var': 'var ' + pif.form.put_text_input(
                 "pm.var_id.%s" % key, 80, 20,
-                value='{} ({})'.format('/'.join(list(set(mod.get('vars', '')))),
-                                       mod.get('pack_model.var_id', ''))),
+                value='/'.join(list(set(mod.get('vars', ''))))),
             'disp': 'disp ' + pif.form.put_text_input(
                 "pm.display_order.%s" % key, 2, 2, value=mod.get('pack_model.display_order', '')),
             'edit': pif.render.format_button_link(
                 'edit', pif.dbh.get_editor_link('pack_model',
                                                 pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
         } for key, mod in sorted(pmodels.items())]
-    return dict(colist=cols, range=[{'entry': entries}], noheaders=True, header='pack_model<br>')
+    return render.Section(colist=cols, range=[render.Range(entry=entries)], noheaders=True, header='pack_model<br>')
 
 
 def add_pack_delete(pif):
@@ -1252,41 +1257,45 @@ def add_pack_save(pif):
             'display_order': pif.form.get_int('pm.display_order.' + mod),
         }
         for mod in mods]
+    pack = pif.dbh.make_values('pack', pif.form, 'pack.')
+    base_id = pif.dbh.make_values('base_id', pif.form, 'base_id.')
+    base_id['flags'] = base_id['flags'] or 0
+    o_pack_id = pif.form.get_raw('o_pack_id')
+    o_base_id_id = pif.form.get_raw('o_base_id_id')
     useful.write_message('pms', pms)
-    useful.write_message('pack', pif.dbh.make_values('pack', pif.form, 'pack.'))
-    useful.write_message('base_id', pif.dbh.make_values('base_id', pif.form, 'base_id.'))
-    useful.write_message('o_pack_id', pif.form.has('o_pack_id'), pif.form.get_raw('o_pack_id'))
-    useful.write_message('o_base_id_id', pif.form.has('o_base_id_id'), pif.form.get_raw('o_base_id_id'))
+    useful.write_message('pack', pack)
+    useful.write_message('base_id', base_id)
+    useful.write_message('o_pack_id', pif.form.has('o_pack_id'), o_pack_id)
+    useful.write_message('o_base_id_id', pif.form.has('o_base_id_id'), o_base_id_id)
 
     if pif.duplicate_form:
         return
 
     if pif.form.has('o_base_id_id'):  # update existing records
-        pif.dbh.update_base_id(pif.form.get_raw(
-            'o_base_id_id'), {x: pif.form.get_raw('base_id.' + x) for x in pif.dbh.get_table_data('base_id').columns})
+        pif.dbh.update_base_id(pif.form.get_raw('o_base_id_id'), base_id)
     else:
-        pif.dbh.add_new_base_id(pif.dbh.make_values('base_id', pif.form, 'base_id.'))
+        pif.dbh.add_new_base_id(base_id, verbose=True)
 
     if pif.form.has('o_pack_id'):  # update existing records
         pif.dbh.update_pack_models(pms)
-        pif.dbh.update_variation_select_pack(pms, pif.form.get_raw('pack.page_id'), pif.form.get_raw('o_pack_id'))
+        pif.dbh.update_variation_select_pack(pms, pack['page_id'], o_pack_id)
 
         p_table_data = pif.dbh.get_table_data('pack')
-        if pif.form.get_raw('o_pack_id') != pif.form.get_raw('pack.id'):  # change id of pack
+        if o_pack_id != pack['id']:  # change id of pack
             pif.dbh.update_variation_select_subid(
-                pif.form.get_raw('pack.id'), pif.form.get_raw('pack.page_id'), pif.form.get_raw('o_pack_id'))
-            if os.path.exists(pif.render.pic_dir + '/' + pif.form.get_raw('o_pack_id') + '.jpg'):
-                os.rename(pif.render.pic_dir + '/' + pif.form.get_raw('o_pack_id') + '.jpg',
-                          pif.render.pic_dir + '/' + pif.form.get_raw('pack.id') + '.jpg')
-        pif.dbh.update_pack(pif.form.get_raw('o_pack_id'),
-                            {x: pif.form.get_raw('pack.' + x) for x in p_table_data.columns})
+                pack['id'], pack['page_id'], o_pack_id)
+            if os.path.exists(pif.render.pic_dir + '/' + o_pack_id + '.jpg'):
+                os.rename(pif.render.pic_dir + '/' + o_pack_id + '.jpg',
+                          pif.render.pic_dir + '/' + pack['id'] + '.jpg')
+        pif.dbh.update_pack(o_pack_id, {x: pif.form.get_raw('pack.' + x) for x in p_table_data.columns})
 
         p_table_data = pif.dbh.get_table_data('base_id')
 
     else:  # add new records
-        pif.dbh.add_new_pack_models(pms)
-        pif.dbh.update_variation_select_pack(pms, pif.form.get_raw('pack.page_id'), pif.form.get_raw('o_pack_id'))
-        pif.dbh.add_new_pack(pif.dbh.make_values('pack', pif.form, 'pack.'))
+        useful.write_message('add pm', pif.dbh.add_new_pack_models(pms, verbose=True))
+        useful.write_message('add vs', pif.dbh.update_variation_select_pack(
+            pms, pack['page_id'], pack['id'], verbose=True))
+        useful.write_message('add pack', pif.dbh.add_new_pack(pack, verbose=True))
 
     # now do lineup_model separately
     if not pif.form.get_int('nope'):
@@ -1307,9 +1316,18 @@ def add_pack_save(pif):
 
 
 def id_attributes(pif, tab, dat):
+    table_data = pif.dbh.get_table_data(tab)
+    useful.write_message(dat)
+    ids = []
+    for x in table_data.id:
+        long_x = f"{tab}.{x}"
+        old_id = dat.id or ''
+        old_id = old_id or (dat[long_x] if long_x in dat else '')
+        ids.append(f'<input type="hidden" name="o_{tab}_{x}" value="{old_id}">\n')
+    return '\n'.join(ids) + '\n'
     return '\n'.join(
         ['<input type="hidden" name="o_%s_%s" value="%s">\n' % (tab, f, dat.get(f, dat.get(tab + '.' + f, '')))
-         for f in pif.dbh.get_table_data(tab).id]) + '\n'
+         for f in table_data.id]) + '\n'
 
 
 def entry_form(pif, tab, dat, div_id=None, note=''):
@@ -1909,24 +1927,24 @@ def add_matrix_form(pif):
         header += id_attributes(pif, 'section', section)
     else:
         section = {
-            'section.id': section_id,
-            'section.page_id': page_id,
-            'section.columns': 4,
+            'id': section_id,
+            'page_id': page_id,
+            'columns': 4,
         }
 
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s' and picture_id='%s'" % (page_id, section_id))
     linmod = linmod[0] if linmod else {
-        'lineup_model.id': 0,  # delete later
-        'lineup_model.base_id': '%sX1100' % year,
-        'lineup_model.mod_id': page_id,
-        'lineup_model.number': 0,
-        'lineup_model.flags': 0,
-        'lineup_model.style_id': '',
-        'lineup_model.picture_id': section_id,
-        'lineup_model.region': 'X.11',
-        'lineup_model.year': year,
-        'lineup_model.name': section.get('section.name', ''),
-        'lineup_model.page_id': 'year.' + year,
+        'id': 0,  # delete later
+        'base_id': '%sX1100' % year,
+        'mod_id': page_id,
+        'number': 0,
+        'flags': 0,
+        'style_id': '',
+        'picture_id': section_id,
+        'region': 'X.11',
+        'year': year,
+        'name': section.get('section.name', ''),
+        'page_id': 'year.' + year,
     }
 
     llistix = render.Listix(note=header)
@@ -1934,7 +1952,7 @@ def add_matrix_form(pif):
     llistix.section.append(entry_form(pif, 'section', section if isinstance(section, dict) else section.todict()))
     llistix.section.append(entry_form(
         pif, 'lineup_model', linmod,
-        note=pif.form.put_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['lineup_model.id'] else [])))
+        note=pif.form.put_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['id'] else [])))
 
     mm, category = add_matrix_model(pif, section)
     llistix.section.append(mm)
@@ -1954,9 +1972,9 @@ def add_matrix_model(pif, section):
     category = ''
     cols = ['display_order', 'mod_id', 'var_id', 'name', 'range_id', 'flags', 'edit']
     mmodels = {x + 1: {'matrix_model.display_order': x + 1, 'vars': []} for x in range(pif.form.get_int('num'))}
-    mmodelsdb = pif.dbh.fetch_matrix_models_variations(section['section.page_id'], section=section['section.id'])
+    mmodelsdb = pif.dbh.fetch_matrix_models_variations(section['page_id'], section=section['id'])
     for mmdb in mmodelsdb:
-        if mmdb['vs.sec_id'] and mmdb['vs.sec_id'] != section['section.id']:
+        if mmdb['vs.sec_id'] and mmdb['vs.sec_id'] != section['id']:
             continue
         if mmdb['vs.category']:
             category = mmdb['vs.category']
@@ -2028,6 +2046,9 @@ def add_matrix_save(pif):
         if 'var_id' in mm:
             modvars.extend([(mm['mod_id'], x) for x in mm['var_id'].split('/')])
             del mm['var_id']
+        if not mm.get('name'):
+            mod = pif.dbh.fetch_base_id(mm['mod_id'])
+            mm['name'] = mod.rawname.replace(';', ' ')
         mm.update(thisis)
         useful.write_message('matrix_model', mm)
         pif.dbh.insert_or_update_matrix_model(mm, verbose=True)

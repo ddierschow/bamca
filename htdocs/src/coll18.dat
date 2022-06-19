@@ -7,7 +7,7 @@ style|.cell,3|va,top|c,#000000|bgc,#CCCC99
 style|.section|bgc,#663333|fz,medium
 style|.table|bgc,#CC9966|c,#990000|bw,2px|p,1px|bsp,1px
 style|.hcell|ta,center|fw,bold|c,#FFFFFF|bc,#990000
-cells|num|name|pic|insetdesc
+cells|year|num|name|pic|insetdesc
 
 field|num|No.
 field|name|Model Name

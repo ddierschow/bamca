@@ -71,7 +71,6 @@ class SetFile(bfiles.ArgFile):
 
 
 def do_set(pif, setfile, set_id=None):
-    pif.render.set_button_comment(pif, '')
     tables = setfile.tables
 
     llineups = []
@@ -95,7 +94,6 @@ def print_table(pif, db, setfile):
             ncols = ncols + 1
 
     for model in db['model']:
-        pif.render.comment('print_table', model)
         showme = True
         for field in db['header']:
             if pif.form.has(field):
@@ -181,7 +179,6 @@ def mod_num(prefix, model, suffix):
 
 
 def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
-    pif.render.comment(prefix, model, suffix, digits, made)
     if not isinstance(model, list):
         model = [model]
     modnum = []
