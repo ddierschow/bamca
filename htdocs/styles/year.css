@@ -1,12 +1,22 @@
+body {background-color: #FF6633;}
+
 .largepic {float: left;}
+.varentry {background-color: #FFFFFF;}
 
-body {background-color: #FF8800;}
-
-.tb_year {background-color: #CCCCCC; max-width: 1024px;}
 .tb {background-color: #CCCCCC;}
-.sh {background-color: #000000; color: #FFFFFF;}
-.rh {background-color: #FFFFFF; color: #000000;}
-.eb {background-color: #DDDDAA;}
-
+.tb_year {background-color: #CCCCCC; max-width: 1024px;}
 .tb_tail {background-color: #CCCCCC;}
 .tb_tail eb {background-color: #CCCCCC;}
+
+.sh {background-color: #000000; color: #FFFFFF;}
+.rh {background-color: #FFFFFF; color: #000000; height: 36px; font-size: x-large;}
+.eb {background-color: #CCCCCC;}
+
+.eb_wh {background-color: #FFFFFF;} /* white */
+.eb_bl {background-color: #CCCCFF;} /* blue */
+.eb_gr {background-color: #CCFFCC;} /* green */
+.eb_rd {background-color: #FFCCCC;} /* red */
+.eb_tl {background-color: #CCFFFF;} /* teal */
+.eb_or {background-color: #FFCC99;} /* orange */
+.eb_pu {background-color: #FFCCFF;} /* purple */
+.eb_yl {background-color: #FFFF99;} /* yellow */

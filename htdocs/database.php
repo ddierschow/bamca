@@ -263,7 +263,7 @@ function SectionYear($pif) {
     HorzSpacer(4);
     ChooseRegion(3, 'year');
     echo "  </td>\n";
-    #HorzSpacer(4);
+    // HorzSpacer(4);
     echo "</tr>\n<tr><td>\n";
     if ($pif['isadmin']) {
 	echo " List type:</td><td width=\"180\">\n";
@@ -279,14 +279,14 @@ function SectionYear($pif) {
     } else {
 	echo " </td><td width=\"180\">\n";
     }
-    echo "  </td>\n</tr>\n<tr>"; #<td colspan=\"2\" rowspan=\"2\">\n";
+    echo "  </td>\n</tr>\n<tr>"; // <td colspan=\"2\" rowspan=\"2\">\n";
     echo "  <td colspan=\"2\" rowspan=\"2\">\n";
     Checks('checkbox', 'year', 'lty', $ptypes);
     echo "  </td>\n";
-    #echo " </td></tr>\n<tr>";
+    // echo " </td></tr>\n<tr>";
     /*if ($pif['isadmin']) {
 	echo "<p>\n<i>";
-	#echo "Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
+	// echo "Number of years: <input type=\"text\" name=\"nyears\" value=\"\" size=\"2\">\n<p>\n";
 	Checks('checkbox', 'year', 'unroll', [['1', 'Unroll']], '<p>');
 	Checks('checkbox', 'year', 'multi', [['1', 'Multi Only']], '');
 	echo "</i>";

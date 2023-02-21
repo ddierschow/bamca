@@ -361,9 +361,11 @@ class DBHandler(object):
                           left_joins=[('vehicle_make', 'casting.make=vehicle_make.id')], tag='CastingsByAlias')
 
     def fetch_aliases(self, ref_id=None, type_id=None, where=None):
-        wheres = ["base_id.id=alias.ref_id",
-                  'alias.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
+        wheres = ["base_id.id=alias.ref_id"]
+        # 'alias.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
         left_joins = [
+            # ('page_info', 'page_info.format_type="manno"'),
+            # ('section', 'alias.section_id=section.id'),
             ('casting', "casting.id=base_id.id"),
             ('pack', "pack.id=base_id.id"),
         ]
@@ -375,7 +377,7 @@ class DBHandler(object):
             wheres += where
         elif isinstance(where, str):
             wheres.append(where)
-        return self.fetch("alias,base_id,section,page_info", where=wheres, left_joins=left_joins,
+        return self.fetch("alias,base_id", where=wheres, left_joins=left_joins,
                           extras=True, tag='Aliases', verbose=True)
 
     def update_alias(self, pk, values):

@@ -85,7 +85,6 @@ function DBClose($dbi) {
 function GetPageInfo($page_id) {
     global $pif;
     chdir(getenv('DOCUMENT_ROOT'));
-    putenv('HTTP_COOKIE=' . apache_getenv('HTTP_COOKIE'));
     $pif = array();
     $pif['page_id'] = $page_id;
     $pif['styles'] = ['main', $page_id];

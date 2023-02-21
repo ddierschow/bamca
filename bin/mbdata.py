@@ -758,7 +758,9 @@ deco_types = (
     ('ls', 'labels'),
     ('t', 'tampo'),
     ('n', 'no'),
+    ('c', 'cast'),
     ('h', 'handpainted'),
+    ('m', 'molded plastic'),
     ('f', 'fusion printed'),
     ('i', 'inkjet printed'),
 )
