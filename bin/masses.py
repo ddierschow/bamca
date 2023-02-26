@@ -564,6 +564,7 @@ def add_casting_final(pif):
             ostr += str(pif.dbh.add_alias(
                 {'id': pif.form.get_raw('mack'), 'first_year': pif.form.get_raw('year'),
                  'ref_id': casting_id, 'type': 'mack', 'flags': 2})) + '<br>\n'
+        os.mkdir(os.path.join('lib', 'man', casting_id.lower()), mode=0o775)
     print(pif.render.format_template('blank.html', content=ostr))
     raise useful.Redirect(f'single.cgi?id={casting_id}')
 
@@ -2279,12 +2280,10 @@ def add_photogs_form(pif):
             'url': pif.form.put_text_input('url.%s' % recid, maxlength=128, showlength=64, value=rec['url']),
         }
 
-    header = '<hr>\n'
-    header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
+    header = '<hr>\n<form action="mass.cgi" method="post">\n' + pif.create_token()
     header += pif.form.put_hidden_input({'verbose': 1, 'tymass': 'photogs'})
 
-    footer = ''
-    footer += pif.form.put_button_input("save")
+    footer = pif.form.put_button_input("save")
     footer += pif.render.format_button_link('add', '/cgi-bin/editor.cgi?table=photographer&id=&add=1')
     footer += '</form>'
 
@@ -2311,6 +2310,84 @@ def add_photogs_save(pif):
         print('<br>')
 
 
+# ------- period ---------------------------------------------------
+
+# add/edit issue
+# add/edit articles
+
+def period_main(pif):
+    if pif.form.has('save'):
+        period_save(pif)
+
+    period_id = pif.form.get_id('period')
+    issue_id = pif.form.get_id('issue')
+    if issue_id:
+        return period_edit_issue(pif, issue_id)
+    if period_id:
+        return period_list(pif, period_id)
+    return period_ask(pif)
+
+
+def period_ask(pif, period_id=None):
+    wheres = [f'flags&{config.FLAG_BOOK_MAGAZINE}={config.FLAG_BOOK_MAGAZINE}']
+    if period_id:
+        wheres.append(f'pub_id={period_id}')
+    header = '<form>'
+    footer = "</form>"
+    llistix = render.Listix(section=[render.Section(colist=['q', 'a'], range=[render.Range(
+        entry=[{'q': 'Periodical', 'a': pif.form.put_select('period', [
+            (x['id'], x['title']) for x in pif.dbh.depref('book', pif.dbh.fetch(
+                'book', where=wheres, tag='MassPeriod', verbose=True))])},
+            {'q': '', 'a': pif.form.put_button_input('submit') + mass_type_reinput(pif)}])],
+        noheaders=True, footer=footer)], note=header)
+
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+    # periodical ['id', 'pub_id', 'volume', 'issue', 'date', 'pages']
+    # article ['id', 'per_id', 'title', 'author', 'page']
+
+
+def period_list(pif, period_id):
+    table = pif.dbh.get_table_data('periodical')
+    wheres = [f'pub_id={period_id}']
+    header = '<form>'
+    footer = "</form>"
+
+    def ent(x):
+        x = pif.dbh.depref('periodical', x)
+        x['id'] = pif.render.format_link(url=f'mass.cgi?issue={x["id"]}&tymass=period', txt=str(x['id']))
+        return x
+
+    entries = [ent(x) for x in pif.dbh.fetch('periodical', where=wheres, tag='MassPeriod', verbose=True)]
+    llistix = render.Listix(section=[render.Section(colist=table.columns, range=[render.Range(
+        entry=entries)],
+        footer=footer)], note=header)
+
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+
+def period_edit_issue(pif, period_id):
+    table = pif.dbh.get_table_data('article')
+    wheres = [f'per_id={period_id}']
+    header = '<form>'
+    footer = "</form>"
+
+    def ent(x):
+        x = pif.dbh.depref('article', x)
+        return x
+
+    entries = [ent(x) for x in pif.dbh.fetch('article', where=wheres, tag='MassPeriod', verbose=True)]
+    llistix = render.Listix(section=[render.Section(colist=table.columns, range=[render.Range(
+        entry=entries)],
+        footer=footer)], note=header)
+
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+
+def period_save(pif):
+    pass
+
+
 # ------- ----------------------------------------------------------
 
 
@@ -2327,6 +2404,7 @@ mass_mains_list = [
     ('matrix', add_matrix),
     ('attrpics', add_attr_pics),
     ('lineup_model', add_lm_main),
+    ('period', period_main),
 ]
 
 mass_mains_hidden = {

@@ -5,6 +5,6 @@ body {background-color: #CCCCCC;}
 .linklist {vertical-align: top;}
 .database {vertical-align: middle; text-align: center; border-width: 1px; border-style: solid; font-size: xx-large; font-weight: bold; margin: 8px;}
 
-.public {width: 17%;}
-.private {width: 17%; background-color: #EEEEEE;}
+.public {width: 13%;}
+.private {width: 13%; background-color: #EEEEEE;}
 .high {background-color: #DDFFDD;}

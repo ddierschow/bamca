@@ -121,7 +121,6 @@ picture_cols = [
     ['credvars', 'CrV'],
     [mbdata.IMG_SIZ_LARGE + '_', 'L'],
     [mbdata.IMG_SIZ_MEDIUM + '_', 'M'],
-    [mbdata.IMG_SIZ_SMALL + '_', 'S'],
     [mbdata.IMG_SIZ_TINY + '_', 'T'],
     ['icon', 'I'],
     ['b_', 'B'],
@@ -187,14 +186,16 @@ class MannoFile(object):
                 self.slist.append(section)
 
         def get_types(start, dest):
-            for key in pif.form.keys(start=start):
+            dest['n'] = list(pif.form.get(start + 'n', ''))
+            dest['y'] = list(pif.form.get(start + 'y', ''))
+            for key in pif.form.keys(start=start + '_'):
                 val = pif.form.get_str(key)
                 dest.setdefault(val, list())
                 dest[val] += key[-1]
 
-        get_types('type_', self.vehtypes)
-        get_types('add_', self.addtypes)
-        get_types('pic_', self.pictypes)
+        get_types('type', self.vehtypes)
+        get_types('add', self.addtypes)
+        get_types('pic', self.pictypes)
 
         # useful.write_message(self.start, self.end, self.firstyear, self.lastyear, self.model_type, self.nodesc)
         for casting in pif.dbh.fetch_casting_list(section_id=self.section):  # (page_id=pif.page_id):
@@ -383,7 +384,7 @@ class MannoFile(object):
                     var_id = var_id[:-1]
                 id_set.add(int(var_id))
             for txt in fields:
-                if not mdict['format_' + txt]:
+                if not mdict.get('format_' + txt):
                     td[t2k[txt]] = None
                 elif var['variation.text_' + txt] or not mdict['format_' + txt]:
                     td[t2k[txt]] += 1
@@ -433,7 +434,7 @@ class MannoFile(object):
             mdict['alias'] = '<br>'.join(aliases.get(mod, []))
             mdict.update({
                 'fvyear': '', 'lvyear': '',
-                'notes': 'N' if mdict['notes'] else '',
+                'notes': 'N' if mdict.get('notes') else '',
                 'vid': '<a href="vars.cgi?edt=1&mod=%(id)s">%(id)s</a>' % mdict,
                 'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
             if mdict['flags'] & config.FLAG_MODEL_CASTING_REVISED:
@@ -614,7 +615,7 @@ class MannoFile(object):
                 'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
                 'credit': '<a href="vars.cgi?vdt=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
                 'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], mdict['id'], 'i')[1]})
-            founds, needs, _ = single.count_list_var_pics(pif, mdict['id'])
+            founds, needs, _, id_set = single.count_list_var_pics(pif, mdict['id'])
             # mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
             for ipix in range(0, 6):
                 self.totals[ipix]['have'] += founds[ipix]
@@ -789,7 +790,8 @@ class MannoFile(object):
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
             # mack_nums = ','.join(single.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
-            ret.append([mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])
+            ret.append(
+                [mod_id, mod.get('mack', ''), mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])
         return ret
 
     def run_man2csv_out(self, pif):
@@ -978,6 +980,18 @@ class MannoFile(object):
 
 @basics.web_page
 def main(pif):
+    useful.write_message(pif.form)
+    if pif.form.has('submit'):
+        # make new form and redirect
+        form = {x: pif.form.get_str(x) for x in ['end', 'eyear', 'listtype', 'range', 'section', 'start', 'syear']}
+        pics = pif.form.get_flags('pic_')
+        adds = pif.form.get_flags('add_')
+        types = pif.form.get_flags('type_')
+        form.update({'addn': adds.get('n', ''), 'addy': adds.get('y', ''),
+                     'picn': pics.get('n', ''), 'picy': pics.get('y', ''),
+                     'typen': types.get('n', ''), 'typey': types.get('y', '')})
+        raise useful.Redirect('manno.cgi?' + '&'.join([f'{x}={y}' for x, y in form.items() if y]))
+
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append(pif.request_uri, 'Manufacturing Numbers')
@@ -1520,6 +1534,14 @@ def fix_variation(pif, *args):
             pif.dbh.update_variation_bare(nvar)
 
 
+def make_dirs(pif, *args):
+    for mod_id in pif.dbh.fetch_casting_ids():
+        path = os.path.join('lib', 'man', mod_id.lower().replace('/', '_'))
+        if not os.path.exists(path):
+            print(mod_id)
+            os.mkdir(path)
+
+
 cmds = [
     ('d', delete_casting, "delete: mod_id"),
     ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
@@ -1538,6 +1560,7 @@ cmds = [
     ('cf', add_casting_file, "add casting file"),
     ('ll', add_linkline, "add link line"),
     ('fv', fix_variation, "fix variation mod_id ..."),
+    ('md', make_dirs, "make dirs"),
 ]
 
 

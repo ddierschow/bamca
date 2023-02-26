@@ -2,10 +2,12 @@
 
 import basics
 import config
+import imglib
 import mbdata
 import mflags
 import models
 import render
+import single
 import useful
 import varias
 
@@ -154,21 +156,24 @@ def date_search(pif, dt=None, yr=None):
     if dt:
         pif.render.title = dt
         vars = pif.dbh.fetch_variations_by_date(dt)
+        prefixes = imglib.get_tilley_file()
         last = None
         ver_count = 0
         for var in vars:
-            vss = pif.dbh.fetch_variation_selects(mod_id=var['variation.mod_id'], var_id=var['variation.var'])
+            mod_id = var['variation.mod_id']
+            var_id = var['variation.var']
+            ldir = 'man/' + mod_id.lower()
+            vss = pif.dbh.fetch_variation_selects(mod_id=mod_id, var_id=var_id)
             vs = ', '.join(['-'.join([y[x] for x in ['ref_id', 'sec_id', 'ran_id']]) for y in vss])
             verified = ['1'] if var['variation.flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else []
             id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
             ver_count += 1 if verified else 0
-            mod_id = var['variation.mod_id']
             aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(
                 mod_id, 'mack') if x['alias.flags'] & config.FLAG_ALIAS_PRIMARY]
             mack_id = aliases[0] if aliases else mod_id
             macks = get_mack_numbers(pif, mack_id)
             var['sort'] = macks[0] if macks else mod_id
-            mvid = "%s-%s" % (mod_id, var['variation.var'])
+            mvid = "%s-%s" % (mod_id, var_id)
 
             done = all([var['variation.text_' + x] != '' for x in ['description'] + descs])  # ignore text_with for now
             done = ' <i class="fas fa-star %s"></i>\n' % ('green' if done else 'red')
@@ -177,29 +182,36 @@ def date_search(pif, dt=None, yr=None):
             if var['variation.text_with']:
                 desc += '<li>with: ' + var['variation.text_with']
             var['shown'] = ''
+            vt = '2' if var['variation.category'] in single.code2cats else '1'
+            var['class_name'] = 'ln2' if vt == '2' else 'ln1'
             if last != mod_id:
                 var['shown'] += (
                     pif.render.format_link(f'/cgi-bin/single.cgi?id={mod_id}', f'<b>{mack_id} ({mod_id}) ') +
                     pif.render.format_link(
                         f'/cgi-bin/vars.cgi?mod={mod_id}',
-                        '%s</b><br>' % var['base_id.rawname'].replace(';', ' '))
+                        '%s</b>' % var['base_id.rawname'].replace(';', ' ')) +
+                    pif.render.format_link(
+                        f'/cgi-bin/pics.cgi?m={mod_id}&t=1', ' - DT<br>')
                 )
                 last = mod_id
-            var['shown'] += pif.render.format_image_optional(
-                mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var['variation.var']],
-                also={'class': 'righty'}, nobase=True, largest='s')
+            prefix = f"&has={prefixes[mod_id.lower()][0]}" if mod_id.lower() in prefixes else ""
+            var['shown'] += pif.render.format_link(
+                f'traverse.cgi?g=1&d=lib/{ldir}&man={mod_id}&var={var_id}&suff={prefix}',
+                pif.render.format_image_required(
+                    mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var_id],
+                    also={'class': 'righty'}, nobase=True, largest='s'))
             var['shown'] += (
                 pif.form.put_hidden_input({'v.' + mvid: '1'}) +
                 pif.form.put_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
                 pif.form.put_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
                 pif.render.format_link(
-                    '/cgi-bin/vars.cgi?mod=%s&var=%s&edit=1' % (mod_id, var['variation.var']),
-                    '(%s) %s' % (var['variation.var'], var['variation.text_description'])) + done +
+                    '/cgi-bin/vars.cgi?mod=%s&var=%s&edt=1' % (mod_id, var_id),
+                    '(%s) %s' % (var_id, var['variation.text_description'])) + done +
                 '<i>' + var['variation.note'] + '</i> ' + '-' + vs + '-' +
                 cats + '\n<ul>' + desc + '</ul>\n'
             )
         vars.sort(key=lambda x: x['sort'])
-        lran.entry = [render.Entry(text=x['shown']) for x in vars]
+        lran.entry = [render.Entry(text=x['shown'], class_name=x['class_name']) for x in vars]
         lsec.columns = 1
         llineup.header += (
             'Verified: %d of %d<br><form action="/cgi-bin/mass.cgi?tymass=dates" method="post">' %

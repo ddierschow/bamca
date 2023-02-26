@@ -51,7 +51,6 @@ function show_cab($mod, $var) {
 	'MB310' => 'Kenworth Aerodyne Conventional Cab Premiere',
 	'MB106' => 'Peterbilt Conventional Sleeper Cab',
 	'MB307' => 'Peterbilt Conventional Sleeper Cab Premiere',
-	'MB724' => 'Peterbilt Conventional Cab with rooftop lights',
 	'MB147' => 'Scania T 142 Cab',
 	'MB341' => 'Scania T 142 Cab Premiere',
 	'MB183' => 'DAF 3300 Space Cab',
@@ -74,6 +73,13 @@ function show_cab($mod, $var) {
     if (isset($cabs[$mod])) {
 	echo ' - ' . $cabs[$mod];
     }
+}
+
+function show_cab_detail($cy, $mod, $var, $defaults) {
+    if ($var) {
+	echo '<a href="/cgi-bin/vars.cgi?mod=' . $mod . '&var=' . $var . '">' . $var . '</a> - ';
+    }
+    show($cy, 'cdt', $defaults);
 }
 
 function show_trailer($mod) {
@@ -130,7 +136,7 @@ function show_convoy_corner($cy) {
   <tr><td><table class="cytable">
     <tr>
       <td class="enthead">Variation</td><td class="entval"><?php echo $cy['var']; ?></td>
-      <td class="entpic" rowspan="7"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm'); ?></td>
+      <td class="entpic" rowspan="6"><?php show_pic(arr_get2($cy, 'mod', $defaults), $cy['var'], 'm'); ?></td>
     </tr>
     <tr>
       <td class="enthead">Cab</td><td class="entval"><?php show_cab(arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', '')); ?></td>
@@ -147,11 +153,15 @@ function show_convoy_corner($cy) {
     <tr>
       <td class="enthead">Code</td><td class="entval"><?php show($cy, 'cod', $defaults); ?></td>
     </tr>
+<?php if (0) { ?>
     <tr>
       <td class="enthead">Rarity</td><td class="entval"><?php show($cy, 'rar', $defaults); ?></td>
     </tr>
+<?php } ?>
     <tr>
-      <td class="enthead">Cab Detail</td><td class="entval" colspan="2"><?php show($cy, 'cdt', $defaults); ?></td>
+      <td class="enthead">Cab Detail</td><td class="entval" colspan="2">
+        <?php show_cab_detail($cy, arr_get2($cy, 'cab', $defaults), arr_get($cy, 'cva', ''), $defaults); ?>
+      </td>
     </tr>
     <tr>
       <td class="enthead">Trailer Detail</td><td class="entval" colspan="2"><?php show($cy, 'tdt', $defaults); ?></td>
@@ -193,7 +203,7 @@ function show_convoy_wide($cy) {
       <td class="enthead">Livery</td><td class="entval"><?php show($cy, 'liv', $defaults); ?></td>
       <td class="enthead">Manufacture</td><td class="entval"><?php show($cy, 'mfg', $defaults); ?></td>
     </tr>
-<?php if (arr_get($cy, 'rar')) { ?>
+<?php if (0 || arr_get($cy, 'rar')) { ?>
     <tr>
       <td class="enthead">Rarity</td><td class="entval"><?php show($cy, 'rar', $defaults); ?></td>
       <td colspan="2"></td>
@@ -216,7 +226,7 @@ function show_convoy_wide($cy) {
 function show_convoy_tall($cy) {
     global $defaults;
 
-$rows = 9;
+$rows = 8;
 if (arr_get($cy, 'nts', '')) {
     $rows += 1;
 }
@@ -242,9 +252,11 @@ $rows += count(arr_get($cy, 'add', []));
     <tr>
       <td class="enthead">Code</td><td class="entval"><?php show($cy, 'cod', $defaults); ?></td>
     </tr>
+<?php if (0) { ?>
     <tr>
       <td class="enthead">Rarity</td><td class="entval"><?php show($cy, 'rar', $defaults); ?></td>
     </tr>
+<?php } ?>
     <tr>
       <td class="enthead">Cab Detail</td><td class="entval"><?php show($cy, 'cdt', $defaults); ?></td>
     </tr>

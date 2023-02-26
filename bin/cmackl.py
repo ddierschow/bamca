@@ -20,7 +20,8 @@ def mack_sort(x):
 
 def mack_models(pif, start, end, series):
     mseries = 'MB' if 'RW' not in series else None if 'SF' in series else ''
-    amods = [(mbdata.get_mack_number(rec['alias.id']), rec,) for rec in pif.dbh.fetch_aliases(type_id='mack')]
+    recs = pif.dbh.fetch_aliases(type_id='mack')
+    amods = [(mbdata.get_mack_number(rec['alias.id']), rec,) for rec in recs]
     mmods = [(mbdata.get_mack_number(rec['base_id.id']), rec,) for rec in
              pif.dbh.fetch_casting_list('sf') + pif.dbh.fetch_casting_list('rw')]
     amods = sorted([(x, y) for x, y in mmods + amods

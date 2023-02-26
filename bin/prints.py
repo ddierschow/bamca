@@ -90,7 +90,7 @@ def do_tree_page(pif, dblist):
 def blister(pif):
     pif.render.print_html()
     # global pagename
-    # pagename = pif.form.get_str('page', 'blister')
+    # pagename = pif.form.get_id('page', 'blister')
 
     dblist = bfiles.SimpleFile(useful.relpath(config.SRC_DIR, pif.page_name + '.dat'))
 
@@ -134,10 +134,10 @@ def single_box(pif, mod, box):
 
 def single_box_type(pif):
     pif.render.set_page_extra(pif.render.image_selector_js)
-    if pif.form.get_str('box'):
-        boxes = pif.dbh.fetch_box_type(pif.form.get_str('box'))
-    elif pif.form.get_str('mod'):
-        boxes = pif.dbh.fetch_box_type_by_mod(pif.form.get_str('mod'), pif.form.get_str('ty'))
+    if pif.form.get_id('box'):
+        boxes = pif.dbh.fetch_box_type(pif.form.get_id('box'))
+    elif pif.form.get_id('mod'):
+        boxes = pif.dbh.fetch_box_type_by_mod(pif.form.get_id('mod'), pif.form.get_id('ty'))
     if not boxes:
         raise useful.SimpleError("No matching boxes found.")
     boxes = pif.dbh.depref('box_type', boxes)
@@ -177,8 +177,8 @@ def show_model(pif, mod, compact=False):
 
 
 def find_boxes(pif):
-    series = pif.form.get_str('series')
-    style = pif.form.get_str('style')
+    series = pif.form.get_id('series')
+    style = pif.form.get_id('style')
     if style == 'all':
         style = ''
     start = pif.form.get_int('start', 1)
@@ -222,12 +222,12 @@ def get_pic_roots(mod_id, box_style):
 
 def show_boxes(pif):
     pif.render.print_html()
-    if pif.form.get_str('box') or pif.form.get_str('mod'):
+    if pif.form.get_id('box') or pif.form.get_id('mod'):
         return pif.render.format_template('simplelistix.html', llineup=single_box_type(pif))
 
     verbose = pif.form.get_bool('verbose')
     compact = pif.form.get_bool('c')
-    style = pif.form.get_str('style')
+    style = pif.form.get_id('style')
     if style == 'all':
         style = ''
     headers = {'mod': 'Model', 'm': 'M', 'p': 'P', 's': 'S', 'box': 'Box'}

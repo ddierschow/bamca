@@ -176,6 +176,7 @@ class ArgFile(object):
         return ent
 
     def parse_data_line(self, llist, cmdname="cmd"):
+        # useful.write_message('pdl', llist, cmdname, self.dats)
         if llist[0] in self.dats:
             return dict(zip([cmdname] + self.dats[llist[0]][0], llist.llist))
         return None
@@ -187,17 +188,30 @@ class ArgFile(object):
         return None
 
     def parse_field_line(self, pclass, cmd, llist):
-        if "parse_" + cmd in pclass.__dict__:
-            ret = pclass.__dict__['parse_' + cmd](self, llist)
+        # useful.write_message('pfl', str(pclass.__name__), str(pclass.__dict__.keys()), cmd, llist)
+        # if "parse_" + cmd in pclass.__dict__:
+        if hasattr(self, 'parse_' + cmd):
+            try:
+                # ret = pclass.__dict__['parse_' + cmd](self, llist)
+                # ret = eval('self.parse_' + cmd + '(llist)')
+                parser = getattr(self, 'parse_' + cmd)
+                ret = parser(llist)
+            except Exception as e:
+                useful.write_comment('Exception:', str(e))
+                return False
             if ret is not None:
+                # useful.write_message('...', ret)
                 return ret
+            # useful.write_message('...', False)
             return False
-#        if pclass.__bases__:
-#            return pclass.__bases__[0].parse_field_line(self, pclass.__bases__[0], cmd, llist)
+        # if pclass.__bases__:
+        #     return pclass.__bases__[0].parse_field_line(self, pclass.__bases__[0], cmd, llist)
+        # useful.write_message('...', None)
         return None
 
     def parse_data(self, llist):
         # llist.rewind()
+        # useful.write_message('pd', llist)
         key = llist.get_arg()
         fld = llist.get_arg()
         typ = llist.get_arg('')

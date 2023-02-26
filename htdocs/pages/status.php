@@ -151,6 +151,9 @@ I am missing the following Matchbox USA newsletters:
 <li>March, 2020
 </ul>
 
+I am missing all of Connecticut Matchbox News, which was the name of Matchbox USA through, perhaps, March of 1981.
+<p>
+
 I am missing the following AIM newsletters:
 <ul>
 <li>May, 1970 to April, 1972

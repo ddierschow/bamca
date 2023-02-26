@@ -3,7 +3,6 @@
 # Things that are generally useful but require nothing other
 # than standard libraries.
 
-from sprint import sprint as print
 import filecmp
 import glob
 from io import open

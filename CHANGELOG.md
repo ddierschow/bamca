@@ -1,3 +1,9 @@
+### 7.5 - 2023-02-25
+
+- Many improvements to the database editor
+- Started development on a readers guide
+- Security improvements
+
 ### 7.4 - 2022-06-19
 
 - Added transitional King Size models to the Super Kings list

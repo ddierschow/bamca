@@ -178,10 +178,10 @@ class UploadForm(object):
         pass
 
     def read(self, pif):
-        self.mod_id = pif.form.get_str('m')
-        self.var_id = pif.form.get_str('v') if self.mod_id else ''
+        self.mod_id = pif.form.get_id('m')
+        self.var_id = pif.form.get_id('v') if self.mod_id else ''
         pif.render.title = 'upload - '
-        pif.render.pic_dir = self.tdir = pif.form.get_str('d')
+        pif.render.pic_dir = self.tdir = pif.form.get_id('d')
         if not pif.is_allowed('m'):
             self.tdir = config.INC_DIR
         elif self.mod_id:
@@ -874,8 +874,9 @@ def imawidget_main(pif):
             show_editor(pif, eform)
         elif eform.mass:
             if eform.man and eform.var:
-                print(pif.render.format_button_link("promote", 'editor.cgi?mod=%s&var=%s&promote=1' % (
-                    eform.man, eform.var)))
+                print(
+                    pif.render.format_button_link("promote", f'editor.cgi?mod={eform.man}&var={eform.var}&promote=1'),
+                    *[x for x in 'TSML' if os.path.exists(f'pic/man/{x}_{eform.man.lower()}.jpg')])
             eform.mass_resize(pif, "from library")
         elif eform.wipe:
             eform.save_presets()
@@ -1141,14 +1142,29 @@ def lineup_pictures(pif, lup_models):
 @basics.web_page
 def pictures_main(pif):
     pif.render.print_html()
-    pif.render.title = 'pictures - ' + pif.form.get_str('m', '')
+    mod_id = pif.form.get_id('m', defval='')
+    pif.render.title = f'pictures - {mod_id}'
     print(pif.render.format_head())
     useful.header_done()
-    mod_id = pif.form.get_str('m', '')
     if mod_id:
-        for cdir in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_MAN_ICON, config.IMG_DIR_ADD]:
-            casting_pictures(pif, mod_id.lower(), '.' + cdir)
-        lineup_pictures(pif, pif.dbh.fetch_casting_lineups(mod_id))
+        if pif.form.get_bool('t'):
+            tilldir = 'lib/tilley'
+            prefixes = imglib.get_tilley_file()
+            for prefix in prefixes.get(mod_id.lower(), []):
+                print(f'<h3>{prefix}</h3>')
+                imgs = pif.render.find_image_list(prefix, wc='*', suffix='*', pdir=tilldir)
+                for img in imgs:
+                    if pif.form.get_bool('import'):
+                        useful.file_mover(os.path.join(tilldir, img),
+                                          os.path.join('lib', 'man', mod_id.lower(), img), mv=True, ov=False)
+                    else:
+                        print(pif.render.fmt_img_src(tilldir + '/' + img))
+                    print(f'<br>{img}<br>')
+            print('<a href="?m={}&t=1&import=1">{}</a>'.format(mod_id, pif.form.put_text_button('import')))
+        else:
+            for cdir in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_MAN_ICON, config.IMG_DIR_ADD]:
+                casting_pictures(pif, mod_id.lower(), '.' + cdir)
+            lineup_pictures(pif, pif.dbh.fetch_casting_lineups(mod_id))
     else:
         print('Huh?')
     print(pif.render.format_tail())

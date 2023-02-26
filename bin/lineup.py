@@ -16,6 +16,14 @@ import render
 import useful
 
 
+# 1953-1969  pic/prod/lrw
+# 1970-1982  pic/prod/lsf
+# 1983-1992  pic/prod/univ
+# 1993-1997  pic/prod/tyco
+# 1998-2004  pic/prod/mtlaurel
+# 2005-2015  pic/prod/elseg
+# 2016-      pic/prod/mworld
+
 # A 1981 1987 1991-1993 1997 2000-2001
 # B 2000-2001
 # D 1999-2001
@@ -1070,6 +1078,7 @@ def add_section(pif, year, region):
 def add_casting(pif, mod, year):
     # base_id: id, first_year, model_type, rawname, description, flags
     # casting: id, country, make, section_id
+    print('add casting', mod, year)
     pif.dbh.add_new_base_id({
         'id': mod[1],
         'first_year': year,
@@ -1128,11 +1137,11 @@ def add_lineup_model(pif, mod, year, region):
         'mod_id': mod[1],
         'number': mod[0],
         'flags': 0,
-        'style_id': '',
+        'style_id': mod[2],
         'picture_id': '',
         'region': region,
         'year': year,
-        'name': mod[2],
+        'name': mod[3],
         'page_id': 'year.' + year,
     })
 
@@ -1148,18 +1157,17 @@ def add_variation_select(pif, mod, year, region):
 
 
 def make_lineup(pif, year, fn):
-    inmods = [x.split('|') for x in open(fn).readlines()]
+    inmods = [x.split('|') for x in open(fn).readlines() if not x.startswith('#')]
     add_page(pif, year)
     for region in regions:
         add_section(pif, year, region)
-    for mod in inmods:
-        casting = pif.dbh.fetch_casting(mod[1])
-        if not casting:
-            add_casting(pif, mod, year)
-        add_variation(pif, mod, year)
-        for region in regions:
+        for mod in inmods:
+            # casting = pif.dbh.fetch_casting(mod[1])
+            # if not casting:
+            #     add_casting(pif, mod, year)
+            # add_variation(pif, mod, year)
             add_lineup_model(pif, mod, year, region)
-        add_variation_select(pif, mod, year, '')
+            # add_variation_select(pif, mod, year, '')
 
 
 # def check_lineup(pif, *args):
@@ -1245,6 +1253,14 @@ def lineup_pics(pif, *args):
             print(yr, reg, ' '.join(useful.collapse_number_list(found[reg])))
 
 
+def detect_lineup(pif, year):
+    for vs in pif.dbh.fetch_variation_selects(ref_id='year.' + year):
+        # 1|MB1227  |1|2020 Honda E
+        casting = pif.dbh.fetch_casting(vs.mod_id)
+        var = pif.dbh.fetch_variation_bare(vs.mod_id, vs.var_id)[0]
+        print('{}|{}|{}|{}'.format(var['variation.note'], vs.mod_id, '1', casting['rawname']))
+
+
 cmds = [
     ('s', year_lineup, "show: year region [number]"),
     ('c', clone_lineup, "clone: year old_region new_region"),
@@ -1252,6 +1268,7 @@ cmds = [
     ('r', rank_lineup, "ranks: number region syear eyear"),
     ('l', list_lineups, "list lineups"),
     ('m', make_lineup, "make lineup"),
+    ('dl', detect_lineup, "detect lineup: year"),
     # ('x', check_lineup, "check lineup"),
     ('s', show_sections, "show sections"),
     ('pic', lineup_pics, "pics"),

@@ -79,6 +79,7 @@ def count_list_var_pics(pif, mod_id):  # called from elsewhere
     needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
     found_c = found_f = found_a = found_1 = found_2 = found_p = 0
     count_de = count_ba = count_bo = count_in = count_wh = count_wi = count_wt = count_bt = 0
+    id_set = set()
     # nf = []
     for var in vars:
         ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt, has_bt = calc_var_pics(pif, var)
@@ -111,14 +112,24 @@ def count_list_var_pics(pif, mod_id):  # called from elsewhere
             else:
                 needs_1 += 1
                 found_1 += is_found
-    return (found_a, found_c, found_1, found_2, found_f, found_p), \
-           (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p), \
-           (len(vars), count_de, count_ba, count_bo, count_in, count_wh, count_wi, count_wt, count_bt)
+
+        var_id = var['var']
+        if var_id[0].isdigit():
+            while not var_id[-1].isdigit():
+                var_id = var_id[:-1]
+            id_set.add(int(var_id))
+
+    return ((found_a, found_c, found_1, found_2, found_f, found_p),
+            (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p),
+            (len(vars), count_de, count_ba, count_bo, count_in, count_wh, count_wi, count_wt, count_bt),
+            id_set)
 
 
 def show_list_var_pics(pif, mod_id):
-    founds, needs, cnts = count_list_var_pics(pif, mod_id)
-    return fmt_var_pics(founds, needs), cnts
+    founds, needs, cnts, id_set = count_list_var_pics(pif, mod_id)
+    missing_ids = (
+        ', '.join([str(x) for x in sorted(set(range(min(id_set), max(id_set) + 1)) - id_set)])) if id_set else ''
+    return fmt_var_pics(founds, needs), cnts, missing_ids
 
 
 def fmt_var_pic(f, n):  # called from elsewhere
@@ -275,11 +286,12 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
             links.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (
                 useful.relpath('.', config.LIB_MAN_DIR,
                                mod_id.replace('/', '_').lower()), mod_id.replace('/', '_').lower()))
+            url = "/cgi-bin/traverse.cgi?mr=1&lty=mss&til=1&credit=DT&p={}&d={}".format(
+                imglib.get_tilley_file().get(mod_id.lower(), [''])[0] + '*',
+                useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
             links.append(
-                '<a href="/cgi-bin/traverse.cgi?mr=1&lty=mss&til=1&credit=DT'
-                '&p=%s&d=%s" target="_blank">Tilley List</a>' % (
-                    imglib.get_tilley_file().get(mod_id.lower(), [''])[0] + '*',
-                    useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower())))
+                f'<a href="{url}" target="_blank">Tilley List</a> '
+                f'<a href="/cgi-bin/pics.cgi?m={mod_id}&t=1">Im</a>')
 
     ref_link = ostr = ''
     if pif.is_allowed('a'):  # pragma: no cover
@@ -323,7 +335,9 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         vfl = pif.dbh.fetch_variation_files(mod_id)
         for vf in vfl if vfl else [{'mod_id': mod_id, 'imported_from': 'importer'}]:
             links.append('<a href="vedit.cgi?d=src/mbxf&m=%(mod_id)s&f=%(imported_from)s">%(imported_from)s</a>' % vf)
-        var_pics, var_texts = show_list_var_pics(pif, mod_id)
+        var_pics, var_texts, missing_ids = show_list_var_pics(pif, mod_id)
+        if missing_ids:
+            ostr += f'\n<span class="red">{missing_ids}</span><br>\n'
         ostr += '<br>\n'.join(var_pics) + '<p>\n'
         fmt_bad, _, _ = pif.dbh.check_description_formatting(mod_id)
         ostr += '<i class="fas fa-times red"></i>' if fmt_bad else '<i class="fas fa-check green"></i>'
@@ -334,7 +348,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
                 mbdata.model_texts[i_vt - 1],
                 'far fa-star gray' if not model['format_' + mbdata.desc_attributes[i_vt - 1]] else
                 'fas fa-star green' if vt == var_texts[0] else
-                'fas fa-star red' if not vt else 'fas fa-star yellow')
+                'fas fa-star red' if not vt else
+                'fas fa-star yellow')
         ostr += '<p>\n'
         var_ids = [x['v.var'] for x in raw_variations]
         var_ids.sort()

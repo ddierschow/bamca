@@ -18,6 +18,7 @@ function warn_number($num) {
 
 NoAccess($pif, 'a', 'stuff.php');
 $links = Fetch("select section_id,link_type,name,url from link_line where page_id='links.stuff' order by display_order", $pif);
+$meatcols = 8;
 $cols = Fetch("select id,start,category from section where page_id='links.stuff' order by display_order", $pif);
 $sections = array();
 $sections['l4'] = array(); # temporary until we have at least one l4 link.
@@ -55,14 +56,14 @@ fclose($imagedescs);
 ?>
 
 <table width=1024px cellpadding=0 cellspacing=0>
- <tr><td colspan=8 class="boxborder"></td></tr>
+ <tr><td colspan=<?php echo $meatcols + 2;?> class="boxborder"></td></tr>
  <tr>
   <td class="boxborder" rowspan=4><img src="/pic/gfx/red4x4.gif"></td>
 <?php
 foreach ($cols as $col) {
     if ($col['id'][0] == 'c') {
 	echo '  <td class="linklist ' . $col['category'] . '" rowspan=' . $col['start'] . ">\n";
-	LinksList($sections[$col['id']], '<li>', '<h3><ul>', '</ul></h3>');
+	LinksList($sections[$col['id']], '<li>', '<b class="largish"><ul>', '</ul></b>');
 	echo "  </td>\n";
     }
 }
@@ -77,24 +78,24 @@ foreach ($cols as $col) {
 
  <tr>
 
-  <td colspan=6 class="high">
+  <td colspan=<?php echo $meatcols; ?> class="high">
 <?php LinksList($sections['l1'], '', '<center>', '</center>'); ?>
   </td>
 
  </tr>
 
  <tr>
-  <td colspan=6>
+  <td colspan=<?php echo $meatcols; ?>>
 <?php LinksList($sections['l2'], ' - ', '<center><i>', '</i></center>'); ?>
   </td>
  </tr>
 
- <tr><td colspan=8 class="boxborder"></td></tr>
- <tr><td colspan=8>&nbsp;</td></tr>
- <tr><td colspan=8 class="boxborder"></td></tr>
+ <tr><td colspan=<?php echo $meatcols + 2;?> class="boxborder"></td></tr>
+ <tr><td colspan=<?php echo $meatcols + 2;?>>&nbsp;</td></tr>
+ <tr><td colspan=<?php echo $meatcols + 2;?> class="boxborder"></td></tr>
  <tr>
   <td class="boxborder"></td>
-  <td colspan=6>
+  <td colspan=<?php echo $meatcols; ?>>
    <table><tr><td width="144">
    Errors found:</td><td width="48">
    <?php warn_number($errcounter); ?>
@@ -136,17 +137,18 @@ if (count($newusers) > 0)
    <td><?php LinksList($sections['l4'], ' - '); ?></td></tr>
 
    <tr><td>
+   Tumblr spool:</td><td><?php warn_number($tumblr[0]['c']); ?></td><td>
+   <?php DoTextButtonLink('see', "/cgi-bin/editor.cgi?table=tumblr"); ?></td></tr>
+
+   <tr><td>
    Uploaded images:</td><td><?php warn_number(count($imagefiles)); ?></td>
    <td>last <?php echo substr($imagename, 0, 9); ?></td></tr>
 
-   <tr><td>
-   Tumblr spool:</td><td><?php warn_number($tumblr[0]['c']); ?></td><td>
-   <?php DoTextButtonLink('see', "/cgi-bin/editor.cgi?table=tumblr"); ?></td></tr>
    </table>
   </td>
   <td class="boxborder"></td>
  </tr>
- <tr><td colspan=8 class="boxborder"></td></tr>
+ <tr><td colspan=<?php echo $meatcols + 2;?> class="boxborder"></td></tr>
 
 </table>
 

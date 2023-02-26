@@ -1010,7 +1010,7 @@ class DBHandler(object):
                           'category': cat_id}
                 self.write('variation_select', values=values, newonly=True, verbose=1, tag='UpdateVSForV')
         for vs in o_vs:
-            self.delete_variation_select(where=f'id={o_vs["id"]}')
+            self.delete_variation_select(where=f'id={vs["id"]}')
 
     # this needs to be native sec_id.ran_id instead of sub_id
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):

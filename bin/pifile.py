@@ -181,6 +181,14 @@ class BaseForm(object):
         val = self.get_list(key, start, '0')
         return sum([int(x, base) for x in val]) if val else defval
 
+    def get_flags(self, root):
+        retval = {}
+        for k, v in self.form.items():
+            if k.startswith(root):
+                retval.setdefault(v, '')
+                retval[v] += k[len(root):]
+        return retval
+
     def keys(self, keylist=None, start='', end='', has='', sort=None):
         keylist = keylist if keylist else self.form.keys()
         keylist = [x for x in keylist if (x.startswith(start) and x.endswith(end) and has in x)]
@@ -529,7 +537,7 @@ class PageInfoFile(object):
     def restrict(self, priv):  # pragma: no cover
         if not self.is_allowed(priv):
             raise useful.Redirect('/')
-        if priv and self.user and not(self.user.flags & config.FLAG_USER_VERIFIED):
+        if priv and self.user and not (self.user.flags & config.FLAG_USER_VERIFIED):
             raise useful.Redirect('/cgi-bin/validate.cgi')
 
     def create_cookie(self, user=None):

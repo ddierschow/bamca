@@ -583,7 +583,7 @@ class VarSearchForm(object):
                 else:
                     self.attrq[attr] = form.search(attr)
         self.nots = {key: form.get_bool('not_' + key) for key in self.attributes}
-        self.contains = {key: form.get_str('con_' + key) for key in self.attributes}
+        self.contains = {key: form.get_raw('con_' + key) for key in self.attributes}
         self.ci = form.get_bool('ci')
         self.c1 = form.get_bool('c1') or not form.get_bool('hc')
         self.c2 = form.get_bool('c2') or not form.get_bool('hc')
@@ -1995,7 +1995,7 @@ def count_vars(pif, filelist=None):
     for mod_id in castings:
         # sys.stdout.write(casting + ' ')
         sys.stdout.flush()
-        founds, needs, cnts = single.count_list_var_pics(pif, mod_id)
+        founds, needs, cnts, id_set = single.count_list_var_pics(pif, mod_id)
         print(mod_id, founds, needs, cnts)
         t_founds = adder(t_founds, founds)
         t_needs = adder(t_needs, needs)

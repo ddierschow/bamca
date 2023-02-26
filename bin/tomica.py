@@ -2,7 +2,10 @@
 # small: 200x120
 # large: 300x180
 
-from sprint import sprint as print
+import csv
+from io import StringIO
+import os
+import requests
 
 import basics
 import bfiles
@@ -27,8 +30,8 @@ class MannoFile(bfiles.ArgFile):
     def parse_H(self, llist):
         slist = self.parse_data_line(llist)
         self.finish_section()
-        self.stitle = slist['title']
-        self.slabel = slist['label']
+        self.stitle = slist['title'] if slist else ''
+        self.slabel = slist['label'] if slist else ''
         self.sdict['title'] = self.stitle
         self.sdict['label'] = self.slabel
         self.sdict['comment'] = []
@@ -39,18 +42,24 @@ class MannoFile(bfiles.ArgFile):
         self.sdict['comment'].append(slist['text'])
 
     def parse_m(self, slist):
-        slist = self.parse_data_line(slist)
-        manitem = get_man_item(slist)
-        self.mdlist.append(manitem)
-        self.mdict[manitem['id']] = manitem
+        pslist = self.parse_data_line(slist)
+        if pslist:
+            manitem = get_man_item(pslist)
+            self.mdlist.append(manitem)
+            self.mdict[manitem['id']] = manitem
+        else:
+            useful.write_message('parse_m fail', slist)
 
     def parse_p(self, slist):
-        slist = self.parse_data_line(slist)
-        slist.setdefault('descs', [])
-        if slist.get('description'):
-            slist['descs'].extend(slist['description'].split(';'))
-        self.mdlist.append(slist)
-        self.mdict[slist['id']] = slist
+        pslist = self.parse_data_line(slist)
+        if pslist:
+            pslist.setdefault('descs', [])
+            if pslist.get('description'):
+                pslist['descs'].extend(pslist['description'].split(';'))
+            self.mdlist.append(pslist)
+            self.mdict[pslist['id']] = pslist
+        else:
+            useful.write_message('parse_p fail', slist)
 
     def parse_t(self, llist):
         self.tdict[llist[1]] = llist[2]
@@ -130,9 +139,10 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
         if year and slist['last_year'] and (year < int(slist['first_year']) or year > int(slist['last_year'])):
             continue
 
-        slist['link'] = "/cgi-bin/upload.cgi?d=./pic/tomica&r"
+        slist['link'] = "/cgi-bin/upload.cgi?d=./pic/tomica&n"
         slist['linkid'] = 's_' + slist['id'].lower()
         slist['descs'] = slist.get('desc', '').split(';')
+        slist['country'] = ''
 
         if shown == 0:
             print("<center><table><tr align=top>")
@@ -151,10 +161,10 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
 def show_section_list(pif, sect):
     cols = 3
     print('<table class="smallprint pagebreak" width="100%" id="{}">'.format(sect['label']))
-    print('<tr><td colspan=%d style="text-align: center; font-weight: bold;">%s</td></tr>' % (4 * cols, sect['name']))
-    inmods = filter(lambda x: x['subid'] != 'X', sect['models'])
+    print('<tr><td colspan=%d style="text-align: center; font-weight: bold;">%s</td></tr>' % (4 * cols, sect['title']))
+    inmods = [x for x in sect['models'] if x['subid'] != 'X']
     mods = []
-    mpc = len(inmods) / cols
+    mpc = len(inmods) // cols
     if len(inmods) % cols:
         mpc += 1
     for col in range(0, cols):
@@ -187,15 +197,11 @@ def run_file(pif, manf, start=0, end=9999, year=None):
         show_section(pif, manf, sect, start, end, year)
 
     for sect in manf.dictlist:
-        sect['name'] = 'Tomica Models'
         show_section_list(pif, sect)
 
 
 '''<style>
-@media print
-{
-table {page-break-inside:avoid}
-}
+@media print { table {page-break-inside:avoid} }
 </style>
 '''
 
@@ -213,3 +219,57 @@ def main(pif):
     else:
         run_file(pif, manf, year=pif.form.get_str('year'))
     print(pif.render.format_tail())
+
+
+img_url = 'http://tomicadas.on.coocan.jp/{id}.jpg'  # id=000-00
+img_dest = 'pic/tomica/s_{id}.jpg'
+url = 'http://tomicadas.on.coocan.jp/catalog_120.htm'
+
+
+def scrape(pif):
+    pass
+
+
+def pictures(pif):
+    manf = MannoFile(useful.relpath(config.SRC_DIR, 'tomica.dat'))
+    for sect in manf.dictlist:
+        for slist in sect['models']:
+            dest = img_dest.format(id=slist.get('id', 'unset').lower())
+            if not os.path.exists(dest):
+                print(dest)
+                open(dest, 'bw').write(requests.get(img_url.format(id=slist['id'])).content)
+
+
+def refresh(pif):
+    minefile = [x.strip().split('|') for x in open(useful.relpath(config.SRC_DIR, 'tomica_mine.csv')).readlines()]
+    manf = MannoFile(useful.relpath(config.SRC_DIR, 'tomica.dat'))
+    mine = {x[0]: x[3] for x in minefile}
+    out_file = StringIO()
+    field_names = ["id", "name", "year", "have", "image"]
+    writer = csv.DictWriter(out_file, fieldnames=field_names)
+    writer.writeheader()
+    for sect in manf.dictlist:
+        for slist in sect['models']:
+            writer.writerow({
+                'id': slist['id'],
+                'name': slist['name'],
+                'year': slist.get('first_year', ''),
+                'have': mine.get(slist['id'], 'no'),
+                'image': 'http://bamca.org/pic/tomica/s_' + slist['id'].lower() + '.jpg'})
+    out_str = out_file.getvalue()
+    out_file.close()
+    print(out_str)
+
+
+cmds = [
+    ('s', scrape, "scrape"),
+    ('p', pictures, "pictures"),
+    ('r', refresh, "refresh"),
+]
+
+
+# ---- ---------------------------------------
+
+
+if __name__ == '__main__':  # pragma: no cover
+    basics.process_command_list(cmds=cmds, dbedit='', options='fs')

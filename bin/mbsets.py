@@ -29,7 +29,7 @@ class SetFile(bfiles.ArgFile):
         self.header = llist[1:]
         self.ncols = 0
         for col in self.header:
-            if not(col in self.notcols):
+            if col not in self.notcols:
                 self.ncols += 1
         self.db['ncols'] = self.ncols
 

@@ -333,10 +333,11 @@ IMG_SIZ_SMALL = 's'
 IMG_SIZ_TINY = 't'
 IMG_SIZ_MICRO = 'u'
 IMG_SIZ_VERY_SMALL = 'v'
-image_size_names = ["very small", "micro", "tiny", "small", "petite", "medium", "large", "huge", "gigantic", "enormous"]
-image_size_types = ['v', 'u', 't', 's', 'p', 'm', 'l', 'h', 'g', 'e']
+image_size_names = ["very small", "micro", "tiny", "small", "petite", "medium", "large", "huge", "gigantic", "enormous",
+                    "tomica"]
+image_size_types = ['v', 'u', 't', 's', 'p', 'm', 'l', 'h', 'g', 'e', 'z']
 image_size_sizes = [(25, 15), (50, 30), (100, 60), (200, 120), (300, 180), (400, 240), (600, 360), (800, 480),
-                    (1000, 600), (1200, 720)]
+                    (1000, 600), (1200, 720), (180, 125)]
 
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
