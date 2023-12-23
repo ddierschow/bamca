@@ -980,7 +980,7 @@ class MannoFile(object):
 
 @basics.web_page
 def main(pif):
-    useful.write_message(pif.form)
+    useful.write_comment(pif.form)
     if pif.form.has('submit'):
         # make new form and redirect
         form = {x: pif.form.get_str(x) for x in ['end', 'eyear', 'listtype', 'range', 'section', 'start', 'syear']}

@@ -147,7 +147,6 @@ I am missing the following Matchbox USA newsletters:
 <li>all issues from 2013
 <li>January and February of 2015
 <li>February and April of 2016
-<li>January, 2017
 <li>March, 2020
 </ul>
 
@@ -170,7 +169,6 @@ I am missing the following MICA newsletters:
 <li>Volume 2, issue 3
 <li>Volume 14, issue 3
 <li>Volume 15, issue 4
-<li>Volume 16, issue 3
 <li>Volume 19, 20, and 22 onward
 </ul>
 

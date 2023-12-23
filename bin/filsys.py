@@ -192,6 +192,14 @@ def flist_sort(flist, tform):
 
 
 def show_imgs(pif, tform):
+    credit_file = imglib.get_credit_file()
+
+    def get_cred_for_file(fn):
+        for x, y in credit_file.get(tform.tdir, {}).items():
+            if fn.startswith(x):
+                return y
+        return ''
+
     print('<hr>')
     print('<form action="traverse.cgi" method="post">' + pif.create_token())
     plist = tform.patt.split(',')
@@ -212,66 +220,56 @@ def show_imgs(pif, tform):
         img_args['targs'] = []
     elif tform.shlv and tform.dirname == 'tilley':
         img_args['mans'] = imglib.get_tilley_file()
+    if tform.cred:
+        img_args['cred'] = {x['photo_credit.name']: x['photographer.id']
+                            for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
+    elif tform.tdir.startswith('lib/man'):
+        pass # img_args['cred'] = {
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
         if tform.sizd:
             flist = list(set([x[2:] for x in flist if len(x) > 2 and x[1] == '_']))
         flist_sort(flist, tform)
         img_also = {'width': '200'} if tform.thum else {}
-        if tform.cred:
-            img_args['cred'] = {x['photo_credit.name']: x['photographer.id']
-                                for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
         img_args['also'] = img_also
-        if tform.sizd:
-            if tform.cpct:
-                print('<div class="filt">')
-                for fp in flist:
+        if tform.cpct:
+            print('<div class="filt">')
+            for fp in flist:
+                if tform.sizd:
                     for fn in useful.read_dir('?_' + fp, pif.render.pic_dir):
-                        img_also['title'] = fn
                         print('<div class="filc">')
-                        # print(pif.render.format_link()
-                        #     "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
-                        #     pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also=img_also)) + '\n'
+                        img_also['title'] = fn
                         print(img(pif, fp, **img_args))
                         print('</div>')
                     print('<br>')
-                print('</div>')
-            else:
-                print('<table class="glist">')
-                for fp in flist:
+                else:
+                    print('<div class="filc">')
+                    img_also['title'] = fp
+                    print(img(pif, [fp], **img_args))
+                    print('</div>')
+            print('</div>')
+
+        else:
+            print('<table class="glist">')
+            for fp in flist:
+                if tform.sizd:
                     dlist = useful.read_dir('?_' + fp, pif.render.pic_dir)
                     flist_sort(dlist, tform)
                     if not tform.dups or len(dlist) > 1:
                         print(img(pif, dlist, **img_args))
-                print('</table>')
-                print('<hr>')
-        else:
-            if tform.cpct:
-                print('<div class="filt">')
-                for fn in flist:
-                    print('<div class="filc">')
-                    img_also['title'] = fn
-                    # print(pif.render.format_link()
-                    #     "imawidget.cgi?d=%s&f=%s" % (tform.tdir, fn),
-                    #     pif.render.fmt_img_src(os.path.join(tform.tdir, fn), also=img_also)) + '\n'
-                    print(img(pif, [fn], **img_args))
-                    print('</div>')
-                print('</div>')
-            else:
-                print('<table class="glist">')
-                for fn in flist:
-                    img_also['title'] = fn
+                else:
+                    img_also['title'] = fp
                     # also sized + dups
                     if tform.dups:
-                        root, ext = useful.root_ext(fn)
+                        root, ext = useful.root_ext(fp)
                         dlist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
                         if len(dlist) > 1:
                             flist_sort(dlist, tform)
-                            print(img(pif, dlist, fn, **img_args))
+                            print(img(pif, dlist, fp, **img_args))
                     else:
-                        print(img(pif, [fn], rsuf=tform.rsuf, **img_args))
-                print('</table>')
-                print('<hr>')
+                        print(img(pif, [fp], rsuf=tform.rsuf, **img_args))
+            print('</table>')
+            print('<hr>')
     print(f'<input type="hidden" name="d" value="{tform.tdir}">')
     print('<input type="hidden" name="sc" value="1">')
     if tform.cate:
