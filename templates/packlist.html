@@ -23,6 +23,12 @@ Filter by Region<br>
 <input type="radio" name="region" value="{{ region[0] }}"> {{ region[1] }}<br>
 {%- endfor %}
 <p>
+Filter by Material<br>
+<input type="radio" name="material" value="" CHECKED> all<br>
+{%- for material in materials %}
+<input type="radio" name="material" value="{{ material[0] }}"> {{ material[1] }}<br>
+{%- endfor %}
+<p>
 Filter by Title<br>
 <input type="text" name="title" size="20" maxlength="80">
 <p>

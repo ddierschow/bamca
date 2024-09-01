@@ -51,6 +51,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
     pif.render.set_button_comment(pif)
     years = set()
     regions = set()
+    materials = set()
     has_note = False
     title = pif.form.search('title')
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
@@ -89,10 +90,13 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
                 pack_ids_found.append(pack['id'])
                 years.add(pack['first_year'])
                 regions.add(pack['region'])
+                materials.add(pack['material'])
                 pack['name'] = pack['rawname'].replace(';', ' ')
                 if ((year and (year < pack['first_year'] or year > pack['end_year'])) or
-                        (region and region != pack['region']) or (lid and not pack['id'].startswith(lid)) or
-                        (material and pack['material'] != material) or not useful.search_match(title, pack['name'])):
+                        (region and region != pack['region']) or
+                        (lid and not pack['id'].startswith(lid)) or
+                        (material and material != pack['material']) or
+                        not useful.search_match(title, pack['name'])):
                     continue
                 pack['year'] = ((pack['first_year'] + '-' + pack['end_year'])
                                 if (pack['end_year'] and pack['end_year'] != pack['first_year']) else
@@ -129,6 +133,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
         'page_id': pif.page_id,
         'years': sorted(years),
         'regions': [(x, mbdata.regions[x]) for x in sorted(regions)],
+        'materials': [(x, mbdata.materials[x]) for x in sorted(materials)],
         'llineup': llineup.prep(),
         'section_id': sec_id,
         'num': num_mods,

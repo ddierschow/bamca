@@ -488,6 +488,7 @@ materials = {
     'W': 'window box',
     'X': 'box',
     'L': 'lucite box',
+    'U': 'unknown',
     '': 'unknown',
 }
 
