@@ -116,7 +116,8 @@ def add_model_table_product_link(pif, mdict):
         if 'mod_id' in mdict:
             fn = mdict.get('mod_id', '').replace('.', '_') + (
                 '-' + mdict.get('picture_id', '') if mdict.get('picture_id', '') else '')
-            ostr += pif.render.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}', '<i class="fas fa-upload gray"></i>')
+            ostr += pif.render.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
+                                           '<i class="fas fa-upload gray"></i>')
     if mdict.get('not_made'):
         ostr += mbdata.comment_icon.get('n', '')
     if mdict.get('is_reused_product_picture'):  # pragma: no cover

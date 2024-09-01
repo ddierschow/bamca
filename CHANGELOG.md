@@ -1,3 +1,8 @@
+### 7.6 - 2024-08-01
+
+- Many improvements to the administration scripts
+- Added CSV with variations
+
 ### 7.5 - 2023-02-25
 
 - Many improvements to the database editor
