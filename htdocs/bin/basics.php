@@ -18,8 +18,11 @@ function CheckPerm($pif, $lev) {
 }
 
 function NoAccess($pif, $access, $dest) {
-    $retval = strpos($pif['privs'], $access) != false;
-    if (!$retval) {
+    foreach(str_split($pif['privs']) as $c) {
+        $retval = strpos($access, $c) != false;
+        if ($retval)
+            return;
+    }
 ?> 
 
 <script type="text/javascript">
@@ -29,8 +32,7 @@ window.location = "https://<?php echo $pif['host']; ?>/cgi-bin/login.cgi?dest=/<
 </script>
 
 <?php
-	exit();
-    }
+    exit();
 }
 
 function CheckID($pif) {

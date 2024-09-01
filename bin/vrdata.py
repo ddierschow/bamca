@@ -1,7 +1,6 @@
 #!/usr/local/bin/python
 # -*- coding: utf8 -*-
 
-from sprint import sprint as print
 import functools
 from functools import reduce
 from io import open

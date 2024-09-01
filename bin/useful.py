@@ -128,7 +128,7 @@ def clean_name(f, morebad=''):
     return n
 
 
-def is_good(fname, v=True):
+def is_good(fname, v=False):
     fname = os.path.normpath(fname)
     if not fname:
         if v:
@@ -497,7 +497,7 @@ def file_save(pdir, fn, contents, overwrite=False):
                 addon += 1
             root += '_' + str(addon)
     fn = root + '.' + ext
-    open(pdir + '/' + fn, 'wb' if isinstance(contents, bytes) else 'w').write(contents)
+    open(pdir + '/' + fn, 'wb' if isinstance(contents, bytes) else 'wt').write(contents)
     return fn
 
 
@@ -665,3 +665,12 @@ def make_button_name(name):
 
 def make_button_label(name):
     return name.replace('_', ' ').upper()
+
+
+def setlist(wheat):
+    # can't do list(set(dict)) so this effectively does it
+    retval = list()
+    for x in wheat:
+        if x not in retval:
+            retval.append(x)
+    return retval

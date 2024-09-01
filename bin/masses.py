@@ -108,6 +108,7 @@ def dates_main(pif):
     for mvid in pif.form.roots(start='v.'):
         val = pif.form.get_bool('c.' + mvid)
         idm = pif.form.get_bool('i.' + mvid)
+        imp = pif.form.get_str('s.' + mvid)
         useful.write_message(mvid, val, idm)
         vars = pif.dbh.fetch_variation_bare(*mvid.split('-'))
         if vars:
@@ -115,6 +116,7 @@ def dates_main(pif):
             var['variation.flags'] &= ~(config.FLAG_MODEL_VARIATION_VERIFIED | config.FLAG_MODEL_ID_INCORRECT)
             var['variation.flags'] |= (config.FLAG_MODEL_VARIATION_VERIFIED if val else 0)
             var['variation.flags'] |= (config.FLAG_MODEL_ID_INCORRECT if idm else 0)
+            var['variation.imported_from'] = imp
             pif.dbh.update_variation_bare(var)
     return pif.render.format_template('blank.html', content='')
 
@@ -651,7 +653,7 @@ def add_var_ask(pif):
         ('Copy From:', "copy", ''),
         ('Imported From:', "imported_from", 'mbusa'),
     ]
-    entries = [{'title': x[0], 'value': pif.form.put_text_input(x[1], 8, 8, value=x[2])} for x in rows]
+    entries = [{'title': x[0], 'value': pif.form.put_text_input(x[1], 10, 8, value=x[2])} for x in rows]
 
     footer = pif.form.put_button_input('submit')
     footer += mass_type_reinput(pif)
@@ -1140,20 +1142,22 @@ def add_pack_form(pif):
     header += pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK) + '<br>'
 
     pack_num = int(pack['note'][2:-1]) if pack['note'].startswith('(#') else 0
-    linmod = pif.dbh.fetch_lineup_model(where=f"mod_id='{pack_id}'")
+    linmod = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model(where=f"mod_id='{pack_id}'"))
     linmod = linmod[0] if linmod else {
         'id': 0,  # delete later
         'base_id': '%s%s%02d' % (year, lineup_sec.replace('.', ''), pack_num),
         'mod_id': pack_id,
         'number': pack_num,
+        'display_order': pack_num,
         'flags': 0,
-        'style_id': '',
+        'style_id': 'lg',
         'picture_id': '',
         'region': lineup_sec,
         'year': year,
         'name': base_id['rawname'],
         'page_id': 'year.' + year,
     }
+    linmod['flags'] = linmod['flags'] or 0
     x_linmods = [x['base_id'][7:] for x in pif.dbh.fetch_lineup_models(year, lineup_sec)
                  if x.get('region') == lineup_sec]
     x_linmods.sort()
@@ -1301,6 +1305,7 @@ def add_pack_save(pif):
     # now do lineup_model separately
     if not pif.form.get_int('nope'):
         values = pif.dbh.make_values('lineup_model', pif.form, 'lineup_model.')
+        values['flags'] = values['flags'] or 0
         if pif.form.get_int('lineup_model.id'):
             # print('update line_model', values, '<br>')
             pif.dbh.update_lineup_model({'id': pif.form.get_int('lineup_model.id')}, values)
@@ -1885,8 +1890,12 @@ def add_matrix_ask(pif):
     entries = [
         {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4)},
         {'title': 'Page ID:', 'value': pif.form.put_text_input("page_id", 24, 24)},
-        {'title': 'Section ID:', 'value': pif.form.put_text_input("section_id", 12, 12, value=pid)},
+        {'title': 'Page Name (if new):', 'value': pif.form.put_text_input("page_name", 48, 48)},
+        {'title': 'Section ID:', 'value': pif.form.put_text_input("section_id", 24, 24, value=pid)},
         {'title': 'Number of Models:', 'value': pif.form.put_text_input("num", 4, 4)},
+        {'title': 'Model List File:', 'value': pif.form.put_text_input("models", 80, 80)},
+        {'title': 'Ref ID:', 'value': pif.form.put_text_input("ref_id", 80, 80)},
+        {'title': '', 'value': 'bar file: num|man_id|name -- only one of: number, file, ref_id'},
         {'title': '', 'value': pif.form.put_button_input()},
     ]
     footer = pif.form.put_hidden_input({'tymass': 'matrix'})
@@ -1897,11 +1906,43 @@ def add_matrix_ask(pif):
     return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
+'''
+page_info_create = {
+    'id': page_id,
+    'flags': 0,
+    'format_type': 'matrix',
+    'title': page_name,
+    'pic_dir': 'pic/prod/series',
+}
+
+section_create = {
+    'id': section_id,
+    'page_id': page_id,
+    'display_order': 2,  # highest plus one
+    'flags': 0,
+    'name': year,
+    'columns': 3,
+    'start': 0,
+}
+
+matrix_model_create = {
+    'section_id': section_id,
+    'display_order': num,
+    'page_id': page_id,
+    'range_id': num,
+    'mod_id': man_id,
+    'flags': 0,
+    'name': name,
+}
+'''
+
+
 def add_matrix_form(pif):
     # add picture info.  add vs ref info.
     year = pif.form.get_raw('year')
     page_id = pif.form.get_raw('page_id')
     section_id = pif.form.get_raw('section_id')
+    ref_id = pif.form.get_raw('ref_id')
     page = pif.dbh.fetch_page(id=page_id)
     section = pif.dbh.fetch_section(page_id=page_id, sec_id=section_id)
     category = ''
@@ -1910,7 +1951,7 @@ def add_matrix_form(pif):
 
     header = '<hr>\n'
     header += str(pif.form) + '<hr>\n'
-    header += '<form action="mass.cgi">\n' + pif.create_token()
+    header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
     header += '<input type="hidden" name="verbose" value="1">\n'
     header += '<input type="hidden" name="tymass" value="matrix">\n'
 
@@ -1933,7 +1974,8 @@ def add_matrix_form(pif):
             'columns': 4,
         }
 
-    linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s' and picture_id='%s'" % (page_id, section_id))
+    linmod = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model(
+        where=f"mod_id='{page_id}' and picture_id='{section_id}'"))
     linmod = linmod[0] if linmod else {
         'id': 0,  # delete later
         'base_id': '%sX1100' % year,
@@ -1947,6 +1989,7 @@ def add_matrix_form(pif):
         'name': section.get('section.name', ''),
         'page_id': 'year.' + year,
     }
+    linmod['flags'] = linmod['flags'] or 0
 
     llistix = render.Listix(note=header)
     llistix.section.append(entry_form(pif, 'page_info', page if isinstance(page, dict) else page.todict()))
@@ -1955,7 +1998,7 @@ def add_matrix_form(pif):
         pif, 'lineup_model', linmod,
         note=pif.form.put_checkbox('nope', [('1', 'nope')], ['1'] if not linmod['id'] else [])))
 
-    mm, category = add_matrix_model(pif, section)
+    mm, category = add_matrix_model(pif, section, ref_id)
     llistix.section.append(mm)
     llistix.section[0].range[-1].entry.append({
         'title': 'category', 'type': 'varchar(8)', 'value': category,
@@ -1969,35 +2012,49 @@ def add_matrix_form(pif):
     return pif.render.format_template('simplelistix.html', llineup=llistix)
 
 
-def add_matrix_model(pif, section):
+def add_matrix_model(pif, section, ref_id=None):
     category = ''
     cols = ['display_order', 'mod_id', 'var_id', 'name', 'range_id', 'flags', 'edit']
-    mmodels = {x + 1: {'matrix_model.display_order': x + 1, 'vars': []} for x in range(pif.form.get_int('num'))}
-    mmodelsdb = pif.dbh.fetch_matrix_models_variations(section['page_id'], section=section['id'])
-    for mmdb in mmodelsdb:
-        if mmdb['vs.sec_id'] and mmdb['vs.sec_id'] != section['id']:
-            continue
-        if mmdb['vs.category']:
-            category = mmdb['vs.category']
-        dispo = mmdb['matrix_model.display_order']
-        if dispo not in mmodels:
-            mmodels[dispo] = {'matrix_model.display_order': dispo, 'vars': []}
-        if mmodels[dispo].get('matrix_model.id'):
-            useful.write_message(
-                'duplicate matrix_model entry found:', mmodels[dispo]['matrix_model.id'], mmdb['matrix_model.id'])
-        mmodels[dispo].update(mmdb)
-        if mmdb['v.var']:
-            mmodels[dispo]['vars'].append(mmdb['v.var'])
+    # rewrite this; could now come from a file, preloaded
+    # also, with a ref_id, could be read via varsels
 
     def mod_name(mod):
-        if mod.get('matrix_mode.name'):
-            return mod['matrix_model.name']
-        return mod.get('base_id.rawname', '')
+        return mod.get('matrix_model.name', mod.get('base_id.rawname', ''))
+
+    if ref_id:
+        models = pif.dbh.fetch_variation_by_select(ref_id=ref_id, sec_id=section['id'])
+        category = models[0]['vs.category'] if models else section.id
+        mmodels = {x['vs.ran_id']: {
+            'matrix_model.section_id': section['id'],
+            'matrix_model.display_order': x['vs.ran_id'],
+            'matrix_model.page_id': section['page_id'],
+            'matrix_model.range_id': x['vs.ran_id'],
+            'matrix_model.mod_id': x['b.id'],
+            'matrix_model.flags': 0,
+            'matrix_model.name': x['b.rawname'],
+        } for x in models}
+    else:
+        mmodels = {x + 1: {'matrix_model.display_order': x + 1, 'vars': []} for x in range(pif.form.get_int('num'))}
+        mmodelsdb = pif.dbh.fetch_matrix_models_variations(section['page_id'], section=section['id'])
+        for mmdb in mmodelsdb:
+            if mmdb['vs.sec_id'] and mmdb['vs.sec_id'] != section['id']:
+                continue
+            if mmdb['vs.category']:
+                category = mmdb['vs.category']
+            dispo = mmdb['matrix_model.display_order']
+            if dispo not in mmodels:
+                mmodels[dispo] = {'matrix_model.display_order': dispo, 'vars': []}
+            if mmodels[dispo].get('matrix_model.id'):
+                useful.write_message(
+                    'duplicate matrix_model entry found:', mmodels[dispo]['matrix_model.id'], mmdb['matrix_model.id'])
+            mmodels[dispo].update(mmdb)
+            if mmdb['v.var']:
+                mmodels[dispo]['vars'].append(mmdb['v.var'])
 
     entries = [
         {
             'mod_id': pif.form.put_hidden_input({
-                'mm.id.%s' % key: mod.get('matrix_model.id', '0'),
+                'mm.id.%s' % key: mod.get('matrix_model.id', ''),
                 'mm.matrix_id.%s' % key:
                     mod.get('matrix_model.matrix_id', '')}) +
                 pif.render.format_link("single.cgi?id=%s" % mod.get('matrix_model.mod_id', ''),
@@ -2038,7 +2095,7 @@ def add_matrix_save(pif):
         pif.dbh.insert_lineup_model(lineup_model, newonly=False)
     thisis = {'page_id': page_info['id'], 'section_id': section['id']}
     modvars = []
-    for root in pif.form.roots(start='mm.id'):
+    for root in pif.form.roots(start='mm.name'):
         mm = pif.form.get_dict(start='mm.', end=root)
         if not mm.get('mod_id'):
             continue
@@ -2055,7 +2112,7 @@ def add_matrix_save(pif):
         pif.dbh.insert_or_update_matrix_model(mm, verbose=True)
     useful.write_message('MODVARS', modvars)
     useful.write_message('ref_id', page_info['id'], 'sec_id', section['id'], 'category', category)
-    pif.dbh.update_variation_selects_for_ref(modvars, ref_id=page_info['id'], sec_id=section['id'], category=category)
+    # pif.dbh.update_variation_selects_for_ref(modvars, ref_id=page_info['id'], sec_id=section['id'], category=category)
     useful.write_message(modvars, page_info['id'], section['id'], category)
     return
 

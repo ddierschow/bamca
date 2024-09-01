@@ -57,6 +57,7 @@ def show_list(title, tdir, fl, view=False):
 
 
 def show_dir(pif, tform):
+    targs, credits = make_targs(pif, tform.dirname)
     if not os.path.exists(tform.tdir):
         raise useful.SimpleError('Path does not exist.')
 
@@ -76,10 +77,11 @@ def show_dir(pif, tform):
                 elif tform.graf:
                     ostr += pif.render.format_link(
                         'imawidget.cgi',
-                        '<img src="../{}/{}" border=0>{}'.format(tform.tdir, f, f),
+                        '<img src="../{}/{}" border=0>{}<br>'.format(tform.tdir, f, f),
                         {'d': tform.tdir, 'f': f, 'man': tform.mod, 'newvar': tform.var, 'cy': 0, 'suff': tform.suff})
                 else:
                     ostr += '<a href="../{}">{}</a><br>\n'.format(tform.tdir + '/' + f, f)
+                ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, f), credits)
             ostr += '</div><hr>\n'
         else:
             ostr += show_list(files['titles']['graf'], tform.tdir, files['graf'], tform.view)
@@ -117,8 +119,8 @@ def show_dir(pif, tform):
 
 
 def check_image(pif, targs, src, credits):
-    ostr = '</td><td>'
     ssize = os.stat(src).st_size
+    ostr = ''
     for tf in targs:
         if tf[1] == ssize and filecmp.cmp(tf[0], src):
             ostr += tf[0][tf[0].rfind('/') + 1:] + ' ' + credits.get(tf[0], '') + '<br>'
@@ -175,8 +177,9 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             ostr += '<div class="filc">{}<br>{}<br>{}</div>\n'.format(pic, arg, inp)
         else:
             ostr += pif.render.format_cell(0, '{}<br>{}{} {}'.format(pic, arg, inp, f_date))
-            if mss or pms:
-                ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
+        if mss or pms:
+            ostr += '</td><td>'
+            ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
     if not cpct:
         ostr += '</tr>\n'
     return ostr
@@ -189,6 +192,13 @@ def flist_sort(flist, tform):
         flist.sort(key=dict(zip(flist, tlist)).get, reverse=True)
     else:
         flist.sort()
+
+
+def make_targs(pif, dirname):
+    return ([(x, os.stat(x).st_size)
+             for x in sorted(glob.glob('.' + config.IMG_DIR_VAR + '/l_' + dirname + '-*.*'))],
+            {'.' + config.IMG_DIR_VAR + '/l_' + x['photo_credit.name'] + '.jpg': x['photographer.id']
+             for x in pif.dbh.fetch_photo_credits_for_vars(config.IMG_DIR_VAR, dirname)})
 
 
 def show_imgs(pif, tform):
@@ -208,10 +218,7 @@ def show_imgs(pif, tform):
     if tform.mss:
         print('Credit ' + pif.form.put_text_input('credit', 4, value=pif.form.get_str('credit')))
         print('<br>')
-        img_args['targs'] = [(x, os.stat(x).st_size)
-                             for x in sorted(glob.glob('.' + config.IMG_DIR_VAR + '/l_' + tform.dirname + '-*.*'))]
-        img_args['credits'] = {'.' + config.IMG_DIR_VAR + '/l_' + x['photo_credit.name'] + '.jpg': x['photographer.id']
-                               for x in pif.dbh.fetch_photo_credits_for_vars(config.IMG_DIR_VAR, tform.dirname)}
+        img_args['targs'], img_args['credits'] = make_targs(pif, tform.dirname)
     elif tform.pms:
         # maybe put size here?  assume m_
         print('Credit ' + pif.form.put_text_input('credit', 4))
@@ -224,7 +231,7 @@ def show_imgs(pif, tform):
         img_args['cred'] = {x['photo_credit.name']: x['photographer.id']
                             for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
     elif tform.tdir.startswith('lib/man'):
-        pass # img_args['cred'] = {
+        pass  # img_args['cred'] = {
     for pent in plist:
         flist = useful.read_dir(pent, tform.tdir)
         if tform.sizd:
@@ -579,7 +586,7 @@ class TraverseForm(object):
 
 
 @basics.web_page
-def main(pif):
+def main(pif):  # traverse main
     os.environ['PATH'] += ':/usr/local/bin'
     pif.render.print_html()
     pif.restrict('vma')
@@ -593,14 +600,19 @@ def main(pif):
         print(pif.render.format_link('/cgi-bin/traverse.cgi?d=' + tform.alt, tform.alt))
     print('<br>')
     if tform.patt:
+        print('show_imgs<br>')
         show_imgs(pif, tform)
     elif tform.scrt:
+        print('show_script<br>')
         show_script(pif, tform)
     elif tform.act:
+        print('show_action<br>')
         do_action(pif, tform)
     elif tform.fnam:
+        print('show_file<br>')
         show_file(pif, tform)
     else:
+        print('show_dir<br>')
         print(show_dir(pif, tform))
     print(pif.render.format_tail())
 

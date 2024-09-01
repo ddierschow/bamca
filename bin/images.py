@@ -132,12 +132,15 @@ def show_var_info(pif, mod_id, var_id):
 ebay_starts = [
     'http://thumbs.ebaystatic.com/images/g/',
     'https://i.ebayimg.com/thumbs/images/g/',
+    'https://i.ebayimg.com/images/g/',
     'http://i.ebayimg.com/images/g/',
 ]
 ebay_ends = [
-    '/s-l225.jpg',
-    '/s-l300.jpg',
-    '/s-l64.jpg',
+    '/s-l960.webp',
+    '/s-l500.webp',
+    '/s-l300.webp',
+    '/s-l225.webp',
+    '/s-l64.webp',
 ]
 
 
@@ -147,7 +150,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     for ebay_start in ebay_starts:
         for ebay_end in ebay_ends:
             if url.startswith(ebay_start) and url.endswith(ebay_end):
-                url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.jpg'
+                url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.webp'
                 found = True
                 break
         if found:
@@ -169,6 +172,8 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     if '?' in fn:
         fn = fn[:fn.find('?')]
     fn = useful.file_save(pdir, fn, up, overwrite)
+    if fn.endswith('.webp'):
+        fn = imglib.webp_to_png(pdir, fn)
     file_log(pdir + '/' + fn, pdir)
     return fn
 
@@ -218,6 +223,7 @@ class UploadForm(object):
         self.select = pif.form.get_str('select')
         self.selsearch = pif.form.get_str('selsearch')
         self.replace = pif.form.get_bool('replace') and pif.is_allowed('ma')
+        self.demote = pif.form.get_exists('demote') and pif.is_allowed('ma')
         self.mass = pif.form.get_exists('mass')
         self.act = pif.form.get_int('act')
         self.y = pif.form.get_str('y')  # I have no idea what this does.
@@ -238,6 +244,7 @@ class UploadForm(object):
             'desc': desc,
             'var': var,
             'edit': pif.render.format_button_link('edit', 'imawidget.cgi?d=%s&f=%s' % self.image) if self.image else '',
+            'demote': self.image,
         }
         return pif.render.format_template('upload.html', **context)
 
@@ -337,6 +344,9 @@ class UploadForm(object):
         if self.cc:
             useful.file_mover(os.path.join(self.tdir, fn), os.path.join(self.cc, fn), mv=False, ov=False)
 
+    def do_demote(self, pif):
+        return imglib.demote_picture(pif, self.mod_id, self.var_id)
+
 
 # Product upload:   upload.cgi?d=lib/mattel&n=2015u001&c=2015u001
 # Variation upload: upload.cgi?d=lib/man/mb979&m=MB979&v=Y15
@@ -365,8 +375,10 @@ def upload_main(pif):
             if ac[0] in upform.url:
                 credit = ac[1]
                 break
+        # pif.render.print_html()  # tmp
         fn = upform.grab_url_pic(pif)
         upform.carbon_copy(fn)
+        # return ''  # tmp
         raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s&credit=%s' % (
             upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix, credit))
 
@@ -387,6 +399,12 @@ def upload_main(pif):
             useful.header_done()
             print(show_var_info(pif, upform.mod_id, upform.var_id))
             upform.scrape_url_pic()
+            print(pif.render.format_tail())
+        elif upform.demote:
+            print(pif.render.format_head())
+            useful.header_done()
+            print(show_var_info(pif, upform.mod_id, upform.var_id))
+            upform.do_demote(pif)
             print(pif.render.format_tail())
         else:
             return upform.write(pif, desc=upform.comment, restrict=not pif.is_allowed('uma'))

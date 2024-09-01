@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
 from io import open
 import os
 import urllib

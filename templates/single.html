@@ -20,7 +20,7 @@
 {% for ent in shadd.entry %}
 <td><center>
 {{ ent.img }}
-{% if ent.credit %}<div class="credit"> Photo credit: {{ ent.credit }} </div>{% else %}<br>{% endif %}
+{% if ent.credit %}<div class="credit"> {{ ent.credit }} </div>{% else %}<br>{% endif %}
 {{ ent.desc }}</center>
 </td>
 {% if not (loop.index % shadd.columns) and not loop.last %}</tr><tr>{% endif %}
@@ -107,9 +107,9 @@
 <center><span class="modelnumber">{{ model.id }}</span><br>
 <table><tr><td>
 {{ model.img }}<br>
-<div class="credit">{% if model.credit %} Photo credit: {{ model.credit }} {% else %}&nbsp;{% endif %}</div>
+<div class="credit">{% if model.credit %} {{ model.credit }} {% else %}&nbsp;{% endif %}</div>
 </td></tr></table>
-<span class="info_name">{{ model.name }}</span>
+<div class="name_line"> <span class="info_name">{{ model.name }}</span></div>
 {%- for s in model.descs %}<br>{{ s }}{% endfor %}<p>
 <table class="modelinfo infopanel inset"><tr>
 {%- if model.makes %}<th>Make</th>{% endif %}
@@ -194,7 +194,7 @@
 {%- if product_image or prod_title or variations %}
 <div class="inset inset_m infopanel">
 {%- if product_image %}<center>{{ product_image }}
-<div class="credit">{% if product_img_credit %} Photo credit: {{ product_img_credit }} {% else %}&nbsp;{% endif %}</div>
+<div class="credit">{% if product_img_credit %} {{ product_img_credit }} {% else %}&nbsp;{% endif %}</div>
 </center>{% endif %}
 {%- if prod_title %}
 <h4 class="prodtitle">{{ prod_title }}</h4>

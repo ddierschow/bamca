@@ -1,7 +1,5 @@
 #!/usr/local/bin/python
 
-from sprint import sprint as print
-
 import basics
 import imglib
 import masses

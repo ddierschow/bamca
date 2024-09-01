@@ -122,7 +122,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
         mod_id, pdir=pdir, vars=pic_var, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
     var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, pic_var, verbose=True)
     variation['_credit'] = var_img_credit['photographer.id'] if var_img_credit else ''
-    var_img_credit = var_img_credit['photographer.name'] if var_img_credit else ''
+    var_img_credit = pif.render.format_credit(var_img_credit)
 
     variation['references'] = ' '.join(list(set(vsform.selects.get(var_id, []))))
     variation['area'] = ', '.join([
@@ -364,7 +364,7 @@ def show_var_image(pif, attr_pic, img, title, caption='', var_img_credit=''):
         ostr += '<center><h3>%s</h3>\n' % title
         ostr += '<table><tr><td>' + pif.render.fmt_img_src(img) + '<br>'
         if var_img_credit:
-            ostr += '<div class="credit">Photo credit: %s</div>' % var_img_credit
+            ostr += '<div class="credit">%s</div>' % pif.render.format_credit(var_img_credit)
         ostr += '</td></tr></table>'
         if attr_pic and attr_pic['description']:
             if attr_pic['attribute.title']:
@@ -566,7 +566,7 @@ class VarSearchForm(object):
             selects.setdefault(var_sel['var_id'], [])
             selects[var_sel['var_id']].append(
                 var_sel['ref_id'] +
-                (('/' + var_sel['sec_id']) if var_sel['sec_id'] else '') +
+                (('/' + var_sel['sec_id']) if var_sel['sec_id'] else '/' if var_sel['ran_id'] else '') +
                 (('.' + var_sel['ran_id']) if var_sel['ran_id'] else '') +
                 ((':' + var_sel['category.id']) if var_sel['category.id'] else '')
             )
@@ -2212,6 +2212,14 @@ def copy_base_info(pif, mod_id, var_dict, old_var_id):
     return var_dict
 
 
+def check_attributes(pif, *attr_names):
+    if not attr_names:
+        attr_names = sorted(set([x['attribute.attribute_name'] for x in pif.dbh.fetch_attributes_by_name()]))
+    for attr_name in attr_names:
+        mod_ids = [x['attribute.mod_id'] for x in pif.dbh.fetch_attributes_by_name(attr_name)]
+        print(f"{len(mod_ids)} {attr_name} ({', '.join(sorted(mod_ids))})")
+
+
 cmds = [
     ('d', delete_variation, "delete: mod_id var_id"),
     ('a', add_variation, "add: mod_id var_id body"),
@@ -2236,7 +2244,8 @@ cmds = [
     ('ckvd', check_var_data, "check variation data"),
     ('cat', show_cats, "cats: mod_id ..."),
     ('fvt', fix_variation_type, "mod_id [mod_id]"),
-    ('tilley', check_tilley_credits, ""),
+    ('tilley', check_tilley_credits, "do the tilley thing"),
+    ('ckat', check_attributes, "check attributes: [attr_name]..."),
 ]
 
 

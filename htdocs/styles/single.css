@@ -29,5 +29,6 @@ h5 {font-size: small; font-weight: bold; text-align: center; margin: 0 0 0 0;}
 .modelinfo {border-spacing: 8px;}
 .modelinfo th {border-style: solid; border-width: 0 0 1px 0; text-align: center;}
 .modelinfo td {margin: 8px; text-align: center;}
-.info_name {border-style: solid; border-width: thin; font-weight: bold; padding: 3px 16px 2px; margin-bottom: 3px; font-size: large; color: #FFFFFF; background-color: #CC6600;}
+.info_name {border-style: solid; border-width: thin; font-weight: bold; padding: 3px 16px 2px; margin: 0 3px 0 3px; font-size: large; color: #FFFFFF; background-color: #CC6600;}
+.name_line {margin: 0 3px 0 3px;}
 .prodtitle {background-color: #000066; color: #FFFFFF; padding: 4px 4px 4px 4px;}

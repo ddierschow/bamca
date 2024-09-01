@@ -378,7 +378,7 @@ class DBHandler(object):
         elif isinstance(where, str):
             wheres.append(where)
         return self.fetch("alias,base_id", where=wheres, left_joins=left_joins,
-                          extras=True, tag='Aliases', verbose=True)
+                          extras=True, tag='Aliases', verbose=False)
 
     def update_alias(self, pk, values):
         return self.write('alias', values=values, where=f"pk={pk}", modonly=True, tag='UpdateAlias')
@@ -630,7 +630,7 @@ class DBHandler(object):
         left_joins = [("base_id as m", "casting_related.model_id=m.id")]
         left_joins += [("base_id as r", "casting_related.related_id=r.id")]
         return self.fetch('casting_related', where=wheres, left_joins=left_joins, tag='CastingRelateds',
-                          verbose=True)
+                          verbose=False)
         # return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and
         # casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
 
@@ -664,6 +664,10 @@ class DBHandler(object):
         return self.write('casting_related', values=values, newonly=True, tag='AddCastingRelated', verbose=True)
 
     # - attribute
+
+    def fetch_attributes_by_name(self, attr_name=None):
+        where = f"attribute_name='{attr_name}'" if attr_name else ''
+        return self.fetch('attribute', where=where, tag='AttributesByName')
 
     def fetch_attributes(self, mod_id, with_global=False):
         where = f"mod_id='{mod_id}'"
@@ -819,28 +823,32 @@ class DBHandler(object):
                                   tag='VariationIdQuery')
         return varrecs
 
-    def fetch_variation_by_select(self, mod_id, ref_id, sec_id="", ran_id="", category=None, verbose=False):
+    def fetch_variation_by_select(self, mod_id=None, ref_id=None, sec_id="", ran_id="", category=None, verbose=False):
         cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var',
-                'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.category']
+                'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.category', 'b.id', 'b.rawname']
         table = "variation_select vs"
-        where = f"vs.mod_id='{mod_id}' and vs.ref_id='{ref_id}'"
+        wheres = []
+        if mod_id:
+            wheres.append(f"vs.mod_id='{mod_id}'")
+        if ref_id:
+            wheres.append(f"vs.ref_id='{ref_id}'")
         if sec_id:
             if isinstance(sec_id, str):
-                where += f" and vs.sec_id='{sec_id}'"
+                wheres.append(f"vs.sec_id='{sec_id}'")
             else:
                 sec_id = ','.join([f"'{x}'" for x in sec_id])
-                where += f" and vs.sec_id in ({sec_id})"
+                wheres.append(f"vs.sec_id in ({sec_id})")
             if ran_id:
                 if isinstance(ran_id, str):
-                    where += f" and vs.ran_id='{ran_id}'"
+                    wheres.append(f"vs.ran_id='{ran_id}'")
                 else:
                     ran_id = ','.join([f"'{x}'" for x in ran_id])
-                    where += f" and vs.ran_id in ({ran_id})"
+                    wheres.append(f"vs.ran_id in ({ran_id})")
         if category:
-            where += f" and vs.category='{category}'"
-        table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var"
+            wheres.append(f"vs.category='{category}'")
+        table += " left join variation v on vs.mod_id=v.mod_id and vs.var_id=v.var left join base_id b on b.id=v.mod_id"
         # turn this into a fetch
-        return self.dbi.select(table, cols=cols, where=where, verbose=verbose, tag='VarBySelect')
+        return self.dbi.select(table, cols=cols, where=' and '.join(wheres), verbose=verbose, tag='VarBySelect')
 
     def fetch_variations_by_plant(self, mod_id, plant, verbose=False):
         cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'v.manufacture']
@@ -877,17 +885,17 @@ class DBHandler(object):
 
     def fetch_variation_files(self, mod_id):
         return self.fetch('variation', columns=['imported_from', 'mod_id'], group='imported_from',
-                          order='imported_from', where=f"mod_id='{mod_id}'", tag='VariationFiles', verbose=True)
+                          order='imported_from', where=f"mod_id='{mod_id}'", tag='VariationFiles', verbose=False)
 
     def fetch_variation_plant_counts(self, mod_id):
         return self.fetch(
             'variation', columns=['manufacture', 'count(*) as count'],
             where=[f"mod_id='{mod_id}'"], group='manufacture', order='manufacture',
-            tag='VarPlantCounts', verbose=True)
+            tag='VarPlantCounts', verbose=False)
 
     def fetch_variation_base_names(self, mod_id):
         return self.fetch('variation', columns=['base_name'], where=[f"mod_id='{mod_id}'", "base_name != ''"],
-                          distinct=True, tag='VarBaseNames', verbose=True)
+                          distinct=True, tag='VarBaseNames', verbose=False)
 
     def insert_variation(self, mod_id, var_id, attributes={}, verbose=False):
         cols = self.get_table_data('variation').columns
@@ -979,7 +987,8 @@ class DBHandler(object):
 
     def fetch_variation_selects_by_ref(self, ref_id, sec_id=''):
         left_joins = [('variation',
-                       'variation_select.mod_id=variation.mod_id and variation_select.var_id=variation.var')]
+                       'variation_select.mod_id=variation.mod_id and variation_select.var_id=variation.var'),
+                      ('base_id', 'variation_select.mod_id=base_id.id')]
         where = [f'ref_id="{ref_id}"']
         if sec_id:
             where.append(f'sec_id="{sec_id}"')
@@ -1211,10 +1220,14 @@ class DBHandler(object):
         result['vars'] = list()
         return result
 
-    def fetch_lineup_models_bare(self, year, region, verbose=False):
+    def fetch_lineup_models_bare(self, year=None, region=None, verbose=False):
         cols = self.make_columns('lineup_model')
         table = "lineup_model"
-        wheres = [f'region="{region}"', f'year={year}']
+        wheres = []
+        if region:
+            wheres += [f'region="{region}"']
+        if year:
+            wheres += [f'year={year}']
         return self.dbi.select(table, cols=cols, where=' and '.join(wheres), verbose=verbose, tag='BareLineupModels')
 
     def fetch_simple_lineup_models(self, year='', region='', base_id='', verbose=False):
@@ -1303,8 +1316,8 @@ class DBHandler(object):
 
     def update_lineup_model(self, where, values, verbose=False):
         # useful.write_message(where, values, '<br>')
-        self.write('lineup_model', values=self.make_values('lineup_model', values), where=self.make_where(where),
-                   modonly=True, tag='UpdateLineupModel', verbose=verbose)
+        return self.write('lineup_model', values=self.make_values('lineup_model', values, 'lineup_model.'),
+                          where=self.make_where(where), modonly=True, tag='UpdateLineupModel', verbose=verbose)
 
     def delete_lineup_model(self, where):
         self.delete('lineup_model', self.make_where(where))
@@ -1438,7 +1451,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     def fetch_link_statuses(self, where):
         return self.fetch('link_line', where=where, columns=['last_status', 'count(*)'], group='last_status',
-                          tag='LinkStatuses', verbose=True)
+                          tag='LinkStatuses', verbose=False)
 
     # - blacklist
 
@@ -1574,15 +1587,15 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # - box_type
 
     def fetch_box_type(self, box_id):
-        return self.fetch('box_type', where={"id": box_id}, verbose=True, tag='BoxTypes')
+        return self.fetch('box_type', where={"id": box_id}, verbose=False, tag='BoxTypes')
 
     def fetch_box_type_by_mod(self, mod_id, box_style=None):
         # this sucks so hard
         where1 = f'box_type.mod_id="{mod_id}"'
         where2 = f'(box_type.mod_id=alias.id and alias.ref_id="{mod_id}")'
         where3 = f' and box_type.box_type like "{box_style}%"' if box_style else ''
-        return (self.fetch('box_type', where=where1 + where3, verbose=True) +
-                self.fetch('box_type,alias', where=where2 + where3, verbose=True, tag='BoxTypeByMod'))
+        return (self.fetch('box_type', where=where1 + where3, verbose=False) +
+                self.fetch('box_type,alias', where=where2 + where3, verbose=False, tag='BoxTypeByMod'))
 
     # - user
 
@@ -1721,7 +1734,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         if photographer_id:
             wheres.append(f'photo_credit.photographer_id="{photographer_id}"')
         rows = self.fetch('photographer,photo_credit,photo_credit c', where=wheres,
-                          columns=cols, group='photo_credit.photographer_id', tag='PhotographerCounts', verbose=True)
+                          columns=cols, group='photo_credit.photographer_id', tag='PhotographerCounts', verbose=False)
         return tables.Results('photographer', rows)
 
     def write_photographer(self, photographer_id, values, verbose=False):

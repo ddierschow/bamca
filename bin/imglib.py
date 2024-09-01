@@ -25,6 +25,7 @@ image_content_type = {
     'jpeg': 'Content-Type: image/jpeg',
     'png': 'Content-Type: image/png',
     'tif': 'Content-Type: image/tiff',
+    'webp': 'Content-Type: image/webp',
     'xbm': 'Content-Type: image/x-xbitmap',
     '': 'Content-Type: image/jpeg',
 }
@@ -37,6 +38,7 @@ image_inputter = {
     'jpeg': [['/usr/local/bin/jpegtopnm']],
     'png': [['/usr/local/bin/pngtopnm']],
     'tif': [['/usr/local/bin/tifftopnm']],
+    # 'webp': [['/usr/local/bin/dwebp', '-pam']],
     'xbm': [['/usr/local/bin/xbmtopbm']],
     # '': [['/usr/local/bin/jpegtopnm']],
 }
@@ -50,6 +52,7 @@ image_outputter = {
     'jpg': [['/usr/local/bin/pnmtojpeg']],
     'jpeg': [['/usr/local/bin/pnmtojpeg']],
     'png': [['/usr/local/bin/pnmtopng']],
+    # 'webp': [['/usr/local/bin/cwebp']],
     '': [['/usr/local/bin/pnmtojpeg']],
 }
 otypes = ['', 'bmp', 'gif', 'ico', 'jpg', 'png']
@@ -1138,6 +1141,20 @@ def promote_picture(pif, mod_id, var_id):
                            config.IMG_DIR_MAN[1:], mod_id))
 
 
+def demote_picture(pif, mod_id, var_id):
+    credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, '%s.*' % mod_id.lower())
+    pif.render.message('demoting picture for', mod_id, 'var', var_id, 'to',
+                       credit['photographer.id'] if credit else 'uncredited')
+    for pic in glob.glob('.' + config.IMG_DIR_MAN + '/?_%s.*' % mod_id.lower()):
+        ofn = pic[pic.rfind('/') + 1:]
+        nfn = ofn[:ofn.rfind('.')] + '-' + var_id.lower() + pic[pic.rfind('.'):]
+        useful.file_copy(pic, '.' + config.IMG_DIR_VAR + '/' + nfn)
+    # transfer credit
+    if credit:
+        pif.render.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'],
+                           config.IMG_DIR_VAR[1:], '%s-%s.*' % (mod_id.lower(), var_id.lower())))
+
+
 def simple_save(ofi, opth):
     if isinstance(ofi, Image.Image):
         ofi.save(opth)
@@ -1163,3 +1180,14 @@ def get_tilley_file():
             mans.setdefault(ent[1][4:], list())
             mans[ent[1][4:]].append(ent[3])
     return mans
+
+
+def webp_to_png(pth, fn):
+    nfn = fn[:fn.rfind('.')] + '.png'
+    ofi = useful.pipe_chain(None,
+                            [['/usr/local/bin/dwebp', pth + '/' + fn, '-o', '-']],
+                            stderr=open_write_dev_null(), verbose=True)
+    # print('WTP', pth + '/' + fn, pth + '/' + nfn)
+    open(pth + '/' + nfn, 'wb').write(ofi)
+    os.unlink(pth + '/' + fn)
+    return nfn

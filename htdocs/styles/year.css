@@ -10,7 +10,6 @@ body {background-color: #FF6633;}
 
 .sh {background-color: #000000; color: #FFFFFF;}
 .rh {background-color: #FFFFFF; color: #000000; height: 36px; font-size: x-large;}
-.eb {background-color: #CCCCCC;}
 
 .eb_wh {background-color: #FFFFFF;} /* white */
 .eb_bl {background-color: #CCCCFF;} /* blue */
@@ -21,3 +20,9 @@ body {background-color: #FF6633;}
 .eb_pu {background-color: #FFCCFF;} /* purple */
 .eb_yl {background-color: #FFFF99;} /* yellow */
 .eb_gd {background-color: #DDDDAA;} /* gold */
+.eb_gy {background-color: #CCCCCC;} /* gray */
+.eb_lg {background-color: #EEEEEE;} /* light gray */
+
+/* 1953 .eb {background-color: #CCCC66;} */
+/* 1960 .eb {background-color: #DDDDAA;} */
+/* 2014 .eb {background-color: #DDDDDD;} and segmenting starts */

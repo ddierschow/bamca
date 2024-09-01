@@ -275,7 +275,7 @@ class MatrixFile(object):
                 if section.id == 'cat':
                     ran.entry.append(self.add_cell(pif, table['ents'][range_id], table, comments))
                 else:
-                    mods = self.find_matrix_variations(table['ents'][range_id], pif.page_id, table['id'], str(range_id))
+                    mods = mbdata.find_vs_variations(table['ents'][range_id], table['id'], str(range_id))
                     if mods:
                         ran.entry.append(self.add_cell(pif, mods, table, comments))
             section.range.append(ran)
@@ -284,18 +284,6 @@ class MatrixFile(object):
         pif.render.set_button_comment(pif, '')
         llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
         return llineup
-
-    def find_matrix_variations(self, ents, page_id, sec_id, ran_id):
-        if sec_id and ran_id:
-            mods = [x for x in ents if x['vs.sec_id'] == sec_id and x['vs.ran_id'] == ran_id]
-            if mods:
-                return mods
-        if sec_id:
-            mods = [x for x in ents if x['vs.sec_id'] == sec_id]
-            if mods:
-                return mods
-        mods = [x for x in ents if x['vs.sec_id'] == '']
-        return mods
 
     def add_cell(self, pif, ents, table, comments):
         entd = {}

@@ -807,6 +807,32 @@ class MannoFile(object):
         out_file.close()
         return out_str
 
+    # ----- var csv ---------------------------------------------
+
+    def show_section_man2varcsv(self, pif, sect):
+        ret = list()
+        for mod_id in sect['model_ids']:
+            mod = self.mdict[mod_id]
+            for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
+                img = pif.render.find_image_path([mod_id], nobase=True, vars=var['picture_id'] or var['var'],
+                                                 largest='IMG_SIZ_LARGEST')
+                ret.append(
+                    [mod_id, mod['first_year'], mod['name'], var['var'], var['text_description'], img])
+        return ret
+
+    def run_man2varcsv_out(self, pif):
+        out_file = StringIO()
+        field_names = ["MAN #", "Year", "Name", "Var", "Description", "Image"]
+        writer = csv.DictWriter(out_file, fieldnames=field_names)
+        writer.writeheader()
+        secs = self.run_thing(pif, self.show_section_man2varcsv)
+        for sec in secs:
+            for ln in sec:
+                writer.writerow(dict(zip(field_names, ln)))
+        out_str = out_file.getvalue()
+        out_file.close()
+        return out_str
+
     # ----- json ------------------------------------------------
 
     def show_section_man2json(self, pif, sect):
@@ -968,6 +994,7 @@ class MannoFile(object):
         mbdata.LISTTYPE_VEHICLE_TYPE: run_vehicle_type_list_template,
         mbdata.LISTTYPE_TEXT: run_text_list,
         mbdata.LISTTYPE_TILLEY: run_var_credit_list,
+        mbdata.LISTTYPE_VAR_CSV: run_man2varcsv_out,
     }
 
     def format_output(self, pif, listtype):
@@ -980,7 +1007,7 @@ class MannoFile(object):
 
 @basics.web_page
 def main(pif):
-    useful.write_comment(pif.form)
+    # useful.write_comment(pif.form)
     if pif.form.has('submit'):
         # make new form and redirect
         form = {x: pif.form.get_str(x) for x in ['end', 'eyear', 'listtype', 'range', 'section', 'start', 'syear']}

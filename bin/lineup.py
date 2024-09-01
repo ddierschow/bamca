@@ -132,7 +132,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
         mdict['shown_id'] = pif.dbh.default_id(mdict['mod_id'])
         disp_format = '%s'
     else:
-        mdict['shown_id'] = mdict['number']
+        mdict['shown_id'] = '' if (mdict.get('flags', 0) & config.FLAG_MODEL_NO_ID) else mdict['number']
         disp_format = lsec.get('disp_format', '%s')
     if 'ID' in disp_format:
         id_m = id_re.match(mdict['prod_id'])
@@ -157,17 +157,23 @@ def create_lineup(pif, mods, year, lsec, fdebug=False):
     modlist = []
     foundlist = []
     for mod in mods:
-        if ((mod['lineup_model.number'], mod['lineup_model.display_order'],) not in foundlist and
-                (not mod['vs.sec_id'] or not mod['vs.sec_id'].isdigit() or
-                 int(mod['vs.sec_id']) == mod['lineup_model.number']) and
-                ((is_extra and region == mod['lineup_model.region']) or not is_extra)):
+        if (mod['lineup_model.number'], mod['lineup_model.display_order'],) not in foundlist:
+            if ((not mod['vs.ran_id'] or not mod['vs.ran_id'].isdigit() or
+                    int(mod['vs.ran_id']) == mod['lineup_model.number']) and
+                    ((is_extra and region == mod['lineup_model.region']) or not is_extra)):
+                pass  # we're good, now add it below
+            elif mod['lineup_model.flags'] & config.FLAG_MODEL_NOT_MADE:
+                # see 2019:3 vs :99.  if #3 has vs and #99 doesn't, that ^ can't show #99.
+                mod = {k: v for k, v in mod.items() if not (k.startswith('v.') or k.startswith('vs.'))}
+            else:
+                continue
             modlist.append(calc_lineup_model(pif, lsec, year, region, pif.dbh.make_lineup_item(mod)))
             foundlist.append((mod['lineup_model.number'], mod['lineup_model.display_order'],))
 
     # 2. edit model list for only entries we're interested in
     mods = [mod for mod in mods if mod['vs.sec_id'] is None or (
-        (not mod['vs.sec_id'].isdigit() or int(mod['vs.sec_id']) == mod['lineup_model.number']) and
-        (mod['vs.sec_id'].isdigit() or mod['vs.sec_id'] in regions))
+        (not mod['vs.ran_id'].isdigit() or int(mod['vs.ran_id']) == mod['lineup_model.number']) and
+        (mod['vs.ran_id'].isdigit() or mod['vs.sec_id'] in regions))
     ]
 
     # 3. put it in a usable order
@@ -607,7 +613,8 @@ def run_product_pics(pif, region):
             halfstar = lmod and lmod.get('lineup_model.flags', 0) & config.FLAG_LINEUP_MODEL_MULTI_VARS
             lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (spdir, lpic_id, page, '',
                                                                     lmod.get('lineup_model.mod_id', ''))
-            istar = imglib.format_image_star(pif, product_image_path, product_image_file, pic_id, halfstar)
+            istar = '&nbsp;' if not lmod else imglib.format_image_star(
+                pif, product_image_path, product_image_file, pic_id, halfstar)
             ent = render.Entry(
                 text=pif.render.format_link(lnk, istar),
                 display_id=str(int(mnum % 10 == 0 or page[-1] == '0'))
@@ -1170,6 +1177,22 @@ def make_lineup(pif, year, fn):
             # add_variation_select(pif, mod, year, '')
 
 
+def generate_lineup(pif, ref_id):
+    vslist = sorted(pif.dbh.fetch_variation_selects_by_ref(ref_id=ref_id), key=lambda x: x['variation.date'])
+    if ref_id.startswith('year.'):
+        print('#number|mod_id|style|name')
+        for vs in vslist:
+            # print(vs.mod_id, 'gy'), vs.base_id.rawname
+            print(f"{vs['variation.note']}|{vs['variation_select.mod_id']}|gy|{vs['base_id.rawname']}")
+    elif ref_id.startswith('matrix.'):
+        print('#section_id|display_order|page_id|range_id|mod_id|name')
+        for ind, vs in enumerate(vslist, start=1):
+            print(f"{vs['variation_select.sec_id']}|{ind}|{ref_id}|{ind}|"
+                  f"{vs['variation_select.mod_id']}|{vs['base_id.rawname']}")
+    else:
+        print("don't understand", ref_id, "yet")
+
+
 # def check_lineup(pif, *args):
 #     def do_lup(pif, year, region):
 #         lup = run_file(pif, region, str(year))
@@ -1268,6 +1291,7 @@ cmds = [
     ('r', rank_lineup, "ranks: number region syear eyear"),
     ('l', list_lineups, "list lineups"),
     ('m', make_lineup, "make lineup"),
+    ('g', generate_lineup, "generate lineup"),
     ('dl', detect_lineup, "detect lineup: year"),
     # ('x', check_lineup, "check lineup"),
     ('s', show_sections, "show sections"),

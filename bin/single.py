@@ -556,7 +556,8 @@ def show_single(pif):
     pif.render.title = '%(casting_type)s %(id)s: %(name)s' % model
     product_img = pif.render.format_image_sized(pic, pdir=pdir, largest=mbdata.IMG_SIZ_MEDIUM)
     product_img_credit = pif.dbh.fetch_photo_credit(pdir, pic, verbose=True)
-    product_img_credit = product_img_credit['photographer.name'] if product_img_credit else ''
+    # product_img_credit = product_img_credit['photographer.name'] if product_img_credit else ''
+    product_img_credit = pif.render.format_credit(product_img_credit)
     if product_img and pif.is_allowed('a'):  # pragma: no cover
         img = img_re.search(product_img).group('u')
         url = 'imawidget.cgi?d=%s&f=%s' % tuple(img[3:].rsplit('/', 1))
@@ -579,7 +580,7 @@ def show_single(pif):
         model['imgid'], made=model['made'], pdir=config.IMG_DIR_MAN,
         largest=mbdata.IMG_SIZ_MEDIUM if product_img else mbdata.IMG_SIZ_LARGE)
     model_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, model['imgid'][0], verbose=True)
-    model['credit'] = model_img_credit['photographer.name'] if model_img_credit else ''
+    model['credit'] = pif.render.format_credit(model_img_credit)
     if model['country']:
         model['country_flag'] = pif.render.format_image_flag(model['country'])
         model['country_name'] = mflags.FlagList()[model['country']]

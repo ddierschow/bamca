@@ -113,6 +113,10 @@ def add_model_table_product_link(pif, mdict):
         # breaks packs
         ref_link = pif.dbh.get_editor_link('lineup_model', {'year': mdict.get('year'), 'mod_id': mdict.get('mod_id')})
         ostr += pif.render.format_link(ref_link, '<i class="fas fa-edit gray"></i>')
+        if 'mod_id' in mdict:
+            fn = mdict.get('mod_id', '').replace('.', '_') + (
+                '-' + mdict.get('picture_id', '') if mdict.get('picture_id', '') else '')
+            ostr += pif.render.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}', '<i class="fas fa-upload gray"></i>')
     if mdict.get('not_made'):
         ostr += mbdata.comment_icon.get('n', '')
     if mdict.get('is_reused_product_picture'):  # pragma: no cover

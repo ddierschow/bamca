@@ -14,7 +14,7 @@ import varias
 
 def search_name(pif):
     return pif.dbh.fetch_casting_list(
-        where=["base_id.rawname like '%%%s%%'" % x for x in pif.form.search('query')], verbose=True)
+        where=[f"base_id.rawname like '%{x}%'" for x in pif.form.search('query')], verbose=True)
 
 
 # specific id request goes through here
@@ -151,9 +151,9 @@ descs = ['body', 'base', 'interior', 'windows', 'wheels']
 
 def date_search(pif, dt=None, yr=None):
     llineup = render.Matrix(columns=4)
-    lsec = render.Section()
-    lran = render.Range()
     if dt:
+        lsec = render.Section()
+        lran = render.Range()
         pif.render.title = dt
         vars = pif.dbh.fetch_variations_by_date(dt)
         prefixes = imglib.get_tilley_file()
@@ -188,15 +188,19 @@ def date_search(pif, dt=None, yr=None):
                 var['shown'] += (
                     pif.render.format_link(f'/cgi-bin/single.cgi?id={mod_id}', f'<b>{mack_id} ({mod_id}) ') +
                     pif.render.format_link(
-                        f'/cgi-bin/vars.cgi?mod={mod_id}',
-                        '%s</b>' % var['base_id.rawname'].replace(';', ' ')) +
+                        f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}',
+                        '%s</b>' % var['base_id.rawname'].replace(';', ' ')) + (
+                        '' if ''.join(pif.render.find_image_file(
+                            mod_id.lower(), prefix='s_', pdir='.' + config.IMG_DIR_MAN))
+                        else ' <i class="fas fa-star red"></i> ') +
                     pif.render.format_link(
                         f'/cgi-bin/pics.cgi?m={mod_id}&t=1', ' - DT<br>')
                 )
                 last = mod_id
             prefix = f"&has={prefixes[mod_id.lower()][0]}" if mod_id.lower() in prefixes else ""
             var['shown'] += pif.render.format_link(
-                f'traverse.cgi?g=1&d=lib/{ldir}&man={mod_id}&var={var_id}&suff={prefix}',
+                f'traverse.cgi?g=1&d=lib/{ldir}&man={mod_id}&var={var_id}&suff={prefix}&lty=mss',
+                # &mr=1&credit=DT&til=1',
                 pif.render.format_image_required(
                     mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var_id],
                     also={'class': 'righty'}, nobase=True, largest='s'))
@@ -207,8 +211,10 @@ def date_search(pif, dt=None, yr=None):
                 pif.render.format_link(
                     '/cgi-bin/vars.cgi?mod=%s&var=%s&edt=1' % (mod_id, var_id),
                     '(%s) %s' % (var_id, var['variation.text_description'])) + done +
-                '<i>' + var['variation.note'] + '</i> ' + '-' + vs + '-' +
-                cats + '\n<ul>' + desc + '</ul>\n'
+                '<i>' + var['variation.note'] + '</i> ' + '-' + vs + '-&nbsp;' +
+                pif.form.put_text_input('s.' + mvid, 12, showlength=10, value=var['variation.imported_from']) + '\n' +
+                cats + '\n<ul>' + desc +
+                '</ul>\n'
             )
         vars.sort(key=lambda x: x['sort'])
         lran.entry = [render.Entry(text=x['shown'], class_name=x['class_name']) for x in vars]
@@ -217,15 +223,28 @@ def date_search(pif, dt=None, yr=None):
             'Verified: %d of %d<br><form action="/cgi-bin/mass.cgi?tymass=dates" method="post">' %
             (ver_count, len(vars)))
         llineup.footer += pif.form.put_button_input() + '</form>'
+        lsec.range = [lran]
+        llineup.section = [lsec]
     else:
         pif.render.title = 'Search Dates'
-        dates = pif.dbh.fetch_variation_dates(yr=yr)
-        lran.entry = [render.Entry(
-            text=pif.render.format_link('/cgi-bin/msearch.cgi?date=1&dt=%s' % dt['date'],
-                                        '%s (%s)' % (dt['date'], dt['count(*)']))) for dt in dates if dt['date']]
-        lsec.columns = 6
-    lsec.range = [lran]
-    llineup.section = [lsec]
+        date_d = {}
+        first_year = last_year = 1984
+        for dt in pif.dbh.fetch_variation_dates(yr=yr):
+            if dt['date']:
+                y = first_year - 1 if dt['date'] < str(first_year) else int(dt['date'][:4])
+                date_d.setdefault(y, [])
+                date_d[y].append((dt['date'], dt['count(*)']))
+                last_year = y if y > last_year else last_year
+
+        lsec = render.Section()
+        for year in range(first_year - 1, last_year + 1):
+            lran = render.Range()
+            lran.entry = [render.Entry(
+                text=pif.render.format_link(f'/cgi-bin/msearch.cgi?date=1&dt={d}',
+                                            f'{d} ({c})')) for d, c in date_d[year]]
+            lsec.range.append(lran)
+        lsec.columns = 7
+        llineup.section.append(lsec)
     llineup.footer += '<hr>'
     llineup.footer += (
         '<form action="/cgi-bin/msearch.cgi">Year = /<input type="hidden" name="date" value="1">'

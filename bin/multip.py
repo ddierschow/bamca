@@ -283,6 +283,7 @@ def distill_models(pif, pack, page_id):
 
     for mod in model_list:
         mod = pif.dbh.modify_man_item(mod)
+        useful.write_comment(mod)
         mod['pdir'] = pif.render.pic_dir
         mod['spdir'] = mbdata.dirs.inverse.get(mod['pdir'], mod['pdir'])
         sec_ids = ['.', '', pack_id + '.', pack_id + '.' + str(mod['pack_model.display_order'])]

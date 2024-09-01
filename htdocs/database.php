@@ -371,7 +371,8 @@ function SectionManno($pif) {
 	   ['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],
 	   ['flags' => 0, 'val' => 'thm', 'title' => 'Thumbnails'],
 	   ['flags' => 0, 'val' => 'csv', 'title' => 'CSV'],
-	   ['flags' => 0, 'val' => 'jsn', 'title' => 'JSON']];
+	   ['flags' => 0, 'val' => 'jsn', 'title' => 'JSON'],
+           ['flags' => 0, 'val' => 'vcs', 'title' => 'CSV with Variations']];
     if ($pif['isadmin']) {
 	$sl = array_merge($sl, [
 		['flags' => 0, 'val' => 'adl', 'title' => 'Admin List'],

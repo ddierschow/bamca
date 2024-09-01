@@ -16,7 +16,7 @@ function warn_number($num) {
 	echo '&nbsp;';
 }
 
-NoAccess($pif, 'a', 'stuff.php');
+NoAccess($pif, 'av', 'stuff.php');
 $links = Fetch("select section_id,link_type,name,url from link_line where page_id='links.stuff' order by display_order", $pif);
 $meatcols = 8;
 $cols = Fetch("select id,start,category from section where page_id='links.stuff' order by display_order", $pif);

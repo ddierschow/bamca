@@ -118,6 +118,9 @@
 {%- endif %}
 {%- if not restrict -%}
 {{ edit }}
+  {%- if demote %}
+   {{ render.format_button_input('demote') }}
+  {%- endif %}
 {%- endif %}
   </td>
  </tr>

@@ -515,7 +515,7 @@ table_info = {
             'flags': [
                 ('0001', 'Hidden'),
                 ('0002', 'MultiVar'),
-                ('0004', 'NoID'),
+                ('0008', 'NoID'),
             ]
         },
     },

@@ -136,6 +136,9 @@ class Presentation(object):
     def print_html(self, content='text/html', status=200):
         if not useful.is_header_done():
             print('Content-Type:', content)
+            if content != 'text/html':
+                self.verbose = False
+                useful._partial_comment = None
             if content == 'text/csv':
                 print("Content-Description: File Transfer\nContent-Disposition: attachment; "
                       f"filename={self.filename}\nExpires: 0")
@@ -630,6 +633,12 @@ of Matchbox International Ltd. and are used with permission.
 
     def fmt_anchor(self, name):
         return f'<i id="{name}"></i>\n' if name else ''
+
+    def format_credit(self, credit):
+        if credit:
+            return (f'Photo credit: <a href="photogs.cgi?id={credit["photographer.id"]}">'
+                    f'{credit["photographer.name"]}</a>')
+        return ''
 
 #    def format_bullet_list(self, descs):
 #        ostr = ''

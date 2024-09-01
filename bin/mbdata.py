@@ -322,7 +322,7 @@ countries = [
     ('ZW', "Zimbabwe"),
 ]
 
-IMG_SIZ_ENORMOUS = 'e'
+IMG_SIZ_LARGEST = IMG_SIZ_ENORMOUS = 'e'
 IMG_SIZ_GIGANTIC = 'g'
 IMG_SIZ_HUGE = 'h'
 IMG_SIZ_LARGE = 'l'
@@ -509,6 +509,9 @@ arts = {
     'Moving Parts': 'movingparts',
     'Speed Kings': 'speed-kings',
     'Mattel Creations': 'mattelcreations',
+    'SuperGT': 'supergt',
+    'Super Kings': 'super-kings',
+    'Skybusters': 'skybusters',
 }
 
 
@@ -544,6 +547,7 @@ LISTTYPE_CHECKLIST = 'ckl'
 LISTTYPE_THUMBNAIL = 'thm'
 LISTTYPE_TEXT = 'txt'
 LISTTYPE_CSV = 'csv'
+LISTTYPE_VAR_CSV = 'vcs'
 LISTTYPE_JSON = 'jsn'
 LISTTYPE_ADMIN = 'adl'
 LISTTYPE_PICTURE = 'pxl'
@@ -557,6 +561,7 @@ LISTTYPE_DESCR = 'vds'
 
 mime_types = {
     LISTTYPE_CSV: 'text/csv',
+    LISTTYPE_VAR_CSV: 'text/csv',
     LISTTYPE_JSON: 'application/json',
     LISTTYPE_TEXT: 'text/plain',
 }
@@ -706,6 +711,7 @@ base_logo_2 = [
     ('7', 'script Speed Kings'),
     ('8', 'straight MODELS OF YESTERYEAR'),
     ('9', 'italic MODELS OF YESTERYEAR'),
+    ('y', 'italic DINKY'),
     ('z', 'elephant'),
 ]
 base_logo_2_dict = dict(base_logo_2)
@@ -868,3 +874,17 @@ def bamcamark(year=9999):
     if year <= 2005:
         return 'bamca-4.gif'
     return 'bamca-5.gif'
+
+
+def find_vs_variations(ents, sec_id, ran_id):
+    # given a list of ents with "vs.sec_id" and "vs.ran_id", give back the relevant ones
+    if sec_id and ran_id:
+        mods = [x for x in ents if x['vs.sec_id'] == sec_id and x['vs.ran_id'] == ran_id]
+        if mods:
+            return mods
+    if sec_id:
+        mods = [x for x in ents if x['vs.sec_id'] == sec_id]
+        if mods:
+            return mods
+    mods = [x for x in ents if x['vs.sec_id'] == '']
+    return mods
