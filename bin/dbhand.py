@@ -760,8 +760,9 @@ class DBHandler(object):
                     varrec['vs'].append(vs)
         return varrecs
 
-    def fetch_variations_by_date(self, dt):
-        varrecs = self.fetch('variation,base_id', where=f"base_id.id=variation.mod_id and variation.date='{dt}'",
+    def fetch_variations_by_date(self, dt, wildcard=False):
+        dtq = f"variation.date like '{dt}%'" if wildcard else f"variation.date='{dt}'"
+        varrecs = self.fetch('variation,base_id', where=f"base_id.id=variation.mod_id and {dtq}",
                              order='variation.mod_id, variation.var', tag='VariationsByDate')
         return varrecs
 
@@ -799,7 +800,7 @@ class DBHandler(object):
         elif codes == 2:
             wheres.append(f'(v.flags & {config.FLAG_MODEL_CODE_2})!=0')
         args = list()
-        cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.text_description', 'v.text_base',
+        cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.date', 'v.text_description', 'v.text_base',
                 'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id']
         for key in varsq:
             wheres.extend([f"v.{key} like %s" for x in varsq[key]])
@@ -814,7 +815,7 @@ class DBHandler(object):
 
     def fetch_variation_query_by_id(self, mod_id, var_id):
         wheres = ['v.mod_id=casting.id', 'casting.id=base_id.id']
-        cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.text_description', 'v.text_base',
+        cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.date', 'v.text_description', 'v.text_base',
                 'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id']
         wheres.append(f'casting.id="{mod_id}"')
         wheres.append(f'v.var="{var_id}"')
@@ -824,7 +825,7 @@ class DBHandler(object):
         return varrecs
 
     def fetch_variation_by_select(self, mod_id=None, ref_id=None, sec_id="", ran_id="", category=None, verbose=False):
-        cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var',
+        cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'v.date',
                 'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.category', 'b.id', 'b.rawname']
         table = "variation_select vs"
         wheres = []
@@ -851,7 +852,7 @@ class DBHandler(object):
         return self.dbi.select(table, cols=cols, where=' and '.join(wheres), verbose=verbose, tag='VarBySelect')
 
     def fetch_variations_by_plant(self, mod_id, plant, verbose=False):
-        cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'v.manufacture']
+        cols = ['v.mod_id', 'v.date', 'v.text_description', 'v.picture_id', 'v.var', 'v.manufacture']
         where = f"v.mod_id='{mod_id}' and v.manufacture='{plant}'"
         table = 'variation v'
         # turn this into a fetch
@@ -1020,6 +1021,11 @@ class DBHandler(object):
                 self.write('variation_select', values=values, newonly=True, verbose=1, tag='UpdateVSForV')
         for vs in o_vs:
             self.delete_variation_select(where=f'id={vs["id"]}')
+
+    def update_variation_select(self, values):
+        id = values.get('id', values.get('variation_select.id', ''))
+        if id:
+            return self.write('variation_select', values=values, where=f"id='{id}'", modonly=True, tag='UpdateVarSel')
 
     # this needs to be native sec_id.ran_id instead of sub_id
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):
@@ -1330,11 +1336,17 @@ class DBHandler(object):
 
     # - matrix_model
 
-    def fetch_matrix_models(self, page_id, section=None):
-        where = "page_id='" + page_id + "'"
+    def fetch_matrix_model(self, page_id, section_id, range_id):
+        where = [f"page_id='{page_id}'", f"section_id='{section_id}'", f"range_id='{range_id}'"]
+        return self.fetch('matrix_model', where=self.make_where(where), one=True, tag='MatrixModel')
+
+    def fetch_matrix_models(self, page_id=None, section=None):
+        where = []
+        if page_id:
+            where.append(f"page_id='{page_id}'")
         if section:
-            where += " and section_id='" + section + "'"
-        return self.fetch('matrix_model', where=where, order='display_order', tag='MatrixModels')
+            where.append(f"section_id='{section}'")
+        return self.fetch('matrix_model', where=self.make_where(where), order='display_order', tag='MatrixModels')
 
     # select * from casting,lineup_model where casting.id=lineup_model.mod_id and lineup_model.year='2006'
     '''
@@ -1359,7 +1371,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         # Have to change this to: select matrix_model outer join casting outer join variation_select.
         table = "matrix_model"
         cols = self.make_columns(tabs=['base_id', 'casting', 'matrix_model', 'pack'])
-        cols.extend(['v.text_description', 'v.picture_id', 'v.var'])
+        cols.extend(['v.text_description', 'v.picture_id', 'v.var', 'v.date'])
         cols.extend(self.make_columns('variation_select', 'vs'))
         table += " left join base_id on (base_id.id=matrix_model.mod_id)"
         table += " left join casting on (casting.id=matrix_model.mod_id)"
@@ -1387,6 +1399,9 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     def insert_or_update_matrix_model(self, values, verbose=False):
         return self.write('matrix_model', values=values, tag='InsertOrUpdateMatrixModel', verbose=verbose)
+
+    def delete_matrix_models(self, page_id, sec_id):
+        return self.delete('matrix_model', where=f"page_id='{page_id}' and section_id='{sec_id}'")
 
     # - link_line
 
@@ -1838,6 +1853,11 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                     'path': path,
                     'name': name})
                 return self.delete('photo_credit', where=where, tag='DeletePhotoCredit', verbose=verbose)
+
+    def rename_photo_credit(self, pdir, old_name, new_name):
+        return self.write(
+            'photo_credit', {'name': new_name}, self.make_where({'name': old_name, 'path': pdir}),
+            modonly=True, tag='RenamePictures')
 
     def delete_photo_credit(self, id=None, path='', name=''):
         if id:

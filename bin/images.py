@@ -24,6 +24,41 @@ import useful
 # os.environ['PATH'] += ':/usr/local/bin'
 
 
+''' Just so ya know
+
+Image names and base IDs for prducts are YYYYCSSNNN...
+YYYY = year
+C = category
+    w = Worldwide
+    u = United States
+    r = Rest of World
+    b = Britain
+    d = Germany
+    a = Australia
+    j = Japan
+    l = Latin America
+    c = code 2
+    m = matrix
+    s = special (premium) series
+    p = pack
+        2-9 = number of vehicles in pack
+        l5 = licensed 5 pack
+        t = 10
+        w = 20
+        s = playset
+    e = ephemera (paper) (not currently but will move to this in the future)
+        a = advertisement
+        b = book
+        c = consumer catalog
+        d = dealer catalog
+        g = game
+        p = packaging
+        r = roadway
+        z = puzzle
+SS = subcategory
+NNN = number or name
+'''
+
 '''  API
 images.EditForm
 images.grab_url_file
@@ -145,11 +180,13 @@ ebay_ends = [
 
 
 def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
+    # print('grab_url_file', 'url', url, 'pdir', pdir, 'fn', fn, 'var', var, 'o/w', overwrite, 'desc', desc)
     url = url.strip()
     found = False
     for ebay_start in ebay_starts:
         for ebay_end in ebay_ends:
             if url.startswith(ebay_start) and url.endswith(ebay_end):
+                # print('webp convert')
                 url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.webp'
                 found = True
                 break
@@ -171,6 +208,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
         fn += url[url.rfind('.'):].lower()
     if '?' in fn:
         fn = fn[:fn.find('?')]
+    # print('saving', pdir, fn, overwrite, '<br>')
     fn = useful.file_save(pdir, fn, up, overwrite)
     if fn.endswith('.webp'):
         fn = imglib.webp_to_png(pdir, fn)
@@ -376,6 +414,8 @@ def upload_main(pif):
                 credit = ac[1]
                 break
         # pif.render.print_html()  # tmp
+        # print('pif', pif.__dict__, '<br>')
+        # print('upform', upform.__dict__, '<br>')
         fn = upform.grab_url_pic(pif)
         upform.carbon_copy(fn)
         # return ''  # tmp

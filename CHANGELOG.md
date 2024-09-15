@@ -1,3 +1,13 @@
+### 7.6.1  - 2024-08-15
+
+- Lots of work on administration scripts
+- Minor tweaks to UI
+- Added material "plastic"
+- Better implementation of variation selection on lineups
+- Bugfixing
+- Trying to add additional model sequences (moving parts, promos) to lineups,
+  but it's still not working right
+
 ### 7.6 - 2024-08-01
 
 - Many improvements to the administration scripts

@@ -494,6 +494,106 @@ def add_lm_save(pif):
     print(pif.render.format_tail())
 
 
+# ------- add lm_series -----------------------------------------
+
+
+def add_lm_series_main(pif):
+    region = 'X.11'
+    page_id = pif.form.get_raw('page_id')
+    section_id = pif.form.get_raw('section_id')
+    useful.write_message(pif.form)
+    if pif.form.get_raw('save'):
+        print(pif.render.format_head())
+        useful.header_done()
+        add_lm_series_final(pif)
+        print(pif.render.format_tail())
+        return
+    elif pif.form.get_raw('year'):
+        return add_lm_series_form(pif, page_id, section_id, region)
+    return add_lm_series_ask(pif, page_id, section_id)
+
+
+def add_lm_series_ask(pif, page_id, section_id):
+    rows = [
+        ('Year:', "year", ''),
+        ('Page ID:', "page_id", page_id),
+        ('Section ID:', "section_id", section_id),
+    ]
+    entries = [{'title': x[0], 'value': pif.form.put_text_input(x[1], 16, 16, value=x[2])} for x in rows]
+
+    lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
+                              header=pif.form.put_form_start(token=pif.dbh.create_token()) +
+                              '\n<input type="hidden" name="tymass" value="lm_series">\n',
+                              footer=pif.form.put_button_input('submit') + "</form>")
+    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+
+
+def add_lm_series_form(pif, page_id, section_id, region):
+    year = pif.form.get_raw('year')
+    page = pif.dbh.fetch_page(id=page_id)
+    section = pif.dbh.fetch_section(page_id=page_id, sec_id=section_id)
+    useful.write_message('page', str(page))
+    useful.write_message('section', str(section))
+    lm_list = pif.dbh.fetch_lineup_models_bare(year=year, region=region)
+    num = len(lm_list) + 1
+
+    header = '<hr>\n'
+    header += str(pif.form) + '<hr>\n'
+    header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
+    header += '<input type="hidden" name="verbose" value="1">\n'
+    header += '<input type="hidden" name="tymass" value="lm_series">\n'
+
+    linmod = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model(
+        where=f"mod_id='{page_id}' and picture_id='{section_id}'"))
+    linmod = linmod[0] if linmod else {
+        'id': 0,  # delete later
+        'base_id': '%sX11%02d' % (year, num),
+        'mod_id': page_id,
+        'number': num,
+        'display_order': num,
+        'flags': '0',
+        'style_id': 'lg',
+        'picture_id': section_id,
+        'region': region,
+        'year': year,
+        'name': page.get('title', '') + ' - ' + section.get('name'),
+        'page_id': 'year.' + year,
+    }
+    linmod['flags'] = linmod['flags'] or 0
+
+    llistix = render.Listix(note=header)
+    llistix.section.append(entry_form(pif, 'lineup_model', linmod))
+
+    footer = ''
+    footer += pif.form.put_button_input("save")
+    footer += '</form>\n'
+    footer += pif.render.format_button_link('see',
+                                            f"lineup.cgi?year={year}&region=U&listtype=&lty=series&submit=1") + ' '
+    footer += pif.render.format_button_link('edit',
+                                            f"editor.cgi?table=section&id={region}&page_id=year.{year}") + '<br>'
+    for lm in sorted(lm_list, key=lambda x: x['lineup_model.number']):
+        footer += f"{lm['lineup_model.number']}. {lm['lineup_model.name']} ({lm['lineup_model.display_order']})<br>\n"
+    llistix.section[-1].footer = footer
+
+    return pif.render.format_template('simplelistix.html', llineup=llistix)
+
+
+def add_lm_series_final(pif):
+    values = pif.dbh.make_values('lineup_model', pif.form, 'lineup_model.')
+    values['flags'] = values['flags'] or 0
+    if pif.form.get_int('lineup_model.id'):
+        print('update line_model', values, '<br>')
+        pif.dbh.update_lineup_model({'id': pif.form.get_int('lineup_model.id')}, values)
+    else:
+        print('new line_model', values, '<br>')
+        linmod = pif.dbh.fetch_lineup_model(
+            where="mod_id='%s' and picture_id='%s'" % (values['mod_id'], values['picture_id']))
+        if not linmod:  # goddamn bounciness
+            del values['id']
+            print('already<br>')
+            pif.dbh.insert_lineup_model(values)
+
+
 # ------- add casting ---------------------------------------------
 
 
@@ -521,6 +621,7 @@ def add_casting_main(pif):
             selected=pif.form.get_raw('section_id'))},
         {'title': 'Attributes:', 'value': pif.form.put_text_input('attributes', 80, 80)},
         {'title': 'Mack:', 'value': pif.form.put_text_input('mack', 8, 8)},
+        {'title': 'Related:', 'value': pif.form.put_text_input('related', 80, 80)},
         {'title': '', 'value': pif.form.put_button_input('save')},
     ]
 
@@ -566,6 +667,24 @@ def add_casting_final(pif):
             ostr += str(pif.dbh.add_alias(
                 {'id': pif.form.get_raw('mack'), 'first_year': pif.form.get_raw('year'),
                  'ref_id': casting_id, 'type': 'mack', 'flags': 2})) + '<br>\n'
+        if pif.form.get_raw('related'):
+            for rel_id in pif.form.get_raw('related').split(' '):
+                ostr += str(pif.dbh.add_casting_related({
+                    'model_id': casting_id,
+                    'related_id': rel_id,
+                    'section_id': 'single',
+                    'picture_id': '',
+                    'description': '',
+                    'flags': 0,
+                })) + '<br>\n'
+                ostr += str(pif.dbh.add_casting_related({
+                    'model_id': rel_id,
+                    'related_id': casting_id,
+                    'section_id': 'single',
+                    'picture_id': '',
+                    'description': '',
+                    'flags': 0,
+                })) + '<br>\n'
         os.mkdir(os.path.join('lib', 'man', casting_id.lower()), mode=0o775)
     print(pif.render.format_template('blank.html', content=ostr))
     raise useful.Redirect(f'single.cgi?id={casting_id}')
@@ -1067,8 +1186,9 @@ pack_sec = {
 pack_layout = {
     'rwps': '08s',
     'rwgs': '05s',
-    'sfgs': '04h',
+    'sfgs': '4xh',
     '5packs': '05v',
+    '3packs': '03v',
     'lic5packs': '05s',
     'launcher': '05s',
     '10packs': '10h',
@@ -1123,7 +1243,7 @@ def add_pack_form(pif):
             'section_id': section_id,
             'end_year': year,
             'region': 'W',
-            'layout': pack_layout.get(section_id, '5v'),
+            'layout': pack_layout.get(section_id, '05v'),
             'product_code': '',
             'material': 'C',
             'country': 'TH',
@@ -1883,6 +2003,7 @@ def add_matrix(pif):
 
 
 def add_matrix_ask(pif):
+    llineup = render.Listix()
     pid = pif.form.get_raw('id')
     if '.' in pid:
         pid = pid[pid.find('.') + 1:]
@@ -1901,9 +2022,22 @@ def add_matrix_ask(pif):
     footer = pif.form.put_hidden_input({'tymass': 'matrix'})
     footer += pif.form.put_hidden_input({'verbose': '1'})
     footer += "</form>"
-    lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
-                              header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    llineup.section.append(
+        render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
+                       header=header, footer=footer))
+    header = '<form action="vars.cgi" name="vars" method="post">' + pif.create_token()
+    entries = [
+        {'title': '', 'value': 'Model Search'},
+        {'title': 'MAN:', 'value': pif.form.put_text_input("mod", 12, 12)},
+        {'title': 'Body:', 'value': pif.form.put_text_input("text_body", 24, 24)},
+        {'title': 'Note:', 'value': pif.form.put_text_input("text_note", 24, 24)},
+        {'title': '', 'value': pif.form.put_button_input()},
+    ]
+    footer = pif.form.put_hidden_input({'edt': '1'})
+    footer += "</form>"
+    llineup.section.append(render.Section(
+        colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True, header=header, footer=footer))
+    return pif.render.format_template('simplelistix.html', llineup=llineup, nofooter=True)
 
 
 '''
@@ -1982,11 +2116,11 @@ def add_matrix_form(pif):
         'mod_id': page_id,
         'number': 0,
         'flags': 0,
-        'style_id': '',
+        'style_id': 'lg',
         'picture_id': section_id,
         'region': 'X.11',
         'year': year,
-        'name': section.get('section.name', ''),
+        'name': page.get('name', ''),
         'page_id': 'year.' + year,
     }
     linmod['flags'] = linmod['flags'] or 0
@@ -2023,7 +2157,7 @@ def add_matrix_model(pif, section, ref_id=None):
 
     if ref_id:
         models = pif.dbh.fetch_variation_by_select(ref_id=ref_id, sec_id=section['id'])
-        category = models[0]['vs.category'] if models else section.id
+        category = models[0]['vs.category'] if models else section['id'] if section else ''
         mmodels = {x['vs.ran_id']: {
             'matrix_model.section_id': section['id'],
             'matrix_model.display_order': x['vs.ran_id'],
@@ -2076,7 +2210,8 @@ def add_matrix_model(pif, section, ref_id=None):
         }
         for key, mod in sorted(mmodels.items())]
 
-    return render.Section(colist=cols, range=[render.Range(entry=entries)], header='matrix_model<br>'), category
+    return render.Section(colist=cols, range=[render.Range(entry=entries)], header='matrix_model<br>',
+                          note=pif.form.put_checkbox('mmclear', [('1', 'clear')], ['1'])), category
 
 
 def add_matrix_save(pif):
@@ -2095,6 +2230,10 @@ def add_matrix_save(pif):
         pif.dbh.insert_lineup_model(lineup_model, newonly=False)
     thisis = {'page_id': page_info['id'], 'section_id': section['id']}
     modvars = []
+    # this really likes making duplicates.  stahp.
+    if pif.form.get('mmclear') == '1':
+        print('clearing', page_info['id'], section['id'])
+        print(str(pif.dbh.delete_matrix_models(page_id=page_info['id'], sec_id=section['id'])) + '<br>')
     for root in pif.form.roots(start='mm.name'):
         mm = pif.form.get_dict(start='mm.', end=root)
         if not mm.get('mod_id'):
@@ -2469,6 +2608,7 @@ mass_mains_hidden = {
     'dates': dates_main,
     'photogs': photogs_main,
     'alias': aliases_main,
+    'lm_series': add_lm_series_main,
 }
 
 

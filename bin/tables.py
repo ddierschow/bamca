@@ -1018,7 +1018,7 @@ class Result(object):
     def __getitem__(self, key):
         rec = object.__getattribute__(self, '_record')
         tab = object.__getattribute__(self, '_table')
-        if '.' in key:
+        if isinstance(key, str) and '.' in key:
             k1, k2 = key.split('.', 1)
             return rec[k1][k2]
         elif key in rec:

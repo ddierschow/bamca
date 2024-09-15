@@ -60,8 +60,8 @@ def show_table(pif):
         return
     elif pif.form.has('save'):
         # rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
-        values = {x: save_val(x) for x in table_data.columns + table_data.extra_columns}
-        #    if table_data.saveid or x not in table_data.id}
+        values = {x: save_val(x) for x in table_data.columns + table_data.extra_columns
+                  if save_val(x) or table_data.saveid or x not in table_data.id}
         pif.dbh.write(
             table_data.name, values, pif.form.where(table_data.id, 'o_'), tag='ShowTableSave', verbose=True)
         pif.render.message('record saved')
@@ -71,10 +71,10 @@ def show_table(pif):
         pif.render.message('record deleted')
     elif pif.form.has('clone'):
         # this should be done in memory without saving yet
+        values = {x: save_val(x) for x in table_data.columns + table_data.extra_columns
+                  if save_val(x) or table_data.saveid or x not in table_data.id}
         pif.dbh.write(
-            table_data.name,
-            {x: save_val(x) for x in table_data.columns + table_data.extra_columns},
-            pif.form.where(table_data.id, 'o_'), newonly=True, tag='ShowTableClone')
+            table_data.name, values, pif.form.where(table_data.id, 'o_'), newonly=True, tag='ShowTableClone')
         # del pif.form.delete('id')
         pif.render.message('record cloned')
         pif.form.delete('clone')

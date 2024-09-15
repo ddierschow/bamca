@@ -469,34 +469,36 @@ def rename_variation(pif, mod_id=None, old_var_id=None, new_var_id=None, *args, 
 
 
 def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_id):  # pragma: no cover
-    if old_mod_id.lower() == new_mod_id.lower() and old_var_id.lower() == new_var_id.lower():
+    old_mod_id = old_mod_id.lower()
+    new_mod_id = new_mod_id.lower()
+    old_var_id = old_var_id.lower()
+    new_var_id = new_var_id.lower()
+    if old_mod_id == new_mod_id and old_var_id == new_var_id:
         return
-    patt1 = useful.relpath('.', config.IMG_DIR_VAR, '?_%s-%s.*' % (old_mod_id.lower(), old_var_id.lower()))
-    patt2 = useful.relpath('.', config.IMG_DIR_VAR, '%s-%s.*' % (old_mod_id.lower(), old_var_id.lower()))
-    pics = glob.glob(patt1.lower()) + glob.glob(patt2.lower())
+    patt1 = useful.relpath('.', config.IMG_DIR_VAR, '?_%s-%s.*' % (old_mod_id, old_var_id))
+    patt2 = useful.relpath('.', config.IMG_DIR_VAR, '%s-%s.*' % (old_mod_id, old_var_id))
+    pics = glob.glob(patt1) + glob.glob(patt2)
+    new_name = '%s-%s' % (new_mod_id, new_var_id)
+    old_name = '%s-%s' % (old_mod_id, old_var_id)
     for old_pic in pics:
-        new_pic = old_pic.replace('-%s.' % old_var_id.lower(), '-%s.' % new_var_id.lower())
-        new_pic = new_pic.replace('_%s-' % old_mod_id.lower(), '_%s-' % new_mod_id.lower())
+        new_pic = old_pic.replace('-%s.' % old_var_id, '-%s.' % new_var_id)
+        new_pic = new_pic.replace('_%s-' % old_mod_id, '_%s-' % new_mod_id)
         pif.render.comment("rename", old_pic, new_pic)
         useful.write_message("rename", old_pic, new_pic, "<br>")
         os.rename(old_pic, new_pic)
-    pif.dbh.write(
-        'photo_credit',
-        {'name': '%s-%s' % (new_mod_id.lower(), new_var_id.lower())},
-        pif.dbh.make_where({'name': '%s-%s' % (old_mod_id.lower(), old_var_id.lower()),
-                            'path': config.IMG_DIR_VAR[1:]}),
-        modonly=True, tag='RenamePictures')
+    pif.dbh.rename_photo_credit(config.IMG_DIR_VAR[1:], old_name, new_name)
 
 
 def remove_picture(pif, mod_id, var_id):  # pragma: no cover
-    patt1 = '.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id, var_id)
-    patt2 = '.' + config.IMG_DIR_VAR + '/%s-%s.*' % (mod_id, var_id)
-    pics = glob.glob(patt1.lower()) + glob.glob(patt2.lower())
+    mv_id = f"{mod_id}={var_id}".lower()
+    patt1 = f'.{config.IMG_DIR_VAR}/?_{mv_id}.*'
+    patt2 = f'.{config.IMG_DIR_VAR}/{mv_id}.*'
+    pics = glob.glob(patt1) + glob.glob(patt2)
     for pic in pics:
         pif.render.comment("delete", pic)
         useful.write_message("delete", pic, "<br>")
         os.unlink(pic)
-    cred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s' % (mod_id, var_id))
+    cred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mv_id)
     if cred:
         pif.dbh.delete_photo_credit(cred['photo_credit.id'])
 

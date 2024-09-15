@@ -27,6 +27,7 @@ c|man/fab1    |DT|RollsRoyceFAB1
 c|man/fea01   |DT|00ChevySuburbanPolice
 c|man/fea01   |MBXU|SFFC01
 c|man/fea01   |PSDC|FC01-
+c|man/fea02   |DT|ChevyImpalaPolice
 c|man/fea02   |MBXU|SFFC02
 c|man/fea02   |PSDC|FC02-
 c|man/fea03   |MBXU|SFFC03
@@ -3376,6 +3377,7 @@ c|man/mb1204  |DT|56PowellSportPickup
 c|man/mb1205  |DT|16AlfaRomeoGiulia
 c|man/mb1206  |DT|95NissanHardbody_D21_
 c|man/mb1207  |DT|41CadillacSeries62
+c|man/mb1207b |DT|41CadillacSeries62
 c|man/mb1208  |DT|LEVCTXTaxi
 c|man/mb1209  |DT|76HondaCVCC
 c|man/mb1210  |DT|20JeepGladiator
@@ -3482,6 +3484,7 @@ c|man/mb1308  |DT|Porsche911RSR
 c|man/mb1309  |DT|21MazdaMX-30
 c|man/mb1310  |DT|19RamAmbulance
 c|man/mb1311  |DT|95VWGolfMk3
+c|man/mb1312  |DT|93BMWE30M3
 c|man/mb1313  |DT|FordGT40
 c|man/mb1314  |DT|18NissanLeaf
 c|man/mb1315  |DT|SeagraveFireTruck
@@ -3563,6 +3566,7 @@ c|man/mb1424  |DT|77JaguarXJ6C
 c|man/mb1430  |DT|68ChevyC10
 c|man/mb1432  |DT|70FordBronco
 c|man/mb1433  |DT|64LincolnContinental
+c|man/mb1440  |DT|23FordPoliceInterceptorUtility
 c|man/mb1451  |DT|73BMW3_0CSL
 c|man/mb1453  |DT|23AudiRS6Avant
 c|man/mb1457  |DT|70AMCJavelin
@@ -4775,3 +4779,11 @@ c|man/wrp01   |DT|96PontiacGrandPrix
 c|man/wrp01   |MBXU|SFWRP01A
 c|man/wrp02   |DT|FordThunderbirdStockCar
 c|man/wrp02   |MBXU|SFWRP02A
+
+c|man/mb1145  |DT|59VWMicrobus
+c|man/mb1281  |DT|22RenaultM_gane
+c|man/mb1762  |DT|1762GoldStateCoach
+c|man/mb1466  |DT|22JaguarI-Pace
+c|man/mb1464  |DT|95ChevyC1500
+c|man/mb1452  |DT|62FordAnglia
+c|man/mb269   |DT|93PontiacGrandPrixStockCar

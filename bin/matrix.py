@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+import glob
+import os
 import re
 
 import basics
@@ -49,6 +51,7 @@ class MatrixFile(object):
             return None
         if ent.get('v.text_description'):
             ent['description'].append(ent['v.text_description'])
+            # + (' (' + ent['v.date'] + ')' if ent.get('v.date') else ''))
         if ent.get('matrix_model.description'):
             ent['description'].extend(ent['matrix_model.description'].split(';'))
         ent['description'] = [x for x in ent['description'] if x]
@@ -261,7 +264,12 @@ class MatrixFile(object):
                     elif len(self.dates) > 1:
                         section.name += " %s-%s" % (dates[0], dates[-1])
                 else:
-                    section.name += " (%s/%s)" % (pif.page_id, section.id) + ' '
+                    lm = pif.dbh.fetch_lineup_model(f"mod_id='{pif.page_id}' and picture_id='{section.id}'")
+                    section.name += f' ({pif.page_id}/{section.id}) '
+                    section.name += pif.render.format_link(
+                        f"mass.cgi?tymass=lm_series&page_id={pif.page_id}&section_id={section.id}",
+                        f'<i class="fas fa-star {"green" if lm else "red"}"></i> '
+                    )
                     section.name += pif.render.format_button_link(
                         "add", "editor.cgi?table=matrix_model&page_id=%s&section_id=%s&add=1" %
                         (pif.page_id, section.id))
@@ -349,7 +357,8 @@ class MatrixFile(object):
 
         ent['href'] = ''
         if ent['model_type'] == 'MP':
-            ent['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(mod_id)s" % ent
+            # ent['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(mod_id)s" % ent
+            ent['href'] = "packs.cgi?page=&id=%(mod_id)s" % ent
         elif not ent['mod_id']:
             img = pif.render.find_image_path(ent['link'], largest='h')
             if img:
@@ -447,3 +456,160 @@ def cats_main(pif):
         llineup = matf.matrix(pif)
         return pif.render.format_template('matrix.html', llineup=llineup.prep())
     return pif.render.format_template('simpleulist.html', llineup=select_cats(pif))
+
+
+def check_pics(pif):
+    fmts = {(x['section.page_id'], x['section.id']): x['section.link_format']
+            for x in pif.dbh.fetch_sections(where='page_id like "matrix.%"')}
+    probs = {}
+    for ent in pif.dbh.fetch_matrix_models():
+        fmt = fmts.get((ent['matrix_model.page_id'], ent['matrix_model.section_id']), '')
+        is_num_id = d_re.search(fmt)
+        range_id = int(ent['matrix_model.range_id'] or 0) if is_num_id else ent['matrix_model.range_id']
+        image = useful.clean_name((fmt % range_id) if '%' in fmt else fmt, '/')
+        if image != ent['matrix_model.base_id']:
+            probs.setdefault(ent['matrix_model.page_id'], set())
+            probs[ent['matrix_model.page_id']].add(ent['matrix_model.section_id'])
+    for k, v in sorted(probs.items()):
+        print(k, ' '.join(sorted(v)))
+
+
+def check_dups(pif):
+    count = {}
+    found = []
+    for mm in pif.dbh.fetch_matrix_models():
+        del mm['matrix_model.id']
+        del mm['matrix_model.display_order']
+        if mm in found:
+            print(mm)
+        found.append(mm)
+        count.setdefault((mm['matrix_model.page_id'], mm['matrix_model.section_id']), 0)
+        count[(mm['matrix_model.page_id'], mm['matrix_model.section_id'])] += 1
+#    print(len(found))
+#    for k, v in count.items():
+#        print(v, '.'.join(k))
+
+
+def move_section(pif, section_id, old_page_id, new_page_id):
+    sec = pif.dbh.fetch_section(sec_id=section_id, page_id=old_page_id)
+    if not sec:
+        print('no section')
+        return
+    old_page = pif.dbh.fetch_page(old_page_id)
+    if not old_page:
+        print('no old_page')
+        return
+    new_page = pif.dbh.fetch_page(new_page_id)
+    if not new_page:
+        print('no new_page')
+        return
+    print('section')
+    sec['section.page_id'] = new_page_id
+    print(pif.dbh.insert_or_update_section(sec.todict()))
+    print('matrix_model')
+    for model in pif.dbh.fetch_matrix_models(page_id=old_page_id, section=section_id):
+        model['matrix_model.page_id'] = new_page_id
+        print(pif.dbh.insert_or_update_matrix_model(model))
+    print('variation_select')
+    for vs in pif.dbh.fetch_variation_selects_for_ref(old_page_id, section_id):
+        vs['ref_id'] = new_page_id
+        print(pif.dbh.update_variation_select(vs))
+    print('lineup_model')
+    for lm in pif.dbh.fetch_lineup_model({'mod_id="{old_page_id}" and picture_id="{section_id}"'}):
+        lm['lineup_model.mod_id'] = new_page_id
+        print(pif.dbh.update_lineup_model('id={lm["lineup_model.id"]', lm))
+
+
+def set_base_id(pif, page_id, section_id, new_lfmt):
+    sec = pif.dbh.fetch_section(sec_id=section_id, page_id=page_id)
+    if not sec:
+        print('no section')
+        return
+    page = pif.dbh.fetch_page(page_id)
+    if not page:
+        print('no page')
+        return
+    pdir = sec['section.pic_dir'] or page['page_info.pic_dir']
+    old_lfmt = sec['section.link_format']
+    is_old_num_id = d_re.search(old_lfmt)
+    is_new_num_id = d_re.search(new_lfmt)
+    sec['section.link_format'] = new_lfmt
+    print(sec)
+    print(pif.dbh.insert_or_update_section(sec.todict()))
+    for model in pif.dbh.fetch_matrix_models(page_id=page_id, section=section_id):
+        range_id = int(model['matrix_model.range_id'] or 0) if is_old_num_id else model['matrix_model.range_id']
+        model['matrix_model.base_id'] = (new_lfmt % int(range_id)) if is_new_num_id else (new_lfmt % range_id)
+        model['matrix_model.range_id'] = int(range_id) if is_new_num_id else range_id
+        print(old_lfmt % range_id, model['matrix_model.base_id'])
+        print(pif.dbh.insert_or_update_matrix_model(model))
+        rename_series_pictures(pif, pdir, old_lfmt % range_id, model['matrix_model.base_id'])
+
+
+# want to do r - rename id
+# given page_id sec_id old_ran_id new_ran_id
+# fix matrix_model
+# fix variation_select
+# rename pictures
+def rename_range_id(pif, page_id, section_id, old_range_id, new_range_id):
+    page = pif.dbh.fetch_page(page_id)
+    if not page:
+        print('no page')
+        return
+    sec = pif.dbh.fetch_section(sec_id=section_id, page_id=page_id)
+    if not sec:
+        print('no section')
+        return
+    pdir = sec['section.pic_dir'] or page['page_info.pic_dir']
+    lfmt = sec['section.link_format']
+    mm = pif.dbh.fetch_matrix_model(page_id, section_id, old_range_id)
+    if not mm:
+        print('no matrix model')
+        return
+    is_num_id = d_re.search(lfmt)
+    mm['matrix_model.range_id'] = new_range_id
+    old_range_id = int(old_range_id or 0) if is_num_id else old_range_id
+    new_range_id = int(new_range_id or 0) if is_num_id else new_range_id
+    mm['matrix_model.base_id'] = lfmt % new_range_id
+    print(lfmt % old_range_id, mm['matrix_model.base_id'])
+    print(pif.dbh.insert_or_update_matrix_model(mm))
+    rename_series_pictures(pif, pdir, lfmt % old_range_id, mm['matrix_model.base_id'])
+
+
+def rename_series_pictures(pif, pdir, old_name, new_name):  # pragma: no cover
+    old_name = old_name.lower()
+    new_name = new_name.lower()
+    if old_name == new_name:
+        return
+    patt1 = useful.relpath('.', pdir, '?_%s.*' % old_name)
+    pics = glob.glob(patt1)
+    for old_pic in pics:
+        new_pic = old_pic.replace('_%s.' % old_name, '_%s.' % new_name)
+        pif.render.comment("rename", old_pic, new_pic)
+        useful.write_message("rename", old_pic, new_pic, "<br>")
+        os.rename(old_pic, new_pic)
+        pif.dbh.rename_photo_credit(pdir, old_name, new_name)
+
+    patt2 = useful.relpath('.', pdir, '%s.*' % old_name)
+    pics = glob.glob(patt2)
+    for old_pic in pics:
+        new_pic = old_pic.replace('%s.' % old_name, '%s.' % new_name)
+        pif.render.comment("rename", old_pic, new_pic)
+        useful.write_message("rename", old_pic, new_pic, "<br>")
+        os.rename(old_pic, new_pic)
+        pif.dbh.rename_photo_credit(pdir, old_name, new_name)
+
+
+cmds = [
+    ('p', check_pics, "check pics"),
+    ('d', check_dups, "check dups"),
+    ('m', move_section, "move section: section_id old_page_id new_page_id"),
+    ('b', set_base_id, "set base id: page_id section_id new_link_format"),
+    ('r', rename_range_id, "rename range id base id: page_id section_id old_range_id new_range_id"),
+]
+
+
+# ---- ---------------------------------------
+
+
+if __name__ == '__main__':  # pragma: no cover
+    basics.process_command_list(cmds=cmds, page_id='editor', dbedit='')

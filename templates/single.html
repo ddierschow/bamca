@@ -141,6 +141,11 @@
 {% endfor %}
 </td></tr>
 {% endif %}
+{% if revised %}
+<tr><td colspan="{{ info_cols }}">
+<img src="/pic/gfx/revcasting.gif">
+</td></tr>
+{% endif %}
 {% if model.notes %}
 <tr><th colspan="{{ info_cols }}">Notes</th></tr>
 <tr><td colspan="{{ info_cols }}">

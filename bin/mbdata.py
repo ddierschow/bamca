@@ -488,6 +488,7 @@ materials = {
     'W': 'window box',
     'X': 'box',
     'L': 'lucite box',
+    'P': 'plastic',
     'U': 'unknown',
     '': 'unknown',
 }
@@ -828,6 +829,8 @@ def get_mack_number(cid):
 
 
 def get_region_tree(region):
+    if region.startswith('X'):
+        return [region]
     line_regions = list()
     lreg = region.upper()
     while lreg:

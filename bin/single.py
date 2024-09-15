@@ -14,6 +14,7 @@ import render
 import useful
 
 # http://beta.bamca.org/cgi-bin/single.cgi?dir=pic/prod/mworld&pic=2017u079&ref=year.2017&sub=67&id=MB895
+# fun fact: MB128 has the most different values for "manufacture" (6).
 
 
 def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
@@ -305,9 +306,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         if pic:
             links.append('')
             prodstar = 'fas fa-star white'
-            prod = pic
-            prod += ' <a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fas fa-upload"></i></a>' % (
-                    pdir.replace('pic', 'lib'), pic, pic, useful.url_quote(pif.request_uri))
+            prod = '<a href="upload.cgi?d=%s&n=%s&c=%s&link=%s"><i class="fas fa-upload"></i></a>' % (
+                pdir.replace('pic', 'lib'), pic, pic, useful.url_quote(pif.request_uri))
             prodpic = pif.render.find_image_path(pic, pdir=pdir, largest="m")
             if lm_pic_id:
                 prod = '<i class="%s"></i>\n' % prodstar + prod
@@ -330,6 +330,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
                 if ref_link:
                     prod += pif.render.format_link(ref_link, ' <i class="fas fa-edit"></i>')
                 prod += ' <a href="%s&useprev=1"><i class="fas fa-step-backward"></i></a>' % pif.request_uri
+            prod = pic + '<br>' + prod
             links.append(prod)
         links.append('')
         vfl = pif.dbh.fetch_variation_files(mod_id)
@@ -427,7 +428,7 @@ def show_lineup_appearances(pif, appearances):
                 appear = sorted(yd[yr]['X'])[0]
                 entry = {'': f'<b>{yr}</b>',
                          'W': f'<a href="lineup.cgi?year={yr}&region=U&lty=all#X{appear}">{show_as}</a>'}
-            entries.append(entry)
+                entries.append(entry)
     else:
         columns = [''] + rl
         for yr in sorted(yd.keys()):
@@ -495,18 +496,25 @@ def show_single(pif):
     sec = pif.form.get_str('sec')
     ran = pif.form.get_str('ran')
     reg = sec if sec else pic[4] if (ref.startswith('year') and len(pic) > 4 and pic[:4].isdigit()) else ''
+    if reg.startswith('X'):
+        reg = 'X.' + reg[1:]
     reg_list = mbdata.get_region_tree(reg) + ['']
+    sec_list = mbdata.get_region_tree(sec) + ['']
     mod_id = model['id']
     pif.render.hierarchy_append('/', 'Home')
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append('/cgi-bin/single.cgi', 'By ID')
     pif.render.hierarchy_append('/cgi-bin/single.cgi?id=%s' % mod_id, mod_id)
 
+    useful.write_comment('ARGS', mod_id, 'P', pdir, pic, 'Ref', ref, '/', sec, sec_list, '.', ran, 'Rg', reg, reg_list)
+
     pif.render.comment('id=', mod_id, 'man=', model)
     raw_variations = variations = []
     if ref:
-        raw_variations = pif.dbh.fetch_variation_by_select(mod_id, ref, sec_id=reg_list, ran_id=ran)
+        raw_variations = pif.dbh.fetch_variation_by_select(mod_id, ref, sec_id=sec_list, ran_id=ran)
         variations = reduce_variations(pif, mod_id, raw_variations)
+        useful.write_comment('RVARS', raw_variations)
+        useful.write_comment('VARS', variations)
     base_names = pif.dbh.fetch_variation_base_names(mod_id)
     # years 1971 to 1981 needs to cleave W to U and R
     lineup_appearances = list()
@@ -609,14 +617,17 @@ def show_single(pif):
         }
 
     model['makes'] = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
-    adds = [make_boxes(pif, mod_id, boxstyles, [x['alias.id']
-            for x in pif.dbh.fetch_aliases(mod_id, 'mack')])] if boxstyles else []
-    adds += models.make_adds(pif, mod_id)
+    # move these to left pane
+    boxes = [make_boxes(pif, mod_id, boxstyles, [x['alias.id']
+             for x in pif.dbh.fetch_aliases(mod_id, 'mack')])] if boxstyles else []
+    adds = boxes + models.make_adds(pif, mod_id)
 
     plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))
     relateds = pif.dbh.fetch_casting_relateds(mod_id)
     aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
     mack_nums = get_mack_numbers(pif, mod_id, model['model_type'], aliases)
+    if model:
+        model['notes'] = '<br>'.join((model.get('notes', '') or '').split(';'))
 
     # ------- render ------------------------------------
 
@@ -655,6 +666,7 @@ def show_single(pif):
                       int(bool(model['scale'])) + int(bool(model['country'])) + int(bool(model['first_year']))),
         'man_cat': pif.render.format_link('/cgi-bin/manno.cgi?section={}#{}'.format(model['section_id'], mod_id),
                                           model['section.name']),
+        'revised': model['flags'] & config.FLAG_MODEL_CASTING_REVISED,
         # 'group': pif.render.find_image_path(mod_id, prefix='g', pdir=config.IMG_DIR_ADD)
     }
     return pif.render.format_template('single.html', **context)

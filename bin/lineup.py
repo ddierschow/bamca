@@ -146,9 +146,11 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
 
 
 def create_lineup(pif, mods, year, lsec, fdebug=False):
+    useful.write_comment('CLS', year, lsec)
     region = lsec['id']
+    vssec = region.replace('.', '')
     is_extra = region.startswith('X')
-    regions = [region] if is_extra else mbdata.get_region_tree(region) + ['']
+    regions = [vssec] if is_extra else mbdata.get_region_tree(region) + ['']
 
     # 1. lay down model list from current region only.
     mods.sort(key=lambda x: (x['lineup_model.number'], x['lineup_model.display_order'],))
@@ -160,14 +162,18 @@ def create_lineup(pif, mods, year, lsec, fdebug=False):
         if (mod['lineup_model.number'], mod['lineup_model.display_order'],) not in foundlist:
             if ((not mod['vs.ran_id'] or not mod['vs.ran_id'].isdigit() or
                     int(mod['vs.ran_id']) == mod['lineup_model.number']) and
-                    ((is_extra and region == mod['lineup_model.region']) or not is_extra)):
+                    ((is_extra and region == mod['lineup_model.region'] and
+                      mod['vs.sec_id'] == vssec or not mod['vs.sec_id']) or
+                     not is_extra)):
                 pass  # we're good, now add it below
             elif mod['lineup_model.flags'] & config.FLAG_MODEL_NOT_MADE:
                 # see 2019:3 vs :99.  if #3 has vs and #99 doesn't, that ^ can't show #99.
                 mod = {k: v for k, v in mod.items() if not (k.startswith('v.') or k.startswith('vs.'))}
             else:
                 continue
-            modlist.append(calc_lineup_model(pif, lsec, year, region, pif.dbh.make_lineup_item(mod)))
+            lm = pif.dbh.make_lineup_item(mod)
+            useful.write_comment('CL', lsec, year, region, lm)
+            modlist.append(calc_lineup_model(pif, lsec, year, region, lm))
             foundlist.append((mod['lineup_model.number'], mod['lineup_model.display_order'],))
 
     # 2. edit model list for only entries we're interested in
@@ -211,10 +217,10 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
         if fdebug:
             print('CHECK', region)
         for rmod in rmods:
-            if (region.startswith('X') or
+            if ((region.startswith('X') and not rmod['vs.sec_id']) or
                     (rmod['lineup_model.number'] == curmod['number'] and
                      rmod['lineup_model.display_order'] == curmod['display_order'] and
-                     (rmod['vs.sec_id'] == region or rmod['vs.sec_id'] == str(curmod['number'])))):
+                     rmod['vs.sec_id'] == region)):
                 # add to cvarlist
                 for var in curmod['cvarlist']:
                     if rmod['v.var'] in var['var_ids']:
@@ -313,8 +319,9 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
             })
 
     # generate extra sections
-    lmods = pif.dbh.fetch_lineup_models(year, [x['id'] for x in xsecs])
+    # lmods = pif.dbh.fetch_lineup_models(year, [x['id'] for x in xsecs])
     for sec in xsecs:
+        lmods = pif.dbh.fetch_lineup_models(year, sec['id'])
         sec['mods'] = create_lineup(pif, lmods, year, sec, fdebug)
 
     return mainsec, secs, xsecs
@@ -1177,6 +1184,54 @@ def make_lineup(pif, year, fn):
             # add_variation_select(pif, mod, year, '')
 
 
+def generate_promos(pif, year):
+    lineup_page_id = 'year.' + year
+    vars = pif.dbh.fetch_variations_by_date(year, wildcard=True)
+    for var in vars:
+        if 'PR' in var['variation.category'].split(' '):
+            nvs = {
+                'mod_id': var['variation.mod_id'],
+                'var_id': var['variation.var'],
+                'ref_id': lineup_page_id,
+                'sec_id': 'X17',
+                'ran_id': '',
+                'category': 'PR',
+            }
+            print(nvs)
+            print(pif.dbh.write('variation_select', values=nvs, newonly=True, tag='WriteVarSel'))
+    print()
+    vslist = sorted(pif.dbh.fetch_variation_selects_by_ref(ref_id=lineup_page_id, sec_id='X17'),
+                    key=lambda x: x['variation.date'])
+    for number, vs in enumerate(vslist, start=1):
+        lm = {
+            'base_id': f'{year}X17{number:02}',
+            'mod_id': vs['base_id.id'],
+            'number': number,
+            'display_order': number,
+            'flags': 0,
+            'style_id': 'lg',
+            'picture_id': '',
+            'region': 'X.17',
+            'year': year,
+            'page_id': lineup_page_id,
+            'name': vs['base_id.rawname'].replace(';', ' '),
+        }
+        nvs = {
+            'id': vs.get('variation_select.id'),
+            'mod_id': vs['base_id.id'],
+            'var_id': vs['variation.var'],
+            'ref_id': lineup_page_id,
+            'sec_id': 'X17',
+            'ran_id': number,
+            'category': 'PR',
+        }
+        print(vs['variation.date'])
+        print(lm)
+        print(pif.dbh.insert_lineup_model(lm))
+        print(nvs)
+        print(pif.dbh.update_variation_select(nvs))
+
+
 def generate_lineup(pif, ref_id):
     vslist = sorted(pif.dbh.fetch_variation_selects_by_ref(ref_id=ref_id), key=lambda x: x['variation.date'])
     if ref_id.startswith('year.'):
@@ -1292,6 +1347,7 @@ cmds = [
     ('l', list_lineups, "list lineups"),
     ('m', make_lineup, "make lineup"),
     ('g', generate_lineup, "generate lineup"),
+    ('gp', generate_promos, "generate promos"),
     ('dl', detect_lineup, "detect lineup: year"),
     # ('x', check_lineup, "check lineup"),
     ('s', show_sections, "show sections"),

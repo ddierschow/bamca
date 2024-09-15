@@ -19,27 +19,23 @@ import useful
 pack_layout_keys = ['columns', 'colspan', 'rowspan', 'picsize']
 pack_layouts = {
     '01s': [1, 1, 1, 'h'],
-    '02h': [2, 2, 1, 'h'],
     '02v': [2, 1, 2, 'l'],
-    '03h': [3, 3, 1, 'h'],
     '03v': [2, 1, 3, 'm'],
-    '04h': [4, 4, 1, 'h'],
     '04v': [2, 1, 4, 'm'],
     '05h': [4, 3, 1, 'l'],
     '05l': [2, 1, 3, 'l'],
     '05s': [3, 2, 2, 'l'],
     '05v': [2, 1, 5, 'm'],
-    '06h': [3, 3, 1, 'h'],
     '06s': [3, 2, 3, 'l'],
     '06v': [2, 1, 4, 'm'],
     '07s': [4, 3, 3, 'l'],
-    '08h': [4, 4, 1, 'h'],
     '08s': [3, 2, 2, 'l'],
     '08v': [4, 3, 4, 'm'],
-    '09h': [3, 3, 1, 'h'],
     '10h': [4, 3, 2, 'l'],
     '10v': [3, 2, 4, 'm'],
-    '20h': [4, 4, 1, 'h'],
+    '2xh': [2, 2, 1, 'h'],
+    '3xh': [3, 3, 1, 'h'],
+    '4xh': [4, 4, 1, 'h'],
 }
 
 
@@ -106,17 +102,20 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
                                   '<font color="red">%s</font>' % pack['layout'])
                 pack['page'] = pif.form.get_str('page')
                 pack['regionname'] = mbdata.regions[pack['region']]
-                pack['name'] = '<a href="?page=%(page)s&id=%(id)s">%(name)s</a>' % pack
                 pack['pic'] = mbdata.comment_icon.get('c') if imgsizes(
                     pif, pif.render.pic_dir, pack['id'].lower()) else ''
                 pack['material'] = mbdata.materials.get(pack['material'], '')
+                if pack['flags'] & config.FLAG_MODEL_NOT_MADE:
+                    pack['product_code'] = '<i class="fas fa-ban red"></i>'
+                else:
+                    pack['name'] = '<a href="?page=%(page)s&id=%(id)s">%(name)s</a>' % pack
                 has_note = has_note or bool(pack['note'])
                 if verbose:
                     modify_pack_admin(pif, pack)
                 entries.append(pack)
         if not entries and not pif.is_allowed('a'):
             continue
-        entries.sort(key=lambda x: (x[pif.form.get_str('order', 'name')], x['name'], x['first_year']))
+        entries.sort(key=lambda x: (x[pif.form.get_str('order', 'first_year')], x['rawname'], x['first_year']))
         if pif.is_allowed('a'):  # pragma: no cover
             if format_type == 'packs':
                 lsec.name += ' ' + pif.render.format_button_link(
@@ -133,7 +132,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
         'page_id': pif.page_id,
         'years': sorted(years),
         'regions': [(x, mbdata.regions[x]) for x in sorted(regions)],
-        'materials': [(x, mbdata.materials[x]) for x in sorted(materials)],
+        'materials': [(x, mbdata.materials.get(x, 'unknown')) for x in sorted(materials)],
         'llineup': llineup.prep(),
         'section_id': sec_id,
         'num': num_mods,
@@ -202,7 +201,7 @@ def do_single_pack(pif, format_type, pid):
         elif not pmodels:
             layout = pack_layouts['01s']
         else:
-            layout = pack_layouts.get(pack['layout'], pack_layouts['04h'])
+            layout = pack_layouts.get(pack['layout'], pack_layouts['4xh'])
         if len(layout) == 2:
             layout[3] = 1
         if len(layout) == 3:
@@ -233,7 +232,7 @@ def do_single_pack(pif, format_type, pid):
     # left bar
     left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        left_bar_content += f'<br><center>{page_id}/{pack_id}<p>'
+        left_bar_content += f'<br><center><span style="font-size: x-small;">{page_id}/{pack_id}</span><p>'
         left_bar_content += ('<p><b><a href="%s">Base ID</a></b><br>\n' %
                              pif.dbh.get_editor_link('base_id', {'id': pack_id}))
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
@@ -242,10 +241,13 @@ def do_single_pack(pif, format_type, pid):
         left_bar_content += (
             '<b><a href="mass.cgi?verbose=1&tymass=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' %
             (packs[0]['section_id'], pack_id))
-        left_bar_content += ('<b><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' %
+        # would like to pass in picsize (layout[3])
+        left_bar_content += ('<p><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' %
                              (pif.render.pic_dir.replace('pic', 'lib'), pack_id))
         left_bar_content += ('<b><a href="upload.cgi?d=./%s&n=%s">Contents</a><br>\n' %
                              (pif.render.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id))
+        left_bar_content += ('<b><a href="upload.cgi?d=./%s&n=%s&m=%s&c=%s">Man</a><br>\n' %
+                             (config.IMG_DIR_MAN.replace('pic', 'lib'), pack_id, pack_id, pack_id))
         left_bar_content += '</center>\n'
 
     pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))

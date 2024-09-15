@@ -484,7 +484,7 @@ def single_publication(pif, pub_id):
 
     upper_box = ''
     if imgs:
-        upper_box += pif.render.format_image_link_image(imgs[0], link_largest=mbdata.IMG_SIZ_LARGE)
+        upper_box += pif.render.format_image_link_image(imgs[0], link_largest=mbdata.IMG_SIZ_HUGE)
     # else:
     #     upper_box += pif.render.format_image_link_image(img, link_largest=mbdata.IMG_SIZ_LARGE)
     if man['base_id.description']:
@@ -502,8 +502,9 @@ def single_publication(pif, pub_id):
 
     pif.render.set_button_comment(pif, 'id=%s' % pub_id)
     llineup.dump()
+
     context = {
-        'title': man.get('name', ''),
+        'title': man.name,
         'note': '',
         'type_id': 'p_' + sec.id,
         # 'icon_id': pub_id,

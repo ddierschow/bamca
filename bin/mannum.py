@@ -760,14 +760,14 @@ class MannoFile(object):
     def write_vehicle_types(self, pif):
         for key in pif.form.keys(start='vt_'):
             val = ''.join(pif.form.get_list(key))
-            # print(key[3:], 'type', val, '<br>')
+            # useful.write_message(key[3:], 'type', val, '<br>')
             pif.dbh.write_casting(values={'vehicle_type': val}, id=key[3:])
         for key in pif.form.keys(start='vm_'):
-            # print(key[3:], 'make', pif.form.get_str(key), '<br>')
+            # useful.write_message(key[3:], 'make', pif.form.get_str(key), '<br>')
             pif.dbh.write_casting(values={'make': pif.form.get_str(key)}, id=key[3:])
             pif.dbh.update_casting_make(key[3:], pif.form.get_str(key), verbose=True)
         for key in pif.form.keys(start='co_'):
-            # print(key[3:], 'country', pif.form.get_str(key), '<br>')
+            # useful.write_message(key[3:], 'country', pif.form.get_str(key), '<br>')
             pif.dbh.write_casting(values={'country': pif.form.get_str(key)}, id=key[3:])
 
     def run_vehicle_type_list_template(self, pif):

@@ -30,7 +30,7 @@ June 9, 2017 - Added several missing models: CY002A, CY003B, CY011A, CY013A, CY0
 CY036A, CY037A, CY038A, CY104A, CY104B, CY107A, CY109A, CY110A, CY111A, CY112A, CY113A.  Added TP models.<br>
 June 8, 2017 - Rewrote everything in sight.  Now looking for things to add.<br>
 June 5, 2017 - Removed "year" pages.  There's not yet enough information to support them the way I'd like to.
-Also removed the "straight trucks" page, as the BAMCA site cuvers these very well.
+Also removed the "straight trucks" page, as the BAMCA site covers these very well.
 June 4, 2017 - After looking for these pages and finding them gone, I got in touch with John.  He was kind enough to
 send me a copy of his final snapshot, and gave me permission to modify them as I saw fit.  I am starting the process of
 rewriting these and extending them for inclusion on the BAMCA website.<br>

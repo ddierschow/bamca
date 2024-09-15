@@ -182,7 +182,7 @@ class DB(object):
 
     def insert_or_update(self, table, values, args=None, logargs=True, tag='', verbose=None):
         if self.db:
-            setlist = ','.join([x + "=" + self.db.literal(str(values[x])) for x in values])
+            setlist = ','.join([x + "=" + self.db.literal(str(y)) for x, y in values.items()])
             cols = []
             vals = []
             for item in values.items():
