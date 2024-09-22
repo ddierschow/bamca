@@ -361,6 +361,7 @@ def publication(pif):
     pif.render.set_button_comment(pif)
 
     if pub_id:
+        pif.render.hide_title = True
         return single_publication(pif, pub_id)
     elif pub_type:
         return publication_list(pif, pub_type)

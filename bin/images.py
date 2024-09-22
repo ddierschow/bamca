@@ -808,11 +808,17 @@ class EditForm(imglib.ActionForm):
         ot = '.' + self.ot if self.ot else self.fn[self.fn.rfind('.') + 1:]
         ddir = self.dest if self.dest else self.tdir
         outnam = '_' + nname_root + ot
-        if self.tdir.startswith('lib/prod') or self.tdir.startswith('./lib/prod'):
+        self.unlv = False
+        if self.tdir.startswith('lib/prod/pack') or self.tdir.startswith('./lib/prod/pack'):
+            prefs = 'mlh'
+            self.unlv = True
+        elif self.tdir.startswith('lib/prod') or self.tdir.startswith('./lib/prod'):
             prefs = 'm'
+            self.unlv = True
         elif self.tdir.startswith('lib/set') or self.tdir.startswith('./lib/set'):
             prefs = 'smlh'
         elif self.tdir.startswith('lib/pub') or self.tdir.startswith('./lib/pub'):
+            self.unlv = True
             if self.dest == '.' + config.IMG_DIR_BOX or self.tdir == '.' + config.IMG_DIR_BOX:
                 prefs = 'spm'
             else:
@@ -1884,10 +1890,6 @@ def check_credits(pif):
             print('file not found for', fn)
 
 
-def do_stuff(pif):
-    imglib.get_credit_file()
-
-
 def set_photog_name(pif, photog_id, name):
     photog = pif.dbh.fetch_photographer(photog_id)
     values = photog.todict()
@@ -1895,17 +1897,23 @@ def set_photog_name(pif, photog_id, name):
     pif.dbh.write_photographer(photog_id, values, verbose=True)
 
 
+def resize_pix(pif, newsize, pdir, fn):
+    newx = mbdata.imagesizes[newsize][0]
+    newname = newsize + '_' + fn[2:]
+    open(pdir + '/' + newname, 'wb').write(imglib.resizer(pdir + '/' + fn, newname, x=newx))
+
+
 # ---- ---------------------------------------
 
 
 cmds = {
     ('i', icon_main, "icon: [-a] [-b banner] [-n name] mod_id ..."),
-    ('a', add_credits, "add credit: photog picture ..."),
     ('f', fix_pix, "fix pix: mod_id ..."),
+    ('r', resize_pix, "resize pix: <new size> <dir> <pic>"),
     ('c', count_images, "count"),
     ('l', check_library, "check library"),
     ('k', check_credits, "check credits"),
-    ('x', do_stuff, "x"),
+    ('a', add_credits, "add credit: photog picture ..."),
     ('n', set_photog_name, "set photographer name <id> <name>"),
 }
 

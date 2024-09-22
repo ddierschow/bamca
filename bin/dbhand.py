@@ -1240,7 +1240,7 @@ class DBHandler(object):
         cols = list()
         cols.extend(['lineup_model.id', 'lineup_model.base_id', 'lineup_model.mod_id', 'lineup_model.number',
                      'lineup_model.style_id', 'lineup_model.region', 'lineup_model.year', 'lineup_model.name',
-                     'lineup_model.picture_id', 'lineup_model.flags', 'lineup_model.page_id'])
+                     'lineup_model.picture_id', 'lineup_model.flags', 'lineup_model.page_id', 'lineup_model.subname'])
         cols.extend(['base_id.id', 'base_id.first_year', 'base_id.rawname', 'base_id.description', 'base_id.flags',
                      'base_id.model_type'])
         cols.extend(['casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make',
@@ -1568,9 +1568,9 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         cols = [
             'base_id.id', 'base_id.first_year', 'base_id.flags', 'base_id.model_type', 'base_id.rawname',
             'base_id.description', 'pack_model.id', 'pack_model.mod_id', 'pack_model.pack_id', 'pack_model.pack_var',
-            'pack_model.var_id', 'pack_model.display_order', 'casting.id', 'casting.scale', 'casting.vehicle_type',
-            'casting.country', 'casting.make', 'casting.section_id', 'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.mod_id',
-            'vs.var_id', 'v.text_description', 'v.picture_id']
+            'pack_model.var_id', 'pack_model.display_order', 'pack_model.style_id',
+            'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make', 'casting.section_id',
+            'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.mod_id', 'vs.var_id', 'v.text_description', 'v.picture_id']
         froms = ("pack_model "
                  "left join base_id on pack_model.mod_id=base_id.id "
                  "left join casting on pack_model.mod_id=casting.id "

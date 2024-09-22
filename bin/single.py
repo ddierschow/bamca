@@ -548,7 +548,7 @@ def show_single(pif):
                 break
     elif ref.startswith('packs.'):
         for appear in pack_appearances:
-            if appear.get('pack.page_id', '') == ref:
+            if appear.get('pack.page_id', '') == ref and appear.get('pack.id', '') == sec:
                 prod_title = [appear['section.name'], appear['base_id.first_year'], appear['base_id.rawname']]
                 break
 

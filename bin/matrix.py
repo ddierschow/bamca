@@ -316,7 +316,6 @@ class MatrixFile(object):
             if ent['image']:
                 varimage = ent['image']
 
-        entry = render.Entry()
         if ent['flags'] & config.FLAG_MODEL_NO_VARIATION:
             ent['picture_only'] = 1
         elif not ent['mod_id']:
@@ -377,8 +376,6 @@ class MatrixFile(object):
         elif ent.get('matrix_model.description', ''):
             ent['descriptions'] = ent['matrix_model.description'].split(';')
 
-        entry.anchor = '%s' % ent['number']
-
         desclist = list()
         for var in ent.get('descriptions', []):
             if var and var not in desclist:
@@ -405,7 +402,8 @@ class MatrixFile(object):
 
         ent['display_id'] = pif.page_name
 
-        entry.data = ent
+        entry = render.Entry(data=ent, class_name='bg_' + (ent.get('style_id') or 'wh'))
+        # entry.anchor = '%s' % ent['number']
         return entry
 
 

@@ -1,3 +1,12 @@
+### 7.6.2  - 2024-09-21
+
+- Add subname to lineup models
+- Debugging variation selection in a lot of places
+- Add styles to pack models
+- More support for promotional models in lineups
+- Completely remove var from pack_model
+- Move a lot of stuff to new background color styles
+
 ### 7.6.1  - 2024-08-15
 
 - Lots of work on administration scripts

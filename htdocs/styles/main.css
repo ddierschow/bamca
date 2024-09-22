@@ -160,6 +160,17 @@ it is also useful for targeting FF-only code */
 .bold   {font-weight: bold;}
 .bgwhite    {background-color: #FFFFFF;}
 .bgoffwhite {background-color: #EEEEEE;}
+.bg_wh {background-color: #FFFFFF;} /* white */
+.bg_bl {background-color: #CCCCFF;} /* blue */
+.bg_gr {background-color: #CCFFCC;} /* green */
+.bg_rd {background-color: #FFCCCC;} /* red */
+.bg_tl {background-color: #CCFFFF;} /* teal */
+.bg_or {background-color: #FFCC99;} /* orange */
+.bg_pu {background-color: #FFCCFF;} /* purple */
+.bg_yl {background-color: #FFFF99;} /* yellow */
+.bg_gd {background-color: #DDDDAA;} /* gold */
+.bg_gy {background-color: #CCCCCC;} /* gray */
+.bg_lg {background-color: #EEEEEE;} /* light gray */
 
 .stat {font-style: italic; font-size: small;}
 

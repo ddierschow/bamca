@@ -439,8 +439,8 @@ table_info = {
         'saveid': False,
         'extends': {'base_id': 'base_id/id'},
         'columns': [
-            'id', 'base_id', 'page_id', 'section_id', 'display_order', 'range_id', 'mod_id', 'flags', 'shown_id',
-            'name', 'subname', 'description'
+            'id', 'base_id', 'page_id', 'section_id', 'display_order', 'range_id', 'mod_id', 'flags', 'style_id',
+            'shown_id', 'name', 'subname', 'description'
         ],
         'clinks': {
             'id': {'tab': 'matrix_model', 'id': ['id/id']},
@@ -493,7 +493,7 @@ table_info = {
         'extends': {'base_id': 'base_id/id'},
         'columns': [
             'id', 'base_id', 'mod_id', 'number', 'display_order', 'flags', 'style_id', 'picture_id', 'region', 'year',
-            'name', 'page_id'
+            'name', 'subname', 'page_id'
         ],
         'clinks': {
             'id': {'tab': 'lineup_model', 'id': ['id/id']},
@@ -633,7 +633,7 @@ table_info = {
         'db': 'bamca',
         'id': ['id'],
         'saveid': False,
-        'columns': ['id', 'pack_id', 'pack_var', 'mod_id', 'var_id', 'flags', 'display_order'],
+        'columns': ['id', 'pack_id', 'pack_var', 'mod_id', 'flags', 'style_id', 'display_order'],
         'clinks': {
             'id': {'tab': 'pack_model', 'id': ['id/id']},
             'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},

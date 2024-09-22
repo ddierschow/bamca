@@ -1311,7 +1311,7 @@ def add_pack_form(pif):
 
 def add_pack_model(pif, pack, long_pack_id):
     # there may be a better way to do this.
-    cols = ['mod', 'var', 'disp', 'edit']
+    cols = ['mod', 'disp', 'style_id']  # 'edit']
     pmodels = {x + 1: {'pack_model.display_order': x + 1} for x in range(pif.form.get_int('num'))}
     if pack.get('id'):
         model_list = pif.dbh.fetch_pack_models(
@@ -1324,27 +1324,24 @@ def add_pack_model(pif, pack, long_pack_id):
                 mod['vars'] = []
                 if not pmodels.get(mod['pack_model.display_order'], {}).get('pack_model.mod_id'):
                     pmodels[mod['pack_model.display_order']] = mod
-                if mod.get('vs.var_id'):
-                    pmodels[mod['pack_model.display_order']]['vars'].append(mod['vs.var_id'])
 
     entries = [
         {
             'mod':
                 pif.form.put_hidden_input({'pm.id.%s' % key: mod.get('pack_model.id', '0'),
                                            'pm.pack_id.%s' % key: long_pack_id}) +
-                pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
-                                       mod.get('pack_model.mod_id', '')) + ' ' +
+#                pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
+#                                       mod.get('pack_model.mod_id', '')) + ' ' +
                 pif.form.put_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
-            'var': 'var ' + pif.form.put_text_input(
-                "pm.var_id.%s" % key, 80, 20,
-                value='/'.join(list(set(mod.get('vars', ''))))),
-            'disp': 'disp ' + pif.form.put_text_input(
+            'disp': pif.form.put_text_input(
                 "pm.display_order.%s" % key, 2, 2, value=mod.get('pack_model.display_order', '')),
-            'edit': pif.render.format_button_link(
-                'edit', pif.dbh.get_editor_link('pack_model',
-                                                pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
+            'style_id': pif.form.put_text_input(
+                "pm.style_id.%s" % key, 3, 3, value=mod.get('pack_model.style_id', '')),
+#            'edit': pif.render.format_button_link(
+#                'edit', pif.dbh.get_editor_link('pack_model',
+#                                                pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
         } for key, mod in sorted(pmodels.items())]
-    return render.Section(colist=cols, range=[render.Range(entry=entries)], noheaders=True, header='pack_model<br>')
+    return render.Section(colist=cols, range=[render.Range(entry=entries)], noheaders=False, header='pack_model<br>')
 
 
 def add_pack_delete(pif):
@@ -1380,6 +1377,7 @@ def add_pack_save(pif):
             'mod_id': get_correct_model_id(pif, pif.form.get_raw('pm.mod_id.' + mod)),
             'var_id': pif.form.get_raw('pm.var_id.' + mod),
             'display_order': pif.form.get_int('pm.display_order.' + mod),
+            'style_id': pif.form.get_str('pm.style_id.' + mod),
         }
         for mod in mods]
     pack = pif.dbh.make_values('pack', pif.form, 'pack.')

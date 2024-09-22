@@ -1240,6 +1240,17 @@ def do_model_grid(pif, model, vsform, dvars, photogs):
     return llineup.prep()
 
 
+def reduce_vs(vs):
+    varsel = []
+    for x in sorted(vs.split(), reverse=True):
+        if x in varsel:
+            continue
+        if (':' in x and x[:x.find(':')] in varsel):
+            continue
+        varsel.append(x)
+    return varsel
+
+
 def save_model(pif, mod_id):
     for key in pif.form.keys(start='picture_id.'):
         if key[11:] == pif.form.get_str(key):
@@ -1249,8 +1260,8 @@ def save_model(pif, mod_id):
             useful.write_message('pic', key[11:], pif.form.get_str(key))
             pif.dbh.update_variation({'picture_id': pif.form.get_str(key)}, {'mod_id': mod_id, 'var': key[11:]})
     for key in pif.form.keys(start='var_sel.'):
-        useful.write_message('vs', key, pif.form.get_str(key))
-        varsel = list(set(pif.form.get_str(key).split()))
+        varsel = reduce_vs(pif.form.get_str(key))
+        useful.write_message('vs', key, pif.form.get_str(key), '/', varsel)
         pif.dbh.update_variation_selects_for_variation(mod_id, key[8:], varsel)
     for var in pif.form.roots(start='phcred.'):
         phcred = pif.form.get_str('phcred.' + var)
@@ -2045,8 +2056,24 @@ def check_variation_select(pif):
     print('missing pages')
     res = pif.dbh.raw_execute(
         "select ref_id, id from variation_select where ref_id != '' and ref_id not in (select id var from page_info);")
-    for r in res[0]:
-        print(r)
+    pages = {}
+    for r, id in res[0]:
+        pages.setdefault(r, [])
+        pages[r].append(id)
+    for k,v in pages.items():
+        print(k, v)
+
+    print('duplicates')
+    res = pif.dbh.fetch_variation_selects(bare=True)
+    resd = {}
+    for r in res:
+        if r.ref_id:
+            k = f'{r.ref_id}/{r.sec_id}/{r.ran_id}/{r.mod_id}/{r.var_id}'
+            resd.setdefault(k, set())
+            resd[k].add(str(r.category.id))
+    for k, v in resd.items():
+        if len(v) > 1:
+            print(k, sorted(v))
 
 
 # not in use right now

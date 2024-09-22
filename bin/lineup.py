@@ -49,6 +49,7 @@ import useful
 # X.41 | Accessory Packs                        | acc      |
 # X.42 | Skybusters                             | sb       |
 # X.51 | Buildings                              | bld      |
+# X.52 | Playsets                               | bld      |
 # X.61 | Presentation Sets                      | pack     |
 # X.62 | Gift Sets                              | pack     |
 # X.63 | 5-Packs                                | pack     |
@@ -97,6 +98,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['product'] = imgfmt % mdict['number']
         if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
             mdict['is_product_picture'] = 1
+        # seems to do the wrong thing with xsecs, see 2023 X.17 #11
         mdict['href'] = (
             "single.cgi?dir=%(spdir)s&pic=%(product)s&ref=%(ref_id)s&sec=%(sec_id)s&ran=%(ran_id)s&id=%(mod_id)s" %
             mdict)
@@ -146,11 +148,15 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
 
 
 def create_lineup(pif, mods, year, lsec, fdebug=False):
-    useful.write_comment('CLS', year, lsec)
+    # useful.write_comment('CLS', year, lsec)
     region = lsec['id']
     vssec = region.replace('.', '')
     is_extra = region.startswith('X')
     regions = [vssec] if is_extra else mbdata.get_region_tree(region) + ['']
+    if is_extra:
+        mods = [x for x in mods if x['lineup_model.region'] == region and (not x['vs.ref_id'] or x['vs.sec_id'] == vssec)]
+    else:
+        mods = [x for x in mods if not x['lineup_model.region'].startswith('x')]
 
     # 1. lay down model list from current region only.
     mods.sort(key=lambda x: (x['lineup_model.number'], x['lineup_model.display_order'],))
@@ -172,7 +178,7 @@ def create_lineup(pif, mods, year, lsec, fdebug=False):
             else:
                 continue
             lm = pif.dbh.make_lineup_item(mod)
-            useful.write_comment('CL', lsec, year, region, lm)
+            # useful.write_comment('CL', lsec, year, region, lm)
             modlist.append(calc_lineup_model(pif, lsec, year, region, lm))
             foundlist.append((mod['lineup_model.number'], mod['lineup_model.display_order'],))
 
@@ -319,9 +325,9 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
             })
 
     # generate extra sections
-    # lmods = pif.dbh.fetch_lineup_models(year, [x['id'] for x in xsecs])
+    lmods = pif.dbh.fetch_lineup_models(year, [x['id'] for x in xsecs])
     for sec in xsecs:
-        lmods = pif.dbh.fetch_lineup_models(year, sec['id'])
+        # lmods = pif.dbh.fetch_lineup_models(year, sec['id'])
         sec['mods'] = create_lineup(pif, lmods, year, sec, fdebug)
 
     return mainsec, secs, xsecs
@@ -338,6 +344,8 @@ def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
             ostr += render_lineup_model_var(pif, mdict, comments, show_var=cvar['var_ids'][0])
     else:
         ostr += render_lineup_model_var(pif, mdict, comments)
+    style_id = mdict.get('style_id')
+    class_name = mdict.get('class_name' '') + (' bg_' + style_id if style_id else '')
     if large:
         # ostr += '<br>' + pif.render.format_button_link("edit", pif.dbh.get_editor_link(
         #     'lineup_model', {'id': mdict['lineup_model.id']}))
@@ -348,9 +356,9 @@ def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
             '</center></td></tr></table>'])
     return render.Entry(
         text=ostr,
-        display_id=mdict.get('style_id', 0),
-        style=mdict.get('style'),
-        class_name=mdict.get('class_name'),
+        #display_id=mdict.get('style_id', 0),
+        #style=mdict.get('style'),
+        class_name=class_name,
         also=mdict.get('also'),
         data=mdict,
     )
@@ -1188,7 +1196,7 @@ def generate_promos(pif, year):
     lineup_page_id = 'year.' + year
     vars = pif.dbh.fetch_variations_by_date(year, wildcard=True)
     for var in vars:
-        if 'PR' in var['variation.category'].split(' '):
+        if set('TF', 'PR') & set(var['variation.category'].split(' ')):
             nvs = {
                 'mod_id': var['variation.mod_id'],
                 'var_id': var['variation.var'],
@@ -1347,7 +1355,7 @@ cmds = [
     ('l', list_lineups, "list lineups"),
     ('m', make_lineup, "make lineup"),
     ('g', generate_lineup, "generate lineup"),
-    ('gp', generate_promos, "generate promos"),
+    ('gp', generate_promos, "generate promos: year"),
     ('dl', detect_lineup, "detect lineup: year"),
     # ('x', check_lineup, "check lineup"),
     ('s', show_sections, "show sections"),

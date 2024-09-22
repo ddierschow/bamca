@@ -374,10 +374,12 @@ class MannoFile(object):
         td = {x: 0 for x in keys}
         fy = ly = None
         id_set = set()
-        varl = 0
+        varc = varl = 0
         for var in mvars:
-            if var.get('vs'):
+            if var['variation.variation_type'] != '2':
                 varl += 1
+                if var.get('vs'):
+                    varc += 1
             var_id = var['variation.var']
             if var_id[0].isdigit():
                 while not var_id[-1].isdigit():
@@ -410,7 +412,7 @@ class MannoFile(object):
                 'fas fa-star green' if td[key] == len(mvars) else
                 'fas fa-star red' if not td[key] else 'fas fa-star orange')
         varl = '<a href="vars.cgi?list=1&mod=%s"><span class="%s">%d/%d</span></a>' % (
-            mdict['id'], 'ok' if varl == len(mvars) else 'no', varl, len(mvars))
+            mdict['id'], 'ok' if varc == varl else 'no', varc, varl)
         td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-',
                    'varids': varids, 'varl': varl, 'ver': ver})
         return td

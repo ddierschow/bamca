@@ -209,22 +209,25 @@ def do_single_pack(pif, format_type, pid):
 
         pif.render.comment('pack:', pack)
         entries = [render.Entry(
-            text=show_pack(pif, pack, layout[3]), class_name='width_' + layout[3],
+            text=show_pack(pif, pack, layout[3]), class_name='bg_lg width_' + layout[3],
             display_id='0', colspan=layout[1], rowspan=layout[2])]
+        modvars = []
         for mod in sorted(pmodels.keys()):
-            pif.render.comment("do_single_pack mod", pmodels[mod])
+            pmod = pmodels[mod]
+            pif.render.comment("do_single_pack mod", pmod)
+            modvars.append((f'vars.cgi?edt=1&mod={pmod["id"]}', pmodels[mod]["id"], pmod["pack_model.id"]))
 
-            if not pmodels[mod].get('id'):
-                pmodels[mod]['no_casting'] = 1
+            if not pmod.get('id'):
+                pmod['no_casting'] = 1
                 tcomments.add('m')
             else:
-                if pmodels[mod]['imgstr'].find('-') < 0:
+                if pmod['imgstr'].find('-') < 0:
                     tcomments.add('i')
-                if not pmodels[mod].get('vs.var_id'):
-                    pmodels[mod]['no_variation'] = 1
+                if not pmod.get('vs.var_id'):
+                    pmod['no_variation'] = 1
                     tcomments.add('v')
 
-            entries.append(render.Entry(text=show_pack_model(pif, pmodels[mod]), display_id=1))
+            entries.append(render.Entry(text=show_pack_model(pif, pmod), class_name=pmod['style_id'] or 'wh', display_id=1))
 
         llineup.section.append(render.Section(id='', columns=layout[0], anchor=pack['id'],
                                               range=[render.Range(entry=entries)]))
@@ -232,9 +235,10 @@ def do_single_pack(pif, format_type, pid):
     # left bar
     left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        left_bar_content += f'<br><center><span style="font-size: x-small;">{page_id}/{pack_id}</span><p>'
-        left_bar_content += ('<p><b><a href="%s">Base ID</a></b><br>\n' %
-                             pif.dbh.get_editor_link('base_id', {'id': pack_id}))
+        cat = (':5P' if page_id in ('packs.5packs', 'packs.lic5packs') else
+               ':10P' if page_id == 'packs.10packs' else
+               ':3P' if page_id == 'packs.3packs' else '')
+        left_bar_content += f'<br><center><span style="font-size: x-small;">{page_id}/{pack_id}{cat}</span><p>'
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
         left_bar_content += ('<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' %
                              pif.render.pic_dir.replace('/pic/', '/lib/'))
@@ -248,6 +252,12 @@ def do_single_pack(pif, format_type, pid):
                              (pif.render.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id))
         left_bar_content += ('<b><a href="upload.cgi?d=./%s&n=%s&m=%s&c=%s">Man</a><br>\n' %
                              (config.IMG_DIR_MAN.replace('pic', 'lib'), pack_id, pack_id, pack_id))
+        left_bar_content += '<p>\n'
+        for lnk, mod, pmid in modvars:
+            left_bar_content += f'<a href="{lnk}">{mod}</a> '
+            left_bar_content += f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"><i class="fas fa-edit gray"></i></a>'
+
+            left_bar_content += '<br>\n'
         left_bar_content += '</center>\n'
 
     pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
@@ -290,6 +300,7 @@ def distill_models(pif, pack, page_id):
 
     for mod in model_list:
         mod = pif.dbh.modify_man_item(mod)
+        mod['style_id'] = 'bg_' + mod['pack_model.style_id']
         useful.write_comment(mod)
         mod['pdir'] = pif.render.pic_dir
         mod['spdir'] = mbdata.dirs.inverse.get(mod['pdir'], mod['pdir'])
@@ -399,6 +410,7 @@ def show_pack_model(pif, mdict):
     for var in mdict.get('descriptions', []):
         if var and var not in desclist:
             desclist.append(var)
+
     mdict['descriptions'] = desclist
 
     if not mdict.get('disp_format') or not mdict.get('shown_id'):

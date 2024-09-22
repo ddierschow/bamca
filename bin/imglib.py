@@ -486,10 +486,20 @@ def shrinker(pth, nname, bound, maxsize, rf):
 def cropper(pth, nname, bound, rf):
     x1, y1, x2, y2 = bound
     useful.write_message('crop', x1, y1, x2, y2, ':', x2 - x1, y2 - y1, ':', rf)
-    useful.write_message(pth)
-    useful.write_message("cutting")
+    useful.write_message(pth, '=>', nname)
     ofi = useful.pipe_chain(open_input_file(pth),
                             import_file(pth) + cut(x1, y1, x2, y2) + rot_flip(rf) + export_file(nname, pth),
+                            stderr=open_write_dev_null(), verbose=True)
+    return ofi
+
+
+def resizer(pth, nname, x=None, y=None):
+    if not x and not y:
+        return None  # why did you wake me?
+    useful.write_message('resize', x, y)
+    useful.write_message(pth, '=>', nname)
+    ofi = useful.pipe_chain(open_input_file(pth),
+                            import_file(pth) + resize(x, y) + export_file(nname, pth),
                             stderr=open_write_dev_null(), verbose=True)
     return ofi
 

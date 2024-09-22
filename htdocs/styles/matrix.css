@@ -3,7 +3,6 @@ body {background-color: #FF8800;}
 .tb {background-color: #CCCCCC;}
 .sh {background-color: #000000; color: #FFFFFF;}
 .rh {background-color: #FFFFFF; color: #000000;}
-.eb {background-color: #DDDDAA;}
 
 .rh_ml {background-color: transparent;}
 .tb_ml {background-color: #DDDDAA; list-style-type: disc; list-style-position: inside; display: block;}

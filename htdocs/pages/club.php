@@ -14,7 +14,7 @@ DoPageHeader($pif);
 
 <tr>
 <th class="leftbar">1971</th>
-<td class="bgwhite">
+<td class="bg_wh">
 <a href="/pic/pages/club_certificate.jpg"><img src="/pic/pages/m_club_certificate.jpg" class="righty"></a>
 BAMCA was founded April 15, 1971.
 It was originally a chapter of the Matchbox Collectors Club, but persisted
@@ -24,7 +24,7 @@ long after that entity disappeared.
 
 <tr>
 <th class="leftbar">1994</th>
-<td class="bgoffwhite">
+<td class="bg_lg">
 The website was started.
 Originally it was just a list of links to other websites, but
 one year Matchbox announced their new lineup in advance, and we thought it
@@ -34,7 +34,7 @@ would be cool to show it on the site.  Things snowballed from there.
 
 <tr>
 <th class="leftbar">1996</th>
-<td class="bgwhite">
+<td class="bg_wh">
 <a href="/cgi-bin/vars.cgi?mod=MX113&var=03"><img src="/pic/man/var/m_mx113-03.jpg" class="righty"></a>
 1996 was the 25th anniversary of the club.
 We did a special club model that year, where we took the Matchbox Originals
@@ -49,7 +49,7 @@ In December, an <a href="1996_12_18-paw.html">article</a> was published in the P
 
 <tr>
 <th class="leftbar">1998</th>
-<td class="bgoffwhite">
+<td class="bg_lg">
 We bought the domain name.  Real work began on creating a
 comprehensive information site about Matchbox Toys.  Most of the
 scripting was written in PERL.
@@ -60,14 +60,14 @@ In December, an <a href="1998_12_24-nyt.html">article</a> was published in the N
 
 <tr>
 <th class="leftbar">2000</th>
-<td class="bgwhite">
+<td class="bg_wh">
 The entire site was converted to Python.
 </td>
 </tr>
 
 <tr>
 <th class="leftbar">2004</th>
-<td class="bgoffwhite">
+<td class="bg_lg">
 The entire site was rewritten again to create a web
 framework and use a more cohesive design.
 </td>
@@ -75,7 +75,7 @@ framework and use a more cohesive design.
 
 <tr>
 <th class="leftbar">2010</th>
-<td class="bgwhite">
+<td class="bg_wh">
 In 2009 an effort was begun to convert the site to run off a MySQL
 database.  This work completed in 2010.
 There are still some old pages that run off of text files, but
@@ -87,7 +87,7 @@ We also added a <a href="https://www.facebook.com/Bay-Area-Matchbox-Collectors-A
 
 <tr>
 <th class="leftbar">2014</th>
-<td class="bgoffwhite">
+<td class="bg_lg">
 At this point all the scripts that run the site were put into GitHub.
 Anyone who is intereted in seeing this can contact us for more information.
 </td>
@@ -95,7 +95,7 @@ Anyone who is intereted in seeing this can contact us for more information.
 
 <tr>
 <th class="leftbar">2015</th>
-<td class="bgwhite">
+<td class="bg_wh">
 The site was rewritten (again!) to use the Jinja2 rendering
 engine.  This nakes much of the site simpler and easier to maintain.
 </td>
@@ -103,7 +103,7 @@ engine.  This nakes much of the site simpler and easier to maintain.
 
 <tr>
 <th class="leftbar">2016</th>
-<td class="bgoffwhite">
+<td class="bg_lg">
 All new pictures added to the site started being posted to our
 <a href="http://bamca.tumblr.com/">tumblr account</a>.
 </td>
@@ -111,7 +111,7 @@ All new pictures added to the site started being posted to our
 
 <tr>
 <th class="leftbar">2017</th>
-<td class="bgwhite">
+<td class="bg_wh">
 Photographer credits were added to the site.  As the photographers were identified,
 credits were added to the pictures.
 </td>
@@ -119,7 +119,7 @@ credits were added to the pictures.
 
 <tr>
 <th class="leftbar">2018</th>
-<td class="bgoffwhite">
+<td class="bg_lg">
 A <a href="http://blog.bamca.org/">blog</a> was added to the site, for announcing website changes, meets, and other
 club milestones.
 <a href="http://blog.bamca.org/"><img src="/pic/misc/banner67_m.jpg" class="righty"></a>
@@ -128,7 +128,7 @@ club milestones.
 
 <tr>
 <th class="leftbar">2020</th>
-<td class="bgwhite">
+<td class="bg_wh">
 The site changed servers and support infrastructure, requiring everything to be upgraded.
 It was now running on a faster server with a newer database and newer versions of Python and
 PHP.
@@ -137,7 +137,7 @@ PHP.
 
 <tr>
 <th class="leftbar">The Future</th>
-<td class="bgoffwhite">
+<td class="bg_lg">
 There's still much to do.  If you want to find out more, or how to contribute,
 look at our <a href="status.php">website status page</a>.
 </td>

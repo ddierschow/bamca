@@ -76,6 +76,8 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
         mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(img)s<br><b>%(name)s</b></a>' % mdict
     else:
         mdict['lname'] = '%(img)s<br><b>%(name)s</b>' % mdict
+    if mdict.get('subname'):
+        mdict['lname'] += '<br>' + mdict['subname']
     mdict['desclist'] = ''
     useful.write_comment(mdict['id'], mdict['descs'])
     if not mdict.get('nodesc'):
@@ -137,6 +139,8 @@ def add_model_table_product_link(pif, mdict):
             ostr += '<span class="modelname">' + mdict['name'] + '</span>'
             if mdict.get('href'):
                 ostr += '</a>'
+            if mdict.get('subname'):
+                mdict['lname'] += '<br>' + mdict['subname']
             if mdict.get('subnames'):
                 ostr += "<br>" + "<br>".join(mdict['subnames'])
             if vdict.get('description'):
@@ -153,6 +157,8 @@ def add_model_table_product_link(pif, mdict):
         ostr += '<span class="modelname">' + mdict['name'] + '</span>'
         if mdict.get('href'):
             ostr += '</a>'
+        if mdict.get('subname'):
+            ostr += '<br>' + mdict['subname']
         if mdict.get('subnames'):
             ostr += "<br>" + "<br>".join(mdict['subnames'])
         if mdict.get('descriptions'):
