@@ -993,7 +993,7 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
             pic_text += '<div class="%s">' % ('bgok' if phcred or pic_id else 'bgno')
             pic_text += pif.form.put_select("phcred." + var['var'], photogs, selected=phcred, blank='') + '</div>'
         note_text += "<br>References:<br>" + pif.form.put_text_input(
-            "var_sel." + var['var'], 256, 24, value=var['references'],
+            "var_sel." + var['var'], 512, 28, value=var['references'],
             also={'class': 'bgok' if var['references'] else 'bgno'})
         note_text += quickie_modal(pif, model['id'], var['var'], 'base')
         note_text += quickie_modal(pif, model['id'], var['var'], 'detail')
@@ -2060,7 +2060,7 @@ def check_variation_select(pif):
     for r, id in res[0]:
         pages.setdefault(r, [])
         pages[r].append(id)
-    for k,v in pages.items():
+    for k, v in pages.items():
         print(k, v)
 
     print('duplicates')

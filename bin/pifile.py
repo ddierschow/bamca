@@ -463,6 +463,8 @@ class PageInfoFile(object):
             self.restrict('b')
         self.render.not_released = (self.render.flags & config.FLAG_PAGE_INFO_HIDDEN) != 0
         self.render.hide_title = (self.render.flags & config.FLAG_PAGE_INFO_HIDE_TITLE) != 0
+        self.render.body_style = "body_" + (
+            page_id[:page_id.find('.')] if '.' in page_id else page_id) + '_' + page_info.style_id
 
     def set_user_info(self, user_id):
         self.user = user = self.dbh.fetch_user(user_id)

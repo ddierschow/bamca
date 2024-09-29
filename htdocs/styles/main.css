@@ -45,17 +45,14 @@ a:hover      {color: #000099; text-decoration: underline;}
 .newcasting  {padding-bottom: 16px; background-image: url("/pic/gfx/newcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
 .revcasting  {padding-bottom: 16px; background-image: url("/pic/gfx/revcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
 
-.tb          {background-color: #FFFFFF; padding: 0px; width: 100%;}
-.sh          {background-color: #FFFFFF; color: #000000; font-size: xx-large; padding: 4px; text-align: center; vertical-align: middle;}
-.rh          {background-color: #FFFFFF; color: #000000; font-size: x-large;}
-.eh          {font-size: large; font-weight: bold; padding-left: 4px; padding-right: 4px; text-align: center; vertical-align: top;}
-.eb          {font-size: medium; text-align: left; vertical-align: top;}
-
+.tb          {padding: 0px; width: 100%;}
 .tb          {border-collapse: collapse; border-color: #000000; border-spacing: 1px 0; border-style: solid; border-width: 1px;}
+.sh          {font-size: xx-large; padding: 4px; text-align: center; vertical-align: middle;}
 .sh          {border-color: #000000; border-style: solid; border-width: thin;}
-.rh          {border-color: #000000; border-style: solid none solid none; border-width: 1px;}
+.rh          {font-size: x-large; padding: 4px; border-color: #000000; border-style: solid none solid none; border-width: 1px;}
+.eh          {font-size: large; font-weight: bold; padding-left: 4px; padding-right: 4px; text-align: center; vertical-align: top;}
 .eh          {border-color: #000000; border-style: ridge; border-width: thin;}
-.eb          {border-color: #000000; border-style: ridge; border-width: thin;}
+.eb          {font-size: medium; text-align: left; vertical-align: top; border-color: #000000; border-style: ridge; border-width: thin;}
 
 foo.tb_tail     {background-color: #F8EC6D;}
 .tb_tail     {border-color: #000000; width: 100%; border-width: 0; border-style: solid; border-collapse: collapse;}
@@ -162,12 +159,14 @@ it is also useful for targeting FF-only code */
 .bgoffwhite {background-color: #EEEEEE;}
 .bg_wh {background-color: #FFFFFF;} /* white */
 .bg_bl {background-color: #CCCCFF;} /* blue */
+.bg_lb {background-color: #DDDDFF;} /* light blue */
 .bg_gr {background-color: #CCFFCC;} /* green */
 .bg_rd {background-color: #FFCCCC;} /* red */
 .bg_tl {background-color: #CCFFFF;} /* teal */
 .bg_or {background-color: #FFCC99;} /* orange */
 .bg_pu {background-color: #FFCCFF;} /* purple */
 .bg_yl {background-color: #FFFF99;} /* yellow */
+.bg_ch {background-color: #DDFF88;} /* chartreuse */
 .bg_gd {background-color: #DDDDAA;} /* gold */
 .bg_gy {background-color: #CCCCCC;} /* gray */
 .bg_lg {background-color: #EEEEEE;} /* light gray */
@@ -206,3 +205,44 @@ it is also useful for targeting FF-only code */
 /* The Close Button */
 .close {color: #aaa; float: right; font-size: 28px; font-weight: bold; color: #FF0000;}
 .close:hover, .close:focus {color: #990000; text-decoration: none; cursor: pointer;}
+
+.body_year_els {background-color: #FFFF33;}
+.body_year_els .tb_year {background-color: #CCCCCC; max-width: 1024px;}
+.body_year_els .sh {background-color: #FFFFFF; color: #CC0000;}
+.body_year_els .rh {background-color: #FFFFFF; color: #CC0000;}
+.body_year_els .er {background-color: #CCCCFF;}
+.body_year_els .tb_tail {background-color: #CCCCCC;}
+.body_year_els .tb_tail .eb {background-color: #CCCCCC;}
+
+.body_year_les {background-color: #E6E04A;}
+.body_year_les .tb {background-color: #CCCCCC;}
+.body_year_les .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_les .rh {background-color: #660000; color: #FFFFFF;}
+
+.body_year_lsf {background-color: #EED400;}
+.body_year_lsf .tb {background-color: #CCCCCC;}
+.body_year_lsf .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_lsf .rh {background-color: #FFFFFF; color: #000000;}
+
+.body_year_uni {background-color: #FFCC33;}
+.body_year_uni .tb {background-color: #CCCCCC;}
+.body_year_uni .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_uni .rh {background-color: #FFFFFF; color: #000000;}
+
+.body_year_tyc {background-color: #FFDD00;}
+.body_year_tyc .tb {background-color: #CCCCCC;}
+.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_tyc .rh {background-color: #FFFFFF; color: #000000;}
+
+.body_year_mtl {background-color: #EE6644;}
+.body_year_mtl .tb {background-color: #CCCCCC;}
+.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
+
+.body_year_esg {background-color: #DD5923;}
+.body_year_esg .tb {background-color: #CCCCCC;}
+.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
+
+.body_year_mwl {background-color: #DD5923;}
+.body_year_mwl .tb {background-color: #CCCCCC;}
+.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_mwl .rh {background-color: #0000CC; color: #FFFFFF;}

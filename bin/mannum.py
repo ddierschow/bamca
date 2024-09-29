@@ -1165,28 +1165,37 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
     # If we're renaming, I'd like to also rename the pictures.
     # filename_re = re.compile(r'(?P<path>.*/)(?P<p>[a-z]_)?(?P<m>[^-.]*)(?P<s>-[^.]*)?(?P<e>\..*)')
     # none_blank = {None: ''}
-    patts = [
-        '.' + config.IMG_DIR_MAN + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_MAN + '/%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_VAR + '/?_%s-*.*' % old_mod_id,
-        '.' + config.IMG_DIR_VAR + '/%s-*.*' % old_mod_id,
-        '.' + config.IMG_DIR_MAN_ICON + '/?_%s-*.*' % old_mod_id,
-        '.' + config.IMG_DIR_ADD + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_CAT + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_CAT + '/?_%s_*.*' % old_mod_id,
-        '.' + config.IMG_DIR_CAT + '/%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_ADS + '/%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_SET_PLAYSET + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_SET_PACK + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_PROD_PLAYSET + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_PROD_PACK + '/?_%s.*' % old_mod_id,
-        '.' + config.IMG_DIR_PROD_PACK + '/%s.*' % old_mod_id,
+    dirs = [
+        config.IMG_DIR_MAN,
+        config.IMG_DIR_MAN,
+        config.IMG_DIR_VAR,
+        config.IMG_DIR_VAR,
+        config.IMG_DIR_MAN_ICON,
+        config.IMG_DIR_ADD,
+        config.IMG_DIR_CAT,
+        config.IMG_DIR_CAT,
+        config.IMG_DIR_CAT,
+        config.IMG_DIR_SET_PLAYSET,
+        config.IMG_DIR_SET_PACK,
+        config.IMG_DIR_PROD_PLAYSET,
+        config.IMG_DIR_PROD_PACK,
+        config.IMG_DIR_PROD_PACK,
+        config.IMG_DIR_PACKAGE,
+        config.IMG_DIR_ADS,
+        config.IMG_DIR_BLISTER,
+        config.IMG_DIR_BOOK,
+        config.IMG_DIR_BOX,
+        config.IMG_DIR_CAT,
+        config.IMG_DIR_GAME,
     ]
-    pics = reduce(lambda x, y: x + glob.glob(y.lower()), patts, list())
-    for pic in pics:
-        pic_new = pic.replace(old_mod_id.lower(), new_mod_id.lower())
-        pif.render.message("rename", pic, pic_new, "<br>")
-        os.rename(pic, pic_new)
+    old_root = old_mod_id.lower()
+    for x in dirs:
+        for y in (glob.glob('.' + x + f'/{old_root}.*') +
+                  glob.glob('.' + x + f'/?_{old_root}.*') +
+                  glob.glob('.' + x + f'/?_{old_root}-*.*')):
+            pic_new = y.replace(old_root, new_mod_id.lower())
+            pif.render.message("rename", y, pic_new, "<br>")
+            os.rename(y, pic_new)
 
 
 def copy_casting(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):

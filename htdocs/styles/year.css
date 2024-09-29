@@ -1,6 +1,7 @@
-body {background-color: #FF6633;}
-
 .largepic {float: left;}
+
+/*body {background-color: #FF6633;}
+
 .varentry {background-color: #FFFFFF;}
 
 .tb {background-color: #CCCCCC;}
@@ -9,19 +10,7 @@ body {background-color: #FF6633;}
 .tb_tail eb {background-color: #CCCCCC;}
 
 .sh {background-color: #000000; color: #FFFFFF;}
-.rh {background-color: #FFFFFF; color: #000000; height: 36px; font-size: x-large;}
-
-.eb_wh {background-color: #FFFFFF;} /* white */
-.eb_bl {background-color: #CCCCFF;} /* blue */
-.eb_gr {background-color: #CCFFCC;} /* green */
-.eb_rd {background-color: #FFCCCC;} /* red */
-.eb_tl {background-color: #CCFFFF;} /* teal */
-.eb_or {background-color: #FFCC99;} /* orange */
-.eb_pu {background-color: #FFCCFF;} /* purple */
-.eb_yl {background-color: #FFFF99;} /* yellow */
-.eb_gd {background-color: #DDDDAA;} /* gold */
-.eb_gy {background-color: #CCCCCC;} /* gray */
-.eb_lg {background-color: #EEEEEE;} /* light gray */
+.rh {background-color: #0000CC; color: #FFFFFF; height: 36px; font-size: x-large;}*/
 
 /* 1953 .eb {background-color: #CCCC66;} */
 /* 1960 .eb {background-color: #DDDDAA;} */

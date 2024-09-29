@@ -1,10 +1,17 @@
+### 7.6.3  - 2024-09-28
+
+- Add subname to pack models
+- Switch lineup models to use link format rather than image format (as it should have)
+- Make the pack list significantly faster
+- Fix accent graphics on annual lineups
+
 ### 7.6.2  - 2024-09-21
 
 - Add subname to lineup models
 - Debugging variation selection in a lot of places
 - Add styles to pack models
 - More support for promotional models in lineups
-- Completely remove var from pack_model
+- Completely remove var from pack model
 - Move a lot of stuff to new background color styles
 
 ### 7.6.1  - 2024-08-15
@@ -100,20 +107,17 @@
 - Extend base attributes, like, a lot
 - Add capability to copy base attributes from one var to another
 
-
 ### 6.12.3 - 2018-12-02
 
 - Substantially rewrote the Matchbox USA ID pages, adding text format.
 - Many small fixes and tweaks to help with entering info from MBUSA.
 - Add variation verified/incorrect/unverified.
 
-
 ### 6.12.2 - 2018-11-11
 
 - Substantial rewriting to the handling of Mack numbers
 - Revised the datesearch page
 - Add aliases editor
-
 
 ### 6.12.1 - 2018-10-31
 
@@ -128,12 +132,11 @@
 - Allow merging multiple series appearances in single
 - Better exception handling on file operations
 
-
 ### 6.12 - 2018-10-14
 
 - Switch http references to https.
 - Much rearranging of picture directory structure.
-- Rewrite variation_select to be more rigorous.
+- Rewrite variation select to be more rigorous.
 - Add support for playsets.
 - Add relationship between playsets and the models they contain.
 - Build out support for variation categories, with new category list.
@@ -148,7 +151,6 @@
 - Made variation by category lists considerably stronger.
 - Add better icon support (separate from gfx).
 
-
 ### 6.11.1 - 2018-03-15
 
 - Fixed code 2 bug for single model page
@@ -156,7 +158,6 @@
 - Show directory name, not path, for categories in imawidget
 - Convert to fontawesome 5.0.5
 - Fix box graphics on database page
- 
  
 ### 6.11 - 2018-03-11
 
@@ -171,7 +172,6 @@
 - Added credits to the "about" page
 - Added the site status page
 - Added the blog
-
 
 ### 6.10
 6.10.2 - 2018-02-11
@@ -194,7 +194,6 @@
 - Create new large scale models page to replace the models page.
 - Redo look of main index page.
 - Publish variation search page.
-
 
 ### 6.9.1 - 2019-03-13
 ### 6.9 - 2017-11-12
@@ -224,7 +223,6 @@
 - Minor style changes, mainly for single
     Biggest difference is that var description now has beige backgroun.
 
-
 ### 6.8.3 - 2017-11-20
 ### 6.8.2 - 2017-10-01
 ### 6.8.1 - 2017-09-19
@@ -245,7 +243,6 @@
 - Massively rewrite annual lineups
     Seriously.  Threw it all out and started over.
 
-
 ### 6.7.1 - 2017-07-01
 
 ### 6.7 - 2017-06-18
@@ -260,7 +257,6 @@
 - Make var editor work bettee
 - Added the Convoy Project
 - Add var id to specific man id on database page
-
 
 ### 6.6.5 - 2017-05-07
 ### 6.6.4 - 2017-04-30

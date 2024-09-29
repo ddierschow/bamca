@@ -30,7 +30,7 @@ _gaq.push(['_trackPageview']);
 
 <!-- body -->
 {% block page_body_start %}
-<body>
+<body class="{{ page.body_style }}">
 {% if page.is_beta %}
 <table class="body">
 <tr><td class="beta">&nbsp;</td></tr>

@@ -55,7 +55,8 @@ class Presentation(object):
         self.styles = list(('main', 'fonts'))
         if '.' in self.page_id:
             self.styles.append(self.page_id[:self.page_id.find('.')])
-        self.styles.append(self.page_id)
+        if os.path.exists(f"../htdocs/{config.CSS_DIR}/{self.page_id}.css"):
+            self.styles.append(self.page_id)
         self.extra = self.font_awesome_js
         self.comment_button = ''
         self.is_admin = False
@@ -66,6 +67,7 @@ class Presentation(object):
         self.bamcamark = mbdata.bamcamark()
         self.filename = 'matchbox.csv'
         self.status_printed = 'unset'
+        self.body_style = ''
         # if self.verbose:
         #     import datetime
         #     self.dump_file = open(os.path.join(config.LOG_ROOT,
@@ -182,7 +184,8 @@ class Presentation(object):
             f'<link rel="stylesheet" href="{config.CSS_FILE}" type="text/css">\n',
             f'<link rel="stylesheet" href="{config.FONTS_FILE}" type="text/css">\n',
             f'<link rel="stylesheet" href="{config.CSS_DIR}/{pageclass}.css" type="text/css">\n' if pageclass else '',
-            f'<link rel="stylesheet" href="{config.CSS_DIR}/{self.page_id}.css" type="text/css">\n',
+            f'<link rel="stylesheet" href="{config.CSS_DIR}/{self.page_id}.css" type="text/css">\n'
+            if os.path.exists("{config.CSS_DIR}/{self.page_id}.css") else '',
 
             self.extra,
             javasc.def_google_analytics_js if not banner else '',
@@ -708,6 +711,7 @@ of Matchbox International Ltd. and are used with permission.
             'footer': self.footer,
             'bamcamark': self.bamcamark,
             'token': self.format_form_token(useful.generate_token(6)),
+            'body_style': self.body_style,
         }
         output = useful.render_template(template, page=page_info, config_context=config, **kwargs)
         if self.unittest:
@@ -848,9 +852,10 @@ class Section(object):
             elif isinstance(headers, list):
                 self.headers = dict(zip(colist, headers))
         if section:
-            self.id = self.id or section.id
-            self.name = self.name or section.name
-            self.note = self.note or section.note
+            self.id = section.id or self.id
+            self.name = section.name or self.name
+            self.note = section.note or self.note
+            self.columns = section.columns or self.columns
 
     def dump(self):
         useful.write_comment(' Section', 'id', self.id, 'name', self.name, 'note', self.note,

@@ -13,6 +13,7 @@ import imglib
 import mbdata
 import models
 import render
+import tables
 import useful
 
 
@@ -37,6 +38,7 @@ import useful
 # X.02 | Catalogs                               | pub      |
 # X.03 | Advertisements                         | pub      |
 # X.11 | Series                                 | series   |
+# X.14 | Collectors                             | series   |
 # X.15 | Moving Parts                           | series   |
 # X.17 | Promotional                            | promo    |
 # X.21 | Early Lesney Toys                      | ks       |
@@ -50,13 +52,14 @@ import useful
 # X.42 | Skybusters                             | sb       |
 # X.51 | Buildings                              | bld      |
 # X.52 | Playsets                               | bld      |
-# X.61 | Presentation Sets                      | pack     |
-# X.62 | Gift Sets                              | pack     |
-# X.63 | 5-Packs                                | pack     |
-# X.64 | Licensed 5-Packs                       | pack     |
-# X.65 | Themed 5-Packs / Action Launchers      | pack     |
-# X.66 | 9- and 10-Packs                        | pack     |
-# X.67 | 2-Packs                                | pack     |
+# X.60 | Presentation Sets                      | pack     |
+# X.61 | Gift Sets                              | pack     |
+# X.62 | 2-Packs / Hitch n Haul                 | pack     |
+# X.63 | 3-Packs                                | pack     |
+# X.65 | 5-Packs                                | pack     |
+# X.66 | Licensed 5-Packs                       | pack     |
+# X.67 | Themed 5-Packs / Action Launchers      | pack     |
+# X.68 | Larger Packs                           | pack     |
 # X.71 | Roadways                               | pub      |
 # X.72 | Games and Puzzles                      | pub      |
 # X.73 | Books                                  | pub      |
@@ -71,7 +74,7 @@ import useful
 def calc_lineup_model(pif, lsec, year, region, mdict):
     id_re = re.compile(r'(?P<a>[a-zA-Z]+)(?P<n>\d+)')
     mdict.update({
-        'image_format': lsec['img_format'],
+        'image_format': lsec['link_format'],
         'anchor': '{}{}'.format('X' if region.startswith('X') else '', mdict['number']),
         'class_name': '', 'product': '', 'prod_id': '', 'href': '',
         'is_reused_product_picture': 0, 'is_product_picture': 0, 'halfstar': 0,
@@ -154,7 +157,8 @@ def create_lineup(pif, mods, year, lsec, fdebug=False):
     is_extra = region.startswith('X')
     regions = [vssec] if is_extra else mbdata.get_region_tree(region) + ['']
     if is_extra:
-        mods = [x for x in mods if x['lineup_model.region'] == region and (not x['vs.ref_id'] or x['vs.sec_id'] == vssec)]
+        mods = [x for x in mods
+                if x['lineup_model.region'] == region and (not x['vs.ref_id'] or x['vs.sec_id'] == vssec)]
     else:
         mods = [x for x in mods if not x['lineup_model.region'].startswith('x')]
 
@@ -356,8 +360,8 @@ def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
             '</center></td></tr></table>'])
     return render.Entry(
         text=ostr,
-        #display_id=mdict.get('style_id', 0),
-        #style=mdict.get('style'),
+        # display_id=mdict.get('style_id', 0),
+        # style=mdict.get('style'),
         class_name=class_name,
         also=mdict.get('also'),
         data=mdict,
@@ -384,7 +388,7 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
         for var in mdict['cvarlist']:
             if not show_var or show_var in var['var_ids']:
                 varlist.extend(var['picture_ids'])
-    imgstr = pif.render.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=varlist,
+    imgstr = pif.render.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=[x for x in varlist if x],
                                               pdir=config.IMG_DIR_MAN)
     mdict['imgstr'] = imgstr
     mdict['descriptions'] = [x['desc'] for x in mdict['cvarlist'] if not show_var or show_var in x['var_ids']]
@@ -429,7 +433,8 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
                 for x in sec['mods'] if not multi or len(x['cvarlist']) > 1],
                 name=sec['name'],
                 id=sec['id'],
-                note=sec['note'])
+                note=sec['note'],
+                graphics=pif.render.fmt_opt_img([(sec['img_format'][:5] + 's%02d' % sec['display_order']).lower()]))
             lsec.range.append(lran)
     else:
         lsec.range = [render.Range(entry=[
@@ -1091,7 +1096,7 @@ def add_section(pif, year, region):
         'start': 0,
         'pic_dir': '',
         'disp_format': '%d.',
-        'link_format': pif.form.get_str('link_fmt'),
+        'link_format': pif.form.get_str('link_fmt'),  # clearly wrong
         'img_format': '%s%s%%03d' % (year, region.lower()),
         'note': '',
     })
@@ -1196,7 +1201,7 @@ def generate_promos(pif, year):
     lineup_page_id = 'year.' + year
     vars = pif.dbh.fetch_variations_by_date(year, wildcard=True)
     for var in vars:
-        if set('TF', 'PR') & set(var['variation.category'].split(' ')):
+        if set(['TF', 'PR']) & set(var['variation.category'].split(' ')):
             nvs = {
                 'mod_id': var['variation.mod_id'],
                 'var_id': var['variation.var'],
@@ -1347,6 +1352,31 @@ def detect_lineup(pif, year):
         print('{}|{}|{}|{}'.format(var['variation.note'], vs.mod_id, '1', casting['rawname']))
 
 
+def import_series(pif, matrix_page, matrix_section, year, lineup_section):
+    pass
+    for mm in tables.Results('matrix_model', pif.dbh.fetch_matrix_models(page_id=matrix_page, section=matrix_section)):
+        values = {
+            'base_id': f'{year}{lineup_section.replace(".", "")}{mm.range_id}',
+            'mod_id': mm.mod_id,
+            'number': mm.range_id,
+            'display_order': mm.display_order,
+            'flags': 0,
+            'style_id': 'lg',
+            'picture_id': '',
+            'region': lineup_section,
+            'year': year,
+            'page_id': f'year.{year}',
+            'name': mm.name,
+            'subname': '',
+        }
+        print(pif.dbh.insert_lineup_model(values))
+    for vs in pif.dbh.fetch_variation_selects_for_ref(matrix_page, matrix_section):
+        del vs['variation_select.id']
+        vs['variation_select.ref_id'] = f'year.{year}'
+        vs['variation_select.sec_id'] = lineup_section.replace('.', '')
+        print(pif.dbh.update_variation_select(vs))
+
+
 cmds = [
     ('s', year_lineup, "show: year region [number]"),
     ('c', clone_lineup, "clone: year old_region new_region"),
@@ -1360,6 +1390,7 @@ cmds = [
     # ('x', check_lineup, "check lineup"),
     ('s', show_sections, "show sections"),
     ('pic', lineup_pics, "pics"),
+    ('is', import_series, "import series: matrix_page matrix_section year lineup_section"),
 ]
 
 

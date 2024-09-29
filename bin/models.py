@@ -373,7 +373,7 @@ def make_page_list(pif, format_type, fmt_link):
             entries.append(render.Entry(text=('<i>%s</i>' if hidden else '%s') % fmt_link(sec)))
     lsec = render.Section(
         section=[x for x in secs if x.page_id == format_type][0],
-        range=[render.Range(entry=entries)]
+        range=[render.Range(entry=entries)], columns=5
     )
     llineup = render.Matrix(id='main', section=[lsec])
     return pif.render.format_template('packpages.html', llineup=llineup.prep())

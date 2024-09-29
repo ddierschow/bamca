@@ -697,7 +697,7 @@ def add_pub_main(pif):
     if pif.form.has('save'):
         return add_pub_final(pif)
     entries = [
-        {'title': "ID:", 'value': pif.form.put_text_input("id", 8, 8, value='')},
+        {'title': "ID:", 'value': pif.form.put_text_input("id", 12, 12, value='')},
         {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
         {'title': 'Model Type:', 'value': pif.form.put_select('model_type', sorted(
             mbdata.model_type_names.items()), selected='BK')},
@@ -729,20 +729,20 @@ def add_pub_final(pif):
     if pif.duplicate_form:
         print('duplicate form submission detected')
     else:
-        ostr += pif.dbh.add_new_base_id({
+        ostr += str(pif.dbh.add_new_base_id({
             'id': pif.form.get_raw('id'),
             'first_year': pif.form.get_raw('year'),
             'model_type': pif.form.get_raw('model_type'),
             'rawname': pif.form.get_raw('rawname'),
             'description': pif.form.get_raw('description'),
             'flags': config.FLAG_MODEL_NOT_MADE if pif.form.get_raw('notmade') == 'not' else 0,
-        }) + '<br>\n'
-        ostr += pif.dbh.add_new_publication({
+        })) + '<br>\n'
+        ostr += str(pif.dbh.add_new_publication({
             'id': pif.form.get_raw('id'),
             'country': pif.form.get_raw('country'),
             'section_id': pif.form.get_raw('model_type').lower(),
             'isbn': pif.form.get_raw('isbn'),
-        }) + '<br>\n'
+        })) + '<br>\n'
     return pif.render.format_template('blank.html', content=ostr)
 
 
@@ -1175,13 +1175,13 @@ pack_sec = {
     'rwps': 'X.61',
     'rwgs': 'X.62',
     'sfgs': 'X.62',
-    '5packs': 'X.63',
-    'lic5packs': 'X.64',
-    'launcher': 'X.65',
-    '10packs': 'X.66',
-    '2packs': 'X.67',
-    'hnh': 'X.67',
-    'bk': 'X.68',
+    '5packs': 'X.65',
+    'lic5packs': 'X.66',
+    'launcher': 'X.67',
+    '10packs': 'X.68',
+    '2packs': 'X.62',
+    'hnh': 'X.62',
+    'bk': 'X.63',
 }
 pack_layout = {
     'rwps': '08s',
@@ -1205,7 +1205,7 @@ def add_pack_form(pif):
     section_id = pif.form.get_raw('section_id')
     section = pif.dbh.fetch_section(sec_id=section_id, category='MP')
     page_id = section.page_id if section else 'packs.5packs'
-    lineup_sec = pack_sec.get(section_id, 'X.63')
+    lineup_sec = pack_sec.get(section_id, 'X.65')
     year = pack_id[:4]
     if not year.isdigit():
         year = '0000'
@@ -1330,16 +1330,16 @@ def add_pack_model(pif, pack, long_pack_id):
             'mod':
                 pif.form.put_hidden_input({'pm.id.%s' % key: mod.get('pack_model.id', '0'),
                                            'pm.pack_id.%s' % key: long_pack_id}) +
-#                pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
-#                                       mod.get('pack_model.mod_id', '')) + ' ' +
+                # pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
+                #                        mod.get('pack_model.mod_id', '')) + ' ' +
                 pif.form.put_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
             'disp': pif.form.put_text_input(
                 "pm.display_order.%s" % key, 2, 2, value=mod.get('pack_model.display_order', '')),
             'style_id': pif.form.put_text_input(
                 "pm.style_id.%s" % key, 3, 3, value=mod.get('pack_model.style_id', '')),
-#            'edit': pif.render.format_button_link(
-#                'edit', pif.dbh.get_editor_link('pack_model',
-#                                                pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
+            # 'edit': pif.render.format_button_link(
+            #     'edit', pif.dbh.get_editor_link('pack_model',
+            #                                     pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
         } for key, mod in sorted(pmodels.items())]
     return render.Section(colist=cols, range=[render.Range(entry=entries)], noheaders=False, header='pack_model<br>')
 
@@ -1401,12 +1401,11 @@ def add_pack_save(pif):
 
     if pif.form.has('o_pack_id'):  # update existing records
         pif.dbh.update_pack_models(pms)
-        pif.dbh.update_variation_select_pack(pms, pack['page_id'], o_pack_id)
+        # pif.dbh.update_variation_select_pack(pms, pack['page_id'], o_pack_id)
 
         p_table_data = pif.dbh.get_table_data('pack')
         if o_pack_id != pack['id']:  # change id of pack
-            pif.dbh.update_variation_select_subid(
-                pack['id'], pack['page_id'], o_pack_id)
+            # pif.dbh.update_variation_select_subid(pack['id'], pack['page_id'], o_pack_id)
             if os.path.exists(pif.render.pic_dir + '/' + o_pack_id + '.jpg'):
                 os.rename(pif.render.pic_dir + '/' + o_pack_id + '.jpg',
                           pif.render.pic_dir + '/' + pack['id'] + '.jpg')
@@ -1416,8 +1415,8 @@ def add_pack_save(pif):
 
     else:  # add new records
         useful.write_message('add pm', pif.dbh.add_new_pack_models(pms, verbose=True))
-        useful.write_message('add vs', pif.dbh.update_variation_select_pack(
-            pms, pack['page_id'], pack['id'], verbose=True))
+        # useful.write_message('add vs', pif.dbh.update_variation_select_pack(
+        #     pms, pack['page_id'], pack['id'], verbose=True))
         useful.write_message('add pack', pif.dbh.add_new_pack(pack, verbose=True))
 
     # now do lineup_model separately

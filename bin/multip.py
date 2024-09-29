@@ -48,7 +48,6 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
     years = set()
     regions = set()
     materials = set()
-    has_note = False
     title = pif.form.search('title')
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
 
@@ -56,12 +55,14 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
     llineup = render.Listix()
     sec_id = sec if sec else sections[0]['id'] if sections else '5packs'
     num_mods = 2 if sec_id == '2packs' else 10 if sec_id == '10packs' else 5
+    page_id = pif.form.get_str('page')
+    packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
+    sizes = make_imgsizes(pif, pif.render.pic_dir)
+
     for lsection in sections:
         if sec and lsection['id'] != sec:
             continue
 
-        lsec = render.Section(section=lsection)
-        packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
         cols = ['pic', 'name', 'year', 'product_code', 'material']
         heads = ['', 'Name', 'Year', 'Product Code', 'Material']
         if verbose:
@@ -75,11 +76,9 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
             heads += ['Region']
         cols += ['note']
         heads += ['Note']
-        heads = dict(zip(cols, heads))
 
         entries = list()
         for pack in packs:
-            pack['longid'] = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
             if pack['section_id'] == lsection['id']:
                 if not verbose and pack['id'] in pack_ids_found:
                     continue
@@ -94,39 +93,36 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
                         (material and material != pack['material']) or
                         not useful.search_match(title, pack['name'])):
                     continue
+
                 pack['year'] = ((pack['first_year'] + '-' + pack['end_year'])
                                 if (pack['end_year'] and pack['end_year'] != pack['first_year']) else
                                 pack['first_year'])
-
                 pack['layout'] = (pack['layout'] if pack['layout'] in pack_layouts else
                                   '<font color="red">%s</font>' % pack['layout'])
-                pack['page'] = pif.form.get_str('page')
+                pack['page'] = page_id
                 pack['regionname'] = mbdata.regions[pack['region']]
                 pack['pic'] = mbdata.comment_icon.get('c') if imgsizes(
-                    pif, pif.render.pic_dir, pack['id'].lower()) else ''
+                    pif, pif.render.pic_dir, pack['id'].lower(), sizes) else ''
                 pack['material'] = mbdata.materials.get(pack['material'], '')
                 if pack['flags'] & config.FLAG_MODEL_NOT_MADE:
-                    pack['product_code'] = '<i class="fas fa-ban red"></i>'
+                    pack['product_code'] = mbdata.comment_icon.get('n')
                 else:
                     pack['name'] = '<a href="?page=%(page)s&id=%(id)s">%(name)s</a>' % pack
-                has_note = has_note or bool(pack['note'])
+                pack['longid'] = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
                 if verbose:
                     modify_pack_admin(pif, pack)
                 entries.append(pack)
         if not entries and not pif.is_allowed('a'):
             continue
         entries.sort(key=lambda x: (x[pif.form.get_str('order', 'first_year')], x['rawname'], x['first_year']))
+        lsec = render.Section(section=lsection, colist=cols, headers=dict(zip(cols, heads)), note='',
+                              range=[render.Range(entry=entries, note='', styles=dict(zip(cols, cols)))])
         if pif.is_allowed('a'):  # pragma: no cover
             if format_type == 'packs':
-                lsec.name += ' ' + pif.render.format_button_link(
-                    'see', "packs.cgi?page=%s&sec=%s" % (pif.form.get_str('page'), lsec.id))
+                lsec.name += ' ' + pif.render.format_button_link('see', f"packs.cgi?page={page_id}&sec={lsec.id}")
             lsec.name += ' ' + pif.render.format_button_link(
-                'add', "mass.cgi?tymass=pack&section_id=%s&num=%s" % (lsec.id, num_mods))
+                'add', f"mass.cgi?tymass=pack&section_id={sec_id}&num={num_mods}")
 
-        lsec.colist = cols
-        lsec.headers = heads
-        lsec.range = [render.Range(entry=entries, note='', styles=dict(zip(cols, cols)))]
-        lsec.note = ''
         llineup.section.append(lsec)
     context = {
         'page_id': pif.page_id,
@@ -227,7 +223,8 @@ def do_single_pack(pif, format_type, pid):
                     pmod['no_variation'] = 1
                     tcomments.add('v')
 
-            entries.append(render.Entry(text=show_pack_model(pif, pmod), class_name=pmod['style_id'] or 'wh', display_id=1))
+            entries.append(
+                render.Entry(text=show_pack_model(pif, pmod), class_name=pmod['style_id'] or 'wh', display_id=1))
 
         llineup.section.append(render.Section(id='', columns=layout[0], anchor=pack['id'],
                                               range=[render.Range(entry=entries)]))
@@ -240,24 +237,25 @@ def do_single_pack(pif, format_type, pid):
                ':3P' if page_id == 'packs.3packs' else '')
         left_bar_content += f'<br><center><span style="font-size: x-small;">{page_id}/{pack_id}{cat}</span><p>'
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
-        left_bar_content += ('<b><a href="traverse.cgi?d=.%s">Library</a></b><br>\n' %
-                             pif.render.pic_dir.replace('/pic/', '/lib/'))
+        left_bar_content += ('<b><a href="traverse.cgi?d=%s">Library</a></b><br>\n' %
+                             pif.render.pic_dir.replace('pic', 'lib'))
         left_bar_content += (
             '<b><a href="mass.cgi?verbose=1&tymass=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' %
             (packs[0]['section_id'], pack_id))
         # would like to pass in picsize (layout[3])
-        left_bar_content += ('<p><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' %
-                             (pif.render.pic_dir.replace('pic', 'lib'), pack_id))
-        left_bar_content += ('<b><a href="upload.cgi?d=./%s&n=%s">Contents</a><br>\n' %
-                             (pif.render.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id))
-        left_bar_content += ('<b><a href="upload.cgi?d=./%s&n=%s&m=%s&c=%s">Man</a><br>\n' %
-                             (config.IMG_DIR_MAN.replace('pic', 'lib'), pack_id, pack_id, pack_id))
-        left_bar_content += '<p>\n'
+        left_bar_content += (
+            '<p><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' %
+            (pif.render.pic_dir.replace('pic', 'lib'), pack_id) +
+            '<b><a href="upload.cgi?d=./%s&n=%s">Contents</a><br>\n' %
+            (pif.render.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id) +
+            '<b><a href="upload.cgi?d=./%s&n=%s&m=%s&c=%s">Man</a><br>\n' %
+            (config.IMG_DIR_MAN.replace('pic', 'lib'), pack_id, pack_id, pack_id) +
+            '<p>\n')
         for lnk, mod, pmid in modvars:
-            left_bar_content += f'<a href="{lnk}">{mod}</a> '
-            left_bar_content += f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"><i class="fas fa-edit gray"></i></a>'
-
-            left_bar_content += '<br>\n'
+            left_bar_content += (
+                f'<a href="{lnk}">{mod}</a> '
+                f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"> <i class="fas fa-edit gray"></i></a>'
+                '<br>\n')
         left_bar_content += '</center>\n'
 
     pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
@@ -275,13 +273,25 @@ def do_single_pack(pif, format_type, pid):
     return pif.render.format_template('pack.html', **context)
 
 
-def imgsizes(pif, pdir, pic_id):
-    sizes_found = []
-    for imgsize in mbdata.image_size_types:
-        if (glob.glob(os.path.join(pdir, imgsize + '_' + pic_id + '.jpg')) or
-                glob.glob(os.path.join(pdir, imgsize + '_' + pic_id + '-*.jpg'))):
-            sizes_found.append(imgsize.upper())
-    return ' '.join(sizes_found)
+def make_imgsizes(pif, pdir):
+    sizes = {}
+    for fn in glob.glob(os.path.join(pdir, '?_*.jpg')):
+        fn = fn[fn.rfind('/') + 1:-4]
+        sizes.setdefault(fn[2:], [])
+        sizes[fn[2:]].append(fn[0])
+    return sizes
+
+
+def imgsizes(pif, pdir, pic_id, sizes=None):
+    sl = []
+    if sizes:
+        for k, v in sizes.items():
+            if k == pic_id or k.startswith(pic_id + '-'):
+                sl.extend(v)
+    else:
+        fl = [x[x.rfind('/') + 1:-4] for x in glob.glob(os.path.join(pdir, f'?_{pic_id}*.jpg'))]
+        sl = [x[0] for x in fl if x[2:] == pic_id or x[2:].startswith(pic_id + '-')]
+    return (' '.join(sorted(set(sl)))).upper()
 
 
 def distill_models(pif, pack, page_id):
@@ -300,6 +310,7 @@ def distill_models(pif, pack, page_id):
 
     for mod in model_list:
         mod = pif.dbh.modify_man_item(mod)
+        useful.write_comment('mod', mod)
         mod['style_id'] = 'bg_' + mod['pack_model.style_id']
         useful.write_comment(mod)
         mod['pdir'] = pif.render.pic_dir
@@ -401,6 +412,7 @@ def show_pack_model(pif, mdict):
     mdict['number'] = ''
     mdict['descriptions'] = []
     if mdict['v.text_description']:
+        # mdict['v.text_description'] += (' (' + mdict['v.date'] + ')' if mdict.get('v.date') else '')
         mdict['descriptions'] = [mdict['v.text_description']]  # fix this
     mdict['product'] = ''
     if mdict['imgstr'].find('-') < 0:

@@ -47,7 +47,7 @@ class DBHandler(object):
         return {x: values.get(prefix + x, '') for x in self.get_table_data(table).id}
 
     def make_values(self, table, values, prefix=''):
-        return {x: values.get(prefix + x, '') for x in self.get_table_data(table).columns}
+        return {x: values.get(prefix + x, values.get(x, '')) for x in self.get_table_data(table).columns}
 
     def form_make_values(self, table, form, prefix=''):
         return {x: form.get_str(prefix + x, '') for x in self.get_table_data(table).columns}
@@ -546,6 +546,7 @@ class DBHandler(object):
     def modify_man_item(self, mod):
         mod = self.depref('casting,publication,base_id', mod)
         mod.setdefault('make', '')
+        mod['subname'] = mod.get('pack_model.subname', '')
 
         if mod.get('pack.id'):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
@@ -967,7 +968,8 @@ class DBHandler(object):
                 ("pack", "variation_select.sec_id=pack.id"),
                 ("base_id", "pack.id=base_id.id"),
                 ("lineup_model",
-                 "lineup_model.mod_id=variation_select.mod_id and lineup_model.page_id=variation_select.ref_id"),
+                 "variation_select.ref_id != '' and lineup_model.mod_id=variation_select.mod_id and "
+                 "lineup_model.page_id=variation_select.ref_id"),
                 ("publication", "variation_select.sec_id=publication.id"), ("base_id as pub", "pub.id=publication.id")]
         return tables.Results(
             'variation_select',
@@ -1318,7 +1320,7 @@ class DBHandler(object):
         # useful.write_message(values, '<br>')
         values = self.make_values('lineup_model', values)
         del values['id']
-        self.write('lineup_model', values=values, newonly=newonly, verbose=True, tag='InsertLineupModel')
+        return self.write('lineup_model', values=values, newonly=newonly, verbose=True, tag='InsertLineupModel')
 
     def update_lineup_model(self, where, values, verbose=False):
         # useful.write_message(where, values, '<br>')
@@ -1568,9 +1570,10 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         cols = [
             'base_id.id', 'base_id.first_year', 'base_id.flags', 'base_id.model_type', 'base_id.rawname',
             'base_id.description', 'pack_model.id', 'pack_model.mod_id', 'pack_model.pack_id', 'pack_model.pack_var',
-            'pack_model.var_id', 'pack_model.display_order', 'pack_model.style_id',
-            'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make', 'casting.section_id',
-            'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.mod_id', 'vs.var_id', 'v.text_description', 'v.picture_id']
+            'pack_model.var_id', 'pack_model.display_order', 'pack_model.style_id', 'pack_model.subname',
+            'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make',
+            'casting.section_id', 'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.mod_id', 'vs.var_id',
+            'v.text_description', 'v.picture_id', 'v.date']
         froms = ("pack_model "
                  "left join base_id on pack_model.mod_id=base_id.id "
                  "left join casting on pack_model.mod_id=casting.id "

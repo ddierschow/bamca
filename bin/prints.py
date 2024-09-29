@@ -341,7 +341,7 @@ picdirs = {
     'PC': 'pic/pub/cat',
     'DC': 'pic/pub/cat',
     # 'RY': 'pic/pub/pkg',
-    # 'PZ': 'pic/pub/pkg',
+    'PZ': 'pic/pub/game',
     'GM': 'pic/pub/game',
     'BK': 'pic/pub/book',
     'AD': 'pic/pub/ads',
@@ -401,7 +401,7 @@ def publication_list(pif, mtype):
         ret['name'] = '<a href="pub.cgi?id=%s">%s</a>' % (ret['id'], ret['rawname'].replace(';', ' '))
         ret['description'] = useful.printablize(ret['description'])
         if (os.path.exists(os.path.join(pif.render.pic_dir, ret['id'].lower() + '.jpg')) or
-                glob.glob(os.path.join(pif.render.pic_dir, '?_' + ret['id'].lower() + '_*.jpg')) or
+                glob.glob(os.path.join(pif.render.pic_dir, '?_' + ret['id'].lower() + '-*.jpg')) or
                 glob.glob(os.path.join(pif.render.pic_dir, '?_' + ret['id'].lower() + '.jpg'))):
             ret['picture'] = mbdata.comment_icon['c']
         return ret
@@ -519,7 +519,7 @@ def single_publication(pif, pub_id):
 
 
 def pub_images(pif, pub_id):
-    imgs = glob.glob(os.path.join(pif.render.pic_dir, '?_' + pub_id + '_*.jpg'))
+    imgs = glob.glob(os.path.join(pif.render.pic_dir, '?_' + pub_id + '-*.jpg'))
     imgs = list(set([os.path.split(fn)[1][2:-4] for fn in imgs]))
     if (os.path.exists(os.path.join(pif.render.pic_dir, pub_id + '.jpg')) or
             glob.glob(os.path.join(pif.render.pic_dir, '?_' + pub_id + '.jpg'))):

@@ -7,7 +7,7 @@ table_info = {
         'db': 'bamca',
         'id': ['id'],
         'saveid': False,
-        'columns': ['id', 'flags', 'format_type', 'title', 'pic_dir', 'tail', 'description', 'note'],
+        'columns': ['id', 'flags', 'format_type', 'style_id', 'title', 'pic_dir', 'tail', 'description', 'note'],
         'clinks': {
             'id': {'tab': 'page_info', 'id': ['id/id']},
         },
@@ -633,7 +633,7 @@ table_info = {
         'db': 'bamca',
         'id': ['id'],
         'saveid': False,
-        'columns': ['id', 'pack_id', 'pack_var', 'mod_id', 'flags', 'style_id', 'display_order'],
+        'columns': ['id', 'pack_id', 'pack_var', 'mod_id', 'flags', 'style_id', 'display_order', 'subname'],
         'clinks': {
             'id': {'tab': 'pack_model', 'id': ['id/id']},
             'mod_id': {'tab': 'base_id', 'id': ['id/mod_id']},
@@ -662,6 +662,7 @@ table_info = {
             {'tab': 'base_id', 'id': ['id/id']},
         ],
         'add': {
+            'publication': [],
             'lineup_model': ['mod_id/id'],
         },
         'create': {
