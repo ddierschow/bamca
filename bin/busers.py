@@ -232,7 +232,7 @@ def change_password_main(pif):
         range=[render.Range(entry=entries)],
         noheaders=True,
         header=pif.form.put_form_start(method='post', token=pif.dbh.create_token()),
-        footer=pif.form.put_hidden_input({'id': user['id']}) + pif.form.put_button_input() + "</form>",
+        footer=pif.form.put_hidden_input(id=user['id']) + pif.form.put_button_input() + "</form>",
     )
     return pif.render.format_template(
         'simplelistix.html',
@@ -376,7 +376,7 @@ def profile_main(pif):
     entries = [prof_row(row) for row in rows]
     if user['flags'] & config.FLAG_USER_BAMCA_MEMBER:
         entries[0]['value'] += ' ' + pif.render.fmt_art('bamca_member')
-    footer = pif.form.put_hidden_input({'id': user['id']})
+    footer = pif.form.put_hidden_input(id=user['id'])
     footer += pif.form.put_button_input() + "</form>"
     footer += pif.render.format_button_link('change password', '/cgi-bin/chpass.cgi')
     if user['photographer_id']:

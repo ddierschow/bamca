@@ -41,6 +41,7 @@ import useful
 # X.14 | Collectors                             | series   |
 # X.15 | Moving Parts                           | series   |
 # X.17 | Promotional                            | promo    |
+# X.19 | Convoy                                 | series   |
 # X.21 | Early Lesney Toys                      | ks       |
 # X.22 | Major Packs                            | ks       |
 # X.23 | King Size                              | ks       |
@@ -53,7 +54,7 @@ import useful
 # X.51 | Buildings                              | bld      |
 # X.52 | Playsets                               | bld      |
 # X.60 | Presentation Sets                      | pack     |
-# X.61 | Gift Sets                              | pack     |
+# X.61 | Gift Sets / Battle Kings               | pack     |
 # X.62 | 2-Packs / Hitch n Haul                 | pack     |
 # X.63 | 3-Packs                                | pack     |
 # X.65 | 5-Packs                                | pack     |
@@ -74,7 +75,7 @@ import useful
 def calc_lineup_model(pif, lsec, year, region, mdict):
     id_re = re.compile(r'(?P<a>[a-zA-Z]+)(?P<n>\d+)')
     mdict.update({
-        'image_format': lsec['link_format'],
+        'image_format': lsec.get('link_format', ''),
         'anchor': '{}{}'.format('X' if region.startswith('X') else '', mdict['number']),
         'class_name': '', 'product': '', 'prod_id': '', 'href': '',
         'is_reused_product_picture': 0, 'is_product_picture': 0, 'halfstar': 0,
@@ -89,6 +90,8 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
         mdict['class_name'] = ('revcasting' if mdict['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED else
                                'newcasting')
 
+    # useful.write_comment(mdict)
+
     if mdict['casting.id']:
         # modify this if rank_id exists
         mdict['prod_id'] = mdict['casting.id']
@@ -96,8 +99,8 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['product'] = mdict['picture_id'].replace('w', pif.form.get_strl('region'))
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
         elif mdict.get('image_format'):
-            imgfmt = (mdict['image_format'].replace('w', pif.form.get_strl('region')) if int(mdict['year']) > 1970 else
-                      mdict['image_format'])
+            imgfmt = (mdict['image_format'].replace('w', pif.form.get_strl('region'))
+                      if not region.startswith('X') and int(mdict['year']) > 1970 else mdict['image_format'])
             mdict['product'] = imgfmt % mdict['number']
         if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
             mdict['is_product_picture'] = 1
@@ -115,7 +118,10 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['product'] = mdict['image_format'] % mdict['pack.id']
         if pif.render.find_image_path([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
             mdict['is_product_picture'] = 1
-        mdict['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(pack.id)s" % mdict
+        if mdict['pack.section_id'] == 'playset':
+            mdict['href'] = "play.cgi?page=%(pack.page_id)s&id=%(pack.id)s" % mdict
+        else:
+            mdict['href'] = "packs.cgi?page=%(pack.page_id)s&id=%(pack.id)s" % mdict
     elif mdict['publication.id']:
         mdict['prod_id'] = mdict['publication.id']
         mdict['product'] = mdict['publication.id'] + '_01'
@@ -442,14 +448,15 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
             for x in mainsec['mods'] if not multi or len(x['cvarlist']) > 1],
             id=mainsec['id'],
             note=mainsec['note'])]
+    sections = [lsec]
     for sec in xsecs:
-        lsec.range.append(render.Range(
+        sections.append(render.Section(range=[render.Range(
             entry=[render_lineup_model(pif, x, comments, unroll=unroll, large=large) for x in sec['mods']],
             name='<i>' + sec['name'] + '</i>' if sec['flags'] & config.FLAG_SECTION_HIDDEN else sec['name'],
-            id=sec['id'],
+            id='X',
             note=sec['note'],
-        ))
-    llineup = render.Matrix(id='year', section=[lsec])
+        )]))
+    llineup = render.Matrix(id='year', section=sections)
 
     llineup.comments = comments
     llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
@@ -614,14 +621,15 @@ def run_product_pics(pif, region):
             ifmt, pdir = get_product_image(pages[page], mnum)  # this isnt working - no section
             spdir = mbdata.dirs.inverse.get(pdir, pdir)
             lmod = lmoddict.get(mnum, {})
+            lmod_id = lmod.get('lineup_model.mod_id', '')
             lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', pif.form.get_strl('region'))
+            lreg = pif.form.get_stru('region')
             if pic_id:
-                lpic_id = pic_id = pic_id.replace('W', pif.form.get_stru('region')).replace(
-                    'w', pif.form.get_strl('region'))
+                lpic_id = pic_id = pic_id.replace('W', lreg).replace('w', lreg.lower())
                 product_image_path, product_image_file = pif.render.find_image_file(
                     pic_id, suffix='jpg', pdir=pdir, largest='l')
             elif ifmt:
-                lpic_id = ifmt.replace('w', pif.form.get_strl('region')) % mnum
+                lpic_id = ifmt.replace('w', lreg.lower()) % mnum
                 product_image_path, product_image_file = pif.render.find_image_file(
                     [lpic_id], suffix='jpg', pdir=pdir, largest='l')
             else:
@@ -631,13 +639,14 @@ def run_product_pics(pif, region):
             if not lmod or lmod.get('lineup_model.flags', 0) & config.FLAG_MODEL_NOT_MADE:
                 pic_id = None
             halfstar = lmod and lmod.get('lineup_model.flags', 0) & config.FLAG_LINEUP_MODEL_MULTI_VARS
-            lnk = "single.cgi?dir=%s&pic=%s&ref=%s&sub=%s&id=%s" % (spdir, lpic_id, page, '',
-                                                                    lmod.get('lineup_model.mod_id', ''))
+            lnk = f"single.cgi?dir={spdir}&pic={lpic_id}&ref={page}&sub=&id={lmod_id}"
             istar = '&nbsp;' if not lmod else imglib.format_image_star(
                 pif, product_image_path, product_image_file, pic_id, halfstar)
+            title = f"{mnum}: {lmod.get('lineup_model.name', '')}"
             ent = render.Entry(
-                text=pif.render.format_link(lnk, istar),
+                text=pif.render.format_link(lnk, istar, also={'title': title}),
                 display_id=str(int(mnum % 10 == 0 or page[-1] == '0'))
+                #style='bl' if mnum % 10 == 0 or page[-1] == '0' else 'yl' if mnum % 10 == 5 or page[-1] == '5' else 'wt'
             )
             lran.entry.append(ent)
         lsec.range.append(lran)
@@ -668,7 +677,7 @@ def get_product_image(page, mnum):
         if page.section:
             section = page.section[0]
             # useful.write_comment('get_product_image section', section['page_id'], section['id'])
-            return section['img_format'], page['pic_dir']
+            return section['link_format'], page['pic_dir']
         # useful.write_comment('get_product_image no section')
     # else:
         # useful.write_comment('get_product_image no page')

@@ -312,6 +312,7 @@ class DBHandler(object):
         self.write('link_line', values={'page_id': f'single.{new_mod_id}'}, where=f"page_id='single.{old_mod_id}'",
                    modonly=True, tag=tag)
         self.write('mbusa', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('casting_make', values={'casting_id': new_mod_id}, where=f"casting_id='{old_mod_id}'", modonly=True, tag=tag)
 
     def update_base_id(self, id, values):
         return self.write('base_id', values=self.make_values('base_id', values), where=f"id='{id}'", modonly=True,
@@ -555,6 +556,7 @@ class DBHandler(object):
             mod['made'] = True  # not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
             mod['visual_id'] = self.default_id(mod['id'])
             mod['link'] = "packs.cgi?id"
+            mod['vehicle_type'] = ""
         elif mod.get('id'):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
             mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
@@ -1028,6 +1030,8 @@ class DBHandler(object):
         id = values.get('id', values.get('variation_select.id', ''))
         if id:
             return self.write('variation_select', values=values, where=f"id='{id}'", modonly=True, tag='UpdateVarSel')
+        else:
+            return self.write('variation_select', values=values, newonly=True, tag='UpdateVarSel')
 
     # this needs to be native sec_id.ran_id instead of sub_id
     def update_variation_select_subid(self, new_sub_id, ref_id, sub_id):

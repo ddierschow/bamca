@@ -165,6 +165,7 @@ def date_search(pif, dt=None, yr=None):
             ldir = 'man/' + mod_id.lower()
             vss = pif.dbh.fetch_variation_selects(mod_id=mod_id, var_id=var_id)
             vs = ', '.join(['-'.join([y[x] for x in ['ref_id', 'sec_id', 'ran_id']]) for y in vss])
+            categories = [x['variation_select.category'] for x in vss if x['variation_select.category']]
             verified = ['1'] if var['variation.flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else []
             id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
             ver_count += 1 if verified else 0
@@ -177,13 +178,13 @@ def date_search(pif, dt=None, yr=None):
 
             done = all([var['variation.text_' + x] != '' for x in ['description'] + descs])  # ignore text_with for now
             done = ' <i class="fas fa-star %s"></i>\n' % ('green' if done else 'red')
-            cats = ('(%s)' % var['variation.category']) if var['variation.category'] else ''
+            cats = '(%s/%s)' % (var['variation.category'], ' '.join(categories))
             desc = ''.join(['<li>' + x + ': ' + var['variation.text_' + x] for x in descs])
             if var['variation.text_with']:
                 desc += '<li>with: ' + var['variation.text_with']
             var['shown'] = ''
-            vt = '2' if var['variation.category'] in single.code2cats else '1'
-            var['class_name'] = 'ln2' if vt == '2' else 'ln1'
+            vt = '2' if var['variation.category'] in single.code2cats else '1' if categories else '0'
+            var['class_name'] = 'ln' + vt
             if last != mod_id:
                 var['shown'] += (
                     pif.render.format_link(f'/cgi-bin/single.cgi?id={mod_id}', f'<b>{mack_id} ({mod_id}) ') +
@@ -205,7 +206,7 @@ def date_search(pif, dt=None, yr=None):
                     mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var_id],
                     also={'class': 'righty'}, nobase=True, largest='s'))
             var['shown'] += (
-                pif.form.put_hidden_input({'v.' + mvid: '1'}) +
+                pif.form.put_hidden_input(**{'v.' + mvid: '1'}) +
                 pif.form.put_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
                 pif.form.put_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
                 pif.render.format_link(

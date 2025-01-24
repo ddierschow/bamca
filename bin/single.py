@@ -333,9 +333,11 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
             prod = pic + '<br>' + prod
             links.append(prod)
         links.append('')
-        vfl = pif.dbh.fetch_variation_files(mod_id)
-        for vf in vfl if vfl else [{'mod_id': mod_id, 'imported_from': 'importer'}]:
-            links.append('<a href="vedit.cgi?d=src/mbxf&m=%(mod_id)s&f=%(imported_from)s">%(imported_from)s</a>' % vf)
+        date_re = re.compile('^\d\d\d\d-\d\d-\d$')
+        vfl = [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod_id)]
+        vfl = sorted(set(['mbusa' if date_re.match(x) else x for x in vfl])) or ['importer']
+        for vf in vfl:
+            links.append(f'<a href="vedit.cgi?d=src/mbxf&m={mod_id}&f={vf}">{vf}</a>')
         var_pics, var_texts, missing_ids = show_list_var_pics(pif, mod_id)
         if missing_ids:
             ostr += f'\n<span class="red">{missing_ids}</span><br>\n'
@@ -573,6 +575,12 @@ def show_single(pif):
 
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
+    prodnames = sorted(set([x['name'] for x in matrix_appearances + lineup_appearances
+                 if x['name'] != model['name']]))
+    for x in matrix_appearances:
+        useful.write_comment('M', x['id'], x['name'])
+    for x in lineup_appearances:
+        useful.write_comment('L', x['id'], x['year'], x['region'], x['number'], x['name'])
     model['imgid'] = [model['id']]
     vehicle_types = [mbdata.model_icons.get(x) for x in model['vehicle_type']]
     descs = []
@@ -653,6 +661,7 @@ def show_single(pif):
         'matrixes': show_series_appearances(pif, matrix_appearances, relateds),
         'code2s': show_code2_appearances(pif, mod_id, vscounts),
         'packs': show_pack_appearances(pif, pack_appearances),
+        'prodnames': prodnames,
         'show_comparison_link': pif.dbh.fetch_casting_related_exists(mod_id, model['model_type'].lower()),
         'external_links': show_external_links(pif, pif.dbh.fetch_links_single('single.' + mod_id)),
         'relateds': make_relateds(pif, mod_id, [x for x in relateds if x['casting_related.section_id'] == 'single']),

@@ -141,6 +141,14 @@
 {% endfor %}
 </td></tr>
 {% endif %}
+{% if prodnames %}
+<tr><th colspan="{{ info_cols }}">Other Product Name{{ render.plural(prodnames) }}</th></tr>
+<tr><td colspan="{{ info_cols }}">
+{% for name in prodnames %}
+{{ name }}<br>
+{% endfor %}
+</td></tr>
+{% endif %}
 {% if revised %}
 <tr><td colspan="{{ info_cols }}">
 <img src="/pic/gfx/revcasting.gif">

@@ -15,24 +15,27 @@ flago = mflags.FlagList()
 mod_tab_pic_lnk_pat = '''
   <center>
    <table class="entry">
-    <tr><td></td><td width=32><i><font size=-1>%(first_year)s</font></i></td>
-    <td width=136><center><font face="Courier">%(id)s</font></center></td>
-    <td width=32>%(flag)s</td><td></td></tr>
-    <tr><td colspan=5><center>
-     %(lname)s
-     %(desclist)s    </center></td></tr>
+    <tr>
+     <td></td>
+     <td width="32"><i><font size=-1>%(first_year)s</font></i></td>
+     <td width="136"><center><font face="Courier">%(id)s</font></center></td>
+     <td width="32">%(flag)s</td>
+     <td></td></tr>
+    <tr>
+     <td colspan="5"><center>%(lname)s %(desclist)s</center></td>
+    </tr>
    </table>
   </center>
 '''
 mod_tab_thumb_pat = '''
   <center>
    <table class="entry">
-    <tr><td></td>
-    <td ><center><font face="Courier">%(id)s</font></center></td>
+    <tr>
+     <td><center><font face="Courier">%(id)s</font></center></td>
     </tr>
-    <tr><td colspan=5><center>
-     %(lname)s
-     </center></td></tr>
+    <tr>
+     <td><center>%(lname)s</center></td>
+    </tr>
    </table>
   </center>
 '''

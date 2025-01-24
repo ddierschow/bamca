@@ -597,12 +597,33 @@ def rename_series_pictures(pif, pdir, old_name, new_name):  # pragma: no cover
         pif.dbh.rename_photo_credit(pdir, old_name, new_name)
 
 
+# base_id   | section_id | display_order | page_id         | range_id | mod_id | flags | style_id | shown_id | name                |
+# 2023mmp01 | mvp2023    |             1 | matrix.movparts | 1        | MB1368 |     0 |          |          | Bentley Continental |
+def import_list(pif, page_id, section_id, barfile):  # pragma: no cover
+    infile = [x.strip().split('|') for x in open(barfile).readlines()]
+    for num, mod_id, name in infile:
+        v = {
+            'base_id': '',
+            'section_id': section_id,
+            'display_order': num,
+            'page_id': page_id,
+            'range_id': num,
+            'mod_id': mod_id,
+            'flags': 0,
+            'style_id': '',
+            'shown_id': '',
+            'name': name,
+        }
+        pif.dbh.insert_or_update_matrix_model(v, verbose=True)
+
+
 cmds = [
     ('p', check_pics, "check pics"),
     ('d', check_dups, "check dups"),
     ('m', move_section, "move section: section_id old_page_id new_page_id"),
     ('b', set_base_id, "set base id: page_id section_id new_link_format"),
     ('r', rename_range_id, "rename range id base id: page_id section_id old_range_id new_range_id"),
+    ('i', import_list, "import list: page_id section_id barfile"),
 ]
 
 

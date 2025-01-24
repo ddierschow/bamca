@@ -301,8 +301,8 @@ class BaseForm(object):
 
     def put_hidden_input(self, *values, **kvalues):
         ret = [f'<input type="hidden" name="{k}" value="{v}">\n' for k, v in kvalues.items()]
-        if values:
-            ret += [f'<input type="hidden" name="{k}" value="{v}">\n' for k, v in values[0].items()]
+        for value in values:
+            ret += [f'<input type="hidden" name="{k}" value="{v}">\n' for k, v in value.items()]
         return ''.join(ret)
 
     # -- buttons

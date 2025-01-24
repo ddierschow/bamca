@@ -22,6 +22,7 @@ a:hover      {color: #000099; text-decoration: underline;}
 .noborder    {border-width: 0;}
 .smallish    {font-size: small;}
 .largish     {font-size: large;}
+.largepic    {float: left;}
 
 .title       {background-color: #000066; height: 66px; margin: 3px 0 3px 0; display: table; width: 100%;
               color: #FFFFFF; font-weight: bold; font-size: xx-large; text-align: center; max-width: 1024px;}
@@ -231,16 +232,16 @@ it is also useful for targeting FF-only code */
 
 .body_year_tyc {background-color: #FFDD00;}
 .body_year_tyc .tb {background-color: #CCCCCC;}
-.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_tyc .sh {background-color: #000000; color: #FFFFFF;}
 .body_year_tyc .rh {background-color: #FFFFFF; color: #000000;}
 
 .body_year_mtl {background-color: #EE6644;}
 .body_year_mtl .tb {background-color: #CCCCCC;}
-.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_mtl .sh {background-color: #000000; color: #FFFFFF;}
 
 .body_year_esg {background-color: #DD5923;}
 .body_year_esg .tb {background-color: #CCCCCC;}
-.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
+.body_year_esg .sh {background-color: #000000; color: #FFFFFF;}
 
 .body_year_mwl {background-color: #DD5923;}
 .body_year_mwl .tb {background-color: #CCCCCC;}

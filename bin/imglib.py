@@ -87,6 +87,7 @@ movetos = [
     config.IMG_DIR_KING,
     config.IMG_DIR_MAKE,
     config.IMG_DIR_PROD_ODDS,
+    config.IMG_DIR_PROD_PROMOS,
     config.IMG_DIR_PACKAGE,
     config.IMG_DIR_PICS,
     config.IMG_DIR_SET_PLAYSET,

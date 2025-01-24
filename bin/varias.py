@@ -1753,11 +1753,12 @@ def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
     print(mod_id, var_id_list, attribute, attr['id'] if attr else None, '=>', value)
     if var_id:
         for var_id in var_id_list:
+            new_value = vars[var_id][value[1:]] if value.startswith('&') else value
             if attribute in detail_attributes and var_id:
-                pif.dbh.update_variation({attribute: value}, {'mod_id': mod_id, 'var': var_id})
+                pif.dbh.update_variation({attribute: new_value}, {'mod_id': mod_id, 'var': var_id})
             else:
                 print(pif.dbh.add_or_update_detail(
-                    {'description': value, 'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']},
+                    {'description': new_value, 'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']},
                     {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=True))
     else:
         print(pif.dbh.add_or_update_detail(

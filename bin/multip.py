@@ -18,7 +18,6 @@ import useful
 # colspan must be <= columns!
 pack_layout_keys = ['columns', 'colspan', 'rowspan', 'picsize']
 pack_layouts = {
-    '01s': [1, 1, 1, 'h'],
     '02v': [2, 1, 2, 'l'],
     '03v': [2, 1, 3, 'm'],
     '04v': [2, 1, 4, 'm'],
@@ -33,6 +32,7 @@ pack_layouts = {
     '08v': [4, 3, 4, 'm'],
     '10h': [4, 3, 2, 'l'],
     '10v': [3, 2, 4, 'm'],
+    '1xh': [1, 1, 1, 'h'],
     '2xh': [2, 2, 1, 'h'],
     '3xh': [3, 3, 1, 'h'],
     '4xh': [4, 4, 1, 'h'],
@@ -195,7 +195,7 @@ def do_single_pack(pif, format_type, pid):
         if pack['layout'].isdigit() and len(pack['layout']) == 4:
             layout = [int(x) for x in pack['layout'][:3]] + pack['layout'][3:]
         elif not pmodels:
-            layout = pack_layouts['01s']
+            layout = pack_layouts['1xh']
         else:
             layout = pack_layouts.get(pack['layout'], pack_layouts['4xh'])
         if len(layout) == 2:

@@ -46,7 +46,8 @@ C = category
         t = 10
         w = 20
         m = ....many?
-        s = playset
+    ps = playset
+    pr = promo
     e = ephemera (paper)
         a = advertisement
         b = book
@@ -177,6 +178,11 @@ ebay_ends = [
     '/s-l300.webp',
     '/s-l225.webp',
     '/s-l64.webp',
+    '/s-l960.jpg',
+    '/s-l500.jpg',
+    '/s-l300.jpg',
+    '/s-l225.jpg',
+    '/s-l64.jpg',
 ]
 
 
@@ -188,7 +194,8 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
         for ebay_end in ebay_ends:
             if url.startswith(ebay_start) and url.endswith(ebay_end):
                 # print('webp convert')
-                url = 'http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600.webp'
+                url = ('http://i.ebayimg.com/images/g/' + url[len(ebay_start):-len(ebay_end)] + '/s-l1600' +
+                       url[url.rfind('.'):])
                 found = True
                 break
         if found:
@@ -813,6 +820,9 @@ class EditForm(imglib.ActionForm):
         if self.tdir.startswith('lib/prod/pack') or self.tdir.startswith('./lib/prod/pack'):
             prefs = 'mlh'
             self.unlv = True
+        elif self.tdir.startswith('lib/prod/playset') or self.tdir.startswith('./lib/prod/playset'):
+            prefs = 'mlh'
+            self.unlv = True
         elif self.tdir.startswith('lib/prod') or self.tdir.startswith('./lib/prod'):
             prefs = 'm'
             self.unlv = True
@@ -1048,7 +1058,7 @@ class StitchForm(object):
                     self.limit_y = min(y, self.limit_y)
                     fn_size = '<br>' + str((x, y))
                 print(pif.render.format_cell(1, fn + fn_size))
-                print(pif.form.put_hidden_input({'fn_' + num: fn}))
+                print(pif.form.put_hidden_input(**{'fn_' + num: fn}))
             else:
                 print(pif.render.format_cell(
                     1, pif.form.put_text_input('fn_%d' % self.file_count, 80) + '<br>' +
@@ -1061,13 +1071,13 @@ class StitchForm(object):
                 print(pif.render.format_cell(1, 'y ' + pif.form.put_text_input('limit_y', 5, value=self.limit_y)))
             if 'x1' in fs:
                 print(pif.render.format_cell(1, str(fs['x1']), also={'width': 40}))
-                print(pif.form.put_hidden_input({'x1_' + num: fs['x1']}))
+                print(pif.form.put_hidden_input(**{'x1_' + num: fs['x1']}))
                 print(pif.render.format_cell(1, str(fs['y1']), also={'width': 40}))
-                print(pif.form.put_hidden_input({'y1_' + num: fs['y1']}))
+                print(pif.form.put_hidden_input(**{'y1_' + num: fs['y1']}))
                 print(pif.render.format_cell(1, str(fs['x2']), also={'width': 40}))
-                print(pif.form.put_hidden_input({'x2_' + num: fs['x2']}))
+                print(pif.form.put_hidden_input(**{'x2_' + num: fs['x2']}))
                 print(pif.render.format_cell(1, str(fs['y2']), also={'width': 40}))
-                print(pif.form.put_hidden_input({'y2_' + num: fs['y2']}))
+                print(pif.form.put_hidden_input(**{'y2_' + num: fs['y2']}))
             elif fn:
                 if not os.path.exists(fn):
                     print(pif.render.format_cell(1, 'Nonexistant: ' + os.getcwd() + '/' + fn, also={'colspan': 4}))

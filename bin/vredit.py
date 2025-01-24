@@ -409,7 +409,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', {'id': attr['id']}), attr['id']))
         print("<td>%s</td>" % (
             attr["attribute_name"] +
-            pif.form.put_hidden_input({"attribute_name.%(id)d" % attr: attr["attribute_name"]})))
+            pif.form.put_hidden_input(**{"attribute_name.%(id)d" % attr: attr["attribute_name"]})))
         print("<td>%s</td>" % attr["definition"])
         print("<td>%s</td>" % attr["title"])
         if attr['attribute_name'] == 'base':

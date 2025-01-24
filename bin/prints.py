@@ -391,7 +391,7 @@ def publication_list(pif, mtype):
         raise useful.Redirect('ads.cgi?title=' + pif.form.get_str('title'))
     sobj = pif.form.search('title')
     pif.render.pic_dir = sec.page_info.pic_dir
-    pubs = pif.dbh.fetch_publications(model_type=mtype)
+    pubs = pif.dbh.fetch_publications(model_type=mtype, order='base_id.rawname')
 
     def pub_ent(pub):
         ret = pub.todict()

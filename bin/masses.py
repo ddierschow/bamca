@@ -98,7 +98,7 @@ def mass_save(pif):
 
 
 def mass_type_reinput(pif):
-    return pif.form.put_hidden_input({'tymass': pif.form.get_raw('tymass')})
+    return pif.form.put_hidden_input(tymass=pif.form.get_raw('tymass'))
 
 
 # ------- variation dates ------------------------------------------
@@ -109,7 +109,7 @@ def dates_main(pif):
         val = pif.form.get_bool('c.' + mvid)
         idm = pif.form.get_bool('i.' + mvid)
         imp = pif.form.get_str('s.' + mvid)
-        useful.write_message(mvid, val, idm)
+        useful.write_message(mvid, val, idm, imp)
         vars = pif.dbh.fetch_variation_bare(*mvid.split('-'))
         if vars:
             var = vars[0]
@@ -622,6 +622,11 @@ def add_casting_main(pif):
         {'title': 'Attributes:', 'value': pif.form.put_text_input('attributes', 80, 80)},
         {'title': 'Mack:', 'value': pif.form.put_text_input('mack', 8, 8)},
         {'title': 'Related:', 'value': pif.form.put_text_input('related', 80, 80)},
+        {'title': 'Vehicle Type:', 'value':
+            pif.form.put_checkbox(
+                'vt', [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])]) + '<br>' +
+            pif.form.put_checkbox(
+                'vt', [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[14:])])},
         {'title': '', 'value': pif.form.put_button_input('save')},
     ]
 
@@ -686,6 +691,9 @@ def add_casting_final(pif):
                     'flags': 0,
                 })) + '<br>\n'
         os.mkdir(os.path.join('lib', 'man', casting_id.lower()), mode=0o775)
+
+        val = ''.join(pif.form.get_list('vt'))
+        pif.dbh.write_casting(values={'vehicle_type': val}, id=casting_id)
     print(pif.render.format_template('blank.html', content=ostr))
     raise useful.Redirect(f'single.cgi?id={casting_id}')
 
@@ -853,7 +861,11 @@ def add_var_info(pif):
             'imported_from': pif.form.get_raw('imported_from'),
             'imported_var': var_id,
             'date': pif.form.get_raw('date')}
-    for col in var_id_columns + [None] + var_attr_columns + attr_names + [None] + var_data_columns:
+    for col in var_id_columns:
+        val = var.get(col) if var and var.get(col) else defs.get(col, '')
+        entries.append({'title': col, 'value': val, 'input': val + pif.form.put_hidden_input(**{col: val})})
+    entries.append({})
+    for col in var_attr_columns + attr_names + [None] + var_data_columns:
         if col:
             val = var.get(col) if var and var.get(col) else defs.get(col, '')
             entries.append(
@@ -1057,7 +1069,7 @@ def edit_casting_related(pif):
 
     def show_rel(num, cr):
         print('<td>', cr.get('casting_related.id', ''))
-        print(pif.form.put_hidden_input({f'i.{num}': cr.get('casting_related.id', 0)}), '</td>')
+        print(pif.form.put_hidden_input(**{f'i.{num}': cr.get('casting_related.id', 0)}), '</td>')
         for tag, key, wid in [
                 ('m', 'casting_related.model_id', 12),
                 ('r', 'casting_related.related_id', 12),
@@ -1122,14 +1134,14 @@ def edit_casting_related(pif):
     print(pif.form.put_button_input('save'))
     print(pif.form.put_hidden_input(mod_id=pif.form.get_raw('mod_id')))
     print(mass_type_reinput(pif))
-    print(pif.form.put_hidden_input({'section_id': section_id}))
+    print(pif.form.put_hidden_input(section_id=section_id))
     print('</form><hr>')
     if pif.form.has('mod_id'):
         print('<form name="add" action="mass.cgi" onsubmit="add.disabled=true; return true;">' + pif.create_token())
-        print(pif.form.put_hidden_input({'mod_id': pif.form.get_raw('mod_id'), 'tymass': 'related'}))
+        print(pif.form.put_hidden_input(mod_id=pif.form.get_raw('mod_id'), tymass='related'))
         print(pif.form.put_text_input('r', 12))
         print(pif.form.put_button_input('add'))
-        print(pif.form.put_hidden_input({'section_id': section_id}))
+        print(pif.form.put_hidden_input(section_id=section_id))
         print('</form>')
     print(pif.render.format_tail())
 
@@ -1164,7 +1176,7 @@ def add_pack_ask(pif):
         {'title': '', 'value': pif.form.put_button_input()},
     ]
     footer = mass_type_reinput(pif)
-    footer += pif.form.put_hidden_input({'verbose': '1'})
+    footer += pif.form.put_hidden_input(verbose='1')
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
                               header=header, footer=footer)
@@ -1172,29 +1184,31 @@ def add_pack_ask(pif):
 
 
 pack_sec = {
+    'playset': 'X.52',
     'rwps': 'X.61',
     'rwgs': 'X.62',
     'sfgs': 'X.62',
+    '2packs': 'X.62',
+    'hnh': 'X.62',
+    'bk': 'X.61',
     '5packs': 'X.65',
     'lic5packs': 'X.66',
     'launcher': 'X.67',
     '10packs': 'X.68',
-    '2packs': 'X.62',
-    'hnh': 'X.62',
-    'bk': 'X.63',
 }
 pack_layout = {
+    'playset': '1xh',
     'rwps': '08s',
     'rwgs': '05s',
     'sfgs': '4xh',
-    '5packs': '05v',
+    'bk': '2xh',
+    'hnh': '2xh',
+    '2packs': '2xh',
     '3packs': '03v',
+    '5packs': '05v',
     'lic5packs': '05s',
     'launcher': '05s',
     '10packs': '10h',
-    '2packs': '02v',
-    'hnh': '02v',
-    'bk': '02v',
 }
 
 
@@ -1328,8 +1342,8 @@ def add_pack_model(pif, pack, long_pack_id):
     entries = [
         {
             'mod':
-                pif.form.put_hidden_input({'pm.id.%s' % key: mod.get('pack_model.id', '0'),
-                                           'pm.pack_id.%s' % key: long_pack_id}) +
+                pif.form.put_hidden_input(**{'pm.id.%s' % key: mod.get('pack_model.id', '0'),
+                                             'pm.pack_id.%s' % key: long_pack_id}) +
                 # pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
                 #                        mod.get('pack_model.mod_id', '')) + ' ' +
                 pif.form.put_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
@@ -1717,7 +1731,7 @@ def add_links_ask(pif):
     ]
 
     header = '<form name="mass" action="mass.cgi">' + pif.create_token()
-    footer = pif.form.put_hidden_input({'tymass': 'links'}) + "</form><p>"
+    footer = pif.form.put_hidden_input(tymass='links') + "</form><p>"
 
     for lnk in asslinks:
         if lnk['link_line.id'] in link_scraper:
@@ -1776,7 +1790,7 @@ def add_links_scrape(pif):
             'ch': pif.form.put_checkbox('ch.' + str(cnt), [('1', '')], checked=['1']),
             'url':
                 pif.render.format_link(dat['url']) +
-                pif.form.put_hidden_input({'url.' + str(cnt): dat['url']}),
+                pif.form.put_hidden_input(**{'url.' + str(cnt): dat['url']}),
             'page_id': pif.form.put_text_input('page_id.' + str(cnt), 256, 20, dat['page_id']),
             'name': pif.form.put_text_input('name.' + str(cnt), 256, 40, dat['name']),
             'description': pif.form.put_text_input('description.' + str(cnt), 256, 20, ''),
@@ -1784,7 +1798,7 @@ def add_links_scrape(pif):
         })
         cnt += 1
     footer = pif.form.put_button_input('save')
-    footer += pif.form.put_hidden_input({'tymass': 'links'})
+    footer += pif.form.put_hidden_input(tymass='links')
     footer += "%d found and dropped" % found
     footer += "</form>"
 
@@ -1868,7 +1882,7 @@ def add_book_ask(pif, book_id=None):
             pif.render.format_button_link('book', 'biblio.cgi?edit=1'),
             pif.render.format_button_link('edit', 'editor.cgi?table=book'))}
     ]
-    footer = pif.form.put_hidden_input({'tymass': 'book'}) + "</form><p>"
+    footer = pif.form.put_hidden_input(tymass='book') + "</form><p>"
     lsections.append(render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
                                     noheaders=True, footer=footer))
     return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
@@ -1949,8 +1963,8 @@ def add_ads_ask(pif):
         {'title': "Country:", 'value': pif.form.put_text_input("country", 16, 16, value=cy)},
         {'title': '', 'value': pif.form.put_button_input('save') + pif.form.put_button_reset('mass')},
     ]
-    footer = pif.form.put_hidden_input({'tymass': 'ads'})
-    footer += pif.form.put_hidden_input({'o_id': o_ad_id})
+    footer = pif.form.put_hidden_input(tymass='ads')
+    footer += pif.form.put_hidden_input(o_id=o_ad_id)
     footer += "</form><p>" + pif.render.format_image_required(o_ad_id, pdir=config.IMG_DIR_ADS, largest='e')
     lsections = []
     lsections.append(render.Section(colist=['title', 'value'],
@@ -2016,8 +2030,7 @@ def add_matrix_ask(pif):
         {'title': '', 'value': 'bar file: num|man_id|name -- only one of: number, file, ref_id'},
         {'title': '', 'value': pif.form.put_button_input()},
     ]
-    footer = pif.form.put_hidden_input({'tymass': 'matrix'})
-    footer += pif.form.put_hidden_input({'verbose': '1'})
+    footer = pif.form.put_hidden_input(tymass='matrix', verbose='1')
     footer += "</form>"
     llineup.section.append(
         render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
@@ -2030,7 +2043,7 @@ def add_matrix_ask(pif):
         {'title': 'Note:', 'value': pif.form.put_text_input("text_note", 24, 24)},
         {'title': '', 'value': pif.form.put_button_input()},
     ]
-    footer = pif.form.put_hidden_input({'edt': '1'})
+    footer = pif.form.put_hidden_input(edt='1')
     footer += "</form>"
     llineup.section.append(render.Section(
         colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True, header=header, footer=footer))
@@ -2316,9 +2329,7 @@ def add_attr_pics_ask(pif):
             pif.render.format_button_link('errors', '/cgi-bin/errors.cgi'),
             pif.render.format_button_link('prepros', '/cgi-bin/prepro.cgi'))}
     ]
-    footer = pif.form.put_hidden_input({'tymass': 'attrpics'})
-    footer += pif.form.put_hidden_input({'verbose': '1'})
-    footer += "</form>"
+    footer = pif.form.put_hidden_input(tymass='attrpics', verbose='1') + "</form>"
     lsection = render.Section(colist=['title', 'value'],
                               range=[render.Range(entry=entries)], noheaders=True, header=header, footer=footer)
     return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
@@ -2344,7 +2355,7 @@ def add_attr_pics_form(pif):
             pif.form.put_text_input('pic_id.%s' % recid, maxlength=4, showlength=4, value=rec['picture_id']),
             pif.form.put_checkbox('do.%s' % recid, [('1', 'save')], checked=rec['do']),
             pif.form.put_checkbox('rm.%s' % recid, [('1', 'del')]),
-            pif.form.put_hidden_input({'mod_id.%s' % recid: rec['mod_id'], 'img.%s' % recid: img}),
+            pif.form.put_hidden_input(**{'mod_id.%s' % recid: rec['mod_id'], 'img.%s' % recid: img}),
             pif.form.put_text_input(
                 'desc.%s' % recid, maxlength=128, showlength=40,
                 value='{}<br>Credit: {}'.format(
@@ -2357,7 +2368,7 @@ def add_attr_pics_form(pif):
 
     header = '<hr>\n'
     header += '<form action="mass.cgi" method="post">\n' + pif.create_token()
-    header += pif.form.put_hidden_input({'verbose': 1, 'tymass': 'attrpics', 'attr_type': pref})
+    header += pif.form.put_hidden_input(verbose=1, tymass='attrpics', attr_type=pref)
 
     llistix = render.Listix(note=header)
     entries = [attr_pic_rec(rec, rec['id']) for rec in rl]
@@ -2474,7 +2485,7 @@ def add_photogs_form(pif):
         }
 
     header = '<hr>\n<form action="mass.cgi" method="post">\n' + pif.create_token()
-    header += pif.form.put_hidden_input({'verbose': 1, 'tymass': 'photogs'})
+    header += pif.form.put_hidden_input(verbose=1, tymass='photogs')
 
     footer = pif.form.put_button_input("save")
     footer += pif.render.format_button_link('add', '/cgi-bin/editor.cgi?table=photographer&id=&add=1')

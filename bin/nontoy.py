@@ -237,6 +237,8 @@ def submit_comment(pif):
     credit = pif.form.get_str('credit')
     fname = pif.form.get_str('pic.name')
     fimage = pif.form.get('pic')
+    if isinstance(fimage, list):
+        fimage = b''.join([x for x in fimage if x])
     pif.form.delete('pic')
 
     def comment_error(msg):

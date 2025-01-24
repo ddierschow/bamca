@@ -224,7 +224,7 @@ class MannoFile(object):
                 refitem['id'] = manitem['id']
                 refitem['descs'] = manitem['descs']
                 refitem['descs'].append('same as ' + manitem['ref_id'])
-                refitem['vehicle_type'] = manitem['vehicle_type']
+                refitem['vehicle_type'] = manitem['vehicle_type'] or ''
                 manitem = refitem
             self.add_item(manitem['alias.id'], manitem)
 
@@ -717,7 +717,7 @@ class MannoFile(object):
             if s.startswith('same as '):
                 img.append(mbdata.IMG_SIZ_SMALL + '_' + s[8:])
         lnk = 'single.cgi?id=%(id)s' % mdict
-        mdict['flag'] = mdict.get('country', '') + ' '
+        mdict['flag'] = (mdict.get('country', '') or "") + ' '
         if mdict.get('country') in flago:
             mdict['flag'] += pif.render.format_image_flag(mdict['country'], flago[mdict['country']])
         elif mdict['unlicensed'] == '-':
@@ -1314,6 +1314,14 @@ def check_castings(pif, *args):
             print(mod_id, 'has bad vt 2 :', set(mod['vehicle_type']) & vt2)
         if set(mod['vehicle_type']) - (vt1 | vt2):
             print(mod_id, 'has vt with bad chars :', set(mod['vehicle_type']) - (vt1 | vt2))
+        name = mod.get('base_id.rawname', '')
+        if not name:
+            print(mod_id, 'has blank name')
+        else:
+            for x in pif.dbh.icon_name(name):
+                if len(x.strip()) > 36:
+                    print(mod_id, 'has illegal name:', name)
+                    break
 
 
 def fix_formats(pif):
@@ -1399,7 +1407,7 @@ def show_list_var_pics(pif, mod_id):
     return af, cf
 
 
-def check_core(pif, *specs):
+def check_core(pif, *specs):  # b0rken
 
     sw = []
     if specs[0][0] == '0':
