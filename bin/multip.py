@@ -314,7 +314,7 @@ def distill_models(pif, pack, page_id):
         mod['style_id'] = 'bg_' + mod['pack_model.style_id']
         useful.write_comment(mod)
         mod['pdir'] = pif.render.pic_dir
-        mod['spdir'] = mbdata.dirs.inverse.get(mod['pdir'], mod['pdir'])
+        mod['spdir'] = mbdata.dirs_r.get(mod['pdir'], mod['pdir'])
         sec_ids = ['.', '', pack_id + '.', pack_id + '.' + str(mod['pack_model.display_order'])]
         if (mod['vs.sec_id'] or '') + '.' + (mod['vs.ran_id'] or '') in sec_ids:
             mod['imgl'] = [mbdata.IMG_SIZ_SMALL + '_' + mod['id'], mod['id'], mod['pack_model.mod_id']]

@@ -154,48 +154,34 @@ class MannoFile(object):
         self.end = pif.form.get_int('end', 9999)
         self.firstyear = pif.form.get_int('syear', 1)
         self.lastyear = pif.form.get_int('eyear', 9999)
-        if pif.form.get_str('range', 'all') == 'all':
-            self.start = self.end = None
         self.nodesc = pif.form.get_int('nodesc')
         self.revised = pif.form.get_int('revised')
         self.model_type = pif.form.get_str('mtype')
-        vtypes = pif.dbh.fetch_vehicle_types()
-        self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in vtypes}
-        self.vehtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
-        self.addtypes = {'y': "", 'n': "", 'm': "".join(mbdata.image_adds_types)}
-        self.pictypes = {'y': "", 'n': "", 'm': "sml"}
+        self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in pif.dbh.fetch_vehicle_types()}
+#        vtypes = pif.dbh.fetch_vehicle_types()
+#        self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in vtypes}
+#        self.vehtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
+        self.vehtypes = pif.form.get_list_by_value('type', 'ynm')
+        self.addtypes = pif.form.get_list_by_value('add', 'ynm')
+        self.pictypes = pif.form.get_list_by_value('pic', 'ynm')
         self.plist = man_sections  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
-        if self.section:
-            slist = pif.dbh.fetch_sections({'id': useful.clean_id(self.section)})  # , 'page_id': pif.page_id})
-        else:
-            slist = pif.dbh.fetch_sections({'page_id': pif.page_id})
+        slist = pif.dbh.fetch_sections({'id': useful.clean_id(self.section)}  # , 'page_id': pif.page_id})
+                                       if self.section else {'page_id': pif.page_id})
         if not slist:
-            raise useful.SimpleError('Requested section not found. %s' % self.section)
+            raise useful.SimpleError(f'Requested section not found: {self.section}')
 #        aliases = pif.dbh.fetch_aliases()
-        adict = dict()
+        adict = {}
 #        for alias in aliases:
 #            adict.setdefault(alias['alias.ref_id'], list())
 #            adict[alias['alias.ref_id']].append(alias)
-        self.mdict = dict()
-        self.sdict = dict()
-        self.slist = list()
+        self.mdict = {}
+        self.sdict = {}
+        self.slist = []
         for section in slist:
             if section['section.page_id'] in self.plist and (not self.section or section['id'] == self.section):
                 section.setdefault('model_ids', list())
                 self.sdict[section['id']] = section
                 self.slist.append(section)
-
-        def get_types(start, dest):
-            dest['n'] = list(pif.form.get(start + 'n', ''))
-            dest['y'] = list(pif.form.get(start + 'y', ''))
-            for key in pif.form.keys(start=start + '_'):
-                val = pif.form.get_str(key)
-                dest.setdefault(val, list())
-                dest[val] += key[-1]
-
-        get_types('type', self.vehtypes)
-        get_types('add', self.addtypes)
-        get_types('pic', self.pictypes)
 
         # useful.write_message(self.start, self.end, self.firstyear, self.lastyear, self.model_type, self.nodesc)
         for casting in pif.dbh.fetch_casting_list(section_id=self.section):  # (page_id=pif.page_id):
@@ -237,7 +223,7 @@ class MannoFile(object):
             # useful.write_message('ai', manitem['id'])
 
     def types(self, typespec):
-        return ', '.join(filter(None, [self.tdict.get(t) for t in typespec or []]))
+        return ', '.join([self.tdict.get(t, '') for t in typespec or [] if t])
 
     def run_thing(self, pif, FunctionShowSection):
         sections = list()
@@ -266,32 +252,23 @@ class MannoFile(object):
         if mod['first_year'] and (self.firstyear > int(mod['first_year']) or self.lastyear < int(mod['first_year'])):
             return False
 
-        vt_y = self.vehtypes.get('y', [])
-        vt_n = self.vehtypes.get('n', [])
         at_y = self.addtypes.get('y', [])
         at_n = self.addtypes.get('n', [])
         pt_y = self.pictypes.get('y', [])
         pt_n = self.pictypes.get('n', [])
-        if vt_y or vt_n:
-            if useful.any_char_match(vt_n, mod['vehicle_type'] or []):
-                return False
-            if vt_y and not useful.any_char_match(vt_y, mod['vehicle_type']):
-                return False
+        if not mbdata.type_check(self.vehtypes['n'], self.vehtypes['y'], mod['vehicle_type']):
+            return False
 
         if at_y or at_n:
             add_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(
                 useful.relpath('.', config.IMG_DIR_ADD, "?_" + mod['id'].lower() + '*.*'))]))
-            if useful.any_char_match(at_n, add_pics):
-                return False
-            if at_y and not useful.any_char_match(at_y, add_pics):
+            if not mbdata.type_check(at_n, at_y, add_pics):
                 return False
 
         if pt_y or pt_n:
             mod_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(
                 useful.relpath('.', config.IMG_DIR_MAN, "?_" + mod['id'].lower() + '*.*'))]))
-            if useful.any_char_match(pt_n, mod_pics):
-                return False
-            if pt_y and not useful.any_char_match(pt_y, mod_pics):
+            if not mbdata.type_check(pt_n, pt_y, mod_pics):
                 return False
 
         if self.madeonly and not mod['made']:
@@ -744,15 +721,6 @@ class MannoFile(object):
 
     def show_vt_model_table(self, pif, mdict, flago):
         return vt_fmtb % self.get_vt_model_table(pif, mdict, flago)
-
-    def show_section_vehicle_type(self, pif, sect):
-        flago = mflags.FlagList()
-        sect['cols'] = len(vt_cols)
-        ostr = '<tr><th colspan=%(cols)d id="%(id)s">%(name)s</a></th></tr>\n' % sect
-        ostr += vt_fmth % dict(vt_cols) + '\n'
-        for mod in sect['model_ids']:
-            ostr += self.show_vt_model_table(pif, self.mdict[mod], flago) + '\n'
-        return ostr
 
     def show_section_vehicle_type_template(self, pif, sect):
         flago = mflags.FlagList()
@@ -1306,14 +1274,15 @@ def check_castings(pif, *args):
         if not mod:
             print(mod_id, 'not found')
             continue
-        if not mod['vehicle_type']:
-            print(mod_id, 'has blank vt')
-        elif len(set(mod['vehicle_type']) & vt1) not in (1, 2):
-            print(mod_id, 'has bad vt 1 :', set(mod['vehicle_type']) & vt1)
-        if len(set(mod['vehicle_type']) & vt2) > 2:
-            print(mod_id, 'has bad vt 2 :', set(mod['vehicle_type']) & vt2)
-        if set(mod['vehicle_type']) - (vt1 | vt2):
-            print(mod_id, 'has vt with bad chars :', set(mod['vehicle_type']) - (vt1 | vt2))
+        if not (mod['base_id.flags'] & config.FLAG_MODEL_NOT_MADE):
+            if not mod['vehicle_type']:
+                print(mod_id, 'has blank vt')
+            elif len(set(mod['vehicle_type']) & vt1) not in (1, 2):
+                print(mod_id, 'has bad vt 1 :', set(mod['vehicle_type']) & vt1)
+            if len(set(mod['vehicle_type']) & vt2) > 2:
+                print(mod_id, 'has bad vt 2 :', set(mod['vehicle_type']) & vt2)
+            if set(mod['vehicle_type']) - (vt1 | vt2):
+                print(mod_id, 'has vt with bad chars :', set(mod['vehicle_type']) - (vt1 | vt2))
         name = mod.get('base_id.rawname', '')
         if not name:
             print(mod_id, 'has blank name')

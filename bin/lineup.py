@@ -84,7 +84,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
     if not mdict.get('pdir'):
         pdir = lsec.get('pic_dir')
         mdict['pdir'] = pdir = pdir if pdir else pif.render.pic_dir
-    mdict['spdir'] = mbdata.dirs.inverse.get(mdict['pdir'], mdict['pdir'])
+    mdict['spdir'] = mbdata.dirs_r.get(mdict['pdir'], mdict['pdir'])
 
     if not (lsec['flags'] & config.FLAG_SECTION_NO_FIRSTS) and str(year) == mdict['base_id.first_year']:
         mdict['class_name'] = ('revcasting' if mdict['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED else
@@ -619,7 +619,7 @@ def run_product_pics(pif, region):
         lran.entry.append(ent)
         for mnum in range(min_num, max_num + 1):
             ifmt, pdir = get_product_image(pages[page], mnum)  # this isnt working - no section
-            spdir = mbdata.dirs.inverse.get(pdir, pdir)
+            spdir = mbdata.dirs_r.get(pdir, pdir)
             lmod = lmoddict.get(mnum, {})
             lmod_id = lmod.get('lineup_model.mod_id', '')
             lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', pif.form.get_strl('region'))
@@ -646,7 +646,7 @@ def run_product_pics(pif, region):
             ent = render.Entry(
                 text=pif.render.format_link(lnk, istar, also={'title': title}),
                 display_id=str(int(mnum % 10 == 0 or page[-1] == '0'))
-                #style='bl' if mnum % 10 == 0 or page[-1] == '0' else 'yl' if mnum % 10 == 5 or page[-1] == '5' else 'wt'
+                # style='bl' if not mnum % 10 or page[-1] == '0' else 'yl' if mnum % 10 == 5 or page[-1] == '5' el 'wt'
             )
             lran.entry.append(ent)
         lsec.range.append(lran)

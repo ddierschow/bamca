@@ -312,7 +312,8 @@ class DBHandler(object):
         self.write('link_line', values={'page_id': f'single.{new_mod_id}'}, where=f"page_id='single.{old_mod_id}'",
                    modonly=True, tag=tag)
         self.write('mbusa', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('casting_make', values={'casting_id': new_mod_id}, where=f"casting_id='{old_mod_id}'", modonly=True, tag=tag)
+        self.write('casting_make', values={'casting_id': new_mod_id}, where=f"casting_id='{old_mod_id}'",
+                   modonly=True, tag=tag)
 
     def update_base_id(self, id, values):
         return self.write('base_id', values=self.make_values('base_id', values), where=f"id='{id}'", modonly=True,
@@ -794,7 +795,7 @@ class DBHandler(object):
                 f"mod_id='{mod_id}'", f"var_id='{var_id}'", "variation_select.category=category.id"])
         return varrec, detrecs
 
-    def fetch_variation_query(self, varsq, castingq, codes=None):
+    def fetch_variation_query(self, varsq, castingq=None, castinglist=None, codes=None):
         wheres = ['v.mod_id=casting.id', 'casting.id=base_id.id']
         if codes == 0:
             return list()  # ha-ha
@@ -804,13 +805,18 @@ class DBHandler(object):
             wheres.append(f'(v.flags & {config.FLAG_MODEL_CODE_2})!=0')
         args = list()
         cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.date', 'v.text_description', 'v.text_base',
-                'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id']
+                'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id',
+                'v.manufacture']
         for key in varsq:
             wheres.extend([f"v.{key} like %s" for x in varsq[key]])
             args.extend([f"%%{x}%%" for x in varsq[key]])
-        for key in castingq:
-            wheres.extend([f"casting.{key} like %s" for x in castingq[key]])
-            args.extend([f"%%{x}%%" for x in castingq[key]])
+        if castingq:
+            for key in castingq:
+                wheres.extend([f"casting.{key} like %s" for x in castingq[key]])
+                args.extend([f"%%{x}%%" for x in castingq[key]])
+        if castinglist:
+            idlist = [f'"{x}"' for x in castinglist]
+            wheres.append(f"v.mod_id in ({','.join(idlist)})")
         # turn this into a fetch
         varrecs = self.dbi.select('variation v,casting,base_id', cols=cols, where=' and '.join(wheres), args=args,
                                   tag='VariationQuery')
@@ -1159,6 +1165,10 @@ class DBHandler(object):
         ]
         left_joins = [('vehicle_make', 'vehicle_make.id=casting_make.make_id')]
         return self.fetch('casting_make', where=wheres, left_joins=left_joins, tag='CastingMakes', verbose=verbose)
+
+    def fetch_casting_makes_list(self, verbose=False):
+        # left_joins = [('vehicle_make', 'vehicle_make.id=casting_make.make_id')]
+        return self.fetch('casting_make', tag='CastingMakesList', verbose=verbose)
 
     def add_casting_make(self, mod_id, make_id, verbose=False):
         makes = self.fetch_casting_makes(mod_id, verbose=verbose)

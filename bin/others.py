@@ -113,12 +113,12 @@ def code2_model(pif):
 
 # Brazil, Bulgaria, China, England, Hong Kong, Hungary, Japan, Macau, Thailand, no origin, [blank]
 def plants(pif):
-    if pif.form.get_str('id'):
+    if pif.form.get_str('plant'):
         return plant_models(pif)
 
     def prep_entry(pif, name, code):
         img = pif.render.format_image_art('flag_' + code) if code else pif.render.fmt_no_pic()
-        return render.Entry(text=pif.render.format_link('?id=%s' % (code if code else 'unset'), img + '<br>' + name))
+        return render.Entry(text=pif.render.format_link('?plant=%s' % (code if code else 'unset'), img + '<br>' + name))
 
     pif.render.print_html()
     pif.render.hierarchy_append('/', 'Home')
@@ -134,7 +134,7 @@ def plants(pif):
 
 
 def plant_models(pif):
-    plant_id = pif.form.get_str('id')
+    plant_id = pif.form.get_str('plant')
     if plant_id == 'unset':
         plant_id = ''
     plant_d = dict([(y, x) for x, y in mbdata.plants])

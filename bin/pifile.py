@@ -177,6 +177,17 @@ class BaseForm(object):
             ret.extend([(x[len(start):], self.get_str(x)) for x in self.keys(start=start)])
         return ret
 
+    def get_list_by_value(self, start, values):
+        # there is a super special carveout for the redirect.
+        if any([(start + x) in self.form for x in values]):
+            dest = {x: list(self.form.get(start + x, '')) for x in values}
+        else:
+            dest = {x: list() for x in values}
+            for key in self.keys(start=start + '_'):
+                val = self.get_str(key)
+                dest[val] += key[-1]
+        return dest
+
     def get_bits(self, key, start=None, base=16, defval=0):
         val = self.get_list(key, start, '0')
         return sum([int(x, base) for x in val]) if val else defval
@@ -211,8 +222,10 @@ class BaseForm(object):
     def find(self, field):
         return [key for key in self.form if key == field or key.startswith(field + '.')]
 
-    def reformat(self, fields):
-        return '&'.join(['{}={}'.format(x, self.get_str(x)) for x in fields])
+    def reformat(self, fields, blanks=True):
+        if blanks:
+            return '&'.join(['{}={}'.format(x, self.get_str(x)) for x in fields])
+        return '&'.join(['{}={}'.format(x, self.get_str(x)) for x in fields if self.form.get(x)])
 
     def where(self, cols=None, prefix=""):
         wheres = list()

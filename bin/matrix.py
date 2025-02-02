@@ -352,7 +352,7 @@ class MatrixFile(object):
             comments.add('n')
             ent['not_made'] = 1
             ent['picture_only'] = 1
-        ent['spdir'] = mbdata.dirs.inverse.get(ent['pdir'], ent['pdir'])
+        ent['spdir'] = mbdata.dirs_r.get(ent['pdir'], ent['pdir'])
 
         ent['href'] = ''
         if ent['model_type'] == 'MP':
@@ -597,8 +597,8 @@ def rename_series_pictures(pif, pdir, old_name, new_name):  # pragma: no cover
         pif.dbh.rename_photo_credit(pdir, old_name, new_name)
 
 
-# base_id   | section_id | display_order | page_id         | range_id | mod_id | flags | style_id | shown_id | name                |
-# 2023mmp01 | mvp2023    |             1 | matrix.movparts | 1        | MB1368 |     0 |          |          | Bentley Continental |
+# base_id   | section_id | display_order | page_id         | range_id | mod_id | flags | style_id | shown_id | name
+# 2023mmp01 | mvp2023    |             1 | matrix.movparts | 1        | MB1368 |     0 |          |          | Bent...
 def import_list(pif, page_id, section_id, barfile):  # pragma: no cover
     infile = [x.strip().split('|') for x in open(barfile).readlines()]
     for num, mod_id, name in infile:

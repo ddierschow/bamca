@@ -166,7 +166,8 @@ def img_src(pth, alt=None, also={}):
 
 
 def plural(thing):
-    return 's' if len(thing) != 1 else ''
+    val = thing if isinstance(thing, int) else len(thing)
+    return 's' if val != 1 else ''
 
 
 def make_alnum(thing):

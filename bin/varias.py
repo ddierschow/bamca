@@ -23,7 +23,7 @@ id_attributes = ['mod_id', 'var', 'picture_id', 'imported_var', 'imported_from',
 note_attributes = ['area', 'date', 'note', 'category']
 internal_desc_attributes = ['description', 'base', 'body', 'deco', 'interior', 'wheels', 'windows']
 desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
-text_attributes = ['text_' + x for x in desc_attributes]
+text_attributes = ['text_var'] + ['text_' + x for x in desc_attributes]
 format_attributes = ['format_' + x for x in desc_attributes]
 hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type', 'deco_type']
 detail_attributes = ['base', 'body', 'deco', 'interior', 'wheels', 'windows']
@@ -144,7 +144,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
         lsec.headers = {'title': 'Title', 'value': 'Value'}
         lsec.colist = ['title', 'value']
         ranges = [render.Range(name='Description Texts', id='det')]
-        ranges[0]._attrs = text_attributes[1:]
+        ranges[0]._attrs = text_attributes[2:]
         variation['text_base'] += (' ' + ' '.join([
             pif.render.format_image_icon('l_base-' + x, mbdata.base_logo_dict.get(x)) for x in variation['logo_type']]))
     ran1 = render.Range(name='Individual Attributes', id='det')
@@ -551,6 +551,7 @@ class VarSearchForm(object):
         attributes.update({x: {'title': tinf.title.get(x, x.replace('_', ' ').title())} for x in tinf.columns})
         attributes['references'] = {'title': 'References', 'definition': 'varchar(256)'}
         attributes['category'] = {'title': 'Category', 'definition': 'varchar(256)'}
+        attributes['text_var'] = {'title': 'Variation ID', 'definition': 'varchar(8)'}
         for vardesc in pif.dbh.describe('variation'):
             if vardesc['field'] in attributes:
                 attributes[vardesc['field']]['definition'] = vardesc['type']
@@ -578,7 +579,7 @@ class VarSearchForm(object):
     def read(self, form):
         self.attrs = {key: form.get_raw(key) for key in self.attributes}
         self.attrq = dict()
-        for attr in list(self.attributes.keys()) + ['text_note']:
+        for attr in list(self.attributes.keys()) + ['text_note', 'var']:
             if form.has(attr):
                 if attr == 'manufacture' and form.get_str(attr) == 'unset':
                     self.attrq[attr] = ''
@@ -727,7 +728,7 @@ class VarSearchForm(object):
             # var_val = var.get('note', '') if attr == 'text_note' else var.get(attr, '')
             # query_val = ' '.join(self.attrq.get(attr, []))
             if attr in text_attributes + ['text_note']:
-                attrval = var['note' if attr == 'text_note' else attr]
+                attrval = var['note' if attr == 'text_note' else 'var' if attr == 'text_var' else attr]
                 for obj in self.attrq[attr]:
                     if not self.ci and attrval.find(obj) < 0:
                         # useful.write_message('desc_match', var['var'], False, self.attrq, self.ci, attrval, '-', obj)
@@ -1534,26 +1535,6 @@ def single_variation(pif, man, var_id):
 # ----- msearch -------------------------------------------
 
 
-def add_model_var_table_pic_link(pif, mdict):
-    if mdict.get('v.picture_id'):
-        mdict['img'] = pif.render.format_image_required(
-            mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.picture_id'])
-    else:
-        mdict['img'] = pif.render.format_image_required(
-            mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.var'])
-    # mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
-    mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
-    ostr = (
-        '  <center><table class="entry"><tr><td><center><font face="Courier">%(v.mod_id)s-%(v.var)s</font></br>\n'
-        '   <a href="%(link)s">%(img)s<br><b>%(name)s</b></a>\n') % mdict
-    # ostr += "   <br><i>%(v.text_description)s</i>\n" % mdict
-    ostr += '<table class="vartable">'
-    ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % mdict['v.text_description']
-    ostr += "</table>"
-    ostr += "  </center></td></tr></table></center>\n"
-    return ostr
-
-
 vfields = {'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior', 'wheels': 'text_wheels',
            'windows': 'text_windows', 'with': 'text_with', 'text': 'text_text',
            'cat': 'category', 'date': 'date', 'area': 'area', 'note': 'note'}
@@ -1602,7 +1583,6 @@ def var_search(pif):
     pif.render.hierarchy_append('/database.php', 'Database')
     pif.render.hierarchy_append(pif.request_uri, 'Variation Search')
     pif.render.title = 'Models matching: ' + ' '.join(pif.form.search('query'))
-    modsperpage = 100
     varsq = {vfields[x]: pif.form.search(x) for x in vfields}
     castq = {cfields[x]: pif.form.search(x) for x in cfields}
     codes = get_codes(pif)
@@ -1610,18 +1590,18 @@ def var_search(pif):
         raise useful.SimpleError("This submission was not created by the form provided.")
 
     pif.render.comment('varsq', varsq, 'castq', castq, 'codes', codes)
-    mods = pif.dbh.fetch_variation_query(varsq, castq, codes)
+    mods = pif.dbh.fetch_variation_query(varsq, castingq=castq, codes=codes)
     mods.sort(key=lambda x: x['v.mod_id'] + '-' + x['v.var'])
     nmods = len(mods)
 
     llineup = render.Matrix(note='%d variations found matching search' % nmods, columns=4, tail=['', ''])
     start = pif.form.get_int('start')
-    mods = mods[start:start + modsperpage]
+    mods = mods[start:start + mbdata.modsperpage]
     sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lran = render.Range()
     for mod in mods:
         mod['name'] = mod['base_id.rawname'].replace(';', ' ')
-        lran.entry.append(render.Entry(text=add_model_var_table_pic_link(pif, mod)))
+        lran.entry.append(render.Entry(text=models.add_model_var_table_pic_link(pif, mod)))
     lsec = render.Section(section=sect, range=[lran], columns=4)
     llineup.section = [lsec]
     qf = pif.form.reformat(vfields) + '&' + pif.form.reformat(cfields)
@@ -1630,10 +1610,10 @@ def var_search(pif):
     qf += '&codes=%s' % codes
     if start > 0:
         llineup.tail[1] += pif.render.format_button_link(
-            "previous", 'vsearch.cgi?%s&start=%d' % (qf, max(start - modsperpage, 0))) + ' '
-    if start + modsperpage < nmods:
+            "previous", 'vsearch.cgi?%s&start=%d' % (qf, max(start - mbdata.modsperpage, 0))) + ' '
+    if start + mbdata.modsperpage < nmods:
         llineup.tail[1] += pif.render.format_button_link(
-            "next", 'vsearch.cgi?%s&start=%d' % (qf, min(start + modsperpage, nmods)))
+            "next", 'vsearch.cgi?%s&start=%d' % (qf, min(start + mbdata.modsperpage, nmods)))
 
     pif.render.set_button_comment(pif, 'casting=%s&base=%s&body=%s&interior=%s&wheels=%s&windows=%s' % (
         pif.form.get_str('casting'), pif.form.get_str('base'), pif.form.get_str('body'),

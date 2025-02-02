@@ -1,6 +1,7 @@
-import bidict
 import config
 import re
+
+modsperpage = 100  # a laudable goal
 
 verno = ' abcdefghijklmnopqrstuvwxyz'
 
@@ -593,6 +594,7 @@ plants = (
     ('unset', ''),
 )
 plant_d = dict(plants)
+plant_rd = {v: k for k, v in plants}
 other_plants = ['Brazil', 'Bulgaria', 'Hungary', 'Japan']
 
 img_dir_name = {
@@ -719,7 +721,7 @@ base_logo_2 = [
 ]
 base_logo_2_dict = dict(base_logo_2)
 
-dirs = bidict.bidict({
+dirs = {
     'pbads': config.IMG_DIR_ADS[1:],
     'pbblis': config.IMG_DIR_BLISTER[1:],
     'pbbook': config.IMG_DIR_BOOK[1:],
@@ -759,7 +761,8 @@ dirs = bidict.bidict({
     'pspack': config.IMG_DIR_SET_PACK[1:],
     'psplay': config.IMG_DIR_SET_PLAYSET[1:],
     'pssky': config.IMG_DIR_SKY[1:],
-})
+}
+dirs_r = {v: k for k, v in dirs.items()}
 
 deco_types = (
     ('', ''),
@@ -790,7 +793,7 @@ def get_mime_type(listtype):
 
 def correct_year(year):
     if isinstance(year, str):
-        year = int(''.join(filter(lambda x: x.isdigit(), year[:4])))
+        year = int(''.join([x for x in year[:4] if x.isdigit()]))
     return year
 
 
@@ -894,3 +897,15 @@ def find_vs_variations(ents, sec_id, ran_id):
             return mods
     mods = [x for x in ents if x['vs.sec_id'] == '']
     return mods
+
+
+def type_check(prop_n, prop_y, avail):
+    def type_match(t1, t2):
+        return not (set(t1 or '') - set(t2 or ''))
+
+    if prop_n or prop_y:
+        if prop_n and any([type_match(x, avail) for x in prop_n]):
+            return False
+        if prop_y and not type_match(prop_y, avail):
+            return False
+    return True

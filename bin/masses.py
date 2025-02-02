@@ -601,8 +601,15 @@ def add_casting_main(pif):
     if pif.form.has('save'):
         return add_casting_final(pif)
 
+    mod_id = pif.form.get_raw("id")
+    sec = ''
+    if mod_id.startswith('MB') and mod_id[2:].isdigit():
+        num = int(mod_id[2:])
+        sec = 'man'
+        if num >= 500:
+            sec += str(num // 500 + 1)
     entries = [
-        {'title': "ID:", 'value': pif.form.put_text_input("id", 8, 8, value=f'{pif.form.get_raw("id")}')},
+        {'title': "ID:", 'value': pif.form.put_text_input("id", 8, 8, value=mod_id)},
         {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
         {'title': 'Model Type:', 'value': pif.form.put_select(
             'model_type', [x.model_type for x in pif.dbh.fetch_base_id_model_types()], selected='SF')},
@@ -618,7 +625,7 @@ def add_casting_main(pif):
         {'title': 'Section:', 'value': pif.form.put_select(
             'section_id', [(x['section.id'], x['section.name'])
                            for x in pif.dbh.fetch_sections(where="page_id like 'man%'")],
-            selected=pif.form.get_raw('section_id'))},
+            selected=pif.form.get_raw('section_id', sec))},
         {'title': 'Attributes:', 'value': pif.form.put_text_input('attributes', 80, 80)},
         {'title': 'Mack:', 'value': pif.form.put_text_input('mack', 8, 8)},
         {'title': 'Related:', 'value': pif.form.put_text_input('related', 80, 80)},

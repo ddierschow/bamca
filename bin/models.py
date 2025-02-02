@@ -380,3 +380,23 @@ def make_page_list(pif, format_type, fmt_link):
     )
     llineup = render.Matrix(id='main', section=[lsec])
     return pif.render.format_template('packpages.html', llineup=llineup.prep())
+
+
+def add_model_var_table_pic_link(pif, mdict):
+    if mdict.get('v.picture_id'):
+        mdict['img'] = pif.render.format_image_required(
+            mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.picture_id'])
+    else:
+        mdict['img'] = pif.render.format_image_required(
+            mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.var'])
+    # mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
+    mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
+    ostr = (
+        '  <center><table class="entry"><tr><td><center><font face="Courier">%(v.mod_id)s-%(v.var)s</font></br>\n'
+        '   <a href="%(link)s">%(img)s<br><b>%(name)s</b></a>\n') % mdict
+    # ostr += "   <br><i>%(v.text_description)s</i>\n" % mdict
+    ostr += '<table class="vartable">'
+    ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % mdict['v.text_description']
+    ostr += "</table>"
+    ostr += "  </center></td></tr></table></center>\n"
+    return ostr

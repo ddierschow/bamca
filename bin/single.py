@@ -333,7 +333,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
             prod = pic + '<br>' + prod
             links.append(prod)
         links.append('')
-        date_re = re.compile('^\d\d\d\d-\d\d-\d$')
+        date_re = re.compile(r'^\d\d\d\d-\d\d-\d$')
         vfl = [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod_id)]
         vfl = sorted(set(['mbusa' if date_re.match(x) else x for x in vfl])) or ['importer']
         for vf in vfl:
@@ -576,7 +576,7 @@ def show_single(pif):
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
     prodnames = sorted(set([x['name'] for x in matrix_appearances + lineup_appearances
-                 if x['name'] != model['name']]))
+                       if x['name'] != model['name']]))
     for x in matrix_appearances:
         useful.write_comment('M', x['id'], x['name'])
     for x in lineup_appearances:

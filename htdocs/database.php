@@ -3,24 +3,17 @@
 <?php
 include "bin/basics.php";
 include "config.php";
-$pif = GetPageInfo("database");
+include "bin/forms.php";
+$pif = GetPageInfo("database", 1);
 DoHead($pif);
-$isadmin = CheckPerm($pif, 'a');
-$pif['isadmin'] = $isadmin;
-//$isadmin = 0;
+$pif['isadmin'] = CheckPerm($pif, 'a');
 $pif['hierarchy'][0] = ['/', 'Home'];
 $pif['hierarchy'][1] = ['/database.php', 'Database'];
-$answer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
-$LINE_YEAR_START = $answer[0]['min(year)'];
-$LINE_YEAR_END = $answer[0]['max(year)'];
-$MAX_NUMBER = $answer[0]['max(number)'];
-$answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
-$MAN_YEAR_START = $answer[0]['min(first_year)'];
-$MAN_YEAR_END = $answer[0]['max(first_year)'];
-$NCOLS = 1;
+$pif['ncols'] = 1;
 
 $sections = [
     ["sep" => "t"],
+    ["tag" => "ss", "name" => "<a href=\"search.php\">Super Search is now available!</a>", "fn" => ''],
     ["tag" => "id", "name" => "Specific Model ID", "fn" => 'SectionID', "scr" => "msearch.cgi"],
     ["tag" => "year", "name" => "Year", "fn" => 'SectionYear', "scr" => "lineup.cgi"],
     ["tag" => "rank", "name" => "Lineup Number", "fn" => 'SectionRank', "scr" => "lineup.cgi"],
@@ -31,7 +24,7 @@ $sections = [
     ["tag" => "search", "name" => "Text Search", "fn" => 'SectionSearch', "scr" => "msearch.cgi"],
     ["tag" => "vsearch", "name" => "Variation Text Search", "fn" => 'SectionVSearch', "scr" => "vsearch.cgi"],
     ["tag" => "packs", "name" => "Multi-Model Packs", "fn" => 'SectionPacks', "scr" => "packs.cgi"],
-    ["tag" => "pubs", "name" => "Publications", "fn" => 'SectionPubs', "scr" => "pub.cgi", "perm" => $isadmin],
+    ["tag" => "pubs", "name" => "Publications", "fn" => 'SectionPubs', "scr" => "pub.cgi", "perm" => $pif['isadmin']],
     ["tag" => "sets", "name" => "Special Sets", "fn" => 'SectionSets', "scr" => "matrix.cgi"],
     ["tag" => "cats", "name" => "Categories", "fn" => 'SectionCats', "scr" => "cats.cgi"],
     ["tag" => "boxes", "name" => "Lesney Era Boxes", "fn" => 'SectionBoxes', "scr" => "boxart.cgi", 'reset' => 'boxExample();'],
@@ -63,137 +56,66 @@ DoPageHeader($pif);
 echo "<hr><p>\n";
 echo "<div class=\"maintable\"><center><ul class=\"header-links\">\n";
 foreach ($sections as $sec) {
-    if (array_key_exists("sep", $sec))
-        continue;
-    if (!array_key_exists("perm", $sec) || $sec["perm"])
-        echo " <li class=\"header-link-item\"><a href=\"#$sec[tag]\" class=\"textbutton\">&nbsp;By $sec[name]&nbsp;</a></li>\n";
+    if (array_key_exists("fn", $sec) && $sec['fn'] && (!array_key_exists("perm", $sec) || $sec["perm"]))
+        echo " <li class=\"header-link-item\"><a href=\"#{$sec['tag']}\" class=\"textbutton\">";
+        echo "&nbsp;By {$sec['name']}&nbsp;</a></li>\n";
 }
 echo "</ul></center></div>\n\n";
 
 foreach ($sections as $sec) {
-    if (array_key_exists("sep", $sec)) {
-        if ($sec["sep"] == 't') {
-            echo "<table width=\"100%\"><tr><td width=\"" . (100 / $NCOLS) . "%\">\n";
-            echo "<table>\n";
-        }
-        else if ($sec["sep"] == 'c' && $NCOLS == 2) {
-            echo "</table>\n";
-            echo "</td>\n";
-            echo "<td width=\"50%\">\n";
-            echo "<table>\n";
-        }
-        else if ($sec["sep"] == 'b' && $NCOLS == 2) {
-            echo "</table>\n";
-            echo "</td></tr>\n";
-            echo "<tr><td colspan=\"2\">\n";
-            echo "<table>\n";
-        }
-        else if ($sec["sep"] == 'e') {
-            echo "</table>\n";
-            echo "</td></tr></table>\n";
-        }
+    if (array_key_exists("perm", $sec)) {
+        $sec['name'] = "<i>{$sec['name']}</i>";
     }
-    else if (!array_key_exists("perm", $sec) || $sec["perm"])
-        Section($sec);
+    if (!array_key_exists("sep", $sec)) {
+        if (!array_key_exists("perm", $sec) || $sec["perm"])
+            Section($pif, $sec);
+    }
+    else if ($sec["sep"] == 't') {
+        echo "<table width=\"100%\"><tr><td width=\"" . (100 / $pif['ncols']) . "%\">\n<table>\n";
+    }
+    else if ($sec["sep"] == 'c' && $pif['ncols'] == 2) {
+        echo "</table>\n</td>\n<td width=\"50%\">\n<table>\n";
+    }
+    else if ($sec["sep"] == 'b' && $pif['ncols'] == 2) {
+        echo "</table>\n</td></tr>\n<tr><td colspan=\"2\">\n<table>\n";
+    }
+    else if ($sec["sep"] == 'e') {
+        echo "</table>\n</td></tr></table>\n";
+    }
 }
 
-PageFooter();
-
+PageFooter("database");
+DoPageFooter($pif);
 DoFoot($pif);
 
 //---- support functions -----------------------------------------
 
 function HorzSpacer($rowspan) {
+    echo '  <td class="hspacer"';
     if ($rowspan > 1)
-	echo "  <td rowspan=\"$rowspan\" class=\"hspacer\"></td>\n";
-    else
-	echo "  <td class=\"hspacer\"></td>\n";
-    echo "\n";
+	echo ' rowspan="' . $rowspan . '"';
+    echo "></td>\n\n";
 }
 
-function ChooseNum($name, $id, $width, $minval, $maxval, $defval='', $js="", $cl="") {
-    echo "  <td class=\"updown\">\n<input type=\"text\" name=\"$name\" size=\"$width\" id=\"$id\"";
-    if ($defval)
-	echo " value=\"$defval\"";
-    if ($js)
-	echo " $js";
-    echo ">\n";
-    incrnum($id, $minval, $maxval, $cl);
-    echo "  </td>\n";
-}
-
-function SelectYear($name, $id, $defval, $min, $max) {
-    echo "  <td class=\"updown\">\n";
-    echo "   <select name=\"$name\" id=\"$id\"";
-    echo ">\n";
-    $yr = $max;
-    while ($yr >= $min) {
-	echo "   <option value=\"" . $yr . "\"";
-	if ($yr == $defval)
-	    echo " selected";
-	echo ">" . $yr . "\n";
-	$yr = $yr - 1;
-    }
-    echo "   </select>\n";
-    incrsel($id, -1, '');
-    echo "  </td>\n";
-}
-
-
-// flags val title desc
-function Select($name, $id, $sl, $select_js="", $cl="") {
-    echo "   <select name=\"$name\" id=\"$id\"";
-    if ($select_js)
-	echo " $select_js";
-    echo ">\n";
-    foreach ($sl as $ent) {
-	if (!($ent['flags'] & 1)) {
-	    echo "   <option value=\"" . trim($ent['val']) . "\"";
-	    if ($ent['flags'] & 64) {
-		echo " selected";
-	    }
-	    echo ">" . $ent['title'];
-	    if (arr_get($ent, 'descr', '')) {
-		echo " - " . $ent['descr'];
-	    }
-	    echo "\n";
-	}
-    }
-    echo "   </select>\n";
-    incrsel($id, -1, $cl);
-}
-
-function FetchSelect($name, $id, $thing, $query, $extra=[], $select_js="") {
-    global $pif;
-
+function FetchSelect($pif, $name, $id, $thing, $query, $extra=[], $select_js="") {
     Select($name, $id, array_merge(
 	[['flags' => 64, 'val' => '', 'title' => 'Please select a ' . $thing . '.']],
 	Fetch($query, $pif),
 	$extra), $select_js);
 }
 
-function Checks($input, $tag, $name, $values, $sep='<br>') {
-    foreach ($values as $val) {
-	$id = $tag . '_' . $name . $val[0];
-	echo "   <input id=\"$id\" type=\"$input\" name=\"$name\" value=\"$val[0]\"";
-	if (arr_get($val, 2, 0))
-	    echo " checked";
-	echo "> <label for=\"$id\">$val[1]</label>$sep\n";
-    }
-}
-
 // required: fn tag scr name  optional: reset
-function Section($args) {
-    global $pif;
-
-    echo "\n<tr><td>";
-    echo "\n<br></td></tr>\n<tr id=\"{$args['tag']}\">\n  <td class=\"{$args['tag']}_head sel_head\">\n";
+function Section($pif, $args) {
+    echo "\n<tr><td>\n<br></td></tr>\n";
+    echo "<tr id=\"{$args['tag']}\">\n  <td class=\"{$args['tag']}_head sel_head\">\n";
     echo "   <center><h2>{$args['name']}</h2></center>\n  </td>\n </tr>\n";
+    if (!$args['fn'])
+        return;  // no fn means no body section
     echo " <tr><td class=\"spacer\"></td></tr>\n\n <tr><td class=\"{$args['tag']}_body sel_body\">\n";
     if (isset($args['scr'])) {
 	echo "<form action=\"/cgi-bin/{$args['scr']}\" method=\"get\" name=\"{$args['tag']}\">\n";
     }
-    else {
+    else {   // no script means no form
 	echo "<i id=\"{$args['tag']}\"></i>\n";
     }
     if (isset($args['scr'])) {
@@ -214,39 +136,19 @@ function Section($args) {
     echo "  </td>\n </tr>\n";
 }
 
-function ChooseRegion($nrows, $tag) {
-    $regions = [
-	    ['U', 'USA', 1],
-	    ['R', 'International'],
-	    ['J', 'Japan (1977-1992)'],
-	    ['L', 'Latin America (2008-2011)'],
-	    ['B', 'UK (2000, 2001)'],
-	    ['D', 'Germany (1999-2001)'],
-	    ['A', 'Australia (1981, 1987, 1991-1993, 1997, 2000, 2001)']
-	];
-    echo "    <td rowspan=\"$nrows\">Region:</td>\n";
-    echo "    <td rowspan=\"$nrows\">\n";
-    Checks('radio', $tag, 'region', $regions);
-    echo "</td>\n";
-}
-
-function RegionNote() {
-    echo "<td colspan=\"2\">Note that Australian dealers might carry either USA or International assortments after 2001.</td>\n";
-}
-
 //---- beginning of sections -------------------------------------
 
 function SectionID($pif) {
     echo "\n<table>\n <tr>\n";
-    echo "  <td class=\"idtab\">See specific manufacturing ID:</td><td><input type=\"text\" name=\"id\" id=\"idId\" value=\"\" size=\"12\"></td>\n";
+    echo "  <td class=\"idtab\">See specific manufacturing ID:</td>";
+    echo "<td><input type=\"text\" name=\"id\" id=\"idId\" value=\"\" size=\"12\"></td>\n";
     echo " </tr><tr>\n";
-    echo "  <td class=\"idtab\">See specific variation ID:</td><td><input type=\"text\" name=\"var\" id=\"idVar\" value=\"\" size=\"12\"> (optional)";
+    echo "  <td class=\"idtab\">See specific variation ID:</td>";
+    echo "<td><input type=\"text\" name=\"var\" id=\"idVar\" value=\"\" size=\"12\"> (optional)";
     echo "</td>\n </tr>\n</table>\n";
 }
 
 function SectionYear($pif) {
-    global $LINE_YEAR_START, $LINE_YEAR_END;
-
     $ptypes = [
 	["man", "Main line models", 1],
 	["series", "Series", 1],
@@ -259,7 +161,7 @@ function SectionYear($pif) {
     ];
 
     echo "\n<table>\n <tr>\n  <td>Year: </td>\n";
-    SelectYear('year', 'yearYear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
+    SelectYear('year', 'yearYear', $pif['line_year_end'], $pif['line_year_start'], $pif['line_year_end']);
     HorzSpacer(4);
     ChooseRegion(3, 'year');
     echo "  </td>\n";
@@ -297,11 +199,11 @@ function SectionYear($pif) {
 }
 
 function SectionRank($pif) {
-    global $LINE_YEAR_START, $LINE_YEAR_END, $MAX_NUMBER;
+    $MAX_NUMBER = $pif['max_number'];
 
     echo "<input type=\"hidden\" name=\"byrank\" value=\"1\">";
     echo "<table>\n <tr>\n  <td height=\"32\">Lineup&nbsp;number:<br>(1-$MAX_NUMBER)\n  </td>";
-    ChooseNum('num', 'rankSNum', 3, 1, $MAX_NUMBER);
+    ChooseNum('num', 'rankSNum', 3, 1, $pif['max_number']);
     HorzSpacer(6);
     ChooseRegion(4, 'rank');
     echo "</tr><tr>\n<td>\n";
@@ -310,20 +212,20 @@ function SectionRank($pif) {
     }
     echo "  </td>\n";
     if ($pif['isadmin'])
-	ChooseNum('enum', 'rankENum', 3, 1, $MAX_NUMBER);
+	ChooseNum('enum', 'rankENum', 3, 1, $pif['max_number']);
     else
 	echo "  <td>&nbsp;</td>\n";
     echo "</tr><tr>\n";
     echo "  <td style=\"text-align: right;\">\nStart year:\n  </td>\n";
-    SelectYear('syear', 'rankSyear', $LINE_YEAR_START, $LINE_YEAR_START, $LINE_YEAR_END);
+    SelectYear('syear', 'rankSyear', $pif['line_year_start'], $pif['line_year_start'], $pif['line_year_end']);
     echo "</tr><tr>\n";
     echo "  <td style=\"text-align: right;\">End year:</td>\n";
-    SelectYear('eyear', 'rankEyear', $LINE_YEAR_END, $LINE_YEAR_START, $LINE_YEAR_END);
+    SelectYear('eyear', 'rankEyear', $pif['line_year_end'], $pif['line_year_start'], $pif['line_year_end']);
     echo " </tr>\n <tr>\n  <td colspan=\"2\" rowspan=\"2\">\n";
     if ($pif['isadmin']) {
 	echo "<i>\n";
-	Checks('checkbox', 'rank', 'large', [['1', 'Large']]);
-	Checks('checkbox', 'rank', 'prodpic', [['1', 'Product Pics']], '');
+	Checks('checkbox', 'rank', 'large', [['1', '<i>Large</i>']]);
+	Checks('checkbox', 'rank', 'prodpic', [['1', '<i>Product Pics</i>']], '');
 	echo "</i>\n";
     }
     echo "  </td>\n";
@@ -332,18 +234,15 @@ function SectionRank($pif) {
 }
 
 function SectionManno($pif) {
-    global $MAN_YEAR_START, $MAN_YEAR_END;
     echo "<table>\n <tr>\n  <td colspan=\"7\">\n";
     if ($pif['isadmin'])
 	$q = "select 0 as flags, id as val, name as title from section where page_id like 'man%' order by display_order";
     else
 	$q = "select 0 as flags, id as val, name as title from section where page_id='manno' order by display_order";
-    FetchSelect('section', 'manSection', 'range', $q, [['flags' => 0, 'val' => 'all', 'title' => 'All Ranges']]);
+    FetchSelect($pif, 'section', 'manSection', 'range', $q, [['flags' => 0, 'val' => 'all', 'title' => 'All Ranges']]);
     if ($pif['isadmin']) {
-	echo "<i>\n";
-	Checks('checkbox', 'manno', 'nodesc', [['1', 'No Notes']], ' ');
-	Checks('checkbox', 'manno', 'revised', [['1', 'Revised Only']]);
-	echo "</i>\n";
+	Checks('checkbox', 'manno', 'nodesc', [['1', '<i>No Notes</i>']], ' ');
+	Checks('checkbox', 'manno', 'revised', [['1', '<i>Revised Only</i>']]);
     }
     echo "</td><td rowspan=\"3\">\n";
     echo "\n</td></tr><tr>\n<td>";
@@ -351,21 +250,23 @@ function SectionManno($pif) {
     echo "</td>\n<td>";
     Checks('radio', 'manno', 'range', [['some', 'Some numbers']]);
     echo "</td>\n<td>starting at:</td>\n";
-    ChooseNum("start", "manStart", 4, 1, "document.getElementById('manEnd').value", 1, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
+    ChooseNum("start", "manStart", 4, 1, "document.getElementById('manEnd').value", 1,
+        'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
     if ($pif['isadmin']) {
 	HorzSpacer(1);
 	echo "   <td>Start year:</td>\n";
-	SelectYear('syear', 'manSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
+	SelectYear('syear', 'manSyear', $pif['man_year_start'], $pif['man_year_start'], $pif['man_year_end']);
     }
     echo " </tr>\n <tr><td colspan=\"2\">";
     echo "</td>\n";
     echo "  <td>ending at:</td>\n";
-    ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 9999, 9999, 'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
+    ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 9999, 9999,
+        'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
     HorzSpacer(2);
     echo "<td>End year:</td>\n";
-    SelectYear('eyear', 'manEyear', $MAN_YEAR_END + 1, $MAN_YEAR_START, $MAN_YEAR_END);
+    SelectYear('eyear', 'manEyear', $pif['man_year_end'] + 1, $pif['man_year_start'], $pif['man_year_end']);
     echo " </tr>\n <tr><td colspan=\"4\">List type:\n";
     $sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
 	   ['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],
@@ -384,100 +285,17 @@ function SectionManno($pif) {
     Select('listtype', 'selList', $sl);
     echo "</td><td colspan=2>\n";
     if ($pif['isadmin']) {
-	echo "<i>";
-	Checks('checkbox', 'manno', 'large', [['1', 'Large']], '');
-	echo "</i>";
+	Checks('checkbox', 'manno', 'large', [['1', '<i>Large</i>']], '');
     }
 
     echo "  </td>\n </tr>\n</table>\n";
-    echo '<button type="submit" value="+" name="+" class="textbutton" style="width: 16px;" onclick="toggle_visibility(\'ynm\',\'ynm_l\'); return false;" id="ynm_l">+</button>';
-    echo " Filter by vehicle type:\n<table class=\"types\" id=\"ynm\">";
-    echo " <tr>\n  <td class=\"tdboth\" colspan=\"2\">Every vehicle has one of these.</td>\n";
-    echo "  <td class=\"tdboth\" colspan=\"2\">Vehicle may have up to two of these.</td>\n";
-    if ($pif['isadmin'])
-	echo "  <td class=\"tdboth\" colspan=\"2\"><i>Filter by picture type.</i></td>\n";
-    echo " </tr>";
-
-    function YNMCell($arr, $pref) {
-	global $pif;
-
-	echo "  <td class=\"tdleft\"><b>$arr[1]</b></td>\n";
-//        echo "  <td class=\"tdmiddle\">";
-//	if ($pif['isadmin'])
-//	    echo "<i>$arr[0]</i>";
-//	echo "  </td>\n";
-	echo "  <td class=\"tdright\">";
-	Checks('radio', 'manno', $pref . $arr[0], [['y', 'yes'], ['n', 'no'], ['m', 'maybe', 1]], '');
-	echo "  </td>\n";
-    }
-    $a = [
-	["a", "aircraft"],
-	["o", "boat"],
-	["n", "building"],
-	["b", "bus"],
-	["2", "coupe"],
-	["e", "equipment"],
-	["1", "motorcycle"],
-	["r", "railroad"],
-	["4", "sedan"],
-	["u", "sport/utility"],
-	["z", "trailer"],
-	["t", "truck"],
-	["v", "van"],
-	["5", "wagon"]
-    ];
-    $b = [
-	["9", "ambulance"],
-	["c", "commercial"],
-	["i", "construction"],
-	["d", "convertible"],
-	["j", "fantasy"],
-	["g", "farm"],
-	["f", "fire"],
-	["q", "horse-drawn"],
-	["m", "military"],
-	["p", "pick-up"],
-	["l", "police"],
-	["8", "racer"],
-	["h", "recreation"],
-	["x", "taxi"]
-    ];
-    $c = [
-	['f', 'advertisement'],
-	['b', 'baseplate'],
-	['z', 'comparison'],
-	['a', 'custom'],
-	['d', 'detail'],
-	['e', 'error'],
-	['i', 'interior'],
-	['p', 'prototype'],
-	['r', 'real'],
-	['x', 'box'],
-	['g', 'group']
-    ];
-    $d = [
-	11 => ['s', 'small'],
-	12 => ['m', 'medium'],
-	13 => ['l', 'large'],
-    ];
-    foreach(array_keys($a) as $k) {
-	echo(" <tr>\n");
-	YNMCell($a[$k], 'type_');
-	YNMCell($b[$k], 'type_');
-	if ($pif['isadmin']) {
-	    if (isset($c[$k]))
-		YNMCell($c[$k], 'add_');
-	    else
-		YNMCell($d[$k], 'pic_');
-	}
-	echo(" </tr>\n");
-    }
-    echo "</table>\n";
+    echo '<button type="submit" value="+" name="+" class="textbutton" style="width: 16px;" ';
+    echo 'onclick="toggle_visibility(\'ynm\',\'ynm_l\'); return false;" id="ynm_l">+</button>';
+    echo " Filter by vehicle type:\n";
+    YNMTable($pif, 'manno', 'ynm', $pif['isadmin']);
 }
 
 function SectionMack($pif) {
-    global $MAX_NUMBER;
-
     echo "<table>\n <tr>\n  <td>\n";
     Checks('radio', 'mack', 'sect', [['all', 'Both sections', 1]]);
     echo "  </td>\n";
@@ -493,13 +311,15 @@ function SectionMack($pif) {
     echo "  </td>\n  <td>\n";
     Checks('radio', 'mack', 'range', [['some', 'Only numbers']]);
     echo "  </td>\n  <td>starting at:</td>\n";
-    ChooseNum('start', 'mackStart', 3, 1, "document.getElementById('mackEnd').value", 1, 'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
+    ChooseNum('start', 'mackStart', 3, 1, "document.getElementById('mackEnd').value", 1,
+        'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
     echo "  <td></td><td>\n";
     Checks('radio', 'mack', 'text', [['txt', 'as text list']]);
     echo " </tr>\n <tr>\n  <td>\n";
     Checks('radio', 'mack', 'sect', [['sf', 'SuperFast']]);
     echo "  </td>\n  <td></td>\n  <td>ending at:</td>\n";
-    ChooseNum('end', 'mackEnd', 3, "document.getElementById('mackStart').value", $MAX_NUMBER, $MAX_NUMBER, 'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
+    ChooseNum('end', 'mackEnd', 3, "document.getElementById('mackStart').value", $pif['max_number'], $pif['max_number'],
+        'onFocus="document.mack.range[1].checked=true;"', 'document.mack.range[1].checked=true;');
     echo " </tr>\n</table>\n";
 }
 
@@ -513,16 +333,15 @@ function SectionMakes($pif) {
 }
 
 function SectionSearch($pif) {
-    global $MAN_YEAR_START, $MAN_YEAR_END;
     echo "<table><tr><td>\n";
     echo "Search the casting information for:</td><td><input type=\"text\" name=\"query\">\n";
     echo " </td>";
     echo "<tr>\n";
     echo " <tr><td style=\"text-align: right;\">\nStart year:\n  </td>\n";
-    SelectYear('syear', 'searchSyear', $MAN_YEAR_START, $MAN_YEAR_START, $MAN_YEAR_END);
+    SelectYear('syear', 'searchSyear', $pif['man_year_start'], $pif['man_year_start'], $pif['man_year_end']);
     echo " <tr>\n";
     echo " <tr><td style=\"text-align: right;\">End year:</td>\n";
-    SelectYear('eyear', 'searchEyear', $MAN_YEAR_END, $MAN_YEAR_START, $MAN_YEAR_END);
+    SelectYear('eyear', 'searchEyear', $pif['man_year_end'], $pif['man_year_start'], $pif['man_year_end']);
     echo "</tr></table>\n";
 }
 
@@ -542,44 +361,48 @@ function SectionVSearch($pif) {
     echo "</td></tr></table>\n";
     echo "</td></tr>\n";
     echo "<tr><td>\n";
-    echo '<button type="submit" value="+" name="vsct" class="textbutton" style="width: 16px;" onclick="toggle_visibility(\'vsc\',\'vsc_l\'); return false;" id="vsc_l">+</button>';
+    echo '<button type="submit" value="+" name="vsct" class="textbutton" style="width: 16px;" ';
+    echo 'onclick="toggle_visibility(\'vsc\',\'vsc_l\'); return false;" id="vsc_l">+</button>';
     echo "\nOther search criteria:<br>\n";
     echo "<table id=\"vsc\">\n";
-    echo "<tr><td>Base:</td><td><input type=\"text\" name=\"base\"></td></tr>\n";
-    echo "<tr><td>Interior:</td><td><input type=\"text\" name=\"interior\"></td></tr>\n";
-    echo "<tr><td>Wheels:</td><td><input type=\"text\" name=\"wheels\"></td></tr>\n";
-    echo "<tr><td>Windows:</td><td><input type=\"text\" name=\"windows\"></td></tr>\n";
-    echo "<tr><td>Text:</td><td><input type=\"text\" name=\"text\"></td></tr>\n";
-    echo "<tr><td>With:</td><td><input type=\"text\" name=\"with\"></td></tr>\n";
+    SimpleText('Base:', 'base');
+    SimpleText('Interior:', 'Interior');
+    SimpleText('Wheels:', 'Wheels');
+    SimpleText('Windows:', 'windows');
+    SimpleText('Text:', 'text');
+    SimpleText('With:', 'with');
     if ($pif['isadmin']) {
-	echo "<tr><td><i>Area:</i></td><td><input type=\"text\" name=\"area\"></td></tr>\n";
-	echo "<tr><td><i>Category:</i></td><td><input type=\"text\" name=\"cat\"></td></tr>\n";
-	echo "<tr><td><i>Date:</i></td><td><input type=\"text\" name=\"date\"></td></tr>\n";
-	echo "<tr><td><i>Note:</i></td><td><input type=\"text\" name=\"note\"></td></tr>\n";
+        SimpleText('<i>Area:</i>', 'area');
+        SimpleText('<i>Category:</i>', 'cat');
+        SimpleText('<i>Date:</i>', 'date');
+        SimpleText('<i>Note:</i>', 'note');
     }
     echo "</table>\n";
     echo "</td></tr></table>\n";
 }
 
 function SectionPacks($pif) {
-    echo "<table><tr><td>\n";
-    FetchSelect('sec', 'packPage', 'pack type', "select flags, id as val, name as title from section where page_id like 'packs.%' and not (flags & 1) order by name");
-    echo "</td></tr><tr><td>\n";
-    echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
-    echo "</td></tr></table>\n";
+    echo "<table><tr><td colspan=\"2\">\n";
+    FetchSelect($pif, 'sec', 'packPage', 'pack type',
+        "select flags, id as val, name as title from section where page_id like 'packs.%' and not (flags & 1) order by name");
+    echo "</td></tr>\n";
+    SimpleText("Search the titles for:", "title");
+    echo "</table>\n";
 }
 
 function SectionPubs($pif) {
-    echo "<table><tr><td>\n";
-    FetchSelect('ty', 'pubPage', 'publication type', "select flags, category as val, name as title from section where page_id like 'pub.%' and not (flags & 1) order by name");
-    echo "</td></tr><tr><td>\n";
-    echo "Search the titles for: <input type=\"text\" name=\"title\">\n";
-    echo "</td></tr></table>\n";
+    echo "<table><tr><td colspan=\"2\">\n";
+    FetchSelect($pif, 'ty', 'pubPage', 'publication type',
+        "select flags, category as val, name as title from section where page_id like 'pub.%' and not (flags & 1) order by name");
+    echo "</td></tr>\n";
+    SimpleText("Search the titles for:", "title");
+    echo "</table>\n";
 }
 
 function SectionSets($pif) {
     echo "<table><tr><td>\n";
-    FetchSelect('page', 'setsPage', 'set', "select flags, id as val, title, description as descr from page_info where format_type='matrix' order by descr");
+    FetchSelect($pif, 'page', 'setsPage', 'set',
+        "select flags, id as val, title, description as descr from page_info where format_type='matrix' order by descr");
     if ($pif['isadmin']) {
 	echo "  </td>\n";
 	echo "  <td>\n";
@@ -590,12 +413,13 @@ function SectionSets($pif) {
 
 function SectionCats($pif) {
     echo "<table><tr><td>\n";
-    FetchSelect('cat', 'catsPage', 'category', "select flags, id as val, name as title from category where flags & 4 order by name");
+    FetchSelect($pif, 'cat', 'catsPage', 'category',
+        "select flags, id as val, name as title from category where flags & 4 order by name");
     echo "</td></tr></table>\n";
 }
 
 
-function Quote($x) { return "'" . $x . "'"; }
+function Quote($x) { return "'{$x}'"; }
 function SectionBoxes($pif) {
     $examples = array('A' => 'rw01a', 'B' => 'rw02a', 'C' => 'rw03b', 'D' => 'rw04c', 'E' => 'rw05d', 'F' => 'rw06d',
 		      'G' => 'sf11a', 'H' => 'sf13b', 'I' => 'sf15b', 'J' => 'sf16a', 'K' => 'sf19c', 'L' => 'sf21c');
@@ -639,7 +463,8 @@ EOT;
 	$sl[] = ['flags' => 0, 'val' => $ty, 'title' => $ty . ' type'];
     }
     $sl[] = ['flags' => 0, 'val' => 'all', 'title' => 'All'];
-    Select('style', 'boxStyle', $sl, 'onkeyup="boxExample();" onchange="boxExample();" onmouseup="boxExample();"', "boxExample();");
+    Select('style', 'boxStyle', $sl,
+        'onkeyup="boxExample();" onchange="boxExample();" onmouseup="boxExample();"', "boxExample();");
     echo "  </td>\n";
     if ($pif['isadmin']) {
 	echo "  <td>\n";
@@ -652,28 +477,16 @@ EOT;
 function SectionCode2($pif) {
     echo "<table><tr><td>\n";
     echo "Choose a type of Code 2 model:\n";
-    FetchSelect('section', 'code2Section', 'range', "select flags, id as val, name as title from section where page_id='code2' order by display_order", [['flags' => 0, 'val' => '', 'title' => 'All Sections']]);
+    FetchSelect($pif, 'section', 'code2Section', 'range',
+        "select flags, id as val, name as title from section where page_id='code2' order by display_order",
+        [['flags' => 0, 'val' => '', 'title' => 'All Sections']]);
     echo "</td></tr></table>\n";
 }
 
 function SectionPlant($pif) {
     echo "<table><tr><td>\n";
     echo "Choose a location of manufacture:\n";
-    $sl = [
-	['flags' => 64, 'val' => '', 'title' => 'Please select a location'],
-	['flags' => 0,  'val' => 'BR', 'title' => 'Brazil'],
-	['flags' => 0,  'val' => 'BG', 'title' => 'Bulgaria'],
-	['flags' => 0,  'val' => 'CN', 'title' => 'China'],
-	['flags' => 0,  'val' => 'GB', 'title' => 'England'],
-	['flags' => 0,  'val' => 'HK', 'title' => 'Hong Kong'],
-	['flags' => 0,  'val' => 'HU', 'title' => 'Hungary'],
-	['flags' => 0,  'val' => 'JP', 'title' => 'Japan'],
-	['flags' => 0,  'val' => 'MO', 'title' => 'Macau'],
-	['flags' => 0,  'val' => 'TH', 'title' => 'Thailand'],
-	['flags' => 0,  'val' => 'none', 'title' => 'no origin'],
-	['flags' => 0,  'val' => 'unset', 'title' => 'location unknown or not yet set']
-    ];
-    Select('id', 'plant', $sl);
+    SelectPlant('Please select a location', 'plants');
     echo "</td></tr></table>\n";
 }
 
@@ -682,8 +495,8 @@ function SectionOther($pif) {
     echo "<div class='paget'>\n";
     foreach ($pages as $page) {
 	echo "<div class='pagec'><center>\n";
-	echo "<div class='othertitle'>" . $page['title'];
-	echo "<p><div class='otherdesc'>" . $page['desc'] . "</div>\n";
+	echo "<div class='othertitle'>{$page['title']}";
+	echo "<p><div class='otherdesc'>{$page['desc']}</div>\n";
 	echo "</div>\n";
 	DoTextButtonLink("VIEW THE PAGE", $page['url']);
 	echo "</center></div>\n";
@@ -692,21 +505,6 @@ function SectionOther($pif) {
 }
 
 //---- end of sections -------------------------------------------
-
-function PageFooter() {
-    global $IMG_DIR_ICON;
-    echo "<hr>\n";
-    echo "<div class=\"bottombar\">\n";
-    echo "<div class=\"bamcamark\"><img src=\"$IMG_DIR_ICON/l_bamca-5.gif\"></div>\n";
-    echo "<div class=\"footer\">\n";
-    DoTextButtonLink("BACK", '/');
-    echo " to the index.\n</div>\n";
-
-    echo "<div class=\"comment_button\">\n";
-    echo "<div class=\"comment_box\">\n";
-    DoTextButtonLink("COMMENT ON<br>THIS PAGE", "/pages/comment.php?page=database", "textbutton");
-    echo "</div>\n</div>\n</div>\n";
-}
 
 ?>
 </html>

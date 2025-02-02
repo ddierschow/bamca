@@ -84,7 +84,7 @@ function DBClose($dbi) {
 	$dbi->close();
 }
 
-function GetPageInfo($page_id) {
+function GetPageInfo($page_id, $get_limits=0) {
     global $pif;
     chdir(getenv('DOCUMENT_ROOT'));
     $pif = array();
@@ -145,6 +145,16 @@ function GetPageInfo($page_id) {
 // not sure how to fix this yet
     $pif['bad_ip'] = $bad_ip[0]['count(*)'];
     $pif['messages'] = '';
+
+    if ($get_limits) {
+        $answer = Fetch("select min(year), max(year), max(number) from lineup_model", $pif);
+        $pif['line_year_start'] = $answer[0]['min(year)'];
+        $pif['line_year_end'] = $answer[0]['max(year)'];
+        $pif['max_number'] = $answer[0]['max(number)'];
+        $answer = Fetch("select min(first_year), max(first_year) from base_id", $pif);
+        $pif['man_year_start'] = $answer[0]['min(first_year)'];
+        $pif['man_year_end'] = $answer[0]['max(first_year)'];
+    }
     return $pif;
 }
 
@@ -247,7 +257,7 @@ function DoTextButtonLink($buttext, $linkloc, $classname="textbutton") {
 }
 
 function DoTextButtonReset($formid, $addl='') {
-    echo '<div class="textbutton" onClick="ResetForm(document.' . $formid . ');' . $addl . '" alt="RESET" >RESET</div>';
+    echo '<div class="textbutton" onClick="ResetForm(document.' . $formid . ');' . $addl . '" alt="RESET">RESET</div>';
 }
 
 function DoTextButtonSubmit($buttext, $submit) {
@@ -387,6 +397,21 @@ function DoButtonComment($pif, $args='') {
     echo '<div class="comment_box">';
     DoTextButtonLink('comment on<br>this page', "/pages/comment.php?" . $args);
     echo "</div>\n";
+}
+
+function PageFooter($pagename) {
+    global $IMG_DIR_ICON;
+    echo "<hr>\n";
+    echo "<div class=\"bottombar\">\n";
+    echo "<div class=\"bamcamark\"><img src=\"$IMG_DIR_ICON/l_bamca-5.gif\"></div>\n";
+    echo "<div class=\"footer\">\n";
+    DoTextButtonLink("BACK", '/');
+    echo " to the index.\n</div>\n";
+
+    echo "<div class=\"comment_button\">\n";
+    echo "<div class=\"comment_box\">\n";
+    DoTextButtonLink("COMMENT ON<br>THIS PAGE", "/pages/comment.php?page=$pagename", "textbutton");
+    echo "</div>\n</div>\n</div>\n";
 }
 
 ?>

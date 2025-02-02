@@ -45,6 +45,8 @@ td {vertical-align: top;}
 .cats_body     {background-color: #FCE;}
 .other_head    {background-color: #000; color: #FFF;}
 .other_body    {background-color: #999;}
+.ss_head       {background-color: #F96;}
+.ss_body       {background-color: #FDD;}
 
 .hspacer {width: 20px;}
 
@@ -53,3 +55,4 @@ td {vertical-align: top;}
 .othertitle {height: 96px; font-weight: bold; font-size: x-large;}
 .otherdesc {font-weight: normal; font-size: large;}
 .idtab {text-align: right;}
+.inset {border-width: 1px; border-style: ridge; padding: 4px; background-color: #FFF;}
