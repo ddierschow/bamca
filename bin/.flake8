@@ -6,4 +6,4 @@ ignore =
     H233,
     W504,
     E402
-max-line-length = 120
+max-line-length = 125

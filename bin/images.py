@@ -113,25 +113,25 @@ def get_next_upload_filename():
 
 
 # for things out of http space:
-# print('<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.render.pic_dir, fn))
+# print('<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.ren.pic_dir, fn))
 def show_picture(pif, fn, pdir=None):
     if pdir:
-        pif.render.pic_dir = pdir
+        pif.ren.pic_dir = pdir
     picker(pif, fn)
     root, ext = useful.root_ext(fn.strip())
     useful.write_comment(root, ext)
-    print('<table><tr><td></td><td>' + pif.render.format_image_art('hruler.gif') + '</td></tr>')
-    print('<tr><td valign="top">' + pif.render.format_image_art('vruler.gif') + '</td><td valign="top">')
+    print('<table><tr><td></td><td>' + pif.ren.format_image_art('hruler.gif') + '</td></tr>')
+    print('<tr><td valign="top">' + pif.ren.format_image_art('vruler.gif') + '</td><td valign="top">')
     print('<a href="/cgi-bin/image.cgi?d=%s&f=%s"><img src="/cgi-bin/image.cgi?d=%s&f=%s"></a>' % (
-        pif.render.pic_dir, fn, pif.render.pic_dir, fn))
+        pif.ren.pic_dir, fn, pif.ren.pic_dir, fn))
     print('</td></tr></table>')
 
 
 def picker(pif, fn):
     # cycle = pif.form.get_int('cy')
     root, ext = useful.root_ext(fn.strip())
-    print('<a href="?d=%s">%s</a> / ' % (pif.render.pic_dir, pif.render.pic_dir))
-    print('<a href="/%s/%s">%s</a>' % (pif.render.pic_dir, fn, fn))
+    print('<a href="?d=%s">%s</a> / ' % (pif.ren.pic_dir, pif.ren.pic_dir))
+    print('<a href="/%s/%s">%s</a>' % (pif.ren.pic_dir, fn, fn))
     print('<hr>')
     print('<form action="upload.cgi">' + pif.create_token())
 
@@ -147,7 +147,7 @@ def show_var_info(pif, mod_id, var_id):
         var = pif.dbh.fetch_variation(mod_id, var_id)
         if var:
             var = pif.dbh.depref('variation', var)
-            ostr += pif.render.format_image_sized(
+            ostr += pif.ren.format_image_sized(
                 mod_id + '-' + var_id, pdir='.' + config.IMG_DIR_VAR,
                 largest=mbdata.IMG_SIZ_MEDIUM, also={'class': 'righty'})
             ostr += '<br>\n%s:<ul>\n' % var_id
@@ -231,20 +231,20 @@ class UploadForm(object):
     def read(self, pif):
         self.mod_id = pif.form.get_id('m')
         self.var_id = pif.form.get_id('v') if self.mod_id else ''
-        pif.render.title = 'upload - '
-        pif.render.pic_dir = self.tdir = pif.form.get_id('d')
+        pif.ren.title = 'upload - '
+        pif.ren.pic_dir = self.tdir = pif.form.get_id('d')
         if not pif.is_allowed('m'):
             self.tdir = config.INC_DIR
         elif self.mod_id:
             self.tdir = useful.relpath('.', config.LIB_MAN_DIR, self.mod_id.lower())
         if self.mod_id:
-            pif.render.title += self.mod_id
+            pif.ren.title += self.mod_id
             if self.var_id:
-                pif.render.title += ' - ' + self.var_id
+                pif.ren.title += ' - ' + self.var_id
         elif pif.is_allowed('vma'):
-            pif.render.title += self.tdir
+            pif.ren.title += self.tdir
         else:
-            pif.render.title += 'to BAMCA'
+            pif.ren.title += 'to BAMCA'
         presets = imglib.read_presets(self.tdir)
         presets['cc'] = self.cc = pif.form.get_str('cc', presets.get('cc', ''))
         imglib.write_presets(self.tdir, presets)
@@ -273,7 +273,7 @@ class UploadForm(object):
         self.mass = pif.form.get_exists('mass')
         self.act = pif.form.get_int('act')
         self.y = pif.form.get_str('y')  # I have no idea what this does.
-        image = pif.render.find_image_file(self.nfn, pdir=self.tdir.replace('lib', 'pic'), largest='e')
+        image = pif.ren.find_image_file(self.nfn, pdir=self.tdir.replace('lib', 'pic'), largest='e')
         self.image = image if image else None
         return self
 
@@ -281,7 +281,7 @@ class UploadForm(object):
         var = pif.dbh.fetch_variation(self.mod_id, self.var_id) if self.mod_id and self.var_id else None
         if var:
             var = pif.dbh.depref('variation', var)
-            var['image'] = pif.render.format_image_sized(
+            var['image'] = pif.ren.format_image_sized(
                 self.mod_id + '-' + self.var_id, pdir='.' + config.IMG_DIR_VAR, largest=mbdata.IMG_SIZ_MEDIUM,
                 also={'class': 'righty'})
         context = {
@@ -289,10 +289,10 @@ class UploadForm(object):
             'restrict': restrict,
             'desc': desc,
             'var': var,
-            'edit': pif.render.format_button_link('edit', 'imawidget.cgi?d=%s&f=%s' % self.image) if self.image else '',
+            'edit': pif.ren.format_button_link('edit', 'imawidget.cgi?d=%s&f=%s' % self.image) if self.image else '',
             'demote': self.image,
         }
-        return pif.render.format_template('upload.html', **context)
+        return pif.ren.format_template('upload.html', **context)
 
     def scrape_url_pic(self):
         url = self.scrape
@@ -352,7 +352,7 @@ class UploadForm(object):
         print('<hr>')
 
     def restricted_upload(self, pif):
-        print(pif.render.format_head())
+        print(pif.ren.format_head())
         direc = config.INC_DIR
         useful.header_done()
         fn = get_next_upload_filename()
@@ -365,7 +365,7 @@ class UploadForm(object):
             print(self.thanks(pif, fn))
         else:
             self.write(pif, restrict=True)
-        print(pif.render.format_tail())
+        print(pif.ren.format_tail())
 
     def thanks(self, pif, fn):
         cred = who = comment = '-'
@@ -409,7 +409,7 @@ def upload_main(pif):
             upform.tdir, upform.mod_id, upform.var_id, upform.suffix, upform.selsearch))
     elif upform.fimage:
         if not pif.is_allowed('u'):
-            pif.render.print_html()
+            pif.ren.print_html()
             return upform.restricted_upload(pif)
         fn = upform.save_uploaded_file()
         upform.carbon_copy(fn)
@@ -421,7 +421,7 @@ def upload_main(pif):
             if ac[0] in upform.url:
                 credit = ac[1]
                 break
-        # pif.render.print_html()  # tmp
+        # pif.ren.print_html()  # tmp
         # print('pif', pif.__dict__, '<br>')
         # print('upform', upform.__dict__, '<br>')
         fn = upform.grab_url_pic(pif)
@@ -430,30 +430,30 @@ def upload_main(pif):
         raise useful.Redirect('imawidget.cgi?edit=1&d=%s&f=%s&man=%s&newvar=%s&suff=%s&credit=%s' % (
             upform.tdir, fn, upform.mod_id, upform.var_id, upform.suffix, credit))
 
-    pif.render.print_html()
-    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.increment_js + pif.render.paste_from_clippy_js)
+    pif.ren.print_html()
+    pif.ren.set_page_extra(pif.ren.reset_button_js + pif.ren.increment_js + pif.ren.paste_from_clippy_js)
     useful.write_message(str(pif.form.get_form()))
     useful.write_message('<hr>')
 
     try:
         if upform.url_list:
-            print(pif.render.format_head())
+            print(pif.ren.format_head())
             useful.header_done()
             print(show_var_info(pif, upform.mod_id, upform.var_id))
             upform.grab_url_file_list()
-            print(pif.render.format_tail())
+            print(pif.ren.format_tail())
         elif upform.scrape:
-            print(pif.render.format_head())
+            print(pif.ren.format_head())
             useful.header_done()
             print(show_var_info(pif, upform.mod_id, upform.var_id))
             upform.scrape_url_pic()
-            print(pif.render.format_tail())
+            print(pif.ren.format_tail())
         elif upform.demote:
-            print(pif.render.format_head())
+            print(pif.ren.format_head())
             useful.header_done()
             print(show_var_info(pif, upform.mod_id, upform.var_id))
             upform.do_demote(pif)
-            print(pif.render.format_tail())
+            print(pif.ren.format_tail())
         else:
             return upform.write(pif, desc=upform.comment, restrict=not pif.is_allowed('uma'))
     except OSError:
@@ -478,8 +478,8 @@ def show_editor(pif, eform, pdir=None, fn=None):
     x, y = eform.write(pif, pdir, fn)
     full_path = os.path.join(pdir, fn)
     root, ext = useful.root_ext(fn.strip())
-    print('<table><tr><td></td><td>' + pif.render.format_image_art('hruler.gif') + '</td></tr>')
-    print('<tr><td valign="top">' + pif.render.format_image_art('vruler.gif') + '</td><td valign="top">')
+    print('<table><tr><td></td><td>' + pif.ren.format_image_art('hruler.gif') + '</td></tr>')
+    print('<tr><td valign="top">' + pif.ren.format_image_art('vruler.gif') + '</td><td valign="top">')
     dic = {'file': pif.secure_host + '/' + full_path, 'width': x, 'height': y}
     print(javasc.def_edit_app % dic)
     print('</td></tr></table>')
@@ -554,7 +554,7 @@ class EditForm(imglib.ActionForm):
         self.tdir = pif.form.get_str("d", '.') if pif.is_allowed('avm') else '.'
         if self.tdir.startswith('./'):
             self.tdir = self.tdir[2:]
-        pif.render.pic_dir = self.tdir
+        pif.ren.pic_dir = self.tdir
         self.nvar = pif.form.get_str("newvar", '')
         self.man = pif.form.get_str("man")
         if not self.man:
@@ -673,10 +673,10 @@ class EditForm(imglib.ActionForm):
         if not fn:
             fn = self.fn
 
-        print(pif.render.format_link('traverse.cgi?d=%s' % pdir, pdir), '/')
-        print(pif.render.format_link('traverse.cgi?d=%s&f=%s' % (pdir, fn), fn))
-        print(pif.render.format_button_link("show", os.path.join('/', pdir, fn)))
-        print(pif.render.format_button_link("upload", "upload.cgi?d=%s&n=%s" % (pdir, fn)))
+        print(pif.ren.format_link('traverse.cgi?d=%s' % pdir, pdir), '/')
+        print(pif.ren.format_link('traverse.cgi?d=%s&f=%s' % (pdir, fn), fn))
+        print(pif.ren.format_button_link("show", os.path.join('/', pdir, fn)))
+        print(pif.ren.format_button_link("upload", "upload.cgi?d=%s&n=%s" % (pdir, fn)))
         print('<br>')
 
         full_path = os.path.join(pdir, fn)
@@ -723,7 +723,7 @@ class EditForm(imglib.ActionForm):
         print(pif.form.put_button_input('clean'))
         photogs = [(x.photographer.id, x.photographer.name)
                    for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
-        print(pif.render.format_link('/cgi-bin/mass.cgi?tymass=photogs', 'Credit'))
+        print(pif.ren.format_link('/cgi-bin/mass.cgi?tymass=photogs', 'Credit'))
         print(pif.form.put_select('credit', photogs, selected=self.credit, blank=''))
         print('Bounds: <input type="text" value="%s" name="q" id="q">' % ','.join([str(x) for x in self.q]))
         print('<br><span id="ima_info"></span>&nbsp;')
@@ -881,27 +881,27 @@ class EditForm(imglib.ActionForm):
                     cred = ''
             url = pif.secure_prod + largest
             link = pif.secure_prod + '/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
-            pif.render.message('Post to Tumblr: ',
-                               tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
-            pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, self.man, self.var))
+            pif.ren.message('Post to Tumblr: ',
+                            tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
+            pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, self.man, self.var))
 
         return largest
 
 
 @basics.web_page
 def imawidget_main(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     pif.restrict('v')
 
     eform = EditForm(pif).read(pif)
 
-    pif.render.title = pif.render.pagetitle = pif.render.pic_dir + '/' + eform.fn
-    pif.render.set_page_extra(pif.render.increment_js)
-    print(pif.render.format_head())
+    pif.ren.title = pif.ren.pagetitle = pif.ren.pic_dir + '/' + eform.fn
+    pif.ren.set_page_extra(pif.ren.increment_js)
+    print(pif.ren.format_head())
     useful.header_done()
 
     if not pif.is_allowed('ma'):
-        print(pif.render.format_image_required(eform.fn))
+        print(pif.ren.format_image_required(eform.fn))
         return
 
     if eform.fn and os.path.exists(os.path.join(eform.tdir, 'descr.log')):
@@ -914,9 +914,9 @@ def imawidget_main(pif):
 
     if eform.keep:
         picker(pif, eform.fn)
-        print(pif.render.format_image_required(
+        print(pif.ren.format_image_required(
             [eform.fn[:eform.fn.rfind('.')]], suffix=eform.fn[eform.fn.rfind('.') + 1:], also={"border": "0"}), '<br>')
-        print(pif.render.format_tail())
+        print(pif.ren.format_tail())
         return
 
     print(show_var_info(pif, eform.man, eform.var))
@@ -939,10 +939,10 @@ def imawidget_main(pif):
                         break
             if nfn:
                 # show_picture(pif, nfn)
-                print(pif.render.format_link('traverse.cgi?d=%s' % eform.tdir, eform.tdir), '/')
-                print(pif.render.format_link('traverse.cgi?d=%s&f=%s' % (eform.tdir, eform.fn), eform.fn), '<br>')
+                print(pif.ren.format_link('traverse.cgi?d=%s' % eform.tdir, eform.tdir), '/')
+                print(pif.ren.format_link('traverse.cgi?d=%s&f=%s' % (eform.tdir, eform.fn), eform.fn), '<br>')
             else:
-                print(pif.render.format_link('traverse.cgi?d=%s' % eform.tdir, eform.tdir), '/')
+                print(pif.ren.format_link('traverse.cgi?d=%s' % eform.tdir, eform.tdir), '/')
 
         elif eform.clean:
             eform.mass_clean()
@@ -950,7 +950,7 @@ def imawidget_main(pif):
         elif eform.mass:
             if eform.man and eform.var:
                 print(
-                    pif.render.format_button_link("promote", f'editor.cgi?mod={eform.man}&var={eform.var}&promote=1'),
+                    pif.ren.format_button_link("promote", f'editor.cgi?mod={eform.man}&var={eform.var}&promote=1'),
                     *[x for x in 'TSML' if os.path.exists(f'pic/man/{x}_{eform.man.lower()}.jpg')])
             eform.mass_resize(pif, "from library")
         elif eform.wipe:
@@ -965,19 +965,19 @@ def imawidget_main(pif):
             eform.save_presets()
             eform.fn = eform.shape_image()
             # show_redoer(pif, eform)
-            # print(pif.render.format_image_required([eform.fn], also={"border": "0"}), '<br>')
+            # print(pif.ren.format_image_required([eform.fn], also={"border": "0"}), '<br>')
             show_editor(pif, eform)
         elif eform.crop:
             eform.save_presets()
             eform.fn = eform.crop_image()
             # show_redoer(pif, eform)
-            # print(pif.render.format_image_required([eform.fn], also={"border": "0"}), '<br>')
+            # print(pif.ren.format_image_required([eform.fn], also={"border": "0"}), '<br>')
             show_editor(pif, eform)
         elif eform.shrink:
             eform.save_presets()
             eform.fn = eform.shrink_image()
             # show_redoer(pif, eform)
-            # print(pif.render.format_image_required([eform.fn], also={"border": "0"}), '<br>')
+            # print(pif.ren.format_image_required([eform.fn], also={"border": "0"}), '<br>')
             show_editor(pif, eform)
         else:
             show_editor(pif, eform)
@@ -987,11 +987,11 @@ def imawidget_main(pif):
         is_edited = False
 
     if is_edited:
-        print(pif.render.format_button_link(
+        print(pif.ren.format_button_link(
             'replace',
             'upload.cgi?act=1&d=%s&f=%s&newname=%s&rename=1&cpmv=m&ov=1' % (eform.tdir, eform.nname, eform.fn)))
 
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 # -- stitch
@@ -1044,10 +1044,10 @@ class StitchForm(object):
         header += pif.form.put_hidden_input(fc=self.file_count + 1)
         # columns = ['name', 'image']
         print(header)
-        print(pif.render.format_table_start())
+        print(pif.ren.format_table_start())
         # entries = []
         for fs in self.fsl:
-            print(pif.render.format_row_start())
+            print(pif.ren.format_row_start())
             num = fs['n']
             fn = fs.get('fn', '').strip()
             fn_size = ''
@@ -1057,34 +1057,34 @@ class StitchForm(object):
                     self.limit_x = min(x, self.limit_x)
                     self.limit_y = min(y, self.limit_y)
                     fn_size = '<br>' + str((x, y))
-                print(pif.render.format_cell(1, fn + fn_size))
+                print(pif.ren.format_cell(1, fn + fn_size))
                 print(pif.form.put_hidden_input(**{'fn_' + num: fn}))
             else:
-                print(pif.render.format_cell(
+                print(pif.ren.format_cell(
                     1, pif.form.put_text_input('fn_%d' % self.file_count, 80) + '<br>' +
                     self.fsl[0]['fn'].strip()))
-                print(pif.render.format_cell(
+                print(pif.ren.format_cell(
                     1, pif.form.put_button_input() + ' ' +
                     pif.form.put_button_input('finalize') + '<br>' +
                     pif.form.put_checkbox('or', [('h', 'horizontal')]), also={'colspan': 2}))
-                print(pif.render.format_cell(1, 'x ' + pif.form.put_text_input('limit_x', 5, value=self.limit_x)))
-                print(pif.render.format_cell(1, 'y ' + pif.form.put_text_input('limit_y', 5, value=self.limit_y)))
+                print(pif.ren.format_cell(1, 'x ' + pif.form.put_text_input('limit_x', 5, value=self.limit_x)))
+                print(pif.ren.format_cell(1, 'y ' + pif.form.put_text_input('limit_y', 5, value=self.limit_y)))
             if 'x1' in fs:
-                print(pif.render.format_cell(1, str(fs['x1']), also={'width': 40}))
+                print(pif.ren.format_cell(1, str(fs['x1']), also={'width': 40}))
                 print(pif.form.put_hidden_input(**{'x1_' + num: fs['x1']}))
-                print(pif.render.format_cell(1, str(fs['y1']), also={'width': 40}))
+                print(pif.ren.format_cell(1, str(fs['y1']), also={'width': 40}))
                 print(pif.form.put_hidden_input(**{'y1_' + num: fs['y1']}))
-                print(pif.render.format_cell(1, str(fs['x2']), also={'width': 40}))
+                print(pif.ren.format_cell(1, str(fs['x2']), also={'width': 40}))
                 print(pif.form.put_hidden_input(**{'x2_' + num: fs['x2']}))
-                print(pif.render.format_cell(1, str(fs['y2']), also={'width': 40}))
+                print(pif.ren.format_cell(1, str(fs['y2']), also={'width': 40}))
                 print(pif.form.put_hidden_input(**{'y2_' + num: fs['y2']}))
             elif fn:
                 if not os.path.exists(fn):
-                    print(pif.render.format_cell(1, 'Nonexistant: ' + os.getcwd() + '/' + fn, also={'colspan': 4}))
+                    print(pif.ren.format_cell(1, 'Nonexistant: ' + os.getcwd() + '/' + fn, also={'colspan': 4}))
                 else:
-                    print(pif.render.format_cell(1, self.show_widget(fn), also={'colspan': 4}))
-            print(pif.render.format_row_end())
-        print(pif.render.format_table_end())
+                    print(pif.ren.format_cell(1, self.show_widget(fn), also={'colspan': 4}))
+            print(pif.ren.format_row_end())
+        print(pif.ren.format_table_end())
         footer = '<input type="text" value="" name="q" id="q"><br>\n'  # for imawidget
         footer += 'Debug: <span id="ima_debug">Debug output here.</span>\n'
         footer += '</form>'
@@ -1120,10 +1120,10 @@ class StitchForm(object):
 
         fa = list()
         minx = miny = None
-        print(pif.render.format_table_start())
+        print(pif.ren.format_table_start())
         input_files = list()
         for fs in self.fsl:
-            print(pif.render.format_row_start())
+            print(pif.ren.format_row_start())
             img = fs['fn']
             input_files.append(img)
             crop_l = int(fs['x1'])
@@ -1139,13 +1139,13 @@ class StitchForm(object):
             if not miny or cy < miny:
                 miny = cy
             # print(fa[-1], '<br>')
-            print(pif.render.format_cell(1, str(fs['fn'])))
-            print(pif.render.format_cell(1, str(fs['x1']), also={'width': 40}))
-            print(pif.render.format_cell(1, str(fs['y1']), also={'width': 40}))
-            print(pif.render.format_cell(1, str(fs['x2']), also={'width': 40}))
-            print(pif.render.format_cell(1, str(fs['y2']), also={'width': 40}))
-            print(pif.render.format_row_end())
-        print(pif.render.format_table_end())
+            print(pif.ren.format_cell(1, str(fs['fn'])))
+            print(pif.ren.format_cell(1, str(fs['x1']), also={'width': 40}))
+            print(pif.ren.format_cell(1, str(fs['y1']), also={'width': 40}))
+            print(pif.ren.format_cell(1, str(fs['x2']), also={'width': 40}))
+            print(pif.ren.format_cell(1, str(fs['y2']), also={'width': 40}))
+            print(pif.ren.format_row_end())
+        print(pif.ren.format_table_end())
 
         print('Stitching...', final)
         imglib.stitcher(final, fa, pif.form.get_str('or') == 'h', minx, miny, self.limit_x, self.limit_y, verbose=True)
@@ -1169,18 +1169,18 @@ class StitchForm(object):
 
 @basics.web_page
 def stitch_main(pif, verbose=False):
-    pif.render.print_html()
+    pif.ren.print_html()
 
     if 1:
-        pif.render.title = 'stitch'
-        print(pif.render.format_head())
+        pif.ren.title = 'stitch'
+        print(pif.ren.format_head())
         useful.header_done()
 
         StitchForm(verbose).read(pif).perform(pif)
 
-        print(pif.render.format_tail())
+        print(pif.ren.format_tail())
     else:
-        return pif.render.format_template('stitch.html', StitchForm(verbose).read(pif).perform(pif))
+        return pif.ren.format_template('stitch.html', StitchForm(verbose).read(pif).perform(pif))
 
 
 # -- pictures
@@ -1192,7 +1192,7 @@ def casting_pictures(pif, mod_id, direc):
     if fl:
         print('<h3>%s</h3>' % direc)
         if direc == '.' + config.IMG_DIR_ADD:
-            print(pif.render.format_button_link('describe', pif.dbh.get_editor_link('attribute_picture',
+            print(pif.ren.format_button_link('describe', pif.dbh.get_editor_link('attribute_picture',
                   {'mod_id': mod_id})) + '<br>')
         for fn in fl:
             print('<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&man=%s"><img src="../%s">%s</a> ' % (
@@ -1216,10 +1216,10 @@ def lineup_pictures(pif, lup_models):
 
 @basics.web_page
 def pictures_main(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     mod_id = pif.form.get_id('m', defval='')
-    pif.render.title = f'pictures - {mod_id}'
-    print(pif.render.format_head())
+    pif.ren.title = f'pictures - {mod_id}'
+    print(pif.ren.format_head())
     useful.header_done()
     if mod_id:
         if pif.form.get_bool('t'):
@@ -1227,13 +1227,13 @@ def pictures_main(pif):
             prefixes = imglib.get_tilley_file()
             for prefix in prefixes.get(mod_id.lower(), []):
                 print(f'<h3>{prefix}</h3>')
-                imgs = pif.render.find_image_list(prefix, wc='*', suffix='*', pdir=tilldir)
+                imgs = pif.ren.find_image_list(prefix, wc='*', suffix='*', pdir=tilldir)
                 for img in imgs:
                     if pif.form.get_bool('import'):
                         useful.file_mover(os.path.join(tilldir, img),
                                           os.path.join('lib', 'man', mod_id.lower(), img), mv=True, ov=False)
                     else:
-                        print(pif.render.fmt_img_src(tilldir + '/' + img))
+                        print(pif.ren.fmt_img_src(tilldir + '/' + img))
                     print(f'<br>{img}<br>')
             print('<a href="?m={}&t=1&import=1">{}</a>'.format(mod_id, pif.form.put_text_button('import')))
         else:
@@ -1242,7 +1242,7 @@ def pictures_main(pif):
             lineup_pictures(pif, pif.dbh.fetch_casting_lineups(mod_id))
     else:
         print('Huh?')
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 # -- icon
@@ -1314,7 +1314,7 @@ def bits_main(pif):
 
     colors = {True: "#CCCCCC", False: "#FFFFFF"}
 
-    pif.render.print_html()
+    pif.ren.print_html()
 
     print("<table>")
 
@@ -1469,12 +1469,12 @@ def library_img(pif, args, base=''):
             inp = imginputs % {'f': arg, 'b': base}
         else:
             inp = imginput % {'f': arg}
-        inp += ' ' + pif.render.format_button_link('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.render.pic_dir, arg))
-        inp += ' ' + pif.render.format_button_link('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (
-            pif.render.pic_dir + '/' + arg))
-        print(pif.render.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (
-            pif.render.pic_dir, arg,
-            pif.render.format_image_required([root], suffix=ext, also={"border": 0}), arg, inp)))
+        inp += ' ' + pif.ren.format_button_link('edit', 'imawidget.cgi?d=%s&f=%s&cy=0' % (pif.ren.pic_dir, arg))
+        inp += ' ' + pif.ren.format_button_link('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (
+            pif.ren.pic_dir + '/' + arg))
+        print(pif.ren.format_cell(0, '<a href="../%s/%s">%s</a><br>%s%s' % (
+            pif.ren.pic_dir, arg,
+            pif.ren.format_image_required([root], suffix=ext, also={"border": 0}), arg, inp)))
     print('</tr>')
 
 
@@ -1483,14 +1483,14 @@ def show_library_imgs(pif, patt):
     print('<form action="traverse.cgi" method="post">' + pif.create_token())
     plist = patt.split(',')
     for pent in plist:
-        flist = useful.read_dir(pent, pif.render.pic_dir)
+        flist = useful.read_dir(pent, pif.ren.pic_dir)
         flist.sort()
         print('<table>')
         for f in flist:
             library_img(pif, [f])
         print('</table>')
         print('<hr>')
-    print('<input type="hidden" name="d" value="%s">' % pif.render.pic_dir)
+    print('<input type="hidden" name="d" value="%s">' % pif.ren.pic_dir)
     print('<input type="hidden" name="sc" value="1">')
     # print('<input type="hidden" name="pre" value="man">')
     print(pif.form.put_button_input())
@@ -1511,7 +1511,7 @@ colors = ["#FFFFFF", "#CCCCCC"]
 
 # print('<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f))
 def show_library_table(pif, pagename):
-    tablefile = bfiles.SimpleFile(pif.render.pic_dir + '/' + pagename)
+    tablefile = bfiles.SimpleFile(pif.ren.pic_dir + '/' + pagename)
     cols = ''  # pif.form.get_str('cols', '')
     h = 0  # pif.form.get_int('h')
     sorty = pif.form.get_str('sort')
@@ -1571,11 +1571,11 @@ def do_library_action(pif, tdir, fn, act):
 @basics.web_page
 def library_main(pif):
     os.environ['PATH'] += ':/usr/local/bin'
-    pif.render.print_html()
+    pif.ren.print_html()
     pif.restrict('a')
-    # pif.render.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.form.get_str("d", '.'), pif.form.get_str("d", '.'))
-    pif.render.title = pif.render.pic_dir = pif.form.get_str("d", '.')
-    pif.render.title += '/' + pif.form.get_str("f", "")
+    # pif.ren.title = '<a href="traverse.cgi?d=%s">%s</a>' % (pif.form.get_str("d", '.'), pif.form.get_str("d", '.'))
+    pif.ren.title = pif.ren.pic_dir = pif.form.get_str("d", '.')
+    pif.ren.title += '/' + pif.form.get_str("f", "")
     graf = pif.form.get_int("g")
     fnam = pif.form.get_str("f", '')
     patt = pif.form.get_str("p", '')
@@ -1583,19 +1583,19 @@ def library_main(pif):
     act = pif.form.get_int('act')
     # cycle = pif.form.get_int("cy")
 
-    pif.render.set_page_extra(pif.render.increment_js)
-    print(pif.render.format_head())
+    pif.ren.set_page_extra(pif.ren.increment_js)
+    print(pif.ren.format_head())
     useful.header_done()
     print(pif.form.get_form())
     if patt:
         show_library_imgs(pif, patt)
     elif act:
-        do_library_action(pif, pif.render.pic_dir, fnam, act)
+        do_library_action(pif, pif.ren.pic_dir, fnam, act)
     elif fnam:
         show_library_file(pif, fnam)
     else:
-        show_library_dir(pif, pif.render.pic_dir, graf)
-    print(pif.render.format_tail())
+        show_library_dir(pif, pif.ren.pic_dir, graf)
+    print(pif.ren.format_tail())
 
 
 # -- image
@@ -1652,9 +1652,9 @@ def credit_show(pif, cred):
         url = 'lineup.cgi?year=%s&region=%s&lty=all#%s' % (name[:4], name[4].upper(), int(name[5:]))
     # elif cred['photo_credit.path'] == 'pic/set/convoy':
     return '<div class="entry">%s</div>' % (
-        pif.render.format_link(
+        pif.ren.format_link(
             url,
-            pif.render.format_image_required(
+            pif.ren.format_image_required(
                 cred['photo_credit.name'], pdir=cred['photo_credit.path'], made=True,
                 largest=mbdata.IMG_SIZ_LARGE, preferred=mbdata.IMG_SIZ_SMALL, also={'width': 200}))
     )
@@ -1663,8 +1663,8 @@ def credit_show(pif, cred):
 def photog_ind(pif, photog):
     return (
         '<div class="entry"><span class="name">%s</span><br><a href="photogs.cgi?id=%s">%s<br>%d credit%s</a></div>' % (
-            pif.render.format_link(photog['photographer.url'], photog['photographer.name']), photog['photographer.id'],
-            pif.render.format_image_required(
+            pif.ren.format_link(photog['photographer.url'], photog['photographer.name']), photog['photographer.id'],
+            pif.ren.format_image_required(
                 photog['c.name'], pdir=photog['c.path'], made=True,
                 largest=mbdata.IMG_SIZ_LARGE, preferred=mbdata.IMG_SIZ_SMALL, also={'width': 200}),
             photog['count'], 's' if photog['count'] != 1 else ''))
@@ -1672,39 +1672,39 @@ def photog_ind(pif, photog):
 
 @basics.web_page
 def photographers(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     photog_id = pif.form.get_str('id')
     header = footer = ''
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/photogs.cgi', 'Photographers')
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/photogs.cgi', 'Photographers')
     if photog_id:
         photog = pif.dbh.fetch_photographer_counts(photog_id).first
         if not photog:
             raise useful.SimpleError('That photographer was not found.')
-        pif.render.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog.photographer.name)
-        pif.render.title = photog.photographer.name
+        pif.ren.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog.photographer.name)
+        pif.ren.title = photog.photographer.name
         page = pif.form.get_int('p')
         entries = [render.Entry(text=credit_show(pif, x))
                    for x in pif.dbh.fetch_photo_credits_page(photog_id, page=page)]
         if page > 0:
-            footer += pif.render.format_button_link('previous', 'photogs.cgi?id=%s&p=%d' % (photog_id, page - 1))
+            footer += pif.ren.format_button_link('previous', 'photogs.cgi?id=%s&p=%d' % (photog_id, page - 1))
         if (page + 1) * 100 < photog['count']:
             if footer:
                 footer += ' - '
-            footer += pif.render.format_button_link('next', 'photogs.cgi?id=%s&p=%d' % (photog_id, page + 1))
+            footer += pif.ren.format_button_link('next', 'photogs.cgi?id=%s&p=%d' % (photog_id, page + 1))
         header += '%s credit%s' % (photog['count'], 's' if photog.count != 1 else '')
         if photog["count"] > 100:
             header += ' - Page %d' % (page + 1)
         if photog.photographer.url:
-            header += ' - ' + pif.render.format_button_link('visit website', photog.photographer.url)
+            header += ' - ' + pif.ren.format_button_link('visit website', photog.photographer.url)
     else:
         # hide private
         entries = [render.Entry(text=photog_ind(pif, x)) for x in pif.dbh.fetch_photographer_counts()]
     lsection = render.Section(range=[render.Range(entry=entries)])
     llineup = render.Matrix(section=[lsection], header=header, footer=footer)
-    return pif.render.format_template('simplematrix.html', nofooter=True,
-                                      llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', nofooter=True,
+                                   llineup=llineup.prep())
 
 
 # -- commands
@@ -1715,7 +1715,7 @@ def add_credits(pif, photographer_id, *args):
         if '/' not in fn:
             print('must have path:', fn)
         else:
-            pif.render.message('Credit added: ', pif.dbh.write_photo_credit(photographer_id, *fn.rsplit('/', 1)))
+            pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(photographer_id, *fn.rsplit('/', 1)))
 
 
 def ren(pth, cas, ov, nv):
@@ -1879,8 +1879,8 @@ def count_images(pif):
     t = 0
     for dirpath, counter in dirs:
         fl = os.listdir('.' + dirpath)
-        dt = counter(filter(lambda x: x.endswith('.jpg'), fl))
-        dt += counter(filter(lambda x: x.endswith('.gif'), fl))
+        dt = counter([x for x in fl if x.endswith('.jpg')])
+        dt += counter([x for x in fl if x.endswith('.gif')])
         print(dirpath, dt)
         t += dt
     print(t)
@@ -1890,7 +1890,7 @@ def check_credits(pif):
     creds = pif.dbh.fetch_photo_credits(photographer_id='DT')
     pif.dbh.depref('photo_credit', creds)
     for cred in creds:
-        fn = '/'.join(pif.render.find_image_file(cred['name'], prefix='s', pdir=cred['path']))
+        fn = '/'.join(pif.ren.find_image_file(cred['name'], prefix='s', pdir=cred['path']))
         if fn:
             sz = imglib.get_size(fn)
             if not sz:

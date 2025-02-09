@@ -5,8 +5,8 @@ import string  # don't judge me
 import basics
 import config
 import mbdata
+import models
 import render
-import single
 import useful
 
 
@@ -40,7 +40,7 @@ def format_mack_html(pif, amods):
         'id': f'{x[0]}{x[1]:02}-{x[2]}',
         'name': y['base_id.rawname'].replace(';', ' '),
         'href': 'single.cgi?id=' + y['base_id.id'],
-        'imgstr': pif.render.format_image_required(y['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
+        'imgstr': pif.ren.format_image_required(y['base_id.id'], prefix=mbdata.IMG_SIZ_SMALL),
         'mack_id_unf': x,  # for internal use
     }, class_name='rw' if not x[0] else 'sf' if x[0] == 'MB' else 'mb') for x, y in amods]
     return [render.Range(entry=res)] if res else []
@@ -88,7 +88,7 @@ def format_mack_text(pif, amods):
                         '<i class="fas fa-check"></i>' if
                         not mod.get('alias.id') or (mod.get('alias.flags', 0) & config.FLAG_ALIAS_PRIMARY) != 0
                         else '')
-                    modlink = pif.render.format_link('single.cgi?id=' + mod['base_id.id'], mod['base_id.id'])
+                    modlink = pif.ren.format_link('single.cgi?id=' + mod['base_id.id'], mod['base_id.id'])
                     if ent['man']:
                         ent['primary'] = '<br>'.join([ent['primary'], primary])
                         ent['man'] = '<br>'.join([ent['man'], modlink])
@@ -115,13 +115,11 @@ def format_mack_text(pif, amods):
 
 @basics.web_page
 def mack_lineup(pif):
-    pif.render.set_button_comment(pif, 'rg={}&sec={}&start={}&end={}'.format(
-        pif.form.get_str('region', ''), pif.form.get_str('sect', ''),
-        pif.form.get_str('start', ''), pif.form.get_str('end', '')))
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append(pif.request_uri, 'Mack Numbers')
-    pif.render.print_html()
+    pif.ren.set_button_comment(pif, keys={'rg': 'region', 'sec': 'sect', 'start': 'start', 'end': 'end'})
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append(pif.request_uri, 'Mack Numbers')
+    pif.ren.print_html()
 
     series = ['RW', 'SF'] if pif.form.get_str('sect', 'all') == 'all' else [pif.form.get_str('sect').upper()]
     range = pif.form.get_str('range', 'all')
@@ -145,9 +143,9 @@ def mack_lineup(pif):
         llineup = render.Listix(section=[lsec])
         lsec.headers = {'id': 'Mack ID', 'man': 'MAN ID', 'name': 'Name', 'year': 'Year', 'error': ''}
         lsec.colist = ['id', 'man', 'primary', 'name', 'year', 'error']
-        return pif.render.format_template('simplelistix.html', llineup=llineup)
+        return pif.ren.format_template('simplelistix.html', llineup=llineup)
     llineup = render.Matrix(section=[lsec])
-    return pif.render.format_template('mack.html', llineup=llineup.prep())
+    return pif.ren.format_template('mack.html', llineup=llineup.prep())
 
 
 # ----- ----------------------------------------------------------------
@@ -160,7 +158,7 @@ def check_man_mappings(pif, sections):
         for man in mans:
             cid = man['casting.id']
             aliases = pif.dbh.fetch_aliases(cid, 'mack')
-            mack_nums = single.get_mack_numbers(pif, cid, man['base_id.model_type'], aliases)
+            mack_nums = models.get_mack_numbers(pif, cid, man['base_id.model_type'], aliases)
             if not mack_nums:
                 print(cid)
 

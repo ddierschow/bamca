@@ -34,7 +34,7 @@ def read_data_file(main_fn):
     @functools.wraps(main_fn)
     def read_dat(fn):
         dat = open(useful.relpath(config.SRC_DIR, fn + '.dat'), encoding='utf-8', errors="surrogateescape").readlines()
-        dat = list(filter(lambda x: x and not x.startswith('#'), [ln.strip() for ln in dat]))
+        dat = [x.strip() for x in dat if x.strip() and not x.startswith('#')]
         return main_fn(dat)
     return read_dat
 
@@ -246,7 +246,7 @@ class VariationImportData(object):
 
         self.debug('RCC 4', row)
         for hdrs, nhdrs in self.clmn_change.get('', []) + self.clmn_change.get(file_id, []):
-            hdrs = list(filter(None, hdrs))
+            hdrs = [x for x in hdrs if x]
             self.debug('RCC 4a', hdrs, nhdrs)
             if len(hdrs) < 1:  # 0 to 1 create
                 row[nhdrs[0]] = ''
@@ -345,7 +345,7 @@ class VariationImportData(object):
         base_change = self.base_change.get(file_id, [])
         clmn_change = self.clmn_change.get('', []) + self.clmn_change.get(file_id, [])
         nhdrs = list()
-        for hdr in list(filter(None, hdrs)):
+        for hdr in [x for x in hdrs if x]:
             self.debug('HCC3', hdr)
             for ocolname, ncolname in base_change:
                 if hdr in ocolname:
@@ -357,7 +357,7 @@ class VariationImportData(object):
             self.debug('HCC4', hdr)
             found = False
             for ent in clmn_change:
-                ent[1] = list(filter(None, ent[1]))
+                ent[1] = [x for x in ent[1] if x]
                 self.debug('HCC5', hdr, ent)
                 if not len(ent[1]):  # N to 0
                     self.debug('HCC6 N-to-0')
@@ -389,7 +389,7 @@ class VariationImportData(object):
                 self.debug('HCC7', hdr)
                 nhdrs.append(hdr)
         for ent in clmn_change:
-            if not list(filter(None, ent[0])):
+            if not any(ent[0]):
                 self.debug('HCC8', ent)
                 nhdrs.extend(ent[1])
         if 'manufacture' not in nhdrs:

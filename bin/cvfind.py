@@ -5,7 +5,7 @@ import copy
 import basics
 import config
 import mbdata
-import single
+import models
 import useful
 
 # ---- the searcher object ----------------------
@@ -47,10 +47,11 @@ class Searcher(object):
         self.madeonly = madeonly
         self.section = form.get_id('section')
         self.mod_id = form.get_str('cid')
+        self.mod_id_exact = form.get_bool('cidx')
         self.mod_name = form.search('cname')
         self.idst = form.get_int('idst', 1)
         self.idend = form.get_int('idend', 9999)
-        self.make_type = form.get_str('make')
+        self.make_type = form.get_str('make')   # = unk isn't working
         self.make_name = form.get_str('makename')
         self.makes = set()  # massaged form of what we're looking for
         self.makelist = []  # all possible makes
@@ -61,6 +62,7 @@ class Searcher(object):
         self.varsq = {vfields[x]: form.search(x) for x in vfields}
         plant = form.get_str('plant', '')  # plant_rd thinks '' is 'unset' so...
         self.varsq['manufacture'] = mbdata.plant_rd.get(plant, '') if plant else ''
+        self.var_id_exact = form.get_bool('vidx')
         self.codes = self.get_codes(form)
         self.is_var_search = any(self.varsq.values()) or self.codes != 3
 
@@ -122,11 +124,12 @@ class Searcher(object):
             self.cascount = 0
             vars = pif.dbh.fetch_variation_query(self.varsq, castinglist=self.mdict.keys(), codes=self.codes)
             for var in vars:
-                if not self.mdict[var['v.mod_id']]['vars']:
-                    self.cascount += 1
-                self.varcount += 1
-                var['name'] = self.mdict[var['v.mod_id']]['rawname'].replace(';', ' ')
-                self.mdict[var['v.mod_id']]['vars'].append(var)
+                if self.check_thing_id(self.varsq['var'], var['v.var'], self.var_id_exact):
+                    if not self.mdict[var['v.mod_id']]['vars']:
+                        self.cascount += 1
+                    self.varcount += 1
+                    var['name'] = self.mdict[var['v.mod_id']]['rawname'].replace(';', ' ')
+                    self.mdict[var['v.mod_id']]['vars'].append(var)
 
         # create outgoing list
         # paging works for castings but not for vars
@@ -180,7 +183,7 @@ class Searcher(object):
     def add_casting(self, pif, casting, aliases=[]):
         manitem = pif.dbh.modify_man_item(casting)
         aliases = [x for x in aliases if x['alias.type'] == 'mack']
-        manitem['mack'] = ','.join(single.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
+        manitem['mack'] = ','.join(models.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
         if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
             self.add_casting_item(pif, manitem['id'], manitem)
 
@@ -201,7 +204,8 @@ class Searcher(object):
 
     def add_casting_item(self, pif, man_id, manitem):
         manitem.update({
-            'makes': (set([manitem['make']]) if manitem['make'] else set()) | self.cmakes.get(manitem['id'], set()),
+            'makes': ((set([manitem['make']]) if manitem['make'] else set()) | self.cmakes.get(manitem['id'], set()) or
+                      set(['unk'])),
             'type_desc': self.types(manitem['vehicle_type']),
             'vars': [],
             'variations': [],
@@ -226,11 +230,18 @@ class Searcher(object):
                 modno = 10 * modno + int(c)
         return not (modno < self.idst or modno > self.idend)
 
+    def check_thing_id(self, thing_id_1, thing_id_2, exact):
+        if thing_id_1 and isinstance(thing_id_1, list):
+            thing_id_1 = thing_id_1[0]
+        return not thing_id_1 or (
+            thing_id_1.lower() == thing_id_2.lower() if exact else
+            thing_id_1.lower() in thing_id_2.lower())
+
     def is_casting_shown(self, mod):
         '''Makes decision of whether to show casting.'''
         # variation filters get checked later
         return not (
-            (self.mod_id.lower() not in mod['id'].lower()) or
+            (not self.check_thing_id(self.mod_id, mod['id'], self.mod_id_exact)) or
             (not useful.search_match(self.mod_name, mod['name'])) or
             (self.makes and not (mod['makes'] & self.makes)) or
             (not self.check_model_number(mod['id'])) or
@@ -256,7 +267,7 @@ class Searcher(object):
             blanks=False)
         if self.vehtypes['y'] or self.vehtypes['n']:
             qf += '&' + pif.form.reformat(pif.form.keys(start='type'), blanks=False)
-        if pif.render.verbose:
+        if pif.ren.verbose:
             qf += '&verbose=1'
         for code in pif.form.get_list('codes'):
             qf += f'&codes={code}'

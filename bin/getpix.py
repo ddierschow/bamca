@@ -83,7 +83,7 @@ def mbdan(ll):
     mbdan_img_re = re.compile(r'''<IMG SRC="(?P<u>[^"]*)"''', re.M | re.I)
     pag = grab_page(ll['link_line.url'])
     fl = mbdan_img_re.findall(pag)
-    fl = filter(lambda x: x != '../hr.gif', fl)
+    fl = [x for x in fl if x != '../hr.gif']
     grab_list(ll, fl)
 
 
@@ -110,7 +110,7 @@ def psdc(ll):
     psdc_img_re = re.compile(r'''<a href="(?P<u>[^"]*)">''')
     pag = grab_page(ll['link_line.url'])
     fl = psdc_img_re.findall(pag)
-    fl = filter(lambda x: x != 'Notation.jpg' and not x.endswith('htm'), fl)
+    fl = [x for x in fl if x != 'Notation.jpg' and not x.endswith('htm')]
     grab_list(ll, fl)
 
 
@@ -124,6 +124,56 @@ def toyvan(ll):
 
 def mcf(ll):
     print(ll['link_line.url'], "- ignored")
+
+
+# not hooked in yet
+def alan(pth):
+    libdir = './lib/alan'
+    paths = {
+        "1": "http://img.auctiva.com/imgdata/9/0/9/0/5/1/webimg/",
+        "2": "http://www.vintagediecasttoys.com/Pictures/Miscellaneous/",
+        "3": "http://www.vintagediecasttoys.com/Pictures/RW/",
+        "4": "http://www.vintagediecasttoys.com/Pictures/Topper/",
+        "5": "http://www.vintagediecasttoys.com/Pictures/SF/",
+        "6": "http://www.vintagediecasttoys.com/Pictures/KMSPK/",
+        "7": "http://www.vintagediecasttoys.com/Pictures/YY/",
+        "8": "http://www.vintagediecasttoys.com/Pictures/DICO/",
+        "9": "http://www.vintagediecasttoys.com/Pictures/HW/",
+        "10": "http://www.vintagediecasttoys.com/Pictures/43/",
+        "11": "http://www.vintagediecasttoys.com/Pictures/WHITE/",
+        "12": "http://www.vintagediecasttoys.com/Pictures/1824/",
+    }
+    pkeys = ('p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8', 'p9', 'p10')
+
+    if '?' in pth:
+        args = pth[pth.find('?') + 1:-4].replace(' & ', ' and ')
+        try:
+            argd = dict([x.split('=') for x in args.split('&')])
+        except Exception:
+            print('#1', args)
+            return
+        try:
+            url = paths[argd['PathNum']]
+        except Exception:
+            print('#2', args)
+            return
+        for pk in pkeys:
+            pic = argd.get(pk, '').strip()
+            if pic.endswith('.jpg') or pic.endswith('.JPG'):
+                fn = useful.clean_name(pic[pic.rfind('/') + 1:])
+                # print(url + pic)
+                contents = grab_page(url + pic)
+                if contents:
+                    useful.file_save(libdir, fn, contents)
+                else:
+                    print('# empty')
+
+
+def grab_alan(pth):
+    alan_sub_re = re.compile('''<A TARGET='_blank' HREF="(?P<u>[^"]*)",>''')
+    pag = grab_page(pth)
+    for subpg in alan_sub_re.findall(pag):
+        alan(subpg)
 
 
 def run_line(ll):

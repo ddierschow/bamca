@@ -23,7 +23,7 @@ def print_users(pif):
 
     llistix = render.Listix(section=[
         render.Section(colist=table_data.columns, headers=table_data.title, range=[render.Range(entry=entries)])])
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def print_user_form(pif, id):
@@ -56,9 +56,9 @@ def print_user_form(pif, id):
                               footer='{} -\n{} -\n{}</form>'.format(
         pif.form.put_button_input("save changes", "submit"),
         pif.form.put_button_reset("userform"),
-        pif.render.format_button_link("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id={}".format(id))))
+        pif.ren.format_button_link("change password", pif.secure_host + "/cgi-bin/chpass.cgi?id={}".format(id))))
     llistix = render.Listix(section=[lsection])
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def delete_user(pif):
@@ -75,10 +75,10 @@ def update_user(pif):
 
 @basics.web_page
 def user_main(pif):
-    pif.render.set_button_comment(pif)
+    pif.ren.set_button_comment(pif)
     pif.restrict('a')
-    pif.render.set_page_extra(pif.render.reset_button_js)
-    pif.render.print_html()
+    pif.ren.set_page_extra(pif.ren.reset_button_js)
+    pif.ren.print_html()
     if pif.form.has('user_id'):
         update_user(pif)
     elif pif.form.has('delete'):
@@ -103,10 +103,10 @@ def login_main(pif):
             raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
         useful.warn("Login Failed!")
 
-    pif.render.print_html()
-    return pif.render.format_template('login.html', dest=pif.form.get_str('dest', '/index.php'),
-                                      register='signup.cgi?dest=' + pif.form.get_str('dest', '/index.php'),
-                                      forgot='recover.cgi')
+    pif.ren.print_html()
+    return pif.ren.format_template('login.html', dest=pif.form.get_str('dest', '/index.php'),
+                                   register='signup.cgi?dest=' + pif.form.get_str('dest', '/index.php'),
+                                   forgot='recover.cgi')
 
 
 # ------ logout
@@ -115,7 +115,7 @@ def login_main(pif):
 @basics.web_page
 def logout_main(pif):
     pif.dbh.delete_cookie(pif.user_id, ip=pif.remote_addr)
-    pif.render.set_cookie(pif.render.secure.clear_cookie(['id']))
+    pif.ren.set_cookie(pif.ren.secure.clear_cookie(['id']))
     raise useful.Redirect(pif.form.get_str('dest', '/'))
 
 
@@ -145,7 +145,7 @@ def create(pif):
         useful.warn("Your account has been created.  Please check your email for the verification.")
         raise useful.Redirect("/cgi-bin/validate.cgi")
 
-    return pif.render.format_template('signup.html', dest=pif.form.get_str('dest'))
+    return pif.ren.format_template('signup.html', dest=pif.form.get_str('dest'))
 
 
 def generate_signup_email(pif, user):
@@ -178,11 +178,11 @@ Thank you!
 
 @basics.web_page
 def register_main(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     if pif.form.get_str('user_id'):
         return create(pif)
 
-    return pif.render.format_template('signup.html', dest=pif.form.get_str('dest'))
+    return pif.ren.format_template('signup.html', dest=pif.form.get_str('dest'))
 
 
 # ------ chpass
@@ -190,9 +190,9 @@ def register_main(pif):
 
 @basics.web_page
 def change_password_main(pif):
-    pif.render.title = 'Change Password'
-    pif.render.hide_title = False
-    pif.render.print_html()
+    pif.ren.title = 'Change Password'
+    pif.ren.hide_title = False
+    pif.ren.print_html()
 
     if not pif.user_id:
         raise useful.SimpleError("It doesn't look like you're logged in!")
@@ -234,7 +234,7 @@ def change_password_main(pif):
         header=pif.form.put_form_start(method='post', token=pif.dbh.create_token()),
         footer=pif.form.put_hidden_input(id=user['id']) + pif.form.put_button_input() + "</form>",
     )
-    return pif.render.format_template(
+    return pif.ren.format_template(
         'simplelistix.html',
         header='''<br>You have requested to change your password.<br>''',
         llineup=render.Listix(section=[lsection]), nofooter=True)
@@ -246,7 +246,7 @@ def change_password_main(pif):
 @basics.web_page
 def validate_main(pif):
 
-    pif.render.print_html()
+    pif.ren.print_html()
     if not pif.user_id:
         raise useful.Redirect("/cgi-bin/login.cgi")
     user = pif.user
@@ -263,7 +263,7 @@ def validate_main(pif):
         generate_signup_email(pif, pif.user)
         useful.warn("The code has been resent.")
 
-    return pif.render.format_template('validate.html', user_id=pif.user.user_id, dest=pif.form.get_str('dest'))
+    return pif.ren.format_template('validate.html', user_id=pif.user.user_id, dest=pif.form.get_str('dest'))
 
 
 # def verify(pif, user_id, vkey):
@@ -283,7 +283,7 @@ def validate_main(pif):
 
 @basics.web_page
 def recover_main(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     hide_vkey = recovering = False
     user_id = None
     if pif.form.has('user_id'):
@@ -293,7 +293,7 @@ def recover_main(pif):
                 if pif.form.has('p1') and pif.form.get_str('p1') == pif.form.get_str('p2'):
                     pif.dbh.update_password(user.id, pif.form.get_str('p2'))
                     pif.dbh.update_user(rec_id=user.id, flags=user.flags & ~config.FLAG_USER_PASSWORD_RECOVERY)
-                    pif.render.set_cookie(pif.render.secure.clear_cookie(['id']))
+                    pif.ren.set_cookie(pif.ren.secure.clear_cookie(['id']))
                     useful.warn("Your password has been changed.")
                     raise useful.Redirect('/cgi-bin/login.cgi', delay=5)
                 else:
@@ -308,7 +308,7 @@ def recover_main(pif):
                 generate_recovery_email(pif, user)
                 recovering = True
                 user_id = user.user_id
-    return pif.render.format_template('recover.html', recovering=recovering, user_id=user_id, show_vkey=not hide_vkey)
+    return pif.ren.format_template('recover.html', recovering=recovering, user_id=user_id, show_vkey=not hide_vkey)
 
 
 def generate_recovery_email(pif, user):
@@ -344,9 +344,9 @@ Thank you!
 
 @basics.web_page
 def profile_main(pif):
-    pif.render.title = 'User Profile'
-    pif.render.hide_title = False
-    pif.render.print_html()
+    pif.ren.title = 'User Profile'
+    pif.ren.hide_title = False
+    pif.ren.print_html()
 
     if not pif.user_id:
         raise useful.SimpleError("It doesn't look like you're logged in!")
@@ -375,16 +375,16 @@ def profile_main(pif):
 
     entries = [prof_row(row) for row in rows]
     if user['flags'] & config.FLAG_USER_BAMCA_MEMBER:
-        entries[0]['value'] += ' ' + pif.render.fmt_art('bamca_member')
+        entries[0]['value'] += ' ' + pif.ren.fmt_art('bamca_member')
     footer = pif.form.put_hidden_input(id=user['id'])
     footer += pif.form.put_button_input() + "</form>"
-    footer += pif.render.format_button_link('change password', '/cgi-bin/chpass.cgi')
+    footer += pif.ren.format_button_link('change password', '/cgi-bin/chpass.cgi')
     if user['photographer_id']:
-        footer += pif.render.format_button_link(
+        footer += pif.ren.format_button_link(
             'your pictures', '/cgi-bin/photogs.cgi?id={}'.format(user['photographer_id']))
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
                               noheaders=True, header=header, footer=footer)
-    return pif.render.format_template(
+    return pif.ren.format_template(
         'simplelistix.html',
         header=('''<br>Currently this information is only available to administrators of this website.  We're '''
                 '''looking at possibly doing more in the future though.<br><br>'''),

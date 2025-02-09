@@ -525,7 +525,6 @@ def wiper(pth, bound, original_size, wipev, wipeh):
     x1, y1, x2, y2 = xl, yt, xr, yb
 
     def wiper_copy(img, xf1, yf1, xf2, yf2, xt1, yt1, xt2, yt2):
-        # useful.write_message(('%3d ' * 8) % (xf1, yf1, xf2 + 1, yf2 + 1, xt1, yt1, xt2 + 1, yt2 + 1), nonl=True)
         cp = img.crop((xf1, yf1, xf2 + 1, yf2 + 1))
         img.paste(cp, (xt1, yt1, xt2 + 1, yt2 + 1))
 
@@ -710,58 +709,58 @@ class Drawer(object):
         self.save(ofn)
 
     def at(self, args):
-        self.cx, self.cy = map(int, args[0].split(','))
+        self.cx, self.cy = [int(x) for x in args[0].split(',')]
 
     def line(self, args):
         if args[0]:
-            self.cx, self.cy = map(int, args[0].split(','))
+            self.cx, self.cy = [int(x) for x in args[0].split(',')]
         for arg in args[1:]:
-            nx, ny = map(int, arg.split(','))
+            nx, ny = [int(x) for x in arg.split(',')]
             self.drw.line(((self.cx, self.cy), (nx, ny)), fill=self.col)
             self.cx, self.cy = nx, ny
 
     def fill(self, args):
         if args[0]:
-            self.cx, self.cy = map(int, args[0].split(','))
-        nx, ny = map(int, args[1].split(','))
+            self.cx, self.cy = [int(x) for x in args[0].split(',')]
+        nx, ny = [int(x) for x in args[1].split(',')]
         self.drw.rectangle(((self.cx, self.cy), (nx, ny)), fill=self.col, outline=self.col)
         self.cx, self.cy = nx, ny
 
     def box(self, args):
         if args[0]:
-            self.cx, self.cy = map(int, args[0].split(','))
-        nx, ny = map(int, args[1].split(','))
+            self.cx, self.cy = [int(x) for x in args[0].split(',')]
+        nx, ny = [int(x) for x in args[1].split(',')]
         self.drw.rectangle(((self.cx, self.cy), (nx, ny)), outline=self.col)
         self.cx, self.cy = nx, ny
 
     def point(self, args):
-        self.cx, self.cy = map(int, args[0].split(','))
+        self.cx, self.cy = [int(x) for x in args[0].split(',')]
         self.drw.point((self.cx, self.cy), fill=self.col)
 
     def arc(self, args):
-        nx, ny = map(int, args[0].split(','))
+        nx, ny = [int(x) for x in args[0].split(',')]
         self.drw.arc((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
 
     def chord(self, args):
-        nx, ny = map(int, args[0].split(','))
+        nx, ny = [int(x) for x in args[0].split(',')]
         self.drw.chord((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
 
     def pie(self, args):
-        nx, ny = map(int, args[0].split(','))
+        nx, ny = [int(x) for x in args[0].split(',')]
         self.drw.pieslice((self.cx, self.cy, nx, ny), int(args[1]), int(args[2]), fill=self.col)
 
     def write(self, args):
         self.drw.text((self.cx, self.cy), args[0], fill=self.col)
 
     def color(self, args):
-        self.col = tuple(map(int, args[0].split(',')))
+        self.col = tuple([int(x) for x in args[0].split(',')])
 
     def polygon(self, args):
         lst = []
         if not args[0]:
             lst = [(self.cx, self.cy)]
             args = args[1:]
-        lst.extend(map(lambda x: tuple(map(int, x.split(','))), args))
+        lst.extend([(int(x) for x in y.split(',')) for y in args])
         self.drw.polygon(lst, outline=self.col)
 
     def polyfil(self, args):
@@ -769,7 +768,7 @@ class Drawer(object):
         if not args[0]:
             lst = [(self.cx, self.cy)]
             args = args[1:]
-        lst.extend(map(lambda x: tuple(map(int, x.split(','))), args))
+        lst.extend([(int(x) for x in y.split(',')) for y in args])
         self.drw.polygon(lst, outline=self.col, fill=self.col)
 
     def process(self):
@@ -780,7 +779,7 @@ class Drawer(object):
                 sz = arg[0].split(',')
                 self.sx = int(sz[0])
                 self.sy = int(sz[1])
-                self.col = tuple(map(int, arg[1].split(',')))
+                self.col = (int(x) for x in arg[1].split(','))
                 self.img = Image.new("RGB", (self.sx, self.sy), self.col)
                 self.drw = ImageDraw.Draw(self.img)
             elif cmd in self.__class__.__dict__:
@@ -985,9 +984,9 @@ class ActionForm(object):
                 title = to_name
                 if cred:
                     title += ' credited to ' + photog.name
-                pif.render.message('Post to Tumblr: ',
-                                   tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
-            pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, to_dir, to_name))
+                pif.ren.message('Post to Tumblr: ',
+                                tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
+            pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, to_dir, to_name))
         return ret
 
     def picture_prefixes(self):
@@ -999,8 +998,8 @@ class ActionForm(object):
 
     def write(self, pif, fn):
         # root, ext = useful.root_ext(fn.strip())
-        # print('<a href="?d=%s">%s</a> / ' % (self.tdir, self.tdir))
-        # print('<a href="/%s/%s">%s</a>' % (self.tdir, fn, fn))
+        # print(f'<a href="?d={self.tdir}">{self.tdir}</a> / ')
+        # print(f'<a href="/{self.tdir}/{fn}">{fn}</a>')
         # print('<hr>')
         # print('<self action="upload.cgi">')
 
@@ -1014,14 +1013,14 @@ class ActionForm(object):
                     break
         self.pref = 's' + szname
         print('<input type=hidden name="act" value="1">')
-        print('<input type=hidden name="d" value="%s">' % self.tdir)
-        print('<input type=hidden name="fi" value="%s">' % fn)
-        print('<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&v=%s&cy=%s">%s</a>' % (
-              self.tdir, fn, self.var, self.cycle, pif.form.put_text_button('edit')))
+        print(f'<input type=hidden name="d" value="{self.tdir}">')
+        print(f'<input type=hidden name="fi" value="{fn}">')
+        print(f'<a href="/cgi-bin/imawidget.cgi?d={self.tdir}&f={fn}&v={self.var}&cy={self.cycle}">' +
+              pif.form.put_text_button('edit') + '</a>')
         print(pif.form.put_button_input('delete'))
         print(pif.form.put_button_input('trash'))
-        print(pif.render.format_button_link('stitch', 'stitch.cgi?fn_0=%s&submit=1&q=&fc=1' % (self.tdir + '/' + fn)))
-        print('New name: <input type="text" size="32" name="newname" value="%s">' % fn)
+        print(pif.ren.format_button_link('stitch', f'stitch.cgi?fn_0={self.tdir}/{fn}&submit=1&q=&fc=1'))
+        print(f'New name: <input type="text" size="32" name="newname" value="{fn}">')
         print(pif.form.put_button_input('rename'))
         print(pif.form.put_radio('cpmv', [('c', 'copy'), ('m', 'move')], self.cpmv))
         if pif.is_allowed('m'):  # pragma: no cover
@@ -1030,7 +1029,7 @@ class ActionForm(object):
             else:
                 print('<input type=checkbox name="ov" value="1">')
             print('overwrite<br>')
-            print('Man: <input type="text" size="12" name="man" value="%s">' % self.man)  # get_man(pif)
+            print(f'Man: <input type="text" size="12" name="man" value="{self.man}">')
             print(pif.form.put_button_up_down('man'))
             print(pif.form.put_button_input('move to library', 'lib'))
             print('Category:', pif.form.put_select('cat', mbdata.img_sel_cat, self.cat))
@@ -1038,12 +1037,11 @@ class ActionForm(object):
             print(pif.form.put_checkbox("cy", [("1", "cycle")], checked=[str(int(self.cycle))]))
             print(pif.form.put_checkbox("tu", [("1", "tumblr")], checked=[str(int(self.tumblr))]))
             print('<input type=checkbox name="inc" value="1"> increment name')
-            print('<br>Variation: <input type="text" size="5" name="newvar" value="%s">' % self.var)
+            print(f'<br>Variation: <input type="text" size="5" name="newvar" value="{self.var}">')
             print('Prefix:', pif.form.put_select('pref', self.picture_prefixes(), self.pref, blank=''))
-            print('Suffix: <input type="text" size="5" name="suff" value="%s">' % self.suff)
+            print(f'Suffix: <input type="text" size="5" name="suff" value="{self.suff}">')
             print(pif.form.put_button_input('select to casting', 'select'))
             print('Move to:', pif.form.put_select('moveto', self.sel_moveto, self.dest, blank=''))
-            # useful.write_comment('DEST [%s] [%s]' % (self.dest, self.sel_moveto))
             print(pif.form.put_button_input('select to category', 'selcat'))
             print('<br>')
 
@@ -1083,37 +1081,32 @@ def get_dir(tdir, name_has=''):
 
 
 def format_image_star(pif, image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):
-    return '<i class="%s fa-%s %s"></i>' % (image_star(image_path, image_file, pic_id, halfstar, target_x, target_y))
-
-
-def image_star(image_path, image_file, pic_id='', halfstar=False, target_x=400, target_y=0):
-    pic = 'star-half' if halfstar else 'star'
     if pic_id is None:
-        return 'fas', 'star', 'white'
+        return pif.ren.fmt_star('white')
     if not os.path.exists(os.path.join(image_path, image_file)):
         if pic_id:
-            return 'fas', pic, 'yellow'
-        return 'far', 'star', 'black'
+            return pif.ren.fmt_star('yellow', half=halfstar)
+        return pif.ren.fmt_star('black', hollow=True)
     try:
         img = Image.open(os.path.join(image_path, image_file))
     except Exception:
-        return 'fas', pic, 'yellow'
+        return pif.ren.fmt_star('yellow', half=halfstar)
     ix, iy = img.size
     if target_x:
         if ix < target_x // 2:
-            return 'fas', pic, 'red'
+            return pif.ren.fmt_star('red', half=halfstar)
         if ix < target_x:
-            return 'fas', pic, 'green'
+            return pif.ren.fmt_star('green', half=halfstar)
         if ix > target_x:
-            return 'fas', pic, 'blue'
+            return pif.ren.fmt_star('blue', half=halfstar)
     else:
         if iy < target_y // 2:
-            return 'fas', pic, 'red'
+            return pif.ren.fmt_star('red', half=halfstar)
         if iy < target_y:
-            return 'fas', pic, 'green'
+            return pif.ren.fmt_star('green', half=halfstar)
         if iy > target_y:
-            return 'fas', pic, 'blue'
-    return 'fas', pic, 'black'
+            return pif.ren.fmt_star('blue', half=halfstar)
+    return pif.ren.fmt_star('black', half=halfstar)
 
 
 def read_presets(pdir):
@@ -1139,31 +1132,32 @@ def update_presets(pdir, values):
 
 
 def promote_picture(pif, mod_id, var_id):
-    credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, '%s-%s.*' % (mod_id.lower(), var_id.lower()))
-    pif.render.message('promoting picture for', mod_id, 'var', var_id, 'to',
-                       credit['photographer.id'] if credit else 'uncredited')
-    for pic in glob.glob('.' + config.IMG_DIR_VAR + '/?_%s-%s.*' % (mod_id.lower(), var_id.lower())):
+    photo_id = f'{mod_id.lower()}-{var_id.lower()}'
+    credit = pif.dbh.fetch_photo_credit(f'.{config.IMG_DIR_VAR}', f'{photo_id}.*')
+    pif.ren.message('promoting picture for', mod_id, 'var', var_id, 'to',
+                    credit['photographer.id'] if credit else 'uncredited')
+    for pic in glob.glob(f'.{config.IMG_DIR_VAR}/?_{photo_id}.*'):
         ofn = pic[pic.rfind('/') + 1:]
         nfn = ofn[:ofn.find('-')] + ofn[ofn.find('.'):]
-        useful.file_copy(pic, '.' + config.IMG_DIR_MAN + '/' + nfn)
+        useful.file_copy(pic, f'.{config.IMG_DIR_MAN}/{nfn}')
     # transfer credit
     if credit:
-        pif.render.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'],
-                           config.IMG_DIR_MAN[1:], mod_id))
+        pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'],
+                        config.IMG_DIR_MAN[1:], mod_id))
 
 
 def demote_picture(pif, mod_id, var_id):
-    credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, '%s.*' % mod_id.lower())
-    pif.render.message('demoting picture for', mod_id, 'var', var_id, 'to',
-                       credit['photographer.id'] if credit else 'uncredited')
-    for pic in glob.glob('.' + config.IMG_DIR_MAN + '/?_%s.*' % mod_id.lower()):
+    credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id.lower() + '.*')
+    pif.ren.message('demoting picture for', mod_id, 'var', var_id, 'to',
+                    credit['photographer.id'] if credit else 'uncredited')
+    for pic in glob.glob(f'.{config.IMG_DIR_MAN}/?_{mod_id.lower()}.*'):
         ofn = pic[pic.rfind('/') + 1:]
         nfn = ofn[:ofn.rfind('.')] + '-' + var_id.lower() + pic[pic.rfind('.'):]
         useful.file_copy(pic, '.' + config.IMG_DIR_VAR + '/' + nfn)
     # transfer credit
     if credit:
-        pif.render.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'],
-                           config.IMG_DIR_VAR[1:], '%s-%s.*' % (mod_id.lower(), var_id.lower())))
+        pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'],
+                        config.IMG_DIR_VAR[1:], f'{mod_id.lower()}-{var_id.lower()}.*'))
 
 
 def simple_save(ofi, opth):

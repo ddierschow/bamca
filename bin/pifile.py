@@ -240,7 +240,7 @@ class BaseForm(object):
         col = ''
         for w in obj:
             if col:
-                col = col + ' ' + w
+                col = f'{col} {w}'
                 if col[-1] == '"':
                     nob.append(col[1:-1])
                     col = ''
@@ -398,7 +398,7 @@ class BaseForm(object):
 class PageInfoFile(object):
     def __init__(self, page_id, form_key='', defval='', args='', dbedit=None):
         self.start_seconds = time.time()
-        self.render = self.dbh = self.log = None
+        self.ren = self.dbh = self.log = None
         self.secure = secure.Security()
         self.htdocs = self.secure.docroot
         config.IS_ALPHA = self.secure.is_alpha
@@ -421,21 +421,21 @@ class PageInfoFile(object):
         self.set_server_env()
         self.log = logger.Logger()
         self.format_type = 'python'
-        self.render = render.Presentation(self.page_id, self.form.get_int('verbose'))
-        self.render.secure = self.secure
-        self.render.unittest = self.unittest
-        self.render.comment('form', self.form.get_form())
+        self.ren = render.Presentation(self.page_id, self.form.get_int('verbose'))
+        self.ren.secure = self.secure
+        self.ren.unittest = self.unittest
+        self.ren.comment('form', self.form.get_form())
         self.secure.cookies = self.rawcookies.get('co')
         self.privs = set()
 
         os.chdir(self.secure.docroot)
         self.cwd = os.getcwd()
-        self.render.is_beta = self.secure.is_beta
-        self.render.is_alpha = self.secure.is_alpha
+        self.ren.is_beta = self.secure.is_beta
+        self.ren.is_alpha = self.secure.is_alpha
         self.cgibin = '../cgi-bin'
 
         dbqlog = self.log.devnull if self.unittest else self.log.dbq
-        self.dbh = dbhand.DBHandler(self.secure.config, 0, dbqlog, self.render.verbose)
+        self.dbh = dbhand.DBHandler(self.secure.config, 0, dbqlog, self.ren.verbose)
         self.dbh.dbi.nowrites = self.unittest
         user_id = self.rawcookies.get('id', 0)
         if user_id:
@@ -449,11 +449,11 @@ class PageInfoFile(object):
         if self.is_allowed(dbedit):
             self.secure.set_config('edit')
             self.dbh.set_config(self.secure.config)
-        self.render.is_admin = self.is_allowed('a')
-        self.render.is_moderator = self.is_allowed('m')
-        self.render.is_user = self.is_allowed('u')
-        self.render.is_viewer = self.is_allowed('v')
-        self.render.is_basic = self.is_allowed('b')
+        self.ren.is_admin = self.is_allowed('a')
+        self.ren.is_moderator = self.is_allowed('m')
+        self.ren.is_user = self.is_allowed('u')
+        self.ren.is_viewer = self.is_allowed('v')
+        self.ren.is_basic = self.is_allowed('b')
 
     def start(self):
         # self.log_start()
@@ -469,14 +469,14 @@ class PageInfoFile(object):
             raise useful.SimpleError(
                 f'Your request is incorrect (bad page id, {self.page_id}).  Please try something else.',
                 status=404)
-        self.render.set_page_info(page_info)
-        if self.render.flags & config.FLAG_PAGE_INFO_ADMIN_ONLY:
+        self.ren.set_page_info(page_info)
+        if self.ren.flags & config.FLAG_PAGE_INFO_ADMIN_ONLY:
             self.restrict('a')
-        if config.LOCKDOWN and not (self.render.flags & config.FLAG_PAGE_INFO_PUBLIC):
+        if config.LOCKDOWN and not (self.ren.flags & config.FLAG_PAGE_INFO_PUBLIC):
             self.restrict('b')
-        self.render.not_released = (self.render.flags & config.FLAG_PAGE_INFO_HIDDEN) != 0
-        self.render.hide_title = (self.render.flags & config.FLAG_PAGE_INFO_HIDE_TITLE) != 0
-        self.render.body_style = "body_" + (
+        self.ren.not_released = (self.ren.flags & config.FLAG_PAGE_INFO_HIDDEN) != 0
+        self.ren.hide_title = (self.ren.flags & config.FLAG_PAGE_INFO_HIDE_TITLE) != 0
+        self.ren.body_style = "body_" + (
             page_id[:page_id.find('.')] if '.' in page_id else page_id) + '_' + page_info.style_id
 
     def set_user_info(self, user_id):
@@ -545,7 +545,7 @@ class PageInfoFile(object):
         if priv == '':  # '' = always allowed
             return True
         if set(priv) & self.privs:
-            self.render.comment('is_allowed', priv, ''.join(self.privs), 'YES')
+            self.ren.comment('is_allowed', priv, ''.join(self.privs), 'YES')
             return True
         return False
 
@@ -562,14 +562,14 @@ class PageInfoFile(object):
         self.dbh.delete_cookie(user.id, ip=os.environ.get('REMOTE_ADDR', 'unset'))
         self.dbh.insert_cookie(user.id, ckey=ckey, ip=os.environ.get('REMOTE_ADDR', 'unset'),
                                expires=datetime.datetime.now() + datetime.timedelta(seconds=expire))
-        self.render.set_cookie(self.render.secure.make_cookie(ckey, user.privs, expires=expire))
+        self.ren.set_cookie(self.ren.secure.make_cookie(ckey, user.privs, expires=expire))
 
     # -- debugging and error handling -----------------------------------
 
     def error_report(self):
         import pprint
         ostr = 'pifile = ' + pprint.pformat(self.__dict__, indent=2, width=132) + "\n"
-        ostr += 'render = ' + self.render.error_report() + '\n'
+        ostr += 'ren = ' + self.ren.error_report() + '\n'
         ostr += 'dbh = ' + self.dbh.error_report() + '\n'
         return ostr
 

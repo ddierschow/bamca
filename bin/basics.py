@@ -74,7 +74,7 @@ def handle_exception(pif, e, header_done=False, write_traceback=True, status_cod
         os.environ.get('REQUEST_URI', 'unknown')))
     str_tb = write_traceback_file(pif, e) if write_traceback else ''
     log_page_call(pif, status_code=status_code)
-    if not pif or not pif.render or not pif.dbh:
+    if not pif or not pif.ren or not pif.dbh:
         if not header_done:
             simple_html()
         if str_tb:
@@ -85,8 +85,8 @@ def handle_exception(pif, e, header_done=False, write_traceback=True, status_cod
         simple_html()
     useful.header_done()
     useful.write_comment()
-    while pif.render.table_count > 0:
-        print(pif.render.format_table_end())
+    while pif.ren.table_count > 0:
+        print(pif.ren.format_table_end())
     if not pif.is_allowed('a'):
         print('<!--\n' + str_tb + '-->')
         final_exit()
@@ -104,7 +104,7 @@ def final_exit():
 def log_page_call(pif, status_code='unset'):
     if pif and (pif.argv or pif.is_allowed('m')):
         return  # it's me!  it's ME!
-    status_code = pif.render.status_printed if pif and pif.render else status_code
+    status_code = pif.ren.status_printed if pif and pif.ren else status_code
     log = pif.log if pif and pif.log else logger.Logger()
     if os.getenv('HTTP_USER_AGENT', '') in crawls.crawlers:
         log.bot.info('{} {} {}'.format(os.environ.get('REMOTE_ADDR', '127.0.0.1'),
@@ -291,8 +291,8 @@ def web_page(main_fn):
                 raise useful.Redirect('https://www.nsa.gov/')
             ret = main_fn(pif)
             if not useful.is_header_done():
-                pif.render.print_html()
-            if pif.render.is_html:
+                pif.ren.print_html()
+            if pif.ren.is_html:
                 useful.write_comment("Page:", pif.page_id, 'Time:', time.time() - pif.start_seconds)
             if ret and not pif.unittest:
                 print(ret)
@@ -302,17 +302,17 @@ def web_page(main_fn):
         except useful.SimpleError as e:
             if not useful.is_header_done():
                 status_code = e.status
-                pif.render.print_html(status=e.status)
-            print(pif.render.format_template('error.html', error=[e.value]))
+                pif.ren.print_html(status=e.status)
+            print(pif.ren.format_template('error.html', error=[e.value]))
         except useful.Redirect as e:
             if not useful.is_header_done():
                 status_code = 302
-                pif.render.print_html(status=302)
-            print(pif.render.format_template('forward.html', url=e.value, delay=e.delay))
+                pif.ren.print_html(status=302)
+            print(pif.ren.format_template('forward.html', url=e.value, delay=e.delay))
         except pymysql.OperationalError as e:
             if not useful.is_header_done():
                 status_code = 500
-                pif.render.print_html(status=500)
+                pif.ren.print_html(status=500)
             print('The database is currently down, and thus, this page is unable to be shown.<p>')
             write_traceback_file(pif, e)
         except Exception as e:

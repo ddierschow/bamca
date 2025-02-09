@@ -168,8 +168,8 @@ def check_base_id(pif):
         if id['base_id.model_type'] not in mbdata.model_types:
             print(id['base_id.id'], id['base_id.model_type'], 'not in list')
         # small_pic = os.path.join(config.IMG_DIR_MAN, 's_' + id['base_id.id'].lower() + '.jpg')
-        small_pic = os.path.join(*pif.render.find_image_file(pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL,
-                                                             fnames=id['base_id.id']))
+        small_pic = os.path.join(*pif.ren.find_image_file(pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL,
+                                                          fnames=id['base_id.id']))
         # if not os.path.exists(small_pic):
         if not small_pic:
             if not id['base_id.flags'] & config.FLAG_MODEL_NOT_MADE:
@@ -277,7 +277,7 @@ def check_attribute_pictures(pif, *filelist):
 #                    spfnd += 1
 #                    varsel[vs] = []
 #    if verbose:
-#        print(' '.join(filter(lambda x: varsel[x], varsel)))
+#        print(' '.join(varsel.values()))
 #    return (upics, format_calc(apfnd, apics), format_calc(mpfnd, mpics), format_calc(cpfnd, cpics),
 #            format_calc(spfnd, spics))
 #
@@ -968,7 +968,7 @@ options:
 def read_data_file(main_fn):
     def read_dat(fn):
         dat = open(useful.relpath(config.SRC_DIR, fn + '.dat')).readlines()
-        dat = filter(lambda x: x and not x.startswith('#'), [ln.strip() for ln in dat])
+        dat = [x.strip() for x in dat if x and not x.startswith('#')]
         return main_fn(dat)
     return read_dat
 

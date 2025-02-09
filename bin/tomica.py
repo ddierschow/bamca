@@ -132,7 +132,7 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
             for c in slist['id']:
                 if c.isdigit():
                     modno = 10 * modno + int(c)
-            pif.render.comment(start, end, modno)
+            pif.ren.comment(start, end, modno)
             if modno < start or modno > end:
                 continue
 
@@ -208,8 +208,8 @@ def run_file(pif, manf, start=0, end=9999, year=None):
 
 @basics.web_page
 def main(pif):
-    pif.render.print_html()
-    print(pif.render.format_head())
+    pif.ren.print_html()
+    print(pif.ren.format_head())
     useful.header_done()
     manf = MannoFile(useful.relpath(config.SRC_DIR, 'tomica.dat'))
     # mans = manf.dictlist
@@ -218,7 +218,7 @@ def main(pif):
         return
     else:
         run_file(pif, manf, year=pif.form.get_str('year'))
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 img_url = 'http://tomicadas.on.coocan.jp/{id}.jpg'  # id=000-00

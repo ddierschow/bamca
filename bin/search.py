@@ -8,9 +8,7 @@ import mbdata
 import mflags
 import models
 import render
-import single
 import useful
-import varias
 
 
 def search_name(pif):
@@ -42,7 +40,7 @@ def search_id(pif):
     if not mod:
         mod1 = pif.dbh.fetch_casting_list(where="casting.id like '%%%s%%'" % pif.form.get_str('id'))
         mod2 = pif.dbh.fetch_aliases(where="alias.id like '%%%s%%'" % pif.form.get_str('id'))
-        mod = filter(lambda x: x.get('section.page_id', 'manno') in ['manls', 'manno'], mod1 + mod2)
+        mod = [x for x in mod1 + mod2 if x.get('section.page_id', 'manno') in ['manls', 'manno']]
     return [pif.dbh.modify_man_item(x) for x in mod]
 
 
@@ -50,7 +48,7 @@ def get_casting_id(id):
     if not id:
         return ''
     ok = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-/'
-    id = ''.join(filter(lambda x: x in ok, list(id)))
+    id = ''.join([x for x in list(id) if x in ok])
     if not id:  # pragma: no cover
         return {}
     if id.upper().startswith('MW'):
@@ -71,7 +69,7 @@ def create_var_lineup(pif, mods, var_id):
     for mod in mods:
         for var in pif.dbh.fetch_variation_query_by_id(mod['id'], var_id):
             var['name'] = var['base_id.rawname'].replace(';', ' ')
-            lran.entry.append(render.Entry(text=varias.add_model_var_table_pic_link(pif, var)))
+            lran.entry.append(render.Entry(text=models.add_model_var_table_pic_link(pif, var)))
     lsec = render.Section(section=sect, range=[lran], columns=4)
     return render.Matrix(columns=4, section=[lsec])
 
@@ -90,18 +88,18 @@ def create_lineup(pif, mods):
 @basics.web_page
 def run_search(pif):
     # form['var'] is now a possibility
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append(pif.request_uri, 'Model Search')
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append(pif.request_uri, 'Model Search')
     mods = None
-    pif.render.print_html()
+    pif.ren.print_html()
     if pif.form.has('date'):
         return date_search(pif, pif.form.get_str('dt'), pif.form.get_str('yr'))
     if pif.form.has('query'):
         targ = pif.form.get_str('query')
         firstyear = pif.form.get_int('syear', 1)
         lastyear = pif.form.get_int('eyear', 9999)
-        pif.render.title = 'Models matching name: ' + targ
+        pif.ren.title = 'Models matching name: ' + targ
         mods = search_name(pif)
         mods = [pif.dbh.modify_man_item(x) for x in mods if x['section.page_id'] in ('manls', 'manno') and
                 int(x['base_id.first_year']) >= firstyear and int(x['base_id.first_year']) <= lastyear]
@@ -110,7 +108,7 @@ def run_search(pif):
         mods = search_id(pif)
         if mods is None:
             raise useful.SimpleError("Your query parameters do not make sense.  Please try something different.")
-        pif.render.title = 'Models matching ID: ' + targ
+        pif.ren.title = 'Models matching ID: ' + targ
     else:
         raise useful.SimpleError("Your query parameters do not make sense.  Please try something different.")
     if not mods:
@@ -118,14 +116,13 @@ def run_search(pif):
 
     mods.sort(key=lambda x: x.get('rawname', ''))
     var_id = pif.form.get_str('var')
+    pif.ren.set_button_comment(pif, keys={'query': 'query'})
     if var_id:
-        pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
         llineup = create_var_lineup(pif, mods, var_id)
     else:
-        pif.render.set_button_comment(pif, 'query=%s' % (pif.form.get_str('query')))
         llineup = create_lineup(pif, mods)
 
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def get_mack_numbers(pif, mod_id):
@@ -155,7 +152,7 @@ def date_search(pif, dt=None, yr=None):
     if dt:
         lsec = render.Section()
         lran = render.Range()
-        pif.render.title = dt
+        pif.ren.title = dt
         vars = pif.dbh.fetch_variations_by_date(dt)
         prefixes = imglib.get_tilley_file()
         last = None
@@ -178,39 +175,37 @@ def date_search(pif, dt=None, yr=None):
             mvid = "%s-%s" % (mod_id, var_id)
 
             done = all([var['variation.text_' + x] != '' for x in ['description'] + descs])  # ignore text_with for now
-            done = ' <i class="fas fa-star %s"></i>\n' % ('green' if done else 'red')
+            done = pif.ren.fmt_star('green' if done else 'red')
             cats = '(%s/%s)' % (var['variation.category'], ' '.join(categories))
             desc = ''.join(['<li>' + x + ': ' + var['variation.text_' + x] for x in descs])
             if var['variation.text_with']:
                 desc += '<li>with: ' + var['variation.text_with']
             var['shown'] = ''
-            vt = '2' if var['variation.category'] in single.code2cats else '1' if categories else '0'
+            vt = '2' if var['variation.category'] in mbdata.code2_cats else '1' if categories else '0'
             var['class_name'] = 'ln' + vt
             if last != mod_id:
                 var['shown'] += (
-                    pif.render.format_link(f'/cgi-bin/single.cgi?id={mod_id}', f'<b>{mack_id} ({mod_id}) ') +
-                    pif.render.format_link(
-                        f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}',
-                        '%s</b>' % var['base_id.rawname'].replace(';', ' ')) + (
-                        '' if ''.join(pif.render.find_image_file(
-                            mod_id.lower(), prefix='s_', pdir='.' + config.IMG_DIR_MAN))
-                        else ' <i class="fas fa-star red"></i> ') +
-                    pif.render.format_link(
+                    pif.ren.format_link(f'/cgi-bin/single.cgi?id={mod_id}', f'<b>{mack_id} ({mod_id}) ') +
+                    pif.ren.format_link(
+                        f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}', var['base_id.rawname'].replace(';', ' ')) + '</b>' + (
+                        '' if ''.join(pif.ren.find_image_file(
+                            mod_id.lower(), prefix='s_', pdir='.' + config.IMG_DIR_MAN)) else pif.ren.fmt_star('red')) +
+                    pif.ren.format_link(
                         f'/cgi-bin/pics.cgi?m={mod_id}&t=1', ' - DT<br>')
                 )
                 last = mod_id
             prefix = f"&has={prefixes[mod_id.lower()][0]}" if mod_id.lower() in prefixes else ""
-            var['shown'] += pif.render.format_link(
+            var['shown'] += pif.ren.format_link(
                 f'traverse.cgi?g=1&d=lib/{ldir}&man={mod_id}&var={var_id}&suff={prefix}&lty=mss',
                 # &mr=1&credit=DT&til=1',
-                pif.render.format_image_required(
+                pif.ren.format_image_required(
                     mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var_id],
                     also={'class': 'righty'}, nobase=True, largest='s'))
             var['shown'] += (
                 pif.form.put_hidden_input(**{'v.' + mvid: '1'}) +
                 pif.form.put_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
                 pif.form.put_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
-                pif.render.format_link(
+                pif.ren.format_link(
                     '/cgi-bin/vars.cgi?mod=%s&var=%s&edt=1' % (mod_id, var_id),
                     '(%s) %s' % (var_id, var['variation.text_description'])) + done +
                 '<i>' + var['variation.note'] + '</i> ' + '-' + vs + '-&nbsp;' +
@@ -228,7 +223,7 @@ def date_search(pif, dt=None, yr=None):
         lsec.range = [lran]
         llineup.section = [lsec]
     else:
-        pif.render.title = 'Search Dates'
+        pif.ren.title = 'Search Dates'
         date_d = {}
         first_year = last_year = 1984
         for dt in pif.dbh.fetch_variation_dates(yr=yr):
@@ -242,8 +237,8 @@ def date_search(pif, dt=None, yr=None):
         for year in range(first_year - 1, last_year + 1):
             lran = render.Range()
             lran.entry = [render.Entry(
-                text=pif.render.format_link(f'/cgi-bin/msearch.cgi?date=1&dt={d}',
-                                            f'{d} ({c})')) for d, c in date_d[year]]
+                text=pif.ren.format_link(f'/cgi-bin/msearch.cgi?date=1&dt={d}',
+                                         f'{d} ({c})')) for d, c in date_d[year]]
             lsec.range.append(lran)
         lsec.columns = 7
         llineup.section.append(lsec)
@@ -255,24 +250,22 @@ def date_search(pif, dt=None, yr=None):
         '<form action="/cgi-bin/msearch.cgi">Mod ID: <input type="text" name="id" size="12"> '
         'Var ID: <input type="text" name="var" size="12"> '
         '<input type="submit" name="submit" value="GO" class="textbutton"></form>\n')
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 @basics.web_page
 def run_super_search(pif):
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/search.php', 'Search')
-    pif.render.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/search.php', 'Search')
+    pif.ren.print_html()
     # useful.write_message(pif.form)
 
     searcher = cvfind.Searcher(pif.form, withaliases=True)
     sections = searcher.run_query(pif)
 
     llineup = render.Matrix(columns=4, tail=['', '', ''])
-    pif.render.set_button_comment(pif, 'sel=%s&ran=%s&start=%s&end=%s' % (
-        pif.form.get_str('selection'), pif.form.get_str('range'),
-        pif.form.get_str('start'), pif.form.get_str('end')))
+    pif.ren.set_button_comment(pif, keys={'sel': 'selection', 'ran': 'range', 'start': 'start', 'end': 'end'})
     lsec = render.Section()
     for sect in sections:
         mods = sect['models'] if not any(searcher.varsq.values()) else [x for x in sect['models'] if x['variations']]
@@ -288,14 +281,14 @@ def run_super_search(pif):
     if searcher.more or searcher.start:
         qf = searcher.make_search_criteria(pif)
         if searcher.start > 0:
-            llineup.tail[1] += pif.render.format_button_link(
+            llineup.tail[1] += pif.ren.format_button_link(
                 "previous", 'search.cgi?%s&start=%d' % (qf, max(searcher.start - mbdata.modsperpage, 0))) + ' '
         if searcher.more:
-            llineup.tail[1] += pif.render.format_button_link(
+            llineup.tail[1] += pif.ren.format_button_link(
                 "next", 'search.cgi?%s&start=%d' % (qf, searcher.start + mbdata.modsperpage))
     llineup.tail[2] = (
         f'{searcher.cascount} casting{useful.plural(searcher.cascount)} found.' if searcher.list_type == 'c' else
         f'{searcher.varcount} variation{useful.plural(searcher.varcount)} in '
         f'{searcher.cascount} casting{useful.plural(searcher.cascount)} found.')
 
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())

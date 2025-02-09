@@ -18,7 +18,7 @@ import render
 def makes_main(pif):
     make_q = pif.dbh.depref(
         'vehicle_make',
-        pif.dbh.fetch_vehicle_makes(where='' if pif.is_allowed('a') else 'not (flags & %s)' % config.FLAG_ITEM_HIDDEN))
+        pif.dbh.fetch_vehicle_makes(where='' if pif.is_allowed('a') else f'not (flags & {config.FLAG_ITEM_HIDDEN})'))
     makelist = [(x['id'], x['name']) for x in make_q]
     makedict = {x['id']: x for x in make_q}
     makedict['unl'] = {'id': 'unl', 'name': 'Unlicensed', 'company_name': 'Unlicensed', 'flags': 0}
@@ -27,16 +27,16 @@ def makes_main(pif):
     make = pif.form.get_str('make', '')
     makes = [make]
 
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/makes.cgi', 'Models by Make')
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/makes.cgi', 'Models by Make')
     if make:
-        pif.render.title = 'Models by Make: ' + makedict.get(make, {}).get('name', '')
+        pif.ren.title = 'Models by Make: ' + makedict.get(make, {}).get('name', '')
     if make == 'text':
-        pif.render.hierarchy_append(pif.request_uri, 'Search')
+        pif.ren.hierarchy_append(pif.request_uri, 'Search')
     elif make:
-        pif.render.hierarchy_append(pif.request_uri, makedict.get(make, {'name': make})['name'])
-    pif.render.print_html()
+        pif.ren.hierarchy_append(pif.request_uri, makedict.get(make, {'name': make})['name'])
+    pif.ren.print_html()
 
     if make == 'text':
         makename = pif.form.get_str('text')
@@ -52,9 +52,9 @@ def makes_main(pif):
     elif make and make in makedict:
         links = pif.dbh.fetch_link_lines(page_id='makes', section=make)
         footer = '<ul>' + '\n'.join([
-            '<li>' + pif.render.format_link(x['link_line.url'], x['link_line.name']) for x in links]) + '</ul>\n'
+            '<li>' + pif.ren.format_link(x['link_line.url'], x['link_line.name']) for x in links]) + '</ul>\n'
         if pif.is_allowed('a'):  # pragma: no cover
-            footer += pif.render.format_button_link(
+            footer += pif.ren.format_button_link(
                 'ADD LINK', f'edlinks.cgi?page_id=makes&sec={make}&add=1')
 
     if make:
@@ -62,12 +62,12 @@ def makes_main(pif):
     else:
         makes = sorted([x[0] for x in makelist], key=lambda x: makedict[x]['name'])
         llineup = makes_form(pif, makedict, makes)
-    pif.render.set_button_comment(pif, 'make=%s&text=%s' % (pif.form.get_str('make', ''), pif.form.get_str('text', '')))
+    pif.ren.set_button_comment(pif, keys={'make': 'make', 'text': 'text'})
     if pif.is_allowed('a'):  # pragma: no cover
         if make and make != 'text':
-            footer += pif.render.format_button_link('edit', link=pif.dbh.get_editor_link('vehicle_make', {'id': make}))
+            footer += pif.ren.format_button_link('edit', link=pif.dbh.get_editor_link('vehicle_make', {'id': make}))
     llineup.footer = footer
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def makes_form(pif, makedict, makes):
@@ -77,9 +77,9 @@ def makes_form(pif, makedict, makes):
     def make_make_link(mdict):
         if not mdict:
             return render.Entry(text='')
-        pic = pif.render.fmt_img(mdict['id'], prefix='t', pdir=config.IMG_DIR_MAKE)
+        pic = pif.ren.fmt_img(mdict['id'], prefix='t', pdir=config.IMG_DIR_MAKE)
         name = (pic + '<br>' + mdict['name']) if pic else mdict['name']
-        return render.Entry(text=pif.render.format_link("makes.cgi?make=" + mdict['id'], name),
+        return render.Entry(text=pif.ren.format_link("makes.cgi?make=" + mdict['id'], name),
                             class_name='bgno' if mdict['flags'] else 'bgok')
 
     llineup = render.Matrix(
@@ -104,7 +104,7 @@ def show_make_selection(pif, make_id, makedict):
     casting_make = make_id
     make = makedict.get(make_id, {})
     lsec = render.Section(  # pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
-        anchor=make_id, columns=4, name=pif.render.fmt_img(
+        anchor=make_id, columns=4, name=pif.ren.fmt_img(
             make_id, prefix='t', pdir=config.IMG_DIR_MAKE) + '<br>' + make.get('company_name', make_id)
     )
     lran = render.Range()
@@ -112,7 +112,7 @@ def show_make_selection(pif, make_id, makedict):
     if make_id == 'unk':
         casting_make = ''
     castings = pif.dbh.fetch_casting_list_by_make(casting_make, where=where)
-    aliases = []  # pif.dbh.fetch_aliases(where="casting.make='%s'" % casting_make)
+    aliases = []  # pif.dbh.fetch_aliases(where=f"casting.make='{casting_make}'")
     mlist = []
 
     for mdict in castings:
@@ -174,17 +174,11 @@ def delete_casting_make(pif, mod_id, make_id):
 def unhide_makes(pif, *args):
     # if any casting for a make has a section that is shown, unhide the make
     makes = args if args else [x['vehicle_make.id'] for x in pif.dbh.fetch_vehicle_makes()]
-    # count_shown_q = '''
-    #     select count(*) from casting,casting_make,section where
-    #     casting.section_id=section.id and section.page_id='manno' and
-    #     casting_make.casting_id=casting.id and casting_make.make_id='%s'
-    # '''
-    # res = pif.dbh.raw_execute(count_shown_q)
     for make_id in makes:
         res = pif.dbh.fetch(
             'casting,casting_make,section', columns='count(*) as c', one=True,
             where="casting.section_id=section.id and section.page_id='manno' and "
-                  "casting_make.casting_id=casting.id and casting_make.make_id='%s'" % make_id)
+                  f"casting_make.casting_id=casting.id and casting_make.make_id='{make_id}'")
         make = pif.dbh.depref('vehicle_make', pif.dbh.fetch_vehicle_make(make_id))
         flag = 0 if res['c'] else config.FLAG_ITEM_HIDDEN
         print(make, flag)
@@ -219,7 +213,7 @@ def microize(pif, *args):
     for make_id in makes:
         if make_id in ('unk', 'unl'):
             continue
-        fpth = pif.render.find_image_path(make_id, largest='t', pdir=config.IMG_DIR_MAKE)
+        fpth = pif.ren.find_image_path(make_id, largest='t', pdir=config.IMG_DIR_MAKE)
         if fpth:
             oname = 'u_' + make_id + '.gif'
             ofi = imglib.shrinker(fpth, oname, (0, 0, 100, 60), mbdata.imagesizes['u'], [])

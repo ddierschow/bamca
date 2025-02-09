@@ -44,7 +44,7 @@ pack_layouts = {
 
 def make_pack_list(pif, format_type, sec='', year='', region='', lid='', material='', verbose=False):
     # need to adapt this for id-var
-    pif.render.set_button_comment(pif)
+    pif.ren.set_button_comment(pif)
     years = set()
     regions = set()
     materials = set()
@@ -57,7 +57,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
     num_mods = 2 if sec_id == '2packs' else 10 if sec_id == '10packs' else 5
     page_id = pif.form.get_str('page')
     packs = pif.dbh.depref(['base_id', 'pack'], pif.dbh.fetch_packs(page_id=pif.page_id))
-    sizes = make_imgsizes(pif, pif.render.pic_dir)
+    sizes = make_imgsizes(pif, pif.ren.pic_dir)
 
     for lsection in sections:
         if sec and lsection['id'] != sec:
@@ -102,7 +102,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
                 pack['page'] = page_id
                 pack['regionname'] = mbdata.regions[pack['region']]
                 pack['pic'] = mbdata.comment_icon.get('c') if imgsizes(
-                    pif, pif.render.pic_dir, pack['id'].lower(), sizes) else ''
+                    pif, pif.ren.pic_dir, pack['id'].lower(), sizes) else ''
                 pack['material'] = mbdata.materials.get(pack['material'], '')
                 if pack['flags'] & config.FLAG_MODEL_NOT_MADE:
                     pack['product_code'] = mbdata.comment_icon.get('n')
@@ -119,8 +119,8 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
                               range=[render.Range(entry=entries, note='', styles=dict(zip(cols, cols)))])
         if pif.is_allowed('a'):  # pragma: no cover
             if format_type == 'packs':
-                lsec.name += ' ' + pif.render.format_button_link('see', f"packs.cgi?page={page_id}&sec={lsec.id}")
-            lsec.name += ' ' + pif.render.format_button_link(
+                lsec.name += ' ' + pif.ren.format_button_link('see', f"packs.cgi?page={page_id}&sec={lsec.id}")
+            lsec.name += ' ' + pif.ren.format_button_link(
                 'add', f"mass.cgi?tymass=pack&section_id={sec_id}&num={num_mods}")
 
         llineup.section.append(lsec)
@@ -134,7 +134,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
         'num': num_mods,
         # 'lid': calc_pack_select(pif, packs),
     }
-    return pif.render.format_template('packlist.html', **context)
+    return pif.ren.format_template('packlist.html', **context)
 
 
 def modify_pack_admin(pif, pack):
@@ -142,13 +142,13 @@ def modify_pack_admin(pif, pack):
     stars = ''
     for mod in sorted(pmodels.keys()):
         if not pmodels[mod].get('id'):
-            stars += '<i class="fas fa-star green"></i> '
+            stars += pif.ren.fmt_star('green')
         elif not pmodels[mod].get('vs.var_id'):
-            stars += '<i class="fas fa-star red"></i> '
+            stars += pif.ren.fmt_star('red')
         elif pmodels[mod]['imgstr'].find('-') < 0:
-            stars += '<i class="fas fa-star yellow"></i> '
+            stars += pif.ren.fmt_star('yellow')
         else:
-            stars += '<i class="fas fa-star black"></i> '
+            stars += pif.ren.fmt_star('black')
     pack['stars'] = stars
     pack['edlink'] = (
         '<a href="mass.cgi?verbose=1&tymass=pack&section_id=%(section_id)s&pack=%(id)s&var=%(var)s&num=">%(longid)s</a>'
@@ -165,8 +165,8 @@ def do_single_pack(pif, format_type, pid):
     packs = pif.dbh.fetch_pack(pid)
     if not packs:
         raise useful.SimpleError("That %s doesn't seem to exist." % ('pack' if format_type == 'packs' else 'playset'))
-    pif.render.hierarchy_append('', packs[0]['base_id.rawname'].replace(';', ' '))
-    pif.render.print_html()
+    pif.ren.hierarchy_append('', packs[0]['base_id.rawname'].replace(';', ' '))
+    pif.ren.print_html()
 
     llineup = render.Matrix(tail=[''])
     for pack in packs:
@@ -176,8 +176,8 @@ def do_single_pack(pif, format_type, pid):
         db_relateds = pif.dbh.fetch_packs_related(pack_id)
         relateds = [
             {
-                'link': pif.render.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'],
-                                               r['base_id.rawname'].replace(';', ' ')),
+                'link': pif.ren.format_link("?page=" + pif.form.get_str('page') + "&id=" + r['pack.id'],
+                                            r['base_id.rawname'].replace(';', ' ')),
                 'product_code': r['pack.product_code'],
                 'region': mbdata.regions.get(r['pack.region'], ''),
                 'country': mbdata.get_country(r['pack.country']),
@@ -203,14 +203,14 @@ def do_single_pack(pif, format_type, pid):
         if len(layout) == 3:
             layout[4] = 4 - (layout[0] - layout[1])
 
-        pif.render.comment('pack:', pack)
+        pif.ren.comment('pack:', pack)
         entries = [render.Entry(
             text=show_pack(pif, pack, layout[3]), class_name='bg_lg width_' + layout[3],
             display_id='0', colspan=layout[1], rowspan=layout[2])]
         modvars = []
         for mod in sorted(pmodels.keys()):
             pmod = pmodels[mod]
-            pif.render.comment("do_single_pack mod", pmod)
+            pif.ren.comment("do_single_pack mod", pmod)
             modvars.append((f'vars.cgi?edt=1&mod={pmod["id"]}', pmodels[mod]["id"], pmod["pack_model.id"]))
 
             if not pmod.get('id'):
@@ -238,27 +238,27 @@ def do_single_pack(pif, format_type, pid):
         left_bar_content += f'<br><center><span style="font-size: x-small;">{page_id}/{pack_id}{cat}</span><p>'
         left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
         left_bar_content += ('<b><a href="traverse.cgi?d=%s">Library</a></b><br>\n' %
-                             pif.render.pic_dir.replace('pic', 'lib'))
+                             pif.ren.pic_dir.replace('pic', 'lib'))
         left_bar_content += (
             '<b><a href="mass.cgi?verbose=1&tymass=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' %
             (packs[0]['section_id'], pack_id))
         # would like to pass in picsize (layout[3])
         left_bar_content += (
             '<p><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' %
-            (pif.render.pic_dir.replace('pic', 'lib'), pack_id) +
+            (pif.ren.pic_dir.replace('pic', 'lib'), pack_id) +
             '<b><a href="upload.cgi?d=./%s&n=%s">Contents</a><br>\n' %
-            (pif.render.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id) +
+            (pif.ren.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id) +
             '<b><a href="upload.cgi?d=./%s&n=%s&m=%s&c=%s">Man</a><br>\n' %
             (config.IMG_DIR_MAN.replace('pic', 'lib'), pack_id, pack_id, pack_id) +
             '<p>\n')
         for lnk, mod, pmid in modvars:
             left_bar_content += (
                 f'<a href="{lnk}">{mod}</a> '
-                f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"> <i class="fas fa-edit gray"></i></a>'
+                f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"> {pif.ren.fmt_edit("gray")}</a>'
                 '<br>\n')
         left_bar_content += '</center>\n'
 
-    pif.render.set_button_comment(pif, 'd=%s' % pif.form.get_str('id'))
+    pif.ren.set_button_comment(pif, keys={'d': 'id'})
     context = {
         'title': packs[0]['name'],
         'note': packs[0]['note'],
@@ -270,7 +270,7 @@ def do_single_pack(pif, format_type, pid):
         'llineup': llineup.prep(),
         'relateds': relateds,
     }
-    return pif.render.format_template('pack.html', **context)
+    return pif.ren.format_template('pack.html', **context)
 
 
 def make_imgsizes(pif, pdir):
@@ -299,13 +299,13 @@ def distill_models(pif, pack, page_id):
     model_list = pif.dbh.fetch_pack_models(pack_id=pack['id'], pack_var=pack['var'], page_id=page_id)
     pack['pic'] = ''
     # for pic in glob.glob(os.path.join(config.IMG_DIR_PROD_PACK, '?_' + pack_id + '.jpg')):
-    # path, pic = pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
+    # path, pic = pif.ren.find_image_file(pack_id, pdir=config.IMG_DIR_PROD_PACK, largest=mbdata.IMG_SIZ_HUGE)
     # pack['pic'] += imglib.format_image_star(pif, path, pic)
-    pack['pic'] += imgsizes(pif, pif.render.pic_dir, pack_id.lower())
+    pack['pic'] += imgsizes(pif, pif.ren.pic_dir, pack_id.lower())
     linmod = pif.dbh.fetch_lineup_model(where="mod_id='%s'" % pack_id)
-    pack['thumb'] = '<i class="far fa-%s"></i>' % ('check-square' if linmod else 'square')
-    if ''.join(pif.render.find_image_file(pack_id, pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):
-        pack['thumb'] += '<i class="fas fa-star"></i>'
+    pack['thumb'] = pif.ren.fmt_square(hollow=True, checked=linmod)
+    if ''.join(pif.ren.find_image_file(pack_id, pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL)):
+        pack['thumb'] += pif.ren.fmt_star('black')
     pmodels = {}
 
     for mod in model_list:
@@ -313,7 +313,7 @@ def distill_models(pif, pack, page_id):
         useful.write_comment('mod', mod)
         mod['style_id'] = 'bg_' + mod['pack_model.style_id']
         useful.write_comment(mod)
-        mod['pdir'] = pif.render.pic_dir
+        mod['pdir'] = pif.ren.pic_dir
         mod['spdir'] = mbdata.dirs_r.get(mod['pdir'], mod['pdir'])
         sec_ids = ['.', '', pack_id + '.', pack_id + '.' + str(mod['pack_model.display_order'])]
         if (mod['vs.sec_id'] or '') + '.' + (mod['vs.ran_id'] or '') in sec_ids:
@@ -345,7 +345,7 @@ def distill_models(pif, pack, page_id):
             if mod.get('vs.var_id'):
                 pmodels[mod['pack_model.display_order']]['vars'].append(mod['vs.var_id'])
     for dispo in pmodels:
-        pmodels[dispo]['imgstr'] = pif.render.format_image_required(
+        pmodels[dispo]['imgstr'] = pif.ren.format_image_required(
             pmodels[dispo]['imgl'], pdir=config.IMG_DIR_MAN, prefix=mbdata.IMG_SIZ_SMALL,
             vars=pmodels[dispo].get('pics'))
     return pmodels
@@ -355,14 +355,14 @@ def distill_models(pif, pack, page_id):
 def show_pack(pif, pack, picsize):
     pack_id = pack['id'] + ('-' + pack['var'] if pack['var'] else '')
 
-    prod_credit = pif.dbh.fetch_photo_credit(pif.render.pic_dir, pack_id, verbose=True)
+    prod_credit = pif.dbh.fetch_photo_credit(pif.ren.pic_dir, pack_id, verbose=True)
     pack['credit'] = prod_credit['photographer.name'] if prod_credit else ''
-    prod_pic = pif.render.find_image_path(pack_id, largest=picsize)
+    prod_pic = pif.ren.find_image_path(pack_id, largest=picsize)
 
-    cont_dir = pif.render.pic_dir.replace('prod', 'set')
+    cont_dir = pif.ren.pic_dir.replace('prod', 'set')
     # cont_credit = pif.dbh.fetch_photo_credit(cont_dir, pack_id, verbose=True)
     # pack['credit'] = cont_credit['photographer.name'] if cont_credit else ''
-    cont_pic = pif.render.find_image_path(pack_id, largest=picsize, pdir=cont_dir)
+    cont_pic = pif.ren.find_image_path(pack_id, largest=picsize, pdir=cont_dir)
 
     pics = []
     if prod_pic:
@@ -371,8 +371,8 @@ def show_pack(pif, pack, picsize):
     if cont_pic:
         ostr = cont_pic
         pics.append(cont_pic)
-    ostr = pif.render.format_image_selector(pics, 'ps') + '<br>'
-    ostr += pif.render.format_image_selectable(pics, 'ps')
+    ostr = pif.ren.format_image_selector(pics, 'ps') + '<br>'
+    ostr += pif.ren.format_image_selectable(pics, 'ps')
     if pack['credit']:
         ostr += '<div class="credit">Photo credit: %s</div>' % pack['credit']
 
@@ -398,7 +398,7 @@ def show_pack(pif, pack, picsize):
     ostr += '<p>'
     if pack['first_year'] and pack['end_year'] and pack['end_year'] != pack['first_year']:
         ostr += '<b>%(first_year)s-%(end_year)s</b><br>' % pack
-    dets = filter(None, [pack['country'], pack['material']])
+    dets = [x for x in [pack['country'], pack['material']] if x]
     ostr += ' - '.join(dets)
     return '<center>' + ostr + '</center>'
 
@@ -407,7 +407,7 @@ def show_pack(pif, pack, picsize):
 # def add_model_table_product_link(pif, mdict):
 
 def show_pack_model(pif, mdict):
-    pif.render.comment("show_pack_model", mdict)
+    pif.ren.comment("show_pack_model", mdict)
 
     mdict['number'] = ''
     mdict['descriptions'] = []
@@ -440,39 +440,39 @@ def show_pack_model(pif, mdict):
 def packs_main(pif):
 
     def fmt_link(sec):
-        return pif.render.format_link(
+        return pif.ren.format_link(
             '?sec=' + sec.id,
             models.add_icons(pif, 'p_' + sec.id, '', '') + '<center>' + sec.name + '</center>')
 
-    pif.render.set_page_extra(pif.render.image_selector_js)
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('packs.cgi', 'Multi-Model Packs')
+    pif.ren.set_page_extra(pif.ren.image_selector_js)
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('packs.cgi', 'Multi-Model Packs')
     if pif.form.has('id'):
-        pif.render.hide_title = True
+        pif.ren.hide_title = True
         pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
         pid = useful.clean_id(pif.form.get_str('id'))
         return do_single_pack(pif, 'packs', pid)
     elif pif.form.has('page'):
-        pif.render.print_html()
+        pif.ren.print_html()
         return make_pack_list(
             pif, 'packs',
             verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
             **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     elif pif.form.has('sec'):
-        pif.render.hide_title = True
+        pif.ren.hide_title = True
         # useful.write_comment(pif.form)
         sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
         if not sections:
-            pif.render.print_html()
+            pif.ren.print_html()
             return models.make_page_list(pif, 'packs', fmt_link)
         pif.page_id = sections[0].page_info.id
-        pif.render.print_html()
+        pif.ren.print_html()
         return make_pack_list(
             pif, 'packs',
             verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
             **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
-    pif.render.print_html()
+    pif.ren.print_html()
     return models.make_page_list(pif, 'packs', fmt_link)
 
 
@@ -481,14 +481,14 @@ def packs_main(pif):
 
 @basics.web_page
 def play_main(pif):
-    pif.render.set_page_extra(pif.render.image_selector_js)
+    pif.ren.set_page_extra(pif.ren.image_selector_js)
     # useful.write_comment(pif.form)
     pif.page_id = 'playset.ps'
     pif.set_page_info(pif.page_id)
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('play.cgi', 'Playsets')
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('play.cgi', 'Playsets')
     if pif.form.has('id'):
         pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
         pid = useful.clean_id(pif.form.get_str('id'))

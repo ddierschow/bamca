@@ -10,7 +10,6 @@ import images
 import mannum
 import mbdata
 import render
-import tables
 import useful
 
 
@@ -19,9 +18,9 @@ import useful
 
 @basics.web_page
 def mass(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     pif.restrict('am')
-    pif.render.set_page_extra(pif.render.reset_button_js + pif.render.toggle_display_js)
+    pif.ren.set_page_extra(pif.ren.reset_button_js + pif.ren.toggle_display_js)
 
     mass_type = pif.form.get_raw('tymass')
     return dict(mass_mains_list).get(mass_type, mass_mains_hidden.get(mass_type, mass_main))(pif)
@@ -51,7 +50,7 @@ def mass_ask(pif):
 
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
                               header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def mass_select(pif):
@@ -73,7 +72,7 @@ def mass_select(pif):
 
     lsection = render.Section(colist=columns, range=[render.Range(entry=entries)],
                               header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def mass_save(pif):
@@ -94,7 +93,7 @@ def mass_save(pif):
             # note: write might already escape values
             pif.dbh.write(pif.form.get_raw('table'), values={col: pif.dbh.escape_string(pif.form.get_raw(key))},
                           where=wheres, modonly=True, tag='mass_save')
-    return pif.render.format_template('blank.html', content='')
+    return pif.ren.format_template('blank.html', content='')
 
 
 def mass_type_reinput(pif):
@@ -106,9 +105,9 @@ def mass_type_reinput(pif):
 
 def dates_main(pif):
     for mvid in pif.form.roots(start='v.'):
-        val = pif.form.get_bool('c.' + mvid)
-        idm = pif.form.get_bool('i.' + mvid)
-        imp = pif.form.get_str('s.' + mvid)
+        val = pif.form.get_bool(f'c.{mvid}')
+        idm = pif.form.get_bool(f'i.{mvid}')
+        imp = pif.form.get_str(f's.{mvid}')
         useful.write_message(mvid, val, idm, imp)
         vars = pif.dbh.fetch_variation_bare(*mvid.split('-'))
         if vars:
@@ -118,7 +117,7 @@ def dates_main(pif):
             var['variation.flags'] |= (config.FLAG_MODEL_ID_INCORRECT if idm else 0)
             var['variation.imported_from'] = imp
             pif.dbh.update_variation_bare(var)
-    return pif.render.format_template('blank.html', content='')
+    return pif.ren.format_template('blank.html', content='')
 
 
 # ------- mack numbers ---------------------------------------------
@@ -152,9 +151,9 @@ def aliases_ask(pif):
             'ref_id': pif.form.put_text_input("ref_id." + str(x['pk']), 12, value=x['ref_id']),
             'first_year': pif.form.put_text_input("first_year." + str(x['pk']), 4, value=x['first_year']),
             'primary': pif.form.put_checkbox(
-                'primary.' + str(x['pk']), [('1', '')], checked=['1' if x['flags'] & 2 else '0']),
+                f'primary.{x["pk"]}', [('1', '')], checked=['1' if x['flags'] & 2 else '0']),
             'section_id': pif.form.put_text_input("section_id." + str(x['pk']), 20, value=x['section_id']),
-            'del': pif.form.put_checkbox('del.' + str(x['pk']), [('1', '')]),
+            'del': pif.form.put_checkbox(f'del.{x["pk"]}', [('1', '')]),
         } for x in aliases
     ]
     adds = [
@@ -178,9 +177,8 @@ def aliases_ask(pif):
 #  x['link_line.name']) for x in asslinks])},
 # {'title': '', 'value': pif.form.put_button_input()},
 
-    # header = '<form name="mass" action="mass.cgi">' + pif.create_token()
     header = pif.form.put_form_start(name='mass', action='mass.cgi', token=pif.dbh.create_token())
-    header += 'Mod ID: ' + mod_id + pif.form.put_hidden_input(mod_id=mod_id)
+    header += f'Mod ID: {mod_id}{pif.form.put_hidden_input(mod_id=mod_id)}'
     footer = mass_type_reinput(pif) + "</form><p>"
 
     lsections = [
@@ -191,7 +189,7 @@ def aliases_ask(pif):
         render.Section(colist=['mod id'], range=[render.Range(entry=copys)], header=header,
                        footer=pif.form.put_button_input('copy') + footer),
     ]
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 def aliases_add(pif):
@@ -230,7 +228,7 @@ def aliases_copy(pif):
 
 def aliases_final(pif):
     for pk in pif.form.get_list('pk'):
-        ent = pif.form.get_dict(end='.' + pk)
+        ent = pif.form.get_dict(end=f'.{pk}')
         if ent.get('del'):
             print('delete', pk)
             print(pif.dbh.delete_alias(pk), '<br>')
@@ -251,27 +249,27 @@ def aliases_final(pif):
 
 
 def lineup_desc_main(pif):
-    print(pif.render.format_head())
+    print(pif.ren.format_head())
     useful.header_done()
     # for key in pif.form.keys(start='description.'):
     for root in pif.form.roots(start='description.'):
         # root = key[key.find('.') + 1:]
         lm = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model({'id': root})[0])
         halfstar = lm['flags'] & config.FLAG_LINEUP_MODEL_MULTI_VARS
-        if (lm['name'] != pif.form.get_raw('description.' + root) or
-                lm['style_id'] != pif.form.get_raw('style_id.' + root) or
-                bool(halfstar) != pif.form.get_bool('halfstar.' + root)):
-            print('name', root, pif.form.get_raw('description.' + root), lm['name'])
-            print('style', pif.form.get_raw('style_id.' + root), lm['style_id'])
-            print('halfstar', pif.form.get_bool('halfstar.' + root), bool(halfstar))
-            lm['name'] = pif.form.get_raw('description.' + root)
-            lm['style_id'] = pif.form.get_raw('style_id.' + root)
+        if (lm['name'] != pif.form.get_raw(f'description.{root}') or
+                lm['style_id'] != pif.form.get_raw(f'style_id.{root}') or
+                bool(halfstar) != pif.form.get_bool(f'halfstar.{root}')):
+            print('name', root, pif.form.get_raw(f'description.{root}'), lm['name'])
+            print('style', pif.form.get_raw(f'style_id.{root}'), lm['style_id'])
+            print('halfstar', pif.form.get_bool(f'halfstar.{root}'), bool(halfstar))
+            lm['name'] = pif.form.get_raw(f'description.{root}')
+            lm['style_id'] = pif.form.get_raw(f'style_id.{root}')
             # i am a terrible person
             lm['flags'] = ((lm['flags'] & ~config.FLAG_LINEUP_MODEL_MULTI_VARS) |
-                           (config.FLAG_LINEUP_MODEL_MULTI_VARS * pif.form.get_int('halfstar.' + root)))
+                           (config.FLAG_LINEUP_MODEL_MULTI_VARS * pif.form.get_int(f'halfstar.{root}')))
             print(pif.dbh.update_lineup_model({'id': root}, lm, verbose=True))
             print('<br>')
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 # TODO add base_id/casting_id for new castings
@@ -279,10 +277,10 @@ def add_lineup_main(pif):
     if pif.duplicate_form:
         print('duplicate form submission detected')
     elif pif.form.has('save'):
-        print(pif.render.format_head())
+        print(pif.ren.format_head())
         useful.header_done()
         add_lineup_final(pif)
-        print(pif.render.format_tail())
+        print(pif.ren.format_tail())
         return
     elif pif.form.has('num'):
         return add_lineup_list(pif)
@@ -304,7 +302,7 @@ def add_lineup_ask(pif):
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                               header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def add_lineup_final(pif):
@@ -403,7 +401,7 @@ def add_lineup_list(pif):
         note='Models', footer=footer))
 #    lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
 #                              footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 # ------- add lineup_model -----------------------------------------
@@ -435,7 +433,7 @@ def add_lm_ask(pif):
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                               header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def add_lm_enter(pif):
@@ -475,11 +473,11 @@ def add_lm_enter(pif):
     footer = mass_type_reinput(pif) + "</form>"
     lsection = render.Section(colist=columns, range=[render.Range(entry=entries)],
                               noheaders=True, header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def add_lm_save(pif):
-    print(pif.render.format_head())
+    print(pif.ren.format_head())
     useful.header_done()
 
 #    var = pif.form.get_raw('var')
@@ -491,7 +489,7 @@ def add_lm_save(pif):
         lm['region'] = region
         lm['base_id'] = lm['year'] + region + '%03d' % int(lm['number'])
         print(lm, pif.dbh.dbi.insert_or_update('lineup_model', lm, verbose=1))
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 # ------- add lm_series -----------------------------------------
@@ -503,10 +501,10 @@ def add_lm_series_main(pif):
     section_id = pif.form.get_raw('section_id')
     useful.write_message(pif.form)
     if pif.form.get_raw('save'):
-        print(pif.render.format_head())
+        print(pif.ren.format_head())
         useful.header_done()
         add_lm_series_final(pif)
-        print(pif.render.format_tail())
+        print(pif.ren.format_tail())
         return
     elif pif.form.get_raw('year'):
         return add_lm_series_form(pif, page_id, section_id, region)
@@ -525,7 +523,7 @@ def add_lm_series_ask(pif, page_id, section_id):
                               header=pif.form.put_form_start(token=pif.dbh.create_token()) +
                               '\n<input type="hidden" name="tymass" value="lm_series">\n',
                               footer=pif.form.put_button_input('submit') + "</form>")
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def add_lm_series_form(pif, page_id, section_id, region):
@@ -567,15 +565,15 @@ def add_lm_series_form(pif, page_id, section_id, region):
     footer = ''
     footer += pif.form.put_button_input("save")
     footer += '</form>\n'
-    footer += pif.render.format_button_link('see',
-                                            f"lineup.cgi?year={year}&region=U&listtype=&lty=series&submit=1") + ' '
-    footer += pif.render.format_button_link('edit',
-                                            f"editor.cgi?table=section&id={region}&page_id=year.{year}") + '<br>'
+    footer += pif.ren.format_button_link('see',
+                                         f"lineup.cgi?year={year}&region=U&listtype=&lty=series&submit=1") + ' '
+    footer += pif.ren.format_button_link('edit',
+                                         f"editor.cgi?table=section&id={region}&page_id=year.{year}") + '<br>'
     for lm in sorted(lm_list, key=lambda x: x['lineup_model.number']):
         footer += f"{lm['lineup_model.number']}. {lm['lineup_model.name']} ({lm['lineup_model.display_order']})<br>\n"
     llistix.section[-1].footer = footer
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def add_lm_series_final(pif):
@@ -642,7 +640,7 @@ def add_casting_main(pif):
 
     lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
                                 header=header, footer=footer)]
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 def add_casting_final(pif):
@@ -701,7 +699,7 @@ def add_casting_final(pif):
 
         val = ''.join(pif.form.get_list('vt'))
         pif.dbh.write_casting(values={'vehicle_type': val}, id=casting_id)
-    print(pif.render.format_template('blank.html', content=ostr))
+    print(pif.ren.format_template('blank.html', content=ostr))
     raise useful.Redirect(f'single.cgi?id={casting_id}')
 
 
@@ -732,7 +730,7 @@ def add_pub_main(pif):
 
     lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                                 header=header, footer=footer)]
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 def add_pub_final(pif):
@@ -758,7 +756,7 @@ def add_pub_final(pif):
             'section_id': pif.form.get_raw('model_type').lower(),
             'isbn': pif.form.get_raw('isbn'),
         })) + '<br>\n'
-    return pif.render.format_template('blank.html', content=ostr)
+    return pif.ren.format_template('blank.html', content=ostr)
 
 
 # ------- add var -------------------------------------------------
@@ -767,10 +765,10 @@ def add_pub_final(pif):
 def add_var_main(pif):
     useful.write_message(pif.form)
     if pif.form.get_raw('store'):
-        print(pif.render.format_head())
+        print(pif.ren.format_head())
         useful.header_done()
         add_var_final(pif)
-        print(pif.render.format_tail())
+        print(pif.ren.format_tail())
         return
     elif pif.form.get_raw('var'):
         return add_var_info(pif)
@@ -792,12 +790,12 @@ def add_var_ask(pif):
     footer = pif.form.put_button_input('submit')
     footer += mass_type_reinput(pif)
     footer += "<form>"
-    footer += pif.render.format_button_link('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
-    footer += pif.render.format_button_link('casting', '/cgi-bin/mass.cgi?tymass=casting')
+    footer += pif.ren.format_button_link('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
+    footer += pif.ren.format_button_link('casting', '/cgi-bin/mass.cgi?tymass=casting')
 
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                               header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 var_id_columns = ['mod_id', 'var']
@@ -820,8 +818,8 @@ def add_var_info(pif):
             raise useful.SimpleError("Multiple models found.")
         mod = pif.dbh.modify_man_item(mod[0])
     mod_id = mod['id']
-    img = pif.render.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM,
-                                           also={'style': 'float: right;'})
+    img = pif.ren.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM,
+                                        also={'style': 'float: right;'})
     var_id = mbdata.normalize_var_id(mod, var_id)
     attrs = pif.dbh.fetch_attributes(mod_id)
     attr_names = [x['attribute.attribute_name'] for x in attrs]
@@ -886,20 +884,20 @@ def add_var_info(pif):
             entries.append({})
     footer = pif.form.put_button_input('save')
     footer += mass_type_reinput(pif)
-    footer += pif.render.format_button_link('casting', f'/cgi-bin/single.cgi?id={mod_id}')
-    footer += pif.render.format_button_link('vars', f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}')
-    footer += pif.render.format_button_link('search', f'/cgi-bin/vsearch.cgi?ask=1&id={mod_id}')
+    footer += pif.ren.format_button_link('casting', f'/cgi-bin/single.cgi?id={mod_id}')
+    footer += pif.ren.format_button_link('vars', f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}')
+    footer += pif.ren.format_button_link('search', f'/cgi-bin/vsearch.cgi?ask=1&id={mod_id}')
     footer += "</form>"
 
     for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
         lnk = '/cgi-bin/vars.cgi?edit=1&mod=%(mod_id)s&var=%(var)s' % var
-        footer += var['var'] + ' : ' + pif.render.format_link(lnk, var['text_description']) + '<br>'
-    footer += pif.render.format_tail()
+        footer += var['var'] + ' : ' + pif.ren.format_link(lnk, var['text_description']) + '<br>'
+    footer += pif.ren.format_tail()
 
     lsection = render.Section(colist=['title', 'value', 'input'], range=[render.Range(entry=entries)], noheaders=True,
                               header=header, footer=footer)
     llistix = render.Listix(section=[lsection])
-    return pif.render.format_template('simplelistix.html', llineup=llistix, nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix, nofooter=True)
 
 
 def add_var_final(pif):
@@ -940,7 +938,7 @@ def add_var_final(pif):
 
 def show_all_casting_related(pif):
     useful.write_message('show_all_casting_related')
-    print(pif.render.format_head())
+    print(pif.ren.format_head())
     # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
     print('show_all_casting_related', pif.form, '<br>')
 
@@ -1003,7 +1001,7 @@ def show_all_casting_related(pif):
     print('</table>')
     print(pif.form.put_button_input('save'))
     print('</form><hr>')
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 def edit_casting_related_ask(pif):
@@ -1012,13 +1010,13 @@ def edit_casting_related_ask(pif):
     entries = [
         {'title': 'Model:', 'value': pif.form.put_text_input("mod_id", 16, 16)},
         {'title': '', 'value': pif.form.put_button_input()},
-        {'title': '', 'value': pif.render.format_button_link("show all", "mass.cgi?tymass=related&show_all=1")},
+        {'title': '', 'value': pif.ren.format_button_link("show all", "mass.cgi?tymass=related&show_all=1")},
     ]
     footer = mass_type_reinput(pif)
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                               header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def edit_casting_related(pif):
@@ -1028,7 +1026,7 @@ def edit_casting_related(pif):
     if not pif.form.has('mod_id'):
         return edit_casting_related_ask(pif)
 
-    print(pif.render.format_head())
+    print(pif.ren.format_head())
     mod_id = pif.form.get_raw('mod_id')
     section_id = pif.form.get_raw('section_id', 'single')
     # 'columns': ['id', 'model_id', 'related_id', 'section_id', 'picture_id', 'description'],
@@ -1095,7 +1093,7 @@ def edit_casting_related(pif):
         print('<tr>')
         print(f'<td>{num} {section_id}</td>')
         if rel_id in crd_r:
-            print('<td colspan=4>%s</td>' % pif.render.format_link(
+            print('<td colspan=4>%s</td>' % pif.ren.format_link(
                 '/cgi-bin/single.cgi?id=' + crd_r[rel_id]['base_id.id'], crd_r[rel_id]['base_id.rawname']))
             if crd_r[rel_id]['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED:
                 revised.append(str(num))
@@ -1103,7 +1101,7 @@ def edit_casting_related(pif):
             print('<td colspan=4></td>')
         print(f'<td>{num + 1}</td>')
         if rel_id in crd_m:
-            print('<td colspan=4>%s</td>' % pif.render.format_link(
+            print('<td colspan=4>%s</td>' % pif.ren.format_link(
                 '/cgi-bin/single.cgi?id=' + crd_m[rel_id]['base_id.id'], crd_m[rel_id]['base_id.rawname']))
             if crd_m[rel_id]['base_id.flags'] & config.FLAG_MODEL_CASTING_REVISED:
                 revised.append(str(num + 1))
@@ -1113,13 +1111,13 @@ def edit_casting_related(pif):
         print('<tr>')
         print('<td>%s</td>' % pif.form.put_checkbox('rev', [(str(num), 'R')], checked=revised))
         if rel_id in crd_r:
-            print('<td colspan=4>%s</td>' % pif.render.format_image_required(
+            print('<td colspan=4>%s</td>' % pif.ren.format_image_required(
                 mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL))
         else:
             print('<td colspan=4></td>')
         print('<td>%s</td>' % pif.form.put_checkbox('rev', [(str(num + 1), 'R')], checked=revised))
         if rel_id in crd_m:
-            print('<td colspan=4>%s</td>' % pif.render.format_image_required(
+            print('<td colspan=4>%s</td>' % pif.ren.format_image_required(
                 rel_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL))
         else:
             print('<td colspan=4></td>')
@@ -1150,7 +1148,7 @@ def edit_casting_related(pif):
         print(pif.form.put_button_input('add'))
         print(pif.form.put_hidden_input(section_id=section_id))
         print('</form>')
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 # ------- packs ----------------------------------------------------
@@ -1187,7 +1185,7 @@ def add_pack_ask(pif):
     footer += "</form>"
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
                               header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 pack_sec = {
@@ -1232,9 +1230,9 @@ def add_pack_form(pif):
         year = '0000'
     base_id = pif.dbh.fetch_base_id(id=pack_id)
     useful.write_message('base_id', pack_id, base_id)
-    pack = tables.Results('pack', pif.dbh.fetch_pack(id=pack_id, var=pif.form.get_raw('var')))
+    pack = pif.dbh.fetch_pack_results(id=pack_id, var=pif.form.get_raw('var'))
     useful.write_message('pack', pack_id, pif.form.get_raw('var'), pack)
-    pack_img = pif.render.find_image_file(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
+    pack_img = pif.ren.find_image_file(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
 
     header = '<hr>\n'
     header += str(pif.form) + '<hr>\n'
@@ -1271,16 +1269,16 @@ def add_pack_form(pif):
             'note': '',
         }
 
-    header += pif.render.format_button_link("edit", f"imawidget.cgi?d=.{config.IMG_DIR_PROD_PACK}&f={pack_id}.jpg")
-    header += pif.render.format_button_link("upload", "upload.cgi?d=.%s&n=%s" % (
+    header += pif.ren.format_button_link("edit", f"imawidget.cgi?d=.{config.IMG_DIR_PROD_PACK}&f={pack_id}.jpg")
+    header += pif.ren.format_button_link("upload", "upload.cgi?d=.%s&n=%s" % (
         config.IMG_DIR_PROD_PACK.replace('pic', 'lib'), pack_id))
     header += '%(page_id)s/%(id)s<br>' % pack
     header += '/'.join(pack_img) + '<br>'
     header += '<a href="imawidget.cgi?d=./%s&f=%s">%s</a>' % (
-        pack_img + (pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g'),))
+        pack_img + (pif.ren.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g'),))
     header += '<a href="imawidget.cgi?d=.%s&f=%s.jpg">%s</a><br>' % (
-        config.IMG_DIR_MAN, 's_' + pack_id, pif.render.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
-    header += pif.render.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK) + '<br>'
+        config.IMG_DIR_MAN, 's_' + pack_id, pif.ren.format_image_required('s_' + pack_id, pdir=config.IMG_DIR_MAN))
+    header += pif.ren.format_image_required(long_pack_id, pdir=config.IMG_DIR_PROD_PACK) + '<br>'
 
     pack_num = int(pack['note'][2:-1]) if pack['note'].startswith('(#') else 0
     linmod = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model(where=f"mod_id='{pack_id}'"))
@@ -1317,7 +1315,7 @@ def add_pack_form(pif):
     # related
     relateds = pif.dbh.fetch_packs_related(pack_id)
     footer = 'related '
-    footer += pif.render.format_button_link('edit', '?tymass=related&section_id=packs&mod_id=%s' % pack_id)
+    footer += pif.ren.format_button_link('edit', '?tymass=related&section_id=packs&mod_id=%s' % pack_id)
     footer += '<br>\n'
     for rel in relateds:
         footer += rel['pack.id'] + '<br>\n'
@@ -1327,7 +1325,7 @@ def add_pack_form(pif):
     footer += '</form>'
     llistix.section[-1].footer = footer
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def add_pack_model(pif, pack, long_pack_id):
@@ -1351,14 +1349,14 @@ def add_pack_model(pif, pack, long_pack_id):
             'mod':
                 pif.form.put_hidden_input(**{'pm.id.%s' % key: mod.get('pack_model.id', '0'),
                                              'pm.pack_id.%s' % key: long_pack_id}) +
-                # pif.render.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
+                # pif.ren.format_link("single.cgi?id=%s" % mod.get('pack_model.mod_id', ''),
                 #                        mod.get('pack_model.mod_id', '')) + ' ' +
                 pif.form.put_text_input("pm.mod_id.%s" % key, 8, 8, value=mod.get('pack_model.mod_id', '')),
             'disp': pif.form.put_text_input(
                 "pm.display_order.%s" % key, 2, 2, value=mod.get('pack_model.display_order', '')),
             'style_id': pif.form.put_text_input(
                 "pm.style_id.%s" % key, 3, 3, value=mod.get('pack_model.style_id', '')),
-            # 'edit': pif.render.format_button_link(
+            # 'edit': pif.ren.format_button_link(
             #     'edit', pif.dbh.get_editor_link('pack_model',
             #                                     pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
         } for key, mod in sorted(pmodels.items())]
@@ -1427,9 +1425,9 @@ def add_pack_save(pif):
         p_table_data = pif.dbh.get_table_data('pack')
         if o_pack_id != pack['id']:  # change id of pack
             # pif.dbh.update_variation_select_subid(pack['id'], pack['page_id'], o_pack_id)
-            if os.path.exists(pif.render.pic_dir + '/' + o_pack_id + '.jpg'):
-                os.rename(pif.render.pic_dir + '/' + o_pack_id + '.jpg',
-                          pif.render.pic_dir + '/' + pack['id'] + '.jpg')
+            if os.path.exists(pif.ren.pic_dir + '/' + o_pack_id + '.jpg'):
+                os.rename(pif.ren.pic_dir + '/' + o_pack_id + '.jpg',
+                          pif.ren.pic_dir + '/' + pack['id'] + '.jpg')
         pif.dbh.update_pack(o_pack_id, {x: pif.form.get_raw('pack.' + x) for x in p_table_data.columns})
 
         p_table_data = pif.dbh.get_table_data('base_id')
@@ -1455,7 +1453,7 @@ def add_pack_save(pif):
                 del values['id']
                 pif.dbh.insert_lineup_model(values)
 
-    # print(pif.render.format_link("packs.cgi?page=%s&id=%s" %
+    # print(pif.ren.format_link("packs.cgi?page=%s&id=%s" %
     # (pif.form.get_raw('pack.section_id'), pif.form.get_raw('pack.id')), "pack"))
 
 
@@ -1478,7 +1476,7 @@ def entry_form(pif, tab, dat, div_id=None, note=''):
     paren_re = re.compile(r'''\((?P<n>\d*)\)''')
     if not div_id:
         div_id = tab
-    header = tab + ' ' + pif.render.format_button_link('edit', pif.dbh.get_editor_link(
+    header = tab + ' ' + pif.ren.format_button_link('edit', pif.dbh.get_editor_link(
         tab, pif.dbh.make_id(tab, dat, tab + '.')))
     header += pif.form.put_button_input_visibility(div_id) + ' ' + note + '<br>'
     descs = pif.dbh.describe_dict(tab)
@@ -1743,10 +1741,10 @@ def add_links_ask(pif):
     for lnk in asslinks:
         if lnk['link_line.id'] in link_scraper:
             footer += '{} {}<br>\n'.format(lnk['link_line.id'],
-                                           pif.render.format_link(lnk['link_line.url'], lnk['link_line.name']))
+                                           pif.ren.format_link(lnk['link_line.url'], lnk['link_line.name']))
     lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                                 header=header, footer=footer)]
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 # +-----------------+--------------+------+-----+---------+----------------+
@@ -1796,7 +1794,7 @@ def add_links_scrape(pif):
         entries.append({
             'ch': pif.form.put_checkbox('ch.' + str(cnt), [('1', '')], checked=['1']),
             'url':
-                pif.render.format_link(dat['url']) +
+                pif.ren.format_link(dat['url']) +
                 pif.form.put_hidden_input(**{'url.' + str(cnt): dat['url']}),
             'page_id': pif.form.put_text_input('page_id.' + str(cnt), 256, 20, dat['page_id']),
             'name': pif.form.put_text_input('name.' + str(cnt), 256, 40, dat['name']),
@@ -1811,7 +1809,7 @@ def add_links_scrape(pif):
 
     lsections = [render.Section(colist=columns, range=[render.Range(entry=entries)],
                                 header=header, footer=footer)]
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 def add_links_final(pif):
@@ -1833,7 +1831,7 @@ def add_links_final(pif):
             ostr += str(link_vals)
             ostr += ' ' + str(pif.dbh.insert_link_line(link_vals, verbose=True))
             ostr += '<br>\n'
-    return pif.render.format_template('blank.html', content=ostr)
+    return pif.ren.format_template('blank.html', content=ostr)
 
 # ------- book -----------------------------------------------------
 
@@ -1886,13 +1884,13 @@ def add_book_ask(pif, book_id=None):
         {'title': "Picture URL:", 'value': pif.form.put_text_input("pic_url", 256, 80, value='')},
         {'title': '', 'value': '{}{}{}{}'.format(
             pif.form.put_button_input('save'), pif.form.put_button_reset('mass'),
-            pif.render.format_button_link('book', 'biblio.cgi?edit=1'),
-            pif.render.format_button_link('edit', 'editor.cgi?table=book'))}
+            pif.ren.format_button_link('book', 'biblio.cgi?edit=1'),
+            pif.ren.format_button_link('edit', 'editor.cgi?table=book'))}
     ]
     footer = pif.form.put_hidden_input(tymass='book') + "</form><p>"
     lsections.append(render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
                                     noheaders=True, footer=footer))
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 def add_book_final(pif):
@@ -1918,8 +1916,8 @@ def add_book_final(pif):
     ostr += str(vals)
     ostr += str(pif.dbh.write('book', vals, newonly=True, tag='mass_book', verbose=True)) + '<br>'
     if vals['pic_id']:
-        ostr += pif.render.format_image_required(vals['pic_id'], pdir='.' + config.IMG_DIR_BOOK)
-    return pif.render.format_template('blank.html', content=ostr)
+        ostr += pif.ren.format_image_required(vals['pic_id'], pdir='.' + config.IMG_DIR_BOOK)
+    return pif.ren.format_template('blank.html', content=ostr)
 
 
 # ------- ads ------------------------------------------------------
@@ -1972,11 +1970,11 @@ def add_ads_ask(pif):
     ]
     footer = pif.form.put_hidden_input(tymass='ads')
     footer += pif.form.put_hidden_input(o_id=o_ad_id)
-    footer += "</form><p>" + pif.render.format_image_required(o_ad_id, pdir=config.IMG_DIR_ADS, largest='e')
+    footer += "</form><p>" + pif.ren.format_image_required(o_ad_id, pdir=config.IMG_DIR_ADS, largest='e')
     lsections = []
     lsections.append(render.Section(colist=['title', 'value'],
                                     range=[render.Range(entry=entries)], noheaders=True, header=header, footer=footer))
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=lsections), nofooter=True)
 
 
 def add_ads_final(pif):
@@ -2005,7 +2003,7 @@ def add_ads_final(pif):
     if o_id and o_id != ad_id and os.path.exists('.' + config.IMG_DIR_ADS + '/' + o_id + '.jpg'):
         useful.file_mover('.' + config.IMG_DIR_ADS + '/' + o_id + '.jpg',
                           '.' + config.IMG_DIR_ADS + '/' + ad_id + '.jpg', mv=True)
-    return pif.render.format_template('blank.html', content=ostr)
+    return pif.ren.format_template('blank.html', content=ostr)
 
 # ------- matrix ---------------------------------------------------
 
@@ -2054,7 +2052,7 @@ def add_matrix_ask(pif):
     footer += "</form>"
     llineup.section.append(render.Section(
         colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True, header=header, footer=footer))
-    return pif.render.format_template('simplelistix.html', llineup=llineup, nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=llineup, nofooter=True)
 
 
 '''
@@ -2160,7 +2158,7 @@ def add_matrix_form(pif):
     footer += '</form>'
     llistix.section[-1].footer = footer
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def add_matrix_model(pif, section, ref_id=None):
@@ -2208,14 +2206,14 @@ def add_matrix_model(pif, section, ref_id=None):
                 'mm.id.%s' % key: mod.get('matrix_model.id', ''),
                 'mm.matrix_id.%s' % key:
                     mod.get('matrix_model.matrix_id', '')}) +
-                pif.render.format_link("single.cgi?id=%s" % mod.get('matrix_model.mod_id', ''),
-                                       mod.get('matrix_model.mod_id', '')) + ' ' +
+                pif.ren.format_link("single.cgi?id=%s" % mod.get('matrix_model.mod_id', ''),
+                                    mod.get('matrix_model.mod_id', '')) + ' ' +
                 pif.form.put_text_input("mm.mod_id.%s" % key, 8, 8, value=mod.get('matrix_model.mod_id', '')),
             'var_id': pif.form.put_text_input(
                 "mm.var_id.%s" % key, 20, 20, value='/'.join(sorted(set(mod.get('vars', []))))),
             'display_order': 'disp ' + pif.form.put_text_input(
                 "mm.display_order.%s" % key, 3, 3, value=mod.get('matrix_model.display_order', '')),
-            'edit': pif.render.format_button_link(
+            'edit': pif.ren.format_button_link(
                 'edit', pif.dbh.get_editor_link(
                     'matrix_model',
                     pif.dbh.make_id('matrix_model', mod, 'matrix_model' + '.'))) + str(mod.get('matrix_model.id', '')),
@@ -2281,9 +2279,9 @@ def add_matrix_save(pif):
     #         pif.dbh.update_variation_select_subid(
     #             pif.form.get_raw('matrix.id'), pif.form.get_raw('matrix.page_id'), pif.form.get_raw('o_id'))
     #         # ok, this is pretty cool.  I should do this.
-    #         if os.path.exists(pif.render.pic_dir + '/' + pif.form.get_raw('o_id') + '.jpg'):
-    #             os.rename(pif.render.pic_dir + '/' + pif.form.get_raw('o_id') + '.jpg',
-    #                       pif.render.pic_dir + '/' + pif.form.get_raw('matrix.id') + '.jpg')
+    #         if os.path.exists(pif.ren.pic_dir + '/' + pif.form.get_raw('o_id') + '.jpg'):
+    #             os.rename(pif.ren.pic_dir + '/' + pif.form.get_raw('o_id') + '.jpg',
+    #                       pif.ren.pic_dir + '/' + pif.form.get_raw('matrix.id') + '.jpg')
     #     pif.dbh.update_matrix(pif.form.get_raw('o_id'),
     #                           {x: pif.form.get_raw('matrix.' + x) for x in p_table_data.columns})
 
@@ -2311,7 +2309,7 @@ def add_matrix_save(pif):
     #             del values['id']
     #             pif.dbh.insert_lineup_model(values)
 
-    # print(pif.render.format_link("matrixs.cgi?page=%s&id=%s" % (pif.form.get_raw('matrix.section_id'),
+    # print(pif.ren.format_link("matrixs.cgi?page=%s&id=%s" % (pif.form.get_raw('matrix.section_id'),
     # pif.form.get_raw('matrix.id')), "matrix"))
 
 
@@ -2332,14 +2330,14 @@ def add_attr_pics_ask(pif):
         {'title': 'Type:', 'value': pif.form.put_select('attr_type', mbdata.image_adds_list, blank='')},
         {'title': '', 'value': '{} {} {} {}'.format(
             pif.form.put_button_input(),
-            pif.render.format_button_link('customs', '/cgi-bin/custom.cgi'),
-            pif.render.format_button_link('errors', '/cgi-bin/errors.cgi'),
-            pif.render.format_button_link('prepros', '/cgi-bin/prepro.cgi'))}
+            pif.ren.format_button_link('customs', '/cgi-bin/custom.cgi'),
+            pif.ren.format_button_link('errors', '/cgi-bin/errors.cgi'),
+            pif.ren.format_button_link('prepros', '/cgi-bin/prepro.cgi'))}
     ]
     footer = pif.form.put_hidden_input(tymass='attrpics', verbose='1') + "</form>"
     lsection = render.Section(colist=['title', 'value'],
                               range=[render.Range(entry=entries)], noheaders=True, header=header, footer=footer)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 def add_attr_pics_form(pif):
@@ -2353,12 +2351,12 @@ def add_attr_pics_form(pif):
         img = pref + '_' + rec['mod_id'].lower()
         if rec['picture_id']:
             img += '-' + rec['picture_id']
-        pic = pif.render.format_link('upload.cgi?m={}&suff={}&d={}'.format(
+        pic = pif.ren.format_link('upload.cgi?m={}&suff={}&d={}'.format(
             rec['mod_id'], rec['picture_id'], '.' + config.IMG_DIR_ADD),
-            pif.render.fmt_img(img, alt='', pdir=config.IMG_DIR_ADD, required=True))
+            pif.ren.fmt_img(img, alt='', pdir=config.IMG_DIR_ADD, required=True))
         desc = '{} {}<br>{} {}<br>{}<br>{}{}'.format(
-            pif.render.format_link('single.cgi?id=%s' % rec['mod_id'], rec['mod_id']),
-            pif.render.format_button_link('edit', pif.dbh.get_editor_link('attribute_picture', {'id': recid})),
+            pif.ren.format_link('single.cgi?id=%s' % rec['mod_id'], rec['mod_id']),
+            pif.ren.format_button_link('edit', pif.dbh.get_editor_link('attribute_picture', {'id': recid})),
             pif.form.put_text_input('pic_id.%s' % recid, maxlength=4, showlength=4, value=rec['picture_id']),
             pif.form.put_checkbox('do.%s' % recid, [('1', 'save')], checked=rec['do']),
             pif.form.put_checkbox('rm.%s' % recid, [('1', 'del')]),
@@ -2391,7 +2389,7 @@ def add_attr_pics_form(pif):
     footer += '</form>'
     llistix.section[-1].footer = footer
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def get_attr_pics(pif, pref):
@@ -2495,7 +2493,7 @@ def add_photogs_form(pif):
     header += pif.form.put_hidden_input(verbose=1, tymass='photogs')
 
     footer = pif.form.put_button_input("save")
-    footer += pif.render.format_button_link('add', '/cgi-bin/editor.cgi?table=photographer&id=&add=1')
+    footer += pif.ren.format_button_link('add', '/cgi-bin/editor.cgi?table=photographer&id=&add=1')
     footer += '</form>'
 
     entries = [photog_rec(rec) for rec in photographers]
@@ -2503,7 +2501,7 @@ def add_photogs_form(pif):
                           noheaders=True, footer=footer)
     llistix = render.Listix(section=[lsec], note=header)
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def add_photogs_save(pif):
@@ -2552,7 +2550,7 @@ def period_ask(pif, period_id=None):
             {'q': '', 'a': pif.form.put_button_input('submit') + mass_type_reinput(pif)}])],
         noheaders=True, footer=footer)], note=header)
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
     # periodical ['id', 'pub_id', 'volume', 'issue', 'date', 'pages']
     # article ['id', 'per_id', 'title', 'author', 'page']
@@ -2566,7 +2564,7 @@ def period_list(pif, period_id):
 
     def ent(x):
         x = pif.dbh.depref('periodical', x)
-        x['id'] = pif.render.format_link(url=f'mass.cgi?issue={x["id"]}&tymass=period', txt=str(x['id']))
+        x['id'] = pif.ren.format_link(url=f'mass.cgi?issue={x["id"]}&tymass=period', txt=str(x['id']))
         return x
 
     entries = [ent(x) for x in pif.dbh.fetch('periodical', where=wheres, tag='MassPeriod', verbose=True)]
@@ -2574,7 +2572,7 @@ def period_list(pif, period_id):
         entry=entries)],
         footer=footer)], note=header)
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def period_edit_issue(pif, period_id):
@@ -2592,7 +2590,7 @@ def period_edit_issue(pif, period_id):
         entry=entries)],
         footer=footer)], note=header)
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def period_save(pif):
@@ -2628,4 +2626,4 @@ mass_mains_hidden = {
 
 
 def mass_sections(pif):
-    return '\n'.join([pif.render.format_button_link(x, f'?tymass={x}') for x, y in mass_mains_list])
+    return '\n'.join([pif.ren.format_button_link(x, f'?tymass={x}') for x, y in mass_mains_list])

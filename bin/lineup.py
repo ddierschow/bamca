@@ -13,7 +13,6 @@ import imglib
 import mbdata
 import models
 import render
-import tables
 import useful
 
 
@@ -83,7 +82,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
     })
     if not mdict.get('pdir'):
         pdir = lsec.get('pic_dir')
-        mdict['pdir'] = pdir = pdir if pdir else pif.render.pic_dir
+        mdict['pdir'] = pdir = pdir if pdir else pif.ren.pic_dir
     mdict['spdir'] = mbdata.dirs_r.get(mdict['pdir'], mdict['pdir'])
 
     if not (lsec['flags'] & config.FLAG_SECTION_NO_FIRSTS) and str(year) == mdict['base_id.first_year']:
@@ -102,7 +101,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             imgfmt = (mdict['image_format'].replace('w', pif.form.get_strl('region'))
                       if not region.startswith('X') and int(mdict['year']) > 1970 else mdict['image_format'])
             mdict['product'] = imgfmt % mdict['number']
-        if pif.render.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
+        if pif.ren.find_image_path([mdict['product']], suffix='jpg', pdir=mdict['pdir'], largest='m'):
             mdict['is_product_picture'] = 1
         # seems to do the wrong thing with xsecs, see 2023 X.17 #11
         mdict['href'] = (
@@ -116,7 +115,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['is_reused_product_picture'] = pif.is_allowed('a')
         elif mdict.get('image_format'):
             mdict['product'] = mdict['image_format'] % mdict['pack.id']
-        if pif.render.find_image_path([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
+        if pif.ren.find_image_path([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
             mdict['is_product_picture'] = 1
         if mdict['pack.section_id'] == 'playset':
             mdict['href'] = "play.cgi?page=%(pack.page_id)s&id=%(pack.id)s" % mdict
@@ -125,7 +124,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
     elif mdict['publication.id']:
         mdict['prod_id'] = mdict['publication.id']
         mdict['product'] = mdict['publication.id'] + '_01'
-        if pif.render.find_image_path([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
+        if pif.ren.find_image_path([mdict['product']], pdir=mdict['pdir'], largest=mbdata.IMG_SIZ_GIGANTIC):
             mdict['is_product_picture'] = 1
         mdict['href'] = "pub.cgi?id=%(publication.id)s" % mdict
     elif mdict['page_info.id']:  # series
@@ -136,7 +135,7 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             # mdict['product'] += "-" + mdict['picture_id']
 
     mdict['product'] = mdict['product'].replace('.', '_')
-    mdict['large_img'] = pif.render.format_image_required(
+    mdict['large_img'] = pif.ren.format_image_required(
         mdict['product'], suffix='jpg', pdir=mdict['pdir'], largest='m', also={'class': 'largepic'})
 
     if lsec['flags'] & config.FLAG_SECTION_DEFAULT_IDS:
@@ -151,8 +150,8 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['displayed_id'] = disp_format.replace('ID', '%s-%d' % (id_m.group('a'), int(id_m.group('n'))))
     elif disp_format and mdict.get('shown_id'):
         mdict['displayed_id'] = disp_format % (mdict['shown_id'])
-    mdict['upload_link'] = pif.render.format_link('upload.cgi?d=%s&n=%s' % (mdict['pdir'].replace('pic', 'lib'),
-                                                                            mdict['product']), mdict['large_img'])
+    mdict['upload_link'] = pif.ren.format_link('upload.cgi?d=%s&n=%s' % (mdict['pdir'].replace('pic', 'lib'),
+                                                                         mdict['product']), mdict['large_img'])
     return mdict
 
 
@@ -273,7 +272,7 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
 
 def get_man_sections(pif, year, region, section_types):
     wheres = ["page_id='year.%s'" % year]
-    if pif.render.is_alpha or not pif.render.is_beta:
+    if pif.ren.is_alpha or not pif.ren.is_beta:
         wheres.append("not flags & %d" % config.FLAG_SECTION_HIDDEN)
     secs = pif.dbh.fetch_sections(wheres)
     if not secs:
@@ -321,7 +320,7 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
             for sec in reversed(secs):
                 sec.update({
                     'id': region + '_' + str(sec['display_order']),
-                    'graphics': pif.render.fmt_opt_img([
+                    'graphics': pif.ren.fmt_opt_img([
                         (sec['img_format'][:4] + region + 's%02d' % sec['display_order']).lower()]),
                     'end': endv,
                     'mods': [x for x in modlist if x['number'] > sec['start'] and x['number'] <= endv],
@@ -330,7 +329,7 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
         else:
             mainsec.update({
                 'id': region + '_1',
-                'graphics': pif.render.fmt_opt_img([mainsec['img_format'][:4] + region + 's']),
+                'graphics': pif.ren.fmt_opt_img([mainsec['img_format'][:4] + region + 's']),
                 'mods': modlist
             })
 
@@ -357,7 +356,7 @@ def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
     style_id = mdict.get('style_id')
     class_name = mdict.get('class_name' '') + (' bg_' + style_id if style_id else '')
     if large:
-        # ostr += '<br>' + pif.render.format_button_link("edit", pif.dbh.get_editor_link(
+        # ostr += '<br>' + pif.ren.format_button_link("edit", pif.dbh.get_editor_link(
         #     'lineup_model', {'id': mdict['lineup_model.id']}))
         ostr += '<br>'.join([
             'name' + pif.form.put_text_input('description.%s' % mdict['id'], 64, value=mdict['name']),
@@ -394,8 +393,8 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
         for var in mdict['cvarlist']:
             if not show_var or show_var in var['var_ids']:
                 varlist.extend(var['picture_ids'])
-    imgstr = pif.render.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=[x for x in varlist if x],
-                                              pdir=config.IMG_DIR_MAN)
+    imgstr = pif.ren.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=[x for x in varlist if x],
+                                           pdir=config.IMG_DIR_MAN)
     mdict['imgstr'] = imgstr
     mdict['descriptions'] = [x['desc'] for x in mdict['cvarlist'] if not show_var or show_var in x['var_ids']]
     mdict['no_specific_image'] = 0
@@ -426,7 +425,7 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
     # region = mainsec['region']
     comments = set()
     lsec.range = []
-    img = pif.render.fmt_img(['%ss' % year])
+    img = pif.ren.fmt_img(['%ss' % year])
     if img:
         lsec.name += '<br>' + img
     if large:
@@ -440,7 +439,7 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
                 name=sec['name'],
                 id=sec['id'],
                 note=sec['note'],
-                graphics=pif.render.fmt_opt_img([(sec['img_format'][:5] + 's%02d' % sec['display_order']).lower()]))
+                graphics=pif.ren.fmt_opt_img([(sec['img_format'][:5] + 's%02d' % sec['display_order']).lower()]))
             lsec.range.append(lran)
     else:
         lsec.range = [render.Range(entry=[
@@ -477,15 +476,15 @@ def render_lineup_year(pif, mainsec, secs, xsecs, large=False):
     # region = mainsec['region']
     llineup = render_lineup_year_sections(pif, mainsec, secs, xsecs, large=large, multi=pif.form.get_bool('multi'))
 #    if year > mainsec['first_year']:
-#       footer += pif.render.format_button_link("previous_year", '?year=%s&region=%s' %
+#       footer += pif.ren.format_button_link("previous_year", '?year=%s&region=%s' %
 #                                          (year - 1, pif.form.get_stru('region')))
 #    if year < mainsec['last_year']:
-#       footer += pif.render.format_button_link("following_year", '?year=%s&region=%s' %
+#       footer += pif.ren.format_button_link("following_year", '?year=%s&region=%s' %
 #                                          (year + 1, pif.form.get_stru('region')))
-    pif.render.set_footer(footer)
-    pif.render.bamcamark = mbdata.bamcamark(year)
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep(),
-                                      large=large, unroll=pif.form.get_bool('unroll'))
+    pif.ren.set_footer(footer)
+    pif.ren.bamcamark = mbdata.bamcamark(year)
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep(),
+                                   large=large, unroll=pif.form.get_bool('unroll'))
 
 
 def render_lineup_text(pif, mainsec, secs, xsecs):
@@ -506,7 +505,7 @@ def render_lineup_checklist(pif, mainsec, secs, xsecs):
         for mod in sec.get('mods', []):
             for cvar in mod['cvarlist'] or [{'desc': ''}]:
                 entries.append(dict(number=mod['displayed_id'], mod_id=mod['mod_id'], name=mod['name'],
-                                    desc=cvar['desc'], x='<i class="far fa-square"></i>'))
+                                    desc=cvar['desc'], x=pif.ren.fmt_square(hollow=True)))
 
     cols = ['x', 'number', 'mod_id', 'name', 'desc']
     titles = ['', '#', 'Model ID', 'Name', 'Description']
@@ -514,7 +513,7 @@ def render_lineup_checklist(pif, mainsec, secs, xsecs):
         colist=cols, headers=dict(zip(cols, titles)),
         range=[render.Range(entry=entries)])
     llistix = render.Listix(section=[lsection])
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def render_lineup_csv(pif, mainsec, secs, xsecs):
@@ -564,10 +563,10 @@ def year_lineup_main(pif, listtype):
     if not section_types or section_types == ['all']:
         section_types = dict(mbdata.lineup_types).keys()
 
-    pif.render.hierarchy_append(
+    pif.ren.hierarchy_append(
         '/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (year, region),
         str(year) + ' ' + mbdata.regions.get(region, ''))
-    pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (year, region))
+    pif.ren.set_button_comment(pif, keys={'yr': 'year', 'rg': 'region'})
 
     mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types, fdebug=pif.form.get_bool('verbose'))
 
@@ -626,11 +625,11 @@ def run_product_pics(pif, region):
             lreg = pif.form.get_stru('region')
             if pic_id:
                 lpic_id = pic_id = pic_id.replace('W', lreg).replace('w', lreg.lower())
-                product_image_path, product_image_file = pif.render.find_image_file(
+                product_image_path, product_image_file = pif.ren.find_image_file(
                     pic_id, suffix='jpg', pdir=pdir, largest='l')
             elif ifmt:
                 lpic_id = ifmt.replace('w', lreg.lower()) % mnum
-                product_image_path, product_image_file = pif.render.find_image_file(
+                product_image_path, product_image_file = pif.ren.find_image_file(
                     [lpic_id], suffix='jpg', pdir=pdir, largest='l')
             else:
                 lpic_id = ''
@@ -644,7 +643,7 @@ def run_product_pics(pif, region):
                 pif, product_image_path, product_image_file, pic_id, halfstar)
             title = f"{mnum}: {lmod.get('lineup_model.name', '')}"
             ent = render.Entry(
-                text=pif.render.format_link(lnk, istar, also={'title': title}),
+                text=pif.ren.format_link(lnk, istar, also={'title': title}),
                 display_id=str(int(mnum % 10 == 0 or page[-1] == '0'))
                 # style='bl' if not mnum % 10 or page[-1] == '0' else 'yl' if mnum % 10 == 5 or page[-1] == '5' el 'wt'
             )
@@ -685,17 +684,17 @@ def get_product_image(page, mnum):
 
 
 def product_pic_lineup_main(pif):
-    pif.render.styles.append('prodpic')
-    pif.render.title = mbdata.regions.get(pif.form.get_str('region'), 'Matchbox') + ' Lineup'
+    pif.ren.styles.append('prodpic')
+    pif.ren.title = mbdata.regions.get(pif.form.get_str('region'), 'Matchbox') + ' Lineup'
     llineup = run_product_pics(pif, pif.form.get_str('region').upper())
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 # --------- by ranks --------------------------------
 
 
 def generate_rank_lineup(pif, rank, region, syear, eyear):
-    # verbose = pif.render.verbose
+    # verbose = pif.ren.verbose
     regionlist = mbdata.get_region_tree(region) + ['']
     lmodlist = pif.dbh.fetch_lineup_models_by_rank(rank, syear, eyear)
     lmodlist.sort(key=lambda x: x['lineup_model.year'])
@@ -713,7 +712,7 @@ def generate_rank_lineup(pif, rank, region, syear, eyear):
 def run_ranks(pif, mnum, region, syear, eyear):
     if not mnum:
         raise useful.SimpleError('Lineup number must be a number from 1 to 120.  Please back up and try again.')
-    pif.render.comment('lineup.run_ranks', mnum, region, syear, eyear)
+    pif.ren.comment('lineup.run_ranks', mnum, region, syear, eyear)
 
     pages = {x['id']: x for x in pif.dbh.fetch_page_years()}
     gather_rank_pages(pif, pages, region)
@@ -745,21 +744,21 @@ def run_ranks(pif, mnum, region, syear, eyear):
     lsec.range.append(lran)
 
     llineup.section.append(lsec)
-    pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
+    pif.ren.set_button_comment(pif, keys={'yr': 'year', 'rg': 'region'})
     llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
     return llineup
 
 
 def rank_lineup_main(pif):
-    pif.render.hierarchy_append(
+    pif.ren.hierarchy_append(
         '/cgi-bin/lineup.cgi?n=1&num=%s&region=%s&syear=%s&eyear=%s&lty=all' % (
             pif.form.get_str('num'), pif.form.get_str('region'), pif.form.get_str('syear'), pif.form.get_str('eyear')),
         "%s #%d" % (mbdata.regions.get(pif.form.get_str('region'), ''), pif.form.get_int('num')))
-    pif.render.title = 'Matchbox Number %d' % pif.form.get_int('num')
+    pif.ren.title = 'Matchbox Number %d' % pif.form.get_int('num')
     llineup = run_ranks(pif, pif.form.get_int('num'), pif.form.get_str('region', 'U').upper(),
                         pif.form.get_str('syear', '1953'), pif.form.get_str('eyear', '2014'))
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep(),
-                                      large=False, unroll=pif.form.get_bool('unroll'))
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep(),
+                                   large=False, unroll=pif.form.get_bool('unroll'))
 
 
 # --------- select lineup ---------------------------
@@ -783,7 +782,7 @@ def select_lineup(pif, region, year):
             'lty', mbdata.lineup_types, checked=[x[0] for x in mbdata.lineup_types], sep='<br>\n') +
         '<p>' + pif.form.put_button_input()))
     lsec.columns = len(lran.entry)
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def show_all_lineups(pif):
@@ -805,7 +804,7 @@ def show_all_lineups(pif):
 
     llineup = render.Listix(section=[
         render.Section(range=[render.Range(entry=[y for x, y in sorted(grid.items())])], colist=sorted(cols))])
-    return pif.render.format_template('simplelistix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplelistix.html', llineup=llineup.prep())
 
 
 # --------- multiyear lineup ------------------------
@@ -840,7 +839,7 @@ def run_multi_file(pif, year, region, nyears):
     comments = set()
 
     lran = render.Range(id='range')
-    pif.render.comment("run_file: range", lran)
+    pif.ren.comment("run_file: range", lran)
     for inum in range(max_mods):
         for iyr in range(nyears):
             pdir = pages[iyr]['page_info.pic_dir']
@@ -863,7 +862,7 @@ def run_multi_file(pif, year, region, nyears):
     lsec.range.append(lran)
 
     llineup.section.append(lsec)
-    pif.render.set_button_comment(pif, 'yr=%s&rg=%s' % (pif.form.get_str('year'), pif.form.get_str('region')))
+    pif.ren.set_button_comment(pif, keys={'yr': 'year', 'rg': 'region'})
     llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
     return llineup
 
@@ -871,13 +870,13 @@ def run_multi_file(pif, year, region, nyears):
 def render_multiyear(pif, nyears=5):
     region = pif.form.get_stru('region')
     year = pif.form.get_str('year')
-    pif.render.hierarchy_append(
+    pif.ren.hierarchy_append(
         '/cgi-bin/lineup.cgi?year=%s&region=%s&lty=all' % (year, region),
         "%s %s" % (year, mbdata.regions.get(region)))
-    pif.render.title = 'Matchbox %s-%s' % (year, int(year) + nyears - 1)
+    pif.ren.title = 'Matchbox %s-%s' % (year, int(year) + nyears - 1)
     llineup = run_multi_file(pif, year, region, nyears)
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep(), large=False,
-                                      unroll=pif.form.get_bool('unroll'))
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep(), large=False,
+                                   unroll=pif.form.get_bool('unroll'))
 
 
 # --------- remember the main -----------------------
@@ -886,9 +885,9 @@ def render_multiyear(pif, nyears=5):
 @basics.web_page
 def main(pif):
     listtype = pif.form.get_str('listtype')
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/lineup.cgi', 'Annual Lineup')
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/lineup.cgi', 'Annual Lineup')
 
     if pif.form.get_str('year') and not pif.form.get_str('year').isdigit():
         raise useful.SimpleError('Year is incorrect.  It must be a number.')
@@ -896,20 +895,20 @@ def main(pif):
         raise useful.SimpleError('Region not recognized.')
 
     if pif.form.has('prodpic'):
-        pif.render.print_html()
+        pif.ren.print_html()
         return product_pic_lineup_main(pif)
     elif pif.form.get_int('byrank'):
-        pif.render.print_html(mbdata.get_mime_type(listtype))
+        pif.ren.print_html(mbdata.get_mime_type(listtype))
         return rank_lineup_main(pif)
     elif pif.form.get_str('region') and pif.form.get_str('year'):
         if listtype == mbdata.LISTTYPE_CSV:
-            pif.render.filename = 'mb%s.csv' % pif.form.get_str('year')
-        pif.render.print_html(mbdata.get_mime_type(listtype))
+            pif.ren.filename = 'mb%s.csv' % pif.form.get_str('year')
+        pif.ren.print_html(mbdata.get_mime_type(listtype))
         if listtype == mbdata.LISTTYPE_MULTIYEAR:
             return render_multiyear(pif)
         return year_lineup_main(pif, listtype)
-    pif.render.print_html()
-    pif.render.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
+    pif.ren.print_html()
+    pif.ren.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     if pif.form.get_bool('large'):
         return show_all_lineups(pif)
     return select_lineup(pif, pif.form.get_str('region', 'W').upper(), pif.form.get_str('year', '0'))
@@ -945,7 +944,7 @@ def main(pif):
 #             lran.update({
 #                 'id': region + '_' + str(lran['display_order']),
 #                 'entry': [],
-#                 'graphics': pif.render.fmt_opt_img(
+#                 'graphics': pif.ren.fmt_opt_img(
 #                     [(lran['img_format'][:2] + region + 's%02d' % lran['display_order']).lower()])
 #             })
 #             count = count_section(pif, lsec, lran, modlist[lran['start']:lran['end']], region, year)
@@ -961,13 +960,13 @@ def main(pif):
 #     # ==================================
 #
 #     # xsecs = get_extra_sections(pif, year)
-#     create_extra_lineup(pif, year, xsecs, verbose=pif.render.verbose)
+#     create_extra_lineup(pif, year, xsecs, verbose=pif.ren.verbose)
 #
 #     for lran in xsecs:
 #         lran.update({
 #             'id': 'X_' + str(lran['display_order']),
 #             'entry': [],
-#             'graphics': pif.render.fmt_opt_img([(lran['img_format'][:2] + region +
+#             'graphics': pif.ren.fmt_opt_img([(lran['img_format'][:2] + region +
 #                 's%02d' % lran['display_order']).lower()])
 #         })
 #         count = count_section(pif, lsec, lran, lran['mods'], 'X', year)
@@ -980,7 +979,7 @@ def main(pif):
 #     im_count = pr_count = 0
 #     for mdict in mods:
 #         mdict['image_format'] = lran['img_format']
-#         pdir = pif.render.pic_dir
+#         pdir = pif.ren.pic_dir
 #         if lran.get('pic_dir'):
 #             pdir = lran['pic_dir']
 #         mdict['pdir'] = pdir
@@ -1363,7 +1362,7 @@ def detect_lineup(pif, year):
 
 def import_series(pif, matrix_page, matrix_section, year, lineup_section):
     pass
-    for mm in tables.Results('matrix_model', pif.dbh.fetch_matrix_models(page_id=matrix_page, section=matrix_section)):
+    for mm in pif.dbh.fetch_matrix_models(page_id=matrix_page, section=matrix_section):
         values = {
             'base_id': f'{year}{lineup_section.replace(".", "")}{mm.range_id}',
             'mod_id': mm.mod_id,

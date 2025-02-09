@@ -11,10 +11,10 @@ import useful
 def create_section(pif, attribute_type):
     def prep_mod(mod):
         mod = pif.dbh.modify_man_item(mod)
-        mod['img'] = '/'.join(pif.render.find_image_file(
+        mod['img'] = '/'.join(pif.ren.find_image_file(
             mod['attribute_picture.mod_id'] + '-' + mod['attribute_picture.picture_id'],
             prefix=attribute_type, pdir=config.IMG_DIR_ADD))
-        mod['img'] = pif.render.format_link('/' + mod['img'], txt=mod['attribute_picture.description'])
+        mod['img'] = pif.ren.format_link('/' + mod['img'], txt=mod['attribute_picture.description'])
         return mod
     mods = pif.dbh.fetch_attribute_pictures_by_type(attribute_type, 'attribute_picture.mod_id')
     sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
@@ -27,29 +27,29 @@ def create_section(pif, attribute_type):
 
 
 def errors(pif):
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/errors.cgi', 'Error Models')
-    pif.render.set_button_comment(pif)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/errors.cgi', 'Error Models')
+    pif.ren.set_button_comment(pif)
 
     lsec = create_section(pif, 'e')
 
     llineup = render.Matrix(section=[lsec], columns=lsec.columns)
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def prepro(pif):
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/prepro.cgi', 'Prototype and Preproduction Models')
-    pif.render.set_button_comment(pif)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/prepro.cgi', 'Prototype and Preproduction Models')
+    pif.ren.set_button_comment(pif)
 
     lsec = create_section(pif, 'p')
 
     llineup = render.Matrix(section=[lsec], columns=lsec.columns)
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def code2(pif):
@@ -58,48 +58,48 @@ def code2(pif):
 
     def prep_mod(pif, mod, cat):
         mod = pif.dbh.modify_man_item(mod)
-        mod['img'] = pif.render.format_link('?mod_id=%s&cat=%s' % (
+        mod['img'] = pif.ren.format_link('?mod_id=%s&cat=%s' % (
             mod['id'], cat), txt='%d Variation%s' % (mod['count(*)'], 's' if mod['count(*)'] != 1 else ''))
         return models.add_model_thumb_pic_link(pif, mod)
 
     section_id = pif.form.get_str('section')
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/code2.cgi', 'Code 2 Models')
-    pif.render.set_button_comment(pif)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/code2.cgi', 'Code 2 Models')
+    pif.ren.set_button_comment(pif)
 
     llineup = render.Matrix()
     for sect in pif.dbh.fetch_sections({'page_id': pif.page_id}):
         lsec = render.Section(section=sect)
         if not section_id or section_id == lsec.id:
             if section_id:
-                pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % section_id, lsec.name)
+                pif.ren.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % section_id, lsec.name)
             mods = pif.dbh.fetch_castings_by_category(sect['page_id'], sect['category'])
             lsec.range = [render.Range(entry=[render.Entry(text=prep_mod(pif, mod, sect['category'])) for mod in mods])]
             llineup.section.append(lsec)
 
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def code2_model(pif):
     mod_id = pif.form.get_id('mod_id')
     cat_id = pif.form.get_str('cat')
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/code2.cgi', 'Code 2 Models')
-    pif.render.set_button_comment(pif)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/code2.cgi', 'Code 2 Models')
+    pif.ren.set_button_comment(pif)
 
     mod = pif.dbh.modify_man_item(pif.dbh.fetch_casting(mod_id))
-    img = pif.render.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
+    img = pif.ren.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
     header = '<center>%s<br><b>%s: %s</b></center><p>' % (img, mod['id'], mod['name'])
     sect = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id)
     if not sect:
         raise useful.SimpleError('No models found.')
     lsec = render.Section(section=sect)
-    pif.render.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec.id, lsec.name)
-    pif.render.hierarchy_append('/cgi-bin/code2.cgi?mod_id=%s&cat=%s' % (mod['id'], cat_id), mod['id'])
+    pif.ren.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec.id, lsec.name)
+    pif.ren.hierarchy_append('/cgi-bin/code2.cgi?mod_id=%s&cat=%s' % (mod['id'], cat_id), mod['id'])
     lsec.range = [render.Range(entry=[])]
     mvars = pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id)
     for var in mvars:
@@ -108,7 +108,7 @@ def code2_model(pif):
         lsec.range[0].entry.append(entry)
 
     llineup = render.Matrix(section=[lsec], header=header)
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 # Brazil, Bulgaria, China, England, Hong Kong, Hungary, Japan, Macau, Thailand, no origin, [blank]
@@ -117,20 +117,20 @@ def plants(pif):
         return plant_models(pif)
 
     def prep_entry(pif, name, code):
-        img = pif.render.format_image_art('flag_' + code) if code else pif.render.fmt_no_pic()
-        return render.Entry(text=pif.render.format_link('?plant=%s' % (code if code else 'unset'), img + '<br>' + name))
+        img = pif.ren.format_image_art('flag_' + code) if code else pif.ren.fmt_no_pic()
+        return render.Entry(text=pif.ren.format_link('?plant=%s' % (code if code else 'unset'), img + '<br>' + name))
 
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/plants.cgi', 'By Manufacturing Plant')
-    pif.render.set_button_comment(pif)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/plants.cgi', 'By Manufacturing Plant')
+    pif.ren.set_button_comment(pif)
 
     llineup = render.Matrix(section=[render.Section(columns=3, range=[
         render.Range(id='ix', entry=[prep_entry(pif, *x) for x in mbdata.plants])
     ])])
 
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def plant_models(pif):
@@ -138,20 +138,20 @@ def plant_models(pif):
     if plant_id == 'unset':
         plant_id = ''
     plant_d = dict([(y, x) for x, y in mbdata.plants])
-    pif.render.title = plant_name = plant_d.get(plant_id, 'origin not set')
-    pif.render.print_html()
-    pif.render.set_button_comment(pif)
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/plants.cgi', 'By Manufacturing Plant')
-    pif.render.hierarchy_append('/cgi-bin/plants.cgi?id=%s' % plant_id, plant_name)
+    pif.ren.title = plant_name = plant_d.get(plant_id, 'origin not set')
+    pif.ren.print_html()
+    pif.ren.set_button_comment(pif)
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/plants.cgi', 'By Manufacturing Plant')
+    pif.ren.hierarchy_append('/cgi-bin/plants.cgi?id=%s' % plant_id, plant_name)
 
     entries = []
     mmods = pif.dbh.fetch_castings_by_plant(plant_name if plant_id else '')
     for mmod in mmods:
         mod = pif.dbh.make_man_item(mmod)
         mod['count'] = mmod['count']
-        mod['img'] = pif.render.format_link(
+        mod['img'] = pif.ren.format_link(
             '/cgi-bin/vars.cgi?manufacture=%s&mod=%s' % (plant_d.get(plant_id, 'unset'), mod['id']),
             txt='%d Variation%s' % (mod.get('count', -1), 's' if mod.get('count', -1) != 1 else ''))
         entries.append(render.Entry(text=models.add_model_thumb_pic_link(pif, mod)))
@@ -160,7 +160,7 @@ def plant_models(pif):
         section=[render.Section(range=[render.Range(entry=entries)])],
         columns=3,
     )
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 def custom_create_section(pif, attribute_type):
@@ -174,14 +174,14 @@ def custom_create_section(pif, attribute_type):
         img_id = mod_id.lower() + (
             '-' + attr_pic['attribute_picture.picture_id'] if attr_pic['attribute_picture.picture_id'] else '')
         add = adds.get(attr_pic['attribute_picture.attr_type'], 'Picture%s')
-        img = pif.render.find_image_path(
+        img = pif.ren.find_image_path(
             img_id, prefix=attr_pic['attribute_picture.attr_type'], pdir=config.IMG_DIR_ADD)
         # caption = attr_pic['attribute_picture.description']
         img_credit = credits.get(img_id, '')
         ostr = ''
         if img:
             ostr += '<center><h3>%s</h3>\n' % add % {'s': ''}
-            ostr += '<table><tr><td>' + pif.render.fmt_img_src(img) + '<br>'
+            ostr += '<table><tr><td>' + pif.ren.fmt_img_src(img) + '<br>'
             if img_credit:
                 ostr += '<div class="credit">Photo credit: %s</div>' % img_credit
             ostr += '</td></tr></table>'
@@ -189,7 +189,7 @@ def custom_create_section(pif, attribute_type):
                 ostr += attr_pic['attribute_picture.description']
             ostr += '<p></center>\n'
         return (''' <a onclick="init_modal('m.%s');" class="modalbutton">%s</a>\n''' % (
-            img_id, attr_pic['attribute_picture.description']), pif.render.format_modal('m.' + img_id, ostr))
+            img_id, attr_pic['attribute_picture.description']), pif.ren.format_modal('m.' + img_id, ostr))
 
     mods = pif.dbh.fetch_attribute_pictures_by_type(attribute_type, 'attribute_picture.mod_id')
     modd = {}
@@ -212,17 +212,17 @@ def custom_create_section(pif, attribute_type):
 
 
 def custom(pif):
-    pif.render.set_page_extra(pif.render.modal_js)
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/database.php', 'Database')
-    pif.render.hierarchy_append('/cgi-bin/custom.cgi', 'Customizations')
-    pif.render.set_button_comment(pif)
+    pif.ren.set_page_extra(pif.ren.modal_js)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('/cgi-bin/custom.cgi', 'Customizations')
+    pif.ren.set_button_comment(pif)
 
     lsec = custom_create_section(pif, 'a')
 
     llineup = render.Matrix(section=[lsec])
-    return pif.render.format_template('simplematrix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 
 @basics.web_page
@@ -244,7 +244,7 @@ def main(pif):
 
 @basics.web_page
 def compare_main(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     csecs = pif.dbh.fetch_sections({'page_id': pif.page_id})
     llineup = {'section': []}
     for sec in csecs:
@@ -258,7 +258,7 @@ def compare_main(pif):
             mod['name'] = mod['c2.rawname'].replace(';', ' ')
             mod['model_id'] = mod['cr.related_id']
             modsets.setdefault(mod['cr.model_id'], [])
-            img = pif.render.format_image_optional(
+            img = pif.ren.format_image_optional(
                 mod['cr.model_id'] + ('-%s' % mod['cr.picture_id'] if mod['cr.picture_id'] else ''),
                 prefix='z_', nopad=True)
             modsets[mod['cr.model_id']].append((mod['model_id'], mod['name'], mod['cr.description'].split(';'), img))
@@ -272,8 +272,7 @@ def compare_main(pif):
             lran = {'name': ', '.join(names), 'entry': []}
             lsec['range'].append(lran)
             for id, name, descs, img in modset:
-                lent = [models.add_model_pic_link_short(pif, id),
-                        filter(None, descs), img]
+                lent = [models.add_model_pic_link_short(pif, id), [x for x in descs if x], img]
                 lran['entry'].append(lent)
 
-    return pif.render.format_template('compare.html', lcompare=llineup)
+    return pif.ren.format_template('compare.html', lcompare=llineup)

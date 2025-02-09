@@ -67,7 +67,8 @@ function SectionSearch($pif) {
     echo "<h3>Casting Information</h3>\n";
     echo "<table><tr>\n";
     echo "<td>Manufacturing ID:</td><td colspan=\"2\"><input type=\"text\" name=\"cid\" id=\"idId\" value=\"\" size=\"12\">\n";
-    echo "(full or partial ID)</td>\n";
+    Checks('radio', $id, 'cidx', [['0', 'partial', 1], ['1', 'exact']], '');
+    echo "</td>\n";
     echo "</tr>";
     SimpleText("Casting name:", 'cname', 2);
 
@@ -108,7 +109,9 @@ function SectionSearch($pif) {
     echo "</td><td>\n";
     echo "<h3>Variation Information</h3>\n";
     echo "<table>\n";
-    echo "<tr><td>Variation ID:</td><td><input type=\"text\" name=\"vid\"> (full or partial ID)</td></tr>\n";
+    echo "<tr><td>Variation ID:</td><td><input type=\"text\" name=\"vid\">";
+    Checks('radio', $id, 'vidx', [['0', 'partial', 1], ['1', 'exact']], '');
+    echo "</td></tr>\n";
     echo "<tr><td>Description:</td><td><input type=\"text\" name=\"description\"></td></tr>\n";
     SimpleText("Body:", 'body');
     SimpleText("Base:", 'base');
@@ -154,7 +157,7 @@ function SectionSearch($pif) {
     echo "<b>A note on the results that will be returned:</b><br>\n";
     echo "If you specify variation search criteria, then select to show as castings, the list returned will be \n";
     echo "all the models that have one or more variations that match your search.  The entries shown will be \n";
-    echo "the generic casting pictures, which you can click on to see the variation lists that match your search.\n";
+    echo "the generic casting pictures, which you can click on to see the lists of matching variations.\n";
     echo "</td></tr></table>\n";
     echo "<p></td></tr></table>";
 }

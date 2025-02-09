@@ -549,31 +549,28 @@ class DBHandler(object):
         mod = self.depref('casting,publication,base_id', mod)
         mod.setdefault('make', '')
         mod['subname'] = mod.get('pack_model.subname', '')
+        mod['link'] = "single.cgi?id"
 
         if mod.get('pack.id'):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
-            mod['unlicensed'] = '?'  # {'unl': '-', '': '?'}.get(mod['make'], ' ')
+            mod['unlicensed'] = '?'
             mod.setdefault('description', '')
-            mod['made'] = True  # not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
+            mod['made'] = True
             mod['visual_id'] = self.default_id(mod['id'])
             mod['link'] = "packs.cgi?id"
-            mod['vehicle_type'] = ""
+            mod['vehicle_type'] = ''
         elif mod.get('id'):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
             mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
             mod.setdefault('description', '')
             mod['made'] = not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
             mod['visual_id'] = self.default_id(mod['id'])
-            mod['link'] = "single.cgi?id"
         else:
-            mod['id'] = ''
+            mod['id'] = mod['visual_id'] = ''
             mod['name'] = ''
-            mod['iconname'] = ''
             mod['unlicensed'] = '?'
             mod['description'] = ''
             mod['made'] = False
-            mod['visual_id'] = ''
-            mod['link'] = "single.cgi?id"
         mod['filename'] = mod['id'].lower()
         mod['notmade'] = '' if mod['made'] else '*'
         mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & config.FLAG_MODEL_CASTING_REVISED) != 0
@@ -1362,7 +1359,9 @@ class DBHandler(object):
             where.append(f"page_id='{page_id}'")
         if section:
             where.append(f"section_id='{section}'")
-        return self.fetch('matrix_model', where=self.make_where(where), order='display_order', tag='MatrixModels')
+        return tables.Results(
+            'matrix_model',
+            self.fetch('matrix_model', where=self.make_where(where), order='display_order', tag='MatrixModels'))
 
     # select * from casting,lineup_model where casting.id=lineup_model.mod_id and lineup_model.year='2006'
     '''
@@ -1477,8 +1476,9 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         ]
         if page_id:
             wheres.append(f"l1.page_id='{page_id}'")
-        return self.fetch('link_line l1,link_line l2', columns=columns, where=" and ".join(wheres),
-                          tag='LinksSingle', order="l1.display_order")
+        return tables.Results(
+            'link_line', self.fetch('link_line l1,link_line l2', columns=columns, where=" and ".join(wheres),
+                                    tag='LinksSingle', order="l1.display_order"))
 
     def fetch_link_statuses(self, where):
         return self.fetch('link_line', where=where, columns=['last_status', 'count(*)'], group='last_status',
@@ -1522,6 +1522,12 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         if var:
             wheres.append(f"pack.var='{var}'")
         return self.fetch('pack,base_id', where=wheres, tag='Pack')
+
+    def fetch_pack_results(self, id, var=''):
+        wheres = [f"pack.id='{id}'", "pack.id=base_id.id"]
+        if var:
+            wheres.append(f"pack.var='{var}'")
+        return tables.Results('pack', self.fetch('pack,base_id', where=wheres, tag='Pack'))
 
     def fetch_packs(self, page_id='', year='', region=''):
         wheres = ["base_id.id=pack.id"]

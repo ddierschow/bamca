@@ -18,7 +18,7 @@ class TestPIF(unittest.TestCase):
         self.assertIsInstance(self.pif, pifile.PageInfoFile)
 
     def test_2(self):
-        self.assertIsInstance(self.pif.render, render.Presentation)
+        self.assertIsInstance(self.pif.ren, render.Presentation)
 
     def test_2a(self):
         self.assertIsInstance(self.pif.dbh, dbhand.DBHandler)

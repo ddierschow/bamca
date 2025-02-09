@@ -75,13 +75,13 @@ def show_dir(pif, tform):
                 if (perms & 4) == 0:
                     ostr += '{}<br>\n'.format(f)
                 elif tform.graf:
-                    ostr += pif.render.format_link(
+                    ostr += pif.ren.format_link(
                         'imawidget.cgi',
                         '<img src="../{}/{}" border=0>{}<br>'.format(tform.tdir, f, f),
                         {'d': tform.tdir, 'f': f, 'man': tform.mod, 'newvar': tform.var, 'cy': 0, 'suff': tform.suff})
                 else:
                     ostr += '<a href="../{}">{}</a><br>\n'.format(tform.tdir + '/' + f, f)
-                ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, f), credits)
+                ostr += check_image(pif, targs, os.path.join(pif.ren.pic_dir, f), credits)
             ostr += '</div><hr>\n'
         else:
             ostr += show_list(files['titles']['graf'], tform.tdir, files['graf'], tform.view)
@@ -91,7 +91,7 @@ def show_dir(pif, tform):
     ostr += show_list(files['titles']['exe'], tform.tdir, files['exe'], tform.view)
     ostr += show_list(files['titles']['other'], tform.tdir, files['other'], tform.view)
 
-    if pif.render.is_admin:
+    if pif.ren.is_admin:
         ostr += '<a href="upload.cgi?d={}">{}</a>\n'.format(tform.tdir, pif.form.put_text_button('upload'))
 
     if files['graf']:
@@ -105,7 +105,7 @@ def show_dir(pif, tform):
         ostr += pif.form.put_checkbox('th', [('1', 'Thumbs',)])
         ostr += pif.form.put_checkbox('si', [('1', 'Sized',)])
         ostr += pif.form.put_checkbox('mr', [('1', 'Recent',)])
-        if pif.render.is_admin:
+        if pif.ren.is_admin:
             lty = [('nrm', 'Normal',), ('shc', 'Categorize',), ('mss', 'VMass',), ('pms', 'PMass',),
                    ('shm', 'Shelve',), ('suf', 'Resuffix',), ('crd', 'Credit',)]
             ostr += '<br>'
@@ -144,11 +144,11 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
     ostr = '' if cpct else '<tr>\n'
     args.sort()
     for arg in args:
-        f_st = os.stat(os.path.join(pif.render.pic_dir, arg))
+        f_st = os.stat(os.path.join(pif.ren.pic_dir, arg))
         f_date = str(datetime.datetime.fromtimestamp(f_st.st_mtime)) if not cpct else ''
         root, ext = useful.root_ext(arg.strip())
         inp = ''
-        pic = pif.render.format_image_required([root], suffix=ext, also=nalso)
+        pic = pif.ren.format_image_required([root], suffix=ext, also=nalso)
         if shlv or cate:
             inp += ''' {}/<input type="text" name="lib.{}"> '''.format("lib" if cate else "lib/man", arg)
             for man in sorted(mans.keys()):
@@ -166,7 +166,7 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             fn = fn[2:] if (fn[0] in 'sml' and fn[1] == '_') else fn
             inp += '''<input type="text" name="cred.{}" size="12" value="{}"> cred'''.format(fn, cred.get(fn, ''))
         else:
-            pic = '<a href="imawidget.cgi?d={}&f={}&cy=0">{}</a>'.format(pif.render.pic_dir, arg, pic)
+            pic = '<a href="imawidget.cgi?d={}&f={}&cy=0">{}</a>'.format(pif.ren.pic_dir, arg, pic)
             if arg == base:
                 inp = imginputs % {'f': arg, 'b': root + 'z.' + ext}
             elif base:
@@ -176,10 +176,10 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
         if cpct:
             ostr += '<div class="filc">{}<br>{}<br>{}</div>\n'.format(pic, arg, inp)
         else:
-            ostr += pif.render.format_cell(0, '{}<br>{}{} {}'.format(pic, arg, inp, f_date))
+            ostr += pif.ren.format_cell(0, '{}<br>{}{} {}'.format(pic, arg, inp, f_date))
         if mss or pms:
             ostr += '</td><td>'
-            ostr += check_image(pif, targs, os.path.join(pif.render.pic_dir, arg), credits)
+            ostr += check_image(pif, targs, os.path.join(pif.ren.pic_dir, arg), credits)
     if not cpct:
         ostr += '</tr>\n'
     return ostr
@@ -243,7 +243,7 @@ def show_imgs(pif, tform):
             print('<div class="filt">')
             for fp in flist:
                 if tform.sizd:
-                    for fn in useful.read_dir('?_' + fp, pif.render.pic_dir):
+                    for fn in useful.read_dir('?_' + fp, pif.ren.pic_dir):
                         print('<div class="filc">')
                         img_also['title'] = fn
                         print(img(pif, fp, **img_args))
@@ -260,7 +260,7 @@ def show_imgs(pif, tform):
             print('<table class="glist">')
             for fp in flist:
                 if tform.sizd:
-                    dlist = useful.read_dir('?_' + fp, pif.render.pic_dir)
+                    dlist = useful.read_dir('?_' + fp, pif.ren.pic_dir)
                     flist_sort(dlist, tform)
                     if not tform.dups or len(dlist) > 1:
                         print(img(pif, dlist, **img_args))
@@ -269,7 +269,7 @@ def show_imgs(pif, tform):
                     # also sized + dups
                     if tform.dups:
                         root, ext = useful.root_ext(fp)
-                        dlist = useful.read_dir(root + '*' + ext, pif.render.pic_dir)
+                        dlist = useful.read_dir(root + '*' + ext, pif.ren.pic_dir)
                         if len(dlist) > 1:
                             flist_sort(dlist, tform)
                             print(img(pif, dlist, fp, **img_args))
@@ -318,7 +318,7 @@ def show_script(pif, tform):
     if tform.cred:
         for fn, cred in pif.form.get_list(start='cred.'):
             print(fn, cred, '<br>')
-            pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, tform.tdir, fn, verbose=False))
+            pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, tform.tdir, fn, verbose=False))
         return
     rend = dict(tform.renl)
     print('<pre>')
@@ -351,7 +351,7 @@ def do_var_masses(pif, tform):
     for fn, var in pif.form.get_list(start='var.'):
         print('<hr>')
         print(fn, var, '<br>')
-        eform = images.EditForm(pif, tdir=pif.render.pic_dir, fn=fn)
+        eform = images.EditForm(pif, tdir=pif.ren.pic_dir, fn=fn)
         eform.ot = 'jpg'
         eform.tysz = 's'
         eform.read_file('')
@@ -392,20 +392,20 @@ def do_prod_masses(pif, tform):
         title = nam
         if cred and not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
             title += ' credited to ' + photog.name
-        pif.render.message('Post to Tumblr: ', tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
-        pif.render.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, nam))
+        pif.ren.message('Post to Tumblr: ', tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
+        pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, nam))
 
 
 def show_file(pif, tform):
     if not os.path.exists(tform.tdir + '/' + tform.fnam):
         raise useful.SimpleError('Path does not exist.')
-    print(pif.render.format_button_link('delete', link=pif.request_uri + '&delete=1&act=1'))
+    print(pif.ren.format_button_link('delete', link=pif.request_uri + '&delete=1&act=1'))
     if os.path.exists(os.path.join(tform.tdir, 'archive')):
-        print(pif.render.format_button_link('archive', link=pif.request_uri + '&archive=1&act=1'))
+        print(pif.ren.format_button_link('archive', link=pif.request_uri + '&archive=1&act=1'))
     if os.path.exists(os.path.join(tform.tdir, 'fixed')):
-        print(pif.render.format_button_link('fixed', link=pif.request_uri + '&fixed=1&act=1'))
+        print(pif.ren.format_button_link('fixed', link=pif.request_uri + '&fixed=1&act=1'))
     if os.path.exists(os.path.join(tform.tdir, 'spam')) or os.path.exists(os.path.join(tform.tdir, '..', 'spam')):
-        print(pif.render.format_button_link('spam', link=pif.request_uri + '&spam=1&act=1'))
+        print(pif.ren.format_button_link('spam', link=pif.request_uri + '&spam=1&act=1'))
     root, ext = useful.root_ext(tform.fnam)
     if not os.path.exists(tform.tdir + '/' + tform.fnam):
         print("file not found")
@@ -450,67 +450,21 @@ def show_file(pif, tform):
 
 
 # for things out of http space:
-# print('<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.render.pic_dir, fn))
+# print('<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.ren.pic_dir, fn))
 def show_picture(pif, fn, pdir=None):
     if pdir:
-        pif.render.pic_dir = pdir
+        pif.ren.pic_dir = pdir
     # picker(pif, form, fn)
     root, ext = useful.root_ext(fn.strip())
-    pif.render.comment(root, ext)
-    print('<table><tr><td></td><td>' + pif.render.format_image_art('hruler.gif') + '</td></tr>')
-    print('<tr><td valign="top">' + pif.render.format_image_art('vruler.gif') + '</td><td valign="top">')
+    pif.ren.comment(root, ext)
+    print('<table><tr><td></td><td>' + pif.ren.format_image_art('hruler.gif') + '</td></tr>')
+    print('<tr><td valign="top">' + pif.ren.format_image_art('vruler.gif') + '</td><td valign="top">')
     print('<a href="/cgi-bin/image.cgi?d=%s&f=%s"><img src="/cgi-bin/image.cgi?d=%s&f=%s"></a>' %
-          (pif.render.pic_dir, fn, pif.render.pic_dir, fn))
+          (pif.ren.pic_dir, fn, pif.ren.pic_dir, fn))
     print('</td></tr></table>')
 
 
 colors = ["#FFFFFF", "#CCCCCC"]
-
-
-# print('<a href="/cgi-bin/table.cgi?page=%s">%s</a><br>' % (tdir + '/' + f, f))
-# def show_table(pif, tform):
-#     tablefile = bfiles.SimpleFile(tform.tdir + '/' + tform.fnam)
-#     cols = ''  # pif.form.get_str('cols')
-#     h = 0  # pif.form.get_int('h')
-#
-#     print(pif.render.format_table_start())
-#     hdr = ''
-#     if h:
-#         hdr = tablefile.dblist[0]
-#         table = tablefile.dblist[1:]
-#     else:
-#         table = tablefile.dblist
-#
-#     if tform.sorty:
-#         table.sort(key=lambda x: x[tform.sorty].lower())
-#
-#     row = 0
-#     icol = irow = 0
-#     if 'y' in cols:
-#         icol = cols.find('y')
-#     id = ''
-#     for line in table:
-#         if line[icol] != id:
-#             id = line[icol]
-#             irow = (irow + 1) % 2
-#         if not row:
-#             row = h
-#             iarg = 0
-#             print('<tr>')
-#             for ent in range(0, len(hdr)):
-#                 if ent >= len(cols) or cols[ent].lower() != 'n':
-#                     # print("<th>"+hdr[ent]+"</th>")
-#                     print('<th bgcolor="#FFFFCC"><a href="table.cgi?page=%s&sort=%d&h=%d&cols=%s">%s</th>' %
-#                           (tform.fnam, iarg, h, cols, hdr[ent])
-#                 iarg = iarg + 1
-#             print("</tr>\n<tr>")
-#         print('<tr bgcolor="%s">' % colors[irow])
-#         row = row - 1
-#         for ent in range(0, len(line)):
-#             if ent >= len(cols) or cols[ent].lower() != 'n':
-#                 print("<td>"+line[ent]+"</td>")
-#         print("</tr>")
-#     print(pif.render.format_table_end())
 
 
 def do_action(pif, tform):
@@ -530,7 +484,7 @@ class TraverseForm(object):
         pass
 
     def read(self, pif):
-        pif.render.pic_dir = self.tdir = pif.form.get_str('d', '.')
+        pif.ren.pic_dir = self.tdir = pif.form.get_str('d', '.')
         if self.tdir.endswith('/'):
             self.dirname = self.tdir[self.tdir[:-1].rfind('/') + 1:-1]
         elif '/' in self.tdir:
@@ -579,25 +533,25 @@ class TraverseForm(object):
         self.szx = pif.form.get_int("sx")
         self.szy = pif.form.get_int("sy")
 
-        pif.render.title = self.tdir
+        pif.ren.title = self.tdir
         if self.fnam:
-            pif.render.title += '/' + self.fnam
+            pif.ren.title += '/' + self.fnam
         return self
 
 
 @basics.web_page
 def main(pif):  # traverse main
     os.environ['PATH'] += ':/usr/local/bin'
-    pif.render.print_html()
+    pif.ren.print_html()
     pif.restrict('vma')
     tform = TraverseForm().read(pif)
 
-    pif.render.set_page_extra(pif.render.increment_js)
-    print(pif.render.format_head())
+    pif.ren.set_page_extra(pif.ren.increment_js)
+    print(pif.ren.format_head())
     useful.header_done()
     print(pif.form.get_form())
     if tform.alt:
-        print(pif.render.format_link('/cgi-bin/traverse.cgi?d=' + tform.alt, tform.alt))
+        print(pif.ren.format_link('/cgi-bin/traverse.cgi?d=' + tform.alt, tform.alt))
     print('<br>')
     if tform.patt:
         print('show_imgs<br>')
@@ -614,7 +568,7 @@ def main(pif):  # traverse main
     else:
         print('show_dir<br>')
         print(show_dir(pif, tform))
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 # ----- updcommits -----------------------------------------------------

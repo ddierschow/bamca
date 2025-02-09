@@ -19,27 +19,27 @@ import useful
 # main entry point for toylinks
 @basics.web_page
 def links(pif):
-    pif.render.print_html()
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append('/cgi-bin/links.cgi', 'Toy Links')
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/cgi-bin/links.cgi', 'Toy Links')
     if pif.form.get_int('id'):
         link = pif.dbh.fetch_link_line(pif.form.get_int('id'))
         if link:
             return single_link(pif, link[0])
-    pif.render.set_page_extra(pif.render.reset_button_js)
+    pif.ren.set_page_extra(pif.ren.reset_button_js)
     if pif.page_id != 'links.toylinks':
-        pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
+        pif.ren.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.ren.title)
     return link_page(pif)
 
 
 def single_link(pif, link):
     if link['page_id'] != 'links.toylinks':
-        pif.render.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.render.title)
-    pif.render.hierarchy_append('', 'Specific Link')
+        pif.ren.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.ren.title)
+    pif.ren.hierarchy_append('', 'Specific Link')
     extra = ''
     if pif.is_allowed('m'):  # pragma: no cover
-        extra = '- ' + pif.render.format_button_link("edit", "edlinks.cgi?id=%s" % link['id'])
-    return pif.render.format_template('tlink.html', link=link, extra=extra)
+        extra = '- ' + pif.ren.format_button_link("edit", "edlinks.cgi?id=%s" % link['id'])
+    return pif.ren.format_template('tlink.html', link=link, extra=extra)
 
 
 def link_page(pif):
@@ -64,8 +64,8 @@ def link_page(pif):
         lsec['range'] = [lran]
         llineup['section'].append(lsec)
 
-    return pif.render.format_template('tlinks.html', llineup=llineup, sections=sections,
-                                      flags=pif.render.format_shown_flags())
+    return pif.ren.format_template('tlinks.html', llineup=llineup, sections=sections,
+                                   flags=pif.ren.format_shown_flags())
 
 
 def generate_links(pif, links):
@@ -91,9 +91,9 @@ def make_link(pif, ent):
 
 def format_entry(pif, ent):
     dictFlag = {
-        '': ('o', pif.render.format_image_art('wheel.gif', also={'class': 'dlm'})),
-        'Reciprocal': ('Reciprocal', '<i class="fas fa-refresh dlm"></i>'),
-        'PayPal': ('Accepts PayPal', '<i class="fab fa-paypal dlm"></i>'),
+        '': ('o', pif.ren.format_image_art('wheel.gif', also={'class': 'dlm'})),
+        'Reciprocal': ('Reciprocal', pif.ren.fmt_mini(icon='refresh', alsoc='dlm')),
+        'PayPal': ('Accepts PayPal', pif.ren.fmt_mini(family='brands', icon='paypal', alsoc='dlm')),
     }
     is_large = ent['flags'] & config.FLAG_LINK_LINE_FORMAT_LARGE
     url = '' if ent['flags'] & config.FLAG_LINK_LINE_DISABLED else ent['url']
@@ -107,7 +107,7 @@ def format_entry(pif, ent):
     if ent['flags'] & config.FLAG_LINK_LINE_PAYPAL:
         dlms.append('PayPal')
 
-    ostr = pif.render.format_link(url, tag) + ' '
+    ostr = pif.ren.format_link(url, tag) + ' '
 
     if not dlms and not cmt:
         pass
@@ -118,7 +118,7 @@ def format_entry(pif, ent):
     else:
         # also = {'class': 'dlm'}
         for dlm in dlms:
-            flag = pif.render.show_flag(dlm)
+            flag = pif.ren.show_flag(dlm)
             if flag:
                 ostr += useful.img_src(flag[1], also={'class': 'dlm'})
             elif dlm in dictFlag:
@@ -135,7 +135,7 @@ def format_entry(pif, ent):
 def format_delimiter(pif, dlm):
     return dlm[1] + ' '
     also = {'class': 'dlm', 'alt': '[' + dlm[0] + ']'}
-    pif.render.comment('format_delimiter', dlm)
+    pif.ren.comment('format_delimiter', dlm)
     return useful.img_src(dlm[1], also=also) + ' '
 
 
@@ -148,7 +148,7 @@ def read_config(pif, showall=False):
     listRejectCats = []
     dictCats = {}
     allpages = pif.dbh.fetch_pages("id like 'links.%'")
-    if pif.is_allowed('a'):  # and pif.render.is_beta:  # pragma: no cover
+    if pif.is_allowed('a'):  # and pif.ren.is_beta:  # pragma: no cover
         showpage = {x['page_info.id']: 1 for x in allpages}
     else:
         showpage = {x['page_info.id']: not (x['page_info.flags'] & config.FLAG_PAGE_INFO_HIDDEN) for x in allpages}
@@ -268,8 +268,8 @@ def add_new_link(pif, dictCats, listRejects):
 # main routine for addlink
 @basics.web_page
 def add_page(pif):
-    pif.render.print_html()
-    pif.render.set_page_extra(pif.render.reset_button_js)
+    pif.ren.print_html()
+    pif.ren.set_page_extra(pif.ren.reset_button_js)
 
     rejected, blacklist = read_blacklist(pif)
     for ent in blacklist:
@@ -287,7 +287,7 @@ def add_page(pif):
         'countries': mbdata.countries,
         'link': lnk,
     }
-    return pif.render.format_template('tlinkadd.html', **context)
+    return pif.ren.format_template('tlinkadd.html', **context)
 
 
 # -- edlinks
@@ -338,9 +338,9 @@ def edit_single(pif):
             if nlink['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE:
                 nlink['last_status'] = 'NoVer'
             del nlink['id']
-            pif.render.message(nlink)
+            pif.ren.message(nlink)
             pif.dbh.insert_link_line(nlink)
-            pif.render.message('<br>record added<br>')
+            pif.ren.message('<br>record added<br>')
         else:
             nlink['flags'] = 0
             if pif.form.get_str('section_id') == 'single':
@@ -356,7 +356,7 @@ def edit_single(pif):
             if nlink['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE:
                 nlink['last_status'] = 'NoVer'
             pif.dbh.update_link_line(nlink)
-            pif.render.message('<br>record saved<br>')
+            pif.ren.message('<br>record saved<br>')
     elif pif.form.get_str('test'):
         link = pif.dbh.fetch_link_line(link_id)[0]
         check_link(pif, link)  # don't care about blacklist here, just actual check
@@ -370,7 +370,7 @@ def edit_single(pif):
         nlink['section_id'] = pif.form.get_str('rejects_sec')
         nlink['flags'] = 0
         pif.dbh.update_link_line(nlink)
-        pif.render.message('<br>record rejected<br>')
+        pif.ren.message('<br>record rejected<br>')
 
     if pif.form.get_str('add'):
         link = {
@@ -446,7 +446,7 @@ def edit_single(pif):
         pif.form.put_button_input("reject"),
         pif.form.put_select('rejects_sec', listRejectCats, blank='Please choose one from the list'),
         '</form>',
-        pif.render.format_button_link("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
+        pif.ren.format_button_link("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
     ])
 
     llineup = render.Listix(
@@ -454,7 +454,7 @@ def edit_single(pif):
         section=[render.Section(id='s', range=[render.Range(entry=entries)],
                  colist=['col', 'old', 'edit'], header=header, footer=footer)]
     )
-    return pif.render.format_template('simplelistix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplelistix.html', llineup=llineup.prep())
 
 
 def edit_multiple(pif, good=None):
@@ -484,7 +484,7 @@ def edit_multiple(pif, good=None):
         page_id = section['page_id']
     else:
         linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page_id'), order="display_order")
-    pif.render.message(len(linklines), 'lines')
+    pif.ren.message(len(linklines), 'lines')
     pif.dbh.depref('link_line', linklines)
 
     def mangle_item(col, val):
@@ -493,14 +493,14 @@ def edit_multiple(pif, good=None):
 
     entries = [{col: mangle_item(col, link.get(col, '')) for col in table_data.columns}
                for link in linklines]
-    footer = pif.render.format_button_link("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
+    footer = pif.ren.format_button_link("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
 
     llineup = render.Listix(
         id='tl', name='Edit Link',
         section=[render.Section(id='s', colist=table_data.columns, range=[render.Range(entry=entries)],
                                 footer=footer)]
     )
-    return pif.render.format_template('simplelistix.html', llineup=llineup.prep())
+    return pif.ren.format_template('simplelistix.html', llineup=llineup.prep())
 
 
 def edit_choose(pif):
@@ -540,13 +540,13 @@ def edit_choose(pif):
         'link_rejects': sorted(rej_link_statuses.items()),
         'reasons': reasons,
     }
-    return pif.render.format_template('tlinkcats.html', **context)
+    return pif.ren.format_template('tlinkcats.html', **context)
 
 
 # main entry point for links editor
 @basics.web_page
 def edit_links(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     if pif.form.get_str('id') or pif.form.get_str('add') or pif.form.get_str('save'):
         return edit_single(pif)
     elif pif.form.has_any(['as', 'sec', 'stat', 'page_id']):
@@ -591,16 +591,16 @@ def check_link(pif, link, rejects=[], visible=False):
                     lurl, headers={
                         'User-Agent':
                         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:42.0) Gecko/20100101 Firefox/42.0'}))
-                pif.render.message('http success:', url.code)
+                pif.ren.message('http success:', url.code)
                 lstatus = 'H' + str(url.code)
             except urllib.error.HTTPError as c:
-                pif.render.message('http error:', c)
+                pif.ren.message('http error:', c)
                 lstatus = 'H' + str(c.code)
             except urllib.error.URLError as c:
-                pif.render.message('url error:', c)
+                pif.ren.message('url error:', c)
                 lstatus = 'U' + str(c)
             except Exception as e:
-                pif.render.message('Exception:', str(e))
+                pif.ren.message('Exception:', str(e))
                 lstatus = 'exc'
         if link.get('last_status') != lstatus:
             pif.dbh.update_link_line({'id': str(link['id']), 'last_status': lstatus})

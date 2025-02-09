@@ -73,12 +73,12 @@ biblios = {
 # links (both site links and map links) aren't working.
 @basics.web_page
 def biblio(pif):
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append(pif.request_uri, pif.render.title)
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append(pif.request_uri, pif.ren.title)
 
     def pic_formatter(x):
-        img = pif.render.find_image_file([str(y) for y in x])
-        return ('/' + '/'.join(pif.render.find_image_file([str(y) for y in x]))) if ''.join(img) else ''
+        img = pif.ren.find_image_file([str(y) for y in x])
+        return ('/' + '/'.join(pif.ren.find_image_file([str(y) for y in x]))) if ''.join(img) else ''
 
     row_link_formatters = {
         'map': lambda x: '' if '' in x else (map_url + ','.join(x)).replace(' ', '+'),
@@ -92,7 +92,7 @@ def biblio(pif):
         # crumb
         pass
 
-    pif.render.print_html()
+    pif.ren.print_html()
 
     page_info = biblios.get(pif.page_name, {})
     sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
@@ -151,23 +151,23 @@ def biblio(pif):
         edlink = ''
         if field == 'title' and editable:
             if os.path.exists('.' + config.IMG_DIR_BOOK + '/' + fdict['pic_id'] + '.jpg'):
-                edlink += (' ' + pif.render.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (
-                    config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-paint-brush"></i>'))
-            edlink += (' ' + pif.render.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (
-                config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), '<i class="fas fa-upload"></i>'))
+                edlink += (' ' + pif.ren.format_link('/cgi-bin/imawidget.cgi?d=.%s&f=%s' % (
+                    config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), pif.ren.fmt_mini(icon='paintbrush')))
+            edlink += (' ' + pif.ren.format_link('/cgi-bin/upload.cgi?d=.%s&n=%s' % (
+                config.IMG_DIR_BOOK, fdict['pic_id'] + '.jpg'), pif.ren.fmt_mini(icon='upload')))
 
-        return pif.render.format_link(url, cont) + edlink
+        return pif.ren.format_link(url, cont) + edlink
 
     lrange.entry = [{field: bib_field(fdict, field) for field in lsection.colist} for fdict in table]
-    pif.render.set_button_comment(pif)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]))
+    pif.ren.set_button_comment(pif)
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]))
 
 
 # -- calendar
 
 
 def event_type(pif, event):
-    return '<center><b>%s</b></center>' % pif.render.format_image_icon('i_' + event, event.upper())
+    return '<center><b>%s</b></center>' % pif.ren.format_image_icon('i_' + event, event.upper())
 
 
 def event(pif, ty, llist):
@@ -179,9 +179,9 @@ def event(pif, ty, llist):
 
 @basics.web_page
 def calendar(pif):
-    pif.render.hierarchy_append('/', 'Home')
-    pif.render.hierarchy_append(pif.request_uri, 'Calendar')
-    pif.render.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append(pif.request_uri, 'Calendar')
+    pif.ren.print_html()
 
     dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
 
@@ -218,15 +218,15 @@ def calendar(pif):
     if lrange:
         lsection.range.append(lrange)
 
-    return pif.render.format_template('simplelistix.html', llineup=llistix)
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 @basics.web_page
 def submit_comment(pif):
     if pif.method == 'GET':
         raise useful.Redirect('../pages/comment.php')
-    pif.render.print_html()
-    print(pif.render.format_head())
+    pif.ren.print_html()
+    print(pif.ren.format_head())
     # useful.write_message(pif.form)
     ostr = "I am sending this comment for you. "
 
@@ -288,8 +288,8 @@ def submit_comment(pif):
 
 @basics.web_page
 def counts_main(pif):
-    pif.render.title = 'Site Counts'
-    pif.render.print_html()
+    pif.ren.title = 'Site Counts'
+    pif.ren.print_html()
     counts = pif.dbh.fetch_counts()
     v = {c['model_type']: c['count'] for c in counts[1]}
     for c in counts[0]:
@@ -310,4 +310,4 @@ def counts_main(pif):
         section.range[0].entry.append({'name': 'total', 'count': tot, 'vars': vc})
         if tot:
             things.append(section)
-    return pif.render.format_template('simplelistix.html', llineup=render.Listix(section=things))
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=things))

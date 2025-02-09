@@ -58,7 +58,7 @@ def generate_model_table_pic_link(pif, mdict, mlist):
 
 def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, first_year, (type)
-    pif.render.comment('add_model_table_pic_link', mdict)
+    # pif.ren.comment('add_model_table_pic_link', mdict)
     if not flago:
         flago = {}
     img = [mdict['id']]
@@ -68,13 +68,13 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
         if s.startswith('same as '):
             img.append(s[8:].lower())
     img_size = mdict.get('prefix', mbdata.IMG_SIZ_LARGE if pif.form.get_bool('large') else mbdata.IMG_SIZ_SMALL)
-    mdict['img'] = pif.render.format_image_required(img, made=mdict['made'], prefix=img_size)
+    mdict['img'] = pif.ren.format_image_required(img, made=mdict['made'], prefix=img_size)
     mdict['flag'] = ''
     if mdict.get('country') in flago:
-        mdict['flag'] = pif.render.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})
+        mdict['flag'] = pif.ren.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})
     elif mdict['unlicensed'] == '-':
-        mdict['flag'] = pif.render.format_image_art('mbx.gif')
-    pif.render.comment('FLAG?', mdict['id'], mdict['country'], mdict['flag'])
+        mdict['flag'] = pif.ren.format_image_art('mbx.gif')
+    # pif.ren.comment('FLAG?', mdict['id'], mdict['country'], mdict['flag'])
     if mdict.get('link'):
         mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(img)s<br><b>%(name)s</b></a>' % mdict
     else:
@@ -82,13 +82,13 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     if mdict.get('subname'):
         mdict['lname'] += '<br>' + mdict['subname']
     mdict['desclist'] = ''
-    useful.write_comment(mdict['id'], mdict['descs'])
+    # useful.write_comment(mdict['id'], mdict['descs'])
     if not mdict.get('nodesc'):
         for s in mdict['descs']:
             if s in mbdata.arts:
-                mdict['desclist'] += "   <br>\n" + pif.render.format_image_icon('c_' + mbdata.arts[s] + '.gif')
+                mdict['desclist'] += f"<br>{pif.ren.format_image_icon('c_' + mbdata.arts[s] + '.gif')}"
             elif s:
-                mdict['desclist'] += "   <br><i>" + s + "</i>\n"
+                mdict['desclist'] += f"<br><i>{s}</i>\n"
     mdict['shown_id'] = mdict.get('alias.id') or mdict['id']
     return mdict
 
@@ -100,9 +100,9 @@ def generate_model_table_pic_link_dict(pif, mdict, mlist):
 
 # mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
 def add_model_table_product_link(pif, mdict):
-    pif.render.comment('add_model_table_product_link', mdict)
+    # pif.ren.comment('add_model_table_product_link', mdict)
 
-    ostr = pif.render.fmt_anchor(mdict.get('anchor'))
+    ostr = pif.ren.fmt_anchor(mdict.get('anchor'))
     ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
     if mdict.get('no_casting'):
         ostr += mbdata.comment_icon.get('m', '')
@@ -111,18 +111,16 @@ def add_model_table_product_link(pif, mdict):
             ostr += mbdata.comment_icon.get('i', '')
         if mdict.get('no_variation'):
             ostr += mbdata.comment_icon.get('v', '')
-    ostr += '</td><td class="modelnumber">'
-    ostr += mdict['displayed_id']
-    ostr += '</td><td class="modelicons">'
+    ostr += f'</td><td class="modelnumber">{mdict["displayed_id"]}</td><td class="modelicons">'
     if pif.is_allowed('a'):
         # breaks packs
         ref_link = pif.dbh.get_editor_link('lineup_model', {'year': mdict.get('year'), 'mod_id': mdict.get('mod_id')})
-        ostr += pif.render.format_link(ref_link, '<i class="fas fa-edit gray"></i>')
+        ostr += pif.ren.format_link(ref_link, pif.ren.fmt_edit('gray'))
         if 'mod_id' in mdict:
             fn = mdict.get('mod_id', '').replace('.', '_') + (
                 '-' + mdict.get('picture_id', '') if mdict.get('picture_id', '') else '')
-            ostr += pif.render.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
-                                           '<i class="fas fa-upload gray"></i>')
+            ostr += pif.ren.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
+                                        pif.ren.fmt_mini('gray', icon='upload'))
     if mdict.get('not_made'):
         ostr += mbdata.comment_icon.get('n', '')
     if mdict.get('is_reused_product_picture'):  # pragma: no cover
@@ -138,8 +136,7 @@ def add_model_table_product_link(pif, mdict):
                 ostr += '<a href="%(href)s">\n' % mdict
             # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
             #          vdict['imgstr'])
-            ostr += '<center>%s</center>\n' % (vdict['imgstr'])
-            ostr += '<span class="modelname">' + mdict['name'] + '</span>'
+            ostr += f'<center>{vdict["imgstr"]}</center>\n<span class="modelname">{mdict["name"]}</span>'
             if mdict.get('href'):
                 ostr += '</a>'
             if mdict.get('subname'):
@@ -148,7 +145,7 @@ def add_model_table_product_link(pif, mdict):
                 ostr += "<br>" + "<br>".join(mdict['subnames'])
             if vdict.get('description'):
                 ostr += '<table class="vartable">'
-                ostr += '<tr><td class="varentry">%s</td></tr>' % vdict['description']
+                ostr += f'<tr><td class="varentry">{vdict["description"]}</td></tr>'
                 ostr += "</table>"
             ostr += "</center>"
     else:
@@ -230,7 +227,7 @@ def add_model_table_list_entry_dict(pif, mdict):
         mdict['lname'] = mdict['shortname']
         if mdict.get('link'):
             mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(lname)s</a>' % mdict
-        mdict['box_sm'] = '<i class="far fa-square"></i>'
+        mdict['box_sm'] = pif.ren.fmt_square(hollow=True)
     return mdict
 
 
@@ -240,9 +237,7 @@ def add_model_table_list_entry(pif, mdict):
 
 
 def add_model_pic_link_short(pif, id):
-    ostr = '<center><b id="%s">%s</b><br>' % (id, id)
-    ostr += '<a href="single.cgi?id=%s">' % id
-    ostr += pif.render.format_image_required(
+    ostr = f'<center><b id="{id}">{id}</b><br><a href="single.cgi?id={id}">' + pif.ren.format_image_required(
         [id], prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN) + '</a></center>'
     return ostr
 
@@ -250,17 +245,17 @@ def add_model_pic_link_short(pif, id):
 def add_icons(pif, type_id, base_id, vehicle_type):
     icon_list = []
     if type_id:
-        icon = pif.render.format_image_icon(type_id, also={'class': 'centered'})
+        icon = pif.ren.format_image_icon(type_id, also={'class': 'centered'})
         if icon != '&nbsp;':
             icon_list.append(icon)
     if base_id:
-        icon = pif.render.format_image_optional(
+        icon = pif.ren.format_image_optional(
             base_id, None, prefix='i_', suffix='gif', pdir=config.IMG_DIR_MAN_ICON, also={'class': 'centered'})
         if icon != '&nbsp;':
             icon_list.append(icon)
     for vtype in vehicle_type:
         if vtype in mbdata.model_icons:
-            icon_list.append(pif.render.format_image_icon(mbdata.model_icons[vtype]))
+            icon_list.append(pif.ren.format_image_icon(mbdata.model_icons[vtype]))
     ostr = '<p>' + '<p><p>'.join(icon_list)
     return ostr
 
@@ -278,12 +273,12 @@ def show_adds(pif, mod_id, var_id=''):
     adds = mbdata.var_adds if var_id else mbdata.model_adds
     ostr = ''
     for add in adds:
-        imgs = pif.render.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
+        imgs = pif.ren.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
         if imgs:
             ostr += '<h3>%s</h3>\n' % add[1] % {'s': useful.plural(imgs)}
             for img in imgs:
                 ostr += '<table><tr><td class="center">'
-                ostr += pif.render.fmt_img_src(pdir + '/' + img) + '<br>'
+                ostr += pif.ren.fmt_img_src(pdir + '/' + img) + '<br>'
                 fn = img[:img.find('.')]
                 if fn in photo_credits:
                     ostr += '<div class="credit">Photo credit: %s</div>' % photo_credits[fn]
@@ -312,13 +307,13 @@ def make_adds(pif, mod_id, var_id=''):
     adds = mbdata.var_adds if var_id else mbdata.model_adds
     outd = []
     for add in adds:
-        imgs = pif.render.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
+        imgs = pif.ren.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
         if imgs:
             elem = {'title': add[1] % {'s': useful.plural(imgs)}, 'entry': [],
                     'columns': add[3]}
             for img in imgs:
                 fn = img[:img.find('.')]
-                ent = {'img': pif.render.fmt_img_src(pdir + '/' + img),
+                ent = {'img': pif.ren.fmt_img_src(pdir + '/' + img),
                        'credit': photo_credits.get(fn, '')}
                 for apic in attribute_pictures:
                     # This is terrible and I'm a terrible person but I don't want to think too much right now.
@@ -335,11 +330,11 @@ def make_adds(pif, mod_id, var_id=''):
 
 def add_model_thumb_pic_link(pif, mdict):
     ostr = '<table><tr><td class="image">'
-    ostr += pif.render.format_image_required([mdict['id']], prefix=mbdata.IMG_SIZ_TINY, pdir=config.IMG_DIR_MAN)
+    ostr += pif.ren.format_image_required([mdict['id']], prefix=mbdata.IMG_SIZ_TINY, pdir=config.IMG_DIR_MAN)
     ostr += '</td>\n<td class="text">'
     if mdict['id']:
         ostr += '<span class="modelname">'
-        ostr += pif.render.format_link('single.cgi?id=%s' % mdict['id'], mdict['id'] + ': ' + mdict['name'])
+        ostr += pif.ren.format_link('single.cgi?id=%s' % mdict['id'], mdict['id'] + ': ' + mdict['name'])
         ostr += '</span><br>\n'
     img = mdict['img']
     if isinstance(img, list):
@@ -353,9 +348,9 @@ def add_model_var_pic_link(pif, vdict):
     vdict['link'] = 'vars.cgi?mod=%s&var=%s' % (vdict['mod_id'], vdict['var'].upper())
     vdict['categories'] = ''
     pic_id = vdict['picture_id'] if vdict['picture_id'] else vdict['var']
-    img = pif.render.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL,
-                                     pdir=config.IMG_DIR_MAN)
-    vdict['img'] = pif.render.fmt_img_src(img) if img else pif.render.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
+    img = pif.ren.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL,
+                                  pdir=config.IMG_DIR_MAN)
+    vdict['img'] = pif.ren.fmt_img_src(img) if img else pif.ren.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
 
     return '''
 <a href="%(link)s">%(var)s<br>
@@ -367,27 +362,27 @@ def add_model_var_pic_link(pif, vdict):
 
 
 def make_page_list(pif, format_type, fmt_link):
-    pif.render.set_button_comment(pif)
+    pif.ren.set_button_comment(pif)
     secs = pif.dbh.fetch_sections_by_page_type(format_type)
     entries = list()
     for sec in secs:
         hidden = sec.flags & config.FLAG_PAGE_INFO_HIDDEN or sec.page_info.flags & config.FLAG_PAGE_INFO_HIDDEN
-        if '.' in sec.page_id and (pif.render.is_alpha or pif.render.is_beta or not hidden):
+        if '.' in sec.page_id and (pif.ren.is_alpha or pif.ren.is_beta or not hidden):
             entries.append(render.Entry(text=('<i>%s</i>' if hidden else '%s') % fmt_link(sec)))
     lsec = render.Section(
         section=[x for x in secs if x.page_id == format_type][0],
         range=[render.Range(entry=entries)], columns=5
     )
     llineup = render.Matrix(id='main', section=[lsec])
-    return pif.render.format_template('packpages.html', llineup=llineup.prep())
+    return pif.ren.format_template('packpages.html', llineup=llineup.prep())
 
 
 def add_model_var_table_pic_link(pif, mdict):
     if mdict.get('v.picture_id'):
-        mdict['img'] = pif.render.format_image_required(
+        mdict['img'] = pif.ren.format_image_required(
             mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.picture_id'])
     else:
-        mdict['img'] = pif.render.format_image_required(
+        mdict['img'] = pif.ren.format_image_required(
             mdict['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=mdict['v.var'])
     # mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
     mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
@@ -400,3 +395,107 @@ def add_model_var_table_pic_link(pif, mdict):
     ostr += "</table>"
     ostr += "  </center></td></tr></table></center>\n"
     return ostr
+
+
+def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
+    aliases = [(x['alias.flags'], x['alias.id']) for x in aliases if x['alias.type'] == 'mack']
+    if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
+        aliases.append((config.FLAG_ALIAS_PRIMARY, cid,))
+    mack_nums = []
+    for alias in aliases:
+        mack_id = mbdata.get_mack_number(alias[1])
+        if mack_id:
+            mack_nums.append(((alias[0] & config.FLAG_ALIAS_PRIMARY) != 0,) + mack_id)
+    mack_nums.sort(key=lambda x: x[2])
+    # if aliases.flags == 2, put it first or bold it or something
+    return [('<b>' if x[0] else '') + '-'.join([str(y) for y in x[1:] if y]).upper() + ('</b>' if x[0] else '')
+            for x in mack_nums]
+
+
+def fmt_var_pic(f, n):  # called from elsewhere
+    return (f'<span class="{"ok" if f == n else "no"}">{f}/{n}</span>') if n else '-'
+
+
+def fmt_var_pics(found, needs):  # called from elsewhere
+    if isinstance(found, list) or isinstance(found, tuple):
+        return [fmt_var_pic(*x) for x in zip(found, needs)]
+    return fmt_var_pic(found, needs)
+
+
+def calc_var_type(pif, var):
+    return (
+        'p' if any([var['manufacture'].startswith(x) for x in mbdata.other_plants]) else
+        '2' if (any([x['category.flags'] & config.FLAG_MODEL_CODE_2 for x in var['vs']]) or
+                mbdata.code2_cats & set(var['category'].split())) else
+        'f' if var['var'].startswith('f') else
+        'c' if any([x['variation_select.category'] == 'MB' for x in var['vs']]) else
+        '1')
+
+
+def calc_var_pics(pif, var):
+    has_de = int(len(var['text_description']) > 0)
+    has_ba = int(len(var['text_base']) > 0)
+    has_bo = int(len(var['text_body']) > 0)
+    has_in = int(len(var['text_interior']) > 0)
+    has_wh = int(len(var['text_wheels']) > 0)
+    has_wi = int(len(var['text_windows']) > 0)
+    has_wt = int(len(var['text_with']) > 0)
+    has_bt = int(len(var['text_text']) > 0)
+    is_found = False
+    if not var['picture_id']:
+        is_found = int(bool(pif.ren.find_image_path(
+            pdir=config.IMG_DIR_MAN, nobase=True,
+            prefix=mbdata.IMG_SIZ_SMALL, suffix='jpg', fnames=var['mod_id'], vars=var['var'])))
+
+    return (calc_var_type(pif, var),) + (is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt, has_bt)
+
+
+def count_list_var_pics(pif, mod_id):  # called from elsewhere
+    vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
+    needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
+    found_c = found_f = found_a = found_1 = found_2 = found_p = 0
+    count_de = count_ba = count_bo = count_in = count_wh = count_wi = count_wt = count_bt = 0
+    id_set = set()
+    # nf = []
+    for var in vars:
+        ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt, has_bt = calc_var_pics(pif, var)
+        count_de += has_de
+        count_ba += has_ba
+        count_bo += has_bo
+        count_in += has_in
+        count_wh += has_wh
+        count_wi += has_wi
+        count_wt += has_wt
+        count_bt += has_bt
+        if not var['picture_id']:
+            # if not is_found:
+            #     nf.append(var['var'])
+
+            needs_a += 1
+            found_a += is_found
+            if ty_var == 'p':
+                needs_p += 1
+                found_p += is_found
+            elif ty_var == 'f':
+                needs_f += 1
+                found_f += is_found
+            elif ty_var == 'c':
+                needs_c += 1
+                found_c += is_found
+            elif ty_var == '2':
+                needs_2 += 1
+                found_2 += is_found
+            else:
+                needs_1 += 1
+                found_1 += is_found
+
+        var_id = var['var']
+        if var_id[0].isdigit():
+            while not var_id[-1].isdigit():
+                var_id = var_id[:-1]
+            id_set.add(int(var_id))
+
+    return ((found_a, found_c, found_1, found_2, found_f, found_p),
+            (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p),
+            (len(vars), count_de, count_ba, count_bo, count_in, count_wh, count_wi, count_wt, count_bt),
+            id_set)

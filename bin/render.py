@@ -100,11 +100,9 @@ class Presentation(object):
         if previous:
             class_ids.append(previous)
         if col is not None and col != '':
-            if id:
-                class_ids.append(prefix + '_' + str(col) + '_' + id)
-            class_ids.append(prefix + '_' + str(col))
+            class_ids.append(f'{prefix}_{col}' + ('_{id}' if id else ''))
         if id:
-            class_ids.append(prefix + '_' + id)
+            class_ids.append(f'{prefix}_{id}')
         class_ids.append(prefix)
         return ' '.join(class_ids)
 
@@ -236,9 +234,9 @@ of Matchbox International Ltd. and are used with permission.
 
     def format_shown_flags(self):
         ball = '<span class="blue">&#x25cf;</span> '
-        return '<center>\n' + \
-            ball.join(['<nobr>{} {}</nobr> '.format(self.format_image_flag(x), self.flag_info[x][0]) for x in
-                       sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'
+        return '<center>\n' + ball.join(
+            [f'<nobr>{self.format_image_flag(x)} {self.flag_info[x][0]}</nobr> ' for x in
+             sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'
 
     # ---- tables
 
@@ -280,7 +278,7 @@ of Matchbox International Ltd. and are used with permission.
 
     def format_cell_end(self, col=0, hdr=False, large=False):
         celltype = {False: "td", True: "th"}
-        ostr = '  </' + celltype[hdr] + '>\n'
+        ostr = f'  </{celltype[hdr]}>\n'
         if large:
             ostr += " </tr>\n"
         return ostr
@@ -296,7 +294,7 @@ of Matchbox International Ltd. and are used with permission.
         txt = self.fmt_pseudo(url if txt is None else txt)
         ostr = ''
         if nstyle:
-            ostr += '<span' + useful.fmt_also(nstyle) + '>'
+            ostr += f'<span{useful.fmt_also(nstyle)}>'
         if args:
             url += ('&' if '?' in url else '?') + "&".join([f'{x}={v}' for x, v in args.items()])
         url = url.replace('"', '%22')  # useful.url_quote(url)
@@ -324,8 +322,9 @@ of Matchbox International Ltd. and are used with permission.
             btn = self.format_link(link, btn, args=args, also=lalso)
         return btn + '\n'
 
-    def set_button_comment(self, pif, args=None):
-        args = f'page={pif.page_id}' + (f'&{args}' if args else '')
+    def set_button_comment(self, pif, args=None, keys=None):
+        args = f'page={pif.page_id}' + (f'&{args}' if args else '') + ''.join([
+            f'&{k}={pif.form.get_str(v)}' for k, v in keys.items()]) if keys else ''
         ostr = self.format_button_link("comment on<br>this page", f'../pages/comment.php?{args}',
                                        also={'class': 'textbutton comment'}, lalso=dict())
         if pif.is_allowed('a'):  # pragma: no cover
@@ -333,7 +332,7 @@ of Matchbox International Ltd. and are used with permission.
                 "pictures", f"traverse.cgi?d={self.pic_dir}", also={'class': 'textbutton comment'}, lalso=dict())
             ostr += self.format_button_link("edit_this_page", pif.dbh.get_editor_link(
                 'page_info', {'id': pif.page_id}), also={'class': 'textbutton comment'}, lalso=dict())
-        self.comment_button = '<div class="comment_box">' + ostr + '</div>'
+        self.comment_button = f'<div class="comment_box">{ostr}</div>'
 
     def set_footer(self, new_footer):
         if new_footer:
@@ -347,7 +346,7 @@ of Matchbox International Ltd. and are used with permission.
 
     def get_flags(self):
         if not self.flag_info:
-            self.flag_info = {x[0]: (x[1], config.FLAG_DIR + '/' + x[0].lower() + '.gif') for x in mbdata.countries}
+            self.flag_info = {x[0]: (x[1], f'{config.FLAG_DIR}/{x[0].lower()}.gif') for x in mbdata.countries}
         return self.flag_info
 
     def show_flag(self, country):
@@ -367,8 +366,7 @@ of Matchbox International Ltd. and are used with permission.
         retfiles = list()
         for fname in fnames:
             for sfx in suffix:
-                retfiles.extend(glob.glob(useful.relpath('.', pdir, fname + '.' + sfx)))
-                # + glob.glob(os.path.join(pdir, fname.lower() + '.' + sfx)))
+                retfiles.extend(glob.glob(useful.relpath('.', pdir, f'{fname}.{sfx}')))
         return retfiles
 
     def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None,
@@ -425,20 +423,20 @@ of Matchbox International Ltd. and are used with permission.
             suf = '.' + suf
             self.comment('find_prefixed_image trying', pdir, pfx + fname + suf)
             if var:
-                img = self.fmt_img_file_check(pdirvar, pfx + fname + '-' + var + suf)
+                img = self.fmt_img_file_check(pdirvar, f'{pfx}{fname}-{var}{suf}')
                 if img:
                     self.comment('find_prefixed_image ret', img)
                     return pdirvar, img
-                img = self.fmt_img_file_check(pdirvar, (pfx + fname + '-' + var + suf).lower())
+                img = self.fmt_img_file_check(pdirvar, f'{pfx}{fname}-{var}{suf}'.lower())
                 if img:
                     self.comment('find_prefixed_image ret', img)
                     return pdirvar, img
             else:
-                img = self.fmt_img_file_check(pdir, pfx + fname + suf)
+                img = self.fmt_img_file_check(pdir, f'{pfx}{fname}{suf}')
                 if img:
                     self.comment('find_prefixed_image ret', img)
                     return pdir, img
-                img = self.fmt_img_file_check(pdir, (pfx + fname + suf).lower())
+                img = self.fmt_img_file_check(pdir, f'{pfx}{fname}{suf}'.lower())
                 if img:
                     self.comment('find_prefixed_image ret', img)
                     return pdir, img
@@ -462,11 +460,10 @@ of Matchbox International Ltd. and are used with permission.
 
         for suf in suffix:
             for pref in prefix:
-                orig = (pref + fn + '.' + suf)
-                patt = (pref + fn + wc + '.' + suf)
+                orig = f'{pref}{fn}.{suf}'
+                patt = f'{pref}{fn}{wc}.{suf}'
 
                 for fname in useful.read_dir(orig, pdir) + useful.read_dir(patt, pdir):
-                    # img = self.fmt_img_src(pdir + '/' + fname, alt)
                     if self.fmt_img_file_check(pdir, fname):
                         imgs.append(fname)
         return imgs
@@ -514,11 +511,11 @@ of Matchbox International Ltd. and are used with permission.
 
         for suf in suffix:
             for pref in prefix:
-                orig = (pref + fn + '.' + suf)
-                patt = (pref + fn + wc + '.' + suf)
+                orig = f'{pref}{fn}.{suf}'
+                patt = f'{pref}{fn}{wc}.{suf}'
 
                 for fname in [orig] + useful.read_dir(patt, pdir):
-                    img = self.fmt_img_src(pdir + '/' + fname, alt)
+                    img = self.fmt_img_src(f'{pdir}/{fname}', alt)
                     if img:
                         imgs.append(img)
         return imgs
@@ -532,11 +529,10 @@ of Matchbox International Ltd. and are used with permission.
         if len(pics) < 2:
             return ''
         select_id = select_id.replace('-', '_')
-        ostr = '''<script>var sel_%s = new imageselector("%s", %s);</script>\n''' % (select_id, select_id, str(pics))
+        ostr = f'''<script>var sel_{select_id} = new imageselector("{select_id}", {pics});</script>\n'''
         for num in range(len(pics)):
-            ostr += "<a onclick=\"sel_%s.select(%d);\" id=\"%s_%s\">%s</a>\n" % (
-                select_id, num, select_id, num,
-                '<i class="fa%s fa-circle green"></i>' % ('r' if num else 's'))
+            ostr += (f'<a onclick="sel_{select_id}.select({num});" id="{select_id}_{num}">'
+                     f"{self.fmt_circle('green', hollow=num)}</a>")
         return ostr
 
     def format_image_selectable(self, pics, select_id):
@@ -571,7 +567,7 @@ of Matchbox International Ltd. and are used with permission.
         carg = dict()
         for arg in reversed(args):
             carg.update(arg)
-        return '<' + cmd + useful.fmt_also(args) + '>'
+        return f'<{cmd}{useful.fmt_also(args)}>'
 
     def fmt_art(self, fname, desc='', prefix='', also={}, largest=None):
         return self.fmt_img(fname, alt=desc, prefix=prefix, pdir=self.art_dir, also=also, largest=largest)
@@ -580,7 +576,7 @@ of Matchbox International Ltd. and are used with permission.
         if isinstance(pth, tuple):
             pth = '/'.join(pth)
         if useful.is_good(pth, v=self.verbose):
-            return '<img src="../' + pth + '"' + useful.fmt_also({'alt': alt}, also) + '>'
+            return f'<img src="../{pth}"{useful.fmt_also({"alt": alt}, also)}>'
         return ''
 
     def fmt_img_file_check(self, pdir, fn):
@@ -637,36 +633,47 @@ of Matchbox International Ltd. and are used with permission.
     def fmt_anchor(self, name):
         return f'<i id="{name}"></i>\n' if name else ''
 
+    @classmethod
+    def fmt_okno(cls, cond):
+        return 'ok' if cond else 'no'
+
+    @classmethod
+    def fmt_mini(cls, color=None, icon="circle-question", family="solid", also='', alsoc=''):
+        return (f'<i {(also + " ") if also else ""}class="{(alsoc + " ") if alsoc else ""}'
+                f'fa-{family} fa-{icon}{(" " + color) if color else ""}"></i>')
+
+    @classmethod
+    def fmt_star(cls, color=None, half=False, hollow=False, also='', alsoc=''):
+        return cls.fmt_mini(color, "star-half-stroke" if hollow else "star", "regular" if hollow else "solid",
+                            also=also, alsoc=alsoc)
+
+    @classmethod
+    def fmt_check(cls, color=None):
+        return cls.fmt_mini(color, "check")
+
+    @classmethod
+    def fmt_square(cls, color=None, hollow=False, checked=False):
+        return cls.fmt_mini(color, "square-check" if checked else "square", "regular" if hollow else "solid")
+
+    @classmethod
+    def fmt_circle(cls, color=None, hollow=False):
+        return cls.fmt_mini(color, "circle", "regular" if hollow else "solid")
+
+    @classmethod
+    def fmt_x(cls, color=None):
+        return cls.fmt_mini(color, "times")
+
+    @classmethod
+    def fmt_edit(cls, color=None):
+        return cls.fmt_mini(color, "edit")
+
+    # still need to work on mannum.py, mbdata.py, pifile.py
+
     def format_credit(self, credit):
         if credit:
             return (f'Photo credit: <a href="photogs.cgi?id={credit["photographer.id"]}">'
                     f'{credit["photographer.name"]}</a>')
         return ''
-
-#    def format_bullet_list(self, descs):
-#        ostr = ''
-#        descs = filter(None, descs)
-#        if descs:
-#            ostr += "   <ul>" + '\n'
-#            for desc in descs:
-#                ostr += "    <li>" + desc + '\n'
-#            ostr += "   </ul>" + '\n'
-#        return ostr
-
-#    def format_box_tail(self, tail):
-#        if not tail:
-#            return ''
-#        ostr = self.format_table_start(style_id="tail")
-#        ostr += self.format_row_start()
-#        if not isinstance(tail, list):
-#            tail = [tail]
-#        ntail = 1
-#        for tent in tail:
-#            ostr += self.format_cell(f"tail_{ntail}", tent)
-#            ntail += 1
-#        ostr += self.format_row_end()
-#        ostr += self.format_table_end()
-#        return ostr
 
     def format_modal(self, modal_id, content):
         ostr = f'<div id="{modal_id}" class="modal">\n'

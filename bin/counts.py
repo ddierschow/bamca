@@ -80,19 +80,19 @@ def count_combo(pdir, prefs, roots, suffs):
 
 def get_year(pif, region, year):
     if year < 1970:
-        pif.render.pic_dir = config.IMG_DIR_PROD_LRW
+        pif.ren.pic_dir = config.IMG_DIR_PROD_LRW
     elif year < 1982:
-        pif.render.pic_dir = config.IMG_DIR_PROD_LSF
+        pif.ren.pic_dir = config.IMG_DIR_PROD_LSF
     elif year < 1993:
-        pif.render.pic_dir = config.IMG_DIR_PROD_UNIV
+        pif.ren.pic_dir = config.IMG_DIR_PROD_UNIV
     elif year < 1998:
-        pif.render.pic_dir = config.IMG_DIR_PROD_TYCO
+        pif.ren.pic_dir = config.IMG_DIR_PROD_TYCO
     elif year < 2005:
-        pif.render.pic_dir = config.IMG_DIR_PROD_MT_LAUREL
+        pif.ren.pic_dir = config.IMG_DIR_PROD_MT_LAUREL
     elif year < 2016:
-        pif.render.pic_dir = config.IMG_DIR_PROD_EL_SEG
+        pif.ren.pic_dir = config.IMG_DIR_PROD_EL_SEG
     else:
-        pif.render.pic_dir = config.IMG_DIR_PROD_MWORLD
+        pif.ren.pic_dir = config.IMG_DIR_PROD_MWORLD
     return lineup.picture_count(pif, region, str(year))
 
 

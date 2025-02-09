@@ -597,6 +597,8 @@ plant_d = dict(plants)
 plant_rd = {v: k for k, v in plants}
 other_plants = ['Brazil', 'Bulgaria', 'Hungary', 'Japan']
 
+code2_cats = set(['ASAP', 'C2', 'CCI', 'CQ', 'NC', 'WR', 'YF'])
+
 img_dir_name = {
     config.IMG_DIR_ACC: 'Accessories',
     config.IMG_DIR_ADD: 'Additional model pictures',

@@ -248,24 +248,24 @@ def get_model_rec(pif, mn):
 
 
 def check_row(dbrow, firow, fihdrs):
-    # pif.render.comment("db", dbrow)
+    # pif.ren.comment("db", dbrow)
     for hdr in fihdrs:
         dbdet = str(dbrow.get(hdr, ''))
         fidet = firow.get(hdr, '')
         if hdr == 'var':
             continue  # doesn't figure in
         elif dbdet != fidet:
-            # pif.render.comment('#', hdr, ':', dbdet, '|', fidet)
+            # pif.ren.comment('#', hdr, ':', dbdet, '|', fidet)
             return False
-        # pif.render.comment('=', hdr, ':', dbdet, '|', fidet)
-    # pif.render.comment("match found")
+        # pif.ren.comment('=', hdr, ':', dbdet, '|', fidet)
+    # pif.ren.comment("match found")
     return True
 
 
 def find_record(fn, dbvars, firow, fihdrs):
     # match up to existing record
-    # pif.render.comment("fh", fihdrs)
-    # pif.render.comment("fi", firow)
+    # pif.ren.comment("fh", fihdrs)
+    # pif.ren.comment("fi", firow)
     for dbvar in dbvars:
         imported_var = dbvars[dbvar].get('imported_var', dbvars[dbvar]['var'])
         if dbvars[dbvar].get('imported_from', '') == fn and imported_var == firow['var']:
@@ -290,7 +290,7 @@ def check_file(pif, vid, fdir, fn):
             if dbvar:
                 for col in fitab['gridhead']:
                     if col != 'var' and row.get(col, '') != dbvar.get(col, ''):
-                        # pif.render.comment('changed', col, row.get(col, ''), dbvar.get(col, ''))
+                        # pif.ren.comment('changed', col, row.get(col, ''), dbvar.get(col, ''))
                         varfile['stat'].add(IS_CHANGED)
                 if not vrdata.compare_var_ids(dbvar['var'], row['var']) and row['var'][0] != 'f':
                     varfile['stat'].add(IS_DIFFERENT_NUMBER)
@@ -317,13 +317,13 @@ def show_index(pif, vid, fdir, start=None, num=100, ff=0):
     if not dats:
         print("no files?")
         return
-    print(pif.render.format_link("?ff=1&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff-ID'), '-')
-    print(pif.render.format_link("?ff=2&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff'), '-')
+    print(pif.ren.format_link("?ff=1&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff-ID'), '-')
+    print(pif.ren.format_link("?ff=2&d=" + fdir + "&s=" + start + "&n=" + str(num), 'Diff'), '-')
     for i in range(0, len(dats), num):
         if start == dats[i]:
-            print('<b>' + pif.render.format_link("?s=" + dats[i] + "&n=" + str(num), str(i / num + 1)) + '</b>', '-')
+            print('<b>' + pif.ren.format_link("?s=" + dats[i] + "&n=" + str(num), str(i / num + 1)) + '</b>', '-')
         else:
-            print(pif.render.format_link("?d=" + fdir + "&s=" + dats[i] + "&n=" + str(num), str(i / num + 1)), '-')
+            print(pif.ren.format_link("?d=" + fdir + "&s=" + dats[i] + "&n=" + str(num), str(i / num + 1)), '-')
     prev = dats[0]
     if start in dats:
         i = dats.index(start)
@@ -336,8 +336,8 @@ def show_index(pif, vid, fdir, start=None, num=100, ff=0):
         next = dats[-1]
 #    dats = dats[:num]
     rows = (num - 1) / cols + 1
-    print(pif.render.format_button_link("next", "?d=" + fdir + "&s=" + next + "&n=" + str(num)), '-')
-    print(pif.render.format_button_link("previous", "?d=" + fdir + "&s=" + prev + "&n=" + str(num)))
+    print(pif.ren.format_button_link("next", "?d=" + fdir + "&s=" + next + "&n=" + str(num)), '-')
+    print(pif.ren.format_button_link("previous", "?d=" + fdir + "&s=" + prev + "&n=" + str(num)))
     print('<table width="100%"><tr>')
     for col in range(0, cols):
         irow = 0
@@ -388,7 +388,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
     print("<tr><th>ID</th><th>Name</th><th>Definition</th><th>Title</th><th>V</th><th>Default</th></tr>")
     for attr in attrs:
         # visuals = {True: ['visual.%(id)d' % attr], False: list()}
-        # pif.render.comment(attr, visuals)
+        # pif.ren.comment(attr, visuals)
         print("<tr>")
         print('<td style="background-color: %s">' % bg_color[attr['attribute_name'] in hdrs + var_record_cols])
         print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', {'id': attr['id']}), attr['id']))
@@ -400,7 +400,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         print("<td>%s</td>" % pif.form.put_text_input(
             "description.%(id)d" % attr, 64, 32, dets.get(attr["attribute_name"], "")))
         print("<td>%s</td>" % pif.form.put_button_input(bname="save", name='renattr.%d' % attr['id']))
-        print("<td>%s</td>" % pif.render.format_button_link("delete", "?f=%s&delattr=%d" % (file_id, attr['id'])))
+        print("<td>%s</td>" % pif.ren.format_button_link("delete", "?f=%s&delattr=%d" % (file_id, attr['id'])))
         print("</tr>")
         var_desc[attr["attribute_name"]] = attr["definition"]
     for attr in common_attrs:
@@ -420,7 +420,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
             "description.%(id)d" % attr, 64, 32, dets.get(attr["attribute_name"], "")))
         print("<td>%s</td>" % pif.form.put_button_input(bname="save", name='renattr.%d' % attr['id']))
         print("<td></td>")
-        print("<td>%s</td>" % pif.render.format_link(
+        print("<td>%s</td>" % pif.ren.format_link(
             '/cgi-bin/vedit.cgi', txt=pif.form.put_text_button("none"),
             args={'attribute_name.%s' % attr['id']: attr['attribute_name'], 'd': 'src/mbxf',
                   'description.%s' % attr['id']: 'none', 'f': file_id, 'm': mod_id, 'mod_id': mod_id,
@@ -494,7 +494,7 @@ def show_casting(pif, mod, file_id):
 
     fmt_invalid, messages, missing = pif.dbh.check_description_formatting(mod['id'], '<br>')
     for attr in missing:
-        print(pif.render.format_button_link("add", "?f=%s&m=%s&addattr=%s" % (file_id, mod['id'], attr)), attr, '<br>')
+        print(pif.ren.format_button_link("add", "?f=%s&m=%s&addattr=%s" % (file_id, mod['id'], attr)), attr, '<br>')
     if fmt_invalid:
         print(messages)
     print('<br>')
@@ -522,11 +522,11 @@ def casting_help(pif, col, mod):
     if col == 'rawname':
         return ' | '.join(mod.get('iconname', list()))
     if col == 'vehicle_type':
-        return pif.render.format_button_link("help", "../pages/types.php", lalso={'target': '_blank'})
+        return pif.ren.format_button_link("help", "../pages/types.php", lalso={'target': '_blank'})
     if col == 'country':
-        return pif.render.format_button_link("help", "../pages/countries.php", lalso={'target': '_blank'})
+        return pif.ren.format_button_link("help", "../pages/countries.php", lalso={'target': '_blank'})
     if col == 'make':
-        return pif.render.format_button_link("help", "../pages/makes.php", lalso={'target': '_blank'})
+        return pif.ren.format_button_link("help", "../pages/makes.php", lalso={'target': '_blank'})
     if col == 'flags':
         return "NOT_MADE = 1"
     if col == 'section_id':
@@ -550,7 +550,7 @@ def show_file(pif, vid, fdir, fn, args):
     show_file_link(fn, 'htm', 'HTM')
     show_file_link(fn, 'doc', 'DOC')
     show_file_link(fn, 'dat', 'DAT')
-    print('-', pif.render.format_link(pif.request_uri + "&settings=1", "settings"), '-')
+    print('-', pif.ren.format_link(pif.request_uri + "&settings=1", "settings"), '-')
     for id in varfile['modids']:
         print('<a href="#%s">%s</a>' % (id, id))
     varfile['var_desc'] = dict([(x['field'], x['type']) for x in pif.dbh.describe_dict('variation').values()])
@@ -564,8 +564,8 @@ def show_file(pif, vid, fdir, fn, args):
 
 
 def show_no_model(pif, varfile, fitab):
-    print(pif.render.format_image_optional(fitab['modid'], largest=mbdata.IMG_SIZ_MEDIUM,
-                                           pdir='pic/man', also={'align': 'right'}))
+    print(pif.ren.format_image_optional(fitab['modid'], largest=mbdata.IMG_SIZ_MEDIUM,
+                                        pdir='pic/man', also={'align': 'right'}))
     print(fitab['preface'], "<br>")
     print("<table border=1>")
     for row in [fitab['gridhead']] + fitab['body']:
@@ -581,14 +581,14 @@ def show_model_table(pif, varfile, fitab):
     print('<i id="%s"></i>' % fitab['modid'])
     mod = fitab['casting']
 
-    for vf in filter(None, [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod['id'])]):
+    for vf in [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod['id']) if x]:
         print('<a href="?f=%s">%s</a>' % (vf, vf))
     print('<br>')
     print('<center><h2><a href="single.cgi?id=%s">%s</a>' % (mod['id'], mod['id']))
     print("<h3>", mod.get('rawname', 'no rawname?'), "</h3></center>")
 
-    print(pif.render.format_image_optional(fitab['modid'], largest=mbdata.IMG_SIZ_MEDIUM,
-                                           pdir='pic/man', also={'align': 'right'}))
+    print(pif.ren.format_image_optional(fitab['modid'], largest=mbdata.IMG_SIZ_MEDIUM,
+                                        pdir='pic/man', also={'align': 'right'}))
     print(fitab['preface'], "<br>")
 
     # base id form
@@ -640,7 +640,7 @@ def show_variations(pif, varfile, fitab, mod_id):
         else:  # gray
             del dbvars[dbvar['var']]  # gray
         ids_used.append(dbvar['var'])
-        pic = os.path.join(*pif.render.find_image_file(
+        pic = os.path.join(*pif.ren.find_image_file(
             pdir=config.IMG_DIR_MAN, fnames=mod_id,
             vars=dbvar.get('var', ''), largest=mbdata.IMG_SIZ_LARGE, nobase=True))
         print('<tr><td style="font-weight: bold; color: %s">' % (text_color[rec['var'] == dbvar.get('var')]))
@@ -678,11 +678,11 @@ def show_variations(pif, varfile, fitab, mod_id):
     for varid in sorted(dbvars.keys()):
         dbvar = dbvars[varid]
         is_same_file = dbvar.get('imported_from') == varfile['filename']
-        # pif.render.comment(str(dbvar))
-        pic = os.path.join(*pif.render.find_image_file(pdir=config.IMG_DIR_MAN, fnames=mod_id,
-                                                       vars=dbvar.get('var', ''),
-                                                       largest=mbdata.IMG_SIZ_LARGE, nobase=True))
-        # pif.render.comment("pic", pic)
+        # pif.ren.comment(str(dbvar))
+        pic = os.path.join(*pif.ren.find_image_file(pdir=config.IMG_DIR_MAN, fnames=mod_id,
+                                                    vars=dbvar.get('var', ''),
+                                                    largest=mbdata.IMG_SIZ_LARGE, nobase=True))
+        # pif.ren.comment("pic", pic)
         if is_same_file:
             print('<input type="hidden" name="orphan" value="%s">' % varid)
         print('<tr><th style="background-color: #CCCCCCC">')
@@ -729,22 +729,22 @@ def show_settings(pif, vid, fn):
 
 @basics.web_page
 def handle_form(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
     mod_id = pif.form.get_raw('m')
     if not mod_id:
         mod_id = pif.form.get_raw('mod_id')
     if mod_id:
-        pif.render.title = 'Variations - ' + mod_id
+        pif.ren.title = 'Variations - ' + mod_id
     elif pif.form.has('f'):
-        pif.render.title = 'Variations - ' + pif.form.get_raw('f')
-    print(pif.render.format_head())
+        pif.ren.title = 'Variations - ' + pif.form.get_raw('f')
+    print(pif.ren.format_head())
     useful.header_done()
     if not pif.is_allowed('a'):
         return
 
     pif.dbh.set_verbose(True)
     vid = vrdata.VariationImportData()
-    vid.verbose = pif.render.verbose
+    vid.verbose = pif.ren.verbose
     nvars = list()
     file_dir = pif.form.get_raw('d', 'src/mbxf')
 
@@ -768,7 +768,7 @@ def handle_form(pif):
         show_index(pif, vid, file_dir, start=pif.form.get_raw('s'),
                    num=pif.form.get_int('n', 100), ff=int(pif.form.get_int('ff')))
 
-    print(pif.render.format_tail())
+    print(pif.ren.format_tail())
 
 
 def save_attribute(pif, attr_id, mod_id):

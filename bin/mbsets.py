@@ -79,7 +79,7 @@ def do_set(pif, setfile, set_id=None):
             llineups.append(print_table(pif, db, setfile))
         else:
             llineups.append(print_no_table(pif, db))
-    return pif.render.format_template('sets.html', llineups=llineups)
+    return pif.ren.format_template('sets.html', llineups=llineups)
 
 
 def print_table(pif, db, setfile):
@@ -195,8 +195,8 @@ def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
         if suffix:
             m += suffix
         modnum.append(m)
-    ostr = pif.render.format_image_required(modnum, alt=mod_num(prefix, model[0], suffix), made=made,
-                                            pdir=dirs.get(prefix))
+    ostr = pif.ren.format_image_required(modnum, alt=mod_num(prefix, model[0], suffix), made=made,
+                                         pdir=dirs.get(prefix))
     return '<center>' + ostr + '</center>'
 
 
@@ -207,13 +207,13 @@ def select_set(pif):
                (ent['page_info.id'][5:], ent['page_info.title'], ent['page_info.description'])
                for ent in pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0", order='description,title')])
     llineup = render.Listix(section=[render.Section(id='i', range=[lran])],
-                            tail=[pif.render.format_button_link("back", "..") + " to the main index."])
-    return pif.render.format_template('simpleulist.html', llineup=llineup)
+                            tail=[pif.ren.format_button_link("back", "..") + " to the main index."])
+    return pif.ren.format_template('simpleulist.html', llineup=llineup)
 
 
 @basics.web_page
 def sets_main(pif):
-    pif.render.print_html()
+    pif.ren.print_html()
 
     if pif.form.has('page'):
         setfile = SetFile(useful.relpath(config.SRC_DIR, useful.make_alnum(pif.form.get_str('page')) + '.dat'))
