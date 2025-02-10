@@ -461,7 +461,7 @@ def show_base_id(pif, mod):
         print("<tr><td>%s</td><td>" % col)
         if col in base_id_tab.bits:
             print(pif.form.put_checkbox(
-                "base_id." + col, base_id_tab.bits[col], useful.bit_list(mod[col], format='%04x')))
+                "base_id." + col, base_id_tab.bits[col], useful.bit_list(mod[col], format='{:04x}')))
         else:
             flen = int(paren_re.search(base_id_info[col]['type']).group('len'))
             print(pif.form.put_text_input("base_id." + col, flen, min(80, flen), mod[col]))

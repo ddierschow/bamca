@@ -55,7 +55,7 @@ class TestUseful(unittest.TestCase):
         pass  # self.assertEqual(useful.any_char_match(t1, t2), '')
 
     def test_bit_list(self):
-        pass  # self.assertEqual(useful.bit_list(val, format="%02x"), '')
+        pass  # self.assertEqual(useful.bit_list(val, format="{:02x}"), '')
 
     def test_search_match(self):
         pass  # self.assertEqual(useful.search_match(sobj, targ), '')

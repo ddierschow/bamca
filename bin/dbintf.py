@@ -99,8 +99,8 @@ class DB(object):
         if not self.db:
             return None
         res, desc, lid = self.execute(
-            "insert buser.counter (id, value, timestamp) values ('%s', 0, now()) on duplicate key "
-            "update value=value+1, timestamp=now()" % countid, verbose=False)
+            f"insert buser.counter (id, value, timestamp) values ('{countid}', 0, now()) on duplicate key "
+            "update value=value+1, timestamp=now()", verbose=False)
         self.execute('commit')
         return res
 

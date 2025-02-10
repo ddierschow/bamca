@@ -157,9 +157,6 @@ class MannoFile(object):
         self.revised = pif.form.get_int('revised')
         self.model_type = pif.form.get_str('mtype')
         self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in pif.dbh.fetch_vehicle_types()}
-#        vtypes = pif.dbh.fetch_vehicle_types()
-#        self.tdict = {x['vehicle_type.ch']: x['vehicle_type.name'] for x in vtypes}
-#        self.vehtypes = {'y': "", 'n': "", 'm': "".join(self.tdict.keys())}
         self.vehtypes = pif.form.get_list_by_value('type', 'ynm')
         self.addtypes = pif.form.get_list_by_value('add', 'ynm')
         self.pictypes = pif.form.get_list_by_value('pic', 'ynm')

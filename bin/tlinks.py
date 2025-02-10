@@ -420,7 +420,7 @@ def edit_single(pif):
                     'section_id', listCats, selected=val, blank='Please choose one from the list')
         elif col == 'flags':
             cell = pif.form.put_checkbox("flags", table_data.bits['flags'],
-                                         useful.bit_list(link[col_long], format='%04x'))
+                                         useful.bit_list(link[col_long], format='{:04x}'))
         elif col == 'country':
             cell = pif.form.put_select_country('country', val)
         elif col == 'link_type':

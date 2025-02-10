@@ -184,8 +184,7 @@ def img(pif, prefix, model, suffix, digits=0, made=True, dirs={}):
     modnum = []
     for m in model:
         try:
-            fmt = "%%0%dd" % digits
-            m = fmt % int(m)
+            m = f"%%0{digits}d" % int(m)
         except TypeError:
             pass
         except ValueError:

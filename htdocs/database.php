@@ -167,20 +167,17 @@ function SectionYear($pif) {
     echo "  </td>\n";
     // HorzSpacer(4);
     echo "</tr>\n<tr><td>\n";
+    echo " List type:</td><td width=\"180\">\n";
+    $sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
+            ['flags' => 0, 'val' => 'txt', 'title' => 'Text'],
+            ['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],
+            ['flags' => 0, 'val' => 'csv', 'title' => 'CSV'],
+            ['flags' => 0, 'val' => 'jsn', 'title' => 'JSON']];
     if ($pif['isadmin']) {
-	echo " List type:</td><td width=\"180\">\n";
-	$sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
-		['flags' => 0, 'val' => 'txt', 'title' => 'Text'],
-		['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],
-		['flags' => 0, 'val' => 'csv', 'title' => 'CSV'],
-		['flags' => 0, 'val' => 'jsn', 'title' => 'JSON']];
-	if ($pif['isadmin'])
-	    $sl[] = ['flags' => 0, 'val' => 'lrg', 'title' => 'Large'];
-	    $sl[] = ['flags' => 0, 'val' => 'myr', 'title' => 'Multi-Year'];
-	Select('listtype', 'yrList', $sl);
-    } else {
-	echo " </td><td width=\"180\">\n";
+        $sl[] = ['flags' => 0, 'val' => 'lrg', 'title' => 'Large'];
+        $sl[] = ['flags' => 0, 'val' => 'myr', 'title' => 'Multi-Year'];
     }
+    Select('listtype', 'yrList', $sl);
     echo "  </td>\n</tr>\n<tr>"; //<td colspan=\"2\" rowspan=\"2\">\n";
     echo "  <td colspan=\"2\" rowspan=\"2\">\n";
     Checks('checkbox', 'year', 'lty', $ptypes);
@@ -255,7 +252,7 @@ function SectionManno($pif) {
 
     if ($pif['isadmin']) {
 	HorzSpacer(1);
-	echo "   <td>Start year:</td>\n";
+	echo "   <td><i>Start year:</i></td>\n";
 	SelectYear('syear', 'manSyear', $pif['man_year_start'], $pif['man_year_start'], $pif['man_year_end']);
     }
     echo " </tr>\n <tr><td colspan=\"2\">";
@@ -264,9 +261,11 @@ function SectionManno($pif) {
     ChooseNum("end", "manEnd", 4, "document.getElementById('manStart').value", 9999, 9999,
         'onFocus="document.manno.range[1].checked=true;"', "document.manno.range[1].checked=true;");
 
-    HorzSpacer(2);
-    echo "<td>End year:</td>\n";
-    SelectYear('eyear', 'manEyear', $pif['man_year_end'] + 1, $pif['man_year_start'], $pif['man_year_end']);
+    if ($pif['isadmin']) {
+        HorzSpacer(2);
+        echo "<td><i>End year:</i></td>\n";
+        SelectYear('eyear', 'manEyear', $pif['man_year_end'] + 1, $pif['man_year_start'], $pif['man_year_end']);
+    }
     echo " </tr>\n <tr><td colspan=\"4\">List type:\n";
     $sl = [['flags' => 64, 'val' => '', 'title' => 'Normal'],
 	   ['flags' => 0, 'val' => 'ckl', 'title' => 'Checklist'],

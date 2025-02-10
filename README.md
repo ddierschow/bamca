@@ -23,7 +23,7 @@ that would be of interest to Matchbox collectors.
 1998 - V2 - We bought the domain name, and I started working on the
 lineup pages, writing the scripts in PERL.
 
-2000 - V3 - I converted the entire site to Python.
+2001 - V3 - I converted the entire site to Python.
 
 2004ish - V4 - I substantially rewrote the site to use a web framework
 and a more cohesive design.

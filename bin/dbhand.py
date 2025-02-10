@@ -358,7 +358,7 @@ class DBHandler(object):
     def fetch_castings_by_alias(self, alias_id):
         wheres = ["base_id.id=casting.id", "casting.id=alias.ref_id", f"alias.id='{alias_id}'",
                   'casting.section_id=section.id', 'section.page_id=page_info.id', 'page_info.format_type="manno"']
-        # "casting.id=alias.ref_id and alias.id='%s'" % id
+        # "casting.id=alias.ref_id and alias.id=f'{id}'"
         return self.fetch('base_id,alias,casting,section,page_info', where=wheres,
                           left_joins=[('vehicle_make', 'casting.make=vehicle_make.id')], tag='CastingsByAlias')
 
@@ -590,14 +590,6 @@ class DBHandler(object):
         return self.fetch('base_id,casting,variation_select', where=wheres, tag='CastingByCat', verbose=verbose,
                           columns=columns, group='base_id.id', order='base_id.id')
 
-        # "base_id.id in (select mod_id from variation_select where ref_id='%s' and category='%s')" %
-        # (page_id, category)
-        # select base_id.id,base_id.first_year,base_id.model_type,base_id.rawname,base_id.description,base_id.flags,
-        # casting.id,casting.scale,casting.vehicle_type,casting.country,casting.make,casting.section_id,count(*)
-        # from base_id,casting,variation_select
-        # where base_id.id=casting.id and base_id.id=variation_select.mod_id and variation_select.category='NC'
-        # group by base_id.id
-
     def fetch_castings_by_plant(self, plant_name, verbose=False):
         columns = self.make_columns('base_id') + self.make_columns('casting') + ["count(*) as count"]
         wheres = ['base_id.id=casting.id', 'casting.id=variation.mod_id', f'variation.manufacture="{plant_name}"']
@@ -652,7 +644,7 @@ class DBHandler(object):
     def update_casting_related(self, val):
         if val['id']:
             # useful.write_message('upd', val, '<br>')
-            self.write('casting_related', values=val, where='id=%s' % val['id'], tag='UpdateCastingRelatedU',
+            self.write('casting_related', values=val, where=f"id={val['id']}", tag='UpdateCastingRelatedU',
                        verbose=True)
         else:
             if 'id' in val:
@@ -689,9 +681,9 @@ class DBHandler(object):
         # insert into attribute (mod_id, attribute_name, definition, title, flags) select 'MB900', attribute_name,
         # definition, title, flags from attribute where mod_id='MB894';
         self.raw_execute(
-            """insert into attribute (mod_id, attribute_name, definition, title, flags) """
-            """select '%s', attribute_name, definition, title, flags from attribute """
-            """where mod_id='%s'""" % (new_mod_id, old_mod_id))
+            "insert into attribute (mod_id, attribute_name, definition, title, flags) "
+            f"select '{new_mod_id}', attribute_name, definition, title, flags from attribute "
+            f"where mod_id='{old_mod_id}'")
 
     def update_attribute_for_mod(self, mod_id, attr_name):
         rec = {"mod_id": mod_id, "attribute_name": attr_name,
@@ -1062,7 +1054,7 @@ class DBHandler(object):
         for vs in old_vs:
             modvar = (vs['variation_select.mod_id'], vs['variation_select.var_id'])
             if modvar not in mod_vars:
-                self.delete('variation_select', 'id=%d' % vs['variation_select.id'])
+                self.delete('variation_select', f"id={vs['variation_select.id']}")
             else:
                 mod_vars.remove(modvar)
                 if vs['variation_select.category'] != category:
@@ -1070,7 +1062,7 @@ class DBHandler(object):
                         'variation_select',
                         values={'mod_id': vs['variation_select.mod_id'], 'var_id': vs['variation_select.var_id'],
                                 'ref_id': ref_id, 'sec_id': sec_id, 'category': category},
-                        where='id=%s' % vs['variation_select.id'], tag='UVSFRcat')
+                        where=f"id={vs['variation_select.id']}", tag='UVSFRcat')
 
         for modvar in mod_vars:
             self.write('variation_select', values={'mod_id': modvar[0], 'var_id': modvar[1], 'ref_id': ref_id,
@@ -1424,7 +1416,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         self.delete('link_line', where=f"id={id}")
 
     def update_link_line(self, rec):
-        return self.write('link_line', values=rec, where='id=%s' % rec['id'], modonly=True, tag='UpdateLinkLine')
+        return self.write('link_line', values=rec, where=f"id={rec['id']}", modonly=True, tag='UpdateLinkLine')
 
     def insert_link_line(self, rec, verbose=False):
         return self.write('link_line', values=rec, newonly=True, tag='InsertLinkLine', verbose=verbose)
@@ -1575,7 +1567,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     def update_pack_models(self, pms):
         for pm in pms:
-            self.write('pack_model', values=pm, where="id=%s" % pm['id'], tag='UpdatePackModels')
+            self.write('pack_model', values=pm, where=f"id={pm['id']}", tag='UpdatePackModels')
 
     def fetch_pack_model(self, id):
         return self.fetch('pack_model', where=f'id={id}', tag='PackModel')
@@ -1713,7 +1705,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                    tag='UpdateUserLogin')
 
     def write_user(self, values):
-        self.write('user', values=values, where="id=%s" % values['id'], modonly=True, tag='WriteUser')
+        self.write('user', values=values, where=f"id={values['id']}", modonly=True, tag='WriteUser')
 
     def delete_user(self, id):
         self.delete('user', f'id={id}')
@@ -1867,7 +1859,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                 where = ''
                 if ovalues:
                     nvalues['id'] = ovalues[0]['photo_credit.id']
-                    where = 'photo_credit.id=%s' % nvalues['id']
+                    where = f"photo_credit.id={nvalues['id']}"
                     for ovalue in ovalues[1:]:
                         self.delete_photo_credit(ovalue['photo_credit.id'])
                 return self.write('photo_credit', values=nvalues, where=where, tag='WritePhotoCredit', verbose=verbose)

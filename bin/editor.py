@@ -174,7 +174,7 @@ def show_single(pif, table_data, dats):
             newvalue = '&nbsp;<input type=hidden name="{}" value="{}">'.format(col, dat.get(col, ''))
         elif col in table_data.bits:
             newvalue = pif.form.put_checkbox(
-                col, table_data.bits[col], useful.bit_list(oldvalue, format='%04x'))
+                col, table_data.bits[col], useful.bit_list(oldvalue, format='{:04x}'))
         elif coltype == 'text':
             newvalue = pif.form.put_textarea_input(col, value=dat.get(col, ''))
         elif coltype.startswith('varchar('):

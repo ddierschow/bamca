@@ -25,7 +25,7 @@ long after that entity disappeared.
 <tr>
 <th class="leftbar">1994</th>
 <td class="bg_lg">
-The website was started.
+The website was started (website version 1).
 Originally it was just a list of links to other websites, but
 one year Matchbox announced their new lineup in advance, and we thought it
 would be cool to show it on the site.  Things snowballed from there.
@@ -51,7 +51,7 @@ In December, an <a href="1996_12_18-paw.html">article</a> was published in the P
 <th class="leftbar">1998</th>
 <td class="bg_lg">
 We bought the domain name.  Real work began on creating a
-comprehensive information site about Matchbox Toys.  Most of the
+comprehensive information site about Matchbox Toys (website version 2).  Most of the
 scripting was written in PERL.
 <p>
 In December, an <a href="1998_12_24-nyt.html">article</a> was published in the New York Times that mentioned one of our club members.
@@ -59,9 +59,9 @@ In December, an <a href="1998_12_24-nyt.html">article</a> was published in the N
 </tr>
 
 <tr>
-<th class="leftbar">2000</th>
+<th class="leftbar">2001</th>
 <td class="bg_wh">
-The entire site was converted to Python.
+The entire site was converted to Python (website version 3).
 </td>
 </tr>
 
@@ -69,7 +69,7 @@ The entire site was converted to Python.
 <th class="leftbar">2004</th>
 <td class="bg_lg">
 The entire site was rewritten again to create a web
-framework and use a more cohesive design.
+framework and use a more cohesive design (website version 4).
 </td>
 </tr>
 
@@ -77,7 +77,7 @@ framework and use a more cohesive design.
 <th class="leftbar">2010</th>
 <td class="bg_wh">
 In 2009 an effort was begun to convert the site to run off a MySQL
-database.  This work completed in 2010.
+database.  This work completed in 2010 (website version 5).
 There are still some old pages that run off of text files, but
 almost everything that has to do with 3-inch models is in the DB.
 <p>
@@ -97,7 +97,7 @@ Anyone who is intereted in seeing this can contact us for more information.
 <th class="leftbar">2015</th>
 <td class="bg_wh">
 The site was rewritten (again!) to use the Jinja2 rendering
-engine.  This nakes much of the site simpler and easier to maintain.
+engine (website version 6).  This makes much of the site simpler and easier to maintain.
 </td>
 </tr>
 
@@ -120,18 +120,17 @@ credits were added to the pictures.
 <tr>
 <th class="leftbar">2018</th>
 <td class="bg_lg">
+<a href="http://blog.bamca.org/"><img src="/pic/misc/banner67_m.jpg" class="righty"></a>
 A <a href="http://blog.bamca.org/">blog</a> was added to the site, for announcing website changes, meets, and other
 club milestones.
-<a href="http://blog.bamca.org/"><img src="/pic/misc/banner67_m.jpg" class="righty"></a>
 </td>
 </tr>
 
 <tr>
 <th class="leftbar">2020</th>
 <td class="bg_wh">
-The site changed servers and support infrastructure, requiring everything to be upgraded.
-It was now running on a faster server with a newer database and newer versions of Python and
-PHP.
+The site changed servers and support infrastructure, requiring everything to be upgraded (website version 7).
+It was now running on a faster server with a newer database and newer versions of Python and PHP.
 </td>
 </tr>
 

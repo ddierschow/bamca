@@ -457,7 +457,7 @@ def add_lm_enter(pif):
         {'title': 'Number:', 'value': pif.form.put_text_input("number", 4, 4, value=number)},
         {'title': 'Display Order:', 'value': pif.form.put_text_input("display_order", 4, 4, value='0')},
         {'title': 'Flags:', 'value':
-            pif.form.put_checkbox('flags', tab.bits['flags'], useful.bit_list(0, format='%04x'))},
+            pif.form.put_checkbox('flags', tab.bits['flags'], useful.bit_list(0, format='{:04x}'))},
         {'title': 'Style:', 'value':
             pif.form.put_select("style_id", colors, selected=pif.form.get_raw('style_id'))},
         {'title': 'Picture ID:', 'value': pif.form.put_text_input("picture_id", 12, 12, value='')},

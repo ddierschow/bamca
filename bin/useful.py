@@ -226,15 +226,12 @@ def any_char_match(t1, t2):
     return bool(set(list(t1 or '')) & set(list(t2 or '')))
 
 
-def bit_list(val, format="%02x"):
+def bit_list(val, format="{:02x}"):
     olst = []
     bit = 1
     while val:
         if val & 1:
-            if '%' in format:
-                olst.append(format % bit)
-            else:
-                olst.append(bit.format(format))
+            olst.append(format.format(bit))
         val >>= 1
         bit *= 2
     return olst

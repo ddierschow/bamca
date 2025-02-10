@@ -42,7 +42,7 @@ def print_user_form(pif, id):
             value += '<a href="user.cgi?delete=1&id={}">{}</a>'.format(
                 id, pif.form.put_text_button('delete', also={'style': 'float:right'}))
         elif col in table_data.bits:
-            value = pif.form.put_checkbox(col, table_data.bits[col], useful.bit_list(user[col], format='%04x'))
+            value = pif.form.put_checkbox(col, table_data.bits[col], useful.bit_list(user[col], format='{:04x}'))
         elif col == 'email':
             value = '<input type="text" name="{}" value="{}" size=60>'.format(col, user[col])
         else:
