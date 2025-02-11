@@ -1145,6 +1145,11 @@ def promote_picture(pif, mod_id, var_id):
         pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(credit['photographer.id'],
                         config.IMG_DIR_MAN[1:], mod_id))
 
+    model = pif.dbh.fetch_casting(mod_id)
+    pif.ren.message('Icon:', mod_id, '|'.join(model['iconname']))
+    if image := iconner(os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg'), model['iconname']):
+        open(os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i_' + mod_id + '.gif'), 'wb').write(image)
+
 
 def demote_picture(pif, mod_id, var_id):
     credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id.lower() + '.*')

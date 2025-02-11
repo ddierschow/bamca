@@ -4,7 +4,6 @@ import cgi
 import datetime
 import html
 import os
-import re
 import sys
 import time
 import uuid
@@ -145,10 +144,8 @@ class BaseForm(object):
     def get_dir(self, key, defval=''):
         return mbdata.dirs.get(self.get_str(key, defval), self.get_str(key, defval))
 
-    ALFA_RE = re.compile('[^-A-Za-z0-9_ ]+')
-
     def get_alnum(self, key, defval=''):
-        return self.ALFA_RE.sub('', self.get_str(key, defval))
+        return mbdata.illegal_form_re.sub('', self.get_str(key, defval))
 
     def get_stru(self, key, defval=''):
         return self.get_str(key, defval).upper()

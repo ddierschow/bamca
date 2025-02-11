@@ -22,14 +22,7 @@ import useful
 
 config.GURU_ID = ''.join(random.choice('0123456789ABCDEFGHJKLMNPRSTUVWXYZ') for i in range(10))
 
-tb_fmt = """headline = '''{}'''
-guru_id = '{}'
-uri = '''{}'''
-tb = '''
-{}
-'''
-env = {}
-"""
+tb_fmt = """headline = '''{}'''\nguru_id = '{}'\nuri = '''{}'''\ntb = '''\n{}\n'''\nenv = {}\n"""
 
 # --- Web Pages ---------------------------------------------------------
 
@@ -85,8 +78,8 @@ def handle_exception(pif, e, header_done=False, write_traceback=True, status_cod
         simple_html()
     useful.header_done()
     useful.write_comment()
-    while pif.ren.table_count > 0:
-        print(pif.ren.format_table_end())
+#    while pif.ren.table_count > 0:
+#        print(pif.ren.format_table_end())
     if not pif.is_allowed('a'):
         print('<!--\n' + str_tb + '-->')
         final_exit()

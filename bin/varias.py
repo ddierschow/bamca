@@ -6,7 +6,6 @@ import glob
 from io import StringIO
 import json
 import os
-import re
 import sys
 
 import basics
@@ -15,7 +14,6 @@ import imglib
 import mbdata
 import models
 import render
-import single
 import useful
 
 
@@ -24,7 +22,6 @@ note_attributes = ['area', 'date', 'note', 'category']
 internal_desc_attributes = ['description', 'base', 'body', 'deco', 'interior', 'wheels', 'windows']
 desc_attributes = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
 text_attributes = ['text_var'] + ['text_' + x for x in desc_attributes]
-format_attributes = ['format_' + x for x in desc_attributes]
 hidden_attributes = id_attributes + ['imported', 'flags', 'variation_type', 'logo_type', 'deco_type']
 detail_attributes = ['base', 'body', 'deco', 'interior', 'wheels', 'windows']
 base_attributes = ['additional_text', 'base_name', 'base_number', 'base_scale', 'tool_id', 'company_name', 'copyright',
@@ -41,10 +38,39 @@ list_columns = ['ID', 'Description', 'Details', 'Picture']
 detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Or', 'Cr', 'Pic', 'L', 'M', 'S', 'T', 'Lo',
                   'Ba', 'Bo', 'In', 'Wh', 'Wi', 'W/', 'BT']
 
-fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
-
 
 # ----- display single variation --------------------------
+
+
+def single_variation_left_bar(pif, variation, edit):
+    mod_id = variation['mod_id']
+    var_id = variation['var']
+    libdir = useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower())
+    left_bar_content = ''
+    if pif.is_allowed('a'):  # pragma: no cover
+        left_bar_content += (
+            # pif.ren.format_link('vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id), "Delete") + '<br>' +
+            (pif.ren.format_link(f'vars.cgi?mod={mod_id}&var={var_id}', "See") if edit else
+             pif.ren.format_link(f'vars.cgi?mod={mod_id}&var={var_id}&edt=1', "Edit")) + '<br>' +
+            pif.ren.format_link(f'upload.cgi?d={libdir}&m={mod_id}&v={var_id}&l=1&c={mod_id}+variation+{var_id}',
+                                'Pictures') + '<br>' +
+            # pif.ren.format_link('?mod=%s&var=%s&rmpic=1' % (mod_id, var_id), "Remove Pictures") + '<br>' +
+            pif.ren.format_link(pif.dbh.get_editor_link('casting', {'id': mod_id}), "Casting") + '<br>' +
+            pif.ren.format_link(f'?recalc=1&mod={mod_id}', "Recalc") + '<br>' +
+            pif.ren.format_link(
+                f'traverse.cgi?g=1&d={libdir}&man={mod_id}&var={var_id}', "Select") + '<br>')
+    if pif.is_allowed('u'):  # pragma: no cover
+        left_bar_content += pif.ren.format_link('upload.cgi?d=' + libdir, "Upload") + '<br>'
+
+    if pif.is_allowed('a'):
+        if variation['flags'] & config.FLAG_MODEL_VARIATION_VERIFIED:
+            left_bar_content += '<br>' + pif.ren.fmt_check('white')
+            if variation['flags'] & config.FLAG_MODEL_ID_INCORRECT:
+                left_bar_content += '<br>' + pif.ren.fmt_x('red')
+        if variation['date']:
+            for fn in sorted(glob.glob(f'lib/docs/mbusa/{variation["date"]}-?.png')):
+                left_bar_content += '<br>' + pif.ren.format_link('/' + fn, fn[fn.rfind('/') + 1:])
+    return left_bar_content
 
 
 def show_single_variation(pif, man, var_id, edit=False, addnew=False):
@@ -77,30 +103,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
     vsform = VarSearchForm(pif, mod_id)
     pdir = pif.ren.pic_dir
 
-    left_bar_content = ''
-    if pif.is_allowed('a'):  # pragma: no cover
-        left_bar_content += (
-            # pif.ren.format_link('vars.cgi?mod=%s&var=%s&delete=1' % (mod_id, var_id), "Delete") + '<br>' +
-            pif.ren.format_link(f'vars.cgi?mod={mod_id}&var={var_id}', "See") if edit else
-            pif.ren.format_link(f'vars.cgi?mod={mod_id}&var={var_id}&edt=1', "Edit") + '<br>' +
-            pif.ren.format_link(f'upload.cgi?d={libdir}&m={mod_id}&v={var_id}&l=1&c={mod_id}+variation+{var_id}',
-                                'Pictures') + '<br>' +
-            # pif.ren.format_link('?mod=%s&var=%s&rmpic=1' % (mod_id, var_id), "Remove Pictures") + '<br>' +
-            pif.ren.format_link(pif.dbh.get_editor_link('casting', {'id': mod_id}), "Casting") + '<br>' +
-            pif.ren.format_link(f'?recalc=1&mod={mod_id}', "Recalc") + '<br>' +
-            pif.ren.format_link(
-                f'traverse.cgi?g=1&d={libdir}&man={mod_id}&var={var_id}', "Select") + '<br>')
-    if pif.is_allowed('u'):  # pragma: no cover
-        left_bar_content += pif.ren.format_link('upload.cgi?d=' + libdir, "Upload") + '<br>'
-
-    if pif.is_allowed('a'):
-        if variation['flags'] & config.FLAG_MODEL_VARIATION_VERIFIED:
-            left_bar_content += '<br>' + pif.ren.fmt_check('white')
-            if variation['flags'] & config.FLAG_MODEL_ID_INCORRECT:
-                left_bar_content += '<br>' + pif.ren.fmt_x('red')
-        if variation['date']:
-            for fn in sorted(glob.glob(f'lib/docs/mbusa/{variation["date"]}-?.png')):
-                left_bar_content += '<br>' + pif.ren.format_link('/' + fn, fn[fn.rfind('/') + 1:])
+    left_bar_content = single_variation_left_bar(pif, variation, edit)
 
     footer = ''
     if edit:
@@ -177,7 +180,8 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
         'base_id': man['id'],
         'icon_id': mod_id if os.path.exists(
             useful.relpath('.', config.IMG_DIR_MAN_ICON, 'i_' + mod_id.lower() + '.gif')) else '',
-        'vehicle_type': [mbdata.model_icons.get(x) for x in man['vehicle_type']],
+        'vehicle_type': [mbdata.model_icons.get(x) for x in man['vehicle_type']] + [
+            categories[x].image for x in variation['_catlist'] if categories[x].image],
         'rowspan': '4',
         'left_bar_content': left_bar_content,
         'description': variation['text_description'],
@@ -317,7 +321,7 @@ def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='
     else:
         new_value = pif.form.put_text_input(
             field + "." + variation['var'],
-            int(fieldwidth_re.search(attributes[field]['definition']).group('w'))
+            int(mbdata.sql_fieldwidth_re.search(attributes[field]['definition']).group('w'))
             if '(' in attributes[field]['definition'] else 20,
             64, value=variation.get(field, ''))
     if field == 'var':
@@ -435,7 +439,7 @@ def save_variation(pif, mod_id, var_id):
     useful.write_message('phcred', phcred, '<br>')
     pif.ren.message('Credit added: ',
                     pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var_dict['var']))
-#    ty_var = single.calc_var_type(pif, var_bare)  # needs vs
+#    ty_var = models.calc_var_type(pif, var_bare)  # needs vs
 #    if ty_var != var['variation_type']:
 #        useful.write_message(var['mod_id'], var['var'], ty_var)
 #        # pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var['mod_id'], 'var': var['var']})
@@ -830,7 +834,7 @@ def do_var_detail(pif, model, var, credits, varsels):
 
     varsel = varsels.get(var['var'], [])  # pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
     phcred = credits.get(('%(mod_id)s-%(var)s' % var).lower(), '')
-    ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt, has_bt = single.calc_var_pics(pif, var)
+    ty_var, is_found, has = models.calc_var_pics(pif, var)
     cat_v = set(var['category'].split())
     cat_vs = set([x['variation_select.category'] for x in varsel])
     cat = ' '.join(cat_v)
@@ -857,17 +861,10 @@ def do_var_detail(pif, model, var, credits, varsels):
                 pif.ren.fmt_circle('gray', hollow=True)),
         'Im': var['imported_from'],
         'Or': flag,
-        'De': mk_star(has_de, not model['format_description']),
         'Lo': var['logo_type'],
-        'Ba': mk_star(has_ba, not model['format_base']),
-        'Bo': mk_star(has_bo, not model['format_body']),
-        'In': mk_star(has_in, not model['format_interior']),
-        'Wh': mk_star(has_wh, not model['format_wheels']),
-        'Wi': mk_star(has_wi, not model['format_windows']),
-        'W/': mk_star(has_wt, not model['format_with']),
-        'BT': mk_star(has_bt, not model['format_text']),
         'style': 'c2' if var['_code'] == 2 else ''
     }
+    row.update({models.text_short_titles[k]: mk_star(has[k], not model[v]) for k, v in models.text_fmts})
     for sz in mbdata.image_size_types:
         row[sz.upper()] = mk_star(
             os.path.exists(useful.relpath(
@@ -1815,7 +1812,7 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
             pic_id = model['picture_id'] if model['picture_id'] else model['var']
             varsel = pif.dbh.fetch_variation_selects(model['mod_id'], model['var'])
             phcred = credits.get(('%s-%s' % (model['mod_id'], pic_id)).lower(), '')
-            ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_bt = single.calc_var_pics(pif, model)
+            ty_var, is_found, has = models.calc_var_pics(pif, model)
             cat_v = set(model['category'].split())
             cat_vs = set([x['variation_select.category'] for x in varsel])
             cat = ' '.join(cat_v) + ('/' + ' '.join(cat_vs)) if cat_v != cat_vs else ''
@@ -1826,14 +1823,8 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
                 'Ty': mbdata.var_types.get(ty_var, ty_var),
                 'Cr': phcred,
                 'Pic': model['picture_id'],
-                'De': mk_star(has_de),
-                'Ba': mk_star(has_ba),
-                'Bo': mk_star(has_bo),
-                'In': mk_star(has_in),
-                'Wh': mk_star(has_wh),
-                'Wi': mk_star(has_wi),
-                'BT': mk_star(has_bt),
             }
+            row.update({models.text_short_titles[k]: mk_star(has[k]) for k in has})
             row.update(check_picture_sizes(config.IMG_DIR_VAR, model['mod_id'] + '-' + pic_id + '.jpg', mk_star))
             # for sz in mbdata.image_size_types:
             #     row[sz.upper()] = mk_star(
@@ -1861,7 +1852,7 @@ def fix_variation_type(pif, start=None, end=None, *args, **kwargs):
     for mod_id in mod_ids[mod_ids.index(start):mod_ids.index(end) + 1]:
         # mod = pif.dbh.fetch_casting(mod_id)
         for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
-            ty_var = single.calc_var_type(pif, var)
+            ty_var = models.calc_var_type(pif, var)
             if ty_var != var['variation_type']:
                 useful.write_message(var['mod_id'], var['var'], ty_var)
                 # pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var['mod_id'], 'var': var['var']})
@@ -1901,7 +1892,7 @@ def list_photo_credits(pif, photog_id=None):
         for model in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
             if model['picture_id']:
                 continue
-            ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_bt = single.calc_var_pics(pif, model)
+            ty_var, is_found, has = models.calc_var_pics(pif, model)
             if mbdata.var_types.get(ty_var, ty_var) == 'C2':
                 continue
             phcred = credits.get(f"{model['mod_id']}-{model['var']}".lower(), '')
@@ -1979,7 +1970,7 @@ def count_vars(pif, filelist=None):
     for mod_id in castings:
         # sys.stdout.write(casting + ' ')
         sys.stdout.flush()
-        founds, needs, cnts, id_set = single.count_list_var_pics(pif, mod_id)
+        founds, needs, cnts, id_set = models.count_list_var_pics(pif, mod_id)
         print(mod_id, founds, needs, cnts)
         t_founds = adder(t_founds, founds)
         t_needs = adder(t_needs, needs)
@@ -2114,8 +2105,8 @@ def get_vars(pif, mod_ids):
     return varlist
 
 
-def check_var_data(pif, *mod_id_list):
-    db_cats = set([x['category.id'] for x in pif.dbh.fetch_category_counts()])
+def check_var_cats(pif, *mod_id_list):
+    db_cats = set([x.id for x in pif.dbh.fetch_categories()])
     variation_id_sets = create_var_id_sets(pif)
     mods = pif.dbh.fetch_casting_list()
     mods.sort(key=lambda x: x['casting.id'])
@@ -2133,6 +2124,35 @@ def check_var_data(pif, *mod_id_list):
                 break
         if not mod_ids:
             continue
+        varlist = get_vars(pif, mod_ids)
+        id_nums = set()
+        for var in varlist:
+            vid = var['variation.var']
+            varsels = pif.dbh.fetch_variation_selects(mod_id, vid)
+            vs_cats = set([x['variation_select.category'] for x in varsels])
+            cats = set(var['variation.category'].split())
+            if cats - db_cats:
+                print('unknown cat', mod_id, vid, var['variation.category'], '-', cats - db_cats)
+            if cats - vs_cats:
+                print('orphan cat', mod_id, vid, var['variation.category'], '-', cats - vs_cats)
+        missing = []
+        if id_nums:
+            for vid in range(1, max(id_nums)):
+                if vid not in id_nums:
+                    missing.append(str(vid))
+        if missing:
+            print(mod_id, ':', ', '.join(missing))
+
+
+def check_var_data(pif, *mod_id_list):
+    db_cats = set([x['category.id'] for x in pif.dbh.fetch_category_counts()])
+    mods = pif.dbh.fetch_casting_list()
+    mods.sort(key=lambda x: x['casting.id'])
+    for mod in mods:
+        mod_id = mod['casting.id']
+        if mod_id_list and mod_id not in mod_id_list:
+            continue
+        mod_ids = [mod_id]
         varlist = get_vars(pif, mod_ids)
         var_id_list = [var['variation.var'].lower() for var in varlist if not var['variation.picture_id']]
         id_nums = set()
@@ -2237,11 +2257,12 @@ cmds = [
     ('pc', list_photo_credits, "photo credits"),
     ('cpc', count_photo_credits, "count photo credits"),
     ('ver', verify, "verify: [v|i|u] mod_id var_id ..."),
-    ('cv', count_vars, "count vars"),
+    ('cv', count_vars, "count vars"),   # broken
     ('x', fix_var, "fix var"),
     ('ckvs', check_variation_select, "check variation select"),
     ('ckmd', check_mod_data, "check model data"),
     ('ckvd', check_var_data, "check variation data"),
+    ('ckc', check_var_cats, "check variation categories"),
     ('cat', show_cats, "cats: mod_id ..."),
     ('fvt', fix_variation_type, "mod_id [mod_id]"),
     ('tilley', check_tilley_credits, "do the tilley thing"),

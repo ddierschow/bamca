@@ -493,10 +493,9 @@ class DBHandler(object):
         return name
 
     def icon_name(self, name):
-        paren_re = re.compile(r'\s*\(.*?\)\s*')
         if not name:
             return ['']
-        name = paren_re.sub(' ', name).replace('*', '')
+        name = mbdata.paren_re.sub(' ', name).replace('*', '')
 
         def mangle_line(n):
             if n.startswith('-'):

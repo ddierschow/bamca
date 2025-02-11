@@ -13,6 +13,7 @@ import basics
 import config
 import images
 import imglib
+import mbdata
 import tumblr
 import useful
 
@@ -174,9 +175,12 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
             else:
                 inp = imginput % {'f': arg}
         if cpct:
-            ostr += '<div class="filc">{}<br>{}<br>{}</div>\n'.format(pic, arg, inp)
+            ostr += f'<div class="filc">{pic}<br>{arg}<br>{inp}</div>\n'
         else:
-            ostr += pif.ren.format_cell(0, '{}<br>{}{} {}'.format(pic, arg, inp, f_date))
+            # this drops the class stuff so that might have an implication
+            ostr += f'  <td>{pic}<br>{arg}{inp} {f_date}</td>'
+        return ostr
+
         if mss or pms:
             ostr += '</td><td>'
             ostr += check_image(pif, targs, os.path.join(pif.ren.pic_dir, arg), credits)
@@ -586,11 +590,10 @@ def read_commits(endtime):
     log = useful.simple_process(("/usr/local/bin/git", "log",))
     commits = list()
     # Date:   Fri Jun 13 19:26:34 2014 +0200
-    date_re = re.compile(r'Date:\s*(?P<d>... ... \d+ \d+:\d+:\d+ \d+)')
-    for log_msg in re.compile(r'\ncommit ', re.M).split(log):
+    for log_msg in mbdata.commit_re.split(log):
         if log_msg.find('Merge: ') >= 0:
             continue
-        m = date_re.search(log_msg)
+        m = mbdata.commit_date_re.search(log_msg)
         if not m:
             continue
         s = m.group('d')

@@ -1473,7 +1473,6 @@ def id_attributes(pif, tab, dat):
 
 
 def entry_form(pif, tab, dat, div_id=None, note=''):
-    paren_re = re.compile(r'''\((?P<n>\d*)\)''')
     if not div_id:
         div_id = tab
     header = tab + ' ' + pif.ren.format_button_link('edit', pif.dbh.get_editor_link(
@@ -1483,7 +1482,7 @@ def entry_form(pif, tab, dat, div_id=None, note=''):
     entries = []
     for col in pif.dbh.get_table_data(tab).columns:
         coltype = descs.get(col).get('type')
-        colwidth = int(paren_re.search(coltype).group('n'))
+        colwidth = int(mbdata.num_paren_re.search(coltype).group('n'))
         entries.append({'title': col, 'type': coltype, 'value': str(dat.get(col, '')),
                         'new_value': pif.form.put_text_input(
             tab + '.' + col, colwidth, min(colwidth, 80), value=dat.get(col, ''))})
@@ -1511,7 +1510,6 @@ MBXU = 15
 LW = 16
 YT = 17
 
-ml_re = re.compile(r'''<.*?>''', re.M | re.S)
 def_re_str = r'''<a\s+href=['"](?P<u>[^'"]*)['"].*?>(?P<t>.*?)</a>'''
 
 
@@ -1597,7 +1595,7 @@ class LinkScraperPSDC(LinkScraper):
         return 'single.' + txt[:txt.find(' ')]
 
     def clean_name(self, lnk, txt):
-        return ml_re.sub('', txt).strip()
+        return mbdata.angle_re.sub('', txt).strip()
 
 
 class LinkScraperAREH(LinkScraper):
@@ -1625,7 +1623,7 @@ class LinkScraperDAN(LinkScraper):
         return self.clean_page_id('single.' + txt[:txt.find(' ')]) if txt else ''
 
     def clean_name(self, lnk, txt):
-        return ml_re.sub('', txt).strip()
+        return mbdata.angle_re.sub('', txt).strip()
 
 
 class LinkScraperMBXF(LinkScraper):
@@ -1636,7 +1634,7 @@ class LinkScraperCF(LinkScraper):
     lid = CF
 
     def clean_name(self, lnk, txt):
-        return ml_re.sub('', txt)
+        return mbdata.angle_re.sub('', txt)
 
 
 class LinkScraperKULIT(LinkScraper):

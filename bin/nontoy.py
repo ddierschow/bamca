@@ -4,7 +4,6 @@ import datetime
 from io import open
 import os
 import pprint
-import re
 
 import basics
 import bfiles
@@ -19,7 +18,6 @@ import useful
 # -- biblio
 
 map_url = '''https://www.google.com/maps/place/'''
-squish_re = re.compile(r'\s\s*')
 
 biblios = {
     'biblio': {
@@ -269,11 +267,11 @@ def submit_comment(pif):
 
         cred = who = comment = '-'
         if mycomment:
-            comment = squish_re.sub(' ', mycomment)
+            comment = mbdata.multi_spaces_re.sub(' ', mycomment)
         if credit:
-            cred = squish_re.sub(' ', credit)
+            cred = mbdata.multi_spaces_re.sub(' ', credit)
         if myname:
-            who = squish_re.sub(' ', myname)
+            who = mbdata.multi_spaces_re.sub(' ', myname)
         open(descriptions_file, 'a+').write('\t'.join([dest_filename, '-', '-', '-', comment, cred, who]) + '\n')
         ostr = '<div class="warning">Thank you for submitting that file.</div><br>\n'
 

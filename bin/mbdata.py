@@ -1,5 +1,6 @@
-import config
 import re
+
+import config
 
 modsperpage = 100  # a laudable goal
 
@@ -31,8 +32,6 @@ regionparents = {
     'J': 'R',
     'L': 'W',
 }
-
-model_texts = ['Description', 'Base', 'Body', 'Interior', 'Wheels', 'Windows', 'With', 'Base Text']
 
 lineup_types = [
     ("man", "Main line models"),
@@ -495,7 +494,7 @@ materials = {
 }
 
 
-arts = {
+casting_arts = {
     'Rolamatics': 'rola-matics',
     'Choppers': 'choppers',
     'Real Talkin': 'realtalkin',
@@ -786,6 +785,19 @@ components = {
     'deco': {'b': 'body', 'c': 'cab', 'h': 'hood', 'r': 'roof', 's': 'side', 'w': 'wing', '_': ','},
 }
 
+# -------- regular expressions -----------------------------------------
+
+mack_id_re = re.compile(r'(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
+starting_digits_re = re.compile(r'\d*')
+paren_re = re.compile(r'\s*\(.*?\)\s*')
+num_paren_re = re.compile(r'\((?P<n>\d*)\)')
+angle_re = re.compile(r'''<.*?>''', re.M | re.S)
+multi_spaces_re = re.compile(r'\s\s*')
+commit_date_re = re.compile(r'Date:\s*(?P<d>... ... \d+ \d+:\d+:\d+ \d+)')
+commit_re = re.compile(r'\ncommit ', re.M)
+illegal_form_re = re.compile('[^-A-Za-z0-9_ ]+')
+sql_fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
+
 # ----------------------------------------------------------------------
 
 
@@ -825,8 +837,7 @@ def correct_region(region, year):
 
 
 def get_mack_number(cid):
-    id_re = re.compile(r'(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
-    id_m = id_re.match(cid)
+    id_m = mack_id_re.match(cid)
     if id_m:
         if id_m.group('p') == 'SF':
             return ('MB', int(id_m.group('n')), id_m.group('l'))
@@ -866,7 +877,6 @@ def get_country(cc2):
 
 
 def normalize_var_id(mod, var_id):
-    starting_digits_re = re.compile(r'\d*')
     if var_id[0].isdigit():
         while var_id and var_id[0] == '0':
             var_id = var_id[1:]
@@ -911,3 +921,7 @@ def type_check(prop_n, prop_y, avail):
         if prop_y and not type_match(prop_y, avail):
             return False
     return True
+
+
+def text_types(typespec):
+    return ', '.join([vehicle_types.get(t) for t in typespec or [] if t])

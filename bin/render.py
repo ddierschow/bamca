@@ -547,6 +547,7 @@ of Matchbox International Ltd. and are used with permission.
 
     # ---- lower level rendering blocks
 
+    # it is entirely possible this is no longer being used.  we should investigate.
     def fmt_pseudo(self, istr):
         if not istr:
             return ''
@@ -644,7 +645,7 @@ of Matchbox International Ltd. and are used with permission.
 
     @classmethod
     def fmt_star(cls, color=None, half=False, hollow=False, also='', alsoc=''):
-        return cls.fmt_mini(color, "star-half-stroke" if hollow else "star", "regular" if hollow else "solid",
+        return cls.fmt_mini(color, "star-half-stroke" if half else "star", "regular" if hollow else "solid",
                             also=also, alsoc=alsoc)
 
     @classmethod

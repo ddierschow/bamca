@@ -2,7 +2,6 @@
 # -*- coding: utf8 -*-
 
 import functools
-from functools import reduce
 from io import open
 import re
 
@@ -403,12 +402,12 @@ class VariationImportData(object):
 
     def transform_cell(self, txt):
         txt = txt.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ')
-        txt = reduce(lambda y, x: x[0].sub(x[1], y), self.cell_change, txt)
+        txt = functools.reduce(lambda y, x: x[0].sub(x[1], y), self.cell_change, txt)
         return txt.strip()
 
     def transform_header(self, txt):
         txt = txt.replace('\xa0', ' ').strip()
-        txt = reduce(lambda y, x: x[0].sub(x[1], y), self.head_change, txt)
+        txt = functools.reduce(lambda y, x: x[0].sub(x[1], y), self.head_change, txt)
         return txt
 
     def get_model_ids(self, omn):

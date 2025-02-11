@@ -281,12 +281,14 @@ table_info = {
             'base', 'body', 'deco', 'deco_type', 'interior', 'wheels', 'windows',
             'manufacture', 'additional_text', 'base_name', 'base_number', 'base_scale', 'tool_id', 'production_id',
             'copyright', 'company_name', 'logo_type', 'base_reads', 'area', 'date',
-            'note', 'picture_id', 'imported', 'imported_from', 'imported_var', 'category', 'variation_type'],
+            'note', 'picture_id', 'imported', 'imported_from', 'imported_var', 'category', 'variation_type'
+        ],
         'title': {
             'mod_id': 'Model ID', 'var': 'Variation ID', 'text_description': 'Description',
             'text_base': 'Base', 'text_body': 'Body', 'text_interior': 'Interior', 'text_wheels': 'Wheels',
             'text_windows': 'Windows', 'text_with': 'With', 'text_text': 'Base Text',
-            'tool_id': 'Tool ID', 'production_id': 'Production ID', 'picture_id': 'Picture ID'},
+            'tool_id': 'Tool ID', 'production_id': 'Production ID', 'picture_id': 'Picture ID',
+        },
         'clinks': {
             'var': {'tab': 'variation', 'id': ['mod_id/mod_id', 'var/var']},
             'mod_id': {'tab': 'casting', 'id': ['id/mod_id']},

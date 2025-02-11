@@ -37,13 +37,6 @@ def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
     return thismods['picture_id'].replace('w', region)
 
 
-def show_list_var_pics(pif, mod_id):
-    founds, needs, cnts, id_set = models.count_list_var_pics(pif, mod_id)
-    missing_ids = (
-        ', '.join([str(x) for x in sorted(set(range(min(id_set), max(id_set) + 1)) - id_set)])) if id_set else ''
-    return models.fmt_var_pics(founds, needs), cnts, missing_ids
-
-
 def make_compares(pif, mod_id, relateds):
     return [
         pif.ren.format_link('/cgi-bin/compare.cgi#' + x['casting_related.model_id'], 'Comparisons for this model')
@@ -68,9 +61,9 @@ def make_relateds(pif, mod_id, relateds):
     return relateds
 
 
-def show_link(pif, href, names):
-    angle_re = re.compile(r'<.*?>')
-    return pif.ren.format_link(href, ' - '.join([angle_re.sub('', x) for x in names if x]))
+def show_single_link(pif, href, names):
+    title = names if isinstance(names, str) else ' - '.join([x for x in names if x])
+    return pif.ren.format_link(href, mbdata.angle_re.sub('', title))
 
 
 def reduce_variations(pif, mod_id, vars):
@@ -81,11 +74,9 @@ def reduce_variations(pif, mod_id, vars):
         if var['v.var']:
             vtd = var['v.text_description']
             vard.setdefault(vtd, [list(), list()])  # eek
-            # vard[vtd][0].append(pif.ren.format_link('vars.cgi?mod=%s&var=%s' % (
-            # mod_id, var['v.var']), var['v.var']))
+            # vard[vtd][0].append(pif.ren.format_link('vars.cgi?mod=%s&var=%s' % (mod_id, var['v.var']), var['v.var']))
             vard[vtd][0].append(var['v.var'])
             vard[vtd][1].append(var['v.picture_id'] if var['v.picture_id'] else var['v.var'])
-    # useful.write_comment('single.reduce_variations', vars, vard)
     return sorted([[
         sorted(vard[vtd][0]),
         pif.ren.find_alt_image_path(
@@ -121,24 +112,24 @@ def show_series_appearances(pif, matrixes, relateds):
     appears.extend(dedup_mat.values())
 
     relateds = [x for x in relateds if x['casting_related.section_id'] == 'pub']
-    pubs = [show_link(pif, 'pub.cgi?id=' + appear['base_id.id'],
-                      (appear['base_id.rawname'].replace(';', ' '), appear['base_id.first_year']))
+    pubs = [show_single_link(pif, f"pub.cgi?id={appear['base_id.id']}",
+                             [appear['base_id.rawname'].replace(';', ' '), appear['base_id.first_year']])
             for appear in relateds]
-    appears = [show_link(pif, 'matrix.cgi?page=%s#%s' % (appear['page_info.id'][7:], appear['section_id']),
-                         appear['title']) for appear in appears]
+    appears = [show_single_link(pif, f"matrix.cgi?page={appear['page_info.id'][7:]}#{appear['section_id']}",
+                                appear['title']) for appear in appears]
     return appears + pubs
 
 
 def show_code2_appearances(pif, mod_id, vscounts):
-    return [show_link(pif, 'code2.cgi?mod_id=%s&cat=%s' % (mod_id, x['variation_select.category']),
-                      ['%s (%d variation%s)' % (x['category.name'], x['count(*)'], 's' if x['count(*)'] != 1 else '')])
+    return [show_single_link(pif, f"code2.cgi?mod_id={mod_id}&cat={x['variation_select.category']}",
+                             f"{x['category.name']} ({x['count(*)']} variation{useful.plural(x['count(*)'])}")
             for x in vscounts if x['count(*)'] and x['category.flags'] & config.FLAG_MODEL_CODE_2]
 
 
 def show_pack_appearances(pif, packs):
     # doesn't do pagename properly
     pack_d = {x['pack.id']: x for x in packs}
-    return [show_link(pif, "packs.cgi?page=%s&id=%s" % (pack['pack.page_id'], pack['pack.id']),
+    return [show_single_link(pif, f"packs.cgi?page={pack['pack.page_id']}&id={pack['pack.id']}",
             [pack['base_id.rawname'], pack['section.name'], mbdata.regions.get(pack['pack.region'], 'Worldwide'),
              pack['base_id.first_year']])
             for pack_id, pack in sorted(pack_d.items())]
@@ -219,21 +210,20 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         vfl = sorted(set(['mbusa' if date_re.match(x) else x for x in vfl])) or ['importer']
         for vf in vfl:
             links.append(f'<a href="vedit.cgi?d=src/mbxf&m={mod_id}&f={vf}">{vf}</a>')
-        var_pics, var_texts, missing_ids = show_list_var_pics(pif, mod_id)
+        var_pics, var_texts, missing_ids = models.show_list_var_pics(pif, mod_id)
         if missing_ids:
             ostr += f'\n<span class="red">{missing_ids}</span><br>\n'
         ostr += '<br>\n'.join(var_pics) + '<p>\n'
         fmt_bad, _, _ = pif.dbh.check_description_formatting(mod_id)
         ostr += pif.ren.fmt_x('red') if fmt_bad else pif.ren.fmt_check('green')
         ostr += '<br>'
-        for i_vt in range(1, len(var_texts)):
-            mt = 'title="' + mbdata.model_texts[i_vt - 1] + '"'
-            vt = var_texts[i_vt]
+        var_cnt, var_counts = var_texts
+        for k, v in var_counts.items():
+            mt = f'title="{models.text_titles[k]}"'
             ostr += (
-                pif.ren.fmt_star('gray', also=mt, alsoc='smallish', hollow=True)
-                if not model['format_' + mbdata.desc_attributes[i_vt - 1]] else
-                pif.ren.fmt_star('green', also=mt, alsoc='smallish') if vt == var_texts[0] else
-                pif.ren.fmt_star('red', also=mt, alsoc='smallish') if not vt else
+                pif.ren.fmt_star('gray', also=mt, alsoc='smallish', hollow=True) if not model[models.text_fmts[k]] else
+                pif.ren.fmt_star('green', also=mt, alsoc='smallish') if v == var_cnt else
+                pif.ren.fmt_star('red', also=mt, alsoc='smallish') if not v else
                 pif.ren.fmt_star('yellow', also=mt, alsoc='smallish'))
         ostr += '<p>\n'
         var_ids = [x['v.var'] for x in raw_variations]
@@ -466,8 +456,8 @@ def show_single(pif):
     for s in model['descs']:
         if s.startswith('same as '):
             model['imgid'].append(s[8:])
-        if s in mbdata.arts:
-            vehicle_types.append('c_' + mbdata.arts[s])
+        if s in mbdata.casting_arts:
+            vehicle_types.append('c_' + mbdata.casting_arts[s])
         elif s:
             descs.append(f"<i>{s}</i>")
     model['descs'] = descs

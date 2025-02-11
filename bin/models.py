@@ -10,6 +10,15 @@ import useful
 flago = mflags.FlagList()
 
 
+text_attrs = {'de': 'text_description', 'ba': 'text_base', 'bo': 'text_body', 'in': 'text_interior',
+              'wh': 'text_wheels', 'wi': 'text_windows', 'wt': 'text_with', 'bt': 'text_text'}
+text_fmts = {'de': 'format_description', 'ba': 'format_base', 'bo': 'format_body', 'in': 'format_interior',
+             'wh': 'format_wheels', 'wi': 'format_windows', 'wt': 'format_with', 'bt': 'format_text'}
+text_titles = {'de': 'Description', 'ba': 'Base', 'bo': 'Body', 'in': 'Interior',
+               'wh': 'Wheels', 'wi': 'Windows', 'wt': 'With', 'bt': 'Base Text'}
+text_short_titles = {'de': 'De', 'ba': 'Ba', 'bo': 'Bo', 'in': 'In', 'wh': 'Wh', 'wi': 'Wi', 'wt': 'W/', 'bt': 'BT'}
+var_types = ['c', '1', '2', 'p', 'f']
+
 # lineup, mannum
 # shows first_year, flag, pic, model name, description, with link to single.
 mod_tab_pic_lnk_pat = '''
@@ -85,8 +94,8 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     # useful.write_comment(mdict['id'], mdict['descs'])
     if not mdict.get('nodesc'):
         for s in mdict['descs']:
-            if s in mbdata.arts:
-                mdict['desclist'] += f"<br>{pif.ren.format_image_icon('c_' + mbdata.arts[s] + '.gif')}"
+            if s in mbdata.casting_arts:
+                mdict['desclist'] += f"<br>{pif.ren.format_image_icon('c_' + mbdata.casting_arts[s] + '.gif')}"
             elif s:
                 mdict['desclist'] += f"<br><i>{s}</i>\n"
     mdict['shown_id'] = mdict.get('alias.id') or mdict['id']
@@ -397,7 +406,7 @@ def add_model_var_table_pic_link(pif, mdict):
     return ostr
 
 
-def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
+def get_mack_numbers(pif, cid, mod_type, aliases):
     aliases = [(x['alias.flags'], x['alias.id']) for x in aliases if x['alias.type'] == 'mack']
     if mod_type == cid[0:2] and mod_type in ('RW', 'SF'):
         aliases.append((config.FLAG_ALIAS_PRIMARY, cid,))
@@ -412,11 +421,11 @@ def get_mack_numbers(pif, cid, mod_type, aliases):  # called from elsewhere
             for x in mack_nums]
 
 
-def fmt_var_pic(f, n):  # called from elsewhere
+def fmt_var_pic(f, n):
     return (f'<span class="{"ok" if f == n else "no"}">{f}/{n}</span>') if n else '-'
 
 
-def fmt_var_pics(found, needs):  # called from elsewhere
+def fmt_var_pics(found, needs):
     if isinstance(found, list) or isinstance(found, tuple):
         return [fmt_var_pic(*x) for x in zip(found, needs)]
     return fmt_var_pic(found, needs)
@@ -433,40 +442,28 @@ def calc_var_type(pif, var):
 
 
 def calc_var_pics(pif, var):
-    has_de = int(len(var['text_description']) > 0)
-    has_ba = int(len(var['text_base']) > 0)
-    has_bo = int(len(var['text_body']) > 0)
-    has_in = int(len(var['text_interior']) > 0)
-    has_wh = int(len(var['text_wheels']) > 0)
-    has_wi = int(len(var['text_windows']) > 0)
-    has_wt = int(len(var['text_with']) > 0)
-    has_bt = int(len(var['text_text']) > 0)
+    has = {k: int(len(var[v]) > 0) for k, v in text_attrs.items()}
     is_found = False
     if not var['picture_id']:
         is_found = int(bool(pif.ren.find_image_path(
             pdir=config.IMG_DIR_MAN, nobase=True,
             prefix=mbdata.IMG_SIZ_SMALL, suffix='jpg', fnames=var['mod_id'], vars=var['var'])))
 
-    return (calc_var_type(pif, var),) + (is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt, has_bt)
+    return (calc_var_type(pif, var), is_found, has)
 
 
-def count_list_var_pics(pif, mod_id):  # called from elsewhere
+def count_list_var_pics(pif, mod_id):
     vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
     needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
     found_c = found_f = found_a = found_1 = found_2 = found_p = 0
-    count_de = count_ba = count_bo = count_in = count_wh = count_wi = count_wt = count_bt = 0
+    count = {k: 0 for k, v in text_attrs.items()}
     id_set = set()
     # nf = []
     for var in vars:
-        ty_var, is_found, has_de, has_ba, has_bo, has_in, has_wh, has_wi, has_wt, has_bt = calc_var_pics(pif, var)
-        count_de += has_de
-        count_ba += has_ba
-        count_bo += has_bo
-        count_in += has_in
-        count_wh += has_wh
-        count_wi += has_wi
-        count_wt += has_wt
-        count_bt += has_bt
+        ty_var, is_found, has = calc_var_pics(pif, var)
+
+        for k in text_attrs:
+            count[k] += has[k]
         if not var['picture_id']:
             # if not is_found:
             #     nf.append(var['var'])
@@ -497,5 +494,12 @@ def count_list_var_pics(pif, mod_id):  # called from elsewhere
 
     return ((found_a, found_c, found_1, found_2, found_f, found_p),
             (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p),
-            (len(vars), count_de, count_ba, count_bo, count_in, count_wh, count_wi, count_wt, count_bt),
+            (len(vars), count),
             id_set)
+
+
+def show_list_var_pics(pif, mod_id):
+    founds, needs, cnts, id_set = count_list_var_pics(pif, mod_id)
+    missing_ids = (
+        ', '.join([str(x) for x in sorted(set(range(min(id_set), max(id_set) + 1)) - id_set)])) if id_set else ''
+    return fmt_var_pics(founds, needs), cnts, missing_ids

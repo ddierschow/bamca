@@ -537,7 +537,8 @@ class MannoFile(object):
         # nf = []
         for var in vars:
             if not var['picture_id']:
-                ty_var, is_found = self.calc_var_pics(pif, var)
+                is_found = var['var'] in self.varpics.get(var['mod_id'], {})
+                ty_var = models.calc_var_type(pif, var), is_found
 
                 needs_a += 1
                 found_a += is_found
@@ -559,10 +560,6 @@ class MannoFile(object):
         return (found_a, found_c, found_1, found_2, found_f, found_p), \
                (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p), \
                (None,)
-
-    def calc_var_pics(self, pif, var):
-        is_found = var['var'] in self.varpics.get(var['mod_id'], {})
-        return models.calc_var_type(pif, var), is_found
 
     def get_picture_model_entries(self, pif, model_ids):
         photogs = {x['photo_credit.name'].lower(): x['photographer.id']
@@ -887,7 +884,7 @@ class MannoFile(object):
             # var['varsel'] = pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
             var['phcred'] = credits.get(('%s-%s' % (var['mod_id'], var['var'])).lower(), '')
             # var['ty_var'], var['is_found'], var['has_de'], var['has_ba'], var['has_bo'], var['has_in'],
-            # var['has_wh'], var['has_wi'], var['has_wt'] = single.calc_var_pics(pif, var)
+            # var['has_wh'], var['has_wi'], var['has_wt'] = models.calc_var_pics(pif, var)
             count_var += 1
             if self.photog and var['phcred'] == self.photog:
                 count_cred += 1
@@ -1023,9 +1020,6 @@ def delete_casting(pif, mod_id, *args, **kwargs):
     pif.dbh.delete_variation({'mod_id': mod_id})
     pif.dbh.delete_detail({'mod_id': mod_id})
 
-    # If we're renaming, I'd like to also call out the pictures.
-    # filename_re = re.compile(r'(?P<path>.*/)(?P<p>[a-z]_)?(?P<m>[^-.]*)(?P<s>-[^.]*)?(?P<e>\..*)')
-    # none_blank = {None: ''}
     patts = [
         '.' + config.IMG_DIR_MAN + '/?_%s.*' % mod_id,
         '.' + config.IMG_DIR_MAN + '/%s.*' % mod_id,
@@ -1113,9 +1107,6 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
         pif.ren.message("rename", old_mod_id, new_mod_id)
         pif.dbh.rename_base_id(old_mod_id, new_mod_id)
 
-    # If we're renaming, I'd like to also rename the pictures.
-    # filename_re = re.compile(r'(?P<path>.*/)(?P<p>[a-z]_)?(?P<m>[^-.]*)(?P<s>-[^.]*)?(?P<e>\..*)')
-    # none_blank = {None: ''}
     dirs = [
         config.IMG_DIR_MAN,
         config.IMG_DIR_MAN,
@@ -1173,7 +1164,7 @@ def copy_casting(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
 
 
 def print_model(pif, mod):
-    if mod['description']:
+    if mod.get('description'):
         pif.ren.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)-36s|%(description)s' % mod)
     else:
         pif.ren.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod)

@@ -23,6 +23,8 @@ import useful
 
 # os.environ['PATH'] += ':/usr/local/bin'
 
+# This is the last file that uses the old-style table formatter.
+
 
 ''' Just so ya know
 
@@ -209,7 +211,7 @@ def grab_url_file(url, pdir, fn='', var='', overwrite=False, desc=''):
     except Exception as e:
         if useful.is_header_done():
             useful.show_error()
-        return "Error encountered!  File not uploaded. ({})".format(e)
+        return f"Error encountered!  File not uploaded. ({e})"
     if not fn:
         fn = url[url.rfind('/') + 1:].lower()
     elif '.' not in fn:
@@ -370,11 +372,11 @@ class UploadForm(object):
     def thanks(self, pif, fn):
         cred = who = comment = '-'
         if self.comment:
-            comment = re.compile(r'\s\s*').sub(' ', self.comment)
+            comment = mbdata.multi_spaces_re.sub(' ', self.comment)
         if self.cred:
-            cred = re.compile(r'\s\s*').sub(' ', self.cred)
+            cred = mbdata.multi_spaces_re.sub(' ', self.cred)
         if self.who:
-            who = re.compile(r'\s\s*').sub(' ', self.who)
+            who = mbdata.multi_spaces_re.sub(' ', self.who)
         open(descriptions_file, 'a+').write('\t'.join(
             [fn,
              self.mod_id if self.mod_id else '-',
@@ -996,6 +998,8 @@ def imawidget_main(pif):
 
 # -- stitch
 
+# Still uses old-style table formatter.
+
 
 class StitchForm(object):
     def __init__(self, verbose=False):
@@ -1457,7 +1461,7 @@ imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 '''
 
 
-def library_img(pif, args, base=''):
+def library_img(pif, args, base=''):  # still uses old-style table formatter.
     print('<tr>')
     args.sort()
     for arg in args:

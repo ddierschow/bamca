@@ -2,7 +2,6 @@
 
 import copy
 
-import basics
 import config
 import mbdata
 import models
@@ -13,6 +12,9 @@ import useful
 vfields = {'description': 'text_description', 'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior',
            'wheels': 'text_wheels', 'windows': 'text_windows', 'with': 'text_with', 'text': 'text_text',
            'vid': 'var', 'category': 'category', 'date': 'date', 'area': 'area', 'note': 'note'}
+vsfields = {'description': 'text_description', 'base': 'text_base', 'body': 'text_body', 'interior': 'text_interior',
+            'wheels': 'text_wheels', 'windows': 'text_windows', 'with': 'text_with', 'text': 'text_text',
+            'vid': 'text_var'}
 man_sections = ['manno', 'manunf']
 
 '''
@@ -33,49 +35,82 @@ man_sections = ['manno', 'manunf']
 '''
 
 
-class Searcher(object):
-    def __init__(self, form, withaliases=False, madeonly=False):
-        self.list_type = form.get_str('ltype')
-        self.sort_type = form.get_str('stype')
-        self.start = form.get_int('start', 0)
-        self.more = False
-        self.cascount = 0
-        self.varcount = 0
+def read_super_search_form(form, withaliases=False, madeonly=False):
 
-        # casting section
-        self.withaliases = withaliases
-        self.madeonly = madeonly
-        self.section = form.get_id('section')
-        self.mod_id = form.get_str('cid')
-        self.mod_id_exact = form.get_bool('cidx')
-        self.mod_name = form.search('cname')
-        self.idst = form.get_int('idst', 1)
-        self.idend = form.get_int('idend', 9999)
-        self.make_type = form.get_str('make')   # = unk isn't working
-        self.make_name = form.get_str('makename')
-        self.makes = set()  # massaged form of what we're looking for
-        self.makelist = []  # all possible makes
-        self.cmakes = {}    # casting makes
-        self.vehtypes = form.get_list_by_value('type', 'ynm')
-
-        # variation section
-        self.varsq = {vfields[x]: form.search(x) for x in vfields}
-        plant = form.get_str('plant', '')  # plant_rd thinks '' is 'unset' so...
-        self.varsq['manufacture'] = mbdata.plant_rd.get(plant, '') if plant else ''
-        self.var_id_exact = form.get_bool('vidx')
-        self.codes = self.get_codes(form)
-        self.is_var_search = any(self.varsq.values()) or self.codes != 3
-
-        # returns
-        self.slist = []  # list of sections, which contains models, which in turn contains variations
-
-    def get_codes(self, form):
+    def get_codes(self, form_codes):
         codes = 0
-        for code in form.get_list('codes'):
+        for code in form_codes:
             if code not in "123":
                 return None
             codes += int(code)
         return codes
+
+    plant = form.get_str('plant', '')  # plant_rd thinks '' is 'unset' so...
+    varsq = {vfields[x]: form.search(x) for x in vfields}
+    varsq['manufacture'] = mbdata.plant_rd.get(plant, '') if plant else ''
+    return dict(
+        list_type=form.get_str('ltype'),
+        sort_type=form.get_str('stype'),
+        start=form.get_int('start', 0),
+
+        # casting section
+        withaliases=withaliases,
+        madeonly=madeonly,
+        section=form.get_id('section'),
+        mod_id=form.get_str('cid'),
+        mod_id_exact=form.get_bool('cidx'),
+        mod_name=form.search('cname'),
+        idst=form.get_int('idst', 1),
+        idend=form.get_int('idend', 9999),
+        make_type=form.get_str('make'),   # = unk isn't working
+        make_name=form.get_str('makename'),
+        vehtypes=form.get_list_by_value('type', 'ynm'),
+
+        # variation section
+        varsq=varsq,
+        var_id_exact=form.get_bool('vidx'),
+        codes=form.get_list('codes'),
+    )
+
+
+class Searcher(object):
+    def __init__(self, form=None, args=None, withaliases=False, madeonly=False):
+        if form:
+            args = read_super_search_form(form, withaliases, madeonly)
+
+        self.list_type = args.get('list_type') or 'c'
+        self.sort_type = args.get('sort_type') or 'i'
+        self.start = args.get('start')
+
+        # casting section
+        self.withaliases = args.get('withaliases') or False
+        self.madeonly = args.get('madeonly') or False
+        self.section = args.get('section') or ''
+        self.mod_id = args.get('mod_id') or ''
+        self.mod_id_exact = args.get('mod_id_exact') or 0
+        self.mod_name = args.get('mod_name') or ''
+        self.idst = args.get('idst') or 1
+        self.idend = args.get('idend') or 9999
+        self.make_type = args.get('make_type') or ''   # = unk isn't working
+        self.make_name = args.get('make_name') or ''
+        self.vehtypes = args.get('vehtypes')
+
+        # variation section
+        self.varsq = args.get('varsq') or {'var': ''}
+        self.var_id_exact = args.get('var_id_exact') or 0
+        self.codes = args.get('codes', 3)  # thinking about this one...
+
+        # internal stuff
+        self.is_var_search = any(self.varsq.values()) or self.codes != 3
+        self.makes = set()  # massaged form of what we're looking for
+        self.makelist = []  # all possible makes
+        self.cmakes = {}    # casting makes
+
+        # returns
+        self.more = False
+        self.cascount = 0
+        self.varcount = 0
+        self.slist = []  # list of sections, which contains models, which in turn contains variations
 
     def run_query(self, pif):
         # early exits
@@ -132,7 +167,6 @@ class Searcher(object):
                     self.mdict[var['v.mod_id']]['vars'].append(var)
 
         # create outgoing list
-        # paging works for castings but not for vars
         count = 0
         if self.sort_type == 's':
             for section in self.slist:
@@ -206,7 +240,7 @@ class Searcher(object):
         manitem.update({
             'makes': ((set([manitem['make']]) if manitem['make'] else set()) | self.cmakes.get(manitem['id'], set()) or
                       set(['unk'])),
-            'type_desc': self.types(manitem['vehicle_type']),
+            'type_desc': mbdata.text_types(manitem['vehicle_type']),
             'vars': [],
             'variations': [],
         })
@@ -217,9 +251,6 @@ class Searcher(object):
             self.sdict[manitem['section_id']]['model_ids'].append(man_id)
             self.mdict[man_id] = manitem
             self.cascount += 1
-
-    def types(self, typespec):
-        return ', '.join([mbdata.vehicle_types.get(t) for t in typespec or [] if t])
 
     def check_model_number(self, mod_id):
         if not self.idst or not self.idend:
@@ -249,9 +280,6 @@ class Searcher(object):
             (self.madeonly and not mod['made']))
 
     def make_var_search_criteria(self, pif, mod):  # query for clicking on cas with varsq
-        vsfields = {'description': 'text_description', 'base': 'text_base', 'body': 'text_body',
-                    'interior': 'text_interior', 'wheels': 'text_wheels', 'windows': 'text_windows',
-                    'with': 'text_with', 'text': 'text_text', 'vid': 'text_var'}
         qf = '&'.join(['{}={}'.format(v, pif.form.get_str(k)) for k, v in vsfields.items()])
         if self.varsq['manufacture']:
             qf += f'&manufacture={self.varsq["manufacture"]}'
@@ -272,17 +300,3 @@ class Searcher(object):
         for code in pif.form.get_list('codes'):
             qf += f'&codes={code}'
         return qf
-
-
-# ---- commands ------------------------------
-
-
-cmds = [
-]
-
-
-# ---- ---------------------------------------
-
-
-if __name__ == '__main__':  # pragma: no cover
-    basics.process_command_list(cmds=cmds, dbedit='', options='fs')

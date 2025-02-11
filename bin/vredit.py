@@ -23,13 +23,11 @@ import glob
 from io import open
 import itertools
 import os
-import re
 import sys
 
 import basics
 import config
 import mbdata
-import tables
 import useful
 import varias
 import vrdata
@@ -453,7 +451,7 @@ def show_base_id(pif, mod):
     # base id form
     print("<h3>Base ID</h3>")
     base_id_info = pif.dbh.describe_dict('base_id')
-    base_id_tab = tables.table_data['base_id']
+    base_id_tab = pif.dbh.get_table_data('base_id')
     print('<form method="post" name="base_id">' + pif.create_token())
     print("<table border=1>")
     print("<tr><th>Column</th><th>Value</th></tr>")
@@ -463,7 +461,7 @@ def show_base_id(pif, mod):
             print(pif.form.put_checkbox(
                 "base_id." + col, base_id_tab.bits[col], useful.bit_list(mod[col], format='{:04x}')))
         else:
-            flen = int(paren_re.search(base_id_info[col]['type']).group('len'))
+            flen = int(mbdata.num_paren_re.search(base_id_info[col]['type']).group('n'))
             print(pif.form.put_text_input("base_id." + col, flen, min(80, flen), mod[col]))
         print("</td></tr>")
     print("</table>")
@@ -478,13 +476,13 @@ def show_casting(pif, mod, file_id):
     print('<form method="post" name="casting">' + pif.create_token())
     print("<table border=1>")
     print("<tr><th>Column</th><th>Value</th><th>&nbsp;</th></tr>")
-    for col in tables.table_data['casting'].columns + tables.table_data['casting'].extra_columns:
+    for col in pif.dbh.get_table_data('casting').columns + pif.dbh.get_table_data('casting').extra_columns:
         if casting_info[col]['type'] == 'text':
             flen = 65535
             print("<tr><td>%s</td><td>%s</td>" % (
                 col, pif.form.put_textarea_input("casting." + col, 80, 4, mod[col])))
         else:
-            flen = int(paren_re.search(casting_info[col]['type']).group('len'))
+            flen = int(mbdata.num_paren_re.search(casting_info[col]['type']).group('n'))
             print("<tr><td>%s</td><td>%s</td>" % (
                 col, pif.form.put_text_input("casting." + col, flen, min(flen, 128), mod[col])))
         print("<td>%s</td></tr>" % casting_help(pif, col, mod))
@@ -536,7 +534,6 @@ def casting_help(pif, col, mod):
 
 text_color = {True: '#0000FF', False: '#FF0000'}
 bg_color = {True: '#FFFFFF', False: '#FFCCCC'}
-paren_re = re.compile(r'\((?P<len>\d*)\)')
 
 
 def show_file(pif, vid, fdir, fn, args):
@@ -847,7 +844,7 @@ def do_action(pif, mod_id):
     elif pif.form.has("save_casting"):
         print("save casting<br>")
         rec = dict()
-        for k in tables.table_data['casting'].columns + tables.table_data['casting'].extra_columns:
+        for k in pif.dbh.get_table_data('casting').columns + pif.dbh.get_table_data('casting').extra_columns:
             rec[k] = pif.form.get_raw('casting.' + k)
         pif.dbh.write("casting", rec, {"id": pif.form.get_raw("casting.id")})
         pif.dbh.recalc_description(pif.form.get_raw('casting.id'))
