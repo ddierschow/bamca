@@ -185,6 +185,11 @@ ebay_ends = [
     '/s-l300.jpg',
     '/s-l225.jpg',
     '/s-l64.jpg',
+    '/s-l960.png',
+    '/s-l500.png',
+    '/s-l300.png',
+    '/s-l225.png',
+    '/s-l64.png',
 ]
 
 

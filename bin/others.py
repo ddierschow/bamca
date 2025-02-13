@@ -3,7 +3,7 @@
 import basics
 import config
 import mbdata
-import models
+import mbmods
 import render
 import useful
 
@@ -21,7 +21,7 @@ def create_section(pif, attribute_type):
     lsec = render.Section(
         section=sect,
         range=[render.Range(entry=[
-            render.Entry(text=models.add_model_thumb_pic_link(pif, prep_mod(x))) for x in mods])]
+            render.Entry(text=mbmods.add_model_thumb_pic_link(pif, prep_mod(x))) for x in mods])]
     )
     return lsec
 
@@ -60,7 +60,7 @@ def code2(pif):
         mod = pif.dbh.modify_man_item(mod)
         mod['img'] = pif.ren.format_link('?mod_id=%s&cat=%s' % (
             mod['id'], cat), txt='%d Variation%s' % (mod['count(*)'], 's' if mod['count(*)'] != 1 else ''))
-        return models.add_model_thumb_pic_link(pif, mod)
+        return mbmods.add_model_thumb_pic_link(pif, mod)
 
     section_id = pif.form.get_str('section')
     pif.ren.print_html()
@@ -104,7 +104,7 @@ def code2_model(pif):
     mvars = pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id)
     for var in mvars:
         # useful.write_comment(var)
-        entry = render.Entry(text=models.add_model_var_pic_link(pif, pif.dbh.depref('v', var)))
+        entry = render.Entry(text=mbmods.add_model_var_pic_link(pif, pif.dbh.depref('v', var)))
         lsec.range[0].entry.append(entry)
 
     llineup = render.Matrix(section=[lsec], header=header)
@@ -154,7 +154,7 @@ def plant_models(pif):
         mod['img'] = pif.ren.format_link(
             '/cgi-bin/vars.cgi?manufacture=%s&mod=%s' % (plant_d.get(plant_id, 'unset'), mod['id']),
             txt='%d Variation%s' % (mod.get('count', -1), 's' if mod.get('count', -1) != 1 else ''))
-        entries.append(render.Entry(text=models.add_model_thumb_pic_link(pif, mod)))
+        entries.append(render.Entry(text=mbmods.add_model_thumb_pic_link(pif, mod)))
 
     llineup = render.Matrix(
         section=[render.Section(range=[render.Range(entry=entries)])],
@@ -206,7 +206,7 @@ def custom_create_section(pif, attribute_type):
     return render.Section(
         section=sect,
         range=[render.Range(
-            entry=[render.Entry(text=models.add_model_thumb_pic_link(pif, mod[1])) for mod in sorted(modd.items())])],
+            entry=[render.Entry(text=mbmods.add_model_thumb_pic_link(pif, mod[1])) for mod in sorted(modd.items())])],
         footer='\n'.join(modals)
     )
 
@@ -272,7 +272,7 @@ def compare_main(pif):
             lran = {'name': ', '.join(names), 'entry': []}
             lsec['range'].append(lran)
             for id, name, descs, img in modset:
-                lent = [models.add_model_pic_link_short(pif, id), [x for x in descs if x], img]
+                lent = [mbmods.add_model_pic_link_short(pif, id), [x for x in descs if x], img]
                 lran['entry'].append(lent)
 
     return pif.ren.format_template('compare.html', lcompare=llineup)

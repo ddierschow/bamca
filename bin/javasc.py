@@ -1,4 +1,3 @@
-
 def_toggle_display_text_js = '''<script type="text/javascript">
 function toggle_visibility(tbid,lnkid)
 {

@@ -5,7 +5,7 @@ import string  # don't judge me
 import basics
 import config
 import mbdata
-import models
+import mbmods
 import render
 import useful
 
@@ -158,7 +158,7 @@ def check_man_mappings(pif, sections):
         for man in mans:
             cid = man['casting.id']
             aliases = pif.dbh.fetch_aliases(cid, 'mack')
-            mack_nums = models.get_mack_numbers(pif, cid, man['base_id.model_type'], aliases)
+            mack_nums = mbmods.get_mack_numbers(pif, cid, man['base_id.model_type'], aliases)
             if not mack_nums:
                 print(cid)
 

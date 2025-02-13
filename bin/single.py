@@ -8,8 +8,8 @@ import basics
 import config
 import imglib
 import mbdata
+import mbmods
 import mflags
-import models
 import render
 import useful
 
@@ -210,7 +210,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         vfl = sorted(set(['mbusa' if date_re.match(x) else x for x in vfl])) or ['importer']
         for vf in vfl:
             links.append(f'<a href="vedit.cgi?d=src/mbxf&m={mod_id}&f={vf}">{vf}</a>')
-        var_pics, var_texts, missing_ids = models.show_list_var_pics(pif, mod_id)
+        var_pics, var_texts, missing_ids = mbmods.show_list_var_pics(pif, mod_id)
         if missing_ids:
             ostr += f'\n<span class="red">{missing_ids}</span><br>\n'
         ostr += '<br>\n'.join(var_pics) + '<p>\n'
@@ -219,9 +219,9 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         ostr += '<br>'
         var_cnt, var_counts = var_texts
         for k, v in var_counts.items():
-            mt = f'title="{models.text_titles[k]}"'
+            mt = f'title="{mbmods.text_titles[k]}"'
             ostr += (
-                pif.ren.fmt_star('gray', also=mt, alsoc='smallish', hollow=True) if not model[models.text_fmts[k]] else
+                pif.ren.fmt_star('gray', also=mt, alsoc='smallish', hollow=True) if not model[mbmods.text_fmts[k]] else
                 pif.ren.fmt_star('green', also=mt, alsoc='smallish') if v == var_cnt else
                 pif.ren.fmt_star('red', also=mt, alsoc='smallish') if not v else
                 pif.ren.fmt_star('yellow', also=mt, alsoc='smallish'))
@@ -356,7 +356,6 @@ def show_single(pif):
     if not model:
         raise useful.SimpleError("That ID wasn't found.", status=404)
     pif.ren.print_html()
-    # useful.write_comment('model', model)
     pic = pif.form.get_str('pic')
     pdir = pif.form.get_dir('dir')
     if pdir.startswith('./'):
@@ -457,7 +456,7 @@ def show_single(pif):
         if s.startswith('same as '):
             model['imgid'].append(s[8:])
         if s in mbdata.casting_arts:
-            vehicle_types.append('c_' + mbdata.casting_arts[s])
+            vehicle_types.append(mbdata.casting_arts[s])
         elif s:
             descs.append(f"<i>{s}</i>")
     model['descs'] = descs
@@ -497,12 +496,12 @@ def show_single(pif):
     # move these to left pane
     boxes = [make_boxes(pif, mod_id, boxstyles, [x['alias.id']
              for x in pif.dbh.fetch_aliases(mod_id, 'mack')])] if boxstyles else []
-    adds = boxes + models.make_adds(pif, mod_id)
+    adds = boxes + mbmods.make_adds(pif, mod_id)
 
     plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))
     relateds = pif.dbh.fetch_casting_relateds(mod_id)
     aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
-    mack_nums = models.get_mack_numbers(pif, mod_id, model['model_type'], aliases)
+    mack_nums = mbmods.get_mack_numbers(pif, mod_id, model['model_type'], aliases)
     if model:
         model['notes'] = '<br>'.join((model.get('notes', '') or '').split(';'))
 
@@ -536,7 +535,7 @@ def show_single(pif):
         'relateds': make_relateds(pif, mod_id, [x for x in relateds if x['casting_related.section_id'] == 'single']),
         'compares':
             make_compares(pif, mod_id, [x for x in relateds if x['casting_related.section_id'] in ['sf', 'rw', 'tr']]),
-        'adds_box': models.show_adds(pif, mod_id),
+        'adds_box': mbmods.show_adds(pif, mod_id),
         'adds': adds,
         'plants': plants,
         'base_names': base_names,

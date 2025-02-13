@@ -10,7 +10,7 @@ import requests
 import basics
 import bfiles
 import config
-import models
+import mbmods
 import useful
 
 
@@ -148,7 +148,7 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
             print("<center><table><tr align=top>")
         shown += 1
         print(" <td valign=top width=%d>" % 200)
-        print(models.add_model_table_pic_link(pif, slist))
+        print(mbmods.add_model_table_pic_link(pif, slist))
         print(" </td>")
         if (shown == cols):
             print("</tr></table></center>\n")
@@ -177,7 +177,7 @@ def show_section_list(pif, sect):
             if mods[col]:
                 slist = mods[col].pop(0)
                 slist['shortname'] = slist['name']
-                print(models.add_model_table_list_entry(pif, slist))
+                print(mbmods.add_model_table_list_entry(pif, slist))
                 found = True
         print(' </tr>')
         if not found:

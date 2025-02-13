@@ -13,8 +13,8 @@ import basics
 import config
 import imglib
 import mbdata
+import mbmods
 import mflags
-import models
 import render
 import useful
 import varias
@@ -191,7 +191,7 @@ class MannoFile(object):
     def add_casting(self, pif, casting, aliases=[]):
         manitem = pif.dbh.modify_man_item(casting)
         aliases = [x for x in aliases if x['alias.type'] == 'mack']
-        manitem['mack'] = ','.join(models.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
+        manitem['mack'] = ','.join(mbmods.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
         if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
             self.add_item(manitem['id'], manitem)
 
@@ -280,7 +280,7 @@ class MannoFile(object):
             anchor=sect['id'],
             range=[render.Range(entry=[
                 render.Entry(data=x)
-                for x in models.generate_model_table_pic_link_dict(pif, self.mdict, sect['model_ids'])])]
+                for x in mbmods.generate_model_table_pic_link_dict(pif, self.mdict, sect['model_ids'])])]
         )
         if pif.form.get_bool('large'):
             lsec.columns = 1
@@ -296,7 +296,7 @@ class MannoFile(object):
 
     def get_section_list(self, pif, sect):
         cols = 3
-        sect['entry'] = [models.add_model_table_list_entry_dict(pif, self.mdict.get(modid, {}))
+        sect['entry'] = [mbmods.add_model_table_list_entry_dict(pif, self.mdict.get(modid, {}))
                          for modid in useful.reflect(sect['model_ids'], cols)]
         sect['columns'] = cols
         sect['anchor'] = sect['id']
@@ -320,7 +320,7 @@ class MannoFile(object):
             mdict = self.mdict[mod_id]
             mdict['nodesc'] = 1
             mdict['prefix'] = mbdata.IMG_SIZ_TINY
-            ran['entry'].append(models.add_model_table_pic_link_dict(pif, mdict))
+            ran['entry'].append(mbmods.add_model_table_pic_link_dict(pif, mdict))
         sect['range'].append(ran)
         return sect
 
@@ -514,8 +514,8 @@ class MannoFile(object):
                 '.', config.IMG_DIR_BOX, mbdata.IMG_SIZ_SMALL + '_' + mod_id + '-' + ty + '*.jpg').lower()))))
                 for ty in base_box_types])
             box_count = sum([int(bool(len(glob.glob(mkpth(ty))))) for ty in box_types])
-            return {'bx': models.fmt_var_pic(base_box_count, len(base_box_types)),
-                    'bx2': models.fmt_var_pic(box_count, len(box_types))}
+            return {'bx': mbmods.fmt_var_pic(base_box_count, len(base_box_types)),
+                    'bx2': mbmods.fmt_var_pic(box_count, len(box_types))}
         return {'bx': '-', 'bx2': '-'}
 
     def show_attr_pics(self, pif, mod_id):
@@ -538,7 +538,7 @@ class MannoFile(object):
         for var in vars:
             if not var['picture_id']:
                 is_found = var['var'] in self.varpics.get(var['mod_id'], {})
-                ty_var = models.calc_var_type(pif, var), is_found
+                ty_var = mbmods.calc_var_type(pif, var), is_found
 
                 needs_a += 1
                 found_a += is_found
@@ -578,19 +578,19 @@ class MannoFile(object):
                 'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
                 'credit': '<a href="vars.cgi?vdt=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
                 'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], mdict['id'], 'i')[1]})
-            founds, needs, _, id_set = models.count_list_var_pics(pif, mdict['id'])
+            founds, needs, _, id_set = mbmods.count_list_var_pics(pif, mdict['id'])
             # mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
             for ipix in range(0, 6):
                 self.totals[ipix]['have'] += founds[ipix]
                 self.totals[ipix]['total'] += needs[ipix]
-            mdict.update(dict(zip(var_pic_keys, models.fmt_var_pics(founds, needs))))
+            mdict.update(dict(zip(var_pic_keys, mbmods.fmt_var_pics(founds, needs))))
             mdict['credvars'] = '<span class="%s">%d/%d</span>' % (
                 'ok' if len(vcredits) == founds[0] else 'no', len(vcredits), founds[0])
             if mdict['flags'] & config.FLAG_MODEL_CASTING_REVISED:
                 mdict['vid'] = '<nobr>' + mdict['vid'] + pif.ren.fmt_circle('green') + '<nobr>'
             if not mdict['made']:
                 mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
-            mdict['d_'] = models.fmt_var_pic(*self.show_attr_pics(pif, mod))
+            mdict['d_'] = mbmods.fmt_var_pic(*self.show_attr_pics(pif, mod))
             # useful.write_comment(mdict)
             yield mdict
 
@@ -739,7 +739,7 @@ class MannoFile(object):
         for mod_id in sect['model_ids']:
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
-            # mack_nums = ','.join(models.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
+            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
             ret.append(
                 [mod_id, mod.get('mack', ''), mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])
         return ret
@@ -791,7 +791,7 @@ class MannoFile(object):
         for mod_id in sect['model_ids']:
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
-            # mack_nums = ','.join(models.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
+            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
             ret.append(dict(zip(field_keys,
                        [mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])))
         return ret
@@ -808,7 +808,7 @@ class MannoFile(object):
         for mod_id in sect['model_ids']:
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
-            # mack_nums = ','.join(models.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
+            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
             ret.append(dict(zip(field_keys,
                        [mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])))
         return ret
@@ -884,7 +884,7 @@ class MannoFile(object):
             # var['varsel'] = pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
             var['phcred'] = credits.get(('%s-%s' % (var['mod_id'], var['var'])).lower(), '')
             # var['ty_var'], var['is_found'], var['has_de'], var['has_ba'], var['has_bo'], var['has_in'],
-            # var['has_wh'], var['has_wi'], var['has_wt'] = models.calc_var_pics(pif, var)
+            # var['has_wh'], var['has_wi'], var['has_wt'] = mbmods.calc_var_pics(pif, var)
             count_var += 1
             if self.photog and var['phcred'] == self.photog:
                 count_cred += 1

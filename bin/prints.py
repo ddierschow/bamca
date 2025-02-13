@@ -11,7 +11,7 @@ from bxdata import box_lookups
 import config
 import imglib
 import mbdata
-import models
+import mbmods
 import render
 import useful
 
@@ -368,12 +368,12 @@ def publication(pif):
     # pubs = pif.dbh.fetch_publication_types()
 
     def fmt_link(sec):
-        txt = models.add_icons(pif, 'p_' + sec.id, '', '')
+        txt = mbmods.add_icons(pif, 'p_' + sec.id, '', '')
         # if sec.id == 'ads':
         #     return pif.ren.format_link('ads.cgi', txt)
         return pif.ren.format_link('?ty=' + sec.category, txt)
 
-    return models.make_page_list(pif, 'pub', fmt_link)
+    return mbmods.make_page_list(pif, 'pub', fmt_link)
 
 
 def get_section_by_model_type(pif, mtype):
