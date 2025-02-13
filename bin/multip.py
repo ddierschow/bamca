@@ -6,7 +6,7 @@ import os
 import basics
 import config
 import mbdata
-import models
+import mbmods
 import render
 import useful
 
@@ -430,7 +430,7 @@ def show_pack_model(pif, mdict):
     else:
         mdict['displayed_id'] = mdict['disp_format'] % (mdict['shown_id'])
 
-    return models.add_model_table_product_link(pif, mdict)
+    return mbmods.add_model_table_product_link(pif, mdict)
 
 
 # ---- main -----------------------------------------------------------
@@ -442,7 +442,7 @@ def packs_main(pif):
     def fmt_link(sec):
         return pif.ren.format_link(
             '?sec=' + sec.id,
-            models.add_icons(pif, 'p_' + sec.id, '', '') + '<center>' + sec.name + '</center>')
+            mbmods.add_icons(pif, 'p_' + sec.id, '', '') + '<center>' + sec.name + '</center>')
 
     pif.ren.set_page_extra(pif.ren.image_selector_js)
     pif.ren.hierarchy_append('/', 'Home')
@@ -465,7 +465,7 @@ def packs_main(pif):
         sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
         if not sections:
             pif.ren.print_html()
-            return models.make_page_list(pif, 'packs', fmt_link)
+            return mbmods.make_page_list(pif, 'packs', fmt_link)
         pif.page_id = sections[0].page_info.id
         pif.ren.print_html()
         return make_pack_list(
@@ -473,7 +473,7 @@ def packs_main(pif):
             verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
             **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     pif.ren.print_html()
-    return models.make_page_list(pif, 'packs', fmt_link)
+    return mbmods.make_page_list(pif, 'packs', fmt_link)
 
 
 # ---- play ----------------------------------

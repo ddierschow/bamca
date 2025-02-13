@@ -11,7 +11,7 @@ import basics
 import config
 import imglib
 import mbdata
-import models
+import mbmods
 import render
 import useful
 
@@ -414,7 +414,7 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
     mdict['descriptions'] = desclist
 
     # mdict: imgstr name number pdir product vars
-    ostr = models.add_model_table_product_link(pif, mdict)
+    ostr = mbmods.add_model_table_product_link(pif, mdict)
     return ostr
 
 

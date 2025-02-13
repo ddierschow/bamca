@@ -6,8 +6,8 @@ import basics
 import config
 import imglib
 import mbdata
+import mbmods
 import mflags
-import models
 import render
 
 
@@ -130,7 +130,7 @@ def show_make_selection(pif, make_id, makedict):
     mlist.sort(key=lambda x: x['name'])
     for mdict in mlist:
         # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
-        lran.entry.append(render.Entry(text=models.add_model_table_pic_link(pif, mdict, flago=models.flago)))
+        lran.entry.append(render.Entry(text=mbmods.add_model_table_pic_link(pif, mdict, flago=mbmods.flago)))
 
     lsec.range.append(lran)
     return lsec
@@ -138,7 +138,7 @@ def show_make_selection(pif, make_id, makedict):
 
 def show_makes(pif, makedict, makes):
     llineup = render.Matrix()
-    models.flago = mflags.FlagList()
+    mbmods.flago = mflags.FlagList()
 
     for make_id in makes:
         lsec = show_make_selection(pif, make_id, makedict)

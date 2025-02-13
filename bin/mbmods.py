@@ -95,7 +95,7 @@ def add_model_table_pic_link_dict(pif, mdict, flago=flago):
     if not mdict.get('nodesc'):
         for s in mdict['descs']:
             if s in mbdata.casting_arts:
-                mdict['desclist'] += f"<br>{pif.ren.format_image_icon('c_' + mbdata.casting_arts[s] + '.gif')}"
+                mdict['desclist'] += f"<br>{pif.ren.format_image_icon(mbdata.casting_arts[s] + '.gif')}"
             elif s:
                 mdict['desclist'] += f"<br><i>{s}</i>\n"
     mdict['shown_id'] = mdict.get('alias.id') or mdict['id']

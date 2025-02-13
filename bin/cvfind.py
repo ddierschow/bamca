@@ -4,7 +4,7 @@ import copy
 
 import config
 import mbdata
-import models
+import mbmods
 import useful
 
 # ---- the searcher object ----------------------
@@ -217,7 +217,7 @@ class Searcher(object):
     def add_casting(self, pif, casting, aliases=[]):
         manitem = pif.dbh.modify_man_item(casting)
         aliases = [x for x in aliases if x['alias.type'] == 'mack']
-        manitem['mack'] = ','.join(models.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
+        manitem['mack'] = ','.join(mbmods.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
         if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
             self.add_casting_item(pif, manitem['id'], manitem)
 

@@ -5,8 +5,8 @@ import config
 import cvfind
 import imglib
 import mbdata
+import mbmods
 import mflags
-import models
 import render
 import useful
 
@@ -69,7 +69,7 @@ def create_var_lineup(pif, mods, var_id):
     for mod in mods:
         for var in pif.dbh.fetch_variation_query_by_id(mod['id'], var_id):
             var['name'] = var['base_id.rawname'].replace(';', ' ')
-            lran.entry.append(render.Entry(text=models.add_model_var_table_pic_link(pif, var)))
+            lran.entry.append(render.Entry(text=mbmods.add_model_var_table_pic_link(pif, var)))
     lsec = render.Section(section=sect, range=[lran], columns=4)
     return render.Matrix(columns=4, section=[lsec])
 
@@ -80,7 +80,7 @@ def create_lineup(pif, mods):
     lran = render.Range()
     for mod in mods:
         mod = pif.dbh.modify_man_item(mod)
-        lran.entry.append(render.Entry(text=models.add_model_table_pic_link(pif, mod, flago=flago)))
+        lran.entry.append(render.Entry(text=mbmods.add_model_table_pic_link(pif, mod, flago=flago)))
     lsec = render.Section(section=sect, range=[lran], columns=4)
     return render.Matrix(columns=4, section=[lsec])
 
@@ -271,10 +271,10 @@ def run_super_search(pif):
         mods = sect['models'] if not any(searcher.varsq.values()) else [x for x in sect['models'] if x['variations']]
         if mods:
             if searcher.list_type == 'v':
-                entries = [render.Entry(text=models.add_model_var_table_pic_link(pif, x))
+                entries = [render.Entry(text=mbmods.add_model_var_table_pic_link(pif, x))
                            for y in mods for x in y['variations']]
             else:
-                entries = [render.Entry(text=models.add_model_table_pic_link(pif, x)) for x in mods]
+                entries = [render.Entry(text=mbmods.add_model_table_pic_link(pif, x)) for x in mods]
 
             lsec.range.append(render.Range(name=sect['name'], anchor=sect['id'], entry=entries))
     llineup.section = [lsec]

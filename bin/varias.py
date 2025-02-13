@@ -12,7 +12,7 @@ import basics
 import config
 import imglib
 import mbdata
-import models
+import mbmods
 import render
 import useful
 
@@ -166,7 +166,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
     llistix.dump()
 
     appearances = show_appearances(pif, mod_id, var_id, pics=True)
-    adds = models.show_adds(pif, mod_id, var_id)
+    adds = mbmods.show_adds(pif, mod_id, var_id)
     upload = f'upload.cgi?m={mod_id}&v={var_id}' + (f'&d={libdir}' if pif.is_allowed('u') else '')
 
     # ------- render ------------------------------------
@@ -439,7 +439,7 @@ def save_variation(pif, mod_id, var_id):
     useful.write_message('phcred', phcred, '<br>')
     pif.ren.message('Credit added: ',
                     pif.dbh.write_photo_credit(phcred, config.IMG_DIR_VAR[1:], mod_id, var_dict['var']))
-#    ty_var = models.calc_var_type(pif, var_bare)  # needs vs
+#    ty_var = mbmods.calc_var_type(pif, var_bare)  # needs vs
 #    if ty_var != var['variation_type']:
 #        useful.write_message(var['mod_id'], var['var'], ty_var)
 #        # pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var['mod_id'], 'var': var['var']})
@@ -834,7 +834,7 @@ def do_var_detail(pif, model, var, credits, varsels):
 
     varsel = varsels.get(var['var'], [])  # pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
     phcred = credits.get(('%(mod_id)s-%(var)s' % var).lower(), '')
-    ty_var, is_found, has = models.calc_var_pics(pif, var)
+    ty_var, is_found, has = mbmods.calc_var_pics(pif, var)
     cat_v = set(var['category'].split())
     cat_vs = set([x['variation_select.category'] for x in varsel])
     cat = ' '.join(cat_v)
@@ -864,7 +864,7 @@ def do_var_detail(pif, model, var, credits, varsels):
         'Lo': var['logo_type'],
         'style': 'c2' if var['_code'] == 2 else ''
     }
-    row.update({models.text_short_titles[k]: mk_star(has[k], not model[v]) for k, v in models.text_fmts})
+    row.update({mbmods.text_short_titles[k]: mk_star(has[k], not model[v]) for k, v in mbmods.text_fmts})
     for sz in mbdata.image_size_types:
         row[sz.upper()] = mk_star(
             os.path.exists(useful.relpath(
@@ -1591,7 +1591,7 @@ def var_search(pif):
     lran = render.Range()
     for mod in mods:
         mod['name'] = mod['base_id.rawname'].replace(';', ' ')
-        lran.entry.append(render.Entry(text=models.add_model_var_table_pic_link(pif, mod)))
+        lran.entry.append(render.Entry(text=mbmods.add_model_var_table_pic_link(pif, mod)))
     lsec = render.Section(section=sect, range=[lran], columns=4)
     llineup.section = [lsec]
     qf = pif.form.reformat(vfields) + '&' + pif.form.reformat(cfields)
@@ -1812,7 +1812,7 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
             pic_id = model['picture_id'] if model['picture_id'] else model['var']
             varsel = pif.dbh.fetch_variation_selects(model['mod_id'], model['var'])
             phcred = credits.get(('%s-%s' % (model['mod_id'], pic_id)).lower(), '')
-            ty_var, is_found, has = models.calc_var_pics(pif, model)
+            ty_var, is_found, has = mbmods.calc_var_pics(pif, model)
             cat_v = set(model['category'].split())
             cat_vs = set([x['variation_select.category'] for x in varsel])
             cat = ' '.join(cat_v) + ('/' + ' '.join(cat_vs)) if cat_v != cat_vs else ''
@@ -1824,7 +1824,7 @@ def list_variation_pictures(pif, start=None, end=None, *args, **kwargs):
                 'Cr': phcred,
                 'Pic': model['picture_id'],
             }
-            row.update({models.text_short_titles[k]: mk_star(has[k]) for k in has})
+            row.update({mbmods.text_short_titles[k]: mk_star(has[k]) for k in has})
             row.update(check_picture_sizes(config.IMG_DIR_VAR, model['mod_id'] + '-' + pic_id + '.jpg', mk_star))
             # for sz in mbdata.image_size_types:
             #     row[sz.upper()] = mk_star(
@@ -1852,7 +1852,7 @@ def fix_variation_type(pif, start=None, end=None, *args, **kwargs):
     for mod_id in mod_ids[mod_ids.index(start):mod_ids.index(end) + 1]:
         # mod = pif.dbh.fetch_casting(mod_id)
         for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
-            ty_var = models.calc_var_type(pif, var)
+            ty_var = mbmods.calc_var_type(pif, var)
             if ty_var != var['variation_type']:
                 useful.write_message(var['mod_id'], var['var'], ty_var)
                 # pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var['mod_id'], 'var': var['var']})
@@ -1892,7 +1892,7 @@ def list_photo_credits(pif, photog_id=None):
         for model in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
             if model['picture_id']:
                 continue
-            ty_var, is_found, has = models.calc_var_pics(pif, model)
+            ty_var, is_found, has = mbmods.calc_var_pics(pif, model)
             if mbdata.var_types.get(ty_var, ty_var) == 'C2':
                 continue
             phcred = credits.get(f"{model['mod_id']}-{model['var']}".lower(), '')
@@ -1970,7 +1970,7 @@ def count_vars(pif, filelist=None):
     for mod_id in castings:
         # sys.stdout.write(casting + ' ')
         sys.stdout.flush()
-        founds, needs, cnts, id_set = models.count_list_var_pics(pif, mod_id)
+        founds, needs, cnts, id_set = mbmods.count_list_var_pics(pif, mod_id)
         print(mod_id, founds, needs, cnts)
         t_founds = adder(t_founds, founds)
         t_needs = adder(t_needs, needs)

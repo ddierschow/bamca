@@ -546,6 +546,9 @@ class DBHandler(object):
 
     def modify_man_item(self, mod):
         mod = self.depref('casting,publication,base_id', mod)
+        # mod = tables.Results('casting', [mod])
+        # mods = mod.depref('publication,base_id')
+        # mod = mods[0]
         mod.setdefault('make', '')
         mod['subname'] = mod.get('pack_model.subname', '')
         mod['link'] = "single.cgi?id"

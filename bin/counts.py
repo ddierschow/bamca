@@ -10,7 +10,6 @@ import config
 import imglib
 import lineup
 import mbdata
-# import multip
 
 
 # Start here
