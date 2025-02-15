@@ -19,113 +19,65 @@ text_titles = {'de': 'Description', 'ba': 'Base', 'bo': 'Body', 'in': 'Interior'
 text_short_titles = {'de': 'De', 'ba': 'Ba', 'bo': 'Bo', 'in': 'In', 'wh': 'Wh', 'wi': 'Wi', 'wt': 'W/', 'bt': 'BT'}
 var_types = ['c', '1', '2', 'p', 'f']
 
-# lineup, mannum
-# shows first_year, flag, pic, model name, description, with link to single.
-mod_tab_pic_lnk_pat = '''
-  <center>
-   <table class="entry">
-    <tr>
-     <td></td>
-     <td width="32"><i><font size=-1>%(first_year)s</font></i></td>
-     <td width="136"><center><font face="Courier">%(id)s</font></center></td>
-     <td width="32">%(flag)s</td>
-     <td></td></tr>
-    <tr>
-     <td colspan="5"><center>%(lname)s %(desclist)s</center></td>
-    </tr>
-   </table>
-  </center>
-'''
-mod_tab_thumb_pat = '''
-  <center>
-   <table class="entry">
-    <tr>
-     <td><center><font face="Courier">%(id)s</font></center></td>
-    </tr>
-    <tr>
-     <td><center>%(lname)s</center></td>
-    </tr>
-   </table>
-  </center>
-'''
-
-
-def add_model_table_pic_link(pif, mdict, flago=flago):
-    mdict = add_model_table_pic_link_dict(pif, mdict, flago)
-    if mdict.get('prefix') == mbdata.IMG_SIZ_TINY:
-        return mod_tab_thumb_pat % mdict
-    return mod_tab_pic_lnk_pat % mdict
-
 
 def add_man_item_table_pic_link(pif, manitem, flago=flago):
-    manitem = add_man_item_table_pic_link_dict(pif, manitem, flago)
+    manitem = add_man_item_table_pic_link(pif, manitem, flago)
     if manitem.prefix == mbdata.IMG_SIZ_TINY:
-        return mod_tab_thumb_pat % manitem
-    return f'''
-  <center>
-   <table class="entry">
-    <tr>
-     <td></td>
-     <td width="32"><i><font size=-1>{manitem.first_year}</font></i></td>
-     <td width="136"><center><font face="Courier">{manitem.id}</font></center></td>
-     <td width="32">{manitem.flag}</td>
-     <td></td></tr>
-    <tr>
-     <td colspan="5"><center>{manitem.lname} {manitem.desclist}</center></td>
-    </tr>
-   </table>
-  </center>
-'''
-
-
-def generate_model_table_pic_link(pif, mdict, mlist):
-    for mod_id in mlist:
-        yield {'text': add_model_table_pic_link(pif, mdict[mod_id])}
+        return (
+            '\n  <center>\n   <table class="entry">\n    <tr>\n'
+            f'     <td><center><font face="Courier">{manitem.id}</font></center></td>\n    </tr>\n'
+            f'    <tr>\n     <td><center>{manitem.lname}</center></td>\n    </tr>\n   </table>\n  </center>\n')
+    return (
+        '\n  <center>\n   <table class="entry">\n    <tr>\n     <td></td>\n'
+        f'     <td width="32"><i><font size=-1>{manitem.first_year}</font></i></td>\n'
+        f'     <td width="136"><center><font face="Courier">{manitem.id}</font></center></td>\n'
+        f'     <td width="32">{manitem.flag}</td>\n     <td></td></tr>\n    <tr>\n'
+        f'     <td colspan="5"><center>{manitem.lname} {manitem.desclist}</center></td>\n    </tr>\n'
+        '   </table\n>  </center>\n')
 
 
 # for templates
 
 
-def add_model_table_pic_link_dict(pif, mdict, flago=flago):
-    # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, first_year, (type)
-    # pif.ren.comment('add_model_table_pic_link', mdict)
+def add_model_table_pic_link_man_item(pif, manitem, flago=flago):
+    # input manitem:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, first_year, (type)
     if not flago:
         flago = {}
-    img = [mdict['id']]
-    if mdict.get('picture_id'):
-        img = [mdict['picture_id']]
-    for s in mdict['descs']:
+    img = [manitem.id]
+    if manitem.picture_id:
+        img = [manitem.picture_id]
+    for s in manitem.descs:
         if s.startswith('same as '):
             img.append(s[8:].lower())
-    img_size = mdict.get('prefix', mbdata.IMG_SIZ_LARGE if pif.form.get_bool('large') else mbdata.IMG_SIZ_SMALL)
-    mdict['img'] = pif.ren.format_image_required(img, made=mdict['made'], prefix=img_size)
-    mdict['flag'] = ''
-    if mdict.get('country') in flago:
-        mdict['flag'] = pif.ren.format_image_flag(mdict['country'], flago[mdict['country']], also={'align': 'right'})
-    elif mdict['unlicensed'] == '-':
-        mdict['flag'] = pif.ren.format_image_art('mbx.gif')
-    # pif.ren.comment('FLAG?', mdict['id'], mdict['country'], mdict['flag'])
-    if mdict.get('link'):
-        mdict['lname'] = '<a href="%(link)s=%(linkid)s">%(img)s<br><b>%(name)s</b></a>' % mdict
+    img_size = mbdata.IMG_SIZ_LARGE if pif.form.get_bool('large') else manitem.prefix
+    manitem.img = pif.ren.format_image_required(img, made=manitem.made, prefix=img_size)
+    manitem.flag = ''
+    if manitem.country in flago:
+        manitem.flag = pif.ren.format_image_flag(manitem.country, flago[manitem.country], also={'align': 'right'})
+    elif manitem.unlicensed == '-':
+        manitem.flag = pif.ren.format_image_art('mbx.gif')
+    # pif.ren.comment('FLAG?', manitem.id, manitem.country, manitem.flag)
+    if manitem.link:
+        manitem.lname = f'<a href="{manitem.link}={manitem.linkid}">{manitem.img}<br><b>{manitem.name}</b></a>'
     else:
-        mdict['lname'] = '%(img)s<br><b>%(name)s</b>' % mdict
-    if mdict.get('subname'):
-        mdict['lname'] += '<br>' + mdict['subname']
-    mdict['desclist'] = ''
-    # useful.write_comment(mdict['id'], mdict['descs'])
-    if not mdict.get('nodesc'):
-        for s in mdict['descs']:
+        manitem.lname = f'{manitem.img}<br><b>{manitem.name}</b>'
+    if manitem.subname:
+        manitem.lname += '<br>' + manitem.subname
+    manitem.desclist = ''
+    # useful.write_comment(manitem.id, manitem.descs)
+    if not manitem.nodesc:
+        for s in manitem.descs:
             if s in mbdata.casting_arts:
-                mdict['desclist'] += f"<br>{pif.ren.format_image_icon(mbdata.casting_arts[s] + '.gif')}"
+                manitem.desclist += f"<br>{pif.ren.format_image_icon(mbdata.casting_arts[s] + '.gif')}"
             elif s:
-                mdict['desclist'] += f"<br><i>{s}</i>\n"
-    mdict['shown_id'] = mdict.get('alias.id') or mdict['id']
-    return mdict
+                manitem.desclist += f"<br><i>{s}</i>\n"
+    # manitem.shown_id = manitem.get('alias.id') or manitem.id']
+    manitem.shown_id = manitem.id
+    return manitem
 
 
-def add_man_item_table_pic_link_dict(pif, manitem, flago=flago, large=False):
+def add_man_item_table_pic_link(pif, manitem, flago=flago, large=False):
     # input manitem:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, first_year, (type)
-    # pif.ren.comment('add_model_table_pic_link', manitem)
     if not flago:
         flago = {}
     img = [manitem.id]
@@ -160,9 +112,9 @@ def add_man_item_table_pic_link_dict(pif, manitem, flago=flago, large=False):
     return manitem
 
 
-def generate_model_table_pic_link_dict(pif, mdict, mlist):
+def generate_model_table_pic_link_man_item(pif, mdict, mlist):
     for mod_id in mlist:
-        yield add_model_table_pic_link_dict(pif, mdict[mod_id])
+        yield add_model_table_pic_link_man_item(pif, mdict[mod_id])
 
 
 # mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
@@ -239,6 +191,80 @@ def add_model_table_product_link(pif, mdict):
     return ostr
 
 
+# mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
+def add_man_item_table_product_link(pif, manitem):
+    # pif.ren.comment('add_model_table_product_link', manitem)
+
+    ostr = pif.ren.fmt_anchor(manitem.anchor)
+    ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
+    if manitem.no_casting:
+        ostr += mbdata.comment_icon.get('m', '')
+    elif not manitem.picture_only:
+        if manitem.no_specific_image:
+            ostr += mbdata.comment_icon.get('i', '')
+        if manitem.no_variation:
+            ostr += mbdata.comment_icon.get('v', '')
+    ostr += f'</td><td class="modelnumber">{manitem.displayed_id}</td><td class="modelicons">'
+    if pif.is_allowed('a'):
+        # breaks packs
+        ref_link = pif.dbh.get_editor_link('lineup_model', {'year': manitem.year, 'mod_id': manitem.mod_id})
+        ostr += pif.ren.format_link(ref_link, pif.ren.fmt_edit('gray'))
+        if hasattr(manitem, 'mod_id'):
+            fn = manitem.mod_id.replace('.', '_') + (
+                '-' + manitem.picture_id if manitem.picture_id else '')
+            ostr += pif.ren.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
+                                        pif.ren.fmt_mini('gray', icon='upload'))
+    if manitem.not_made:
+        ostr += mbdata.comment_icon.get('n', '')
+    if manitem.is_reused_product_picture:  # pragma: no cover
+        ostr += mbdata.comment_icon.get('r', '')
+    if manitem.is_product_picture:
+        ostr += mbdata.comment_icon.get('c', '')
+    ostr += '</td></tr></table>\n'
+
+    if manitem.show_vars:
+        # imgstr descriptions
+        for vdict in manitem.show_vars:
+            if manitem.href:
+                ostr += f'<a href="{manitem.href}">\n'
+            # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
+            #          vdict['imgstr'])
+            ostr += f'<center>{vdict["imgstr"]}</center>\n<span class="modelname">{manitem.name}</span>'
+            if manitem.href:
+                ostr += '</a>'
+            if manitem.subname:
+                manitem.lname += '<br>' + manitem.subname
+            if mdict.subnames:
+                ostr += "<br>" + "<br>".join(manitem.subnames)
+            if vdict.get('description'):
+                ostr += '<table class="vartable">'
+                ostr += f'<tr><td class="varentry">{vdict["description"]}</td></tr>'
+                ostr += "</table>"
+            ostr += "</center>"
+    else:
+        if mdict.href:
+            ostr += f'<a href="{manitem.href}">\n'
+        # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
+        #          manitem.imgstr)
+        ostr += '<center>%s</center>\n' % (manitem.imgstr)
+        ostr += '<span class="modelname">' + manitem.name + '</span>'
+        if mdict.href:
+            ostr += '</a>'
+        if mdict.subname:
+            ostr += '<br>' + manitem.subname
+        if mdict.subnames:
+            ostr += "<br>" + "<br>".join(manitem.subnames)
+        if mdict.descriptions:
+            ostr += '<table class="vartable">'
+            for var in manitem.descriptions:
+                ostr += f'<tr><td class="varentry">{var}</td></tr>'
+            ostr += "</table>"
+        ostr += "</center>"
+
+    ostr += manitem.additional
+    return ostr
+
+
 # lineup, mannum
 # shows scale, flag, pic, model name, description, with link to single.
 mod_txt_lin_pat = '''%(long_id)s|%(name)s|%(desc)s
@@ -279,15 +305,6 @@ def add_model_link(pif, mdict):
     return ostr
 
 
-# lineup, mannum
-# shows scale, flag, pic, model name, description, with link to single.
-mod_tab_lst_ent_pat = '''  <td>%(box_sm)s</td>
-  <td><center>%(id)s</center></td>
-  <td>%(first_year)s</td>
-  <td>%(lname)s</td>
-'''
-
-
 def add_model_table_list_entry_dict(pif, mdict):
     if mdict:
         # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
@@ -298,9 +315,39 @@ def add_model_table_list_entry_dict(pif, mdict):
     return mdict
 
 
+def add_model_table_list_entry_man_item(pif, manitem):
+    if manitem:
+        # input manitem:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
+        manitem.lname = manitem.shortname
+        if manitem.link:
+            manitem.lname = f'<a href="{manitem.link}={manitem.linkid}">{manitem.lname}</a>'
+        manitem.box_sm = pif.ren.fmt_square(hollow=True)
+    return manitem
+
+
+# lineup, mannum
+# shows scale, flag, pic, model name, description, with link to single.
+mod_tab_lst_ent_pat = '''  <td>%(box_sm)s</td>
+  <td><center>%(id)s</center></td>
+  <td>%(first_year)s</td>
+  <td>%(lname)s</td>
+'''
+
+
 def add_model_table_list_entry(pif, mdict):
     mdict = add_model_table_list_entry_dict(pif, mdict)
     return mod_tab_lst_ent_pat % mdict
+
+
+def add_man_item_table_list_entry(pif, manitem):
+    manitem = add_model_table_list_entry_man_item(pif, manitem)
+    # lineup, mannum
+    # shows scale, flag, pic, model name, description, with link to single.
+    return (
+        f'  <td>{manitem.box_sm}</td>\n'
+        f'  <td><center>{manitem.id}</center></td>\n'
+        f'  <td>{manitem.first_year}</td>\n'
+        f'  <td>{manitem.lname}</td>')
 
 
 def add_model_pic_link_short(pif, id):

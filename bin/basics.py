@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+import cgi
 import datetime
 import functools
 import getopt
@@ -22,7 +23,7 @@ import useful
 
 config.GURU_ID = ''.join(random.choice('0123456789ABCDEFGHJKLMNPRSTUVWXYZ') for i in range(10))
 
-tb_fmt = """headline = '''{}'''\nguru_id = '{}'\nuri = '''{}'''\ntb = '''\n{}\n'''\nenv = {}\n"""
+tb_fmt = """headline = '''{}'''\nguru_id = '{}'\nuri = '''{}'''\ntb = '''\n{}\n'''\nenv = {}\npost = {}\n"""
 
 # --- Web Pages ---------------------------------------------------------
 
@@ -41,9 +42,13 @@ def write_traceback_file(pif, e):
     else:
         tb_file_name += 'unknown'
     erf = open(tb_file_name, 'w')
+    post = ''
+    if os.environ.get('REQUEST_METHOD') == 'POST':
+        cgi_form = cgi.FieldStorage()
+        post = '\n'.join([str(cgi_form[key].field) for key in cgi_form])
     erf.write(tb_fmt.format(' '.join([x.strip() for x in traceback.format_exception_only(type(e), e)]),
               config.GURU_ID, os.environ.get('REQUEST_URI', ''), str_tb,
-              pprint.pformat(os.environ, indent=2, width=132)))
+              pprint.pformat(os.environ, indent=2, width=132), post))
 
     if pif:
         erf.write(pif.error_report())

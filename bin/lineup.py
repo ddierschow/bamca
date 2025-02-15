@@ -343,6 +343,7 @@ def create_lineup_sections(pif, year, region, section_types, fdebug=False):
 
 
 def render_lineup_model(pif, mdict, comments, unroll=False, large=False):
+    mdict['anchor'] = mdict.get('anchor', '%d' % mdict['number'])
     ostr = ''
     if mdict['is_product_picture']:
         comments.add('c')
@@ -414,6 +415,7 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
     mdict['descriptions'] = desclist
 
     # mdict: imgstr name number pdir product vars
+    #ostr = mbmods.add_man_item_table_product_link(pif, pif.dbh.make_man_item(mdict))
     ostr = mbmods.add_model_table_product_link(pif, mdict)
     return ostr
 
@@ -571,17 +573,17 @@ def year_lineup_main(pif, listtype):
     mainsec, secs, xsecs = create_lineup_sections(pif, year, region, section_types, fdebug=pif.form.get_bool('verbose'))
 
     # now that we have our sections calculated, format them.
-    if listtype == mbdata.LISTTYPE_CSV:
+    if listtype == mbdata.ListType.CSV:
         return render_lineup_csv(pif, mainsec, secs, xsecs)
-    elif listtype == mbdata.LISTTYPE_JSON:
+    elif listtype == mbdata.ListType.JSON:
         return render_lineup_json(pif, mainsec, secs, xsecs)
-    elif listtype == mbdata.LISTTYPE_TEXT:
+    elif listtype == mbdata.ListType.TEXT:
         return render_lineup_text(pif, mainsec, secs, xsecs)
-    elif listtype == mbdata.LISTTYPE_CHECKLIST:
+    elif listtype == mbdata.ListType.CHECKLIST:
         return render_lineup_checklist(pif, mainsec, secs, xsecs)
     # normal and/or large
     return render_lineup_year(pif, mainsec, secs, xsecs,
-                              large=(listtype == mbdata.LISTTYPE_LARGE))
+                              large=(listtype == mbdata.ListType.LARGE))
 
 
 # --------- prodpics --------------------------------
@@ -901,10 +903,10 @@ def main(pif):
         pif.ren.print_html(mbdata.get_mime_type(listtype))
         return rank_lineup_main(pif)
     elif pif.form.get_str('region') and pif.form.get_str('year'):
-        if listtype == mbdata.LISTTYPE_CSV:
+        if listtype == mbdata.ListType.CSV:
             pif.ren.filename = 'mb%s.csv' % pif.form.get_str('year')
         pif.ren.print_html(mbdata.get_mime_type(listtype))
-        if listtype == mbdata.LISTTYPE_MULTIYEAR:
+        if listtype == mbdata.ListType.MULTIYEAR:
             return render_multiyear(pif)
         return year_lineup_main(pif, listtype)
     pif.ren.print_html()

@@ -1,6 +1,5 @@
 #!/usr/local/bin/python
 
-import copy
 import csv
 from functools import reduce
 import glob
@@ -34,8 +33,6 @@ vt_cols = [
     ['name', 'name'],
     ['sel', 'sel'],
 ]
-vt_fmtb = '<tr>{}</tr>'.format(''.join(['<td>%({})s</td>'.format(y[0]) for y in vt_cols]))
-vt_fmth = '<tr>{}</tr>'.format(''.join(['<th>%({})s</th>'.format(y[0]) for y in vt_cols]))
 admin_cols = [
     ['own', 'X'],
     ['vid', 'ID'],
@@ -189,34 +186,26 @@ class MannoFile(object):
                     self.add_alias(pif, alias)
 
     def add_casting(self, pif, casting, aliases=[]):
-        manitem = pif.dbh.modify_man_item(casting)
+        manitem = pif.dbh.make_man_item(casting)
         aliases = [x for x in aliases if x['alias.type'] == 'mack']
-        manitem['mack'] = ','.join(mbmods.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
-        if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
-            self.add_item(manitem['id'], manitem)
+        manitem.mack = ','.join(mbmods.get_mack_numbers(pif, manitem.id, manitem.model_type, aliases))
+        if manitem.section_id in self.sdict and manitem.id not in self.sdict[manitem.section_id]['model_ids']:
+            self.add_item(manitem.id, manitem)
 
     def add_alias(self, pif, alias):
-        if alias['alias.section_id'] in self.sdict:
-            manitem = pif.dbh.modify_man_item(alias)
-            manitem['section_id'] = manitem['alias.section_id']
-            if 'ref_id' in manitem:
-                refitem = copy.deepcopy(self.mdict[manitem['ref_id']])
-                if manitem['first_year']:
-                    refitem['first_year'] = manitem['first_year']
-                refitem['id'] = manitem['id']
-                refitem['descs'] = manitem['descs']
-                refitem['descs'].append('same as ' + manitem['ref_id'])
-                refitem['vehicle_type'] = manitem['vehicle_type'] or ''
-                manitem = refitem
-            self.add_item(manitem['alias.id'], manitem)
+        manitem = pif.dbh.make_man_item(alias)
+        manitem.mack = ''
+        manitem.id = manitem.ref_id
+        if manitem.section_id in self.sdict:
+            self.add_item(manitem.id, manitem)
 
     def add_item(self, man_id, manitem):
         if self.is_item_shown(manitem) and man_id not in self.mdict:
-            manitem['nodesc'] = self.nodesc
-            manitem['type_desc'] = self.types(manitem['vehicle_type'])
-            self.sdict[manitem['section_id']]['model_ids'].append(man_id)
+            manitem.nodesc = self.nodesc
+            manitem.type_desc = self.types(manitem.vehicle_type)
+            self.sdict[manitem.section_id]['model_ids'].append(man_id)
             self.mdict[man_id] = manitem
-            # useful.write_message('ai', manitem['id'])
+            # useful.write_message('ai', manitem.id)
 
     def types(self, typespec):
         return ', '.join([self.tdict.get(t, '') for t in typespec or [] if t])
@@ -231,43 +220,43 @@ class MannoFile(object):
 
     def is_item_shown(self, mod):
         '''Makes decision of whether to show based on vehicle type, # range, and year range.'''
-        if self.model_type and mod['model_type'] != self.model_type:
+        if self.model_type and mod.model_type != self.model_type:
             return False
 
-        if self.revised and not mod['revised']:
+        if self.revised and not mod.revised:
             return False
 
         if self.start and self.end:
             modno = 0
-            for c in mod['id']:
+            for c in mod.id:
                 if c.isdigit():
                     modno = 10 * modno + int(c)
             if modno < self.start or modno > self.end:
                 return False
 
-        if mod['first_year'] and (self.firstyear > int(mod['first_year']) or self.lastyear < int(mod['first_year'])):
+        if mod.first_year and (self.firstyear > int(mod.first_year) or self.lastyear < int(mod.first_year)):
             return False
 
         at_y = self.addtypes.get('y', [])
         at_n = self.addtypes.get('n', [])
         pt_y = self.pictypes.get('y', [])
         pt_n = self.pictypes.get('n', [])
-        if not mbdata.type_check(self.vehtypes['n'], self.vehtypes['y'], mod['vehicle_type']):
+        if not mbdata.type_check(self.vehtypes['n'], self.vehtypes['y'], mod.vehicle_type):
             return False
 
         if at_y or at_n:
             add_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(
-                useful.relpath('.', config.IMG_DIR_ADD, "?_" + mod['id'].lower() + '*.*'))]))
+                useful.relpath('.', config.IMG_DIR_ADD, "?_" + mod.id.lower() + '*.*'))]))
             if not mbdata.type_check(at_n, at_y, add_pics):
                 return False
 
         if pt_y or pt_n:
             mod_pics = ''.join(set([os.path.basename(x)[0] for x in glob.glob(
-                useful.relpath('.', config.IMG_DIR_MAN, "?_" + mod['id'].lower() + '*.*'))]))
+                useful.relpath('.', config.IMG_DIR_MAN, "?_" + mod.id.lower() + '*.*'))]))
             if not mbdata.type_check(pt_n, pt_y, mod_pics):
                 return False
 
-        if self.madeonly and not mod['made']:
+        if self.madeonly and not mod.made:
             return False
 
         return True
@@ -280,7 +269,7 @@ class MannoFile(object):
             anchor=sect['id'],
             range=[render.Range(entry=[
                 render.Entry(data=x)
-                for x in mbmods.generate_model_table_pic_link_dict(pif, self.mdict, sect['model_ids'])])]
+                for x in mbmods.generate_model_table_pic_link_man_item(pif, self.mdict, sect['model_ids'])])]
         )
         if pif.form.get_bool('large'):
             lsec.columns = 1
@@ -296,7 +285,7 @@ class MannoFile(object):
 
     def get_section_list(self, pif, sect):
         cols = 3
-        sect['entry'] = [mbmods.add_model_table_list_entry_dict(pif, self.mdict.get(modid, {}))
+        sect['entry'] = [mbmods.add_model_table_list_entry_man_item(pif, self.mdict.get(modid, {}))
                          for modid in useful.reflect(sect['model_ids'], cols)]
         sect['columns'] = cols
         sect['anchor'] = sect['id']
@@ -317,10 +306,10 @@ class MannoFile(object):
         sect['columns'] = 6
         ran = {'entry': list()}
         for mod_id in sect['model_ids']:
-            mdict = self.mdict[mod_id]
-            mdict['nodesc'] = 1
-            mdict['prefix'] = mbdata.IMG_SIZ_TINY
-            ran['entry'].append(mbmods.add_model_table_pic_link_dict(pif, mdict))
+            manitem = self.mdict[mod_id]
+            manitem.nodesc = 1
+            manitem.prefix = mbdata.IMG_SIZ_TINY
+            ran['entry'].append(mbmods.add_model_table_pic_link_man_item(pif, manitem))
         sect['range'].append(ran)
         return sect
 
@@ -332,8 +321,9 @@ class MannoFile(object):
 
     # ----- admin -----------------------------------------------
 
-    def show_list_var_info(self, pif, mdict):
-        mvars = pif.dbh.fetch_variations(mdict['id'])
+    @staticmethod
+    def show_list_var_info(pif, manitem):
+        mvars = pif.dbh.fetch_variations(manitem.id)
         fields = ['description', 'base', 'body', 'interior', 'wheels', 'windows', 'with', 'text']
         keys = ['de', 'ba', 'bo', 'in', 'wh', 'wi', 'w/', 'bt']
         ver = set()
@@ -353,9 +343,9 @@ class MannoFile(object):
                     var_id = var_id[:-1]
                 id_set.add(int(var_id))
             for txt in fields:
-                if not mdict.get('format_' + txt):
+                if not getattr(manitem, 'format_' + txt):
                     td[t2k[txt]] = None
-                elif var['variation.text_' + txt] or not mdict['format_' + txt]:
+                elif var['variation.text_' + txt] or not getattr(manitem, 'format_' + txt, ''):
                     td[t2k[txt]] += 1
             yr = var['variation.date'].strip()[:4]
             if yr.isdigit():
@@ -379,7 +369,7 @@ class MannoFile(object):
                 pif.ren.fmt_star('green') if td[key] == len(mvars) else
                 pif.ren.fmt_star('red') if not td[key] else
                 pif.ren.fmt_star('orange'))
-        varl = (f'<a href="vars.cgi?list=1&mod={mdict["id"]}">'
+        varl = (f'<a href="vars.cgi?list=1&mod={manitem.id}">'
                 f'<span class="{pif.ren.fmt_okno(varc == varl)}">{varc}/{varl}</span></a>')
         td.update({'fvyear': fy if fy else '-', 'lvyear': ly if ly else '-',
                    'varids': varids, 'varl': varl, 'ver': ver})
@@ -397,35 +387,40 @@ class MannoFile(object):
             aliases.setdefault(alias['alias.ref_id'], [])
             aliases[alias['alias.ref_id']].append(alias['alias.id'])
         for mod in model_ids:
-            mdict = self.mdict[mod]
-            mdict.setdefault('own', '')
-            mdict.setdefault('mydesc', '')
-            mdict['name'] = mades[int(mdict['made'])] % mdict
-            mdict['alias'] = '<br>'.join(aliases.get(mod, []))
-            mdict.update({
-                'fvyear': '', 'lvyear': '',
-                'notes': 'N' if mdict.get('notes') else '',
-                'vid': '<a href="vars.cgi?edt=1&mod=%(id)s">%(id)s</a>' % mdict,
-                'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
-            if mdict['flags'] & config.FLAG_MODEL_CASTING_REVISED:
-                mdict['vid'] = '<nobr>' + mdict['vid'] + pif.ren.fmt_circle('green') + '<nobr>'
-            mdict.update(self.show_list_var_info(pif, mdict))
-            if not mdict['vehicle_type']:
-                mdict['vehicle_type'] = '<i class="fas fa-ban red"></i>'
-            fmt_bad, _, _ = pif.dbh.check_description_formatting(mdict['id'])
-            mdict['fo'] = pif.ren.fmt_times('red') if fmt_bad else ''
-            mdict['im'] = ''.join([f'<i class="{vers[x]}"></i>' for x in sorted(mdict['ver'])])
+            manitem = self.mdict[mod]
+            fmt_bad, _, _ = pif.dbh.check_description_formatting(manitem.id)
             makes = pif.dbh.fetch_casting_makes(mod)
-            mdict['make'] = '<br>'.join([
-                pif.ren.format_link(f"/cgi-bin/makes.cgi?make={x['vehicle_make.id']}", str(x['vehicle_make.name']))
-                for x in makes
-            ])
-            mdict['attr'] = '<br>'.join(sorted([x['attribute.attribute_name'] for x in pif.dbh.fetch_attributes(mod)]))
-            if mdict['make']:
-                mdict['make'] = pif.ren.format_link("/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make'])
             relateds = [x['casting_related.related_id']
                         for x in pif.dbh.fetch_casting_relateds(mod, section_id='single')]
-            mdict['rel'] = '<br>'.join([pif.ren.format_link('/cgi-bin/single.cgi', x, {'id': x}) for x in relateds])
+            vdict = self.show_list_var_info(pif, manitem)
+            mdict = {
+                'own': '',
+                'mydesc': '',
+                'name': mades[int(manitem.made)],
+                'alias': '<br>'.join(aliases.get(mod, [])),
+                'unlicensed': manitem.unlicensed,
+                'make': manitem.make,
+                'first_year': manitem.first_year,
+                'fvyear': '',
+                'lvyear': '',
+                'notes': 'N' if manitem.notes else '',
+                'vid': f'<a href="vars.cgi?edt=1&mod={manitem.id}">{manitem.id}</a>',
+                'nl': f'<a href="single.cgi?id={manitem.id}">{manitem.name}</a>',
+                'vehicle_type': manitem.vehicle_type if manitem.vehicle_type else '<i class="fas fa-ban red"></i>',
+                'fo': pif.ren.fmt_x('red') if fmt_bad else '',
+                'im': ''.join([f'<i class="{vers[x]}"></i>' for x in sorted(vdict['ver'])]),
+                'make': '<br>'.join([
+                    pif.ren.format_link(f"/cgi-bin/makes.cgi?make={x['vehicle_make.id']}", str(x['vehicle_make.name']))
+                    for x in makes
+                ]),
+                'attr': '<br>'.join(sorted([x['attribute.attribute_name'] for x in pif.dbh.fetch_attributes(mod)])),
+                'rel': '<br>'.join([pif.ren.format_link('/cgi-bin/single.cgi', x, {'id': x}) for x in relateds]),
+                'scale': manitem.scale,
+                'country': manitem.country,
+            }
+            mdict.update(vdict)
+            if manitem.flags & config.FLAG_MODEL_CASTING_REVISED:
+                mdict['vid'] = '<nobr>' + mdict['vid'] + pif.ren.fmt_circle('green') + '<nobr>'
             yield mdict
 
     def get_section_admin(self, pif, sect):
@@ -449,14 +444,15 @@ class MannoFile(object):
 
     def get_links_entries(self, pif, model_ids):
         for mod in model_ids:
-            mdict = self.mdict[mod]
-            mdict.update({x: '-' for x in l_links})
-            for lnk in pif.dbh.fetch_link_lines("single." + mdict['id']):
+            manitem = self.mdict[mod]
+            mdict = {
+                'name': mades[int(manitem.made)],
+                'vid': f'<a href="vars.cgi?list=1&mod={manitem.id}">{manitem.id}</a>',
+                'nl': f'<a href="single.cgi?id={manitem.id}">{manitem.name}</a>',
+            }
+            mdict.update({k: '-' for k in l_links})
+            for lnk in pif.dbh.fetch_link_lines("single." + manitem.id):
                 mdict[str(lnk['link_line.associated_link'])] = pif.ren.format_link(lnk['link_line.url'], 'X')
-            mdict['name'] = mades[int(mdict['made'])] % mdict
-            mdict.update({
-                'vid': '<a href="vars.cgi?list=1&mod=%(id)s">%(id)s</a>' % mdict,
-                'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict})
             yield mdict
 
     def get_section_links(self, pif, sect):
@@ -500,7 +496,8 @@ class MannoFile(object):
         pset = self.addpics.get(mod_id, set()) if prefix[1] == 'a' else self.manpics.get(mod_id, set())
         return [prefix[0], txt.upper() if prefix[0][0] in pset else '-']
 
-    def show_box_pics(self, box_types):
+    @staticmethod
+    def show_box_pics(box_types):
 
         def mkpth(ty):
             return useful.relpath(
@@ -518,7 +515,8 @@ class MannoFile(object):
                     'bx2': mbmods.fmt_var_pic(box_count, len(box_types))}
         return {'bx': '-', 'bx2': '-'}
 
-    def show_attr_pics(self, pif, mod_id):
+    @staticmethod
+    def show_attr_pics(pif, mod_id):
         cnt = tot = 0
         var_id = ''
         for attr_pic in pif.dbh.depref('attribute_picture', pif.dbh.fetch_attribute_pictures(mod_id)):
@@ -536,30 +534,34 @@ class MannoFile(object):
         for mod in model_ids:
             vcredits = {x['photo_credit.name'].lower(): x['photographer.id']
                         for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod)}
-            mdict = self.mdict[mod]
-            mdict.update(dict([self.show_list_pic(pif, x, mdict['id'], x[0][0]) for x in self.picprefixes]))
+            manitem = self.mdict[mod]
+            mdict = {}
+            mdict.update(dict([self.show_list_pic(pif, x, manitem.id, x[0][0]) for x in self.picprefixes]))
             mdict.update({
-                'img': self.show_list_pic(pif, ['s_', '.' + config.IMG_DIR_MAN], mdict['id'], mbdata.IMG_SIZ_SMALL)[1],
-                'vid': '<a href="vars.cgi?edt=1&mod=%(id)s">%(id)s</a>' % mdict,
-                'first_year': '<a href="traverse.cgi?g=1&d=%s">%s</a>' % (
-                    useful.relpath(config.LIB_MAN_DIR, mdict['id'].lower()), mdict['first_year']),
-                'name': mades[int(mdict['made'])] % mdict,
-                'nl': '<a href="single.cgi?id=%(id)s">%(name)s</a>' % mdict,
+                'img': self.show_list_pic(pif, ['s_', '.' + config.IMG_DIR_MAN], manitem.id, mbdata.IMG_SIZ_SMALL)[1],
+                'vid': f'<a href="vars.cgi?edt=1&mod={manitem.id}">{manitem.id}</a>',
+                'first_year': (
+                    f'<a href="traverse.cgi?g=1&d={useful.relpath(config.LIB_MAN_DIR, manitem.id.lower())}">'
+                    f'{manitem.first_year}</a>'),
+                'name': mades[int(manitem.made)],
+                'nl': f'<a href="single.cgi?id={manitem.id}">{manitem.name}</a>',
                 'credit': '<a href="vars.cgi?vdt=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
-                'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], mdict['id'], 'i')[1]})
-            founds, needs, _, id_set = mbmods.count_list_var_pics(pif, mdict['id'])
+                'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], manitem.id, 'i')[1]})
+            founds, needs, _, id_set = mbmods.count_list_var_pics(pif, manitem.id)
             # mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
+
             for ipix in range(0, 6):
                 self.totals[ipix]['have'] += founds[ipix]
                 self.totals[ipix]['total'] += needs[ipix]
             mdict.update(dict(zip(var_pic_keys, mbmods.fmt_var_pics(founds, needs))))
             mdict['credvars'] = '<span class="%s">%d/%d</span>' % (
                 'ok' if len(vcredits) == founds[0] else 'no', len(vcredits), founds[0])
-            if mdict['flags'] & config.FLAG_MODEL_CASTING_REVISED:
+            if manitem.flags & config.FLAG_MODEL_CASTING_REVISED:
                 mdict['vid'] = '<nobr>' + mdict['vid'] + pif.ren.fmt_circle('green') + '<nobr>'
-            if not mdict['made']:
+            if not manitem.made:
                 mdict['nl'] = '<i>' + mdict['nl'] + '</i>'
             mdict['d_'] = mbmods.fmt_var_pic(*self.show_attr_pics(pif, mod))
+            mdict['description'] = manitem.description
             # useful.write_comment(mdict)
             yield mdict
 
@@ -616,14 +618,14 @@ class MannoFile(object):
     def get_mine(self, dblist, mans):
         # dats = dict()
         mine = dict()
-        for mdict in dblist:
-            if not mdict:
+        for manitem in dblist:
+            if not manitem:
                 pass
             # elif llist[0] == 'data':
                 # dats[llist[1]] = llist[2].split(',')
             else:
                 # mdict = dict(zip(dats[llist[0]], llist[1:]))
-                mine[mdict['id']] = mdict
+                mine[manitem.id] = manitem
 
         for man in mans:
             for mod_id in man['model_ids']:
@@ -637,48 +639,46 @@ class MannoFile(object):
 
     # ----- vehicle types ---------------------------------------
 
-    def get_vt_model_table(self, pif, mdict, flago):
-        img = [mbdata.IMG_SIZ_SMALL + '_' + mdict['id']]
-        if mdict.get('picture_id'):
-            img = [mbdata.IMG_SIZ_SMALL + '_' + mdict['picture_id']]
-        for s in mdict['descs']:
+    def get_vt_model_table(self, pif, manitem, flago):
+        img = [mbdata.IMG_SIZ_SMALL + '_' + manitem.id]
+        if manitem.picture_id:
+            img = [mbdata.IMG_SIZ_SMALL + '_' + manitem.picture_id]
+        for s in manitem.descs:
             if s.startswith('same as '):
                 img.append(mbdata.IMG_SIZ_SMALL + '_' + s[8:])
-        lnk = 'single.cgi?id=%(id)s' % mdict
-        mdict['flag'] = (mdict.get('country', '') or "") + ' '
-        if mdict.get('country') in flago:
-            mdict['flag'] += pif.ren.format_image_flag(mdict['country'], flago[mdict['country']])
-        elif mdict['unlicensed'] == '-':
-            mdict['flag'] = pif.ren.format_image_art('mbx.gif')
-        mdict['makename'] = ' - '.join([
+        lnk = f'single.cgi?id={manitem.id}'
+        manitem.flag = (manitem.country or "") + ' '
+        if manitem.country in flago:
+            manitem.flag += pif.ren.format_image_flag(manitem.country, flago[manitem.country])
+        elif manitem.unlicensed == '-':
+            manitem.flag = pif.ren.format_image_art('mbx.gif')
+        manitem.makename = ' - '.join([
             pif.ren.format_link("/cgi-bin/makes.cgi?make={}".format(
                 x.get('vehicle_make.id', '???') or 'unl'), x.get('vehicle_make.name', 'unset') or 'unlicensed')
-            for x in pif.dbh.fetch_casting_makes(mdict['id'])
+            for x in pif.dbh.fetch_casting_makes(manitem.id)
         ])
-        mdict['name'] = pif.ren.format_link(
-            lnk, mdict['id'] + '<br>' + mdict['rawname'] + '<br>' + mdict['flag'] + '<br>' + mdict['makename'])
-        mdict['img'] = pif.ren.format_link(lnk, pif.ren.format_image_required(img, made=mdict['made']))
-        mdict['sel'] = pif.form.put_checkbox(
-            'vt_' + mdict['id'],
+        manitem.name = pif.ren.format_link(
+            lnk, manitem.id + '<br>' + manitem.rawname + '<br>' + manitem.flag + '<br>' + manitem.makename)
+        manitem.img = pif.ren.format_link(lnk, pif.ren.format_image_required(img, made=manitem.made))
+        manitem.sel = pif.form.put_checkbox(
+            'vt_' + manitem.id,
             [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])],
-            checked=mdict['vehicle_type']) + '<br>'
-        mdict['sel'] += pif.form.put_checkbox(
-            'vt_' + mdict['id'],
+            checked=manitem.vehicle_type) + '<br>'
+        manitem.sel += pif.form.put_checkbox(
+            'vt_' + manitem.id,
             [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[14:])],
-            checked=mdict['vehicle_type']) + '<br>'
-        mdict['sel'] += 'make: ' + pif.form.put_text_input('vm_' + mdict['id'], 3, 3, value=mdict['make'])
-        mdict['sel'] += 'country: ' + pif.form.put_text_input('co_' + mdict['id'], 2, 2, value=mdict['country'])
-        return mdict
-
-    def show_vt_model_table(self, pif, mdict, flago):
-        return vt_fmtb % self.get_vt_model_table(pif, mdict, flago)
+            checked=manitem.vehicle_type) + '<br>'
+        manitem.sel += 'make: ' + pif.form.put_text_input('vm_' + manitem.id, 3, 3, value=manitem.make)
+        manitem.sel += 'country: ' + pif.form.put_text_input('co_' + manitem.id, 2, 2, value=manitem.country)
+        return manitem
 
     def show_section_vehicle_type_template(self, pif, sect):
         flago = mflags.FlagList()
         sect['entry'] = [self.get_vt_model_table(pif, self.mdict[mod], flago) for mod in sect['model_ids']]
         return sect
 
-    def write_vehicle_types(self, pif):
+    @staticmethod
+    def write_vehicle_types(pif):
         for key in pif.form.keys(start='vt_'):
             val = ''.join(pif.form.get_list(key))
             # useful.write_message(key[3:], 'type', val, '<br>')
@@ -706,11 +706,10 @@ class MannoFile(object):
     def show_section_man2csv(self, pif, sect):
         ret = list()
         for mod_id in sect['model_ids']:
-            mod = self.mdict[mod_id]
+            manitem = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
-            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
-            ret.append(
-                [mod_id, mod.get('mack', ''), mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])
+            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, manitem.model_type, aliases))
+            ret.append([mod_id, manitem.mack, manitem.first_year, manitem.scale, manitem.name, ', '.join(manitem.descs)])
         return ret
 
     def run_man2csv_out(self, pif):
@@ -736,7 +735,7 @@ class MannoFile(object):
                 img = pif.ren.find_image_path([mod_id], nobase=True, vars=var['picture_id'] or var['var'],
                                               largest='IMG_SIZ_LARGEST')
                 ret.append(
-                    [mod_id, mod['first_year'], mod['name'], var['var'], var['text_description'], img])
+                    [mod_id, mod.first_year, mod.name, var['var'], var['text_description'], img])
         return ret
 
     def run_man2varcsv_out(self, pif):
@@ -760,9 +759,9 @@ class MannoFile(object):
         for mod_id in sect['model_ids']:
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
-            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
+            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod.model_type, aliases))
             ret.append(dict(zip(field_keys,
-                       [mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])))
+                       [mod_id, mod.mack, mod.first_year, mod.scale, mod.name, ', '.join(mod.descs)])))
         return ret
 
     def run_man2json_out(self, pif):
@@ -777,9 +776,9 @@ class MannoFile(object):
         for mod_id in sect['model_ids']:
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
-            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod['model_type'], aliases))
+            # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod.model_type, aliases))
             ret.append(dict(zip(field_keys,
-                       [mod_id, mod['mack'], mod['first_year'], mod['scale'], mod['name'], ', '.join(mod['descs'])])))
+                       [mod_id, mod.mack, mod.first_year, mod.scale, mod.name, ', '.join(mod.descs)])))
         return ret
 
     def run_text_list(self, pif):
@@ -827,15 +826,15 @@ class MannoFile(object):
         def mk_star(has_thing):
             return pif.ren.fmt_star('green' if has_thing else 'white')
 
-        mod_id = mod['id']
+        mod_id = mod.id
         var_rows = []
         phcred = pif.dbh.fetch_photo_credit(path=config.IMG_DIR_MAN[1:], name=mod_id)
         mod_row = {
-            'ID': mod['id'],
-            'Description': mod['name'],
+            'ID': mod.id,
+            'Description': mod.name,
             'Cat': '',
             'Date': '',
-            'Type': mod['model_type'],
+            'Type': mod.model_type,
             'Cred': phcred['photographer.id'] if phcred else '',
             'Pic': '',
         }
@@ -888,9 +887,9 @@ class MannoFile(object):
         mod_row['Cat'] = ''
         mod_row['Pic'] = ('(zero)' if not count_var else '(all)' if count_var == count_cred else
                           ('%d/%d' % (count_cred, count_var)))
-        mod_row['Description'] = '<a href="/cgi-bin/single.cgi?id=%s">%s</a>' % (mod['id'], mod['name'])
+        mod_row['Description'] = '<a href="/cgi-bin/single.cgi?id=%s">%s</a>' % (mod.id, mod.name)
         mod_row['ID'] = '<a href="/cgi-bin/vars.cgi?mod=%s&vdt=1">%s</a>' % (
-            mod['id'], mod['id']) + ' ' + mk_star(mod_id.lower() in self.til_list)
+            mod.id, mod.id) + ' ' + mk_star(mod_id.lower() in self.til_list)
         mod_row['style'] = '2'
         # if self.photog:
         #     if self.photognot and mod_row['Cred'] == self.photog:# and count_var == count_cred:
@@ -903,17 +902,17 @@ class MannoFile(object):
     # ----- main ------------------------------------------------
 
     formatters = {
-        mbdata.LISTTYPE_CSV: run_man2csv_out,
-        mbdata.LISTTYPE_JSON: run_man2json_out,
-        mbdata.LISTTYPE_ADMIN: run_admin_list_template,
-        mbdata.LISTTYPE_LINK: run_links_list_template,
-        mbdata.LISTTYPE_PICTURE: run_picture_list_template,
-        mbdata.LISTTYPE_CHECKLIST: run_checklist_template,
-        mbdata.LISTTYPE_THUMBNAIL: run_thumbnails_template,
-        mbdata.LISTTYPE_VEHICLE_TYPE: run_vehicle_type_list_template,
-        mbdata.LISTTYPE_TEXT: run_text_list,
-        mbdata.LISTTYPE_TILLEY: run_var_credit_list,
-        mbdata.LISTTYPE_VAR_CSV: run_man2varcsv_out,
+        mbdata.ListType.CSV: run_man2csv_out,
+        mbdata.ListType.JSON: run_man2json_out,
+        mbdata.ListType.ADMIN: run_admin_list_template,
+        mbdata.ListType.LINK: run_links_list_template,
+        mbdata.ListType.PICTURE: run_picture_list_template,
+        mbdata.ListType.CHECKLIST: run_checklist_template,
+        mbdata.ListType.THUMBNAIL: run_thumbnails_template,
+        mbdata.ListType.VEHICLE_TYPE: run_vehicle_type_list_template,
+        mbdata.ListType.TEXT: run_text_list,
+        mbdata.ListType.TILLEY: run_var_credit_list,
+        mbdata.ListType.VAR_CSV: run_man2varcsv_out,
     }
 
     def format_output(self, pif, listtype):
@@ -960,7 +959,7 @@ def admin_main(pif):
     pif.ren.print_html()
     if pif.form.has('section'):
         manf = MannoFile(pif, madeonly=True)
-        llineup = manf.format_output(pif, mbdata.LISTTYPE_TILLEY)
+        llineup = manf.format_output(pif, mbdata.ListType.TILLEY)
         return pif.ren.format_template('manadm.html', pagetype=1, llineup=llineup)
     else:
         sections = pif.dbh.fetch_sections({'page_id': 'manno'})
@@ -977,6 +976,7 @@ def admin_main(pif):
             sections=sections,
             photogs=[(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers()],
             llineup=llineup)
+
 
 # ---- commands ------------------------------
 
@@ -1134,47 +1134,14 @@ def copy_casting(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
 
 def print_model(pif, mod):
     if mod.get('description'):
-        pif.ren.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)-36s|%(description)s' % mod)
+        pif.ren.message(f'{mod.id:<8}|{mod.first_year:4}|{mod.scale:<5}|{mod.country:2}|{mod.name:<36}|{mod.description}')
     else:
-        pif.ren.message('%(id)-8s|%(first_year)4s|%(scale)-5s|%(country)2s|%(name)s' % mod)
+        pif.ren.message(f'{mod.id:<8}|{mod.first_year:4}|{mod.scale:<5}|{mod.country:2}|{mod.name}')
 
 
 def casting_info(pif, mod_id):
     mod = pif.dbh.fetch_casting(mod_id)
     print_model(pif, mod)
-
-
-'''
-    'casting_type': 'Casting',
-    'country': 'GB',
-    'description': '',
-    'descs': [],
-    'filename': 'mb138',
-    'first_year': '1984',
-    'flags': 0L,
-    'iconname': ['Jaguar XK 120'],
-    'id': 'MB138',
-    'link': 'single.cgi?id',
-    'linkid': 'MB138',
-    'made': True,
-    'make': 'jag'
-    'model_type': 'SF',
-    'name': 'Jaguar XK 120',
-    'notmade': '',
-    'rawname': 'Jaguar XK 120',
-    'scale': '1:57',
-    'section_id': 'man',
-    'shortname': 'Jaguar XK 120',
-    'unlicensed': ' ',
-    'variation_digits': 2,
-    'vars': 62L,
-    'vehicle_make.company_name': 'Jaguar',
-    'vehicle_make.flags': 0L,
-    'vehicle_make.id': 'jag',
-    'vehicle_make.name': 'Jaguar',
-    'vehicle_type': '2d',
-    'visual_id': 'MB-138',
-'''
 
 
 def update_descriptions(pif, *args):

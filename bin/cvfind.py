@@ -1,7 +1,5 @@
 #!/usr/local/bin/python
 
-import copy
-
 import config
 import mbdata
 import mbmods

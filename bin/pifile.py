@@ -261,19 +261,23 @@ class BaseForm(object):
         args += useful.fmt_also(also)
         return f'<form{args}>\n' + (self.put_form_token(token) if token else '')
 
-    def put_form_end(self):
+    @staticmethod
+    def put_form_end():
         return '</form>\n'
 
-    def put_form_token(self, token, name="token"):
+    @staticmethod
+    def put_form_token(token, name="token"):
         return f'<input type="hidden" name="{name}" value="{token}">\n'
 
-    def put_checkbox(self, name, options, checked=[], sep='\n'):
+    @staticmethod
+    def put_checkbox(name, options, checked=[], sep='\n'):
         return ''.join([
             '<nobr><input type="checkbox" name="{}" value="{}" id="{}"{}> <label for="{}">{}</label></nobr>{}'.format(
                 name, x[0], name + str(x[0]), ' CHECKED' if x[0] in checked else '', name + str(x[0]), x[1], sep)
             for x in options])
 
-    def put_radio(self, name, options, checked='', sep='\n'):
+    @staticmethod
+    def put_radio(name, options, checked='', sep='\n'):
         return ''.join(['<input type="radio" id="{}" name="{}" value="{}"{}> <label for="{}">{}</label>{}'.format(
             name + str(x[0]), name, x[0], ' CHECKED' if x[0] == checked else '', name + str(x[0]), x[1], sep)
             if x else sep for x in options])
@@ -281,7 +285,8 @@ class BaseForm(object):
     def put_select_country(self, name, selected='', id=None):
         return self.put_select(name, mbdata.countries, selected='', id=None, blank='')
 
-    def put_select(self, name, options, selected='', blank=None, id=None):
+    @staticmethod
+    def put_select(name, options, selected='', blank=None, id=None):
         ostr = f'<select name="{name}"'
         if id:
             ostr += f' id="{id}"'
@@ -294,22 +299,26 @@ class BaseForm(object):
         ostr += '</select>'
         return ostr
 
-    def put_text_input(self, name, maxlength, showlength=24, value='', id=None, also={}):
+    @staticmethod
+    def put_text_input(name, maxlength, showlength=24, value='', id=None, also={}):
         value = value or ''
         # showlengh = min(maxlength, showlength)
         return '<input name="{}" type="text" size="{}" maxlength="{}" value="{}"{}{}>\n'.format(
             name, min(showlength, maxlength), maxlength, html.escape(str(value), True), useful.fmt_also(also),
             f' id="{id}"' if id else '')
 
-    def put_textarea_input(self, name, showlength=128, showheight=4, value=''):
+    @staticmethod
+    def put_textarea_input(name, showlength=128, showheight=4, value=''):
         value = '' or html.escape(str(value), True)
         return f'<textarea name="{name}" cols="{showlength}" rows="{showheight}">{value}</textarea>\n'
 
-    def put_password_input(self, name, maxlength=80, showlength=24, value=''):
+    @staticmethod
+    def put_password_input(name, maxlength=80, showlength=24, value=''):
         return '<input name="{}" type="text" size="{}" maxlength="{}" value="{}">\n'.format(
             name, min(showlength, maxlength), maxlength, value)
 
-    def put_hidden_input(self, *values, **kvalues):
+    @staticmethod
+    def put_hidden_input(*values, **kvalues):
         ret = [f'<input type="hidden" name="{k}" value="{v}">\n' for k, v in kvalues.items()]
         for value in values:
             ret += [f'<input type="hidden" name="{k}" value="{v}">\n' for k, v in value.items()]
@@ -322,7 +331,8 @@ class BaseForm(object):
         but_dec = self.put_fa("DOWN")
         return f'<a onclick="incrfield({field}, 1);">{but_inc}</a><a onclick="incrfield({field},-1);">{but_dec}</a>'''
 
-    def put_fa(self, title):
+    @staticmethod
+    def put_fa(title):
         fas = {
             "TOP": "fas fa-angle-double-up",
             "UP": "fas fa-angle-up",
@@ -350,7 +360,8 @@ class BaseForm(object):
             ostr += f'''<a onclick="settsel('{id}');">{but_min}</a>\n'''
         return ostr
 
-    def put_button_input_visibility(self, id, collapsed=False):
+    @staticmethod
+    def put_button_input_visibility(id, collapsed=False):
         fname = 'expand' if collapsed else 'collapse'
         bname = useful.make_button_label(fname)
         also = {
@@ -362,7 +373,8 @@ class BaseForm(object):
         }
         return '<button type="submit"{}>{}</button>\n'.format(useful.fmt_also(also), bname)
 
-    def put_button_input(self, bname="submit", name=None, also=None):
+    @staticmethod
+    def put_button_input(bname="submit", name=None, also=None):
         bname = useful.make_button_label(bname)
         name = name if name else bname
         altname = useful.make_button_label(bname)
@@ -376,7 +388,8 @@ class BaseForm(object):
         return '<button type="submit" name="{}" value="{}"{}>{}</button>\n'.format(
             inputname, altname, useful.fmt_also(imalso, also), altname)
 
-    def put_text_button(self, name, also={}):
+    @staticmethod
+    def put_text_button(name, also={}):
         bname = useful.make_button_label(name)
         imalso = dict({'class': 'textbutton'})
         imalso['onsubmit'] = 'this.disabled=true;'
@@ -489,7 +502,8 @@ class PageInfoFile(object):
         elif len(parts) == 2:
             config.ENV = 'www'
 
-    def is_external_referrer(self):
+    @staticmethod
+    def is_external_referrer():
         refer = os.environ.get('HTTP_REFERER', '')
         return (refer and
                 not refer.startswith('http://www.bamca.org') and
@@ -570,5 +584,6 @@ class PageInfoFile(object):
         ostr += 'dbh = ' + self.dbh.error_report() + '\n'
         return ostr
 
-    def show_error(self):
+    @staticmethod
+    def show_error():
         useful.show_error()

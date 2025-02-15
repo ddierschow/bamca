@@ -46,52 +46,56 @@ class ManItem(object):
         self.visual_id = ''
 
         if isinstance(mod, dict):
-            # EVERYBODY has a base_id.  After that, we differentiate.
-            self.id = mod['base_id.id']
-            self.visual_id = self.default_id(self.id)
-            self.first_year = mod['base_id.first_year']
-            self.flags = mod['base_id.flags']
-            self.made = not (self.flags & config.FLAG_MODEL_NOT_MADE)
-            self.model_type = mod['base_id.model_type']
-            self.rawname = mod['base_id.rawname']
-            self.name = self.rawname.replace(';', ' ')
-            self.description = mod['base_id.description']
+            if 'link' in mod:
+                self.slurp(mod)
 
-            if mod.get('publication.id'):
-                self.country = mod['publication.country']
-                self.section_id = mod['publication.section_id']
-                self.isbn = mod['publication.isbn']
-            elif mod.get('pack.id'):
-                self.made = True
-                self.subname = mod.get('pack_model.subname', '')
+            else:
+                # EVERYBODY has a base_id.  After that, we differentiate.
+                self.id = mod['base_id.id']
                 self.visual_id = self.default_id(self.id)
-                self.link = "packs.cgi?id"
-                self.vehicle_type = ''
-            elif mod.get('id') or mod.get('casting.id'):
-                self.scale = mod['casting.scale']
-                self.vehicle_type = mod['casting.vehicle_type']
-                self.country = mod['casting.country']
-                self.make = mod['casting.make']
-                self.box_styles = mod.get('casting.box_styles', '')
-                self.notes = mod.get('casting.notes', '')
-                self.section_id = mod['casting.section_id']
-                self.format_description = mod.get('casting.format_description', '')
-                self.format_body = mod.get('casting.format_body', '')
-                self.format_interior = mod.get('casting.format_interior', '')
-                self.format_windows = mod.get('casting.format_windows', '')
-                self.format_base = mod.get('casting.format_base', '')
-                self.format_wheels = mod.get('casting.format_wheels', '')
-                self.format_with = mod.get('casting.format_with', '')
-                self.variation_digits = mod.get('casting.variation_digits', '')
-                self.format_text = mod.get('casting.format_text', '')
-            if mod.get('alias.id'):
-                self.section_id = mod['alias.section_id']
-                self.ref_id = mod['alias.ref_id']
-                if mod.get('alias.first_year'):
-                    self.first_year = mod['alias.first_year']
-                self.id = mod['alias.id']
-                self.description += ';same as ' + self.ref_id
-                # self.vehicle_type = mod['vehicle_type'] or ''
+                self.first_year = mod['base_id.first_year']
+                self.flags = mod['base_id.flags']
+                self.made = not (self.flags & config.FLAG_MODEL_NOT_MADE)
+                self.model_type = mod['base_id.model_type']
+                self.rawname = mod['base_id.rawname']
+                self.name = self.rawname.replace(';', ' ')
+                self.description = mod['base_id.description']
+
+                if mod.get('publication.id'):
+                    self.country = mod['publication.country']
+                    self.section_id = mod['publication.section_id']
+                    self.isbn = mod['publication.isbn']
+                elif mod.get('pack.id'):
+                    self.made = True
+                    self.subname = mod.get('pack_model.subname', '')
+                    self.visual_id = self.default_id(self.id)
+                    self.link = "packs.cgi?id"
+                    self.vehicle_type = ''
+                elif mod.get('id') or mod.get('casting.id'):
+                    self.scale = mod['casting.scale']
+                    self.vehicle_type = mod['casting.vehicle_type']
+                    self.country = mod['casting.country']
+                    self.make = mod['casting.make']
+                    self.box_styles = mod.get('casting.box_styles', '')
+                    self.notes = mod.get('casting.notes', '')
+                    self.section_id = mod['casting.section_id']
+                    self.format_description = mod.get('casting.format_description', '')
+                    self.format_body = mod.get('casting.format_body', '')
+                    self.format_interior = mod.get('casting.format_interior', '')
+                    self.format_windows = mod.get('casting.format_windows', '')
+                    self.format_base = mod.get('casting.format_base', '')
+                    self.format_wheels = mod.get('casting.format_wheels', '')
+                    self.format_with = mod.get('casting.format_with', '')
+                    self.variation_digits = mod.get('casting.variation_digits', '')
+                    self.format_text = mod.get('casting.format_text', '')
+                if mod.get('alias.id'):
+                    self.section_id = mod['alias.section_id']
+                    self.ref_id = mod['alias.ref_id']
+                    if mod.get('alias.first_year'):
+                        self.first_year = mod['alias.first_year']
+                    self.id = mod['alias.id']
+                    self.description += ';same as ' + self.ref_id
+                    # self.vehicle_type = mod['vehicle_type'] or ''
 
         elif isinstance(mod, tables.Result):
             # EVERYBODY has a base_id.  After that, we differentiate.
@@ -190,3 +194,7 @@ class ManItem(object):
             return n.strip()
 
         return [mangle_line(n) for n in name.split(';')]
+
+    def slurp(self, slurp_d):
+        for k, v in slurp_d.items():
+            setattr(self, k, v)

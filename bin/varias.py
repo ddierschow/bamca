@@ -514,17 +514,17 @@ def delete_variation(pif, mod_id=None, var_id=None, *args, **kwargs):  # pragma:
 
 
 vars_formatter = [
-    mbdata.LISTTYPE_NORMAL,
-    mbdata.LISTTYPE_LARGE,
-    mbdata.LISTTYPE_DETAIL,
-    mbdata.LISTTYPE_DESCR,
-    mbdata.LISTTYPE_EDITOR,
-    mbdata.LISTTYPE_ADMIN,
-    mbdata.LISTTYPE_CHECKLIST,
-    mbdata.LISTTYPE_THUMBNAIL,
-    # mbdata.LISTTYPE_TEXT,
-    mbdata.LISTTYPE_CSV,
-    mbdata.LISTTYPE_JSON,
+    mbdata.ListType.NORMAL,
+    mbdata.ListType.LARGE,
+    mbdata.ListType.DETAIL,
+    mbdata.ListType.DESCR,
+    mbdata.ListType.EDITOR,
+    mbdata.ListType.ADMIN,
+    mbdata.ListType.CHECKLIST,
+    mbdata.ListType.THUMBNAIL,
+    # mbdata.ListType.TEXT,
+    mbdata.ListType.CSV,
+    mbdata.ListType.JSON,
 ]
 
 
@@ -535,12 +535,12 @@ class VarSearchForm(object):
 
     # add output format to this
     output_types = [
-        (mbdata.LISTTYPE_NORMAL, 'Normal'),
-        (mbdata.LISTTYPE_CHECKLIST, 'Checklist'),
-        (mbdata.LISTTYPE_THUMBNAIL, 'Thumbnail'),
-        (mbdata.LISTTYPE_TEXT, 'Text'),
-        (mbdata.LISTTYPE_CSV, 'CSV'),
-        (mbdata.LISTTYPE_JSON, 'JSON'),
+        (mbdata.ListType.NORMAL, 'Normal'),
+        (mbdata.ListType.CHECKLIST, 'Checklist'),
+        (mbdata.ListType.THUMBNAIL, 'Thumbnail'),
+        (mbdata.ListType.TEXT, 'Text'),
+        (mbdata.ListType.CSV, 'CSV'),
+        (mbdata.ListType.JSON, 'JSON'),
     ]
 
     def __init__(self, pif, mod_id):
@@ -619,7 +619,7 @@ class VarSearchForm(object):
         )
         ltypes = list(set(vars_formatter) & set(form.keys()))
         # useful.write_comment('ltypes', ltypes)
-        self.display_type = ltypes[0] if ltypes else mbdata.LISTTYPE_NORMAL
+        self.display_type = ltypes[0] if ltypes else mbdata.ListType.NORMAL
         return self
 
     def write(self, pif, values={}):
@@ -632,7 +632,7 @@ class VarSearchForm(object):
         entries.append({
             'title': '', 'value':
             pif.form.put_checkbox('ci', [(1, 'Case insensitive')], checked=[1])  # + ' - ' +
-            # pif.form.put_select('listtype', self.output_types, selected=mbdata.LISTTYPE_NORMAL)
+            # pif.form.put_select('listtype', self.output_types, selected=mbdata.ListType.NORMAL)
         })
         lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)],
                      noheaders=True, footer='<br>')]
@@ -676,10 +676,10 @@ class VarSearchForm(object):
             })
 
         submit = pif.form.put_button_input("filter", "submit") + '\n'
-        submit += pif.form.put_button_input("list", mbdata.LISTTYPE_LARGE) + '\n'
+        submit += pif.form.put_button_input("list", mbdata.ListType.LARGE) + '\n'
         submit += pif.form.put_button_reset('vars') + pif.form.put_hidden_input(hc=1) + '\n'
         if pif.is_allowed('a'):
-            submit += (pif.form.put_button_input("edit", mbdata.LISTTYPE_EDITOR) + '\n' +
+            submit += (pif.form.put_button_input("edit", mbdata.ListType.EDITOR) + '\n' +
                        '&nbsp;' + pif.form.put_checkbox('pic1', [(1, 'With Pictures')], checked=[1]) +
                        '&nbsp;' + pif.form.put_checkbox('pic0', [(1, 'Without Pictures')], checked=[1]) +
                        '&nbsp;' + pif.form.put_checkbox('picown', [(0, 'Own Pictures Only')]))
@@ -1026,11 +1026,11 @@ def quickie_modal(pif, mod_id, var_id, field):
     return ''
 
 
-# mbdata.LISTTYPE_LARGE mbdata.LISTTYPE_EDITOR listix
+# mbdata.ListType.LARGE mbdata.LISTTYPE_EDITOR listix
 def do_model_list(pif, model, vsform, dvars, photogs):
     llistix = render.Listix(id='vars', section=[])
 
-    edit = vsform.display_type == mbdata.LISTTYPE_EDITOR and pif.is_allowed('a')
+    edit = vsform.display_type == mbdata.ListType.EDITOR and pif.is_allowed('a')
     credits = {x['photo_credit.name'].lower(): x['photographer.id']
                for x in pif.dbh.fetch_photo_credits_for_vars(
         path=config.IMG_DIR_VAR[1:], name=model['id'], verbose=False)}
@@ -1059,12 +1059,12 @@ def do_model_list(pif, model, vsform, dvars, photogs):
 
     llistix.footer = (related_casting_links(
         pif, model['id'],
-        url="vars.cgi?%s=1&mod=" % (mbdata.LISTTYPE_EDITOR if edit else mbdata.LISTTYPE_LARGE)) + '<br>' +
+        url="vars.cgi?%s=1&mod=" % (mbdata.ListType.EDITOR if edit else mbdata.LISTTYPE_LARGE)) + '<br>' +
         pif.ren.format_button_link("show as grid", 'vars.cgi?mod=%s' % model['id']))
     return llistix
 
 
-# mbdata.LISTTYPE_DETAIL listix
+# mbdata.ListType.DETAIL listix
 def do_model_detail(pif, model, vsform, dvars, photogs):
     mod_id = model['id']
     llistix = render.Listix(id='vars')
@@ -1105,7 +1105,7 @@ def do_model_detail(pif, model, vsform, dvars, photogs):
     return llistix
 
 
-# mbdata.LISTTYPE_DESCR listix
+# mbdata.ListType.DESCR listix
 def do_model_descriptions(pif, model, vsform, dvars, photogs):
     mod_id = model['id']
 
@@ -1132,7 +1132,7 @@ def do_model_descriptions(pif, model, vsform, dvars, photogs):
     )])
 
 
-# mbdata.LISTTYPE_ADMIN listix
+# mbdata.ListType.ADMIN listix
 def do_model_editor(pif, model, vsform, dvars, photogs):
     mod_id = model['id']
     llistix = render.Listix(id='vars', section=[])
@@ -1179,12 +1179,12 @@ def related_casting_links(pif, mod_id, url):
     return ostr
 
 
-# mbdata.LISTTYPE_CHECKLIST
+# mbdata.ListType.CHECKLIST
 def do_model_checklist(pif, model, vsform, dvars, photogs):
     pass
 
 
-# mbdata.LISTTYPE_THUMBNAIL
+# mbdata.ListType.THUMBNAIL
 def do_model_thumbnail(pif, model, vsform, dvars, photogs):
     llineup = render.Matrix(id='vars', section=[])
 
@@ -1206,7 +1206,7 @@ def do_model_thumbnail(pif, model, vsform, dvars, photogs):
     return llineup.prep()
 
 
-# mbdata.LISTTYPE_NORMAL
+# mbdata.ListType.NORMAL
 def do_model_grid(pif, model, vsform, dvars, photogs):
     llineup = render.Matrix(
         id='vars', footer='<br>' +
@@ -1389,17 +1389,17 @@ def show_casting(pif, model):
     phcred = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id)
 
     formatter = {
-        mbdata.LISTTYPE_NORMAL: do_model_grid,
-        mbdata.LISTTYPE_LARGE: do_model_list,
-        mbdata.LISTTYPE_DETAIL: do_model_detail,
-        mbdata.LISTTYPE_DESCR: do_model_descriptions,
-        mbdata.LISTTYPE_EDITOR: do_model_list,
-        mbdata.LISTTYPE_ADMIN: do_model_editor,
-        mbdata.LISTTYPE_CHECKLIST: do_model_checklist,
-        mbdata.LISTTYPE_THUMBNAIL: do_model_thumbnail,
-        # mbdata.LISTTYPE_TEXT:
-        mbdata.LISTTYPE_CSV: do_model_csv,
-        mbdata.LISTTYPE_JSON: do_model_json,
+        mbdata.ListType.NORMAL: do_model_grid,
+        mbdata.ListType.LARGE: do_model_list,
+        mbdata.ListType.DETAIL: do_model_detail,
+        mbdata.ListType.DESCR: do_model_descriptions,
+        mbdata.ListType.EDITOR: do_model_list,
+        mbdata.ListType.ADMIN: do_model_editor,
+        mbdata.ListType.CHECKLIST: do_model_checklist,
+        mbdata.ListType.THUMBNAIL: do_model_thumbnail,
+        # mbdata.ListType.TEXT:
+        mbdata.ListType.CSV: do_model_csv,
+        mbdata.ListType.JSON: do_model_json,
     }
 
     llineup = formatter.get(vsform.display_type, do_model_grid)(pif, model, vsform, fvars, photogs)
@@ -1411,8 +1411,8 @@ def show_casting(pif, model):
 
     footer = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        footer += pif.form.put_button_input('list', mbdata.LISTTYPE_LARGE)
-        if vsform.display_type in (mbdata.LISTTYPE_LARGE, mbdata.LISTTYPE_EDITOR,):
+        footer += pif.form.put_button_input('list', mbdata.ListType.LARGE)
+        if vsform.display_type in (mbdata.ListType.LARGE, mbdata.LISTTYPE_EDITOR,):
             img += '<div class="%s">Credit: ' % ('bgok' if phcred else 'bgno')
             img += pif.form.put_select("phcred", photogs, selected=phcred, blank='') + '</div>'
             footer += pif.form.put_button_input('save')
@@ -1437,8 +1437,8 @@ def show_casting(pif, model):
         'search_object': vsform.show_search_object(),
         'verbose': vsform.verbose,
         'show_as_list': vsform.display_type in (
-            mbdata.LISTTYPE_LARGE, mbdata.LISTTYPE_EDITOR, mbdata.LISTTYPE_DETAIL, mbdata.LISTTYPE_DESCR,
-            mbdata.LISTTYPE_ADMIN),
+            mbdata.ListType.LARGE, mbdata.LISTTYPE_EDITOR, mbdata.LISTTYPE_DETAIL, mbdata.LISTTYPE_DESCR,
+            mbdata.ListType.ADMIN),
         'mod_id': mod_id,
         'var_search_form': vsform.write(pif, form_values),
         'var_search_visible': pif.form.put_button_input_visibility("varsearch", True),
@@ -1481,9 +1481,9 @@ def variation_list(pif, man):
         save_model(pif, man['id'])
     elif pif.form.has('recalc'):
         pif.dbh.recalc_description(man['id'])
-    # mbdata.LISTTYPE_TEXT
-    # mbdata.LISTTYPE_CSV
-    # mbdata.LISTTYPE_JSON
+    # mbdata.ListType.TEXT
+    # mbdata.ListType.CSV
+    # mbdata.ListType.JSON
     return show_casting(pif, man)
 
 
@@ -1499,7 +1499,7 @@ def action(pif, man, var_id):
     elif pif.form.has("add"):
         var_id = var_id or 'unset'
         edit = addnew = True
-    elif pif.form.has(mbdata.LISTTYPE_EDITOR):
+    elif pif.form.has(mbdata.ListType.EDITOR):
         edit = True
     elif pif.form.has("rmpic"):
         remove_picture(pif, man['id'], var_id)

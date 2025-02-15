@@ -116,21 +116,18 @@ def show_make_selection(pif, make_id, makedict):
     mlist = []
 
     for mdict in castings:
-        mlist.append(pif.dbh.modify_man_item(mdict))
+        mlist.append(pif.dbh.make_man_item(mdict))
 
     for mdict in aliases:
-        mdict = pif.dbh.modify_man_item(mdict)
-        if mdict.get('alias.ref_id'):
-            mdict['picture_id'] = mdict['id']
-            mdict['id'] = mdict['alias.id']
-            # mdict['descs'] = mdict['descs']
-            # mdict['descs'].append('same as ' + mdict['ref_id'])
-        mlist.append(mdict)
+        manitem = pif.dbh.make_man_item(mdict)
+        if manitem.ref_id:
+            manitem.picture_id = manitem.id
+        mlist.append(manitem)
 
-    mlist.sort(key=lambda x: x['name'])
-    for mdict in mlist:
-        # input mdict:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
-        lran.entry.append(render.Entry(text=mbmods.add_model_table_pic_link(pif, mdict, flago=mbmods.flago)))
+    mlist.sort(key=lambda x: x.name)
+    for manitem in mlist:
+        # input manitem:  id, (picture_id), made, country, link, linkid, name, descs, made, unlicensed, scale, (type)
+        lran.entry.append(render.Entry(text=mbmods.add_man_item_table_pic_link(pif, manitem, flago=mbmods.flago)))
 
     lsec.range.append(lran)
     return lsec

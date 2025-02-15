@@ -148,7 +148,7 @@ def show_section(pif, manf, sect, start=None, end=None, year=None):
             print("<center><table><tr align=top>")
         shown += 1
         print(" <td valign=top width=%d>" % 200)
-        print(mbmods.add_model_table_pic_link(pif, slist))
+        print(mbmods.add_man_item_table_pic_link(pif, pif.dbh.make_man_item(slist)))
         print(" </td>")
         if (shown == cols):
             print("</tr></table></center>\n")
@@ -177,7 +177,7 @@ def show_section_list(pif, sect):
             if mods[col]:
                 slist = mods[col].pop(0)
                 slist['shortname'] = slist['name']
-                print(mbmods.add_model_table_list_entry(pif, slist))
+                print(mbmods.add_man_item_table_list_entry(pif, pif.dbh.make_man_item(slist)))
                 found = True
         print(' </tr>')
         if not found:
@@ -185,7 +185,7 @@ def show_section_list(pif, sect):
 
     print('<tr>')
     for col in range(0, cols):
-        print('<td colspan=4 width=%d%%>&nbsp;</td>' % (100 / cols))
+        print(f'<td colspan=4 width={100 / cols}%>&nbsp;</td>'
     print('</tr>')
 
     print("</table>")
@@ -214,7 +214,7 @@ def main(pif):
     manf = MannoFile(useful.relpath(config.SRC_DIR, 'tomica.dat'))
     # mans = manf.dictlist
     if pif.form.has('num'):
-        print('<meta http-equiv="refresh" content="0;url=single.cgi?id=%s">' % pif.form.get_str('num'))
+        print(f'<meta http-equiv="refresh" content="0;url=single.cgi?id={pif.form.get_str("num")}">'
         return
     else:
         run_file(pif, manf, year=pif.form.get_str('year'))

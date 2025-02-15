@@ -95,7 +95,8 @@ class Presentation(object):
     def set_page_extra(self, extra):
         self.extra += extra
 
-    def style_name(self, previous, prefix, col=None, id=None):
+    @staticmethod
+    def style_name(previous, prefix, col=None, id=None):
         class_ids = list()
         if previous:
             class_ids.append(previous)
@@ -285,7 +286,8 @@ of Matchbox International Ltd. and are used with permission.
 
     # ---- forms
 
-    def format_form_token(self, token, name="token"):
+    @staticmethod
+    def format_form_token(token, name="token"):
         return f'<input type="hidden" name="{name}" value="{token}">\n'
 
     # ---- links
@@ -564,7 +566,8 @@ of Matchbox International Ltd. and are used with permission.
                 istr = istr[:mat.start()] + self.format_button_link(mat.group('arg'), '') + istr[mat.end():]
         return istr
 
-    def fmt_markup(self, cmd, args):
+    @staticmethod
+    def fmt_markup(cmd, args):
         carg = dict()
         for arg in reversed(args):
             carg.update(arg)
@@ -631,15 +634,16 @@ of Matchbox International Ltd. and are used with permission.
         return self.fmt_img(fnames, alt=alt, prefix=prefix, suffix=suffix, pdir=pdir, also=also, vars=vars,
                             pad=not nopad)
 
-    def fmt_anchor(self, name):
+    @staticmethod
+    def fmt_anchor(name):
         return f'<i id="{name}"></i>\n' if name else ''
 
-    @classmethod
-    def fmt_okno(cls, cond):
+    @staticmethod
+    def fmt_okno(cond):
         return 'ok' if cond else 'no'
 
-    @classmethod
-    def fmt_mini(cls, color=None, icon="circle-question", family="solid", also='', alsoc=''):
+    @staticmethod
+    def fmt_mini(color=None, icon="circle-question", family="solid", also='', alsoc=''):
         return (f'<i {(also + " ") if also else ""}class="{(alsoc + " ") if alsoc else ""}'
                 f'fa-{family} fa-{icon}{(" " + color) if color else ""}"></i>')
 
@@ -670,13 +674,15 @@ of Matchbox International Ltd. and are used with permission.
 
     # still need to work on mannum.py, mbdata.py, pifile.py
 
-    def format_credit(self, credit):
+    @staticmethod
+    def format_credit(credit):
         if credit:
             return (f'Photo credit: <a href="photogs.cgi?id={credit["photographer.id"]}">'
                     f'{credit["photographer.name"]}</a>')
         return ''
 
-    def format_modal(self, modal_id, content):
+    @staticmethod
+    def format_modal(modal_id, content):
         ostr = f'<div id="{modal_id}" class="modal">\n'
         ostr += f'<div class="modal-content"><span class="close" id="{modal_id}.close">&times;</span>\n'
         ostr += content + '\n'
