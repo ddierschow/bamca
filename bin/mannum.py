@@ -530,37 +530,6 @@ class MannoFile(object):
                 cnt += 1
         return cnt, tot
 
-    def count_list_var_pics(self, pif, mod_id):
-        vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
-        needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
-        found_c = found_f = found_a = found_1 = found_2 = found_p = 0
-        # nf = []
-        for var in vars:
-            if not var['picture_id']:
-                is_found = var['var'] in self.varpics.get(var['mod_id'], {})
-                ty_var = mbmods.calc_var_type(pif, var), is_found
-
-                needs_a += 1
-                found_a += is_found
-                if ty_var == 'p':
-                    needs_p += 1
-                    found_p += is_found
-                elif ty_var == 'f':
-                    needs_f += 1
-                    found_f += is_found
-                elif ty_var == 'c':
-                    needs_c += 1
-                    found_c += is_found
-                elif ty_var == '2':
-                    needs_2 += 1
-                    found_2 += is_found
-                else:
-                    needs_1 += 1
-                    found_1 += is_found
-        return (found_a, found_c, found_1, found_2, found_f, found_p), \
-               (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p), \
-               (None,)
-
     def get_picture_model_entries(self, pif, model_ids):
         photogs = {x['photo_credit.name'].lower(): x['photographer.id']
                    for x in pif.dbh.fetch_photo_credits_for_models('.' + config.IMG_DIR_MAN)}
@@ -1268,26 +1237,27 @@ def check_castings(pif, *args):
 
 
 def fix_formats(pif):
-    for cas in pif.dbh.fetch_casting_list():
-        print(cas['casting.id'])
-        if cas['casting.format_description'] == '':
+    for x in pif.dbh.fetch_casting_list():
+        cas = pif.dbh.make_man_item(x)
+        print(cas.id)
+        if cas.format_description == '':
             print('  desc')
-            pif.dbh.write_casting({'format_description': '&body|&tampo'}, cas['casting.id'])
-        if cas['casting.format_body'] == '':
+            pif.dbh.write_casting({'format_description': '&body|&tampo'}, cas.id)
+        if cas.format_body == '':
             print('  body')
-            pif.dbh.write_casting({'format_body': '*body|*tampo'}, cas['casting.id'])
-        if cas['casting.format_interior'] == '':
+            pif.dbh.write_casting({'format_body': '*body|*tampo'}, cas.id)
+        if cas.format_interior == '':
             print('  int')
-            pif.dbh.write_casting({'format_interior': '&interior'}, cas['casting.id'])
-        if cas['casting.format_windows'] == '':
+            pif.dbh.write_casting({'format_interior': '&interior'}, cas.id)
+        if cas.format_windows == '':
             print('  windows')
-            pif.dbh.write_casting({'format_windows': '&windows'}, cas['casting.id'])
-        if cas['casting.format_base'] == '':
+            pif.dbh.write_casting({'format_windows': '&windows'}, cas.id)
+        if cas.format_base == '':
             print('  base')
-            pif.dbh.write_casting({'format_base': '&base|&manufacture'}, cas['casting.id'])
-        if cas['casting.format_wheels'] == '':
+            pif.dbh.write_casting({'format_base': '&base|&manufacture'}, cas.id)
+        if cas.format_wheels == '':
             print('  wheels')
-            pif.dbh.write_casting({'format_wheels': '&wheels'}, cas['casting.id'])
+            pif.dbh.write_casting({'format_wheels': '&wheels'}, cas.id)
 
 
 def ck_model(pif, mod):

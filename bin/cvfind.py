@@ -65,6 +65,7 @@ def read_super_search_form(form, withaliases=False, madeonly=False):
         make_type=form.get_str('make'),   # = unk isn't working
         make_name=form.get_str('makename'),
         vehtypes=form.get_list_by_value('type', 'ynm'),
+        mod_type=form.get_str('mtype', ''),
 
         # variation section
         varsq=varsq,
@@ -94,6 +95,7 @@ class Searcher(object):
         self.make_type = args.get('make_type') or ''   # = unk isn't working
         self.make_name = args.get('make_name') or ''
         self.vehtypes = args.get('vehtypes')
+        self.mod_type = args.get('mod_type')
 
         # variation section
         self.varsq = args.get('varsq') or {'var': ''}
@@ -101,7 +103,7 @@ class Searcher(object):
         self.codes = args.get('codes', 3)  # thinking about this one...
 
         # internal stuff
-        self.is_var_search = any(self.varsq.values()) or self.codes != 3
+        self.is_var_search = any(self.varsq.values()) or ''.join(self.codes) != '12'
         self.makes = set()  # massaged form of what we're looking for
         self.makelist = []  # all possible makes
         self.cmakes = {}    # casting makes
@@ -151,20 +153,19 @@ class Searcher(object):
         if self.withaliases:
             for alias in pif.dbh.fetch_aliases(where=["alias.section_id != ''", "alias.type in ('MP','MB')"]):
                 if alias['alias.section_id']:
-                    # self.add_casting(pif, alias)
                     self.add_alias(pif, alias)
 
         # screen by variation filters
-        if self.list_type == 'v' or self.is_var_search:
-            self.cascount = 0
+        if (self.list_type == 'v' or self.is_var_search) and self.mdict:
+            self.cascount = 0  # starting over, because taking vars into account we'll get a different answer
             vars = pif.dbh.fetch_variation_query(self.varsq, castinglist=self.mdict.keys(), codes=self.codes)
             for var in vars:
                 if self.check_thing_id(self.varsq['var'], var['v.var'], self.var_id_exact):
-                    if not self.mdict[var['v.mod_id']]['vars']:
+                    if not self.mdict[var['v.mod_id']].vars:
                         self.cascount += 1
                     self.varcount += 1
-                    var['name'] = self.mdict[var['v.mod_id']]['rawname'].replace(';', ' ')
-                    self.mdict[var['v.mod_id']]['vars'].append(var)
+                    var['name'] = self.mdict[var['v.mod_id']].name
+                    self.mdict[var['v.mod_id']].vars.append(var)
 
         # create outgoing list
         count = 0
@@ -183,9 +184,9 @@ class Searcher(object):
                 for mod in section['model_ids']:
                     modlist.append(self.mdict[mod])
             if self.sort_type == 'n':
-                modlist.sort(key=lambda x: x['name'])
+                modlist.sort(key=lambda x: x.name)
             else:  # i
-                modlist.sort(key=lambda x: x['id'])
+                modlist.sort(key=lambda x: x.id)
             rsection = {'models': [], 'id': 'only'}
             rsection['name'] = 'Variations Found' if self.list_type == 'v' else 'Models Found'
             for mod in modlist:
@@ -197,58 +198,56 @@ class Searcher(object):
     def add_to_output(self, rsec, mod, count):
         if self.list_type == 'v':
             rsec['models'].append(mod)
-            for var in mod['vars']:
+            for var in mod.vars:
                 count += 1
                 if count > self.start:
                     if count <= self.start + mbdata.modsperpage:
-                        mod['variations'].append(var)
+                        mod.variations.append(var)
                     else:
                         self.more = True
-        elif not self.is_var_search or (self.is_var_search and mod['vars']):  # c
+        elif not self.is_var_search or (self.is_var_search and mod.vars):  # c
             count += 1
             if count > self.start:
                 if count <= self.start + mbdata.modsperpage:
                     rsec['models'].append(mod)
-                    mod['variations'] = mod['vars']
+                    mod.variations = mod.vars
                 else:
                     self.more = True
         return count
 
     def add_casting(self, pif, casting, aliases=[]):
-        manitem = pif.dbh.modify_man_item(casting)
+        manitem = pif.dbh.make_man_item(casting)
         aliases = [x for x in aliases if x['alias.type'] == 'mack']
-        manitem['mack'] = ','.join(mbmods.get_mack_numbers(pif, manitem['id'], manitem['model_type'], aliases))
-        if manitem['section_id'] in self.sdict and manitem['id'] not in self.sdict[manitem['section_id']]['model_ids']:
-            self.add_casting_item(pif, manitem['id'], manitem)
+        manitem.mack = ','.join(mbmods.get_mack_numbers(pif, manitem.id, manitem.model_type, aliases))
+        if manitem.section_id in self.sdict and manitem.id not in self.sdict[manitem.section_id]['model_ids']:
+            self.add_casting_item(pif, manitem.id, manitem)
 
     def add_alias(self, pif, alias):
         if alias['alias.section_id'] in self.sdict:
-            manitem = pif.dbh.modify_man_item(alias)
-            manitem['section_id'] = manitem['alias.section_id']
-            if 'ref_id' in manitem:
-                refitem = copy.deepcopy(self.mdict[manitem['ref_id']])
-                if manitem['first_year']:
-                    refitem['first_year'] = manitem['first_year']
-                refitem['id'] = manitem['id']
-                refitem['descs'] = manitem['descs']
-                refitem['descs'].append('same as ' + manitem['ref_id'])
-                refitem['vehicle_type'] = manitem['vehicle_type'] or ''
-                manitem = refitem
-            self.add_casting_item(pif, manitem['alias.id'], manitem)
+            manitem = pif.dbh.make_man_item(alias)
+            # manitem['section_id'] = manitem['alias.section_id']
+            # if 'ref_id' in manitem:
+            #     refitem = copy.deepcopy(self.mdict[manitem['ref_id']])
+            #     if manitem['first_year']:
+            #         refitem['first_year'] = manitem['first_year']
+            #     refitem['id'] = manitem['id']
+            #     refitem['descs'] = manitem['descs']
+            #     refitem['descs'].append('same as ' + manitem['ref_id'])
+            #     refitem['vehicle_type'] = manitem['vehicle_type'] or ''
+            #     manitem = refitem
+            self.add_casting_item(pif, manitem.id, manitem)
 
     def add_casting_item(self, pif, man_id, manitem):
-        manitem.update({
-            'makes': ((set([manitem['make']]) if manitem['make'] else set()) | self.cmakes.get(manitem['id'], set()) or
-                      set(['unk'])),
-            'type_desc': mbdata.text_types(manitem['vehicle_type']),
-            'vars': [],
-            'variations': [],
-        })
+        manitem.makes = ((set([manitem.make]) if manitem.make else set()) | self.cmakes.get(manitem.id, set()) or
+                         set(['unk']))
+        manitem.type_desc = mbdata.text_types(manitem.vehicle_type)
+        manitem.vars = []
+        manitem.variations = []
         if man_id not in self.mdict and self.is_casting_shown(manitem):
             # add makes
             if self.is_var_search:
-                manitem['link'] = 'vars.cgi?' + self.make_var_search_criteria(pif, manitem)
-            self.sdict[manitem['section_id']]['model_ids'].append(man_id)
+                manitem.link = 'vars.cgi?' + self.make_var_search_criteria(pif, manitem)
+            self.sdict[manitem.section_id]['model_ids'].append(man_id)
             self.mdict[man_id] = manitem
             self.cascount += 1
 
@@ -272,12 +271,13 @@ class Searcher(object):
         '''Makes decision of whether to show casting.'''
         # variation filters get checked later
         return not (
-            (not self.check_thing_id(self.mod_id, mod['id'], self.mod_id_exact)) or
-            (not useful.search_match(self.mod_name, mod['name'])) or
-            (self.makes and not (mod['makes'] & self.makes)) or
-            (not self.check_model_number(mod['id'])) or
-            (not mbdata.type_check(self.vehtypes['n'], self.vehtypes['y'], mod['vehicle_type'])) or
-            (self.madeonly and not mod['made']))
+            (not self.check_thing_id(self.mod_id, mod.id, self.mod_id_exact)) or
+            (not useful.search_match(self.mod_name, mod.name)) or
+            (self.makes and not (mod.makes & self.makes)) or
+            (self.mod_type and mod.model_type != self.mod_type) or
+            (not self.check_model_number(mod.id)) or
+            (not mbdata.type_check(self.vehtypes['n'], self.vehtypes['y'], mod.vehicle_type)) or
+            (self.madeonly and not mod.made))
 
     def make_var_search_criteria(self, pif, mod):  # query for clicking on cas with varsq
         qf = '&'.join(['{}={}'.format(v, pif.form.get_str(k)) for k, v in vsfields.items()])

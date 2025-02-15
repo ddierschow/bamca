@@ -9,6 +9,7 @@ import time
 import config
 import dbintf
 import mbdata
+import models
 import tables
 import useful
 
@@ -516,30 +517,7 @@ class DBHandler(object):
         return [self.make_man_item(mod) for mod in mods]
 
     def make_man_item(self, mod):
-        # take a query result for casting et al and turn it into a dict
-        # not ready for primetime
-        mod_id = mod.base_id.id
-        result = {
-            'make': '',
-            'id': '',
-            'name': mod['base_id.rawname'].replace(';', ' '),
-            'unlicensed': '?',
-            'description': '',
-            'made': False,
-            'visual_id': '',
-            'link': "single.cgi?id",
-            'filename': mod_id.lower(),
-            'notmade': '*' if (mod.base_id.flags & config.FLAG_MODEL_NOT_MADE) else '',
-            'linkid': mod_id,
-            'descs': [x for x in mod.base_id.description.split(';') if x],
-            'iconname': self.icon_name(mod.base_id.rawname),
-            'shortname': self.short_name(mod.base_id.rawname),
-            'casting_type': mbdata.model_types.get(mod.get('base_id.model_type', 'SF'), 'Casting'),
-        }
-        result.update(mod['casting'])
-        result.update(mod.get('publication', {}))
-        result.update(mod['base_id'])
-        return result
+        return models.ManItem(mod)
 
     def modify_man_items(self, mods):
         return [self.modify_man_item(mod) for mod in mods]

@@ -150,11 +150,10 @@ def plant_models(pif):
     mmods = pif.dbh.fetch_castings_by_plant(plant_name if plant_id else '')
     for mmod in mmods:
         mod = pif.dbh.make_man_item(mmod)
-        mod['count'] = mmod['count']
-        mod['img'] = pif.ren.format_link(
-            '/cgi-bin/vars.cgi?manufacture=%s&mod=%s' % (plant_d.get(plant_id, 'unset'), mod['id']),
-            txt='%d Variation%s' % (mod.get('count', -1), 's' if mod.get('count', -1) != 1 else ''))
-        entries.append(render.Entry(text=mbmods.add_model_thumb_pic_link(pif, mod)))
+        mod.img = pif.ren.format_link(
+            f'/cgi-bin/vars.cgi?manufacture={plant_d.get(plant_id, "unset")}&mod={mod.id}',
+            txt=f'{mod.count} Variation{useful.plural(mod.count)}')
+        entries.append(render.Entry(text=mbmods.add_man_item_thumb_pic_link(pif, mod)))
 
     llineup = render.Matrix(
         section=[render.Section(range=[render.Range(entry=entries)])],
@@ -183,7 +182,7 @@ def custom_create_section(pif, attribute_type):
             ostr += '<center><h3>%s</h3>\n' % add % {'s': ''}
             ostr += '<table><tr><td>' + pif.ren.fmt_img_src(img) + '<br>'
             if img_credit:
-                ostr += '<div class="credit">Photo credit: %s</div>' % img_credit
+                ostr += f'<div class="credit">Photo credit: {img_credit}</div>'
             ostr += '</td></tr></table>'
             if attr_pic['attribute_picture.description']:
                 ostr += attr_pic['attribute_picture.description']
@@ -259,7 +258,7 @@ def compare_main(pif):
             mod['model_id'] = mod['cr.related_id']
             modsets.setdefault(mod['cr.model_id'], [])
             img = pif.ren.format_image_optional(
-                mod['cr.model_id'] + ('-%s' % mod['cr.picture_id'] if mod['cr.picture_id'] else ''),
+                f"{mod['cr.model_id']}{('-%s' % mod['cr.picture_id'] if mod['cr.picture_id'] else '')}",
                 prefix='z_', nopad=True)
             modsets[mod['cr.model_id']].append((mod['model_id'], mod['name'], mod['cr.description'].split(';'), img))
 
