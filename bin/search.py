@@ -67,7 +67,8 @@ def create_var_lineup(pif, mods, var_id):
     sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lran = render.Range()
     for mod in mods:
-        for var in pif.dbh.fetch_variation_query_by_id(mod['id'], var_id):
+        manitem = pif.dbh.make_man_item(mod)
+        for var in pif.dbh.fetch_variation_query_by_id(manitem.id, var_id):
             var['name'] = var['base_id.rawname'].replace(';', ' ')
             lran.entry.append(render.Entry(text=mbmods.add_model_var_table_pic_link(pif, var)))
     lsec = render.Section(section=sect, range=[lran], columns=4)
@@ -79,8 +80,8 @@ def create_lineup(pif, mods):
     sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     lran = render.Range()
     for mod in mods:
-        mod = pif.dbh.modify_man_item(mod)
-        lran.entry.append(render.Entry(text=mbmods.add_model_table_pic_link(pif, mod, flago=flago)))
+        manitem = pif.dbh.make_man_item(mod)
+        lran.entry.append(render.Entry(text=mbmods.add_man_item_table_pic_link(pif, manitem, flago=flago)))
     lsec = render.Section(section=sect, range=[lran], columns=4)
     return render.Matrix(columns=4, section=[lsec])
 

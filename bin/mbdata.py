@@ -1,3 +1,4 @@
+import enum
 import re
 
 import config
@@ -543,29 +544,32 @@ var_types = {
     'p': '2P',
 }
 
-LISTTYPE_NORMAL = ''
-LISTTYPE_LARGE = 'lrg'
-LISTTYPE_CHECKLIST = 'ckl'
-LISTTYPE_THUMBNAIL = 'thm'
-LISTTYPE_TEXT = 'txt'
-LISTTYPE_CSV = 'csv'
-LISTTYPE_VAR_CSV = 'vcs'
-LISTTYPE_JSON = 'jsn'
-LISTTYPE_ADMIN = 'adl'
-LISTTYPE_PICTURE = 'pxl'
-LISTTYPE_LINK = 'lnl'
-LISTTYPE_VEHICLE_TYPE = 'vtl'
-LISTTYPE_MULTIYEAR = 'myr'
-LISTTYPE_TILLEY = 'til'
-LISTTYPE_EDITOR = 'edt'
-LISTTYPE_DETAIL = 'vdt'
-LISTTYPE_DESCR = 'vds'
+
+class ListType(enum.StrEnum):
+    NORMAL = ''
+    LARGE = 'lrg'
+    CHECKLIST = 'ckl'
+    THUMBNAIL = 'thm'
+    TEXT = 'txt'
+    CSV = 'csv'
+    VAR_CSV = 'vcs'
+    JSON = 'jsn'
+    ADMIN = 'adl'
+    PICTURE = 'pxl'
+    LINK = 'lnl'
+    VEHICLE_TYPE = 'vtl'
+    MULTIYEAR = 'myr'
+    TILLEY = 'til'
+    EDITOR = 'edt'
+    DETAIL = 'vdt'
+    DESCR = 'vds'
+
 
 mime_types = {
-    LISTTYPE_CSV: 'text/csv',
-    LISTTYPE_VAR_CSV: 'text/csv',
-    LISTTYPE_JSON: 'application/json',
-    LISTTYPE_TEXT: 'text/plain',
+    ListType.CSV: 'text/csv',
+    ListType.VAR_CSV: 'text/csv',
+    ListType.JSON: 'application/json',
+    ListType.TEXT: 'text/plain',
 }
 
 
