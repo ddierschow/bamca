@@ -1052,6 +1052,8 @@ class Result(object):
         if '.' in key:
             k1, k2 = key.split('.', 1)
             return rec[k1][k2]
+        if key in rec:
+            return rec[key]
         if tab in rec:
             rec = rec[tab]
         return rec.get(key, val)

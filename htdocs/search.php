@@ -77,7 +77,7 @@ function SectionSearch($pif) {
     $q = "select 0 as flags, id as val, name as title from section where page_id='manno' order by display_order";
     $ql = Fetch($q, $pif);
     Select('section', 'manSection', array_merge(
-        [['flags' => 64, 'val' => '', 'title' => 'All Sections']], $ql), '');
+        [['flags' => 64, 'val' => '', 'title' => 'all sections']], $ql), '');
     echo "</td>\n";
 
     echo "</tr><tr>\n<td>Numbers:</td><td>";
@@ -95,6 +95,22 @@ function SectionSearch($pif) {
     ChooseNum("idend", "manEnd", 4, "document.getElementById('manStart').value", 9999, 9999,
               'onFocus="document.ss.range[1].checked=true;"', "document.ss.range[1].checked=true;");
     echo " </tr>\n";
+
+    echo " <tr>\n";
+    echo "  <td>Model Type:</td><td colspan=\"4\">\n";
+    Select('mtype', 'manType', [
+        ['flags' => 64, 'val' => '', 'title' => 'all types'],
+        ['flags' => 0, 'val' => 'AC', 'title' => 'Accessory'],
+        ['flags' => 0, 'val' => 'BR', 'title' => 'Budget Range'],
+        ['flags' => 0, 'val' => 'CH', 'title' => 'Character'],
+        ['flags' => 0, 'val' => 'ET', 'title' => 'Early Toy'],
+        ['flags' => 0, 'val' => 'KS', 'title' => 'King Size'],
+        ['flags' => 0, 'val' => 'PS', 'title' => 'Playset'],
+        ['flags' => 0, 'val' => 'RW', 'title' => 'Regular Wheels'],
+        ['flags' => 0, 'val' => 'SB', 'title' => 'Skybusters'],
+        ['flags' => 0, 'val' => 'SF', 'title' => 'Superfast'],
+        ['flags' => 0, 'val' => 'YY', 'title' => 'Yesteryear']], '');
+    echo "</td>\n";
 
     echo "<tr><td>Vehicle make:</td><td colspan=\"3\">\n";
     Checks('radio', $id, 'make', [['', 'any', 1], ['unk', 'unknown'], ['unl', 'unlicensed']]);

@@ -268,13 +268,13 @@ def run_super_search(pif):
     pif.ren.set_button_comment(pif, keys={'sel': 'selection', 'ran': 'range', 'start': 'start', 'end': 'end'})
     lsec = render.Section()
     for sect in sections:
-        mods = sect['models'] if not any(searcher.varsq.values()) else [x for x in sect['models'] if x['variations']]
+        mods = sect['models'] if not any(searcher.varsq.values()) else [x for x in sect['models'] if x.variations]
         if mods:
             if searcher.list_type == 'v':
-                entries = [render.Entry(text=mbmods.add_model_var_table_pic_link(pif, x))
-                           for y in mods for x in y['variations']]
+                entries = [render.Entry(text=mbmods.add_man_item_var_table_pic_link(pif, y, x))
+                           for y in mods for x in y.variations]
             else:
-                entries = [render.Entry(text=mbmods.add_model_table_pic_link(pif, x)) for x in mods]
+                entries = [render.Entry(text=mbmods.add_man_item_table_pic_link(pif, x)) for x in mods]
 
             lsec.range.append(render.Range(name=sect['name'], anchor=sect['id'], entry=entries))
     llineup.section = [lsec]
