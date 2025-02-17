@@ -157,6 +157,7 @@ class MannoFile(object):
         self.vehtypes = pif.form.get_list_by_value('type', 'ynm')
         self.addtypes = pif.form.get_list_by_value('add', 'ynm')
         self.pictypes = pif.form.get_list_by_value('pic', 'ynm')
+        self.large = pif.form.get_bool('large')
         self.plist = man_sections  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
         slist = pif.dbh.fetch_sections({'id': useful.clean_id(self.section)}  # , 'page_id': pif.page_id})
                                        if self.section else {'page_id': pif.page_id})
@@ -271,7 +272,7 @@ class MannoFile(object):
                 render.Entry(data=x)
                 for x in mbmods.generate_model_table_pic_link_man_item(pif, self.mdict, sect['model_ids'])])]
         )
-        if pif.form.get_bool('large'):
+        if self.large:
             lsec.columns = 1
         return lsec
 
@@ -399,7 +400,6 @@ class MannoFile(object):
                 'name': mades[int(manitem.made)],
                 'alias': '<br>'.join(aliases.get(mod, [])),
                 'unlicensed': manitem.unlicensed,
-                'make': manitem.make,
                 'first_year': manitem.first_year,
                 'fvyear': '',
                 'lvyear': '',
@@ -681,14 +681,11 @@ class MannoFile(object):
     def write_vehicle_types(pif):
         for key in pif.form.keys(start='vt_'):
             val = ''.join(pif.form.get_list(key))
-            # useful.write_message(key[3:], 'type', val, '<br>')
             pif.dbh.write_casting(values={'vehicle_type': val}, id=key[3:])
         for key in pif.form.keys(start='vm_'):
-            # useful.write_message(key[3:], 'make', pif.form.get_str(key), '<br>')
             pif.dbh.write_casting(values={'make': pif.form.get_str(key)}, id=key[3:])
             pif.dbh.update_casting_make(key[3:], pif.form.get_str(key), verbose=True)
         for key in pif.form.keys(start='co_'):
-            # useful.write_message(key[3:], 'country', pif.form.get_str(key), '<br>')
             pif.dbh.write_casting(values={'country': pif.form.get_str(key)}, id=key[3:])
 
     def run_vehicle_type_list_template(self, pif):

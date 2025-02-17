@@ -185,7 +185,7 @@ def show_section_list(pif, sect):
 
     print('<tr>')
     for col in range(0, cols):
-        print(f'<td colspan=4 width={100 / cols}%>&nbsp;</td>'
+        print(f'<td colspan=4 width={100 / cols}%>&nbsp;</td>')
     print('</tr>')
 
     print("</table>")
@@ -214,7 +214,7 @@ def main(pif):
     manf = MannoFile(useful.relpath(config.SRC_DIR, 'tomica.dat'))
     # mans = manf.dictlist
     if pif.form.has('num'):
-        print(f'<meta http-equiv="refresh" content="0;url=single.cgi?id={pif.form.get_str("num")}">'
+        print(f'<meta http-equiv="refresh" content="0;url=single.cgi?id={pif.form.get_str("num")}">')
         return
     else:
         run_file(pif, manf, year=pif.form.get_str('year'))

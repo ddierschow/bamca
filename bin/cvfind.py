@@ -268,14 +268,14 @@ class Searcher(object):
     def is_casting_shown(self, mod):
         '''Makes decision of whether to show casting.'''
         # variation filters get checked later
-        return not (
-            (not self.check_thing_id(self.mod_id, mod.id, self.mod_id_exact)) or
-            (not useful.search_match(self.mod_name, mod.name)) or
-            (self.makes and not (mod.makes & self.makes)) or
-            (self.mod_type and mod.model_type != self.mod_type) or
-            (not self.check_model_number(mod.id)) or
-            (not mbdata.type_check(self.vehtypes['n'], self.vehtypes['y'], mod.vehicle_type)) or
-            (self.madeonly and not mod.made))
+        return (
+            (self.check_thing_id(self.mod_id, mod.id, self.mod_id_exact)) and
+            (useful.search_match(self.mod_name, mod.name)) and
+            (not self.makes or (mod.makes & self.makes)) and
+            (not self.mod_type or mod.model_type == self.mod_type) and
+            (self.check_model_number(mod.id)) and
+            (mbdata.type_check(self.vehtypes['n'], self.vehtypes['y'], mod.vehicle_type)) and
+            (not self.madeonly or mod.made))
 
     def make_var_search_criteria(self, pif, mod):  # query for clicking on cas with varsq
         qf = '&'.join(['{}={}'.format(v, pif.form.get_str(k)) for k, v in vsfields.items()])

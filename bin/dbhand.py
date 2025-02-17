@@ -517,6 +517,12 @@ class DBHandler(object):
     def make_man_item(self, mod):
         return models.ManItem(mod)
 
+    def make_line_items(self, mods):
+        return [self.make_line_item(mod) for mod in mods]
+
+    def make_line_item(self, mod):
+        return models.LineItem(mod)
+
     def modify_man_items(self, mods):
         return [self.modify_man_item(mod) for mod in mods]
 

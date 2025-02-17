@@ -1019,7 +1019,7 @@ def quickie_modal(pif, mod_id, var_id, field):
     return ''
 
 
-# mbdata.ListType.LARGE mbdata.LISTTYPE_EDITOR listix
+# mbdata.ListType.LARGE mbdata.ListType.EDITOR listix
 def do_model_list(pif, model, vsform, dvars, photogs):
     llistix = render.Listix(id='vars', section=[])
 
@@ -1052,7 +1052,7 @@ def do_model_list(pif, model, vsform, dvars, photogs):
 
     llistix.footer = (related_casting_links(
         pif, model['id'],
-        url="vars.cgi?%s=1&mod=" % (mbdata.ListType.EDITOR if edit else mbdata.LISTTYPE_LARGE)) + '<br>' +
+        url="vars.cgi?%s=1&mod=" % (mbdata.ListType.EDITOR if edit else mbdata.ListType.LARGE)) + '<br>' +
         pif.ren.format_button_link("show as grid", 'vars.cgi?mod=%s' % model['id']))
     return llistix
 
@@ -1406,7 +1406,7 @@ def show_casting(pif, model):
     footer = ''
     if pif.is_allowed('a'):  # pragma: no cover
         footer += pif.form.put_button_input('list', mbdata.ListType.LARGE)
-        if vsform.display_type in (mbdata.ListType.LARGE, mbdata.LISTTYPE_EDITOR,):
+        if vsform.display_type in (mbdata.ListType.LARGE, mbdata.ListType.EDITOR,):
             img += '<div class="%s">Credit: ' % ('bgok' if phcred else 'bgno')
             img += pif.form.put_select("phcred", photogs, selected=phcred, blank='') + '</div>'
             footer += pif.form.put_button_input('save')
@@ -1431,7 +1431,7 @@ def show_casting(pif, model):
         'search_object': vsform.show_search_object(),
         'verbose': vsform.verbose,
         'show_as_list': vsform.display_type in (
-            mbdata.ListType.LARGE, mbdata.LISTTYPE_EDITOR, mbdata.LISTTYPE_DETAIL, mbdata.LISTTYPE_DESCR,
+            mbdata.ListType.LARGE, mbdata.ListType.EDITOR, mbdata.ListType.DETAIL, mbdata.ListType.DESCR,
             mbdata.ListType.ADMIN),
         'mod_id': mod_id,
         'var_search_form': vsform.write(pif, form_values),
