@@ -183,6 +183,10 @@ def generate_token(number_digits=10):
     return ''.join([alnum[random.randrange(len(alnum))] for x in range(0, number_digits)])
 
 
+def pick(from_these):
+    return random.choice(from_these)
+
+
 def clean_id(str_id, limit=255):
     id_re = re.compile(r'[-/\w.]+')  # 0-9 A-Z a-z underscore dash slash dot
     id_m = id_re.match(str(str_id)[:limit])

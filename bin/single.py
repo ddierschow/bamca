@@ -122,7 +122,7 @@ def show_series_appearances(pif, matrixes, relateds):
 
 def show_code2_appearances(pif, mod_id, vscounts):
     return [show_single_link(pif, f"code2.cgi?mod_id={mod_id}&cat={x['variation_select.category']}",
-                             f"{x['category.name']} ({x['count(*)']} variation{useful.plural(x['count(*)'])}")
+                             f"{x['category.name']} ({x['count(*)']} variation{useful.plural(x['count(*)'])})")
             for x in vscounts if x['count(*)'] and x['category.flags'] & config.FLAG_MODEL_CODE_2]
 
 
@@ -513,7 +513,7 @@ def show_single(pif):
         'note': '',
         'type_id': '',
         'icon_id':
-            mod_id if os.path.exists(useful.relpath('.', config.IMG_DIR_MAN_ICON, 'i_' + mod_id.lower() + '.gif'))
+            mod_id if os.path.exists(useful.relpath('.', config.IMG_DIR_MAN_ICON, f'i_{mod_id.lower()}.gif'))
             else '',
         'vehicle_type': vehicle_types,
         'rowspan': '4',

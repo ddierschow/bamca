@@ -133,7 +133,7 @@ def mack_lineup(pif):
     if not ranges:
         note = 'Your request produced no models.'
         if start > config.MAX_MACK_NUMBER:
-            note += '  Be sure to use numbers from 1 to {}.'.format(config.MAX_MACK_NUMBER)
+            note += f'  Be sure to use numbers from 1 to {config.MAX_MACK_NUMBER}.'
         if start > end:
             note += "  Use a start number that isn't higher than the end number."
         raise useful.SimpleError(note)

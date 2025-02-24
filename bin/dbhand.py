@@ -223,6 +223,68 @@ class DBHandler(object):
 
     # end dbi interface section
 
+    # - object makers
+
+    def make_man_items(self, mods):
+        return [self.make_man_item(x) for x in mods]
+
+    def make_man_item(self, mod):
+        return models.ManItem(mod)
+
+    def make_var_items(self, vars):
+        return [self.make_var_item(x) for x in vars]
+
+    def make_var_item(self, var, dets=None, vs=None):
+        return models.VarItem(var, dets, vs)
+
+    def make_pack_items(self, packs):
+        return [self.make_pack_item(x) for x in packs]
+
+    def make_pack_item(self, pack):
+        return models.PackItem(pack)
+
+    def make_pack_model_items(self, mods):
+        return [self.make_pack_model_item(x) for x in mods]
+
+    def make_pack_model_item(self, mod):
+        return models.PackModelItem(mod)
+
+    def make_line_items(self, mods):
+        return [self.make_line_item(x) for x in mods]
+
+    def make_line_item(self, mod):
+        return models.LineItem(mod)
+
+    def make_mat_items(self, mods, sec):
+        return [self.make_mat_item(x, sec) for x in mods]
+
+    def make_mat_item(self, mod, sec):
+        return models.MatItem(mod, sec)
+
+    def make_vs_items(self, vss):
+        return [self.make_vs_item(x) for x in vss]
+
+    def make_vs_item(self, vs):
+        return models.VSItem(vs)
+
+    def make_pub_items(self, mods):
+        return [self.make_pub_item(x) for x in mods]
+
+    def make_pub_item(self, mod):
+        return models.PubItem(mod)
+
+    def make_page_items(self, pages):
+        return [self.make_page_item(x) for x in pages]
+
+    def make_page_item(self, page):
+        return models.PageItem(page)
+
+    def make_sec_items(self, secs):
+        return [self.make_sec_item(x) for x in secs]
+
+    def make_sec_item(self, sec):
+        return models.SecItem(sec)
+
     # - page_info
 
     def fetch_page(self, id, verbose=False):
@@ -511,18 +573,6 @@ class DBHandler(object):
             return id_m
         return id_m.group('a').upper() + '-' + id_m.group('d')
 
-    def make_man_items(self, mods):
-        return [self.make_man_item(mod) for mod in mods]
-
-    def make_man_item(self, mod):
-        return models.ManItem(mod)
-
-    def make_line_items(self, mods):
-        return [self.make_line_item(mod) for mod in mods]
-
-    def make_line_item(self, mod):
-        return models.LineItem(mod)
-
     def modify_man_items(self, mods):
         return [self.modify_man_item(mod) for mod in mods]
 
@@ -737,6 +787,12 @@ class DBHandler(object):
                     varrec['vs'].append(vs)
         return varrecs
 
+    def fetch_variations_deconstructed(self, mod_id, nodefaults=False):
+        vsrecs = self.fetch('variation_select vs,category c', where=[f"mod_id='{mod_id}'", "vs.category=c.id"])
+        varrecs = self.fetch('variation v', where=[f"v.mod_id='{mod_id}'"], tag='VariationsDecon')
+        detrecs = self.fetch_details(mod_id, nodefaults=nodefaults)
+        return [(v, detrecs.get(v['v.var'], {}), [vs for vs in vsrecs if vs['vs.var_id'] == v['v.var']]) for v in varrecs]
+
     def fetch_variations_by_date(self, dt, wildcard=False):
         dtq = f"variation.date like '{dt}%'" if wildcard else f"variation.date='{dt}'"
         varrecs = self.fetch('variation,base_id', where=f"base_id.id=variation.mod_id and {dtq}",
@@ -760,12 +816,12 @@ class DBHandler(object):
         return varrec
 
     def fetch_variation_deconstructed(self, mod_id, var_id, nodefaults=True):
-        varrec = self.fetch('variation',
-                            where=f"mod_id='{mod_id}' and var='{var_id}'", tag='VariationDeconstructed')
+        varrec = self.fetch('variation v',
+                            where=f"v.mod_id='{mod_id}' and v.var='{var_id}'", tag='VariationDeconstructed')
         detrecs = self.fetch_details(mod_id, var_id, nodefaults=nodefaults)
         if varrec:
-            varrec[0]['vs'] = self.fetch('variation_select,category', where=[
-                f"mod_id='{mod_id}'", f"var_id='{var_id}'", "variation_select.category=category.id"])
+            varrec[0]['vs'] = self.fetch('variation_select vs,category', where=[
+                f"vs.mod_id='{mod_id}'", f"vs.var_id='{var_id}'", "vs..category=category.id"])
         return varrec, detrecs
 
     def fetch_variation_query(self, varsq, castingq=None, castinglist=None, codes=None):
@@ -856,8 +912,7 @@ class DBHandler(object):
 
     def fetch_variations_by_category(self, category, verbose=False):
         # if the same cat appears in 2 vs's, this should only produce one var.  not sure it does right now.
-        # dammit this is producing vs's, not vars.  gotta fix that.
-        cols = ['mod_id', 'text_description', 'picture_id', 'var', 'date', 'category']
+        cols = ['v.mod_id', 'v.text_description', 'v.picture_id', 'v.var', 'v.date', 'v.category']
         cols += self.make_columns(tabs=['casting', 'base_id'])
         table = "variation v"
         where = f"category like '%{category}%'"
@@ -2087,53 +2142,3 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                 lengths[col] = (max(len(str(result[col])), abs(lengths[col])) *
                                 sign(lengths[col], str(result[col]).isdigit()))
         return '| ' + (' | '.join([f'%{x}s' for x in lengths])) + ' |'
-
-
-class ManItem(object):
-    '''
-    base_id
-        columns: [id, first_year, model_type, rawname, description, flags]
-    casting
-        columns: [id, scale, vehicle_type, country, make, section_id, variation_digits]
-        extra_columns:
-                 [notes, format_description, format_body, format_interior, format_windows, format_base,
-                  format_wheels, format_with, format_text]
-    matrix_model
-        columns: [id, base_id, page_id, section_id, display_order, range_id, mod_id, flags, shown_id,
-                  name, subname, description]
-    lineup_model
-        columns: [id, base_id, mod_id, number, display_order, flags, style_id, picture_id, region, year,
-                  name, page_id]
-    pack
-        columns: [id, var, page_id, section_id, region, end_year, layout, product_code, material,
-                  country, note]
-    pub
-        columns: [id, country, section_id, isbn]
-    '''
-
-    def __init__(self, mod):
-
-        if mod.get('id'):
-            mod['name'] = mod.get('rawname', '').replace(';', ' ')
-            mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
-            mod.setdefault('description', '')
-            mod['made'] = not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
-            mod['visual_id'] = self.default_id(mod['id'])
-        else:
-            mod['id'] = ''
-            mod['name'] = ''
-            mod['iconname'] = ''
-            mod['unlicensed'] = '?'
-            mod['description'] = ''
-            mod['made'] = False
-            mod['visual_id'] = ''
-        mod['filename'] = mod['id'].lower()
-        mod['notmade'] = '' if mod['made'] else '*'
-        mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & config.FLAG_MODEL_CASTING_REVISED) != 0
-        mod['linkid'] = mod.get('mod_id', mod.get('id'))
-        mod['link'] = "single.cgi?id"
-        mod['descs'] = [x for x in mod['description'].split(';') if x]
-        mod['iconname'] = self.icon_name(mod.get('rawname', ''))
-        mod['shortname'] = self.short_name(mod.get('rawname', ''))
-        mod['casting_type'] = mbdata.model_types.get(mod.get('model_type', 'SF'), 'Casting')
-        return mod

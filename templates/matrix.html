@@ -29,8 +29,8 @@
 {% if ent.data.href %}</a>{% endif %}
 {% if ent.data.subnames %}{% for subname in ent.data.subnames %}<br>{{ subname }}{% endfor %}{% endif %}
 
-{% if ent.data.descriptions %}<table class="vartable">
-{% for var in ent.data['descriptions'] %}<tr><td class="varentry">{{ var }}</td></tr>{% endfor %}
+{% if ent.data.description %}<table class="vartable">
+{% for var in ent.data.description %}<tr><td class="varentry">{{ var }}</td></tr>{% endfor %}
 </table>
 {% endif %}
 </center>

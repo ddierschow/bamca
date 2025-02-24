@@ -10,6 +10,8 @@ import useful
 flago = mflags.FlagList()
 
 
+format_attributes = ['format_description', 'format_body', 'format_interior', 'format_windows', 'format_base',
+                     'format_wheels', 'format_with']
 text_attrs = {'de': 'text_description', 'ba': 'text_base', 'bo': 'text_body', 'in': 'text_interior',
               'wh': 'text_wheels', 'wi': 'text_windows', 'wt': 'text_with', 'bt': 'text_text'}
 text_fmts = {'de': 'format_description', 'ba': 'format_base', 'bo': 'format_body', 'in': 'format_interior',
@@ -17,7 +19,7 @@ text_fmts = {'de': 'format_description', 'ba': 'format_base', 'bo': 'format_body
 text_titles = {'de': 'Description', 'ba': 'Base', 'bo': 'Body', 'in': 'Interior',
                'wh': 'Wheels', 'wi': 'Windows', 'wt': 'With', 'bt': 'Base Text'}
 text_short_titles = {'de': 'De', 'ba': 'Ba', 'bo': 'Bo', 'in': 'In', 'wh': 'Wh', 'wi': 'Wi', 'wt': 'W/', 'bt': 'BT'}
-var_types = ['c', '1', '2', 'p', 'f']
+var_types = ['c', '1', '2', 'f', 'p']
 
 
 def add_man_item_table_pic_link(pif, manitem, flago=flago):
@@ -531,34 +533,35 @@ def fmt_var_pic(f, n):
 def fmt_var_pics(found, needs):
     if isinstance(found, list) or isinstance(found, tuple):
         return [fmt_var_pic(*x) for x in zip(found, needs)]
+    if isinstance(found, dict):
+        return [fmt_var_pic(found[x], needs[x]) for x in ['a'] + var_types]
     return fmt_var_pic(found, needs)
 
 
-def calc_var_type(pif, var):
+def calc_var_type(pif, varitem):
     return (
-        'p' if any([var['manufacture'].startswith(x) for x in mbdata.other_plants]) else
-        '2' if (any([x['category.flags'] & config.FLAG_MODEL_CODE_2 for x in var['vs']]) or
-                mbdata.code2_cats & set(var['category'].split())) else
-        'f' if var['var'].startswith('f') else
-        'c' if any([x['variation_select.category'] == 'MB' for x in var['vs']]) else
+        'p' if any([varitem.manufacture.startswith(x) for x in mbdata.other_plants]) else
+        '2' if (any([x.vs_cat_flags & config.FLAG_MODEL_CODE_2 for x in varitem.vs]) or
+                mbdata.code2_cats & set(varitem.category)) else
+        'f' if varitem.var.startswith('f') else
+        'c' if any([x.vs_cat == 'MB' for x in varitem.vs]) else
         '1')
 
 
 def calc_var_pics(pif, var):
-    has = {k: int(len(var[v]) > 0) for k, v in text_attrs.items()}
+    has = {k: int(len(var.get_attr(v)) > 0) for k, v in text_attrs.items()}
     is_found = False
-    if not var['picture_id']:
+    if var.var == var.picture_id:
         is_found = int(bool(pif.ren.find_image_path(
             pdir=config.IMG_DIR_MAN, nobase=True,
-            prefix=mbdata.IMG_SIZ_SMALL, suffix='jpg', fnames=var['mod_id'], vars=var['var'])))
-
+            prefix=mbdata.IMG_SIZ_SMALL, suffix='jpg', fnames=var.mod_id, vars=var.var)))
     return (calc_var_type(pif, var), is_found, has)
 
 
 def count_list_var_pics(pif, mod_id):
-    vars = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
-    needs_c = needs_f = needs_a = needs_1 = needs_2 = needs_p = 0
-    found_c = found_f = found_a = found_1 = found_2 = found_p = 0
+    vars = pif.dbh.make_var_items(pif.dbh.fetch_variations(mod_id))
+    needs = {x: 0 for x in ['a'] + var_types}
+    found = {x: 0 for x in ['a'] + var_types}
     count = {k: 0 for k, v in text_attrs.items()}
     id_set = set()
     # nf = []
@@ -567,38 +570,19 @@ def count_list_var_pics(pif, mod_id):
 
         for k in text_attrs:
             count[k] += has[k]
-        if not var['picture_id']:
-            # if not is_found:
-            #     nf.append(var['var'])
+        if var.var == var.picture_id:
+            needs['a'] += 1
+            found['a'] += is_found
+            needs[ty_var] += 1
+            found[ty_var] += is_found
 
-            needs_a += 1
-            found_a += is_found
-            if ty_var == 'p':
-                needs_p += 1
-                found_p += is_found
-            elif ty_var == 'f':
-                needs_f += 1
-                found_f += is_found
-            elif ty_var == 'c':
-                needs_c += 1
-                found_c += is_found
-            elif ty_var == '2':
-                needs_2 += 1
-                found_2 += is_found
-            else:
-                needs_1 += 1
-                found_1 += is_found
-
-        var_id = var['var']
+        var_id = var.var
         if var_id[0].isdigit():
             while not var_id[-1].isdigit():
                 var_id = var_id[:-1]
             id_set.add(int(var_id))
 
-    return ((found_a, found_c, found_1, found_2, found_f, found_p),
-            (needs_a, needs_c, needs_1, needs_2, needs_f, needs_p),
-            (len(vars), count),
-            id_set)
+    return (found, needs, (len(vars), count), id_set)
 
 
 def show_list_var_pics(pif, mod_id):

@@ -1172,8 +1172,16 @@ def simple_save(ofi, opth):
         open(opth, "wb").write(ofi)
 
 
+def load_credit_file():
+    return bfiles.SimpleFile('src/credits.dat')
+
+
+def get_credit_prefixes():
+    return [(x[3], x[1], x[2]) for x in load_credit_file() if x[0] == 'c']
+
+
 def get_credit_file():
-    ents = bfiles.SimpleFile('src/credits.dat')
+    ents = load_credit_file()
     dirs = {}
     for ent in ents:
         if ent[0] == 'c':
@@ -1183,7 +1191,7 @@ def get_credit_file():
 
 
 def get_tilley_file():
-    ents = bfiles.SimpleFile('src/credits.dat')
+    ents = load_credit_file()
     mans = {}
     for ent in ents:
         if ent[0] == 'c' and ent[2] == 'DT' and ent[1].startswith('man/'):

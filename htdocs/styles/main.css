@@ -65,11 +65,11 @@ foo.tb_tail     {background-color: #F8EC6D;}
 .alpha {width: 100%; background-image: url("/pic/gfx/alpha.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
 
 .modeltop    {width: 100%;}
-.modelnumber {text-align: center; font-size: medium; font-weight: bold; font-family: monospace; height: 16px; width: 24%;}
-.modelstars  {width: 38%;}
+.modelnumber {text-align: center; font-size: medium; font-weight: bold; font-family: monospace; height: 16px; width: 32%;}
+.modelstars  {width: 34%;}
 .modelstars img {float: left;}
 .modelstars i {float: left;}
-.modelicons  {width: 38%; text-align: right;}
+.modelicons  {width: 34%; text-align: right;}
 .modelicons img {float: right;}
 .vartable    {width: 100%; text-align: center;}
 .varentry    {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFEEDD;}

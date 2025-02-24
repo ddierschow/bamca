@@ -801,6 +801,7 @@ commit_date_re = re.compile(r'Date:\s*(?P<d>... ... \d+ \d+:\d+:\d+ \d+)')
 commit_re = re.compile(r'\ncommit ', re.M)
 illegal_form_re = re.compile('[^-A-Za-z0-9_ ]+')
 sql_fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
+year_re = re.compile(r"^(?P<y>\d{4})")
 
 # ----------------------------------------------------------------------
 
@@ -889,6 +890,15 @@ def normalize_var_id(mod, var_id):
     return var_id
 
 
+def normalize_manitem_var_id(manitem, var_id):
+    if var_id[0].isdigit():
+        while var_id and var_id[0] == '0':
+            var_id = var_id[1:]
+        digs = starting_digits_re.match(var_id).end()
+        var_id = '0' * (manitem.variation_digits - digs) + var_id
+    return var_id
+
+
 def bamcamark(year=9999):
     if year <= 1969:
         return 'bamca-1.gif'
@@ -904,14 +914,14 @@ def bamcamark(year=9999):
 def find_vs_variations(ents, sec_id, ran_id):
     # given a list of ents with "vs.sec_id" and "vs.ran_id", give back the relevant ones
     if sec_id and ran_id:
-        mods = [x for x in ents if x['vs.sec_id'] == sec_id and x['vs.ran_id'] == ran_id]
+        mods = [x for x in ents if x.vs.sec_id == sec_id and x.vs.ran_id == ran_id]
         if mods:
             return mods
     if sec_id:
-        mods = [x for x in ents if x['vs.sec_id'] == sec_id]
+        mods = [x for x in ents if x.vs.sec_id == sec_id]
         if mods:
             return mods
-    mods = [x for x in ents if x['vs.sec_id'] == '']
+    mods = [x for x in ents if x.vs.sec_id == '']
     return mods
 
 

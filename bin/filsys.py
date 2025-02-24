@@ -106,6 +106,7 @@ def show_dir(pif, tform):
         ostr += pif.form.put_checkbox('th', [('1', 'Thumbs',)])
         ostr += pif.form.put_checkbox('si', [('1', 'Sized',)])
         ostr += pif.form.put_checkbox('mr', [('1', 'Recent',)])
+        ostr += pif.form.put_checkbox('cr', [('1', 'Credited',)])
         if pif.ren.is_admin:
             lty = [('nrm', 'Normal',), ('shc', 'Categorize',), ('mss', 'VMass',), ('pms', 'PMass',),
                    ('shm', 'Shelve',), ('suf', 'Resuffix',), ('crd', 'Credit',)]
@@ -135,7 +136,7 @@ imginput = '''<input type="checkbox" name="rm" value="%(f)s"> rm
 
 
 def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=False, pms=False, cred=False,
-        targs=[], credits={}, mans={}, also={}, cpct=False):
+        targs=[], credits={}, mans={}, also={}, cpct=False, pfxs=[]):
     nalso = {'border': 0}
     nalso.update(also)
     if sx:
@@ -174,11 +175,17 @@ def img(pif, args, base='', shlv=False, cate=False, rsuf=False, sx=0, sy=0, mss=
                 inp = imginputs % {'f': arg, 'b': base}
             else:
                 inp = imginput % {'f': arg}
+        if not cpct:
+            inp += f' {f_date}'
+            if pfxs:
+                for x in pfxs:
+                    if arg.startswith(x[0]):
+                        inp += f'<br>{x[1]} ({x[2]})'
         if cpct:
             ostr += f'<div class="filc">{pic}<br>{arg}<br>{inp}</div>\n'
         else:
             # this drops the class stuff so that might have an implication
-            ostr += f'  <td>{pic}<br>{arg}{inp} {f_date}</td>'
+            ostr += f'  <td>{pic}<br>{arg}{inp}</td>'
         return ostr
 
         if mss or pms:
@@ -231,6 +238,8 @@ def show_imgs(pif, tform):
         img_args['targs'] = []
     elif tform.shlv and tform.dirname == 'tilley':
         img_args['mans'] = imglib.get_tilley_file()
+    elif tform.crdt:
+        img_args['pfxs'] = imglib.get_credit_prefixes()
     if tform.cred:
         img_args['cred'] = {x['photo_credit.name']: x['photographer.id']
                             for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
@@ -524,6 +533,7 @@ class TraverseForm(object):
         self.cred = pif.form.get_radio("lty", "crd")
         self.sizd = pif.form.get_int("si")
         self.rcnt = pif.form.get_int("mr")
+        self.crdt = pif.form.get_int("cr")
         self.scrt = pif.form.get_int('sc')
         self.act = pif.form.get_int('act')
         self.cycle = pif.form.get_int("cy")  # srsly?

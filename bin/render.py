@@ -670,6 +670,10 @@ of Matchbox International Ltd. and are used with permission.
         return cls.fmt_mini(color, "times")
 
     @classmethod
+    def fmt_q(cls, also, alsoc):
+        return cls.fmt_mini(icon="circle-question", family="regular", also=also, alsoc=alsoc)
+
+    @classmethod
     def fmt_edit(cls, color=None):
         return cls.fmt_mini(color, "edit")
 

@@ -132,8 +132,6 @@ picture_cols = [
 ]
 picture_cols += list(zip(var_pic_keys, var_pic_hdrs)) + [['description', 'Description']]
 mades = {False: '<i>%(name)s</i>', True: '%(name)s'}
-format_attributes = ['format_description', 'format_body', 'format_interior', 'format_windows', 'format_base',
-                     'format_wheels', 'format_with']
 
 
 # ---- the manno object ----------------------
@@ -196,7 +194,6 @@ class MannoFile(object):
     def add_alias(self, pif, alias):
         manitem = pif.dbh.make_man_item(alias)
         manitem.mack = ''
-        manitem.id = manitem.ref_id
         if manitem.section_id in self.sdict:
             self.add_item(manitem.id, manitem)
 
@@ -390,7 +387,7 @@ class MannoFile(object):
         for mod in model_ids:
             manitem = self.mdict[mod]
             fmt_bad, _, _ = pif.dbh.check_description_formatting(manitem.id)
-            makes = pif.dbh.fetch_casting_makes(mod)
+            makes = pif.dbh.fetch_casting_makes(mod)  # does not handle man.make
             relateds = [x['casting_related.related_id']
                         for x in pif.dbh.fetch_casting_relateds(mod, section_id='single')]
             vdict = self.show_list_var_info(pif, manitem)
@@ -550,12 +547,12 @@ class MannoFile(object):
             founds, needs, _, id_set = mbmods.count_list_var_pics(pif, manitem.id)
             # mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
 
-            for ipix in range(0, 6):
-                self.totals[ipix]['have'] += founds[ipix]
-                self.totals[ipix]['total'] += needs[ipix]
+            for ipix, vt in enumerate(['a'] + mbmods.var_types):
+                self.totals[ipix]['have'] += founds[vt]
+                self.totals[ipix]['total'] += needs[vt]
             mdict.update(dict(zip(var_pic_keys, mbmods.fmt_var_pics(founds, needs))))
             mdict['credvars'] = '<span class="%s">%d/%d</span>' % (
-                'ok' if len(vcredits) == founds[0] else 'no', len(vcredits), founds[0])
+                'ok' if len(vcredits) == founds['a'] else 'no', len(vcredits), founds['a'])
             if manitem.flags & config.FLAG_MODEL_CASTING_REVISED:
                 mdict['vid'] = '<nobr>' + mdict['vid'] + pif.ren.fmt_circle('green') + '<nobr>'
             if not manitem.made:
@@ -575,7 +572,7 @@ class MannoFile(object):
             )])
 
     def run_picture_list(self, pif):
-        self.totals = [{'tag': x, 'have': 0, 'total': 0} for x in var_pic_hdrs]
+        self.totals = [{'tag': x, 'have': 0, 'total': 0} for x in ['a'] + mbmods.var_types]
         llineup = render.Listix()
         llineup.section = self.run_thing(pif, self.get_section_picture)
         llineup.totals = self.totals
@@ -660,16 +657,16 @@ class MannoFile(object):
         manitem.name = pif.ren.format_link(
             lnk, manitem.id + '<br>' + manitem.rawname + '<br>' + manitem.flag + '<br>' + manitem.makename)
         manitem.img = pif.ren.format_link(lnk, pif.ren.format_image_required(img, made=manitem.made))
-        manitem.sel = pif.form.put_checkbox(
-            'vt_' + manitem.id,
-            [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])],
-            checked=manitem.vehicle_type) + '<br>'
-        manitem.sel += pif.form.put_checkbox(
-            'vt_' + manitem.id,
-            [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[14:])],
-            checked=manitem.vehicle_type) + '<br>'
-        manitem.sel += 'make: ' + pif.form.put_text_input('vm_' + manitem.id, 3, 3, value=manitem.make)
-        manitem.sel += 'country: ' + pif.form.put_text_input('co_' + manitem.id, 2, 2, value=manitem.country)
+        manitem.sel = (
+            pif.form.put_checkbox('vt_' + manitem.id,
+                                  [[x, mbdata.vehicle_types[x]] for x in mbdata.model_type_chars[:14]],
+                                  checked=manitem.vehicle_type) + '<br>' +
+            pif.form.put_checkbox('vt_' + manitem.id,
+                                  [[x, mbdata.vehicle_types[x]] for x in mbdata.model_type_chars[14:]],
+                                  checked=manitem.vehicle_type) +
+            '<br>make: ' + pif.form.put_text_input('vm_' + manitem.id, 3, 3, value=manitem.make) +
+            'country: ' + pif.form.put_text_input('co_' + manitem.id, 2, 2, value=manitem.country)
+        )
         return manitem
 
     def show_section_vehicle_type_template(self, pif, sect):
@@ -1049,7 +1046,7 @@ def clone_attributes(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
     if not old_mod_id or not new_mod_id:
         return
     pif.dbh.clone_attributes(old_mod_id, new_mod_id)
-    vals = pif.dbh.fetch('casting', columns=format_attributes, where={'id': old_mod_id})
+    vals = pif.dbh.fetch('casting', columns=mbmods.format_attributes, where={'id': old_mod_id})
     if vals:
         pif.dbh.write_casting(values=vals[0], id=new_mod_id)
     vals = pif.dbh.fetch('detail', where={'mod_id': old_mod_id, 'var_id': ''})
@@ -1243,7 +1240,7 @@ def ck_model(pif, mod):
     return missing, bad
 
 
-def show_list_var_pics(pif, mod_id):
+def text_list_var_pics(pif, mod_id):
     vars = pif.dbh.fetch_variations(mod_id)
     cpics = cfound = pics = found = 0
     for var in vars:
@@ -1296,7 +1293,7 @@ def check_core(pif, *specs):  # b0rken
 
         for mod in mods:
             missing, bad = ck_model(pif, mod)
-            af, cf = show_list_var_pics(pif, mod)
+            af, cf = text_list_var_pics(pif, mod)
 
             if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
                 print(mod,)
