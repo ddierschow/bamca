@@ -275,7 +275,7 @@ of Matchbox International Ltd. and are used with permission.
         celltype = {False: "td", True: "th"}
         also = copy.deepcopy(also)
         also.update({'class': self.style_name(also.get('class'), cellstyle, col, id)})
-        self.comment('format_cell_start', col, hdr, also)
+        # self.comment('format_cell_start', col, hdr, also)
         return '  <{}{}>'.format(celltype[hdr], useful.fmt_also(also))
 
     def format_cell_end(self, col=0, hdr=False, large=False):
@@ -374,10 +374,10 @@ of Matchbox International Ltd. and are used with permission.
 
     def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None,
                         pdir=None, art=False):
-        self.comment('START find_image_file', fnames, 'vars', vars, 'nobase', nobase, 'prefix', prefix,
-                     'suffix', suffix, 'largest', largest, 'preferred', prefix, 'pdir', pdir, 'art', art)
+        # self.comment('START find_image_file', fnames, 'vars', vars, 'nobase', nobase, 'prefix', prefix,
+        #              'suffix', suffix, 'largest', largest, 'preferred', prefix, 'pdir', pdir, 'art', art)
         if not fnames:
-            self.comment('find_image_file ret', '')
+            # self.comment('find_image_file ret', '')
             return ('', '')
         elif isinstance(fnames, str):
             fnames = [fnames]
@@ -397,7 +397,7 @@ of Matchbox International Ltd. and are used with permission.
         base = [] if nobase else ['']
         vars = base if not vars else [vars] + base if isinstance(vars, str) else vars + base
 
-        self.comment("find_image_file", 'f:', fnames, 'v:', vars, 'p:', prefix, 's:', suffix, 'd:', pdir)
+        # self.comment("find_image_file", 'f:', fnames, 'v:', vars, 'p:', prefix, 's:', suffix, 'd:', pdir)
         fimg = fdir = ''
         for var in vars:
             for fname in fnames:
@@ -416,7 +416,7 @@ of Matchbox International Ltd. and are used with permission.
                         if not preferred or preferred == pfx:
                             return rdir, rimg
                         fdir, fimg = rdir, rimg
-        self.comment('find_image_file ret', fdir, fimg)
+        # self.comment('find_image_file ret', fdir, fimg)
         return fdir, fimg
 
     def find_prefixed_image(self, fname, pdir, pdirvar, pfx, csuffix, var):
@@ -424,24 +424,24 @@ of Matchbox International Ltd. and are used with permission.
             pfx += '_'
         for suf in csuffix:
             suf = '.' + suf
-            self.comment('find_prefixed_image trying', pdir, pfx + fname + suf)
+            # self.comment('find_prefixed_image trying', pdir, pfx + fname + suf)
             if var:
                 img = self.fmt_img_file_check(pdirvar, f'{pfx}{fname}-{var}{suf}')
                 if img:
-                    self.comment('find_prefixed_image ret', img)
+                    # self.comment('find_prefixed_image ret', img)
                     return pdirvar, img
                 img = self.fmt_img_file_check(pdirvar, f'{pfx}{fname}-{var}{suf}'.lower())
                 if img:
-                    self.comment('find_prefixed_image ret', img)
+                    # self.comment('find_prefixed_image ret', img)
                     return pdirvar, img
             else:
                 img = self.fmt_img_file_check(pdir, f'{pfx}{fname}{suf}')
                 if img:
-                    self.comment('find_prefixed_image ret', img)
+                    # self.comment('find_prefixed_image ret', img)
                     return pdir, img
                 img = self.fmt_img_file_check(pdir, f'{pfx}{fname}{suf}'.lower())
                 if img:
-                    self.comment('find_prefixed_image ret', img)
+                    # self.comment('find_prefixed_image ret', img)
                     return pdir, img
         return ('', '')
 
@@ -453,7 +453,7 @@ of Matchbox International Ltd. and are used with permission.
                             largest=largest, preferred=preferred, pdir=pdir, art=art))
 
     def find_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
-        self.comment('find_image_list', fn, alt, wc, prefix, suffix, pdir)
+        # self.comment('find_image_list', fn, alt, wc, prefix, suffix, pdir)
         pdir = useful.relpath(pdir if pdir else self.pic_dir)
         if isinstance(suffix, str):
             suffix = [suffix]
@@ -504,7 +504,7 @@ of Matchbox International Ltd. and are used with permission.
         return self.fmt_img(fnames, required=True, **kwargs)
 
     def format_image_list(self, fn, alt='', wc='', prefix='', suffix='jpg', pdir=None):
-        self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
+        # self.comment('format_image_list', fn, alt, wc, prefix, suffix, pdir)
         pdir = useful.relpath(pdir if pdir else self.pic_dir)
         if isinstance(suffix, str):
             suffix = [suffix]
@@ -585,11 +585,11 @@ of Matchbox International Ltd. and are used with permission.
         return ''
 
     def fmt_img_file_check(self, pdir, fn):
-        self.comment("fmt_img_check", pdir, fn)
+        # self.comment("fmt_img_check", pdir, fn)
         return fn if useful.is_good(useful.relpath('.', pdir, fn), v=self.verbose) else ''
 
     def fmt_img_check(self, pth):
-        self.comment("fmt_img_check", pth)
+        # self.comment("fmt_img_check", pth)
         return pth if useful.is_good(pth, v=self.verbose) else ''
 
     def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None,

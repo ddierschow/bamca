@@ -3,6 +3,7 @@
 import config
 import mbdata
 import mflags
+import models
 import render
 import useful
 
@@ -158,76 +159,81 @@ def add_model_table_product_link(pif, mdict):
 
 
 # mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
-def add_man_item_table_product_link(pif, lineitem):
-    # pif.ren.comment('add_model_table_product_link', lineitem)
+def add_man_item_table_product_link(pif, item):
+    # pif.ren.comment('add_model_table_product_link', item)
 
-    ostr = pif.ren.fmt_anchor(lineitem.anchor)
+    ostr = pif.ren.fmt_anchor(item.anchor)
     ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
-    if lineitem.no_casting:
+    if item.no_casting:
         ostr += mbdata.comment_icon.get('m', '')
-    elif not lineitem.picture_only:
-        if lineitem.no_specific_image:
+    elif not item.picture_only:
+        if item.no_specific_image:
             ostr += mbdata.comment_icon.get('i', '')
-        if lineitem.no_variation:
+        if item.no_variation:
             ostr += mbdata.comment_icon.get('v', '')
-    ostr += f'</td><td class="modelnumber">{lineitem.displayed_id}</td><td class="modelicons">'
+    ostr += f'</td><td class="modelnumber">{item.displayed_id}</td><td class="modelicons">'
     if pif.is_allowed('a'):
         # breaks packs
-        ref_link = pif.dbh.get_editor_link('lineup_model', {'year': lineitem.year, 'mod_id': lineitem.mod_id})
+        if isinstance(item, models.LineItem):
+            ref_link = pif.dbh.get_editor_link('lineup_model', {'year': item.year, 'mod_id': item.mod_id})
+        elif isinstance(item, models.PackModelItem):
+            ref_link = pif.dbh.get_editor_link('pack_model', {'id': item.id})
+        else:
+            ref_link = ''
         ostr += pif.ren.format_link(ref_link, pif.ren.fmt_edit('gray'))
-        if hasattr(lineitem, 'mod_id'):
-            fn = lineitem.mod_id.replace('.', '_') + (
-                '-' + lineitem.picture_id if lineitem.picture_id else '')
+        if hasattr(item, 'mod_id'):
+            fn = item.mod_id.replace('.', '_') + (
+                '-' + item.picture_id if item.picture_id else '')
             ostr += pif.ren.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
                                         pif.ren.fmt_mini('gray', icon='upload'))
-    if lineitem.not_made:
+    if item.not_made:
         ostr += mbdata.comment_icon.get('n', '')
-    if lineitem.is_reused_product_picture:  # pragma: no cover
+    if item.is_reused_product_picture:  # pragma: no cover
         ostr += mbdata.comment_icon.get('r', '')
-    if lineitem.is_product_picture:
+    if item.is_product_picture:
         ostr += mbdata.comment_icon.get('c', '')
     ostr += '</td></tr></table>\n'
 
-    if lineitem.show_vars:
+    if item.show_vars:
         # imgstr descriptions
-        for vdict in lineitem.show_vars:
-            if lineitem.href:
-                ostr += f'<a href="{lineitem.href}">\n'
+        for vdict in item.show_vars:
+            if item.href:
+                ostr += f'<a href="{item.href}">\n'
             # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
             #          vdict['imgstr'])
-            ostr += f'<center>{vdict["imgstr"]}</center>\n<span class="modelname">{lineitem.name}</span>'
-            if lineitem.href:
+            ostr += f'<center>{vdict["imgstr"]}</center>\n<span class="modelname">{item.name}</span>'
+            if item.href:
                 ostr += '</a>'
-            if lineitem.subname:
-                lineitem.lname += '<br>' + lineitem.subname
-            if lineitem.subnames:
-                ostr += "<br>" + "<br>".join(lineitem.subnames)
+            if item.subname:
+                item.lname += '<br>' + item.subname
+            if item.subnames:
+                ostr += "<br>" + "<br>".join(item.subnames)
             if vdict.get('description'):
                 ostr += '<table class="vartable">'
                 ostr += f'<tr><td class="varentry">{vdict["description"]}</td></tr>'
                 ostr += "</table>"
             ostr += "</center>"
     else:
-        if lineitem.href:
-            ostr += f'<a href="{lineitem.href}">\n'
+        if item.href:
+            ostr += f'<a href="{item.href}">\n'
         # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
-        #          lineitem.imgstr)
-        ostr += '<center>%s</center>\n' % (lineitem.imgstr)
-        ostr += '<span class="modelname">' + lineitem.name + '</span>'
-        if lineitem.href:
+        #          item.imgstr)
+        ostr += '<center>%s</center>\n' % (item.imgstr)
+        ostr += '<span class="modelname">' + item.name + '</span>'
+        if item.href:
             ostr += '</a>'
-        if lineitem.subname:
-            ostr += '<br>' + lineitem.subname
-        if lineitem.subnames:
-            ostr += "<br>" + "<br>".join(lineitem.subnames)
-        if lineitem.descriptions:
+        if item.subname:
+            ostr += '<br>' + item.subname
+        if item.subnames:
+            ostr += "<br>" + "<br>".join(item.subnames)
+        if item.descriptions:
             ostr += '<table class="vartable">'
-            for var in lineitem.descriptions:
+            for var in item.descriptions:
                 ostr += f'<tr><td class="varentry">{var}</td></tr>'
             ostr += "</table>"
         ostr += "</center>"
 
-    ostr += lineitem.additional
+    ostr += item.additional
     return ostr
 
 

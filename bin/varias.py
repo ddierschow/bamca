@@ -122,7 +122,7 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
         for s in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]
     ]) if edit else pif.ren.format_image_required(
         mod_id, pdir=pif.ren.pic_dir, vars=varitem.picture_id, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
-    var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, varitem.picture_id, verbose=True)
+    var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, varitem.picture_id, verbose=False)
     varitem._credit = var_img_credit['photographer.id'] if var_img_credit else ''
 
     # render details

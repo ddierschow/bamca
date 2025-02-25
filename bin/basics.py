@@ -291,7 +291,7 @@ def web_page(main_fn):
             if not useful.is_header_done():
                 pif.ren.print_html()
             if pif.ren.is_html and not pif.ren.diff_run:
-                useful.write_comment("Page:", pif.page_id, 'Time:', time.time() - pif.start_seconds)
+                useful.write_comment(f"Page: {pif.page_id} Time: {time.time() - pif.start_seconds} Guru: {config.GURU_ID}")
             if ret and not pif.unittest:
                 print(ret)
         except SystemExit:

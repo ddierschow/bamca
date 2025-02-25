@@ -371,7 +371,7 @@ class PackItem(object):
             self.var = pack.get('pack.var') or ''
             self.page_id = pack.get('pack.page_id') or ''
             self.section_id = pack.get('pack.section_id') or ''
-            self.name = pack.get('pack.name') or ''
+            self.name = pack.get('pack.name') or pack.get('base_id.name') or ''
             self.year = pack.get('pack.year') or ''
             self.end_year = pack.get('pack.end_year') or ''
             self.layout = pack.get('pack.layout') or ''
@@ -380,6 +380,9 @@ class PackItem(object):
             self.material = pack.get('pack.material') or ''
             self.country = pack.get('pack.country') or ''
             self.note = pack.get('pack.note') or ''
+            self.first_year = pack.get('base_id.first_year') or ''
+            self.rawname = pack.get('base_id.rawname') or ''
+            self.flags = pack.get('base_id.flags') or 0
         else:
             self.id = pack.id or ''
             self.var = pack.var or ''
@@ -394,9 +397,19 @@ class PackItem(object):
             self.material = pack.material or ''
             self.country = pack.country or ''
             self.note = pack.note or ''
+            self.first_year = pack.first_year or ''
+            self.rawname = pack.rawname or ''
+            self.flags = pack.flags or ''
+        self.longid = self.id + ('-' + self.var if self.var else '')
+        self.name = self.rawname.replace(';', ' ')
+        self.pic = ''
+        self.thumb = ''
 
     def __str__(self):
         return f'PackItem: {self.id}'
+
+    def get(self, k, v=''):
+        return getattr(self, k, v)
 
 
 class PackModelItem(object):
@@ -411,6 +424,9 @@ class PackModelItem(object):
             self.style_id = pm.get('pack_model.style_id') or ''
             self.display_order = pm.get('pack_model.display_order') or 0
             self.subname = pm.get('pack_model.subname') or ''
+            self.vs = VSItem(pm)
+            self.v = VarItem(pm)
+            self.man = ManItem(pm)
         else:
             self.id = pm.id or 0
             self.pack_id = pm.pack_id or ''
@@ -420,6 +436,12 @@ class PackModelItem(object):
             self.style_id = pm.style_id or ''
             self.display_order = pm.display_order or 0
             self.subname = pm.subname or ''
+            self.vs = VSItem(pm.vs)
+            self.v = VarItem(pm.v)
+            self.man = VarItem(pm.man)
+        self.name = self.man.name
+        self.subnames = []
+        self.additional = ''
 
     def __str__(self):
         return f'PackModelItem: {self.id}/{self.mod_id}'

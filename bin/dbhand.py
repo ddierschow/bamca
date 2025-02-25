@@ -1624,7 +1624,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             'pack_model.var_id', 'pack_model.display_order', 'pack_model.style_id', 'pack_model.subname',
             'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make',
             'casting.section_id', 'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.mod_id', 'vs.var_id',
-            'v.text_description', 'v.picture_id', 'v.date']
+            'v.var', 'v.text_description', 'v.picture_id', 'v.date']
         froms = ("pack_model "
                  "left join base_id on pack_model.mod_id=base_id.id "
                  "left join casting on pack_model.mod_id=casting.id "

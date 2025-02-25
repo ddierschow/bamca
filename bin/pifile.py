@@ -557,7 +557,7 @@ class PageInfoFile(object):
         if priv == '':  # '' = always allowed
             return True
         if set(priv) & self.privs:
-            self.ren.comment('is_allowed', priv, ''.join(self.privs), 'YES')
+            # self.ren.comment('is_allowed', priv, ''.join(self.privs), 'YES')
             return True
         return False
 
