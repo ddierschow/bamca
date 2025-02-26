@@ -905,7 +905,6 @@ def do_var_descriptions(pif, varitem):
 
 def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, credits, photogs):
     # cats = [manitem._catdefs[x]['name'] for x in sorted(set(varitem._catlist)) if x in manitem._catdefs]
-
     edit = edit and pif.is_allowed('a')
     infs = {'desc1': [], 'desc2': [], 'dets1': [], 'dets2': []}
     for d in (list(varitem.iattrs.keys()) + id_attributes + note_attributes + text_attributes):
@@ -951,8 +950,9 @@ def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, cred
             return '; '.join([y.replace('~', ':') for y in x.split('|')])
 
         return '<br>'.join(['<span class="%s">%s: %s</span>\n' % (
-            ("diff" if prev and varitem.get_attr(d) != prev.get_attr(d, varitem.get_attr(d)) else "same"),
-            attributes[d]['title'], show_det(varitem.get_attr(d))) for d in descs])
+            ("diff" if prev and varitem.get_attr(k) != prev.get_attr(k, varitem.get_attr(k)) else "same"),
+            attributes[k]['title'], show_det(varitem.get_attr(k)))
+            for k in sorted(descs, key=lambda x: attributes[x]['title'])])
 
     desc_text = '<div class="varentry">' + varitem.text_description + '</div>\n'
     desc_text += show_list(infs['desc1'])
@@ -1012,7 +1012,7 @@ def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, cred
     else:
         pic_text += ' '
     if varitem._categories:
-        pic_text += '<hr>' + '<br>'.join(varitem._categories)
+        pic_text += '<hr>' + '<br>'.join(sorted(varitem._categories))
     pic_text += '</center>'
 
     return {
@@ -1298,7 +1298,7 @@ def mangle_variation(pif, varitem, cats):
     varitem._picture = (pif.ren.fmt_img_src(img, also={'title': varitem.var}) if img else
                         pif.ren.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL))
 
-    varitem._categories = [cats[x]['name'] for x in vcats if x in cats]
+    varitem._categories = sorted([cats[x]['name'] for x in vcats if x in cats])
     varitem.categories = '<br>'.join(sorted(set([cats[x]['name'] for x in vcats if x in cats])))
     return varitem
 

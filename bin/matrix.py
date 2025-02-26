@@ -177,7 +177,7 @@ class MatrixFile(object):
         return llineup
 
     def add_cell(self, pif, ents, table, comments):
-        libdir = pif.ren.pic_dir.replace('pic', 'lib')
+        libdir = pif.ren.lib_dir
         entd = {}
         for ent in ents:
             entd.setdefault(ent.mod_id, [])

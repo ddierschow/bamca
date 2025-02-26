@@ -454,7 +454,7 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
     llineup = render.Matrix(id='year', section=sections)
 
     llineup.comments = comments
-    llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(comments)])]
+    llineup.tail = ['', mbdata.text_comments(comments)]
     if large:
         llineup.header = (
             '<form action="mass.cgi" method="post">\n<input type="hidden" name="tymass" value="lineup_desc">\n' +

@@ -939,3 +939,7 @@ def type_check(prop_n, prop_y, avail):
 
 def text_types(typespec):
     return ', '.join([vehicle_types.get(t) for t in typespec or [] if t])
+
+
+def text_comments(comments):
+    return '<br>'.join([comment_designation[comment] for comment in sorted(comments)])

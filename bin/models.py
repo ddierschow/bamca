@@ -239,6 +239,7 @@ class VSItem(object):
 class VarItem(object):
 
     def __init__(self, var, dets=None, vs=None):
+        dets = dets or {}
         if isinstance(var, dict):
             prefix = 'v.' if 'v.var' in var else 'variation.' if 'variation.var' in var else ''
             self.mod_id = var.get(f'{prefix}mod_id') or ''
@@ -253,26 +254,27 @@ class VarItem(object):
             self.text_with = var.get(f'{prefix}text_with') or ''
             self.text_text = var.get(f'{prefix}text_text') or ''
             self.manufacture = var.get(f'{prefix}manufacture') or ''
-            self.iattrs = {
-                'base': var.get(f'{prefix}base', ''),
-                'body': var.get(f'{prefix}body', ''),
-                'deco': var.get(f'{prefix}deco', ''),
-                'deco_type': var.get(f'{prefix}deco_type', ''),
-                'interior': var.get(f'{prefix}interior', ''),
-                'wheels': var.get(f'{prefix}wheels', ''),
-                'windows': var.get(f'{prefix}windows', ''),
-                'manufacture': self.manufacture,
-                'additional_text': var.get(f'{prefix}additional_text', ''),
-                'base_name': var.get(f'{prefix}base_name', ''),
-                'base_number': var.get(f'{prefix}base_number', ''),
-                'base_scale': var.get(f'{prefix}base_scale', ''),
-                'tool_id': var.get(f'{prefix}tool_id', ''),
-                'production_id': var.get(f'{prefix}production_id', ''),
-                'copyright': var.get(f'{prefix}copyright', ''),
-                'company_name': var.get(f'{prefix}company_name', ''),
-                'logo_type': var.get(f'{prefix}logo_type', ''),
-                'base_reads': var.get(f'{prefix}base_reads', ''),
-            }
+            self.iattrs = {k: v for k, v in (dets.items() or {})}
+            self.iattrs.update({
+                'base': var.get(f'{prefix}base', '') or dets.get('base', ''),
+                'body': var.get(f'{prefix}body', '') or dets.get('body', ''),
+                'deco': var.get(f'{prefix}deco', '') or dets.get('deco', ''),
+                'deco_type': var.get(f'{prefix}deco_type', '') or dets.get('deco_type', ''),
+                'interior': var.get(f'{prefix}interior', '') or dets.get('interior', ''),
+                'wheels': var.get(f'{prefix}wheels', '') or dets.get('wheels', ''),
+                'windows': var.get(f'{prefix}windows', '') or dets.get('windows', ''),
+                'manufacture': self.manufacture or dets.get('manufacture', ''),
+                'additional_text': var.get(f'{prefix}additional_text', '') or dets.get('additional_text', ''),
+                'base_name': var.get(f'{prefix}base_name', '') or dets.get('base_name', ''),
+                'base_number': var.get(f'{prefix}base_number', '') or dets.get('base_number', ''),
+                'base_scale': var.get(f'{prefix}base_scale', '') or dets.get('base_scale', ''),
+                'tool_id': var.get(f'{prefix}tool_id', '') or dets.get('tool_id', ''),
+                'production_id': var.get(f'{prefix}production_id', '') or dets.get('production_id', ''),
+                'copyright': var.get(f'{prefix}copyright', '') or dets.get('copyright', ''),
+                'company_name': var.get(f'{prefix}company_name', '') or dets.get('company_name', ''),
+                'logo_type': var.get(f'{prefix}logo_type', '') or dets.get('logo_type', ''),
+                'base_reads': var.get(f'{prefix}base_reads', '') or dets.get('base_reads', ''),
+            })
             self.date = var.get(f'{prefix}date') or ''
             self.note = var.get(f'{prefix}note') or ''
             self.picture_id = var.get(f'{prefix}picture_id', '') or self.var
@@ -288,8 +290,6 @@ class VarItem(object):
             self.vs = [VSItem(var)] if 'vs.ref_id' in var else []
             if vs:
                 self.vs.extend([VSItem(x) for x in vs])
-            if dets:  # note: doesn't account for model-wide defaults or maybe it does
-                self.iattrs.update(dets)
         else:
             self.mod_id = var.mod_id or ''
             self.var = var.var or ''

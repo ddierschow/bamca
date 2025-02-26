@@ -20,7 +20,7 @@ import useful
 
 
 def tree_row(tree, text):
-    return "%s%s\n<br>\n" % (tree, text)
+    return f"{tree}{text}\n<br>\n"
 
 
 def render_tree(pif, ch):
@@ -55,24 +55,24 @@ def do_tree_page(pif, dblist):
         elif cmd == 'p':
             ostr += '<p>\n'
         elif cmd == 's':
-            ostr += '<p>\n<b id="%s"><u>' % llist[1]
+            ostr += f'<p>\n<b id="{llist[1]}"><u>'
             if llist[2]:
-                ostr += ' %s - ' % llist[2]
-            ostr += '%s</u></b><br>\n' % llist[3]
+                ostr += f' {llist[2]} - '
+            ostr += f'{llist[3]}</u></b><br>\n'
         elif cmd == 'm':
             desc = ''
             if llist[2]:
-                desc += ('<b>%s</b> ' % llist[2])
+                desc += f'<b>{llist[2]}</b> '
                 if llist[3] and not llist[3][0].isupper():
                     desc += " - "
             desc += llist[3]
             if llist[1].endswith('p'):
-                desc = '<b>%s</b>' % desc
+                desc = f'<b>{desc}</b>'
             # ostr += render_tree(pif, llist[1]) + desc
             # ostr += '<br>\n'
             ostr += tree_row(render_tree(pif, llist[1]), desc)
         elif cmd == 'n':
-            ostr += tree_row(render_tree(pif, llist[1]), '<font color="#666600"><i>%s</i></font>' % llist[2])
+            ostr += tree_row(render_tree(pif, llist[1]), f'<font color="#666600"><i>{llist[2]}</i></font>')
         elif cmd == 'a':
             ostr += tree_row(render_tree(pif, llist[1]),
                              pif.ren.format_image_as_link([llist[2]], llist[3], also={'target': '_showpic'}))
@@ -81,7 +81,7 @@ def do_tree_page(pif, dblist):
             if flist:
                 ostr += '<font color="blue">'
                 ostr += tree_row(
-                    render_tree(pif, llist[1]), ('<i>Example%s:</i>\n' % useful.plural(flist)) + show_pic(pif, flist))
+                    render_tree(pif, llist[1]), f'<i>Example{useful.plural(flist)}:</i>\n' + show_pic(pif, flist))
                 ostr += '</font>\n'
     return ostr
 
@@ -125,7 +125,7 @@ def single_box(pif, mod, box):
                 ostr += '</ul>\n'
     istr = pif.ren.format_image_selectable(pics, pic_name)
     if pif.is_allowed('ma'):
-        istr = '<a href="upload.cgi?d=.%s&n=%s">%s</a>' % (config.IMG_DIR_BOX, pic_name + '.jpg', istr)
+        istr = f'<a href="upload.cgi?d=.{config.IMG_DIR_BOX}&n={pic_name.jpg}">{istr}</a>'
         istr += '<br>' + pif.ren.format_button_link("edit", pif.dbh.get_editor_link('box_type', {'id': box['id']}))
     istr += '<center>' + pif.ren.format_image_selector(pics, pic_name) + '</center>'
     ent = {'inf': ostr, 'pic': istr}
@@ -251,14 +251,14 @@ def show_boxes(pif):
             picroots = get_pic_roots(mod['id'], box_style)
             if verbose:
                 ent1['mod']['txt'] += '<br>' + '<br>'.join(picroots)
-            hdr = "<b>%s style</b>" % box_style
+            hdr = f"<b>{box_style} style</b>"
             if verbose:
                 for picsize in 'mps':
                     imgs = [get_box_image(pif, picroot, picsize, compact=compact) for picroot in picroots]
                     if compact:
                         ostr = hdr + ''.join(imgs)
                     else:
-                        ostr = "<center>%s</center>" % hdr + '<br>'.join(imgs)
+                        ostr = f"<center>{hdr}</center>" + '<br>'.join(imgs)
                     if pif.is_allowed('ma'):
                         ostr = '<a href="upload.cgi?d=.%s&n=%s">%s</a>' % (
                             config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
@@ -479,9 +479,9 @@ def single_publication(pif, pub_id):
         left_bar_content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
         left_bar_content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link(
             'publication', {'id': pub_id})
-        left_bar_content += '<a href="traverse.cgi?d=%s">Library</a><br>\n' % pif.ren.pic_dir.replace('pic', 'lib')
+        left_bar_content += f'<a href="traverse.cgi?d={pif.ren.lib_dir}">Library</a><br>\n'
         left_bar_content += '<a href="upload.cgi?d=%s&n=%s&c=%s">Product Upload</a><br>\n' % (
-            pif.ren.pic_dir.replace('pic', 'lib'), pub_id, pub_id)
+            pif.ren.lib_dir, pub_id, pub_id)
 
     upper_box = ''
     if imgs:
@@ -539,7 +539,7 @@ def ads_main(pif):
     pif.ren.hierarchy_append('/cgi-bin/ads.cgi', 'Advertisements')
     pif.ren.set_button_comment(pif)
     pic_dir = pif.ren.pic_dir
-    lib_dir = pic_dir.replace('pic', 'lib')
+    lib_dir = pif.ren.lib_dir
     ranges = []
     sobj = pif.form.search('title')
 

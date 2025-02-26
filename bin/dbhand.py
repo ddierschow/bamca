@@ -462,7 +462,7 @@ class DBHandler(object):
         return self.fetch('casting,base_id', columns=['min(base_id.first_year)', 'max(base_id.first_year)'],
                           where=wheres, one=True, tag='CastingLimits', verbose=False)
 
-    def fetch_casting_ids(self, section_id=None, tag='CastingIDs'):
+    def fetch_casting_ids(self, section_id=None):
         where = [f'section.id="{section_id}"'] if section_id else None
         return [x['casting.id'] for x in self.fetch('casting', where=where, tag='CastingIDs')]
 

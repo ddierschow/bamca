@@ -80,6 +80,10 @@ class Presentation(object):
     def __str__(self):
         return "'<render.Presentation instance>'"
 
+    @property
+    def lib_dir(self):
+        return self.pic_dir.replace('pic', 'lib')
+
     def error_report(self):
         import pprint
         return pprint.pformat(self.__dict__, indent=2, width=132)

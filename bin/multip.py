@@ -94,8 +94,7 @@ def make_pack_list(pif, format_type, sec='', year='', region='', lid='', materia
                     continue
 
                 pack.year = (f"{pack.first_year}-{pack.end_year}"
-                                if (pack.end_year and pack.end_year != pack.first_year) else
-                                pack.first_year)
+                             if (pack.end_year and pack.end_year != pack.first_year) else pack.first_year)
                 pack.layout = (pack.layout if pack.layout in pack_layouts else f'<font color="red">{pack.layout}</font>')
                 pack.page = page_id
                 pack.regionname = mbdata.regions[pack.region]
@@ -203,9 +202,9 @@ def do_single_pack(pif, format_type, pid):
         for mod in sorted(pmodels.keys()):
             pmod = pmodels[mod]
             pif.ren.comment("do_single_pack mod", pmod)
-            modvars.append((f'vars.cgi?edt=1&mod={pmod.id}', pmodels[mod].id, pmod.id))
+            modvars.append((f'vars.cgi?edt=1&mod={pmod.id}', pmodels[mod].mod_id, pmod.id))
 
-            if not pmod.id:
+            if not pmod.mod_id or pmod.mod_id == 'unknown':
                 pmod.no_casting = 1
                 tcomments.add('m')
             else:
@@ -218,37 +217,12 @@ def do_single_pack(pif, format_type, pid):
             entries.append(
                 render.Entry(text=show_pack_model(pif, pmod), class_name=pmod.style_id or 'wh', display_id=1))
 
+        llineup.comments = tcomments
+        llineup.tail = ['', mbdata.text_comments(tcomments)]
         llineup.section.append(render.Section(id='', columns=layout[0], anchor=pack.id,
                                               range=[render.Range(entry=entries)]))
 
-    # left bar
-    left_bar_content = ''
-    if pif.is_allowed('a'):  # pragma: no cover
-        cat = (':5P' if page_id in ('packs.5packs', 'packs.lic5packs') else
-               ':10P' if page_id == 'packs.10packs' else
-               ':3P' if page_id == 'packs.3packs' else '')
-        left_bar_content += f'<br><center><span style="font-size: x-small;">{page_id}/{pack_id}{cat}</span><p>'
-        left_bar_content += '<b><a href="%s">Pack</a></b><br>\n' % pif.dbh.get_editor_link('pack', {'id': pack_id})
-        left_bar_content += ('<b><a href="traverse.cgi?d=%s">Library</a></b><br>\n' %
-                             pif.ren.pic_dir.replace('pic', 'lib'))
-        left_bar_content += (
-            '<b><a href="mass.cgi?verbose=1&tymass=pack&section_id=%s&pack=%s&num=">Edit</a></b><br>\n' %
-            (packs[0].section_id, pack_id))
-        # would like to pass in picsize (layout[3])
-        left_bar_content += (
-            '<p><a href="upload.cgi?d=./%s&n=%s">Package</a><br>\n' %
-            (pif.ren.pic_dir.replace('pic', 'lib'), pack_id) +
-            '<b><a href="upload.cgi?d=./%s&n=%s">Contents</a><br>\n' %
-            (pif.ren.pic_dir.replace('prod', 'set').replace('pic', 'lib'), pack_id) +
-            '<b><a href="upload.cgi?d=./%s&n=%s&m=%s&c=%s">Man</a><br>\n' %
-            (config.IMG_DIR_MAN.replace('pic', 'lib'), pack_id, pack_id, pack_id) +
-            '<p>\n')
-        for lnk, mod, pmid in modvars:
-            left_bar_content += (
-                f'<a href="{lnk}">{mod}</a> '
-                f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"> {pif.ren.fmt_edit("gray")}</a>'
-                '<br>\n')
-        left_bar_content += '</center>\n'
+    left_bar_content = make_left_bar_content(pif, page_id, pack, modvars) if pif.is_allowed('a') else ''
 
     llineup.comments = tcomments
     llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(tcomments)])]
@@ -265,6 +239,34 @@ def do_single_pack(pif, format_type, pid):
         'relateds': relateds,
     }
     return pif.ren.format_template('pack.html', **context)
+
+
+def make_left_bar_content(pif, page_id, pack, modvars):
+    cat = (':5P' if page_id in ('packs.5packs', 'packs.lic5packs') else
+           ':10P' if page_id == 'packs.10packs' else
+           ':3P' if page_id == 'packs.3packs' else '')
+    lib_set_dir = pif.ren.lib_dir.replace('prod', 'set')
+    lib_man_dir = config.IMG_DIR_MAN.replace('pic', 'lib')
+    lines = [
+        '',
+        f'<span style="font-size: x-small;">{page_id}/{pack.id}{cat}</span>',
+        '',
+        f'<b><a href="{pif.dbh.get_editor_link("pack", {"id": pack.id})}">Pack</a></b>',
+        f'<b><a href="traverse.cgi?d={pif.ren.lib_dir}">Library</a></b>',
+        f'<b><a href="mass.cgi?verbose=1&tymass=pack&section_id={pack.section_id}&pack={pack.id}&num=">Edit</a></b>',
+        '',
+        # would like to pass in picsize (layout[3])
+        f'<b><a href="upload.cgi?d=./{pif.ren.lib_dir}&n={pack.id}">Package</a></b>',
+        f'<b><a href="upload.cgi?d=./{lib_set_dir}&n={pack.id}">Contents</a></b>',
+        f'<b><a href="upload.cgi?d=./{lib_man_dir}&n={pack.id}&m={pack.id}&c={pack.id}">Man</a></b>',
+        '',
+    ]
+    for lnk, mod, pmid in modvars:
+        lines.append(
+            f'<a href="{lnk}">{mod}</a> '
+            f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"> {pif.ren.fmt_edit("gray")}</a>')
+    joiner = "\n<br>"  # because f-strings
+    return f'<center>{joiner.join(lines)}</center>\n'
 
 
 def make_imgsizes(pif, pdir):
@@ -323,7 +325,7 @@ def distill_models(pif, pack, page_id):
                     f"sec={mod.vs.sec_id}&ran={mod.vs.ran_id}")
             mod.vars = []
             mod.pics = []
-            if not mod.display_order in pmodels:
+            if mod.display_order not in pmodels:
                 pmodels[mod.display_order] = mod
             if mod.v.picture_id:
                 pmodels[mod.display_order].pics.append(mod.v.picture_id)
@@ -408,7 +410,7 @@ def show_pack_model(pif, mdict):
 
     mdict.descriptions = desclist
 
-    if 1:#not mdict.disp_format or not mdict.shown_id:
+    if 1:  # not mdict.disp_format or not mdict.shown_id:
         mdict.displayed_id = '&nbsp;'
     else:
         mdict.displayed_id = mdict.disp_format % mdict.shown_id
