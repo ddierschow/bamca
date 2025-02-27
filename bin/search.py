@@ -41,7 +41,7 @@ def search_id(pif):
         mod1 = pif.dbh.fetch_casting_list(where="casting.id like '%%%s%%'" % pif.form.get_str('id'))
         mod2 = pif.dbh.fetch_aliases(where="alias.id like '%%%s%%'" % pif.form.get_str('id'))
         mod = [x for x in mod1 + mod2 if x.get('section.page_id', 'manno') in ['manls', 'manno']]
-    return [pif.dbh.modify_man_item(x) for x in mod]
+    return mod
 
 
 def get_casting_id(id):
@@ -101,8 +101,7 @@ def run_search(pif):
         firstyear = pif.form.get_int('syear', 1)
         lastyear = pif.form.get_int('eyear', 9999)
         pif.ren.title = 'Models matching name: ' + targ
-        mods = search_name(pif)
-        mods = [pif.dbh.modify_man_item(x) for x in mods if x['section.page_id'] in ('manls', 'manno') and
+        mods = [x for x in search_name(pif) if x['section.page_id'] in ('manls', 'manno') and
                 int(x['base_id.first_year']) >= firstyear and int(x['base_id.first_year']) <= lastyear]
     elif pif.form.has('id'):
         targ = pif.form.get_str('id')
@@ -115,7 +114,7 @@ def run_search(pif):
     if not mods:
         raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.")
 
-    mods.sort(key=lambda x: x.get('rawname', ''))
+    mods.sort(key=lambda x: x.get('base_id.rawname', ''))
     var_id = pif.form.get_str('var')
     pif.ren.set_button_comment(pif, keys={'query': 'query'})
     if var_id:

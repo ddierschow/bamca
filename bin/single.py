@@ -55,7 +55,8 @@ def make_relateds(pif, mod_id, relateds):
             if s.startswith('same as '):
                 related['imgid'].append(s[8:])
         related['img'] = pif.ren.format_image_required(
-            related['imgid'], made=related['made'], pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
+            related['imgid'], made=not (related['flags'] & config.FLAG_MODEL_NOT_MADE),
+            pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
         if related['link']:
             related['img'] = '<a href="%(link)s=%(linkid)s">%(img)s</a>' % related
     return relateds
@@ -139,7 +140,7 @@ id_re = re.compile(r'(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 
 
 def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations):
-    mod_id = model['id']
+    mod_id = model.id
     links = []
     if pif.is_allowed('a'):  # pragma: no cover
         links.append(f'<a href="vars.cgi?recalc=1&mod={mod_id}">Recalculate</a>')
@@ -220,11 +221,9 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         var_cnt, var_counts = var_texts
         for k, v in var_counts.items():
             mt = f'title="{mbmods.text_titles[k]}"'
-            ostr += (
-                pif.ren.fmt_star('gray', also=mt, alsoc='smallish', hollow=True) if not model[mbmods.text_fmts[k]] else
-                pif.ren.fmt_star('green', also=mt, alsoc='smallish') if v == var_cnt else
-                pif.ren.fmt_star('red', also=mt, alsoc='smallish') if not v else
-                pif.ren.fmt_star('yellow', also=mt, alsoc='smallish'))
+            ostr += pif.ren.fmt_star(
+                'gray' if not model.get_attr(mbmods.text_fmts[k]) else 'red' if not v else
+                'green' if v == var_cnt else 'yellow', also=mt, alsoc='smallish')
         ostr += '<p>\n'
         var_ids = [x['v.var'] for x in raw_variations]
         var_ids.sort()
@@ -356,10 +355,9 @@ def show_single(pif):
     if not model:
         raise useful.SimpleError("That ID wasn't found.", status=404)
     pif.ren.print_html()
+    model = pif.dbh.make_man_item(model)
     pic = pif.form.get_str('pic')
     pdir = pif.form.get_dir('dir')
-    if pdir.startswith('./'):
-        pdir = pdir[2:]
     if not pdir.startswith('pic/') or '/' in pic:
         pdir = pic = ''
     ref = pif.form.get_id('ref')
@@ -370,7 +368,7 @@ def show_single(pif):
         reg = 'X.' + reg[1:]
     reg_list = mbdata.get_region_tree(reg) + ['']
     sec_list = mbdata.get_region_tree(sec) + ['']
-    mod_id = model['id']
+    mod_id = model.id
     pif.ren.hierarchy_append('/', 'Home')
     pif.ren.hierarchy_append('/database.php', 'Database')
     pif.ren.hierarchy_append('/cgi-bin/single.cgi', 'By ID')
@@ -378,7 +376,7 @@ def show_single(pif):
 
     useful.write_comment('ARGS', mod_id, 'P', pdir, pic, 'Ref', ref, '/', sec, sec_list, '.', ran, 'Rg', reg, reg_list)
 
-    pif.ren.comment('id=', mod_id, 'man=', model)
+    pif.ren.comment('id=', mod_id, 'man=', model.__dict__)
     raw_variations = variations = []
     if ref:
         raw_variations = pif.dbh.fetch_variation_by_select(mod_id, ref, sec_id=sec_list, ran_id=ran)
@@ -429,9 +427,9 @@ def show_single(pif):
             sections.setdefault(section['page_id'][5:], [])
             sections[section['page_id'][5:]].append(section)
 
-    boxstyles = pif.dbh.fetch_box_type_by_mod(model['id'])
+    boxstyles = pif.dbh.fetch_box_type_by_mod(model.id)
 
-    pif.ren.title = '%(casting_type)s %(id)s: %(name)s' % model
+    pif.ren.title = f'{model.casting_type} {model.id}: {model.name}'
     product_img = pif.ren.format_image_sized(pic, pdir=pdir, largest=mbdata.IMG_SIZ_MEDIUM)
     product_img_credit = pif.dbh.fetch_photo_credit(pdir, pic, verbose=True)
     # product_img_credit = product_img_credit['photographer.name'] if product_img_credit else ''
@@ -444,30 +442,30 @@ def show_single(pif):
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
     prodnames = sorted(set([x['name'] for x in matrix_appearances + lineup_appearances
-                       if x['name'] != model['name']]))
+                       if x['name'] != model.name]))
     for x in matrix_appearances:
         useful.write_comment('M', x['id'], x['name'])
     for x in lineup_appearances:
         useful.write_comment('L', x['id'], x['year'], x['region'], x['number'], x['name'])
-    model['imgid'] = [model['id']]
-    vehicle_types = [mbdata.model_icons.get(x) for x in model['vehicle_type']]
+    model.imgid = [model.id]
+    vehicle_types = [mbdata.model_icons.get(x) for x in model.vehicle_type]
     descs = []
-    for s in model['descs']:
+    for s in model.descs:
         if s.startswith('same as '):
-            model['imgid'].append(s[8:])
+            model.imgid.append(s[8:])
         if s in mbdata.casting_arts:
             vehicle_types.append(mbdata.casting_arts[s])
         elif s:
             descs.append(f"<i>{s}</i>")
-    model['descs'] = descs
-    model['img'] = pif.ren.format_image_required(
-        model['imgid'], made=model['made'], pdir=config.IMG_DIR_MAN,
+    model.descs = descs
+    model.img = pif.ren.format_image_required(
+        model.imgid, made=model.made, pdir=config.IMG_DIR_MAN,
         largest=mbdata.IMG_SIZ_MEDIUM if product_img else mbdata.IMG_SIZ_LARGE)
-    model_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, model['imgid'][0], verbose=True)
-    model['credit'] = pif.ren.format_credit(model_img_credit)
-    if model['country']:
-        model['country_flag'] = pif.ren.format_image_flag(model['country'])
-        model['country_name'] = mflags.FlagList()[model['country']]
+    model_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, model.imgid[0], verbose=True)
+    model.credit = pif.ren.format_credit(model_img_credit)
+    if model.country:
+        model.country_flag = pif.ren.format_image_flag(model.country)
+        model.country_name = mflags.FlagList()[model.country]
 
 #    def make_make_link(make, name):
 #        if not make:
@@ -492,7 +490,7 @@ def show_single(pif):
             'link': 'makes.cgi?make=' + make['casting_make.make_id'],
         }
 
-    model['makes'] = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
+    model.makes = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
     # move these to left pane
     boxes = [make_boxes(pif, mod_id, boxstyles, [x['alias.id']
              for x in pif.dbh.fetch_aliases(mod_id, 'mack')])] if boxstyles else []
@@ -501,15 +499,15 @@ def show_single(pif):
     plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))
     relateds = pif.dbh.fetch_casting_relateds(mod_id)
     aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
-    mack_nums = mbmods.get_mack_numbers(pif, mod_id, model['model_type'], aliases)
+    mack_nums = mbmods.get_mack_numbers(pif, mod_id, model.model_type, aliases)
     if model:
-        model['notes'] = '<br>'.join((model.get('notes', '') or '').split(';'))
+        model.notes = '<br>'.join((model.notes).split(';'))
 
     # ------- render ------------------------------------
 
     pif.ren.set_button_comment(pif, keys={'id': 'id', 'pic': 'pic', 'dir': 'dir', 'ref': 'ref'})
     context = {
-        'title': '%s %s: %s' % (mbdata.model_types[model['model_type']], mod_id, model['name']),
+        'title': f'{mbdata.model_types[model.model_type]} {mod_id}: {model.name}',
         'note': '',
         'type_id': '',
         'icon_id':
@@ -530,7 +528,7 @@ def show_single(pif):
         'code2s': show_code2_appearances(pif, mod_id, vscounts),
         'packs': show_pack_appearances(pif, pack_appearances),
         'prodnames': prodnames,
-        'show_comparison_link': pif.dbh.fetch_casting_related_exists(mod_id, model['model_type'].lower()),
+        'show_comparison_link': pif.dbh.fetch_casting_related_exists(mod_id, model.model_type.lower()),
         'external_links': show_external_links(pif, pif.dbh.fetch_links_single('single.' + mod_id)),
         'relateds': make_relateds(pif, mod_id, [x for x in relateds if x['casting_related.section_id'] == 'single']),
         'compares':
@@ -539,11 +537,11 @@ def show_single(pif):
         'adds': adds,
         'plants': plants,
         'base_names': base_names,
-        'info_cols': (int(bool(model.get('makes'))) + int(bool(mack_nums)) +
-                      int(bool(model['scale'])) + int(bool(model['country'])) + int(bool(model['first_year']))),
-        'man_cat': pif.ren.format_link('/cgi-bin/manno.cgi?section={}#{}'.format(model['section_id'], mod_id),
-                                       model['section.name']),
-        'revised': model['flags'] & config.FLAG_MODEL_CASTING_REVISED,
+        'info_cols': (int(bool(model.makes)) + int(bool(mack_nums)) +
+                      int(bool(model.scale)) + int(bool(model.country)) + int(bool(model.first_year))),
+        'man_cat': pif.ren.format_link('/cgi-bin/manno.cgi?section={}#{}'.format(model.section_id, mod_id),
+                                       model.section.name),
+        'revised': model.casting_revised,
         # 'group': pif.ren.find_image_path(mod_id, prefix='g', pdir=config.IMG_DIR_ADD)
     }
     return pif.ren.format_template('single.html', **context)

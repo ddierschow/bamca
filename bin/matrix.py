@@ -190,7 +190,7 @@ class MatrixFile(object):
             ent = entd[mod][0]
 
             for ent2 in entd[mod][1:]:
-                if ent.flags & config.FLAG_MODEL_SHOW_ALL_VARIATIONS:
+                if ent.show_all_variations:
                     ent.image += ent2.image
                 elif not ent.image:
                     ent.image = ent2.image
@@ -200,8 +200,8 @@ class MatrixFile(object):
             if ent.image:
                 varimage = ent.image
 
-        if ent.flags & config.FLAG_MODEL_NO_VARIATION:
-            ent.picture_only = 1
+        if ent.is_no_variation:
+            ent.picture_only = ent.no_variation = 1
         elif not ent.mod_id:
             comments.add('m')
             ent.no_casting = 1
@@ -220,7 +220,7 @@ class MatrixFile(object):
         ent.number = ent.disp_id
         if not ent.shown_id and ent.disp_id:
             ent.shown_id = ent.disp_id
-        if ent.flags & config.FLAG_MODEL_NO_ID:
+        if ent.no_id:
             ent.shown_id = ''
 
         ent.product = [ent.link]
@@ -232,9 +232,8 @@ class MatrixFile(object):
             ent.is_product_picture = 1
             if pif.is_allowed('a') and self.large:
                 ent.prodpic = prodpic
-        if ent.flags & config.FLAG_MODEL_NOT_MADE:
+        if ent.not_made:
             comments.add('n')
-            ent.not_made = 1
             ent.picture_only = 1
         ent.spdir = mbdata.dirs_r.get(ent.pdir, ent.pdir)
 

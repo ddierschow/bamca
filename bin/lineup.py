@@ -88,8 +88,8 @@ def calc_lineup_model(pif, lsec, year, region, mod):
         mod.pdir = pdir = pdir if pdir else pif.ren.pic_dir
     mod.spdir = mbdata.dirs_r.get(mod.pdir, mod.pdir)
 
-    if not (lsec.flags & config.FLAG_SECTION_NO_FIRSTS) and str(year) == mod.man.first_year:
-        mod.class_name = 'revcasting' if mod.man.flags & config.FLAG_MODEL_CASTING_REVISED else 'newcasting'
+    if not lsec.no_firsts and str(year) == mod.man.first_year:
+        mod.class_name = 'revcasting' if mod.man.casting_revised else 'newcasting'
 
     # at this point it might better to use mod.man.model_type but i'm not sure
     if mod.pack.id:
@@ -130,16 +130,16 @@ def calc_lineup_model(pif, lsec, year, region, mod):
         if pif.ren.find_image_path([mod.product], suffix='jpg', pdir=mod.pdir, largest='m'):
             mod.is_product_picture = 1
         # seems to do the wrong thing with xsecs, see 2023 X.17 #11
-        mod.href = (
-            f"single.cgi?dir={mod.spdir}&pic={mod.product}&"
-            f"ref={mod.vs.ref_id}&sec={mod.vs.sec_id}&ran={mod.vs.ran_id}&id={mod.man.id}")
+        mod.href = f"single.cgi?dir={mod.spdir}&pic={mod.product}&id={mod.man.id}" + (
+                   "&ref=&sec=&ran=" if mod.not_made else
+                   f"&ref={mod.vs.ref_id}&sec={mod.vs.sec_id}&ran={mod.vs.ran_id}")
         mod.halfstar = int(bool(mod.flags & config.FLAG_LINEUP_MODEL_MULTI_VARS))
 
     mod.product = mod.product.replace('.', '_')
     mod.large_img = pif.ren.format_image_required(
         mod.product, suffix='jpg', pdir=mod.pdir, largest='m', also={'class': 'largepic'})
 
-    if lsec.flags & config.FLAG_SECTION_DEFAULT_IDS:
+    if lsec.default_ids:
         mod.shown_id = pif.dbh.default_id(mod.mod_id)
         disp_format = '%s'
     else:
@@ -182,7 +182,7 @@ def create_lineup(pif, mods, year, lsec, fdebug=False):
                       mod.vs.sec_id == vssec or not mod.vs.sec_id) or
                      not is_extra)):
                 pass  # we're good, now add it below
-            elif mod.flags & config.FLAG_MODEL_NOT_MADE:
+            elif mod.not_made:
                 # see 2019:3 vs :99.  if #3 has vs and #99 doesn't, that ^ can't show #99.
                 mod.var.clear()
             else:
@@ -373,33 +373,30 @@ def render_lineup_model_var(pif, mod, comments, show_var=None):
     imglist = []
     varlist = []
     imgname = mod.mod_id.replace('.', '_')
-    if mod.flags & config.FLAG_MODEL_NOT_MADE:
-        mod.not_made = True
+    if mod.not_made:
         imglist.append(imgname)
         comments.add('n')
     elif mod.page.id:
         imglist.append(imgname)
         if mod.picture_id:
-            imgname += f"-{mod.picture_id}"
-        imglist.insert(0, imgname)
+            imglist.insert(0, imgname + f"-{mod.picture_id}")
     elif mod.mod_id:
         imglist.append(imgname)
-        for var in mod.cvarlist:
-            if not show_var or show_var in var['var_ids']:
-                varlist.extend(var['picture_ids'])
+        for x in mod.cvarlist:
+            if not show_var or show_var in x['var_ids']:
+                varlist.extend(x['picture_ids'])
     imgstr = pif.ren.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=[x for x in varlist if x],
                                            pdir=config.IMG_DIR_MAN)
     mod.imgstr = imgstr
     mod.descriptions = [x['desc'] for x in mod.cvarlist if not show_var or show_var in x['var_ids']]
     mod.no_specific_image = 0
     if mod.uses_variations() and not mod.not_made:
-        if mod.man.id and not mod.not_made:
-            if imgstr.find('-') < 0:
-                comments.add('i')
-                mod.no_specific_image = 1
-        if len(varlist) < 1:  # pragma: no cover
+        if len(varlist) < 1:
             comments.add('v')
             mod.no_variation = 1
+        elif mod.man.id and '-' not in imgstr:
+            comments.add('i')
+            mod.no_specific_image = 1
         # also if there is no description string
 
     desclist = list()
@@ -447,7 +444,7 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
     for sec in xsecs:
         sections.append(render.Section(range=[render.Range(
             entry=[render_lineup_model(pif, x, comments, unroll=unroll, large=large) for x in sec.mods],
-            name=f'<i>{sec.name}</i>' if sec.flags & config.FLAG_SECTION_HIDDEN else sec.name,
+            name=f'<i>{sec.name}</i>' if sec.is_hidden else sec.name,
             id='X',
             note=sec.note,
         )]))

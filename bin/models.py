@@ -28,7 +28,6 @@ class ManItem(object):
         self.id = ''
         self.isbn = ''
         self.link = "single.cgi?id"
-        self.made = False
         self.make = ''
         self.model_type = 'SF'
         self.name = ''
@@ -57,7 +56,6 @@ class ManItem(object):
                 self.visual_id = self.default_id(self.id)
                 self.first_year = mod['base_id.first_year'] or ''
                 self.flags = mod['base_id.flags'] or 0
-                self.made = not (self.flags & config.FLAG_MODEL_NOT_MADE)
                 self.model_type = mod['base_id.model_type'] or ''
                 self.rawname = mod['base_id.rawname'] or ''
                 self.name = self.rawname.replace(';', ' ')
@@ -92,6 +90,8 @@ class ManItem(object):
             self.pack = PackItem(mod)
             self.pub = PubItem(mod)
             self.count = mod.get('count') or 0
+            if 'section.id' in mod:
+                self.section = SecItem(mod)
 
         else:
             # EVERYBODY has a base_id.  After that, we differentiate.
@@ -102,6 +102,14 @@ class ManItem(object):
                 self.model_type = mod.model_type
                 self.rawname = mod.rawname
                 self.description = mod.description
+                self.format_description = mod.format_description or ''
+                self.format_body = mod.format_body or ''
+                self.format_interior = mod.format_interior or ''
+                self.format_windows = mod.format_windows or ''
+                self.format_base = mod.format_base or ''
+                self.format_wheels = mod.format_wheels or ''
+                self.format_with = mod.format_with or ''
+                self.format_text = mod.format_text or ''
             else:  # Results
                 self.id = self.ref_id = mod.base_id.id
                 self.first_year = mod.base_id.first_year
@@ -109,26 +117,26 @@ class ManItem(object):
                 self.model_type = mod.base_id.model_type
                 self.rawname = mod.base_id.rawname
                 self.description = mod.base_id.description
+                if mod.get('format_description') is not None:
+                    self.format_description = mod.format_description or ''
+                    self.format_body = mod.format_body or ''
+                    self.format_interior = mod.format_interior or ''
+                    self.format_windows = mod.format_windows or ''
+                    self.format_base = mod.format_base or ''
+                    self.format_wheels = mod.format_wheels or ''
+                    self.format_with = mod.format_with or ''
+                    self.format_text = mod.format_text or ''
             self.visual_id = self.default_id(self.id)
-            self.made = not (self.flags & config.FLAG_MODEL_NOT_MADE)
             self.name = self.rawname.replace(';', ' ')
 
             self.scale = mod.scale
             self.vehicle_type = mod.vehicle_type
             self.country = mod.country
             self.make = mod.make
-            self.box_styles = mod.box_styles or ''
-            self.notes = mod.notes or ''
+            self.box_styles = mod.get('box_styles') or ''
+            self.notes = mod.get('notes') or ''
             self.section_id = mod.section_id
-            self.format_description = mod.format_description or ''
-            self.format_body = mod.format_body or ''
-            self.format_interior = mod.format_interior or ''
-            self.format_windows = mod.format_windows or ''
-            self.format_base = mod.format_base or ''
-            self.format_wheels = mod.format_wheels or ''
-            self.format_with = mod.format_with or ''
             self.variation_digits = mod.variation_digits
-            self.format_text = mod.format_text or ''
             if isinstance(mod, tables.Results) and mod.get('alias.id'):
                 self.section_id = mod['alias.section_id']
                 self.ref_id = mod['alias.ref_id']
@@ -139,8 +147,8 @@ class ManItem(object):
                 self.vehicle_type = mod['vehicle_type'] or ''
             self.count = mod.count or 0
 
-            self.pack = PackItem(mod.pack)
-            self.pub = PubItem(mod.pub)
+            self.pack = PackItem(mod.pack if hasattr(mod, 'pack') else {})
+            self.pub = PubItem(mod.pub if hasattr(mod, 'pub') else {})
 
         if self.pack.id:
             self.link = 'packs.cgi?id'
@@ -150,8 +158,6 @@ class ManItem(object):
         self.filename = self.id.lower()
         self.iconname = self.icon_name(self.rawname)
         self.linkid = self.ref_id
-        self.notmade = '' if self.made else '*'
-        self.revised = self.flags & config.FLAG_MODEL_CASTING_REVISED != 0
         self.shortname = self.short_name(self.rawname)
         self.libdir = useful.relpath('.', config.LIB_MAN_DIR, self.id.lower())
 
@@ -203,6 +209,54 @@ class ManItem(object):
     def slurp(self, slurp_d):
         for k, v in slurp_d.items():
             setattr(self, k, v)
+
+    @property
+    def made(self):
+        return not (self.flags & config.FLAG_MODEL_NOT_MADE)
+
+    @property
+    def not_made(self):
+        return bool(self.flags & config.FLAG_MODEL_NOT_MADE)
+
+    @property
+    def code_2(self):
+        return bool(self.flags & config.FLAG_MODEL_CODE_2)
+
+    @property
+    def is_no_variation(self):
+        return bool(self.flags & config.FLAG_MODEL_NO_VARIATION)
+
+    @property
+    def no_id(self):
+        return bool(self.flags & config.FLAG_MODEL_NO_ID)
+
+    @property
+    def id_incorrect(self):
+        return bool(self.flags & config.FLAG_MODEL_ID_INCORRECT)
+
+    @property
+    def show_all_variations(self):
+        return bool(self.flags & config.FLAG_MODEL_SHOW_ALL_VARIATIONS)
+
+    @property
+    def hide_image(self):
+        return bool(self.flags & config.FLAG_MODEL_HIDE_IMAGE)
+
+    @property
+    def no_specific_model(self):
+        return bool(self.flags & config.FLAG_MODEL_NO_SPECIFIC_MODEL)
+
+    @property
+    def casting_revised(self):
+        return bool(self.flags & config.FLAG_MODEL_CASTING_REVISED)
+
+    @property
+    def variation_verified(self):
+        return bool(self.flags & config.FLAG_MODEL_VARIATION_VERIFIED)
+
+    @property
+    def baseplate_visible(self):
+        return bool(self.flags & config.FLAG_MODEL_BASEPLATE_VISIBLE)
 
 
 class VSItem(object):
@@ -529,6 +583,30 @@ class SecItem(object):
     def __str__(self):
         return f'SecItem: {self.id}'
 
+    @property
+    def is_hidden(self):
+        return bool(self.flags & config.FLAG_SECTION_HIDDEN)
+
+    @property
+    def default_ids(self):
+        return bool(self.flags & config.FLAG_SECTION_DEFAULT_IDS)
+
+    @property
+    def no_firsts(self):
+        return bool(self.flags & config.FLAG_SECTION_NO_FIRSTS)
+
+    @property
+    def show_ids(self):
+        return bool(self.flags & config.FLAG_SECTION_SHOW_IDS)
+
+    @property
+    def hide_image(self):
+        return bool(self.flags & config.FLAG_SECTION_HIDE_IMAGE)
+
+    @property
+    def group_singles(self):
+        return bool(self.flags & config.FLAG_SECTION_GROUP_SINGLES)
+
 
 class LineItem(object):
 
@@ -580,7 +658,7 @@ class LineItem(object):
         self.cvarlist = []
         self.no_casting = False
         self.no_variation = False
-        self.not_made = False
+        self.not_made = bool(self.flags & config.FLAG_MODEL_NOT_MADE)
         self.pdir = ''
         self.picture_only = False
         self.show_vars = False
@@ -652,3 +730,19 @@ class MatItem(object):
 
     def __repr__(self):
         return str(self.__dict__)
+
+    @property
+    def is_no_variation(self):
+        return bool(self.flags & config.FLAG_MODEL_NO_VARIATION)
+
+    @property
+    def show_all_variations(self):
+        return bool(self.flags & config.FLAG_MODEL_SHOW_ALL_VARIATIONS)
+
+    @property
+    def no_id(self):
+        return bool(self.flags & config.FLAG_MODEL_NO_ID)
+
+    @property
+    def not_made(self):
+        return bool(self.flags & config.FLAG_MODEL_NOT_MADE)

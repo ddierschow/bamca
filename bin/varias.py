@@ -2251,9 +2251,18 @@ def check_attributes(pif, *attr_names):
         print(f"{len(mod_ids)} {attr_name} ({', '.join(sorted(mod_ids))})")
 
 
-def sx(pif):
-    vl = [f'betatester vars.cgi "mod={x["variation.mod_id"]}&var={x["variation.var"]}"'
-          for x in pif.dbh.fetch_variations_bare()]
+def sx(pif, lt):
+    if lt == 'm':
+        vl = [f'betatester vars.cgi "mod={x}"'
+              for x in pif.dbh.fetch_casting_ids()]
+    elif lt == 'l':
+        vl = [f'betatester vars.cgi "mod={x["variation.mod_id"]}&var={x["variation.var"]}&lrg=1"'
+              for x in pif.dbh.fetch_variations_bare()]
+    elif lt == 'v':
+        vl = [f'betatester vars.cgi "mod={x["variation.mod_id"]}&var={x["variation.var"]}"'
+              for x in pif.dbh.fetch_variations_bare()]
+    else:
+        return
     for x in range(40):
         print(useful.pick(vl))
 

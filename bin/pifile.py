@@ -142,7 +142,11 @@ class BaseForm(object):
             return str(defval)
 
     def get_dir(self, key, defval=''):
-        return mbdata.dirs.get(self.get_str(key, defval), self.get_str(key, defval))
+        val = self.get_str(key, defval)
+        val = mbdata.dirs.get(val, val)
+        if val.startswith('./'):
+            val = val[2:]
+        return val
 
     def get_alnum(self, key, defval=''):
         return mbdata.illegal_form_re.sub('', self.get_str(key, defval))

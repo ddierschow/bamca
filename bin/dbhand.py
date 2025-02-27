@@ -589,7 +589,6 @@ class DBHandler(object):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
             mod['unlicensed'] = '?'
             mod.setdefault('description', '')
-            mod['made'] = True
             mod['visual_id'] = self.default_id(mod['id'])
             mod['link'] = "packs.cgi?id"
             mod['vehicle_type'] = ''
@@ -597,16 +596,13 @@ class DBHandler(object):
             mod['name'] = mod.get('rawname', '').replace(';', ' ')
             mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
             mod.setdefault('description', '')
-            mod['made'] = not (mod.get('flags', 0) & config.FLAG_MODEL_NOT_MADE)
             mod['visual_id'] = self.default_id(mod['id'])
         else:
             mod['id'] = mod['visual_id'] = ''
             mod['name'] = ''
             mod['unlicensed'] = '?'
             mod['description'] = ''
-            mod['made'] = False
         mod['filename'] = mod['id'].lower()
-        mod['notmade'] = '' if mod['made'] else '*'
         mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & config.FLAG_MODEL_CASTING_REVISED) != 0
         mod['linkid'] = mod.get('mod_id', mod.get('id'))
         mod['descs'] = [x for x in mod['description'].split(';') if x]
