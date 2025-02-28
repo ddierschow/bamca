@@ -409,8 +409,6 @@ class DBHandler(object):
         return recs[0] if recs else None
 
     def fetch_casting(self, id, extras=False, verbose=False, tag='Casting'):
-        verbose = True
-
         wheres = ['base_id.id=casting.id', f'casting.id="{id}"',
                   'casting.section_id=section.id', 'section.page_id="manno"']
         cols = (

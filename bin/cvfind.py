@@ -155,7 +155,7 @@ class Searcher(object):
                     self.add_alias(pif, alias)
 
         # screen by variation filters
-        if self.list_type == 'v' or self.is_var_search:
+        if (self.list_type == 'v' or self.is_var_search) and self.mdict:
             self.cascount = 0
             vars = pif.dbh.fetch_variation_query(self.varsq, castinglist=self.mdict.keys(), codes=self.codes)
             for var in vars:

@@ -42,7 +42,7 @@ class MatrixFile(object):
         ent['shown_id'] = ent['matrix_model.shown_id']
         ent['name'] = ent['matrix_model.name']
         ent['subname'] = ent['matrix_model.subname']
-        ent['subnames'] = ent['matrix_model.subname'].split(';')
+        ent['subnames'] = ent['matrix_model.subname'].split(';') if ent['subname'] else []
         ent['sub_id'] = mbdata.reverse_regions.get(ent['matrix_model.subname'], '')
         ent['model_type'] = ent['base_id.model_type']
         ent.setdefault('pack.page_id', '')
@@ -290,7 +290,7 @@ class MatrixFile(object):
             llineup.section.append(section)
         # llineup.tail = [pif.ren.format_image_art('bamca_sm'), '']
         pif.ren.set_button_comment(pif, '')
-        llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
+        llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(comments)])]
         return llineup
 
     def add_cell(self, pif, ents, table, comments):

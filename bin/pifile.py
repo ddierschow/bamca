@@ -421,7 +421,7 @@ class PageInfoFile(object):
         self.ren = render.Presentation(self.page_id, self.form.get_int('verbose'))
         self.ren.secure = self.secure
         self.ren.unittest = self.unittest
-        self.ren.comment('form', self.form.get_form())
+        # self.ren.comment('form', self.form.get_form())
         self.secure.cookies = self.rawcookies.get('co')
         self.privs = set()
 
@@ -429,6 +429,7 @@ class PageInfoFile(object):
         self.cwd = os.getcwd()
         self.ren.is_beta = self.secure.is_beta
         self.ren.is_alpha = self.secure.is_alpha
+        self.ren.diff_run = self.form.get_bool('xdiffx')
         self.cgibin = '../cgi-bin'
 
         dbqlog = self.log.devnull if self.unittest else self.log.dbq

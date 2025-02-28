@@ -123,7 +123,7 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
         for s in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]
     ]) if edit else pif.ren.format_image_required(
         mod_id, pdir=pdir, vars=pic_var, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
-    var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, pic_var, verbose=True)
+    var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, pic_var, verbose=False)
     variation['_credit'] = var_img_credit['photographer.id'] if var_img_credit else ''
     var_img_credit = pif.ren.format_credit(var_img_credit)
 
@@ -163,7 +163,6 @@ def show_single_variation(pif, man, var_id, edit=False, addnew=False):
             picture_var=picture_variation)
     lsec.range = ranges
     llistix = render.Listix(id='single', section=[lsec])
-    llistix.dump()
 
     appearances = show_appearances(pif, mod_id, var_id, pics=True)
     adds = models.show_adds(pif, mod_id, var_id)
@@ -290,7 +289,7 @@ def show_detail(pif, field, attributes, model, variation, attr_pics={}, ran_id='
     title_modal = show_detail_modal(pif, attr_pics.get(field, {}), variation['mod_id'])
     if title_modal:
         title += ' ' + pif.ren.fmt_mini(icon="circle-question", family="regular",
-                                        also=f"onclick=\"init_modal('m.{field}')\";", alsoc='modalbutton')
+                                        also=f"onclick=\"init_modal('m.{field}');\"", alsoc='modalbutton')
         title += pif.ren.format_modal('m.' + field, title_modal)
     value_modal = show_detail_modal(pif, attr_pics.get(field, {}), variation['mod_id'], variation['var'])
     if value_modal:
@@ -350,7 +349,7 @@ def show_detail_modal(pif, attr_pic, mod_id, var_id=''):
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower() + (
         '-' + attr_pic['picture_id'] if attr_pic['picture_id'] else '')
     pdir = config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD
-    var_img_credit = pif.dbh.fetch_photo_credit(pdir, img_id, verbose=True)
+    var_img_credit = pif.dbh.fetch_photo_credit(pdir, img_id, verbose=False)
     var_img_credit = var_img_credit['photographer.name'] if var_img_credit else ''
 
     img = pif.ren.find_image_path(img_id, prefix=attr_pic['attr_type'], pdir=pdir)
@@ -623,8 +622,8 @@ class VarSearchForm(object):
         return self
 
     def write(self, pif, values={}):
-        pif.ren.comment("attributes", self.attributes)
-        useful.write_comment(pif.form)
+        # pif.ren.comment("attributes", self.attributes)
+        # useful.write_comment(pif.form)
 
         entries = [{'title': self.attributes[x]['title'],
                     'value': pif.form.put_text_input(x, 64, 128)} for x in text_attributes]
@@ -934,13 +933,7 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
 
         return '<br>'.join(['<span class="%s">%s: %s</span>\n' % (
             ("diff" if var[d] != prev.get(d, var[d]) else "same"), attributes[d]['title'], show_det(var[d]))
-            for d in descs])
-        # return ('<table class="long_tab">' +
-        #     '\n'.join([
-        #         '<tr><td><span class="%s">%s:</td><td>%s</span></td></tr>\n' % (
-        #         ("diff" if var[d] != prev.get(d, var[d]) else "same"), attributes[d]['title'], var[d])
-        #     for d in descs]) +
-        #     '</table>\n')
+            for d in sorted(descs, key=lambda x: attributes[x]['title'])])
 
     desc_text = '<div class="varentry">' + var['text_description'] + '</div>\n'
     desc_text += show_list(infs['desc1'])
@@ -1000,8 +993,8 @@ def do_var_for_list(pif, edit, model, var, attributes, varsels, prev, credits, p
             pic_text += pif.ren.format_image_icon('l_base-' + logo, mbdata.base_logo_dict.get(logo, '')) + ' '
     else:
         pic_text += ' '
-    if var['categories']:
-        pic_text += '<hr>' + var['categories']
+    if var['_categories']:
+        pic_text += '<hr>' + '<br>'.join(sorted(var['_categories']))
     pic_text += '</center>'
 
     return {
@@ -1302,9 +1295,10 @@ def mangle_variation(pif, model, variation, cats):
 
     variation['area'] = ', '.join([
         mbdata.get_countries().get(x, mbdata.areas.get(x, x)) for x in variation.get('area', '').split(';')])
-    variation['_categories'] = [cats[x]['name'] for x in vcats if x in cats]
-    variation['categories'] = '<br>'.join([
-        pif.ren.format_image_icon('c_' + cats[x]['image'], desc=cats[x]['name']) for x in vcats if x in cats])
+    variation['_categories'] = sorted([cats[x]['name'] for x in vcats if x in cats])
+#    variation['categories'] = '<br>'.join([
+#        pif.ren.format_image_icon('c_' + cats[x]['image'], desc=cats[x]['name']) for x in vcats if x in cats])
+    variation['categories'] = '<br>'.join(sorted(set([cats[x]['name'] for x in vcats if x in cats])))
     return variation
 
 
@@ -1728,11 +1722,11 @@ def add_value(pif, mod_id=None, var_id=None, attribute=None, *args):
             else:
                 print(pif.dbh.add_or_update_detail(
                     {'description': new_value, 'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']},
-                    {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=True))
+                    {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=False))
     else:
         print(pif.dbh.add_or_update_detail(
             {'description': value, 'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']},
-            {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=True))
+            {'mod_id': mod_id, 'var_id': var_id, 'attr_id': attr['id']}, verbose=False))
     pif.dbh.recalc_description(mod_id)
 
 

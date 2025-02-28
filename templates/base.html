@@ -3,14 +3,14 @@
 {%- block page_header -%}
 <html>
 <head>
-<meta charset="UTF-8"><title>{% if page.is_beta %}BETA: {% elif page.is_alpha %}ALPHA: {% endif %}{{ page.title }}</title>
+<meta charset="UTF-8"><title>{% if page.diff_run %}{% elif page.is_beta %}BETA: {% elif page.is_alpha %}ALPHA: {% endif %}{{ page.title }}</title>
 <link rel="icon" href="https://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
 <link rel="shortcut icon" href="https://www.bamca.org/pic/gfx/favicon.ico" type="image/x-icon" />
 {% for s in page.styles -%}
 <link rel="stylesheet" href="/styles/{{ s }}.css" type="text/css">
 {% endfor -%}
 {%- if page.extra %}{{ page.extra }}{% endif %}
-{%- if not page.is_beta and not page.is_alpha %}
+{%- if not page.diff_run and not page.is_beta and not page.is_alpha %}
 <script type="text/javascript">
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-24758340-2']);
@@ -31,11 +31,11 @@ _gaq.push(['_trackPageview']);
 <!-- body -->
 {% block page_body_start %}
 <body class="{{ page.body_style }}">
-{% if page.is_beta %}
+{% if not page.diff_run and page.is_beta %}
 <table class="body">
 <tr><td class="beta">&nbsp;</td></tr>
 <tr><td class="body">
-{% elif page.is_alpha %}
+{% elif not page.diff_run and page.is_alpha %}
 <table class="body">
 <tr><td class="alpha">&nbsp;</td></tr>
 <tr><td class="body">
@@ -108,9 +108,9 @@ of Matchbox International Ltd. and are used with permission.
 </div>
 {% endif %}
 {%- endblock body_footer %}
-{%- if page.is_beta %}
+{%- if not page.diff_run and page.is_beta %}
 </td></tr><tr><td height="24" class="beta">&nbsp;</td></tr></table>
-{% elif page.is_alpha %}
+{% elif not page.diff_run and page.is_alpha %}
 </td></tr><tr><td height="24" class="alpha">&nbsp;</td></tr></table>
 {%- endif %}
 </body>

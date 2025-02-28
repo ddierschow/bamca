@@ -6,9 +6,9 @@
 {%- if base_id or type_id or vehicle_type %}
 {%- if type_id %}{{ render.format_image_icon(type_id) }}<p>{% endif %}
 {%- if base_id %}{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_MAN_ICON, prefix='i_', suffix='.gif', also={'class':'centered'}) }}<p>{% endif %}
-{% for vtype in vehicle_type %}
+{%- for vtype in vehicle_type %}
 {{ render.format_image_optional(vtype, '', '.' + config.IMG_DIR_ICON, suffix='.gif', also={'class':'centered'}) }}<p>
-{% endfor %}
+{%- endfor %}
 <p>{% endif %}
 {{ content }}
 </div>

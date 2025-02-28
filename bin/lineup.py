@@ -79,6 +79,9 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
         'class_name': '', 'product': '', 'prod_id': '', 'href': '',
         'is_reused_product_picture': 0, 'is_product_picture': 0, 'halfstar': 0,
         'displayed_id': '',  # '&nbsp;'
+        'ref_id': mdict.get('ref_id') or '',
+        'sec_id': mdict.get('sec_id') or '',
+        'ran_id': mdict.get('ran_id') or '',
     })
     if not mdict.get('pdir'):
         pdir = lsec.get('pic_dir')
@@ -105,8 +108,8 @@ def calc_lineup_model(pif, lsec, year, region, mdict):
             mdict['is_product_picture'] = 1
         # seems to do the wrong thing with xsecs, see 2023 X.17 #11
         mdict['href'] = (
-            "single.cgi?dir=%(spdir)s&pic=%(product)s&ref=%(ref_id)s&sec=%(sec_id)s&ran=%(ran_id)s&id=%(mod_id)s" %
-            mdict)
+            "single.cgi?dir=%(spdir)s&pic=%(product)s&id=%(mod_id)s&ref=%(ref_id)s&sec=%(sec_id)s&ran=%(ran_id)s" %
+            mdict).strip()
         mdict['halfstar'] = int(bool(mdict.get('flags', 0) & config.FLAG_LINEUP_MODEL_MULTI_VARS))
     elif mdict['pack.id']:
         mdict['prod_id'] = mdict['pack.id']
@@ -391,7 +394,7 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
         imgname = mdict['mod_id'].replace('.', '_')
         imglist.append(imgname)
         for var in mdict['cvarlist']:
-            if not show_var or show_var in var['var_ids']:
+            if var['vars'] and (not show_var or show_var in var['var_ids']):
                 varlist.extend(var['picture_ids'])
     imgstr = pif.ren.format_image_required(imglist, prefix=mbdata.IMG_SIZ_SMALL, vars=[x for x in varlist if x],
                                            pdir=config.IMG_DIR_MAN)
@@ -399,12 +402,12 @@ def render_lineup_model_var(pif, mdict, comments, show_var=None):
     mdict['descriptions'] = [x['desc'] for x in mdict['cvarlist'] if not show_var or show_var in x['var_ids']]
     mdict['no_specific_image'] = 0
     if mdict['casting.id'] and not mdict.get('not_made'):
-        if imgstr.find('-') < 0:
-            comments.add('i')
-            mdict['no_specific_image'] = 1
         if len(varlist) < 1:  # pragma: no cover
             comments.add('v')
             mdict['no_variation'] = 1
+        elif imgstr.find('-') < 0:
+            comments.add('i')
+            mdict['no_specific_image'] = 1
         # also if there is no description string
 
     desclist = list()
@@ -458,7 +461,7 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
     llineup = render.Matrix(id='year', section=sections)
 
     llineup.comments = comments
-    llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in comments])]
+    llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(comments)])]
     if large:
         llineup.header = (
             '<form action="mass.cgi" method="post">\n<input type="hidden" name="tymass" value="lineup_desc">\n' +

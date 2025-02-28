@@ -35,6 +35,7 @@ class Presentation(object):
         self.art_dir = config.IMG_DIR_ART
         self.is_beta = False
         self.is_alpha = False
+        self.diff_run = False
         self.title = 'BAMCA'
         self.unittest = False
         self.description = ''
@@ -170,9 +171,9 @@ class Presentation(object):
     # ---- upper level rendering blocks
 
     def format_head(self):
-        pagetitle = ('BETA: ' if self.is_beta else 'ALPHA: ' if self.is_alpha else '') + self.title
+        pagetitle = ('' if self.diff_run else 'BETA: ' if self.is_beta else 'ALPHA: ' if self.is_alpha else '') + self.title
         pageclass = self.page_id[:self.page_id.find('.')] if '.' in self.page_id else ''
-        banner = 'beta' if self.is_beta else 'alpha' if self.is_alpha else ''
+        banner = '' if self.diff_run else 'beta' if self.is_beta else 'alpha' if self.is_alpha else ''
 
         ostr = ''.join([
             '<html>\n',  # '<html>\n<!-- This page rendered by the old-style rendering engine. -->\n'
@@ -186,7 +187,7 @@ class Presentation(object):
             if os.path.exists("{config.CSS_DIR}/{self.page_id}.css") else '',
 
             self.extra,
-            javasc.def_google_analytics_js if not banner else '',
+            javasc.def_google_analytics_js if not banner and not self.diff_run else '',
             '</head>\n<body>\n',
             f'<table width="100%"><tr><td height=24 class="{banner}">&nbsp;</td></tr><tr><td>\n' if banner else '',
             self.show_location(),
@@ -225,9 +226,9 @@ of Matchbox International Ltd. and are used with permission.
         st = self.tail.get('stat')
         if st:  # pragma: no cover
             ostr += f'\n<font size=-1><i>{st}</i></font>\n'
-        if self.is_beta:
+        if not self.diff_run and self.is_beta:
             ostr += '</td></tr><tr><td height=24 class="beta">&nbsp;</td></tr></table>\n'
-        elif self.is_alpha:
+        elif not self.diff_run and self.is_alpha:
             ostr += '</td></tr><tr><td height=24 class="alpha">&nbsp;</td></tr></table>\n'
         ostr += "</body>\n</html>\n"
         return ostr
@@ -720,6 +721,7 @@ of Matchbox International Ltd. and are used with permission.
             'bamcamark': self.bamcamark,
             'token': self.format_form_token(useful.generate_token(6)),
             'body_style': self.body_style,
+            'diff_run': self.diff_run,
         }
         output = useful.render_template(template, page=page_info, config_context=config, **kwargs)
         if self.unittest:

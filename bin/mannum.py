@@ -413,16 +413,16 @@ class MannoFile(object):
             if not mdict['vehicle_type']:
                 mdict['vehicle_type'] = '<i class="fas fa-ban red"></i>'
             fmt_bad, _, _ = pif.dbh.check_description_formatting(mdict['id'])
-            mdict['fo'] = pif.ren.fmt_times('red') if fmt_bad else ''
+            mdict['fo'] = pif.ren.fmt_x('red') if fmt_bad else ''
             mdict['im'] = ''.join([f'<i class="{vers[x]}"></i>' for x in sorted(mdict['ver'])])
-            makes = pif.dbh.fetch_casting_makes(mod)
-            mdict['make'] = '<br>'.join([
+            makes_list = pif.dbh.fetch_casting_makes(mod)
+            makes = [
                 pif.ren.format_link(f"/cgi-bin/makes.cgi?make={x['vehicle_make.id']}", str(x['vehicle_make.name']))
-                for x in makes
-            ])
+                for x in makes_list]
+            if mdict['make'] and mdict['make'] not in [x['vehicle_make.id'] for x in makes_list]:
+                makes.append(pif.ren.format_link("/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make']))
+            mdict['make'] = '<br>'.join(sorted(set(makes)))
             mdict['attr'] = '<br>'.join(sorted([x['attribute.attribute_name'] for x in pif.dbh.fetch_attributes(mod)]))
-            if mdict['make']:
-                mdict['make'] = pif.ren.format_link("/cgi-bin/makes.cgi?make=" + mdict['make'], mdict['make'])
             relateds = [x['casting_related.related_id']
                         for x in pif.dbh.fetch_casting_relateds(mod, section_id='single')]
             mdict['rel'] = '<br>'.join([pif.ren.format_link('/cgi-bin/single.cgi', x, {'id': x}) for x in relateds])

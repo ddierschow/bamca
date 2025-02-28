@@ -258,6 +258,8 @@ def do_single_pack(pif, format_type, pid):
                 '<br>\n')
         left_bar_content += '</center>\n'
 
+    llineup.comments = tcomments
+    llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(tcomments)])]
     pif.ren.set_button_comment(pif, keys={'d': 'id'})
     context = {
         'title': packs[0]['name'],
@@ -310,9 +312,7 @@ def distill_models(pif, pack, page_id):
 
     for mod in model_list:
         mod = pif.dbh.modify_man_item(mod)
-        useful.write_comment('mod', mod)
         mod['style_id'] = 'bg_' + mod['pack_model.style_id']
-        useful.write_comment(mod)
         mod['pdir'] = pif.ren.pic_dir
         mod['spdir'] = mbdata.dirs_r.get(mod['pdir'], mod['pdir'])
         sec_ids = ['.', '', pack_id + '.', pack_id + '.' + str(mod['pack_model.display_order'])]
@@ -321,10 +321,9 @@ def distill_models(pif, pack, page_id):
             for s in mod['descs']:
                 if s.startswith('same as '):
                     mod['imgl'].extend([mbdata.IMG_SIZ_SMALL + '_' + s[8:], s[8:]])
-            if not mod.get('vs.ref_id'):
-                mod['vs.ref_id'] = ''
-            if not mod.get('vs.sec_id'):
-                mod['vs.sec_id'] = ''
+            mod['vs.ref_id'] = mod['vs.ref_id'] or ''
+            mod['vs.sec_id'] = mod['vs.sec_id'] or ''
+            mod['vs.ran_id'] = mod['vs.ran_id'] or ''
             mod['pic_id'] = mod['vs.sec_id'] if mod['vs.sec_id'] else mod['pack_model.pack_id']
             if mod['pack_model.mod_id'] != 'unknown':
                 mod['href'] = (
@@ -384,7 +383,7 @@ def show_pack(pif, pack, picsize):
     year = pack['first_year'] if pack['first_year'] else ''
     if pack['first_year'] and pack['end_year'] and pack['end_year'] != pack['first_year']:
         year += '-' + pack['end_year']
-    prod_title = [pack['base_id.rawname']]
+    prod_title = [pack['base_id.rawname'].replace(';', ' ')]
     if year:
         prod_title.append(year)
     ostr += '<h4 class="prodtitle">{}</h4>'.format(' - '.join(prod_title))
@@ -461,7 +460,6 @@ def packs_main(pif):
             **pif.form.get_dict(['sec', 'year', 'region', 'lid', 'material']))
     elif pif.form.has('sec'):
         pif.ren.hide_title = True
-        # useful.write_comment(pif.form)
         sections = pif.dbh.fetch_sections_by_page_type('packs', pif.form.get_str('sec'))
         if not sections:
             pif.ren.print_html()
@@ -482,7 +480,6 @@ def packs_main(pif):
 @basics.web_page
 def play_main(pif):
     pif.ren.set_page_extra(pif.ren.image_selector_js)
-    # useful.write_comment(pif.form)
     pif.page_id = 'playset.ps'
     pif.set_page_info(pif.page_id)
     pif.ren.print_html()

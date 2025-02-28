@@ -9,15 +9,15 @@
 {%- endif -%}
 <center>
 <table width="100%"><tr>
-<td width="40%" class="modelstars">
+<td class="modelstars">
 {%- if ent.data.no_casting -%}<i class="fas fa-star green"></i>
 {%- elif not ent.data.picture_only -%}
     {%- if ent.data.no_specific_image -%}<i class="fas fa-star"></i>{%- endif -%}
     {%- if ent.data.no_variation -%}<i class="fas fa-star red"></i>{%- endif -%}
 {%- endif -%}
 </td>
-<td width="20%" class="modelnumber">{{ ent.data.displayed_id }}</td>
-<td width="40%" class="modelicons">
+<td class="modelnumber">{{ ent.data.displayed_id }}</td>
+<td class="modelicons">
 {% if ent.data.no_vs %}<i class="fas fa-ghost purple"></i>{% endif %}
 {% if ent.data.not_made %}<i class="fas fa-ban red"></i>{% endif %}
 {% if ent.data.is_reused_product_picture %}<i class="fas fa-star yellow"></i>{% endif %}
