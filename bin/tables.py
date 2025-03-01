@@ -141,9 +141,9 @@ table_info = {
         'id': ['id'],
         'saveid': False,
         'extends': {'base_id': 'id/id'},
-        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'variation_digits'],
+        'columns': ['id', 'scale', 'vehicle_type', 'country', 'make', 'section_id', 'variation_digits', 'notes'],
         'extra_columns': [
-            'notes', 'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base',
+            'format_description', 'format_body', 'format_interior', 'format_windows', 'format_base',
             'format_wheels', 'format_with', 'format_text'],
         'clinks': {
             'id': {'tab': 'casting', 'id': ['id/id']},

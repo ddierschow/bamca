@@ -1,3 +1,7 @@
+### 7.7.2  - 2025-02-27o
+
+- Lots of tweaks and bugfixes
+- Allow creation of pages omitting differences between beta and prod, for comparison
 ### 7.7.1  - 2025-02-09
 
 - Tweaks and bugfixes
@@ -6,9 +10,9 @@
 
 - Added super search
 - Renamed and rearranged several things
-- moved a bunch of strings to f-strings
-- implemented formatters for font-awesome icons
-- added flags for exact/partial ids on supersearch
+- Moved a bunch of strings to f-strings
+- Implemented formatters for font-awesome icons
+- Added flags for exact/partial ids on supersearch
 
 ### 7.6.3  - 2024-09-28
 

@@ -229,6 +229,9 @@ def show_file_link(fn, ft, show_as):
 
 def get_model_rec(pif, mn):
     modrec = pif.dbh.fetch_casting(mn, extras=True)
+    modrec = pif.dbh.depref('casting', modrec)
+    modrec = pif.dbh.depref('base_id', modrec)
+    # modrec = pif.dbh.modify_man_item(modrec)
 
     # debug("fetch_casting", mn, modrec)
     if not modrec:

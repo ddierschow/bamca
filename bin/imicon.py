@@ -47,30 +47,6 @@ class Icon(object):
             else:
                 self.image[y * self.width + x] = 0
 
-    def saveicn(self, f):
-        '''Old-style, SUN format, monochrome icon files.'''
-        iX = iY = 0
-        uVal = 0
-        iBit = 0
-        iImg = 0
-        BPW = 16
-
-        icnhdr = "/* Format_version=1, Width=%d, Height=%d, Depth=1, Valid_bits_per_item=%d\n */\n"
-
-        f.write(icnhdr % (self.width, self.height, BPW))
-        for iY in range(0, self.height):
-            f.write("\t")
-            for iX in range(0, (self.width - 1) / BPW + 1):
-                uVal = iBit = 0
-                while ((iX * BPW + iBit < self.width) and (iBit < BPW)):
-                    val = int(not not self.image[iImg])
-                    uVal = uVal | val << (15 - iBit)
-                    iImg = iImg + 1
-                    iBit = iBit + 1
-                f.write("0x%4.4X" % (uVal & 0xFFFF))
-                f.write(",")
-            f.write("\n")
-
     def invert(self, x, y, w, h):
         for iY in range(0, h):
             for iX in range(0, w):
@@ -173,8 +149,6 @@ class Font(object):
             c = None
             for line in inp:
                 if line[0] == '\t':
-                    # if not c:
-                    #     print '*** badly formed input'
                     line = line[1:] + " " * x
                     line = line[:x]
                     for p in line:

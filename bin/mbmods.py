@@ -36,7 +36,7 @@ def add_man_item_table_pic_link(pif, manitem, flago=flago):
         f'     <td width="136"><center><font face="Courier">{manitem.id}</font></center></td>\n'
         f'     <td width="32">{manitem.flag}</td>\n     <td></td></tr>\n    <tr>\n'
         f'     <td colspan="5"><center>{manitem.lname} {manitem.desclist}</center></td>\n    </tr>\n'
-        '   </table\n>  </center>\n')
+        '   </table>\n  </center>\n')
 
 
 # for templates
@@ -85,82 +85,7 @@ def generate_model_table_pic_link_man_item(pif, mdict, mlist):
 
 
 # mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
-def add_model_table_product_link(pif, mdict):
-    # pif.ren.comment('add_model_table_product_link', mdict)
-
-    ostr = pif.ren.fmt_anchor(mdict.get('anchor'))
-    ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
-    if mdict.get('no_casting'):
-        ostr += mbdata.comment_icon.get('m', '')
-    elif not mdict.get('picture_only'):
-        if mdict.get('no_specific_image'):
-            ostr += mbdata.comment_icon.get('i', '')
-        if mdict.get('no_variation'):
-            ostr += mbdata.comment_icon.get('v', '')
-    ostr += f'</td><td class="modelnumber">{mdict["displayed_id"]}</td><td class="modelicons">'
-    if pif.is_allowed('a'):
-        # breaks packs
-        ref_link = pif.dbh.get_editor_link('lineup_model', {'year': mdict.get('year'), 'mod_id': mdict.get('mod_id')})
-        ostr += pif.ren.format_link(ref_link, pif.ren.fmt_edit('gray'))
-        if 'mod_id' in mdict:
-            fn = mdict.get('mod_id', '').replace('.', '_') + (
-                '-' + mdict.get('picture_id', '') if mdict.get('picture_id', '') else '')
-            ostr += pif.ren.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
-                                        pif.ren.fmt_mini('gray', icon='upload'))
-    if mdict.get('not_made'):
-        ostr += mbdata.comment_icon.get('n', '')
-    if mdict.get('is_reused_product_picture'):  # pragma: no cover
-        ostr += mbdata.comment_icon.get('r', '')
-    if mdict.get('is_product_picture'):
-        ostr += mbdata.comment_icon.get('c', '')
-    ostr += '</td></tr></table>\n'
-
-    if mdict.get('show_vars'):
-        # imgstr descriptions
-        for vdict in mdict['show_vars']:
-            if mdict.get('href'):
-                ostr += '<a href="%(href)s">\n' % mdict
-            # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
-            #          vdict['imgstr'])
-            ostr += f'<center>{vdict["imgstr"]}</center>\n<span class="modelname">{mdict["name"]}</span>'
-            if mdict.get('href'):
-                ostr += '</a>'
-            if mdict.get('subname'):
-                mdict['lname'] += '<br>' + mdict['subname']
-            if mdict.get('subnames'):
-                ostr += "<br>" + "<br>".join(mdict['subnames'])
-            if vdict.get('description'):
-                ostr += '<table class="vartable">'
-                ostr += f'<tr><td class="varentry">{vdict["description"]}</td></tr>'
-                ostr += "</table>"
-            ostr += "</center>"
-    else:
-        if mdict.get('href'):
-            ostr += '<a href="%(href)s">\n' % mdict
-        # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
-        #          mdict['imgstr'])
-        ostr += '<center>%s</center>\n' % (mdict['imgstr'])
-        ostr += '<span class="modelname">' + mdict['name'] + '</span>'
-        if mdict.get('href'):
-            ostr += '</a>'
-        if mdict.get('subname'):
-            ostr += '<br>' + mdict['subname']
-        if mdict.get('subnames'):
-            ostr += "<br>" + "<br>".join(mdict['subnames'])
-        if mdict.get('descriptions'):
-            ostr += '<table class="vartable">'
-            for var in mdict['descriptions']:
-                ostr += '<tr><td class="varentry">%s</td></tr>' % var
-            ostr += "</table>"
-        ostr += "</center>"
-
-    ostr += mdict.get('additional', '')
-    return ostr
-
-
-# mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
 def add_man_item_table_product_link(pif, item):
-    # pif.ren.comment('add_model_table_product_link', item)
 
     ostr = pif.ren.fmt_anchor(item.anchor)
     ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
@@ -414,22 +339,6 @@ def make_adds(pif, mod_id, var_id=''):
     return outd
 
 
-def add_man_item_thumb_pic_link(pif, mitem):
-    ostr = '<table><tr><td class="image">'
-    ostr += pif.ren.format_image_required([mitem.id], prefix=mbdata.IMG_SIZ_TINY, pdir=config.IMG_DIR_MAN)
-    ostr += '</td>\n<td class="text">'
-    if mitem.id:
-        ostr += '<span class="modelname">'
-        ostr += pif.ren.format_link('single.cgi?id=%s' % mitem.id, mitem.id + ': ' + mitem.name)
-        ostr += '</span><br>\n'
-    img = mitem.img
-    if isinstance(img, list):
-        img = '<ul>%s</ul>' % ('\n'.join(['<li>' + x for x in img]))
-    ostr += '<span class="info">See: %s</span>' % img
-    ostr += '</td></tr></table>\n'
-    return ostr
-
-
 def add_model_thumb_pic_link(pif, mdict):
     ostr = '<table><tr><td class="image">'
     ostr += pif.ren.format_image_required([mdict['id']], prefix=mbdata.IMG_SIZ_TINY, pdir=config.IMG_DIR_MAN)
@@ -446,21 +355,36 @@ def add_model_thumb_pic_link(pif, mdict):
     return ostr
 
 
-def add_model_var_pic_link(pif, vdict):
-    vdict['link'] = 'vars.cgi?mod=%s&var=%s' % (vdict['mod_id'], vdict['var'].upper())
-    vdict['categories'] = ''
-    pic_id = vdict['picture_id'] if vdict['picture_id'] else vdict['var']
-    img = pif.ren.find_image_path([vdict['mod_id']], nobase=True, vars=pic_id, prefix=mbdata.IMG_SIZ_SMALL,
-                                  pdir=config.IMG_DIR_MAN)
-    vdict['img'] = pif.ren.fmt_img_src(img) if img else pif.ren.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
+def add_man_item_thumb_pic_link(pif, manitem):
+    img = manitem.img
+    if isinstance(img, list):
+        img = '<ul>%s</ul>' % ('\n'.join(['<li>' + x for x in img]))
 
-    return '''
-<a href="%(link)s">%(var)s<br>
-<center><table class="spicture"><tr><td class="spicture">%(img)s</td></tr></table></center></a>
+    ostr = '<table><tr><td class="image">'
+    ostr += pif.ren.format_image_required([manitem.id], prefix=mbdata.IMG_SIZ_TINY, pdir=config.IMG_DIR_MAN)
+    ostr += '</td>\n<td class="text">'
+    if manitem.id:
+        ostr += '<span class="modelname">'
+        ostr += pif.ren.format_link(f'single.cgi?id={manitem.id}', f'{manitem.id}: {manitem.name}')
+        ostr += '</span><br>\n'
+    ostr += f'<span class="info">See: {img}</span></td></tr></table>\n'
+    return ostr
+
+
+def add_var_item_pic_link(pif, varitem):
+    varitem.link = f'vars.cgi?mod={varitem.mod_id}&var={varitem.var.upper()}'
+    varitem.categories = ''
+    img = pif.ren.find_image_path([varitem.mod_id], nobase=True, vars=varitem.picture_id, prefix=mbdata.IMG_SIZ_SMALL,
+                                  pdir=config.IMG_DIR_MAN)
+    varitem.img = pif.ren.fmt_img_src(img) if img else pif.ren.fmt_no_pic(True, mbdata.IMG_SIZ_SMALL)
+
+    return f'''
+<a href="{varitem.link}">{varitem.var}<br>
+<center><table class="spicture"><tr><td class="spicture">{varitem.img}</td></tr></table></center></a>
 <table class="vartable">
-<tr><td class="varentry"><i>%(text_description)s</i></td></tr>
+<tr><td class="varentry"><i>{varitem.text_description}</i></td></tr>
 </table>
-''' % vdict
+'''
 
 
 def make_page_list(pif, format_type, fmt_link):

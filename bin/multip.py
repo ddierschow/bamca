@@ -390,9 +390,6 @@ def show_pack(pif, pack, picsize):
     return '<center>' + ostr + '</center>'
 
 
-# mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname
-# def add_model_table_product_link(pif, mdict):
-
 def show_pack_model(pif, mdict):
     mdict.anchor = mdict.number = ''
     mdict.descriptions = []

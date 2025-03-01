@@ -605,7 +605,7 @@ def run_product_pics(pif, region):
     syear = 'year.' + pif.form.get_str('syear', '0000')
     eyear = 'year.' + pif.form.get_str('eyear', '9999')
     pages = [x for x in pif.dbh.fetch_page_years() if x['page_info.id'] >= syear and x['page_info.id'] <= eyear]
-    pages = {x['id']: x for x in pages}
+    pages = {x['page_info.id']: x for x in pages}
     gather_rank_pages(pif, pages, region)
     region_list = mbdata.get_region_tree(region)
 
@@ -624,7 +624,7 @@ def run_product_pics(pif, region):
         if pif.form.get_str('enum'):
             max_num = pif.form.get_int('enum')
         lsec.columns = max(lsec.columns, max_num + 1)
-        lran = render.Range(id=pages[page]['id'])
+        lran = render.Range(id=pages[page]['page_info.id'])
         ent = render.Entry(
             text=f'<a href="?year={page[5:]}&region={region}&lty=all&submit=1">{page[5:]}</a>', display_id='1')
         lran.entry.append(ent)
@@ -685,10 +685,10 @@ def gather_rank_pages(pif, pages, region):
 
 def get_product_image(page, mnum):
     if page:
-        if page.section:
-            section = page.section[0]
+        if page['section']:
+            section = page['section'][0]
             # useful.write_comment('get_product_image section', section['page_id'], section['id'])
-            return section['link_format'], page['pic_dir']
+            return section['link_format'], page['page_info.pic_dir']
         # useful.write_comment('get_product_image no section')
     # else:
         # useful.write_comment('get_product_image no page')
@@ -727,7 +727,7 @@ def run_ranks(pif, mnum, region, syear, eyear):
         raise useful.SimpleError('Lineup number must be a number from 1 to 120.  Please back up and try again.')
     pif.ren.comment('lineup.run_ranks', mnum, region, syear, eyear)
 
-    pages = {x['id']: x for x in pif.dbh.fetch_page_years()}
+    pages = {x['page_info.id']: x for x in pif.dbh.fetch_page_years()}
     gather_rank_pages(pif, pages, region)
 
     lmodlist = generate_rank_lineup(pif, mnum, region, syear, eyear)
@@ -1368,8 +1368,9 @@ def detect_lineup(pif, year):
     for vs in pif.dbh.fetch_variation_selects(ref_id='year.' + year):
         # 1|MB1227  |1|2020 Honda E
         casting = pif.dbh.fetch_casting(vs.mod_id)
+        casting = pif.dbh.make_man_item(casting)
         var = pif.dbh.fetch_variation_bare(vs.mod_id, vs.var_id)[0]
-        print(f"{var['variation.note']}|{vs.mod_id}|1|{casting['rawname']}")
+        print(f"{var['variation.note']}|{vs.mod_id}|1|{casting.name}")
 
 
 def import_series(pif, matrix_page, matrix_section, year, lineup_section):

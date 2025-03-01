@@ -209,88 +209,6 @@ def check_attribute_pictures(pif, *filelist):
                 # pif.dbh.add_attribute_picture(rec)
 
 
-'''
-#def run_models(pif, mods):
-#    upics = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
-#    mods = [x[0] for x in mods]
-#    mods.sort()
-#
-#    for mod in mods:
-#        uf, af, mf, cf, sf = mbmods.show_list_var_pics(pif, mod)  # very old signature; rewrite
-#        if (not pif.switch['q']) and \
-#           (not pif.switch['s'] or sf[2] < 100) and \
-#           (not pif.switch['c'] or cf[2] < 100) and \
-#           (not pif.switch['m'] or mf[2] < 100) and \
-#           (not pif.switch['a'] or af[2] < 100):
-#            print('%-8s%5d | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%% | %3d/%3d |%3d%%' %
-#                  ((mod, uf) + af + mf + cf + sf))
-#
-#        upics += uf
-#        spics += sf[1]
-#        spfnd += sf[0]
-#        cpics += cf[1]
-#        cpfnd += cf[0]
-#        mpics += mf[1]
-#        mpfnd += mf[0]
-#        apics += af[1]
-#        apfnd += af[0]
-#
-#    return upics, spics, spfnd, cpics, cpfnd, mpics, mpfnd, apics, apfnd
-#
-#
-#def format_calc(found, pics):
-#    if 0:  # found == pics:
-#        return (found, pics, '--')
-#    if pics:
-#        return (found, pics, 100 * found / pics)
-#    return (0, 0, 100)
-#
-#
-#def old_ckcas(pif):
-#
-#    upics = nmods = spics = spfnd = cpics = cpfnd = mpics = mpfnd = apics = apfnd = 0
-#
-#    if pif.switch['v']:
-#        verbose = True
-#    if pif.filelist:
-#        for spec in pif.filelist:
-#            mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
-#            nmods += len(mods)
-#            uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
-#
-#            upics += uf
-#            spics += sp
-#            spfnd += sf
-#            cpics += cp
-#            cpfnd += cf
-#            mpics += mp
-#            mpfnd += mf
-#            apics += ap
-#            apfnd += af
-#
-#    else:
-#        mods = pif.dbh.dbi.execute("select distinct id from casting")[0]
-#        nmods += len(mods)
-#        uf, sp, sf, cp, cf, mp, mf, ap, af = run_models(pif, mods)
-#
-#        upics += uf
-#        spics += sp
-#        spfnd += sf
-#        cpics += cp
-#        cpfnd += cf
-#        mpics += mp
-#        mpfnd += mf
-#        apics += ap
-#        apfnd += af
-#
-#    print()
-#    print('%7d %5d  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%  %3d/%3d %3d%%' %
-#          ((nmods, upics) +
-#           format_calc(apfnd, apics) + format_calc(mpfnd, mpics) + format_calc(cpfnd, cpics) +
-#           format_calc(spfnd, spics)))
-'''
-
-
 def check_castings(pif):
     # pif.form.set_val('section', 'all')
     sec_ids = [x['section.id'] for x in pif.dbh.fetch_sections(where={'page_id': pif.page_id})]
@@ -816,12 +734,13 @@ def modify_var(var):
 def check_var_data(pif, id_list):
     for mod_id in id_list:
         casting = pif.dbh.fetch_casting(mod_id)
-        print(mod_id, ':', casting['name'])
+        casting = pif.dbh.make_man_item(casting)
+        print(mod_id, ':', casting.name)
         attrs = pif.dbh.fetch_attributes(mod_id=mod_id, with_global=True)
         for attr in attrs:
             attr['attribute.visual'] = 1 if (attr['attribute.flags'] & config.FLAG_ATTRIBUTE_VISUAL) else 0
         attr_dict = {x['attribute.attribute_name']: x for x in attrs}
-        if casting['flags'] & config.FLAG_MODEL_BASEPLATE_VISIBLE:
+        if casting.baseplate_visible:
             attr_dict['base']['attribute.visual'] = 1
         visual_keys = sorted([x['attribute.attribute_name'] for x in attrs if x['attribute.visual']])
         print('    ', visual_keys)

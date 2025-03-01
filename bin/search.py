@@ -23,10 +23,11 @@ def search_id(pif):
     mod = pif.dbh.fetch_casting(cid)
     var_id = pif.form.get_str('var')
     if mod:
+        mod = pif.dbh.make_man_item(mod)
         if var_id:
-            raise useful.Redirect('/cgi-bin/vars.cgi?mod=%s&var=%s' % (mod['id'], var_id))
+            raise useful.Redirect(f'/cgi-bin/vars.cgi?mod={mod.id}&var={var_id}')
         else:
-            raise useful.Redirect('/cgi-bin/single.cgi?id=%s' % mod['id'])
+            raise useful.Redirect(f'/cgi-bin/single.cgi?id={mod.id}')
 
     mod = pif.dbh.fetch_castings_by_alias(cid)
     if len(mod) == 1:

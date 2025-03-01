@@ -391,23 +391,23 @@ def publication_list(pif, mtype):
         raise useful.Redirect('ads.cgi?title=' + pif.form.get_str('title'))
     sobj = pif.form.search('title')
     pif.ren.pic_dir = sec.page_info.pic_dir
-    pubs = pif.dbh.fetch_publications(model_type=mtype, order='base_id.rawname')
+    pubs = pif.dbh.make_pub_items(pif.dbh.fetch_publications(model_type=mtype))
 
     def pub_ent(pub):
-        ret = pub.todict()
-        ret.update(ret['base_id'])
-        if not useful.search_match(sobj, ret['rawname']):
+        ret = {'id': pub.id, 'country': pub.country, 'section_id': pub.section_id, 'isbn': pub.isbn,
+               'first_year': pub.first_year}
+        if not useful.search_match(sobj, pub.name):
             return None
-        ret['name'] = '<a href="pub.cgi?id=%s">%s</a>' % (ret['id'], ret['rawname'].replace(';', ' '))
-        ret['description'] = useful.printablize(ret['description'])
-        if (os.path.exists(os.path.join(pif.ren.pic_dir, ret['id'].lower() + '.jpg')) or
-                glob.glob(os.path.join(pif.ren.pic_dir, '?_' + ret['id'].lower() + '-*.jpg')) or
-                glob.glob(os.path.join(pif.ren.pic_dir, '?_' + ret['id'].lower() + '.jpg'))):
+        ret['name'] = f'<a href="pub.cgi?id={pub.id}">{pub.name}</a>'
+        ret['description'] = useful.printablize(pub.description)
+        if (os.path.exists(os.path.join(pif.ren.pic_dir, pub.id.lower() + '.jpg')) or
+                glob.glob(os.path.join(pif.ren.pic_dir, '?_' + pub.id.lower() + '-*.jpg')) or
+                glob.glob(os.path.join(pif.ren.pic_dir, '?_' + pub.id.lower() + '.jpg'))):
             ret['picture'] = mbdata.comment_icon['c']
         return ret
 
     if 1:
-        entry = [pub_ent(pub) for pub in pubs]
+        entry = [pub_ent(pub) for pub in sorted(pubs, key=lambda x: (x.name, x.description))]
         hdrs = {'description': 'Description', 'first_year': 'Year', 'country': 'Country',
                 'flags': 'Flags', 'model_type': 'Type', 'id': 'ID', 'name': 'Name', 'picture': ''}
         cols = ['picture', 'name', 'description', 'first_year', 'country']
@@ -420,9 +420,9 @@ def publication_list(pif, mtype):
     cols = 4
 
     def pub_text_link(pub):
-        pic = pif.ren.fmt_img(pub['id'], prefix='s')
-        name = pic + '<br>' + pub['name'] if pic else pub['name']
-        return render.Entry(text=pif.ren.format_link("makes.cgi?make=" + pub['id'], name))
+        pic = pif.ren.fmt_img(pub.id, prefix='s')
+        name = f'{pic}<br>{pub.name}' if pic else pub.name
+        return render.Entry(text=pif.ren.format_link(f"makes.cgi?make={pub.id}", name))
 
     ents = [pub_text_link(pub_ent(x)) for x in pubs]
     llineup = render.Matrix(
@@ -435,30 +435,28 @@ def make_relateds(pif, ref_id, pub_id, imgs):
     pic = imgs[0] if imgs else ''
     relateds = pif.dbh.fetch_casting_relateds(pub_id, section_id='pub')
     vs = pif.dbh.fetch_variation_selects_by_ref(ref_id, pub_id)
-    retval = []
-    for related in relateds:
-        related['id'] = related['casting_related.related_id']
-        vars = [x for x in vs if x['variation_select.mod_id'] == related['id']]
+    vars = [x for x in vs if x['variation_select.mod_id'] == pub_id]
+
+    def prep_related(related):
+        pub_id = related['casting_related.related_id']
+        name = related['base_id.rawname'].replace(';', ' ')
         descs = [x.get('variation.text_description', '') for x in vars] + related.get(
             'casting_related.description', '').split(';')
-        related = pif.dbh.modify_man_item(related)
-        related['descs'] = [x for x in descs if x]
-        related['imgid'] = [related['id']]
-        for s in related['descs']:
+        imgid = [pub_id]
+        for s in descs:
             if s.startswith('same as '):
-                related['imgid'].append(s[8:])
-        related['img'] = pif.ren.format_image_required(
-            related['imgid'], made=related['made'], pdir=config.IMG_DIR_MAN, vars=[
+                imgid.append(s[8:])
+        descs = '<br>'.join([f'<div class="varentry">{x}</div>' for x in descs if x])
+
+        img = pif.ren.format_image_required(
+            imgid, made=not related['base_id.flags'] & config.FLAG_MODEL_NOT_MADE, pdir=config.IMG_DIR_MAN, vars=[
                 x['variation_select.var_id'] for x in vars], largest=mbdata.IMG_SIZ_SMALL)
-        if related['link']:
-            related['link'] = '%s=%s&dir=%s&pic=%s&ref=%s&sec=%s' % (
-                related['link'], related['linkid'], pif.ren.pic_dir, pic, ref_id, pub_id)
-            related['img'] = '<a href="%(link)s">%(img)s</a>' % related
-        related['descs'] = '<br>'.join(['<div class="varentry">%s</div>' % x for x in related['descs']])
-        retval.append(render.Entry(
-            text='<span class="modelnumber">%(id)s</span><br>\n%(img)s<br>\n<b>%(name)s</b>\n<br>%(descs)s\n' %
-            related))
-    return retval
+        img = f'<a href="single.cgi?id={pub_id}&dir={pif.ren.pic_dir}&pic={pic}&ref={ref_id}&sec={pub_id}">{img}</a>'
+
+        return render.Entry(
+            text=f'<span class="modelnumber">{pub_id}</span><br>\n{img}<br>\n<b>{name}</b>\n<br>{descs}\n')
+
+    return [prep_related(x) for x in relateds]
 
 
 def single_publication(pif, pub_id):
@@ -559,7 +557,7 @@ def ads_main(pif):
             ostr += ' ' + cmt
         ostr += cyflag
         if pif.is_allowed('ma'):
-            ostr += ' ' + pif.ren.format_link('edlinks.cgi?id=' + ent['id'], pif.ren.fmt_edit())
+            ostr += ' ' + pif.ren.format_link(f'edlinks.cgi?id={ent["id"]}', pif.ren.fmt_edit())
         return ostr
 
     # id page_id section_id display_order flags associated_link last_status link_type country url name description note
@@ -611,10 +609,10 @@ def ads_main(pif):
         return name + post
 
     fields = {
-        'id': 'id',
+        'id': 'base_id.id',
         'description': 'base_id.description',
         'first_year': 'base_id.first_year',
-        'country': 'country',
+        'country': 'publication.country',
         'model_type': 'base_id.model_type',
         'rawname': 'base_id.rawname',
     }
@@ -622,7 +620,7 @@ def ads_main(pif):
     def mangle_object(x):
         return {y: x[fields[y]] for y in fields}
 
-    links = {x.id: mangle_object(x)
+    links = {x['base_id.id']: mangle_object(x)
              for x in pif.dbh.fetch_publications(model_type='AD', order='base_id.first_year,base_id.id')}
     pic_ims = ad_images(pic_dir)
     missing_pics = sorted(set(links.keys()) - set(pic_ims))

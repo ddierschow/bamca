@@ -1019,8 +1019,8 @@ def search_name(pif, targ):
 def run_text_search(pif, *args):
     if not args:
         return
-    mods = [pif.dbh.modify_man_item(x) for x in search_name(pif, args)]
-    mods.sort(key=lambda x: x['id'])
+    mods = [pif.dbh.make_man_item(x) for x in search_name(pif, args)]
+    mods.sort(key=lambda x: x.id)
     for mod in mods:
         print_model(pif, mod)
 
@@ -1168,8 +1168,8 @@ def update_descriptions(pif, *args):
 
 
 def check_castings(pif, *args):
-    mods = pif.dbh.depref('casting', pif.dbh.fetch_casting_list())
-    mods_d = {x['id']: x for x in mods}
+    mods = pif.dbh.make_man_items(pif.dbh.fetch_casting_list())
+    mods_d = {x.id: x for x in mods}
     mods_l = args if args else sorted(mods_d.keys())
     vt1 = set(mbdata.model_type_chars_1)
     vt2 = set(mbdata.model_type_chars_2)
@@ -1178,22 +1178,21 @@ def check_castings(pif, *args):
         if not mod:
             print(mod_id, 'not found')
             continue
-        if not (mod['base_id.flags'] & config.FLAG_MODEL_NOT_MADE):
-            if not mod['vehicle_type']:
+        if not (mod.flags & config.FLAG_MODEL_NOT_MADE):
+            if not mod.vehicle_type:
                 print(mod_id, 'has blank vt')
-            elif len(set(mod['vehicle_type']) & vt1) not in (1, 2):
-                print(mod_id, 'has bad vt 1 :', set(mod['vehicle_type']) & vt1)
-            if len(set(mod['vehicle_type']) & vt2) > 2:
-                print(mod_id, 'has bad vt 2 :', set(mod['vehicle_type']) & vt2)
-            if set(mod['vehicle_type']) - (vt1 | vt2):
-                print(mod_id, 'has vt with bad chars :', set(mod['vehicle_type']) - (vt1 | vt2))
-        name = mod.get('base_id.rawname', '')
-        if not name:
+            elif len(set(mod.vehicle_type) & vt1) not in (1, 2):
+                print(mod_id, 'has bad vt 1 :', set(mod.vehicle_type) & vt1)
+            if len(set(mod.vehicle_type) & vt2) > 2:
+                print(mod_id, 'has bad vt 2 :', set(mod.vehicle_type) & vt2)
+            if set(mod.vehicle_type) - (vt1 | vt2):
+                print(mod_id, 'has vt with bad chars :', set(mod.vehicle_type) - (vt1 | vt2))
+        if not mod.name:
             print(mod_id, 'has blank name')
         else:
-            for x in pif.dbh.icon_name(name):
+            for x in pif.dbh.icon_name(mod.rawname):
                 if len(x.strip()) > 36:
-                    print(mod_id, 'has illegal name:', name)
+                    print(mod_id, 'has illegal name:', mod.rawname)
                     break
 
 

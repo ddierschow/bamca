@@ -40,26 +40,24 @@ def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
 def make_compares(pif, mod_id, relateds):
     return [
         pif.ren.format_link('/cgi-bin/compare.cgi#' + x['casting_related.model_id'], 'Comparisons for this model')
-        for x in relateds
+        for x in relateds if x['casting_related.section_id'] in ['sf', 'rw', 'tr']
     ]
 
 
 def make_relateds(pif, mod_id, relateds):
-    # relateds = pif.dbh.fetch_casting_relateds(mod_id, section_id='single')
-    for related in relateds:
-        related['id'] = related['casting_related.related_id']
-        related = pif.dbh.modify_man_item(related)
-        related['descs'] = related.get('casting_related.description', '').split(';')
-        related['imgid'] = [related['id']]
-        for s in related['descs']:
-            if s.startswith('same as '):
-                related['imgid'].append(s[8:])
-        related['img'] = pif.ren.format_image_required(
-            related['imgid'], made=not (related['flags'] & config.FLAG_MODEL_NOT_MADE),
+
+    def prep_related(related):
+        mod_id = related['casting_related.related_id']
+        name = related['base_id.rawname'].replace(';', ' ')
+        descs = [x for x in related.get('casting_related.description', '').split(';') if x]
+        img = pif.ren.format_image_required(
+            [mod_id] + [x[8:] for x in descs if x.startswith('same as ')],
+            made=not (related['base_id.flags'] & config.FLAG_MODEL_NOT_MADE),
             pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
-        if related['link']:
-            related['img'] = '<a href="%(link)s=%(linkid)s">%(img)s</a>' % related
-    return relateds
+        img = f'<a href="single.cgi?id={mod_id}">{img}</a>'
+        return {'id': mod_id, 'img': img, 'name': name, 'descs': descs}
+
+    return [prep_related(x) for x in relateds if x['casting_related.section_id'] == 'single']
 
 
 def show_single_link(pif, href, names):
@@ -500,8 +498,7 @@ def show_single(pif):
     relateds = pif.dbh.fetch_casting_relateds(mod_id)
     aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
     mack_nums = mbmods.get_mack_numbers(pif, mod_id, model.model_type, aliases)
-    if model:
-        model.notes = '<br>'.join((model.notes).split(';'))
+    model.notes = '<br>'.join(model.notes.split(';'))
 
     # ------- render ------------------------------------
 

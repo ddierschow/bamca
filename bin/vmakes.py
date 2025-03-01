@@ -152,13 +152,13 @@ def add_casting_make(pif, mod_id, make_id):
         print(make['vehicle_make.name'])
         print(pif.dbh.add_casting_make(mod_id, make_id))
         mod = pif.dbh.fetch_casting(mod_id)
-        if not mod['make']:
+        if not mod['casting.make']:
             print(pif.dbh.write_casting({'make': make_id}, mod_id))
     elif make_id == 'unl':
         print('Unlicensed')
         print(pif.dbh.add_casting_make(mod_id, make_id))
         mod = pif.dbh.fetch_casting(mod_id)
-        if not mod['make']:
+        if not mod['casting.make']:
             print(pif.dbh.write_casting({'make': make_id}, mod_id))
     else:
         print(make_id, 'not found')

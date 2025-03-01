@@ -9,19 +9,21 @@ import useful
 
 
 def create_section(pif, attribute_type):
+
     def prep_mod(mod):
-        mod = pif.dbh.modify_man_item(mod)
-        mod['img'] = '/'.join(pif.ren.find_image_file(
+        manitem = pif.dbh.make_man_item(mod)
+        manitem.img = '/'.join(pif.ren.find_image_file(
             mod['attribute_picture.mod_id'] + '-' + mod['attribute_picture.picture_id'],
             prefix=attribute_type, pdir=config.IMG_DIR_ADD))
-        mod['img'] = pif.ren.format_link('/' + mod['img'], txt=mod['attribute_picture.description'])
-        return mod
+        manitem.img = pif.ren.format_link('/' + manitem.img, txt=mod['attribute_picture.description'])
+        return manitem
+
     mods = pif.dbh.fetch_attribute_pictures_by_type(attribute_type, 'attribute_picture.mod_id')
-    sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    sect = pif.dbh.make_sec_item(pif.dbh.fetch_sections({'page_id': pif.page_id})[0])
     lsec = render.Section(
         section=sect,
         range=[render.Range(entry=[
-            render.Entry(text=mbmods.add_model_thumb_pic_link(pif, prep_mod(x))) for x in mods])]
+            render.Entry(text=mbmods.add_man_item_thumb_pic_link(pif, prep_mod(x))) for x in mods])]
     )
     return lsec
 
@@ -57,10 +59,10 @@ def code2(pif):
         return code2_model(pif)
 
     def prep_mod(pif, mod, cat):
-        mod = pif.dbh.modify_man_item(mod)
-        mod['img'] = pif.ren.format_link('?mod_id=%s&cat=%s' % (
-            mod['id'], cat), txt='%d Variation%s' % (mod['count(*)'], 's' if mod['count(*)'] != 1 else ''))
-        return mbmods.add_model_thumb_pic_link(pif, mod)
+        count = mod['count(*)']
+        manitem = pif.dbh.make_man_item(mod)
+        manitem.img = pif.ren.format_link(f'?mod_id={manitem.id}&cat={cat}', txt=f'{count} Variation{useful.plural(count)}')
+        return mbmods.add_man_item_thumb_pic_link(pif, manitem)
 
     section_id = pif.form.get_str('section')
     pif.ren.print_html()
@@ -70,13 +72,13 @@ def code2(pif):
     pif.ren.set_button_comment(pif)
 
     llineup = render.Matrix()
-    for sect in pif.dbh.fetch_sections({'page_id': pif.page_id}):
+    for sect in pif.dbh.make_sec_items(pif.dbh.fetch_sections({'page_id': pif.page_id})):
         lsec = render.Section(section=sect)
         if not section_id or section_id == lsec.id:
             if section_id:
                 pif.ren.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % section_id, lsec.name)
-            mods = pif.dbh.fetch_castings_by_category(sect['page_id'], sect['category'])
-            lsec.range = [render.Range(entry=[render.Entry(text=prep_mod(pif, mod, sect['category'])) for mod in mods])]
+            mods = pif.dbh.fetch_castings_by_category(sect.page_id, sect.category)
+            lsec.range = [render.Range(entry=[render.Entry(text=prep_mod(pif, mod, sect.category)) for mod in mods])]
             llineup.section.append(lsec)
 
     return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
@@ -91,21 +93,18 @@ def code2_model(pif):
     pif.ren.hierarchy_append('/cgi-bin/code2.cgi', 'Code 2 Models')
     pif.ren.set_button_comment(pif)
 
-    mod = pif.dbh.modify_man_item(pif.dbh.fetch_casting(mod_id))
+    manitem = pif.dbh.make_man_item(pif.dbh.fetch_casting(mod_id))
     img = pif.ren.format_image_required(mod_id, largest=mbdata.IMG_SIZ_MEDIUM, pdir=config.IMG_DIR_MAN)
-    header = '<center>%s<br><b>%s: %s</b></center><p>' % (img, mod['id'], mod['name'])
+    header = f'<center>{img}<br><b>{manitem.id}: {manitem.name}</b></center><p>'
     sect = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id)
     if not sect:
         raise useful.SimpleError('No models found.')
     lsec = render.Section(section=sect)
-    pif.ren.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % lsec.id, lsec.name)
-    pif.ren.hierarchy_append('/cgi-bin/code2.cgi?mod_id=%s&cat=%s' % (mod['id'], cat_id), mod['id'])
-    lsec.range = [render.Range(entry=[])]
-    mvars = pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id)
-    for var in mvars:
-        # useful.write_comment(var)
-        entry = render.Entry(text=mbmods.add_model_var_pic_link(pif, pif.dbh.depref('v', var)))
-        lsec.range[0].entry.append(entry)
+    pif.ren.hierarchy_append(f'/cgi-bin/code2.cgi?section={lsec.id}', lsec.name)
+    pif.ren.hierarchy_append(f'/cgi-bin/code2.cgi?mod_id={manitem.id}&cat={cat_id}', manitem.id)
+    lsec.range = [render.Range(entry=[
+        render.Entry(text=mbmods.add_var_item_pic_link(pif, x))
+        for x in pif.dbh.make_var_items(pif.dbh.fetch_variation_by_select(mod_id, pif.page_id, '', category=cat_id))])]
 
     llineup = render.Matrix(section=[lsec], header=header)
     return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
@@ -117,8 +116,8 @@ def plants(pif):
         return plant_models(pif)
 
     def prep_entry(pif, name, code):
-        img = pif.ren.format_image_art('flag_' + code) if code else pif.ren.fmt_no_pic()
-        return render.Entry(text=pif.ren.format_link('?plant=%s' % (code if code else 'unset'), img + '<br>' + name))
+        img = pif.ren.format_image_art(f'flag_{code}') if code else pif.ren.fmt_no_pic()
+        return render.Entry(text=pif.ren.format_link(f'?plant={code or "unset"}', f'{img}<br>{name}'))
 
     pif.ren.print_html()
     pif.ren.hierarchy_append('/', 'Home')
@@ -127,8 +126,7 @@ def plants(pif):
     pif.ren.set_button_comment(pif)
 
     llineup = render.Matrix(section=[render.Section(columns=3, range=[
-        render.Range(id='ix', entry=[prep_entry(pif, *x) for x in mbdata.plants])
-    ])])
+        render.Range(id='ix', entry=[prep_entry(pif, *x) for x in mbdata.plants])])])
 
     return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
@@ -144,12 +142,10 @@ def plant_models(pif):
     pif.ren.hierarchy_append('/', 'Home')
     pif.ren.hierarchy_append('/database.php', 'Database')
     pif.ren.hierarchy_append('/cgi-bin/plants.cgi', 'By Manufacturing Plant')
-    pif.ren.hierarchy_append('/cgi-bin/plants.cgi?id=%s' % plant_id, plant_name)
+    pif.ren.hierarchy_append(f'/cgi-bin/plants.cgi?id={plant_id}', plant_name)
 
     entries = []
-    mmods = pif.dbh.fetch_castings_by_plant(plant_name if plant_id else '')
-    for mmod in mmods:
-        mod = pif.dbh.make_man_item(mmod)
+    for mod in pif.dbh.make_man_items(pif.dbh.fetch_castings_by_plant(plant_name if plant_id else '')):
         mod.img = pif.ren.format_link(
             f'/cgi-bin/vars.cgi?manufacture={plant_d.get(plant_id, "unset")}&mod={mod.id}',
             txt=f'{mod.count} Variation{useful.plural(mod.count)}')
@@ -170,22 +166,19 @@ def custom_create_section(pif, attribute_type):
 
     def prep_mod(attr_pic):
         mod_id = attr_pic['attribute_picture.mod_id']
-        img_id = mod_id.lower() + (
-            '-' + attr_pic['attribute_picture.picture_id'] if attr_pic['attribute_picture.picture_id'] else '')
-        add = adds.get(attr_pic['attribute_picture.attr_type'], 'Picture%s')
+        img_id = mod_id.lower() + ('-' + attr_pic['attribute_picture.picture_id'] or '')
+        add = adds.get(attr_pic['attribute_picture.attr_type'], 'Picture%s') % {'s': ''}
         img = pif.ren.find_image_path(
             img_id, prefix=attr_pic['attribute_picture.attr_type'], pdir=config.IMG_DIR_ADD)
-        # caption = attr_pic['attribute_picture.description']
         img_credit = credits.get(img_id, '')
         ostr = ''
         if img:
-            ostr += '<center><h3>%s</h3>\n' % add % {'s': ''}
-            ostr += '<table><tr><td>' + pif.ren.fmt_img_src(img) + '<br>'
+            ostr += f'<center><h3>{add}</h3>\n'
+            ostr += f'<table><tr><td>{pif.ren.fmt_img_src(img)}<br>'
             if img_credit:
                 ostr += f'<div class="credit">Photo credit: {img_credit}</div>'
             ostr += '</td></tr></table>'
-            if attr_pic['attribute_picture.description']:
-                ostr += attr_pic['attribute_picture.description']
+            ostr += (attr_pic['attribute_picture.description'] or '')
             ostr += '<p></center>\n'
         return (''' <a onclick="init_modal('m.%s');" class="modalbutton">%s</a>\n''' % (
             img_id, attr_pic['attribute_picture.description']), pif.ren.format_modal('m.' + img_id, ostr))
@@ -194,18 +187,18 @@ def custom_create_section(pif, attribute_type):
     modd = {}
     modals = []
     for mod in mods:
-        mod_id = mod['attribute_picture.mod_id']
-        if mod_id not in modd:
-            modd[mod_id] = pif.dbh.modify_man_item(mod)
-            modd[mod_id]['img'] = []
+        manitem = pif.dbh.make_man_item(mod)
+        if manitem.id not in modd:
+            modd[manitem.id] = manitem
+            modd[manitem.id].img = []
         img, modal = prep_mod(mod)
-        modd[mod_id]['img'].append(img)
+        modd[manitem.id].img.append(img)
         modals.append(modal)
     sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     return render.Section(
         section=sect,
         range=[render.Range(
-            entry=[render.Entry(text=mbmods.add_model_thumb_pic_link(pif, mod[1])) for mod in sorted(modd.items())])],
+            entry=[render.Entry(text=mbmods.add_man_item_thumb_pic_link(pif, v)) for k, v in sorted(modd.items())])],
         footer='\n'.join(modals)
     )
 

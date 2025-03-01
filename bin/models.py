@@ -42,6 +42,7 @@ class ManItem(object):
         self.shown_id = ''
         self.subname = ''
         self.unlicensed = '?'
+        self.vars = 0
         self.variation_digits = 2
         self.vehicle_type = ''
         self.visual_id = ''
@@ -61,13 +62,13 @@ class ManItem(object):
                 self.name = self.rawname.replace(';', ' ')
                 self.description = mod['base_id.description'] or ''
 
-                self.scale = mod['casting.scale']
-                self.vehicle_type = mod['casting.vehicle_type']
-                self.country = mod['casting.country']
-                self.make = mod['casting.make']
+                self.scale = mod.get('casting.scale') or ''
+                self.vehicle_type = mod.get('casting.vehicle_type') or ''
+                self.country = mod.get('casting.country') or ''
+                self.make = mod.get('casting.make') or ''
                 self.box_styles = mod.get('casting.box_styles') or ''
                 self.notes = mod.get('casting.notes') or ''
-                self.section_id = mod['casting.section_id']
+                self.section_id = mod.get('casting.section_id') or ''
                 self.format_description = mod.get('casting.format_description') or ''
                 self.format_body = mod.get('casting.format_body') or ''
                 self.format_interior = mod.get('casting.format_interior') or ''
@@ -87,6 +88,9 @@ class ManItem(object):
                     if self.ref_id != self.id:
                         self.description += ';same as ' + self.ref_id
                     # self.vehicle_type = mod['vehicle_type'] or ''
+
+                self.vars = mod.get('vars', 0)  # for single only
+
             self.pack = PackItem(mod)
             self.pub = PubItem(mod)
             self.count = mod.get('count') or 0
@@ -134,7 +138,7 @@ class ManItem(object):
             self.country = mod.country
             self.make = mod.make
             self.box_styles = mod.get('box_styles') or ''
-            self.notes = mod.get('notes') or ''
+            self.notes = mod.notes or ''
             self.section_id = mod.section_id
             self.variation_digits = mod.variation_digits
             if isinstance(mod, tables.Results) and mod.get('alias.id'):
@@ -509,11 +513,22 @@ class PubItem(object):
             self.country = mod.get('publication.country') or ''
             self.section_id = mod.get('publication.section_id') or ''
             self.isbn = mod.get('publication.isbn') or ''
+            self.first_year = mod['base_id.first_year'] or ''
+            self.flags = mod['base_id.flags'] or 0
+            self.model_type = mod['base_id.model_type'] or ''
+            self.rawname = mod['base_id.rawname'] or ''
+            self.description = mod['base_id.description'] or ''
         else:
             self.id = mod.id or ''
             self.country = mod.country or ''
             self.section_id = mod.section_id or ''
             self.isbn = mod.isbn or ''
+            self.first_year = mod.first_year
+            self.flags = mod.flags
+            self.model_type = mod.model_type
+            self.rawname = mod.rawname
+            self.description = mod.description
+        self.name = self.rawname.replace(';', ' ')
 
     def __str__(self):
         return f'PubItem: {self.id}'

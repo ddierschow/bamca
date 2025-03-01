@@ -1146,8 +1146,9 @@ def promote_picture(pif, mod_id, var_id):
                         config.IMG_DIR_MAN[1:], mod_id))
 
     model = pif.dbh.fetch_casting(mod_id)
-    pif.ren.message('Icon:', mod_id, '|'.join(model['iconname']))
-    if image := iconner(os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg'), model['iconname']):
+    model = pif.dbh.make_man_item(model)
+    pif.ren.message('Icon:', mod_id, '|'.join(model.iconname))
+    if image := iconner(os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg'), model.iconname):
         open(os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i_' + mod_id + '.gif'), 'wb').write(image)
 
 

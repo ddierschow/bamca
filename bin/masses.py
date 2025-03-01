@@ -447,6 +447,7 @@ def add_lm_enter(pif):
     tab = pif.dbh.get_table_data('lineup_model')
     mod_id = pif.form.get_raw('mod_id')
     mod = pif.dbh.fetch_casting(mod_id)
+    mod = pif.dbh.modify_man_item(mod)
     number = pif.form.get_int('number')
 
     colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
@@ -809,6 +810,7 @@ def add_var_info(pif):
     mod_id = pif.form.get_raw('mod_id')
     date = pif.form.get_raw('date')
     mod = pif.dbh.fetch_casting(mod_id)
+    mod = pif.dbh.modify_man_item(mod)
     var_id = pif.form.get_raw('var')
     if not mod:
         mod = pif.dbh.fetch_casting_by_id_or_alias(mod_id)
@@ -1547,11 +1549,12 @@ class LinkScraper(object):
             return ''
         page_id = page_id[7:]
         mod = self.pif.dbh.fetch_casting(page_id)
+        mod = self.pif.dbh.modify_man_item(mod)
         if mod:
             return 'single.' + mod['id']
         mod = self.pif.dbh.fetch_casting_by_alias(page_id)
         if mod:
-            return 'single.' + mod['id']
+            return 'single.' + mod['casting.id']
         return ''
 
     def scrape_link(self, url, lnk, txt):
@@ -2593,6 +2596,109 @@ def period_edit_issue(pif, period_id):
 
 def period_save(pif):
     pass
+
+
+def modify_man_items(mods):
+    return [modify_man_item(mod) for mod in mods]
+
+
+id_re = re.compile(r'''(?P<a>[a-zA-Z]*)(?P<d>\d*)''')
+
+
+def modify_man_item(mod):
+    # Pulled this out of dbhand, as it's now only used here.  To be deprecated.
+
+    def depref(tables, results):
+        if isinstance(tables, str):
+            tables = tables.split(',')
+        if results is None:
+            # Aw, come on.
+            return None
+        if results:
+            if isinstance(results, dict):
+                for table in tables:
+                    keys = list(results.keys())
+                    for key in keys:
+                        if key.startswith(table + '.'):
+                            if not results.get(key[len(table) + 1:]):
+                                results[key[len(table) + 1:]] = results[key]
+                            if results[key[len(table) + 1:]] == results[key]:
+                                del results[key]
+            else:
+                for result in results:
+                    depref(tables, result)
+        return results
+
+    def default_id(id):
+        id_m = id_re.match(id)
+        if not id_m:
+            return id_m
+        return id_m.group('a').upper() + '-' + id_m.group('d')
+
+    def icon_name(name):
+        if not name:
+            return ['']
+        name = mbdata.paren_re.sub(' ', name).replace('*', '')
+
+        def mangle_line(n):
+            if n.startswith('-'):
+                n = name[1:]
+            if n.endswith('/'):
+                n = n[:-1]
+            return n.strip()
+
+        return [mangle_line(n) for n in name.split(';')]
+
+    def short_name(name):
+        if not name:
+            return ''
+        if name.startswith('('):
+            name = name[name.find(')') + 2:]
+        if '(' in name:
+            name = name[:name.find('(') - 1] + name[name.find(')') + 1:]
+        name = name.replace(';', ' ')
+        if name.startswith('-'):
+            name = name[1:]
+        if name.endswith('/'):
+            name = name[:-1]
+        if name.endswith('-'):
+            name = name[:-1]
+        name = name.strip().replace('*', '')
+        return name
+
+    mod = depref('casting,publication,base_id', mod)
+    # mod = tables.Results('casting', [mod])
+    # mods = mod.depref('publication,base_id')
+    # mod = mods[0]
+    mod.setdefault('make', '')
+    mod['subname'] = mod.get('pack_model.subname', '')
+    mod['link'] = "single.cgi?id"
+
+    if mod.get('pack.id'):
+        mod['name'] = mod.get('rawname', '').replace(';', ' ')
+        mod['unlicensed'] = '?'
+        mod.setdefault('description', '')
+        mod['visual_id'] = default_id(mod['id'])
+        mod['link'] = "packs.cgi?id"
+        mod['vehicle_type'] = ''
+    elif mod.get('id'):
+        mod['name'] = mod.get('rawname', '').replace(';', ' ')
+        mod['unlicensed'] = {'unl': '-', '': '?'}.get(mod['make'], ' ')
+        mod.setdefault('description', '')
+        mod['visual_id'] = default_id(mod['id'])
+    else:
+        mod['id'] = mod['visual_id'] = ''
+        mod['name'] = ''
+        mod['unlicensed'] = '?'
+        mod['description'] = ''
+    mod['filename'] = mod['id'].lower()
+    mod['revised'] = (((mod.get('flags', 0) if mod else 0) or 0) & config.FLAG_MODEL_CASTING_REVISED) != 0
+    mod['linkid'] = mod.get('mod_id', mod.get('id'))
+    mod['descs'] = [x for x in mod['description'].split(';') if x]
+    mod['iconname'] = icon_name(mod.get('rawname', ''))
+    mod['shortname'] = short_name(mod.get('rawname', ''))
+    mod['casting_type'] = mbdata.model_types.get(mod.get('model_type', 'SF'), 'Casting')
+    return mod
 
 
 # ------- ----------------------------------------------------------

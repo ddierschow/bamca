@@ -23,6 +23,10 @@ class DB(object):
         self.lastrowid = None
         self.lastdescription = None
 
+    @property
+    def mock(self):
+        return '/*mock*/ ' if self.nowrites else ''
+
     def set_config(self, cfg):
         if cfg['dbuser'] in self.dbcs:
             self.db = self.dbcs[cfg['dbuser']]
@@ -52,16 +56,15 @@ class DB(object):
             query = query.split(None, 1) + ['']
             query = query[0] + ' /* ' + tag + ' */ ' + query[1]
         if verbose:
-            useful.write_comment('DB.execute q : "{}"'.format(query))
+            useful.write_comment(f'DB.execute q : "{query}"')
             if args:
                 if logargs:
-                    useful.write_comment('     args :', args)
+                    useful.write_comment.info(f'     args : {args}')
                 else:
-                    useful.write_comment('     args :', len(args), 'redacted')
+                    useful.write_comment.info(f'     args : {len(args)} redacted')
             sys.stdout.flush()
         if self.logger:
-            self.logger.info('q {}{} {}'.format(
-                '/*mock*/ ' if self.nowrites else '', os.environ.get('REMOTE_ADDR', ''), query))
+            self.logger.info(f'q {self.mock}{os.environ.get("REMOTE_ADDR", "")} {query}')
             if args:
                 if logargs:
                     self.logger.info(f'     args : {args}')
@@ -71,9 +74,7 @@ class DB(object):
         try:
             nrows = cu.execute(query, args)
         except Exception:
-            self.logger.info('x %s%s %s' %
-                             ('/*mock*/ ' if self.nowrites else '',
-                              os.environ.get('REMOTE_ADDR', ''), traceback.format_exc(0)))
+            self.logger.info(f'x {self.mock}{os.environ.get("REMOTE_ADDR", "")} {traceback.format_exc(0)}')
             if verbose:
                 traceback.print_exc()
             return ([], cu.description, -1)
@@ -85,9 +86,7 @@ class DB(object):
         self.lastdescription = cu.description
         self.lastresp = resp
         cu.close()
-        self.logger.info('a %s%s %s' %
-                         ('/*mock*/ ' if self.nowrites else '',
-                          os.environ.get('REMOTE_ADDR', ''), f"{len(resp)} rows {self.lastrowid} id"))
+        self.logger.info(f'a {self.mock}{os.environ.get("REMOTE_ADDR", "")} {len(resp)} rows {self.lastrowid} id')
         return (resp, self.lastdescription, self.lastrowid)
 
     def mockexecute(self, query, args=None, logargs=None, verbose=None, tag=''):
@@ -274,7 +273,7 @@ class DB(object):
             for key in inits:
                 cols.append(key)
                 vals.append(self.db.literal(inits[key]))
-            query += 'into %s (%s) values (%s)' % (table, ','.join(cols), ','.join(vals))
+            query += f'into {table} ({",".join(cols)}) values ({",".join(vals)})'
             if self.nowrites:
                 res, desc, lid = self.mockexecute(query, args, logargs, verbose=verbose)
             else:

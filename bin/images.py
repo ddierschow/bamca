@@ -1261,7 +1261,8 @@ def pictures_main(pif):
 def create_icon(pif, mod_id, name, title='mb2', isizex=100, isizey=100):
     if not name:
         model = pif.dbh.fetch_casting(mod_id)
-        name = model['iconname']
+        model = pif.dbh.make_man_item(model)
+        name = model.iconname
     logo = '.' + config.IMG_DIR_ART + '/mb2.gif'
     print(' ', mod_id, '|'.join(name))
 
@@ -1272,37 +1273,22 @@ def create_icon(pif, mod_id, name, title='mb2', isizex=100, isizey=100):
         open(icon_file, 'wb').write(image)
 
 
-def get_man_dict(pif):
-    manlist = pif.dbh.fetch_casting_list()
-    mans = dict()
-    for llist in manlist:
-        llist = pif.dbh.modify_man_item(llist)
-        mans[llist['id'].lower()] = llist
-    return mans
-
-
 def icon_main(pif, *mod_ids):
     title = pif.switch['b'][-1] if pif.switch['b'] else 'mb2'
-    mandict = pif.dbh.fetch_casting_dict()
+    name = pif.switch['n'][-1].split(';') if pif.switch['n'] else None
+    mandict = {x['base_id.id'].lower(): pif.dbh.make_man_item(x) for x in pif.dbh.fetch_casting_list()}
 
     if mod_ids and mod_ids[0] == '-a':
-        for man in mandict:
-            name = mandict[man]['iconname']
-            if pif.switch['n']:
-                name = pif.switch['n'][-1].split(';')
-            create_icon(pif, man, name, title)
+        for manitem in mandict.values():
+            create_icon(pif, manitem.id.lower(), name or manitem.iconname, title)
     elif mod_ids:
         for man in mod_ids:
-            man = man.lower()
-            if man in mandict:
-                name = mandict[man]['iconname']
-                if pif.switch['n']:
-                    name = pif.switch['n'][-1].split(';')
-                create_icon(pif, man, name, title)
+            if manitem := mandict.get(man.lower()):
+                create_icon(pif, man.lower(), name or manitem.iconname, title)
             else:
                 print(man, 'not in list')
     else:
-        print('huh?')  # print mandict
+        print('huh?')
 
 
 # -- bits

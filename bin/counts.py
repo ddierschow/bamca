@@ -122,6 +122,7 @@ def count_lineups(pif):
 
 def count_pub(pif):
     recs = pif.dbh.fetch_publications()
+    recs = pif.dbh.tables.Results('publication', recs)
     count = 0
     count += count_combo(
         config.IMG_DIR_CAT, [mbdata.IMG_SIZ_SMALL, ''], [x['base_id.id'].lower() for x in recs], ['', '_*'])
