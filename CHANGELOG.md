@@ -1,7 +1,27 @@
-### 7.7.2  - 2025-02-27o
+### 7.8.0  - 2025-03-02
+
+- Create new objects that will look more like ORM objects
+- Remove Results object and move remaining calls away from it
+- Redo anchor ids for lineup entries
+- Remove modify_man_item (except from masses, to come later)
+- Make dbintf a little prettier
+- Rewrite more string formatting
+- Add star definitions to packs
+- Sort attributes on var list.
+- Added credit hints to showing pictures in filsys
+- Add support for pulling diffs
+- Cleaned up var counts
+- Made varias do fewer queries.
+- Converted listtype to an enum
+- Tried to add post blocks to tracebacks (might not work)
+- Added model type search
+- Rename models.py to mbmods.py
+
+### 7.7.2  - 2025-02-27
 
 - Lots of tweaks and bugfixes
 - Allow creation of pages omitting differences between beta and prod, for comparison
+
 ### 7.7.1  - 2025-02-09
 
 - Tweaks and bugfixes
