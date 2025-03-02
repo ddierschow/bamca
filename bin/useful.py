@@ -162,6 +162,7 @@ def render_file(fname):
 
 
 def img_src(pth, alt=None, also={}):
+    pth = pth[1:] if pth.startswith('/') else pth
     return '<img src="../' + pth + '"' + fmt_also({'alt': alt}, also) + '>'
 
 

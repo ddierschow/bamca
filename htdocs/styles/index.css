@@ -26,8 +26,10 @@ h2 {padding: 0 0 0 0; margin: 0 0 0 0;}
 	border-collapse: collapse; border-color: #FFFFFF; border-width: 8px 0 8px 0; border-style: solid;}
 .banner img {padding: 0; margin: 0;}
 
-.index {background-color: #D84905;}
+.index {background-color: #D84905; border-radius: 8px;}
 .index td {padding: 8px;}
+
+.picpanel {background-color: #F6F600; color: #CC0000; font-weight: bold; border-radius: 8px;}
 
 .status {width: 100%; background-color: #DDDDFF; font-size: x-large; text-align: center;
 	border-collapse: collapse; border-color: #000000; border-width: 1px; border-style: solid;}

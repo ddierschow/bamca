@@ -596,6 +596,7 @@ class VarSearchForm(object):
             self.mvars[varitem.var] = varitem
         self.attr_pics, self.attributes = get_attributes(pif, self.mod_id)
         self.selects, self.varsels, self.catdefs = get_varsels(pif, self.mod_id)
+        self.attr_recs = pif.dbh.depref('attribute', pif.dbh.fetch_attributes(self.mod_id, with_global=True))
 
     def read(self, form):
         self.attrs = {x: form.get_raw(x) for x in self.attributes}
@@ -1308,11 +1309,12 @@ def do_var_for_dict(pif, manitem, var, attributes, varsels):
     # pic_id = var['picture_id']
 
     # infs = {'desc1': [], 'desc2': [], 'dets1': [], 'dets2': []}
-    ent = {d: var[d] for d in var if var.get(d) and d in attributes and
+    varkeys = list(var.__dict__.keys())
+    ent = {d: getattr(var, d) for d in varkeys if getattr(var, d) and d in attributes and
            not (d.startswith('_') or d == 'category' or
            d in hidden_attributes or (d in note_attributes and d not in attributes))}
-    ent['id'] = var['var']
-    ent['categories'] = ', '.join(var['_categories'])
+    ent['id'] = var.var
+    ent['categories'] = ', '.join(var._categories)
     return ent
 
 
@@ -1323,7 +1325,7 @@ def do_model_json(pif, manitem, vsform, dvars, photogs):
         lsec = {'id': 'code_%d' % code, 'name': 'Code %d Models' % code, 'entry': list()}
         for var_id in sorted(dvars.keys()):
             var = dvars[var_id]
-            if var['_code'] == code:
+            if var._code == code:
                 lsec['entry'].append(do_var_for_dict(pif, manitem, var, vsform.attributes, vsform.varsels))
 
         if len(lsec['entry']):
@@ -1343,7 +1345,7 @@ def do_model_csv(pif, manitem, vsform, dvars, photogs):
     for code in vsform.codes:
         for var_id in sorted(dvars.keys()):
             var = dvars[var_id]
-            if var['_code'] == code:
+            if var._code == code:
                 rec = do_var_for_dict(pif, manitem, var, vsform.attributes, vsform.varsels)
                 writer.writerow(dict(zip(field_names, [rec.get(x, '') for x in field_names])))
     out_str = out_file.getvalue()

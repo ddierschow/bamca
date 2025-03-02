@@ -87,22 +87,24 @@ or
 ?>
 
 </td>
-<td width="50">&nbsp;</td>
-<td width="200" valign="top">
-
+<td width="30">&nbsp;</td>
+<td width="220" valign="top">
+<div class="picpanel">
+<center>
 <?php
 $pf = array_merge(glob('.' . $IMG_DIR_MAN . "/s_*.jpg"), glob('.' . $IMG_DIR_MAN . "/var/s_*.jpg"), glob('.' . $IMG_DIR_BOX . "/s_*.jpg"));
 $pics = array_rand($pf, 3);
 foreach ($pics as $r)
     echo '<img src="' . $pf[$r] . '" vspace="8">
 ';
-echo '<br><center>3 of ' . count($pf) . " pictures</center>\n";
+echo '<br>3 of ' . count($pf) . " pictures</center>\n";
 
 if ($is_logged_in || !$LOCKDOWN) {
 ?> 
+</div>
 <br>
 
-<div class="status">
+<div class="status" style="vertical-align: bottom;">
 <a href="/pages/status.php">Status of the Website</a>
 </div>
 <?php } ?>
