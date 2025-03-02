@@ -211,7 +211,7 @@ def check_attribute_pictures(pif, *filelist):
 
 def check_castings(pif):
     # pif.form.set_val('section', 'all')
-    sec_ids = [x['section.id'] for x in pif.dbh.fetch_sections(where={'page_id': pif.page_id})]
+    sec_ids = [x['id'] for x in pif.dbh.fetch_sections(where={'page_id': pif.page_id})]
     totals = {}
     tags = []
     for sec in sec_ids:
@@ -243,8 +243,8 @@ def show_categories(pif):
         if vs['variation_select.ref_id'] and vs['variation_select.category'] != 'MB':
             refs[vs['variation_select.category']].add(vs['variation_select.ref_id'])
     cats = pif.dbh.fetch_category_counts()
-    catl = [(x.id, x.name, 'shown' if (x.flags & 4) else '', 'c2' if (x.flags & 2) else
-            '', x.count, ' '.join(sorted(refs.get(x.id, [])))) for x in cats]
+    catl = [(x['id'], x['name'], 'shown' if (x['flags'] & 4) else '', 'c2' if (x['flags'] & 2) else
+            '', x['count'], ' '.join(sorted(refs.get(x['id'], [])))) for x in cats]
     fmt = pif.dbh.preformat_results(catl)
     for cat in catl:
         print(fmt % cat)
@@ -353,7 +353,7 @@ def correllation(pif):
         vr_cats.extend(cat[0].split(' '))
     vr_cats = set(vr_cats)
     vs_cats = set([x[0] for x in pif.dbh.raw_execute('select distinct category from variation_select')[0]])
-    db_cats = {x['category.id']: x['category.name'] for x in pif.dbh.fetch_category_counts()}
+    db_cats = {x['id']: x['name'] for x in pif.dbh.fetch_category_counts()}
     print('in var but not in databse:', vr_cats - set(db_cats))
     print('in vs but not in databse:', vs_cats - set(db_cats))
     print()
@@ -576,12 +576,12 @@ def show_files(regions, files):
 
 def direct_files(pif, regions, files, dirs):
     for pg in pif.dbh.fetch_pages(where={'format_type': 'lineup'}, order='id'):
-        year = pg.id[5:]
-        dirs[year] = pg.pic_dir
-        imgs = glob.glob('%s/%s[%s][0-9][0-9].*' % (pg.pic_dir, year, regions))
-        imgs += glob.glob('%s/%s[%s][0-9][0-9][0-9].*' % (pg.pic_dir, year, regions))
+        year = pg['id'][5:]
+        dirs[year] = pg['pic_dir']
+        imgs = glob.glob('%s/%s[%s][0-9][0-9].*' % (pg['pic_dir'], year, regions))
+        imgs += glob.glob('%s/%s[%s][0-9][0-9][0-9].*' % (pg['pic_dir'], year, regions))
         for im in imgs:
-            im = im[len(pg.pic_dir) + 1:]
+            im = im[len(pg['pic_dir']) + 1:]
             files.setdefault(im[4], dict())
             files[im[4]].setdefault(im[:4], list())
             files[im[4]][im[:4]].append(im[5:-4])
@@ -798,7 +798,7 @@ def check_missing_variations(pif, *filelist):
 
 def run_test(pif, mod_id):
     mod = pif.dbh.fetch_base_id(mod_id)
-    print(mod.rawname)
+    print(mod['rawname'])
 
 
 cmds = [

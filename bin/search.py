@@ -164,7 +164,7 @@ def date_search(pif, dt=None, yr=None):
             ldir = 'man/' + mod_id.lower()
             vss = pif.dbh.fetch_variation_selects(mod_id=mod_id, var_id=var_id)
             vs = ', '.join(['-'.join([y[x] for x in ['ref_id', 'sec_id', 'ran_id']]) for y in vss])
-            categories = [x['variation_select.category'] for x in vss if x['variation_select.category']]
+            categories = [x['category'] for x in vss if x['category']]
             verified = ['1'] if var['variation.flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else []
             id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
             ver_count += 1 if verified else 0

@@ -74,7 +74,7 @@ import useful
 def calc_lineup_model(pif, lsec, year, region, mod):
     id_re = re.compile(r'(?P<a>[a-zA-Z]+)(?P<n>\d+)')
     mod.image_format = lsec.link_format
-    mod.anchor = f"{'X' if region.startswith('X') else ''}{mod.number}"
+    mod.anchor = f"{region.replace('.', '')}.{mod.number}"
     mod.class_name = ''
     mod.product = ''
     mod.prod_id = ''
@@ -806,12 +806,12 @@ def show_all_lineups(pif):
     }}
     cols = set([' year'])
     for sec in pif.dbh.fetch_sections_by_page_type('lineup'):
-        year = sec['section.page_id'][5:]
-        sec_id = sec['section.id']
+        year = sec['page_id'][5:]
+        sec_id = sec['id']
         if not sec_id.startswith('X'):
             sec_id = sec_id[0]
         grid.setdefault(year, {' year': year})
-        grid[year][sec_id] = '<i>X</i>' if sec['section.flags'] & config.FLAG_SECTION_HIDDEN else 'X'
+        grid[year][sec_id] = '<i>X</i>' if sec['flags'] & config.FLAG_SECTION_HIDDEN else 'X'
         cols.add(sec_id)
 
     llineup = render.Listix(section=[
@@ -845,7 +845,7 @@ def run_multi_file(pif, year, region, nyears):
         y += 1
 
     llineup = render.Matrix(id=pif.page_id)
-    mainsec = pages.first['sec']
+    mainsec = pages[0]['sec']
     lsec = render.Section(columns=nyears, id='lineup')
     # hdr = lsec['name']
     comments = set()
@@ -854,7 +854,7 @@ def run_multi_file(pif, year, region, nyears):
     pif.ren.comment("run_file: range", lran)
     for inum in range(max_mods):
         for iyr in range(nyears):
-            pdir = pages[iyr]['page_info.pic_dir']
+            pdir = pages[iyr]['pic_dir']
             if pages[iyr]['mods']:
                 mod = pages[iyr]['mods'].pop(0)
                 # mod.disp_format = lsec.get('disp_format', '')
@@ -1338,6 +1338,7 @@ def show_sections(pif):
 
 def lineup_pics(pif, *args):
     missing = 'm' in args
+    pic_dirs = {x['id']: x['pic_dir'] or '' for x in pif.dbh.fetch_pages(where="id like 'year.%'")}
     years = useful.expand_number_list([x for x in args if x.replace('-', '').isdigit()])
     regions = [x for x in args if not x.isdigit() and x.isupper()]
     if not years:
@@ -1346,8 +1347,7 @@ def lineup_pics(pif, *args):
     if not regions:
         regions = mbdata.regionlist
     for yr in years:
-        page = pif.dbh.fetch_page('year.%d' % int(yr))
-        pdir = page.pic_dir
+        pdir = pic_dirs[f'year.{yr}']
         found = {}
         lml = pif.dbh.fetch_simple_lineup_models(year=yr)
         for lm in lml:
@@ -1367,10 +1367,10 @@ def lineup_pics(pif, *args):
 def detect_lineup(pif, year):
     for vs in pif.dbh.fetch_variation_selects(ref_id='year.' + year):
         # 1|MB1227  |1|2020 Honda E
-        casting = pif.dbh.fetch_casting(vs.mod_id)
+        casting = pif.dbh.fetch_casting(vs['mod_id'])
         casting = pif.dbh.make_man_item(casting)
-        var = pif.dbh.fetch_variation_bare(vs.mod_id, vs.var_id)[0]
-        print(f"{var['variation.note']}|{vs.mod_id}|1|{casting.name}")
+        var = pif.dbh.fetch_variation_bare(vs['mod_id'], vs['var_id'])[0]
+        print(f"{var['variation.note']}|{vs['mod_id']}|1|{casting.name}")
 
 
 def import_series(pif, matrix_page, matrix_section, year, lineup_section):

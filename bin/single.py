@@ -85,11 +85,12 @@ def reduce_variations(pif, mod_id, vars):
         vtd] for vtd in vard])
 
 
-def show_external_links(pif, external_links):
-    return [
-        f"{pif.ren.format_link(x.l1.url, x.l1.name)} at {pif.ren.format_link(x.l2.url, x.l2.name)}"
-        if x.l1.associated_link else f"{pif.ren.format_link(x.l1.url, x.l1.name)}" for x in external_links
-    ]
+def show_external_links(pif, x_links):
+
+    def ll_link(x, pfx):
+        return pif.ren.format_link(x[pfx + '.url'], x[pfx + '.name'])
+
+    return [f"{ll_link(x, 'l1')} at {ll_link(x, 'l2')}" if x['l1.associated_link'] else ll_link(x, 'l1') for x in x_links]
 
 
 def show_series_appearances(pif, matrixes, relateds):

@@ -125,7 +125,7 @@ class Searcher(object):
         if not slist:
             raise useful.SimpleError(f'Requested section not found: {self.section}')
         for section in slist:
-            if section['section.page_id'] in man_sections and (not self.section or section['id'] == self.section):
+            if section['page_id'] in man_sections and (not self.section or section['id'] == self.section):
                 section.setdefault('model_ids', list())
                 section.setdefault('models', list())
                 self.sdict[section['id']] = section

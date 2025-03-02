@@ -16,7 +16,7 @@ def print_users(pif):
     table_data = pif.dbh.get_table_data('user')
     entries = []
     for user in pif.dbh.fetch_users():
-        user['user_id'] = '<a href="user.cgi?id={}">{}</a>'.format(user.id, user.user_id)
+        user['user_id'] = '<a href="user.cgi?id={}">{}</a>'.format(user['id'], user['user_id'])
         flags = [x[1] for x in table_data.bits.get('flags', []) if (user['flags'] & int(x[0], 16))]
         user['flags'] = '<br>'.join(flags)
         entries.append(user)
@@ -67,7 +67,7 @@ def delete_user(pif):
 
 def update_user(pif):
     newuser = pif.dbh.fetch_user(user_id=pif.form.get_str('user_id'))
-    if newuser and newuser.id != pif.form.get_int('id'):
+    if newuser and newuser['id'] != pif.form.get_int('id'):
         raise useful.SimpleError('The requested user ID is already in use.')
     pif.form.set_val('flags', pif.form.get_bits('flags'))
     pif.dbh.update_user(pif.form.get_int('id'), **pif.form.get_dict(keylist=pif.dbh.get_table_data('user').columns))
@@ -96,9 +96,9 @@ def login_main(pif):
     if pif.form.has('user_id') and pif.form.has('p'):
         user = pif.dbh.fetch_user(user_id=pif.form.get_str('user_id'), passwd=pif.form.get_str('p'))
         if user:
-            pif.dbh.update_user_last_login(user.id)
+            pif.dbh.update_user_last_login(user['id'])
             pif.create_cookie(user)
-            if not user.flags & config.FLAG_USER_VERIFIED:
+            if not user['flags'] & config.FLAG_USER_VERIFIED:
                 raise useful.Redirect('/cgi-bin/validate.cgi')
             raise useful.Redirect(pif.form.get_str('dest', '/index.php'))
         useful.warn("Login Failed!")
@@ -151,7 +151,7 @@ def create(pif):
 def generate_signup_email(pif, user):
     user['host'] = pif.server_name
     user['secure_host'] = pif.secure_host
-    user['validate'] = "{secure_host}/cgi-bin/validate.cgi?user_id={user_id}&vkey={vkey}".format(**user.todict())
+    user['validate'] = "{secure_host}/cgi-bin/validate.cgi?user_id={user_id}&vkey={vkey}".format(**user)
     # user = {k: useful.url_quote(str(v), plus=True) for k, v in user.todict().items()}
     msg = '''To: "{user_id}" <{email}>
 From: "Account Verification" <webmaster@{host}>
@@ -172,7 +172,7 @@ Enter this code to verify your account.
                  {vkey}
 
 Thank you!
-'''.format(**user.todict())
+'''.format(**user)
     useful.simple_process(('/usr/sbin/sendmail', '-t',), msg)
 
 
@@ -291,23 +291,23 @@ def recover_main(pif):
             user = pif.dbh.fetch_user(user_id=pif.form.get_alnum('user_id'), vkey=pif.form.get_alnum('vkey'))
             if user:
                 if pif.form.has('p1') and pif.form.get_str('p1') == pif.form.get_str('p2'):
-                    pif.dbh.update_password(user.id, pif.form.get_str('p2'))
-                    pif.dbh.update_user(rec_id=user.id, flags=user.flags & ~config.FLAG_USER_PASSWORD_RECOVERY)
+                    pif.dbh.update_password(user['id'], pif.form.get_str('p2'))
+                    pif.dbh.update_user(rec_id=user['id'], flags=user['flags'] & ~config.FLAG_USER_PASSWORD_RECOVERY)
                     pif.ren.set_cookie(pif.ren.secure.clear_cookie(['id']))
                     useful.warn("Your password has been changed.")
                     raise useful.Redirect('/cgi-bin/login.cgi', delay=5)
                 else:
-                    user_id = user.user_id
+                    user_id = user['user_id']
                     recovering = hide_vkey = True
         else:
             user = pif.dbh.fetch_user(email=pif.form.get_str('user_id'))
             if not user:
                 user = pif.dbh.fetch_user(user_id=pif.form.get_alnum('user_id'))
             if user:
-                pif.dbh.update_user(rec_id=user.id, flags=user.flags | config.FLAG_USER_PASSWORD_RECOVERY)
+                pif.dbh.update_user(rec_id=user['id'], flags=user['flags'] | config.FLAG_USER_PASSWORD_RECOVERY)
                 generate_recovery_email(pif, user)
                 recovering = True
-                user_id = user.user_id
+                user_id = user['user_id']
     return pif.ren.format_template('recover.html', recovering=recovering, user_id=user_id, show_vkey=not hide_vkey)
 
 

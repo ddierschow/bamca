@@ -149,19 +149,19 @@ def read_config(pif, showall=False):
     dictCats = {}
     allpages = pif.dbh.fetch_pages("id like 'links.%'")
     if pif.is_allowed('a'):  # and pif.ren.is_beta:  # pragma: no cover
-        showpage = {x['page_info.id']: 1 for x in allpages}
+        showpage = {x['id']: 1 for x in allpages}
     else:
-        showpage = {x['page_info.id']: not (x['page_info.flags'] & config.FLAG_PAGE_INFO_HIDDEN) for x in allpages}
+        showpage = {x['id']: not (x['flags'] & config.FLAG_PAGE_INFO_HIDDEN) for x in allpages}
     sections = pif.dbh.fetch_sections(where="page_id like 'links.%'")
     for section in sections:
-        page_name = section['section.page_id'].split('.', 1)[1]
+        page_name = section['page_id'].split('.', 1)[1]
         if page_name not in listIndices:
             listIndices.append(page_name)
-        if showpage[section['section.page_id']]:
-            listCats.append((section['section.id'], section['section.name']))
-        if section['section.page_id'] in ['links.rejects', 'links.trash']:
-            listRejectCats.append((section['section.id'], section['section.name']))
-        dictCats[section['section.id']] = page_name
+        if showpage[section['page_id']]:
+            listCats.append((section['id'], section['name']))
+        if section['page_id'] in ['links.rejects', 'links.trash']:
+            listRejectCats.append((section['id'], section['name']))
+        dictCats[section['id']] = page_name
     return listCats, listIndices, dictCats, listRejectCats
 
 
@@ -190,7 +190,7 @@ def read_all_links(pif):
     highest_disp_order = {}
     all_links = []
     for section in pif.dbh.fetch_sections(where="page_id like 'links%'"):
-        highest_disp_order.setdefault((section['section.page_id'], section['section.id']), 0)
+        highest_disp_order.setdefault((section['page_id'], section['id']), 0)
     for link in pif.dbh.fetch_link_lines():
         link = pif.dbh.depref('link_line', link)
         highest_disp_order.setdefault((link['page_id'], link['section_id']), 0)
@@ -534,7 +534,7 @@ def edit_choose(pif):
         for x in pif.dbh.fetch_link_statuses("page_id='links.rejects' or page_id='links.trash'")}
     # 'link_statuses': ["%s (%s)" % (x, reasons.get(x, 'Unknown')) for x in sorted(pif.dbh.fetch_link_statuses())],
     context = {
-        'sections': sorted(pif.dbh.fetch_sections(where="page_id like 'links%'"), key=lambda x: x['section.page_id']),
+        'sections': sorted(pif.dbh.fetch_sections(where="page_id like 'links%'"), key=lambda x: x['page_id']),
         'blacklist': pif.dbh.get_editor_link('blacklist', {}),
         'link_statuses': sorted(ok_link_statuses.items()),
         'link_rejects': sorted(rej_link_statuses.items()),

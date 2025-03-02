@@ -77,9 +77,9 @@ class Tumblr(object):
 
     def redo(self, post):
         useful.write_message('removing from spool')
-        self.pif.dbh.delete_tumblr(post.id)
-        ty_post = post.post_type
-        kwargs = eval(post.payload)
+        self.pif.dbh.delete_tumblr(post['id'])
+        ty_post = post['post_type']
+        kwargs = eval(post['payload'])
         print(kwargs)
         if ty_post == TUMBLR_PHOTO:
             response = self.create_photo(**kwargs)

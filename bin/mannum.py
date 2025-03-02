@@ -156,7 +156,7 @@ class MannoFile(object):
         self.addtypes = pif.form.get_list_by_value('add', 'ynm')
         self.pictypes = pif.form.get_list_by_value('pic', 'ynm')
         self.large = pif.form.get_bool('large')
-        self.plist = man_sections  # [x['page_info.id'] for x in pif.dbh.fetch_pages({'format_type': 'manno'})]
+        self.plist = man_sections
         slist = pif.dbh.fetch_sections({'id': useful.clean_id(self.section)}  # , 'page_id': pif.page_id})
                                        if self.section else {'page_id': pif.page_id})
         if not slist:
@@ -170,7 +170,7 @@ class MannoFile(object):
         self.sdict = {}
         self.slist = []
         for section in slist:
-            if section['section.page_id'] in self.plist and (not self.section or section['id'] == self.section):
+            if section['page_id'] in self.plist and (not self.section or section['id'] == self.section):
                 section.setdefault('model_ids', list())
                 self.sdict[section['id']] = section
                 self.slist.append(section)
@@ -843,10 +843,7 @@ class MannoFile(object):
                 continue
             if var['variation_type'] and var['variation_type'] not in self.var_type:
                 continue
-            # var['varsel'] = pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
             var['phcred'] = credits.get(('%s-%s' % (var['mod_id'], var['var'])).lower(), '')
-            # var['ty_var'], var['is_found'], var['has_de'], var['has_ba'], var['has_bo'], var['has_in'],
-            # var['has_wh'], var['has_wi'], var['has_wt'] = mbmods.calc_var_pics(pif, var)
             count_var += 1
             if self.photog and var['phcred'] == self.photog:
                 count_cred += 1
@@ -968,7 +965,7 @@ def admin_main(pif):
             first_year=first_year,
             last_year=last_year,
             sections=sections,
-            photogs=[(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers()],
+            photogs=[(x['id'], x['name']) for x in pif.dbh.fetch_photographers()],
             llineup=llineup)
 
 
@@ -1062,7 +1059,7 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
     if not old_mod_id or not new_mod_id:
         return
     rec = pif.dbh.fetch_base_id(new_mod_id)
-    if rec and rec.id.lower() != new_mod_id.lower():
+    if rec and rec['id'].lower() != new_mod_id.lower():
         if not force:
             # print(new_mod_id, "exists")
             return
@@ -1107,12 +1104,11 @@ def copy_casting(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
     if not old_mod_id or not new_mod_id:
         return
 
-    if pif.dbh.fetch_base_id(new_mod_id) or pif.dbh.fetch_casting(new_mod_id):
+    if (bid := pif.dbh.fetch_base_id(new_mod_id)) or pif.dbh.fetch_casting(new_mod_id):
         print(new_mod_id, "exists")
         return
 
     cas = pif.dbh.fetch_casting_raw(old_mod_id)
-    bid = pif.dbh.fetch_base_id(old_mod_id).todict()
     if not cas or not bid:
         print(old_mod_id, "does not exist")
         return

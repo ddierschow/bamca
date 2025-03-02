@@ -89,13 +89,13 @@ class Presentation(object):
         return pprint.pformat(self.__dict__, indent=2, width=132)
 
     def set_page_info(self, row):
-        self.flags = row['page_info.flags'] or 0
-        self.format_type = row['page_info.format_type']
-        self.title = self.fmt_pseudo(row['page_info.title'])
-        self.pic_dir = row['page_info.pic_dir']
-        self.description = row['page_info.description']
-        self.note = self.fmt_pseudo(row['page_info.note'])
-        self.tail = {x: 1 for x in row['page_info.tail'].split(',')}
+        self.flags = row['flags'] or 0
+        self.format_type = row['format_type']
+        self.title = self.fmt_pseudo(row['title'])
+        self.pic_dir = row['pic_dir']
+        self.description = row['description']
+        self.note = self.fmt_pseudo(row['note'])
+        self.tail = {x: 1 for x in row['tail'].split(',')}
 
     def set_page_extra(self, extra):
         self.extra += extra
@@ -876,10 +876,16 @@ class Section(object):
             elif isinstance(headers, list):
                 self.headers = dict(zip(colist, headers))
         if section:
-            self.id = section.id or self.id
-            self.name = section.name or self.name
-            self.note = section.note or self.note
-            self.columns = section.columns or self.columns
+            if isinstance(section, dict):
+                self.id = section['id'] or self.id
+                self.name = section['name'] or self.name
+                self.note = section['note'] or self.note
+                self.columns = section['columns'] or self.columns
+            else:
+                self.id = section.id or self.id
+                self.name = section.name or self.name
+                self.note = section.note or self.note
+                self.columns = section.columns or self.columns
 
     def dump(self):
         useful.write_comment(' Section', 'id', self.id, 'name', self.name, 'note', self.note,

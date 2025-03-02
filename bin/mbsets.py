@@ -203,7 +203,7 @@ def select_set(pif):
     lran = render.Range(
         name="A few of the special sets produced by Matchbox over the years:",
         entry=['<b><a href="?page=%s">%s</a></b> - %s' %
-               (ent['page_info.id'][5:], ent['page_info.title'], ent['page_info.description'])
+               (ent['id'][5:], ent['title'], ent['description'])
                for ent in pif.dbh.fetch_pages("id like 'sets.%' and (flags & 1)=0", order='description,title')])
     llineup = render.Listix(section=[render.Section(id='i', range=[lran])],
                             tail=[pif.ren.format_button_link("back", "..") + " to the main index."])

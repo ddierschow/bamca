@@ -392,11 +392,12 @@ def make_page_list(pif, format_type, fmt_link):
     secs = pif.dbh.fetch_sections_by_page_type(format_type)
     entries = list()
     for sec in secs:
-        hidden = sec.flags & config.FLAG_PAGE_INFO_HIDDEN or sec.page_info.flags & config.FLAG_PAGE_INFO_HIDDEN
-        if '.' in sec.page_id and (pif.ren.is_alpha or pif.ren.is_beta or not hidden):
+        hidden = sec['flags'] & config.FLAG_PAGE_INFO_HIDDEN or sec['page_info.flags'] & config.FLAG_PAGE_INFO_HIDDEN
+        dropped = hidden and (not (pif.ren.is_alpha or pif.ren.is_beta) or pif.ren.diff_run)
+        if '.' in sec['page_id'] and not dropped:
             entries.append(render.Entry(text=('<i>%s</i>' if hidden else '%s') % fmt_link(sec)))
     lsec = render.Section(
-        section=[x for x in secs if x.page_id == format_type][0],
+        section=[x for x in secs if x['page_id'] == format_type][0],
         range=[render.Range(entry=entries)], columns=5
     )
     llineup = render.Matrix(id='main', section=[lsec])

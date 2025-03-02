@@ -403,8 +403,8 @@ def do_prod_masses(pif, tform):
         url = pif.secure_prod + nname[1:]
         link = pif.secure_prod
         title = nam
-        if cred and not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
-            title += ' credited to ' + photog.name
+        if cred and not photog['flags'] & config.FLAG_PHOTOGRAPHER_PRIVATE:
+            title += ' credited to ' + photog['name']
         pif.ren.message('Post to Tumblr: ', tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
         pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, nam))
 

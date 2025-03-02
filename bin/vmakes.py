@@ -103,7 +103,7 @@ def makes_form(pif, makedict, makes):
 def show_make_selection(pif, make_id, makedict):
     casting_make = make_id
     make = makedict.get(make_id, {})
-    lsec = render.Section(  # pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
+    lsec = render.Section(
         anchor=make_id, columns=4, name=pif.ren.fmt_img(
             make_id, prefix='t', pdir=config.IMG_DIR_MAKE) + '<br>' + make.get('company_name', make_id)
     )

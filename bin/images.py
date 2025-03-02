@@ -728,7 +728,7 @@ class EditForm(imglib.ActionForm):
             print(pif.form.put_checkbox("save", [(1, "Save")], presets.get("save", [])))
         print(pif.form.put_button_input('mass'))
         print(pif.form.put_button_input('clean'))
-        photogs = [(x.photographer.id, x.photographer.name)
+        photogs = [(x['id'], x['name'])
                    for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
         print(pif.ren.format_link('/cgi-bin/mass.cgi?tymass=photogs', 'Credit'))
         print(pif.form.put_select('credit', photogs, selected=self.credit, blank=''))
@@ -882,8 +882,8 @@ class EditForm(imglib.ActionForm):
             cred = pif.form.get_str('credit')
             if cred:
                 photog = pif.dbh.fetch_photographer(cred)
-                if photog and not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
-                    title += ' credited to ' + photog.name
+                if photog and not photog['flags'] & config.FLAG_PHOTOGRAPHER_PRIVATE:
+                    title += ' credited to ' + photog['name']
                 else:
                     cred = ''
             url = pif.secure_prod + largest
@@ -1658,11 +1658,11 @@ def credit_show(pif, cred):
 def photog_ind(pif, photog):
     return (
         '<div class="entry"><span class="name">%s</span><br><a href="photogs.cgi?id=%s">%s<br>%d credit%s</a></div>' % (
-            pif.ren.format_link(photog['photographer.url'], photog['photographer.name']), photog['photographer.id'],
+            pif.ren.format_link(photog['url'], photog['name']), photog['id'],
             pif.ren.format_image_required(
                 photog['c.name'], pdir=photog['c.path'], made=True,
                 largest=mbdata.IMG_SIZ_LARGE, preferred=mbdata.IMG_SIZ_SMALL, also={'width': 200}),
-            photog['count'], 's' if photog['count'] != 1 else ''))
+            photog['count'], useful.plural(photog['count'])))
 
 
 @basics.web_page
@@ -1674,11 +1674,12 @@ def photographers(pif):
     pif.ren.hierarchy_append('/database.php', 'Database')
     pif.ren.hierarchy_append('/cgi-bin/photogs.cgi', 'Photographers')
     if photog_id:
-        photog = pif.dbh.fetch_photographer_counts(photog_id).first
+        photog = pif.dbh.fetch_photographer_counts(photog_id)
         if not photog:
             raise useful.SimpleError('That photographer was not found.')
-        pif.ren.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog.photographer.name)
-        pif.ren.title = photog.photographer.name
+        photog = photog[0]
+        pif.ren.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog['name'])
+        pif.ren.title = photog['name']
         page = pif.form.get_int('p')
         entries = [render.Entry(text=credit_show(pif, x))
                    for x in pif.dbh.fetch_photo_credits_page(photog_id, page=page)]
@@ -1688,11 +1689,11 @@ def photographers(pif):
             if footer:
                 footer += ' - '
             footer += pif.ren.format_button_link('next', 'photogs.cgi?id=%s&p=%d' % (photog_id, page + 1))
-        header += '%s credit%s' % (photog['count'], 's' if photog.count != 1 else '')
+        header += '%s credit%s' % (photog['count'], useful.plural(photog['count']))
         if photog["count"] > 100:
             header += ' - Page %d' % (page + 1)
-        if photog.photographer.url:
-            header += ' - ' + pif.ren.format_button_link('visit website', photog.photographer.url)
+        if photog['url']:
+            header += ' - ' + pif.ren.format_button_link('visit website', photog['url'])
     else:
         # hide private
         entries = [render.Entry(text=photog_ind(pif, x)) for x in pif.dbh.fetch_photographer_counts()]

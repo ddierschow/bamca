@@ -441,7 +441,7 @@ def add_lm_enter(pif):
     pg = pif.dbh.fetch_page('year.' + year)
     if not pg:
         raise useful.SimpleError("no page")
-    secs = pif.dbh.fetch_sections({'page_id': pg.id})
+    secs = pif.dbh.fetch_sections({'page_id': pg['id']})
     if not secs:
         raise useful.SimpleError("no secs")
     tab = pif.dbh.get_table_data('lineup_model')
@@ -451,7 +451,7 @@ def add_lm_enter(pif):
     number = pif.form.get_int('number')
 
     colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
-    regions = [x.id for x in secs]
+    regions = [x['id'] for x in secs]
     entries = [
         {'title': 'Page ID:', 'value': pif.form.put_text_input("page_id", 32, 32, value=f'year.{year}')},
         {'title': 'Mod ID:', 'value': pif.form.put_text_input("mod_id", 24, 24, value=mod_id)},
@@ -611,7 +611,7 @@ def add_casting_main(pif):
         {'title': "ID:", 'value': pif.form.put_text_input("id", 8, 8, value=mod_id)},
         {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
         {'title': 'Model Type:', 'value': pif.form.put_select(
-            'model_type', [x.model_type for x in pif.dbh.fetch_base_id_model_types()], selected='SF')},
+            'model_type', pif.dbh.fetch_base_id_model_types(), selected='SF')},
         {'title': 'Name:', 'value': pif.form.put_text_input("rawname", 80, 80, value='')},
         {'title': 'Description:', 'value': pif.form.put_text_input("description", 80, 80, value='')},
         {'title': 'Flags:', 'value':
@@ -622,7 +622,7 @@ def add_casting_main(pif):
             'make', [('unl', 'MBX')] + [(x['vehicle_make.id'], x['vehicle_make.name'])
                                         for x in pif.dbh.fetch_vehicle_makes()], blank='')},
         {'title': 'Section:', 'value': pif.form.put_select(
-            'section_id', [(x['section.id'], x['section.name'])
+            'section_id', [(x['id'], x['name'])
                            for x in pif.dbh.fetch_sections(where="page_id like 'man%'")],
             selected=pif.form.get_raw('section_id', sec))},
         {'title': 'Attributes:', 'value': pif.form.put_text_input('attributes', 80, 80)},
@@ -829,7 +829,7 @@ def add_var_info(pif):
     var = pif.dbh.depref('variation', var)
     aliases = pif.dbh.fetch_aliases(mod_id)
     old_var_id = pif.form.get_raw('copy')
-    cats = sorted([(x['category.id'], x['category.name']) for x in pif.dbh.fetch_category_counts()],
+    cats = sorted([(x['id'], x['name']) for x in pif.dbh.fetch_category_counts()],
                   key=lambda x: x[1])
     plants = sorted([(x[0], x[0]) for x in mbdata.plants])
 
@@ -1225,14 +1225,14 @@ def add_pack_form(pif):
 
     section_id = pif.form.get_raw('section_id')
     section = pif.dbh.fetch_section(sec_id=section_id, category='MP')
-    page_id = section.page_id if section else 'packs.5packs'
+    page_id = section['page_id'] if section else 'packs.5packs'
     lineup_sec = pack_sec.get(section_id, 'X.65')
     year = pack_id[:4]
     if not year.isdigit():
         year = '0000'
     base_id = pif.dbh.fetch_base_id(id=pack_id)
     useful.write_message('base_id', pack_id, base_id)
-    pack = pif.dbh.fetch_pack_results(id=pack_id, var=pif.form.get_raw('var'))
+    pack = pif.dbh.depref('pack', pif.dbh.fetch_pack(id=pack_id, var=pif.form.get_raw('var')))
     useful.write_message('pack', pack_id, pif.form.get_raw('var'), pack)
     pack_img = pif.ren.find_image_file(long_pack_id, pdir=config.IMG_DIR_PROD_PACK, largest='g')
 
@@ -1934,8 +1934,7 @@ def add_ads(pif):
 
 def add_ads_ask(pif):
     ad_id = pif.form.get_raw('id')
-    ad = pif.dbh.fetch_publication(ad_id)
-    if ad:
+    if pif.dbh.fetch_publication(ad_id):
         raise useful.SimpleError('Duplicate ID.')
     o_ad_id = pif.form.get_raw('id')
     yr = pif.form.get_raw('year')
@@ -1983,8 +1982,7 @@ def add_ads_final(pif):
     if not pif.form.has('id'):
         raise useful.SimpleError("No id supplied.")
     ad_id = pif.form.get_raw('id')
-    ad = pif.dbh.fetch_publication(ad_id)
-    if ad:
+    if pif.dbh.fetch_publication(ad_id):
         raise useful.SimpleError('Duplicate ID.')
     ostr += str(pif.dbh.add_new_base_id({
         'id': ad_id,
@@ -2142,7 +2140,7 @@ def add_matrix_form(pif):
     linmod['flags'] = linmod['flags'] or 0
 
     llistix = render.Listix(note=header)
-    llistix.section.append(entry_form(pif, 'page_info', page if isinstance(page, dict) else page.todict()))
+    llistix.section.append(entry_form(pif, 'page_info', page))
     llistix.section.append(entry_form(pif, 'section', section if isinstance(section, dict) else section.todict()))
     llistix.section.append(entry_form(
         pif, 'lineup_model', linmod,
@@ -2261,7 +2259,7 @@ def add_matrix_save(pif):
             del mm['var_id']
         if not mm.get('name'):
             mod = pif.dbh.fetch_base_id(mm['mod_id'])
-            mm['name'] = mod.rawname.replace(';', ' ')
+            mm['name'] = mod['rawname'].replace(';', ' ')
         mm.update(thisis)
         useful.write_message('matrix_model', mm)
         pif.dbh.insert_or_update_matrix_model(mm, verbose=True)
@@ -2343,7 +2341,7 @@ def add_attr_pics_ask(pif):
 
 def add_attr_pics_form(pif):
     pref = pif.form.get_raw('attr_type')
-    photogs = [(x.photographer.id, x.photographer.name) for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
+    photogs = [(x['id'], x['name']) for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
     credits = {x['photo_credit.name']: x['photo_credit.photographer_id']
                for x in pif.dbh.fetch_photo_credits(path=config.IMG_DIR_ADD[1:])}
     fl, rl = get_attr_pics(pif, pref)
@@ -2478,7 +2476,7 @@ def photogs_main(pif):
 
 def add_photogs_form(pif):
     # pref = pif.form.get_raw('attr_type')
-    photographers = sorted(pif.dbh.fetch_photographers(), key=lambda x: x['photographer.name'])
+    photographers = sorted(pif.dbh.fetch_photographers(), key=lambda x: x['name'])
 
     def photog_rec(rec):
         recid = rec['id']
@@ -2667,9 +2665,6 @@ def modify_man_item(mod):
         return name
 
     mod = depref('casting,publication,base_id', mod)
-    # mod = tables.Results('casting', [mod])
-    # mods = mod.depref('publication,base_id')
-    # mod = mods[0]
     mod.setdefault('make', '')
     mod['subname'] = mod.get('pack_model.subname', '')
     mod['link'] = "single.cgi?id"

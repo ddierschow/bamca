@@ -365,20 +365,19 @@ def publication(pif):
         return single_publication(pif, pub_id)
     elif pub_type:
         return publication_list(pif, pub_type)
-    # pubs = pif.dbh.fetch_publication_types()
 
     def fmt_link(sec):
-        txt = mbmods.add_icons(pif, 'p_' + sec.id, '', '')
+        txt = mbmods.add_icons(pif, 'p_' + sec['id'], '', '')
         # if sec.id == 'ads':
         #     return pif.ren.format_link('ads.cgi', txt)
-        return pif.ren.format_link('?ty=' + sec.category, txt)
+        return pif.ren.format_link('?ty=' + sec['category'], txt)
 
     return mbmods.make_page_list(pif, 'pub', fmt_link)
 
 
 def get_section_by_model_type(pif, mtype):
     for sec in pif.dbh.fetch_sections_by_page_type(mbdata.page_format_type['pub']):
-        if sec.category == mtype:
+        if sec['category'] == mtype:
             return sec
     return {}
 
@@ -387,10 +386,10 @@ def publication_list(pif, mtype):
     sec = get_section_by_model_type(pif, mtype)
     if not sec:
         raise useful.SimpleError("That publication type was not found.")
-    if sec.id == 'ads':
+    if sec['id'] == 'ads':
         raise useful.Redirect('ads.cgi?title=' + pif.form.get_str('title'))
     sobj = pif.form.search('title')
-    pif.ren.pic_dir = sec.page_info.pic_dir
+    pif.ren.pic_dir = sec['page_info.pic_dir']
     pubs = pif.dbh.make_pub_items(pif.dbh.fetch_publications(model_type=mtype))
 
     def pub_ent(pub):
@@ -413,7 +412,7 @@ def publication_list(pif, mtype):
         cols = ['picture', 'name', 'description', 'first_year', 'country']
 
         lrange = render.Range(entry=[x for x in entry if x], styles=dict(zip(cols, cols)))
-        lsection = render.Section(colist=cols, headers=hdrs, range=[lrange], name=sec.name)
+        lsection = render.Section(colist=cols, headers=hdrs, range=[lrange], name=sec['name'])
         llistix = render.Listix(section=[lsection])
         return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
@@ -460,12 +459,13 @@ def make_relateds(pif, ref_id, pub_id, imgs):
 
 
 def single_publication(pif, pub_id):
-    man = pif.dbh.fetch_publication(pub_id).first
+    man = pif.dbh.fetch_publication(pub_id)
     if not man:
         raise useful.SimpleError("That publication was not found.")
-    pif.ren.pic_dir = picdirs.get(man.base_id.model_type, pif.ren.pic_dir)
+    man = man[0]
+    pif.ren.pic_dir = picdirs.get(man['base_id.model_type'], pif.ren.pic_dir)
     # should just use man.section_id
-    sec = get_section_by_model_type(pif, man.base_id.model_type)
+    sec = get_section_by_model_type(pif, man['base_id.model_type'])
     # pif.set_page_info(sec.page_info.id)  # obviously not right but I don't know what is.
     man['casting_type'] = 'Publication'
     man['name'] = man['base_id.rawname'].replace(';', ' ')
@@ -503,9 +503,9 @@ def single_publication(pif, pub_id):
     llineup.dump()
 
     context = {
-        'title': man.name,
+        'title': man['name'],
         'note': '',
-        'type_id': 'p_' + sec.id,
+        'type_id': 'p_' + sec['id'],
         # 'icon_id': pub_id,
         'vehicle_type': '',
         'rowspan': 5 if upper_box else 4,

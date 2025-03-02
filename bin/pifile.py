@@ -456,7 +456,7 @@ class PageInfoFile(object):
         if user_id:
             cookie = self.dbh.fetch_cookie(ckey=user_id)
             if cookie:
-                user_id = cookie.user.id
+                user_id = cookie['user.id']
                 self.privs = set(cookie['user.privs']) & set(self.form.get_str('tprivs', 'bvuma'))
             else:
                 user_id = 0
@@ -492,7 +492,7 @@ class PageInfoFile(object):
         self.ren.not_released = (self.ren.flags & config.FLAG_PAGE_INFO_HIDDEN) != 0
         self.ren.hide_title = (self.ren.flags & config.FLAG_PAGE_INFO_HIDE_TITLE) != 0
         self.ren.body_style = "body_" + (
-            page_id[:page_id.find('.')] if '.' in page_id else page_id) + '_' + page_info.style_id
+            page_id[:page_id.find('.')] if '.' in page_id else page_id) + '_' + page_info['style_id']
 
     def set_user_info(self, user_id):
         self.user = user = self.dbh.fetch_user(user_id)
@@ -568,17 +568,17 @@ class PageInfoFile(object):
     def restrict(self, priv):  # pragma: no cover
         if not self.is_allowed(priv):
             raise useful.Redirect('/')
-        if priv and self.user and not (self.user.flags & config.FLAG_USER_VERIFIED):
+        if priv and self.user and not (self.user['flags'] & config.FLAG_USER_VERIFIED):
             raise useful.Redirect('/cgi-bin/validate.cgi')
 
     def create_cookie(self, user=None):
         user = user or self.user
-        expire = (15 * 12 * 60 * 60) if ('a' in user.privs) else (60 * 365 * 24 * 60 * 60)
+        expire = (15 * 12 * 60 * 60) if ('a' in user['privs']) else (60 * 365 * 24 * 60 * 60)
         ckey = str(uuid.uuid4())
-        self.dbh.delete_cookie(user.id, ip=os.environ.get('REMOTE_ADDR', 'unset'))
-        self.dbh.insert_cookie(user.id, ckey=ckey, ip=os.environ.get('REMOTE_ADDR', 'unset'),
+        self.dbh.delete_cookie(user['id'], ip=os.environ.get('REMOTE_ADDR', 'unset'))
+        self.dbh.insert_cookie(user['id'], ckey=ckey, ip=os.environ.get('REMOTE_ADDR', 'unset'),
                                expires=datetime.datetime.now() + datetime.timedelta(seconds=expire))
-        self.ren.set_cookie(self.ren.secure.make_cookie(ckey, user.privs, expires=expire))
+        self.ren.set_cookie(self.ren.secure.make_cookie(ckey, user['privs'], expires=expire))
 
     # -- debugging and error handling -----------------------------------
 

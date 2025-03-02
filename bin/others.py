@@ -241,12 +241,12 @@ def compare_main(pif):
     llineup = {'section': []}
     for sec in csecs:
 
-        cmods = pif.dbh.fetch_casting_related_compares(section_id=sec['section.id'])
+        cmods = pif.dbh.fetch_casting_related_compares(section_id=sec['id'])
         cmods.sort(key=lambda x: x['c2.first_year'])
-        lsec = {'name': sec['section.name'], 'note': sec['section.note'], 'range': []}
+        lsec = {'name': sec['name'], 'note': sec['note'], 'range': []}
         llineup['section'].append(lsec)
         modsets = {}
-        for mod in [m for m in cmods if m['cr.section_id'] == sec['section.id']]:
+        for mod in [m for m in cmods if m['cr.section_id'] == sec['id']]:
             mod['name'] = mod['c2.rawname'].replace(';', ' ')
             mod['model_id'] = mod['cr.related_id']
             modsets.setdefault(mod['cr.model_id'], [])

@@ -972,7 +972,7 @@ class ActionForm(object):
             cred = pif.form.get_str('credit')
             if cred:
                 photog = pif.dbh.fetch_photographer(cred)
-                if not photog or not photog.flags & config.FLAG_PHOTOGRAPHER_PRIVATE:
+                if not photog or not photog['flags'] & config.FLAG_PHOTOGRAPHER_PRIVATE:
                     cred = ''
             useful.file_mover(from_path, os.path.join(to_dir, to_name), mv=self.mv, ov=self.ov, inc=self.inc)
             ret['fn'] = to_name
@@ -983,7 +983,7 @@ class ActionForm(object):
                 link = pif.secure_prod + self.link
                 title = to_name
                 if cred:
-                    title += ' credited to ' + photog.name
+                    title += ' credited to ' + photog['name']
                 pif.ren.message('Post to Tumblr: ',
                                 tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
             pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, to_dir, to_name))

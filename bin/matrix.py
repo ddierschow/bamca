@@ -76,14 +76,14 @@ class MatrixFile(object):
             return
         if not (cat := pif.dbh.fetch_category(self.cat_id)):
             raise useful.SimpleError(f'Category not found. {self.cat_id}')
-        pif.ren.title = cat.name
+        pif.ren.title = cat['name']
         pif.ren.hierarchy_append('/database.php#cats', 'By Categories')
-        pif.ren.hierarchy_append(f'/cgi-bin/matrix.cgi?cat={self.cat_id}', cat.name)
+        pif.ren.hierarchy_append(f'/cgi-bin/matrix.cgi?cat={self.cat_id}', cat['name'])
         sec = {  # maybe make this the section for page_id='matrix'?
             'id': 'cat',
             'page_id': 'matrix',
             'display_order': 0,
-            'category': cat['category.name'],
+            'category': cat['name'],
             'flags': 0,
             'name': '',
             'columns': 4,
@@ -291,9 +291,9 @@ def select_matrix(pif):
     lran = render.Range(id='ml', name="A few of the special sets produced by Matchbox in recent years:")
     ser = pif.dbh.fetch_pages("id like 'matrix.%'", order='description, title')
     for ent in ser:
-        ent['page_info.id'] = ent['page_info.id'].split('.', 1)[-1]
-        link = '<b><a href="?page=%(page_info.id)s">%(page_info.title)s</a></b> - %(page_info.description)s' % ent
-        if not (ent['page_info.flags'] & 1):
+        ent['id'] = ent['id'].split('.', 1)[-1]
+        link = '<b><a href="?page=%(id)s">%(title)s</a></b> - %(description)s' % ent
+        if not (ent['flags'] & 1):
             lran.entry.append(link)
         elif pif.is_allowed('a'):  # pragma: no cover
             lran.entry.append('<i>' + link + '</i>')
@@ -337,17 +337,17 @@ def cats_main(pif):
 
 
 def check_pics(pif):
-    fmts = {(x['section.page_id'], x['section.id']): x['section.link_format']
+    fmts = {(x['page_id'], x['id']): x['link_format']
             for x in pif.dbh.fetch_sections(where='page_id like "matrix.%"')}
     probs = {}
     for ent in pif.dbh.fetch_matrix_models():
-        fmt = fmts.get((ent['matrix_model.page_id'], ent['matrix_model.section_id']), '')
+        fmt = fmts.get((ent['page_id'], ent['section_id']), '')
         is_num_id = d_re.search(fmt)
-        range_id = int(ent['matrix_model.range_id'] or 0) if is_num_id else ent['matrix_model.range_id']
+        range_id = int(ent['range_id'] or 0) if is_num_id else ent['range_id']
         image = useful.clean_name((fmt % range_id) if '%' in fmt else fmt, '/')
-        if image != ent['matrix_model.base_id']:
-            probs.setdefault(ent['matrix_model.page_id'], set())
-            probs[ent['matrix_model.page_id']].add(ent['matrix_model.section_id'])
+        if image != ent['base_id']:
+            probs.setdefault(ent['page_id'], set())
+            probs[ent['page_id']].add(ent['section_id'])
     for k, v in sorted(probs.items()):
         print(k, ' '.join(sorted(v)))
 
@@ -356,13 +356,13 @@ def check_dups(pif):
     count = {}
     found = []
     for mm in pif.dbh.fetch_matrix_models():
-        del mm['matrix_model.id']
-        del mm['matrix_model.display_order']
+        del mm['id']
+        del mm['display_order']
         if mm in found:
             print(mm)
         found.append(mm)
-        count.setdefault((mm['matrix_model.page_id'], mm['matrix_model.section_id']), 0)
-        count[(mm['matrix_model.page_id'], mm['matrix_model.section_id'])] += 1
+        count.setdefault((mm['page_id'], mm['section_id']), 0)
+        count[(mm['page_id'], mm['section_id'])] += 1
 #    print(len(found))
 #    for k, v in count.items():
 #        print(v, '.'.join(k))
@@ -386,7 +386,7 @@ def move_section(pif, section_id, old_page_id, new_page_id):
     print(pif.dbh.insert_or_update_section(sec.todict()))
     print('matrix_model')
     for model in pif.dbh.fetch_matrix_models(page_id=old_page_id, section=section_id):
-        model['matrix_model.page_id'] = new_page_id
+        model['page_id'] = new_page_id
         print(pif.dbh.insert_or_update_matrix_model(model))
     print('variation_select')
     for vs in pif.dbh.fetch_variation_selects_for_ref(old_page_id, section_id):
@@ -407,7 +407,7 @@ def set_base_id(pif, page_id, section_id, new_lfmt):
     if not page:
         print('no page')
         return
-    pdir = sec['section.pic_dir'] or page['page_info.pic_dir']
+    pdir = sec['section.pic_dir'] or page['pic_dir']
     old_lfmt = sec['section.link_format']
     is_old_num_id = d_re.search(old_lfmt)
     is_new_num_id = d_re.search(new_lfmt)
@@ -437,7 +437,7 @@ def rename_range_id(pif, page_id, section_id, old_range_id, new_range_id):
     if not sec:
         print('no section')
         return
-    pdir = sec['section.pic_dir'] or page['page_info.pic_dir']
+    pdir = sec['section.pic_dir'] or page['pic_dir']
     lfmt = sec['section.link_format']
     mm = pif.dbh.fetch_matrix_model(page_id, section_id, old_range_id)
     if not mm:

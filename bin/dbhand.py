@@ -288,11 +288,13 @@ class DBHandler(object):
     # - page_info
 
     def fetch_page(self, id, verbose=False):
-        return tables.Results('page_info', self.fetch('page_info', where={'id': id}, tag='Page', verbose=verbose)).first
+        where = f"id '{id}'" if id.startswith('like') else f"id='{id}'"
+        ret = self.depref('page_info', self.fetch('page_info', where=where, tag='Page', verbose=verbose))
+        return ret[0] if ret else None
 
     def fetch_pages(self, where, columns=None, group=None, order=None):
-        return tables.Results('page_info', self.fetch('page_info', columns=columns, where=where, group=group,
-                                                      order=order, tag='Pages'))
+        return self.depref('page_info', self.fetch('page_info', columns=columns, where=where, group=group,
+                                                   order=order, tag='Pages'))
 
     def fetch_page_years(self):
         return self.fetch(
@@ -319,7 +321,8 @@ class DBHandler(object):
             wheres['page_id'] = page_id
         if category:
             wheres['category'] = category
-        return tables.Results('section', self.fetch('section', where=wheres, tag='Section', verbose=verbose)).first
+        ret = self.depref('section', self.fetch('section', where=wheres, tag='Section', verbose=verbose))
+        return ret[0] if ret else None
 
     def fetch_sections_by_page_type(self, page_type, sec_id=None, verbose=False):
         where = f'section.page_id=page_info.id and page_info.format_type="{page_type}"'
@@ -327,10 +330,10 @@ class DBHandler(object):
             where += f' and section.id="{sec_id}"'
         secs = self.fetch('section,page_info', where=where, order='display_order', tag='SectionByPageType',
                           verbose=verbose)
-        return tables.Results('section', secs)
+        return self.depref('section', secs)
 
     def fetch_sections(self, where=None):
-        return tables.Results('section', self.fetch('section', where=where, order='display_order', tag='Sections'))
+        return self.depref('section', self.fetch('section', where=where, order='display_order', tag='Sections'))
 
     def insert_or_update_section(self, values, verbose=False):
         return self.write('section', values=values, tag='InsertOrUpdateSection', verbose=verbose)
@@ -338,14 +341,15 @@ class DBHandler(object):
     # - base_id
 
     def fetch_base_ids(self):
-        return tables.Results('base_id', self.fetch('base_id', tag='BaseIDs'))
+        return self.fetch('base_id', tag='BaseIDs')
 
     def fetch_base_id(self, id):
-        return tables.Results('base_id', self.fetch('base_id', where=f"id='{id}'", tag='BaseID')).first
+        ret = self.depref('base_id', self.fetch('base_id', where=f"id='{id}'", tag='BaseID'))
+        return ret[0] if ret else None
 
     def fetch_base_id_model_types(self):
-        return tables.Results('base_id', self.fetch('base_id', columns=['model_type'], group='model_type',
-                              order='model_type', tag='BaseIdModelType'))
+        return [x['base_id.model_type'] for x in
+                self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type', tag='BaseIdModelType')]
 
     def rename_base_id(self, old_mod_id, new_mod_id):
         tag = 'RenameBaseId'
@@ -955,7 +959,7 @@ class DBHandler(object):
                  "variation_select.ref_id != '' and lineup_model.mod_id=variation_select.mod_id and "
                  "lineup_model.page_id=variation_select.ref_id"),
                 ("publication", "variation_select.sec_id=publication.id"), ("base_id as pub", "pub.id=publication.id")]
-        return tables.Results(
+        return self.depref(
             'variation_select',
             self.fetch('variation_select', left_joins=left_joins, where=wheres, tag='VariationSelects', verbose=0))
 
@@ -1334,7 +1338,7 @@ class DBHandler(object):
             where.append(f"page_id='{page_id}'")
         if section:
             where.append(f"section_id='{section}'")
-        return tables.Results(
+        return self.depref(
             'matrix_model',
             self.fetch('matrix_model', where=self.make_where(where), order='display_order', tag='MatrixModels'))
 
@@ -1451,9 +1455,8 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         ]
         if page_id:
             wheres.append(f"l1.page_id='{page_id}'")
-        return tables.Results(
-            'link_line', self.fetch('link_line l1,link_line l2', columns=columns, where=" and ".join(wheres),
-                                    tag='LinksSingle', order="l1.display_order"))
+        return self.fetch('link_line l1,link_line l2', columns=columns, where=" and ".join(wheres),
+                          tag='LinksSingle', order="l1.display_order")
 
     def fetch_link_statuses(self, where):
         return self.fetch('link_line', where=where, columns=['last_status', 'count(*)'], group='last_status',
@@ -1467,14 +1470,8 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # - publication
 
     def fetch_publication(self, id):
-        return tables.Results('publication', self.fetch(
+        return self.depref('publication', self.fetch(
             'publication,base_id', where=["base_id.id=publication.id", f"base_id.id='{id}'"], tag='Publication'))
-
-    def fetch_publication_types(self):
-        cols = self.make_columns('publication') + self.make_columns('base_id') + ['count(*) as count']
-        return tables.Results('publication', self.fetch(
-            'publication,base_id', where=["base_id.id=publication.id"],
-            columns=cols, group='base_id.model_type', tag='PublicationTypes'))
 
     def fetch_publications(self, year=None, country=None, model_type=None, order=None, verbose=False):
         wheres = ['base_id.id=publication.id']
@@ -1496,12 +1493,6 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         if var:
             wheres.append(f"pack.var='{var}'")
         return self.fetch('pack,base_id', where=wheres, tag='Pack')
-
-    def fetch_pack_results(self, id, var=''):
-        wheres = [f"pack.id='{id}'", "pack.id=base_id.id"]
-        if var:
-            wheres.append(f"pack.var='{var}'")
-        return tables.Results('pack', self.fetch('pack,base_id', where=wheres, tag='Pack'))
 
     def fetch_packs(self, page_id='', year='', region=''):
         wheres = ["base_id.id=pack.id"]
@@ -1625,10 +1616,11 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             args.append(passwd)
         if email:
             where.append(f"email='{email}'")
-        return tables.Results('user', self.fetch('user', where=where, args=args, logargs=False, tag='User')).first
+        ret = self.depref('user', self.fetch('user', where=where, args=args, logargs=False, tag='User'))
+        return ret[0] if ret else None
 
     def fetch_users(self):
-        return tables.Results('user', self.fetch('user', tag='Users'))
+        return self.depref('user', self.fetch('user', tag='Users'))
 
     def login(self, id=None, user_id=None, passwd=None):
         table_name = self.make_tablename('user')
@@ -1709,8 +1701,8 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             'expires > NOW()',
             'user.id=cookie.user_id',
         ]
-        return tables.Results('cookie',
-                              self.fetch('cookie,user', where=wheres, tag='GetCookie')).last
+        ret = self.fetch('cookie,user', where=wheres, tag='GetCookie')
+        return ret[-1] if ret else None
 
     # - token
 
@@ -1733,12 +1725,12 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # - photographer
 
     def fetch_photographer(self, photographer_id):
-        return tables.Results('photographer',
-                              self.fetch('photographer', where=f'id="{photographer_id}"', tag='Photographer')).first
+        ret = self.depref('photographer', self.fetch('photographer', where=f'id="{photographer_id}"', tag='Photographer'))
+        return ret[0] if ret else None
 
     def fetch_photographers(self, notflags=0):
-        return tables.Results('photographer',
-                              self.fetch('photographer', where=f'(flags & {notflags}) = 0', tag='Photographers'))
+        return self.depref('photographer',
+                           self.fetch('photographer', where=f'(flags & {notflags}) = 0', tag='Photographers'))
 
     def fetch_photographer_counts(self, photographer_id=None):
         cols = self.make_columns('photographer') + ['count(*) as count'] + self.make_columns('photo_credit', 'c')
@@ -1747,7 +1739,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             wheres.append(f'photo_credit.photographer_id="{photographer_id}"')
         rows = self.fetch('photographer,photo_credit,photo_credit c', where=wheres,
                           columns=cols, group='photo_credit.photographer_id', tag='PhotographerCounts', verbose=False)
-        return tables.Results('photographer', rows)
+        return self.depref('photographer', rows)
 
     def write_photographer(self, photographer_id, values, verbose=False):
         where = f"id='{photographer_id}'"
@@ -1813,12 +1805,6 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                   f'photo_credit.path="{path}"']
         return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCreditVars', verbose=verbose)
 
-    def fetch_photographer_category_counts(self, photog_id):
-        cols = self.make_columns('photo_credit') + ['count(*) as count']
-        rows = self.fetch('photo_credit', where=f'photo_credit.photographer_id="{photog_id}"',
-                          columns=cols, group='photo_credit.path', tag='PhotographerCatCounts')
-        return tables.Results('photo_credit', rows)
-
     def write_photo_credit(self, photographer_id, path, name, suffix='', verbose=False):
         if path and name:
             if path.startswith('./'):
@@ -1864,17 +1850,17 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # - category
 
     def fetch_category(self, cat_id):
-        return tables.Results('category', self.fetch('category', where=f"id='{cat_id}'", tag="Cat")).first
+        ret = self.depref('category', self.fetch('category', where=f"id='{cat_id}'", tag="Cat"))
+        return ret[0] if ret else None
 
     def fetch_categories(self):
-        return tables.Results('category', self.fetch('category', tag='Cats'))
+        return self.depref('category', self.fetch('category', tag='Cats'))
 
     def fetch_category_counts(self):
         cols = self.make_columns('category') + ['count(*) as count']
         rows = self.fetch('category,variation_select', where='category.id=variation_select.category',
                           columns=cols, group='variation_select.category', tag='CatCounts')
-        return tables.Results('category', rows)
-        # return tables.Results('category', self.fetch('category', tag="Cats"))
+        return self.depref('category', rows)
 
     def insert_category(self, cat, name, flags=0):
         return self.write('category', values={'id': cat, 'name': name, 'flags': flags}, newonly=True, tag='WriteCat')
@@ -1882,11 +1868,11 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # - tumblr
 
     def fetch_tumblr_post(self):
-        return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), limit=1,
-                              tag='Tumblr')).first
+        ret = self.fetch('tumblr', columns=self.make_columns('tumblr'), limit=1, tag='Tumblr')
+        return ret[0] if ret else None
 
     def fetch_tumblr_posts(self):
-        return tables.Results('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), tag='Tumblrs'))
+        return self.depref('tumblr', self.fetch('tumblr', columns=self.make_columns('tumblr'), tag='Tumblrs'))
 
     def insert_tumblr(self, ty_post, response, payload):
         return self.write('tumblr', values={'post_type': ty_post, 'payload': payload, 'response': response},
@@ -1898,7 +1884,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # - mbusa
 
     def fetch_mbusa_entry(self, entry_id):
-        return tables.Results('mbusa', self.fetch('mbusa', where={'id': entry_id}, tag='MBUSAEntry'))
+        return self.fetch('mbusa', where={'id': entry_id}, tag='MBUSAEntry')
 
     # - miscellaneous
 
@@ -1909,7 +1895,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         cols = ['base_id.model_type', 'count(variation.var) as count']
         rows2 = self.fetch('base_id,variation', columns=cols, where='base_id.id=variation.mod_id',
                            group='base_id.model_type', tag='CountsVars')
-        return tables.Results('base_id', rows1), tables.Results('base_id', rows2)
+        return self.depref('base_id', rows1), self.depref('base_id', rows2)
 
     # ----- from mkdesc.py ------------------------------------
 
@@ -2086,35 +2072,3 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                 lengths[col] = (max(len(str(result[col])), abs(lengths[col])) *
                                 sign(lengths[col], str(result[col]).isdigit()))
         return '| ' + (' | '.join([f'%{x}s' for x in lengths])) + ' |'
-
-
-'''  These use Results.
-    def fetch_page(self, id, verbose=False):
-    def fetch_pages(self, where, columns=None, group=None, order=None):
-    def fetch_section(self, sec_id=None, page_id=None, category=None, verbose=False):
-    def fetch_sections_by_page_type(self, page_type, sec_id=None, verbose=False):
-    def fetch_sections(self, where=None):
-    def fetch_base_ids(self):
-    def fetch_base_id(self, id):
-    def fetch_base_id_model_types(self):
-    def fetch_variation_selects(self, mod_id=None, var_id=None, ref_id=None, sec_id=None, ran_id=None, category=None,
-    def fetch_matrix_models(self, page_id=None, section=None):
-    def fetch_links_single(self, page_id=None):
-    def fetch_publication(self, id):
-    def fetch_publication_types(self):
-    def fetch_pack_results(self, id, var=''):
-    def fetch_user(self, id=None, user_id=None, vkey=None, passwd=None, email=None):
-    def fetch_users(self):
-    def fetch_cookie(self, ckey):
-    def fetch_photographer(self, photographer_id):
-    def fetch_photographers(self, notflags=0):
-    def fetch_photographer_counts(self, photographer_id=None):
-    def fetch_photographer_category_counts(self, photog_id):
-    def fetch_category(self, cat_id):
-    def fetch_categories(self):
-    def fetch_category_counts(self):
-    def fetch_tumblr_post(self):
-    def fetch_tumblr_posts(self):
-    def fetch_mbusa_entry(self, entry_id):
-    def fetch_counts(self):
-'''

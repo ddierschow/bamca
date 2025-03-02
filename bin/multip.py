@@ -424,8 +424,8 @@ def packs_main(pif):
 
     def fmt_link(sec):
         return pif.ren.format_link(
-            '?sec=' + sec.id,
-            mbmods.add_icons(pif, 'p_' + sec.id, '', '') + '<center>' + sec.name + '</center>')
+            '?sec=' + sec['id'],
+            mbmods.add_icons(pif, 'p_' + sec['id'], '', '') + '<center>' + sec['name'] + '</center>')
 
     pif.ren.set_page_extra(pif.ren.image_selector_js)
     pif.ren.hierarchy_append('/', 'Home')
@@ -448,7 +448,7 @@ def packs_main(pif):
         if not sections:
             pif.ren.print_html()
             return mbmods.make_page_list(pif, 'packs', fmt_link)
-        pif.page_id = sections[0].page_info.id
+        pif.page_id = sections[0]['page_info.id']
         pif.ren.print_html()
         return make_pack_list(
             pif, 'packs',

@@ -114,22 +114,6 @@ class ManItem(object):
                 self.format_wheels = mod.format_wheels or ''
                 self.format_with = mod.format_with or ''
                 self.format_text = mod.format_text or ''
-            else:  # Results
-                self.id = self.ref_id = mod.base_id.id
-                self.first_year = mod.base_id.first_year
-                self.flags = mod.base_id.flags
-                self.model_type = mod.base_id.model_type
-                self.rawname = mod.base_id.rawname
-                self.description = mod.base_id.description
-                if mod.get('format_description') is not None:
-                    self.format_description = mod.format_description or ''
-                    self.format_body = mod.format_body or ''
-                    self.format_interior = mod.format_interior or ''
-                    self.format_windows = mod.format_windows or ''
-                    self.format_base = mod.format_base or ''
-                    self.format_wheels = mod.format_wheels or ''
-                    self.format_with = mod.format_with or ''
-                    self.format_text = mod.format_text or ''
             self.visual_id = self.default_id(self.id)
             self.name = self.rawname.replace(';', ' ')
 
@@ -141,14 +125,6 @@ class ManItem(object):
             self.notes = mod.notes or ''
             self.section_id = mod.section_id
             self.variation_digits = mod.variation_digits
-            if isinstance(mod, tables.Results) and mod.get('alias.id'):
-                self.section_id = mod['alias.section_id']
-                self.ref_id = mod['alias.ref_id']
-                if mod['first_year']:
-                    self.first_year = mod['first_year']
-                self.id = mod['id']
-                self.description += ';same as ' + self.ref_id
-                self.vehicle_type = mod['vehicle_type'] or ''
             self.count = mod.count or 0
 
             self.pack = PackItem(mod.pack if hasattr(mod, 'pack') else {})
