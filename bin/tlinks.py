@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+import glob
 from io import open
 import os
 import urllib
@@ -23,120 +24,75 @@ def links(pif):
     pif.ren.hierarchy_append('/', 'Home')
     pif.ren.hierarchy_append('/cgi-bin/links.cgi', 'Toy Links')
     if pif.form.get_int('id'):
-        link = pif.dbh.fetch_link_line(pif.form.get_int('id'))
-        if link:
-            return single_link(pif, link[0])
+        if link := pif.dbh.fetch_link_line(pif.form.get_int('id')):
+            return single_link(pif, pif.dbh.make_link_line_item(link))
     pif.ren.set_page_extra(pif.ren.reset_button_js)
     if pif.page_id != 'links.toylinks':
-        pif.ren.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.ren.title)
+        pif.ren.hierarchy_append(f'/cgi-bin/links.cgi?page={pif.page_id[6:]}', pif.ren.title)
     return link_page(pif)
 
 
 def single_link(pif, link):
-    if link['page_id'] != 'links.toylinks':
-        pif.ren.hierarchy_append('/cgi-bin/links.cgi?page=%s' % pif.page_id[6:], pif.ren.title)
+    if link.page_id != 'links.toylinks':
+        pif.ren.hierarchy_append(f'/cgi-bin/links.cgi?page={pif.page_id[6:]}', pif.ren.title)
     pif.ren.hierarchy_append('', 'Specific Link')
     extra = ''
     if pif.is_allowed('m'):  # pragma: no cover
-        extra = '- ' + pif.ren.format_button_link("edit", "edlinks.cgi?id=%s" % link['id'])
+        extra = '- ' + pif.ren.format_button_link("edit", f"edlinks.cgi?id={link.id}")
     return pif.ren.format_template('tlink.html', link=link, extra=extra)
 
 
 def link_page(pif):
+    page_id = 'makes' if pif.page_id == 'links.makes' else pif.page_id
     section_id = useful.clean_id(pif.form.get_str('section'))
-    if section_id:
-        sections = pif.dbh.fetch_sections({'page_id': pif.page_id, 'id': section_id})
-    else:
-        sections = pif.dbh.fetch_sections({'page_id': pif.page_id})
-    linklines = pif.dbh.fetch_link_lines(pif.page_id, not_flags=config.FLAG_ITEM_HIDDEN)
-    linklines = pif.dbh.depref('link_line', linklines)
-    linklines.sort(key=lambda x: int(x['display_order']))
-    sect_links = dict()
+    sections = pif.dbh.make_sec_items(pif.dbh.fetch_sections(
+        {'page_id': page_id, 'id': section_id} if section_id else
+        {'page_id': page_id})) if page_id != 'makes' else pif.dbh.make_sec_items([{'page_id': 'makes', 'id': 'all'}])
+    linklines = pif.dbh.make_link_line_items(pif.dbh.fetch_link_lines(page_id, order='display_order'))
+    sect_links = {}
     for link in linklines:
-        sect_links.setdefault(link['section_id'], list())
-        sect_links[link['section_id']].append(link)
+        if link.link_type != 'x' and not link.new and not link.hidden:
+            link.link_type = 'b' if pif.is_allowed('m') and link.last_status == 'exc' else link.link_type
+            link.comment = True
+            link.text = format_entry(pif, link)
+            sec_id = 'all' if page_id == 'makes' else link.section_id
+            sect_links.setdefault(sec_id, list())
+            sect_links[sec_id].append(link)
 
-    llineup = {'id': pif.page_id, 'name': '', 'section': []}
-    for lsec in sections:
-        lsec['anchor'] = lsec['id']
-        lsec['columns'] = 1
-        lran = {'id': 'range', 'name': '', 'entry': list(generate_links(pif, sect_links.get(lsec['id'], [])))}
-        lsec['range'] = [lran]
-        llineup['section'].append(lsec)
+    llineup = render.Listix(id=pif.page_id, section=[render.Section(
+        section=x, anchor=x.id,
+        range=[render.Range(id='range', entry=sect_links.get(x.id, []))]) for x in sections])
 
-    return pif.ren.format_template('tlinks.html', llineup=llineup, sections=sections,
-                                   flags=pif.ren.format_shown_flags())
-
-
-def generate_links(pif, links):
-    for ent in links:
-        if ent['link_type'] != 'x' and not (ent['flags'] & config.FLAG_LINK_LINE_NEW):
-            yield make_link(pif, ent)
-
-
-def make_link(pif, ent):
-    lnk = dict()
-    lnk['text'], lnk['desc'] = format_entry(pif, ent)
-    lnk['indent'] = (ent['flags'] & config.FLAG_LINK_LINE_INDENTED) != 0
-    lnk['id'] = ent['id']
-    cmd = ent['link_type']
-    lnk['comment'] = True
-    if pif.is_allowed('m'):  # pragma: no cover
-        if ent.get('last_status') == 'exc':
-            cmd = 'b'
-    lnk['linktype'] = cmd  # linktypes.get(cmd)
-    lnk['large'] = ent['flags'] & config.FLAG_LINK_LINE_FORMAT_LARGE
-    return lnk
+    return pif.ren.format_template('tlinks.html', llineup=llineup, flags=pif.ren.format_shown_flags())
 
 
 def format_entry(pif, ent):
-    dictFlag = {
-        '': ('o', pif.ren.format_image_art('wheel.gif', also={'class': 'dlm'})),
-        'Reciprocal': ('Reciprocal', pif.ren.fmt_mini(icon='refresh', alsoc='dlm')),
-        'PayPal': ('Accepts PayPal', pif.ren.fmt_mini(family='brands', icon='paypal', alsoc='dlm')),
+    dict_flag = {
+        '': pif.ren.format_image_art('wheel.gif', also={'class': 'dlm'}),
+        'Reciprocal': pif.ren.fmt_mini(icon='refresh', alsoc='dlm'),
+        'PayPal': pif.ren.fmt_mini(family='brands', icon='paypal', alsoc='dlm'),
     }
-    is_large = ent['flags'] & config.FLAG_LINK_LINE_FORMAT_LARGE
-    url = '' if ent['flags'] & config.FLAG_LINK_LINE_DISABLED else ent['url']
-    tag = ent['name']
     dlms = []
-    if ent['country']:
-        dlms.append(ent['country'])
-    cmt = ent['description']
-    if ent['flags'] & config.FLAG_LINK_LINE_RECIPROCAL:
+    if ent.country:
+        dlms.append(ent.country)
+    if ent.reciprocal:
         dlms.append('Reciprocal')
-    if ent['flags'] & config.FLAG_LINK_LINE_PAYPAL:
+    if ent.paypal:
         dlms.append('PayPal')
+    if not dlms and ent.description and not ent.format_large:
+        dlms.append('')
 
-    ostr = pif.ren.format_link(url, tag) + ' '
-
-    if not dlms and not cmt:
-        pass
-    elif not dlms:
-        # add name
-        if not is_large:
-            ostr += format_delimiter(pif, dictFlag[''])
-    else:
-        # also = {'class': 'dlm'}
-        for dlm in dlms:
-            flag = pif.ren.show_flag(dlm)
-            if flag:
-                ostr += useful.img_src(flag[1], also={'class': 'dlm'})
-            elif dlm in dictFlag:
-                ostr += format_delimiter(pif, dictFlag[dlm])
-            else:
-                useful.write_comment('tlinks.format_entry: dlm {} not found {}'.format(dlm, dictFlag))
-    # if cmt and is_large:
-    #    ostr += '<br>' + '<br>'.join(cmt.split('|'))
-    # else:
-    #    ostr += cmt
-    return ostr, cmt.split('|')
-
-
-def format_delimiter(pif, dlm):
-    return dlm[1] + ' '
-    also = {'class': 'dlm', 'alt': '[' + dlm[0] + ']'}
-    pif.ren.comment('format_delimiter', dlm)
-    return useful.img_src(dlm[1], also=also) + ' '
+    ostr = pif.ren.format_link('' if ent.disabled else ent.url,
+                               (f'{ent.section_id} - ' if ent.page_id == 'makes' else '') + ent.name) + ' '
+    # also = {'class': 'dlm'}
+    for dlm in dlms:
+        if flag := pif.ren.show_flag(dlm):
+            ostr += useful.img_src(flag[1], also={'class': 'dlm'})
+        elif dlm in dict_flag:
+            ostr += dict_flag[dlm]
+        else:
+            useful.write_comment(f'tlinks.format_entry: dlm {dlm} not found {dict_flag}')
+    return ostr
 
 
 # -- addlink
@@ -147,21 +103,21 @@ def read_config(pif, showall=False):
     listIndices = []
     listRejectCats = []
     dictCats = {}
-    allpages = pif.dbh.fetch_pages("id like 'links.%'")
+    allpages = pif.dbh.make_page_items(pif.dbh.fetch_pages("id like 'links.%'"))
     if pif.is_allowed('a'):  # and pif.ren.is_beta:  # pragma: no cover
-        showpage = {x['id']: 1 for x in allpages}
+        showpage = {x.id: True for x in allpages}
     else:
-        showpage = {x['id']: not (x['flags'] & config.FLAG_PAGE_INFO_HIDDEN) for x in allpages}
-    sections = pif.dbh.fetch_sections(where="page_id like 'links.%'")
+        showpage = {x.id: not x.is_hidden for x in allpages}
+    sections = pif.dbh.make_sec_items(pif.dbh.fetch_sections(where="page_id like 'links.%'"))
     for section in sections:
-        page_name = section['page_id'].split('.', 1)[1]
+        page_name = section.page_id.split('.', 1)[1]
         if page_name not in listIndices:
             listIndices.append(page_name)
-        if showpage[section['page_id']]:
-            listCats.append((section['id'], section['name']))
-        if section['page_id'] in ['links.rejects', 'links.trash']:
-            listRejectCats.append((section['id'], section['name']))
-        dictCats[section['id']] = page_name
+        if showpage.get(section.page_id):
+            listCats.append((section.id, section.name))
+        if section.page_id in ['links.rejects', 'links.trash']:
+            listRejectCats.append((section.id, section.name))
+        dictCats[section.id] = page_name
     return listCats, listIndices, dictCats, listRejectCats
 
 
@@ -174,7 +130,7 @@ def read_blacklist(pif):
 
 def is_blacklisted(url, rejects):
     for reject in rejects:
-        if url.find(reject) >= 0:
+        if reject in url:
             return reject
     return ''
 
@@ -189,15 +145,15 @@ def fix_url(url):
 def read_all_links(pif):
     highest_disp_order = {}
     all_links = []
-    for section in pif.dbh.fetch_sections(where="page_id like 'links%'"):
-        highest_disp_order.setdefault((section['page_id'], section['id']), 0)
+    for section in pif.dbh.make_sec_items(pif.dbh.fetch_sections(where="page_id like 'links%'")):
+        highest_disp_order.setdefault((section.page_id, section.id), 0)
     for link in pif.dbh.fetch_link_lines():
-        link = pif.dbh.depref('link_line', link)
-        highest_disp_order.setdefault((link['page_id'], link['section_id']), 0)
-        if link['display_order'] > highest_disp_order[(link['page_id'], link['section_id'])]:
-            highest_disp_order[(link['page_id'], link['section_id'])] = link['display_order']
-        if link['url'] and link['link_type'] in 'lsx':
-            all_links.append(fix_url(link['url']))
+        link = pif.dbh.make_link_line_item(link)
+        highest_disp_order.setdefault((link.page_id, link.section_id), 0)
+        if link.display_order > highest_disp_order[(link.page_id, link.section_id)]:
+            highest_disp_order[(link.page_id, link.section_id)] = link.display_order
+        if link.url and link.link_type in 'lsx':
+            all_links.append(fix_url(link.url))
     return all_links, highest_disp_order
 
 
@@ -249,7 +205,7 @@ def add_new_link(pif, dictCats, listRejects):
 
     if reasons:
         ostr += "<b>The site submitted is being rejected.  Sorry.</b><br>\n"
-        ostr += "Possible reason%s:<ul>\n" % useful.plural(reasons)
+        ostr += f"Possible reason{useful.plural(reasons)}:<ul>\n"
         for reason in reasons:
             ostr += "<li>" + reason + '\n'
         ostr += (
@@ -261,7 +217,7 @@ def add_new_link(pif, dictCats, listRejects):
     else:
         link['id'] = pif.dbh.insert_link_line(link)
         ostr += "Your suggestion has been sent to the site administrators.  Thank you.<br>"
-        check_link(pif, link)
+        check_link(pif, pif.dbh.make_link_line_item(link))
     return ostr
 
 
@@ -324,7 +280,7 @@ def edit_single(pif):
     link_id = pif.form.get_str('id')
     nlink = {x: pif.form.get_str(x) for x in table_data.columns}
     if pif.form.get_str('save'):
-        all_links, highest_disp_order = read_all_links(pif)
+        _, highest_disp_order = read_all_links(pif)
         if not nlink['id']:
             nlink['flags'] = 0
             if nlink['section_id'] == 'single' or nlink['page_id'] == 'makes':
@@ -358,7 +314,7 @@ def edit_single(pif):
             pif.dbh.update_link_line(nlink)
             pif.ren.message('<br>record saved<br>')
     elif pif.form.get_str('test'):
-        link = pif.dbh.fetch_link_line(link_id)[0]
+        link = pif.dbh.make_link_line_item(pif.dbh.fetch_link_line(link_id))
         check_link(pif, link)  # don't care about blacklist here, just actual check
     elif pif.form.get_str('delete'):
         pif.dbh.delete_link_line(link_id)
@@ -389,16 +345,15 @@ def edit_single(pif):
             'link_line.note': '',
         }
     else:
-        links = pif.dbh.fetch_link_lines(where="id='%s'" % link_id)
-        if not links:
+        link = pif.dbh.fetch_link_line(link_id)
+        if not link:
             raise useful.SimpleError("That ID wasn't found.")
-        link = links[0]
     asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name'])
                             for x in pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE)]
     descs = pif.dbh.describe_dict('link_line')
 
     header = '<form>' + pif.create_token()
-    header += '<input type="hidden" name="o_id" value="%s">\n' % link['link_line.id']
+    header += f'<input type="hidden" name="o_id" value="{link["link_line.id"]}">\n'
 
     entries = []
     for col in table_data.columns:
@@ -408,7 +363,7 @@ def edit_single(pif):
         # entries.append({'text': '<a href="%s">%s</a>' % (link.get(col_long, ''), link.get(col_long, ''))
         #                if col == 'url' else link[col_long]})
         if col in table_data.readonly:
-            cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, val)
+            cell = '&nbsp;' + pif.form.put_hidden_input({col: val})
         # elif col == 'page_id':
         #     cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, val)
         elif col == 'section_id':
@@ -462,28 +417,35 @@ def edit_multiple(pif, good=None):
     table_data = pif.dbh.get_table_data('link_line')
     page_id = ''
     sec_id = pif.form.get_str('sec', '')
+
+    where = flags = order = None
     if pif.form.get_str('as'):
-        linklines = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE, order="display_order")
+        flags = config.FLAG_LINK_LINE_ASSOCIABLE
+        order = "display_order"
     elif sec_id == 'new':
-        linklines = pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_NEW)
+        flags = config.FLAG_LINK_LINE_NEW
     elif sec_id == 'nonf':
-        linklines = pif.dbh.fetch_link_lines(
-            where="last_status is not Null and last_status != 'H200' and link_type in ('l','s') "
-                  "and page_id != 'links.rejects' and page_id != 'links.trash' and (flags & 32)=0")
+        where = ["last_status is not Null", "last_status != 'H200'", "link_type in ('l','s')"
+                 "page_id != 'links.rejects'", "page_id != 'links.trash'", "(flags & 32)=0"]
     elif stat:
-        wheres = ["page_id != 'links.rejects' and page_id != 'links.trash'" if good else
-                  "(page_id='links.rejects' or page_id='links.trash')",
-                  "last_status is NULL" if stat == 'None' else f"last_status='{stat}'"]
-        linklines = pif.dbh.fetch_link_lines(where=wheres, order='id')
+        where = ["page_id != 'links.rejects' and page_id != 'links.trash'" if good else
+                 "(page_id='links.rejects' or page_id='links.trash')",
+                 "last_status is NULL" if stat == 'None' else f"last_status='{stat}'"]
+        order = 'id'
     elif pif.form.get_str('page_id') == 'makes':
+        where = f"page_id='{pif.form.get_str('page_id')}'"
+        order = "section_id"
         page_id = 'makes'
-        linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page_id'), order="section_id")
     elif sec_id:
-        linklines = pif.dbh.fetch_link_lines(where="section_id='%s'" % sec_id, order="display_order")
+        where = f"section_id='{sec_id}'"
+        order = "display_order"
         section = pif.dbh.fetch_section(sec_id)
         page_id = section['page_id']
     else:
-        linklines = pif.dbh.fetch_link_lines(where="page_id='%s'" % pif.form.get_str('page_id'), order="display_order")
+        where = f"page_id='{pif.form.get_str('page_id')}'"
+        order = "display_order"
+
+    linklines = pif.dbh.fetch_link_lines(where=where, flags=flags, order=order)
     pif.ren.message(len(linklines), 'lines')
     pif.dbh.depref('link_line', linklines)
 
@@ -493,7 +455,7 @@ def edit_multiple(pif, good=None):
 
     entries = [{col: mangle_item(col, link.get(col, '')) for col in table_data.columns}
                for link in linklines]
-    footer = pif.ren.format_button_link("add", "edlinks.cgi?page_id=%s&sec=%s&add=1" % (page_id, sec_id))
+    footer = pif.ren.format_button_link("add", f"edlinks.cgi?page_id={page_id}&sec={sec_id}&add=1")
 
     llineup = render.Listix(
         id='tl', name='Edit Link',
@@ -562,28 +524,28 @@ def check_links(pif, sections=None, reject=[], retest=False, visible=False):
     pif.dbh.set_verbose(True)
     for sec in sections if sections else [None]:
         pif.dbh.clear_link_line_statuses(section=sec, where='last_status != "H200"' if retest else '')
-        links = pif.dbh.fetch_link_lines(section=sec, where='last_status is NULL' if retest else '', order='id')
+        links = pif.dbh.make_link_line_items(
+            pif.dbh.fetch_link_lines(section=sec, where='last_status is NULL' if retest else '', order='id'))
         for link in links:
-            if not retest or link['link_line.page_id'] != 'links.rejects':
+            if not retest or link.page_id != 'links.rejects':
                 check_link(pif, link, reject, visible=visible)
 
 
 def check_link(pif, link, rejects=[], visible=False):
     if link:
-        print(link, visible)
-        link = pif.dbh.depref('link_line', link)
+        print(link.__dict__, visible)
         lstatus = 'unset'
-        if visible and (link['flags'] & config.FLAG_LINK_LINE_HIDDEN or link['page_id'] == 'links.rejects'):
+        if visible and (link.hidden or link.page_id == 'links.rejects'):
             return
-        print(link['id'], link['url'],)
-        if link['flags'] & config.FLAG_LINK_LINE_NOT_VERIFIABLE or link['link_type'] in 'tfpn':
+        print(link.id, link.url,)
+        if link.not_verifiable or link.link_type in 'tfpn':
             lstatus = 'NoVer'
-        elif link['link_type'] in 'bglsx':
-            # ret = is_blacklisted(link['url'], rejects)
+        elif link.link_type in 'bglsx':
+            # ret = is_blacklisted(link.url, rejects)
             # if ret:
-            #     print(link['id'], link['section_id'], link['url'], "BLACKLISTED", ret)
-            # pif.dbh.dbi.remove('link_line', 'id=%s' % link['id'])
-            lurl = link['url']
+            #     print(link.id, link.section_id, link.url, "BLACKLISTED", ret)
+            # pif.dbh.dbi.remove('link_line', 'id=%s' % link.id)
+            lurl = link.url
             if lurl.startswith('/'):
                 lurl = 'https://www.bamca.org' + lurl
             try:
@@ -602,15 +564,30 @@ def check_link(pif, link, rejects=[], visible=False):
             except Exception as e:
                 pif.ren.message('Exception:', str(e))
                 lstatus = 'exc'
-        if link.get('last_status') != lstatus:
-            pif.dbh.update_link_line({'id': str(link['id']), 'last_status': lstatus})
+        if link.last_status != lstatus:
+            pif.dbh.update_link_line({'id': str(link.id), 'last_status': lstatus})
 
 
 # ---- ----------------------------------------------------
 
 
+def check_spam(pif):
+    reject, banned = read_blacklist(pif)
+    found = {}
+    for fn in glob.glob('../../comments/spam/comment.*'):
+        for x in open(fn).readlines():
+            if x.startswith('REMOTE_ADDR='):
+                x = x[12:].strip()
+                found.setdefault(x, 0)
+                found[x] += 1
+    for k, v in found.items():
+        if v > 5 and k not in reject and k not in banned:
+            print(v, k)
+            # print(pif.dbh.insert_blacklist(k, 'ip'))
+
+
 def check_blacklisted_links(pif, sections=None):
-    reject, banned = links.read_blacklist(pif)
+    reject, banned = read_blacklist(pif)
     pif.dbh.set_verbose(True)
     for sec in sections if sections else [None]:
         for link in pif.dbh.fetch_link_lines(section=sec):
@@ -634,7 +611,7 @@ def update_links(pif):
             bad_ids.append(id)
     bad_ids.sort()
     for ids in zip(good_ids, bad_ids):
-        print("update link_line set id=%d where id=%d;" % ids)
+        print(f"update link_line set id={ids} where id=%d;")
 
 
 def cl_check_links(pif, *filelist):
@@ -652,6 +629,7 @@ cmds = [
     ('u', update_links, "update"),
     ('c', cl_check_links, "check"),
     ('b', check_blacklisted_links, 'check blacklist'),
+    ('s', check_spam, 'check spam'),
 ]
 
 

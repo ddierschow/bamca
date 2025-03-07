@@ -14,24 +14,11 @@
 {{ flags }}
 {% endmacro %}
 
-{% macro showbullet(linktype) %}
-{% if linktype == 'b' %}<i class="fas fa-exclamation-triangle red"></i>
-{% elif linktype == 'f' %}<i class="fas fa-folder"></i>
-{% elif linktype == 'g' %}
-{% elif linktype == 'l' %}<span class="blue">&#x25cf;</span>
-{% elif linktype == 'n' %}&nbsp;
-{% elif linktype == 'p' %}
-{% elif linktype == 's' %}<i class="fas fa-star"></i>
-{% elif linktype == 't' %}
-{% elif linktype == 'x' %}&#x1F5D1;</i>
-{% endif %}
-{% endmacro %}
-
 {% macro showlink(ent) %}
-<div class="link{% if ent.indent %}-indent{% endif %}">
-{% if ent.linktype %}{{ showbullet(ent.linktype) }}{% endif %}
+<div class="link{% if ent.indented %}-indent{% endif %}">
+{% if ent.link_type %}{{ ent.bullet }}{% endif %}
 {{ ent.text }}
-{% if ent.large %}
+{% if ent.format_large %}
 </div>
 <div class="link-desc">
 {% endif %}
@@ -44,9 +31,9 @@
 
 <div class="linkspage">
 {{ llineup.name }}
-{% if sections|length > 1 %}
+{% if llineup.sections|length > 1 %}
 <div class="maintable"><center><ul class="header-links">
-{% for sec in sections %}
+{% for sec in llineup.sections %}
  <li class="header-link-item"><a href="#{{ sec.id }}" class="textbutton">&nbsp;{{ sec.name }}&nbsp;</a></li>
 {% endfor %}
 </ul></center></div>

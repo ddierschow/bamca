@@ -512,30 +512,35 @@ class PubItem(object):
 
 class PageItem(object):
 
-    def __init__(self, mod):
-        if isinstance(mod, dict):
-            self.id = mod.get('page_info.id') or ''
-            self.flags = mod.get('page_info.flags') or 0
-            self.format_type = mod.get('page_info.format_type') or ''
-            self.style_id = mod.get('page_info.style_id') or ''
-            self.title = mod.get('page_info.title') or ''
-            self.pic_dir = mod.get('page_info.pic_dir') or ''
-            self.tail = mod.get('page_info.tail') or ''
-            self.description = mod.get('page_info.description') or ''
-            self.note = mod.get('page_info.note') or ''
+    def __init__(self, pg):
+        if isinstance(pg, dict):
+            prefix = 'page_info.' if 'page_info.id' in pg else ''
+            self.id = pg.get(f'{prefix}id') or ''
+            self.flags = pg.get(f'{prefix}flags') or 0
+            self.format_type = pg.get(f'{prefix}format_type') or ''
+            self.style_id = pg.get(f'{prefix}style_id') or ''
+            self.title = pg.get(f'{prefix}title') or ''
+            self.pic_dir = pg.get(f'{prefix}pic_dir') or ''
+            self.tail = pg.get(f'{prefix}tail') or ''
+            self.description = pg.get(f'{prefix}description') or ''
+            self.note = pg.get(f'{prefix}note') or ''
         else:
-            self.id = mod.id or ''
-            self.flags = mod.flags or 0
-            self.format_type = mod.format_type or ''
-            self.style_id = mod.style_id or ''
-            self.title = mod.title or ''
-            self.pic_dir = mod.pic_dir or ''
-            self.tail = mod.tail or ''
-            self.description = mod.description or ''
-            self.note = mod.note or ''
+            self.id = pg.id or ''
+            self.flags = pg.flags or 0
+            self.format_type = pg.format_type or ''
+            self.style_id = pg.style_id or ''
+            self.title = pg.title or ''
+            self.pic_dir = pg.pic_dir or ''
+            self.tail = pg.tail or ''
+            self.description = pg.description or ''
+            self.note = pg.note or ''
 
     def __str__(self):
         return f'PageItem: {self.id}'
+
+    @property
+    def is_hidden(self):
+        return bool(self.flags & config.FLAG_PAGE_INFO_HIDDEN)
 
 
 class SecItem(object):
@@ -737,3 +742,97 @@ class MatItem(object):
     @property
     def not_made(self):
         return bool(self.flags & config.FLAG_MODEL_NOT_MADE)
+
+
+class LinkLineItem(object):
+
+    def __init__(self, ll):
+        if isinstance(ll, dict):
+            prefix = 'link_line.' if 'link_line.id' in ll else ''
+            self.id = ll[f'{prefix}id']
+            self.page_id = ll.get(f'{prefix}page_id') or ''
+            self.section_id = ll.get(f'{prefix}section_id') or ''
+            self.display_order = ll.get(f'{prefix}display_order') or 0
+            self.flags = ll.get(f'{prefix}flags') or 0
+            self.associated_link = ll.get(f'{prefix}associated_link') or ''
+            self.last_status = ll.get(f'{prefix}last_status') or ''
+            self.link_type = ll.get(f'{prefix}link_type') or ''
+            self.country = ll.get(f'{prefix}country') or ''
+            self.url = ll.get(f'{prefix}url') or ''
+            self.name = ll.get(f'{prefix}name') or ''
+            self.description = ll.get(f'{prefix}description') or ''
+            self.note = ll.get(f'{prefix}note') or ''
+        else:
+            self.id = ll.id
+            self.page_id = ll.page_id
+            self.section_id = ll.section_id
+            self.display_order = ll.display_order or 0
+            self.flags = ll.flags or 0
+            self.associated_link = ll.associated_link
+            self.last_status = ll.last_status
+            self.link_type = ll.link_type
+            self.country = ll.country
+            self.url = ll.url
+            self.name = ll.name
+            self.description = ll.description
+            self.note = ll.note
+
+    def __str__(self):
+        return f'LinkLineItem: {self.id}'
+
+    @property
+    def associable(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_ASSOCIABLE)
+
+    @property
+    def disabled(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_DISABLED)
+
+    @property
+    def format_large(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_FORMAT_LARGE)
+
+    @property
+    def hidden(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_HIDDEN)
+
+    @property
+    def indented(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_INDENTED)
+
+    @property
+    def new(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_NEW)
+
+    @property
+    def not_verifiable(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_NOT_VERIFIABLE)
+
+    @property
+    def paypal(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_PAYPAL)
+
+    @property
+    def reciprocal(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_RECIPROCAL)
+
+    @property
+    def bullet(self):
+        match self.link_type:
+            case 'b':
+                return '<i class="fas fa-exclamation-triangle red"></i>'
+            case 'f':
+                return '<i class="fas fa-folder"></i>'
+            case 'l':
+                return '<span class="blue">&#x25cf;</span>'
+            case 'n':
+                return '&nbsp;'
+            case 's':
+                return '<i class="fas fa-star"></i>'
+            case 'x':
+                return '&#x1F5D1;'
+        return ''
+
+    @property
+    def desc(self):
+        return self.description.split('|')

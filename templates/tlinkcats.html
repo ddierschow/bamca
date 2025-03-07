@@ -4,7 +4,7 @@
 <table width="100%"><tr><td width="65%" valign="top">
 <ul>
 {% for sec in sections %}
-<li><a href="edlinks.cgi?sec={{ sec['section.id'] }}">{{ sec['section.page_id'] }}: {{ sec['section.name'] }}</a>
+<li><a href="edlinks.cgi?sec={{ sec.id }}">{{ sec.page_id }}: {{ sec.name }}</a>
 {% endfor %}
 </ul>
 </td>

@@ -60,6 +60,7 @@ def simple_html(status=404):
     if not useful.is_header_done():
         print('Content-Type: text/html\n\n')
         print('Status:', status, http.client.responses.get(status, ''))
+        print()
     # print('<!--\n' + str(os.environ) + '-->')
     useful.header_done()
     useful.write_comment()

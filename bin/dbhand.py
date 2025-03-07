@@ -285,6 +285,12 @@ class DBHandler(object):
     def make_sec_item(self, sec):
         return models.SecItem(sec)
 
+    def make_link_line_items(self, mods):
+        return [self.make_link_line_item(x) for x in mods]
+
+    def make_link_line_item(self, mod):
+        return models.LinkLineItem(mod)
+
     # - page_info
 
     def fetch_page(self, id, verbose=False):
@@ -884,7 +890,7 @@ class DBHandler(object):
             tag='VarPlantCounts', verbose=False)
 
     def fetch_variation_base_names(self, mod_id):
-        return self.fetch('variation', columns=['base_name'], where=[f"mod_id='{mod_id}'", "base_name != ''"],
+        return self.fetch('variation', columns=['base_name'], where=[f"mod_id='{mod_id}'"],
                           distinct=True, tag='VarBaseNames', verbose=False)
 
     def insert_variation(self, mod_id, var_id, attributes={}, verbose=False):
@@ -1388,7 +1394,6 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             f"matrix_model.mod_id='{mod_id}'",
             f"page_info.flags & {config.FLAG_PAGE_INFO_HIDDEN} = 0",
         ]
-        # turn this into a fetch
         return self.fetch('matrix_model,page_info,section', where=wheres, tag='MatrixAppearances')
 
     def insert_or_update_matrix_model(self, values, verbose=False):
@@ -1409,8 +1414,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         return self.write('link_line', values=rec, newonly=True, tag='InsertLinkLine', verbose=verbose)
 
     def fetch_link_line(self, id):
-        # turn this into a fetch
-        return self.dbi.select('link_line', where=f"id='{id}'", tag='LinkLine')
+        return self.fetch('link_line', where=f"id='{id}'", one=True, tag='LinkLine')
 
     def fetch_link_line_url(self, url):
         # turn this into a fetch
@@ -1466,6 +1470,9 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     def fetch_blacklist(self):
         return self.fetch('blacklist', tag='Blacklist')
+
+    def insert_blacklist(self, target, reason):
+        return self.write('blacklist', values={'target': target, 'reason': reason}, newonly=True, tag='InsertBlacklist')
 
     # - publication
 

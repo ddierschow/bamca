@@ -382,7 +382,7 @@ def show_single(pif):
         variations = reduce_variations(pif, mod_id, raw_variations)
         useful.write_comment('RVARS', raw_variations)
         useful.write_comment('VARS', variations)
-    base_names = pif.dbh.fetch_variation_base_names(mod_id)
+    base_names = [x for x in pif.dbh.fetch_variation_base_names(mod_id) if x['base_name']]
     # years 1971 to 1981 needs to cleave W to U and R
     lineup_appearances = list()
     for appear in pif.dbh.depref('lineup_model', pif.dbh.fetch_casting_lineups(mod_id)):

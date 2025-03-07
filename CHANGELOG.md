@@ -1,3 +1,17 @@
+### 7.8.2  - 2025-03-06
+
+- Rewrite toylinks to use new objects
+- Fix consistency issues in this file
+- Remove dead tests
+- Tweaks to queries to avoid having to add pointless indexes
+- Add script to put spammers into the blacklist
+
+### 7.8.1  - 2025-03-03
+
+- Added the decalotype font
+- Fixed problems with csv/json
+- Minor redesign to the ront page
+
 ### 7.8.0  - 2025-03-02
 
 - Create new objects that will look more like ORM objects
@@ -7,11 +21,11 @@
 - Make dbintf a little prettier
 - Rewrite more string formatting
 - Add star definitions to packs
-- Sort attributes on var list.
+- Sort attributes on var list
 - Added credit hints to showing pictures in filsys
 - Add support for pulling diffs
 - Cleaned up var counts
-- Made varias do fewer queries.
+- Made varias do fewer queries
 - Converted listtype to an enum
 - Tried to add post blocks to tracebacks (might not work)
 - Added model type search
@@ -145,9 +159,9 @@
 
 ### 6.12.3 - 2018-12-02
 
-- Substantially rewrote the Matchbox USA ID pages, adding text format.
-- Many small fixes and tweaks to help with entering info from MBUSA.
-- Add variation verified/incorrect/unverified.
+- Substantially rewrote the Matchbox USA ID pages, adding text format
+- Many small fixes and tweaks to help with entering info from MBUSA
+- Add variation verified/incorrect/unverified
 
 ### 6.12.2 - 2018-11-11
 
@@ -170,22 +184,22 @@
 
 ### 6.12 - 2018-10-14
 
-- Switch http references to https.
-- Much rearranging of picture directory structure.
-- Rewrite variation select to be more rigorous.
-- Add support for playsets.
-- Add relationship between playsets and the models they contain.
-- Build out support for variation categories, with new category list.
-- Improve showing the variation appearances significantly.
-- Build out publications considerably, including puzzles, games, etc.
-- Add database counts page (admin only).
-- Add "Tilley" pages.
-- A bunch of tweaking to the image editor.
-- Officially phase out the "c" picture size (now "p").
-- Add "contents" pictures to packs and playsets.
-- Made multiyear lineup work again.
-- Made variation by category lists considerably stronger.
-- Add better icon support (separate from gfx).
+- Switch http references to https
+- Much rearranging of picture directory structure
+- Rewrite variation select to be more rigorous
+- Add support for playsets
+- Add relationship between playsets and the models they contain
+- Build out support for variation categories, with new category list
+- Improve showing the variation appearances significantly
+- Build out publications considerably, including puzzles, games, etc
+- Add database counts page (admin only)
+- Add "Tilley" pages
+- A bunch of tweaking to the image editor
+- Officially phase out the "c" picture size (now "p")
+- Add "contents" pictures to packs and playsets
+- Made multiyear lineup work again
+- Made variation by category lists considerably stronger
+- Add better icon support (separate from gfx)
 
 ### 6.11.1 - 2018-03-15
 
@@ -214,41 +228,41 @@
 6.10.1 - 2018-02-11
 6.10 - 2018-02-11
 
-- Renamed a bunch of files in bin.
+- Renamed a bunch of files in bin
 - Redo command line utilities, merging a bunch of little utilities
-  into purpose-related scripts, or into unittests.
-- Pounded on Result/Results, added them to a bunch of dbhand calls.
-- Move page errors to counter table.
-- Add paging support to dbhand.
-- Add "by plants" pages.
-- Add photographer pages.
-- Add "with" to variations.
-- Add mass attrpics and photogs.
-- Add vehicle types building and horse-drawn.
-- Add customized models page.
-- Make php pages actually disconnect from database.
-- Create new large scale models page to replace the models page.
-- Redo look of main index page.
-- Publish variation search page.
+  into purpose-related scripts, or into unittests
+- Pounded on Result/Results, added them to a bunch of dbhand calls
+- Move page errors to counter table
+- Add paging support to dbhand
+- Add "by plants" pages
+- Add photographer pages
+- Add "with" to variations
+- Add mass attrpics and photogs
+- Add vehicle types building and horse-drawn
+- Add customized models page
+- Make php pages actually disconnect from database
+- Create new large scale models page to replace the models page
+- Redo look of main index page
+- Publish variation search page
 
 ### 6.9.1 - 2019-03-13
 ### 6.9 - 2017-11-12
 
 - Add functools.wraps to decorators
 - Implement Results object for database queries
-    Still not exactly right, but getting there.
-    Moved a lot of random query logic into these objects.
+    Still not exactly right, but getting there
+    Moved a lot of random query logic into these objects
 - Implement use of Results object in several places
 - Add database setting to tables entries
-    Querying tables should now route to proper database transparently.
+    Querying tables should now route to proper database transparently
 - Add user item table
-    Haven't started implementing use of this yet.
+    Haven't started implementing use of this yet
 - Add photographer couonts page
-    Not ready for release.
+    Not ready for release
 - Promote credit on all photo promotions
 - Multiyear lineup now calculates product properly
 - Add "group" picture type
-    Not currently in use anywhere.
+    Not currently in use anywhere
 - Build out more credits
 - Implement radio buttons for image list types
 - Add radio support to web forms
@@ -257,7 +271,7 @@
 - Upload picture now checks '?' in url
 - Add more command line options to variation lists
 - Minor style changes, mainly for single
-    Biggest difference is that var description now has beige backgroun.
+    Biggest difference is that var description now has beige backgroun
 
 ### 6.8.3 - 2017-11-20
 ### 6.8.2 - 2017-10-01
