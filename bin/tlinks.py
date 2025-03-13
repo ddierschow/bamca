@@ -367,12 +367,8 @@ def edit_single(pif):
         # elif col == 'page_id':
         #     cell = '&nbsp;<input type="hidden" name="%s" value="%s">' % (col, val)
         elif col == 'section_id':
-            if link['link_line.page_id'] == 'makes':
-                cell = pif.form.put_select(
-                    'section_id', listMakes, selected=val, blank='Please choose one from the list')
-            else:
-                cell = pif.form.put_select(
-                    'section_id', listCats, selected=val, blank='Please choose one from the list')
+            cell = pif.form.put_select('section_id', listCats if link['link_line.page_id'] == 'makes' else listMakes,
+                                       selected=val, blank='Please choose one from the list')
         elif col == 'flags':
             cell = pif.form.put_checkbox("flags", table_data.bits['flags'],
                                          useful.bit_list(link[col_long], format='{:04x}'))
@@ -571,7 +567,8 @@ def check_link(pif, link, rejects=[], visible=False):
 # ---- ----------------------------------------------------
 
 
-def check_spam(pif):
+def check_spam(pif, limit=5):
+    limit = int(limit)
     reject, banned = read_blacklist(pif)
     found = {}
     for fn in glob.glob('../../comments/spam/comment.*'):
@@ -581,7 +578,7 @@ def check_spam(pif):
                 found.setdefault(x, 0)
                 found[x] += 1
     for k, v in found.items():
-        if v > 5 and k not in reject and k not in banned:
+        if v > limit and k not in reject and k not in banned:
             print(v, k)
             # print(pif.dbh.insert_blacklist(k, 'ip'))
 

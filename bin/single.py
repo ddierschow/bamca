@@ -16,6 +16,37 @@ import useful
 # http://beta.bamca.org/cgi-bin/single.cgi?dir=pic/prod/mworld&pic=2017u079&ref=year.2017&sub=67&id=MB895
 # fun fact: MB128 has the most different values for "manufacture" (6).
 
+# A single page does the following queries.
+# GetCookie
+# User
+# Page
+# Casting
+# VarBySelect
+# VarBaseNames
+# CastingLineups
+# MatrixAppearances
+# PackModelAppearances
+# Sections
+# BoxTypeByMod
+# BoxTypeByModAl
+# PhotoCredit - twice
+# VariationSelectCounts
+# PhotoCredit - twice
+# CastingMakes
+# Aliases
+# PhotoCredits
+# AttributePictures
+# VarPlantCounts
+# CastingRelated
+# VariationFiles
+# VarVS
+# Variations
+# Details1
+# Details3
+# Attributes
+# CastingRelatedExists
+# LinksSingle
+
 
 def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
     if not thismods:
@@ -139,39 +170,38 @@ id_re = re.compile(r'(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 
 
 def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations):
+    # This function holds ALL admin capability for this page.
     mod_id = model.id
-    links = []
+    lines = []
     if pif.is_allowed('a'):  # pragma: no cover
-        links.append(f'<a href="vars.cgi?recalc=1&mod={mod_id}">Recalculate</a>')
-        links.append('<a href="%s">Casting</a>' % pif.dbh.get_editor_link('casting', {'id': mod_id}))
-        links.append('<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id}))
-        links.append(f'<a href="mass.cgi?tymass=related&mod_id={mod_id}">Relateds</a>')
-        links.append(f'<a href="mass.cgi?tymass=alias&mod_id={mod_id}">Aliases</a>')
-        links.append(f'<a href="vars.cgi?edt=1&mod={mod_id}">Variations</a>')
-        links.append(f'<a href="vars.cgi?adl=1&mod={mod_id}">Attr Edit</a>')
-        links.append(f'<a href="vars.cgi?vdt=1&mod={mod_id}">Details</a>')
-        links.append(f'<a href="vars.cgi?vds=1&mod={mod_id}">Descriptions</a>')
-        links.append(f'<a href="vsearch.cgi?ask=1&id={mod_id}">Search</a>')
-        links.append(
+        lines.extend([
+            f'<a href="vars.cgi?recalc=1&mod={mod_id}">Recalculate</a>',
+            '<a href="%s">Casting</a>' % pif.dbh.get_editor_link('casting', {'id': mod_id}),
+            '<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id}),
+            f'<a href="mass.cgi?tymass=related&mod_id={mod_id}">Relateds</a>',
+            f'<a href="mass.cgi?tymass=alias&mod_id={mod_id}">Aliases</a>',
+            f'<a href="vars.cgi?edt=1&mod={mod_id}">Variations</a>',
+            f'<a href="vars.cgi?adl=1&mod={mod_id}">Attr Edit</a>',
+            f'<a href="vars.cgi?vdt=1&mod={mod_id}">Details</a>',
+            f'<a href="vars.cgi?vds=1&mod={mod_id}">Descriptions</a>',
+            f'<a href="vsearch.cgi?ask=1&id={mod_id}">Search</a>',
             f'<a href="pics.cgi?m={mod_id.lower()}">Pics</a> ' +
-            f'<a href="vars.cgi?lrg=1&mod={mod_id}&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>')
-        links.append(f'<a href="edlinks.cgi?page_id=single.{mod_id}">Links</a>')
+            f'<a href="vars.cgi?lrg=1&mod={mod_id}&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>',
+            f'<a href="edlinks.cgi?page_id=single.{mod_id}">Links</a>',
+        ])
     if os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower())):
         if pif.is_allowed('v'):  # pragma: no cover
-            links.append('<a href="traverse.cgi?d=%s">Library</a>' % useful.relpath(
+            lines.append('<a href="traverse.cgi?d=%s">Library</a>' % useful.relpath(
                 '.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
         if pif.is_allowed('a'):  # pragma: no cover
-            links.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (
+            lines.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (
                 useful.relpath('.', config.LIB_MAN_DIR,
                                mod_id.replace('/', '_').lower()), mod_id.replace('/', '_').lower()))
-            url = "/cgi-bin/traverse.cgi?mr=1&lty=mss&til=1&credit=DT&p={}&d={}".format(
-                imglib.get_tilley_file().get(mod_id.lower(), [''])[0] + '*',
-                useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
-            links.append(
-                f'<a href="{url}" target="_blank">Tilley List</a> '
+            lines.append(
+                f'<a href="/cgi-bin/library.cgi?m={mod_id}&til=1" target="_blank">Tilley List</a> '
                 f'<a href="/cgi-bin/pics.cgi?m={mod_id}&t=1">Im</a>')
 
-    ref_link = ostr = ''
+    ref_link = ''
     if pif.is_allowed('a'):  # pragma: no cover
         prodstar = pif.ren.fmt_star('black', hollow=True)
         if ref.startswith('year.'):
@@ -181,11 +211,11 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         elif ref.startswith('packs.'):
             ref_link = pif.dbh.get_editor_link('pack_model', {'pack_id': pif.form.get_str('sec'), 'mod_id': mod_id})
         if pic:
-            links.append('')
+            lines.append('')
             prodstar = pif.ren.fmt_star('white')
-            prod = '<a href="upload.cgi?d=%s&n=%s&c=%s&link=%s">%s</a>' % (
-                pdir.replace('pic', 'lib'), pic, pic, useful.url_quote(pif.request_uri),
-                pif.ren.fmt_mini(icon='upload'))
+            ldir = pdir.replace('pic', 'lib')
+            prod = (f'<a href="upload.cgi?d={ldir}&n={pic}&c={pic}&link={useful.url_quote(pif.request_uri)}">'
+                    f'{pif.ren.fmt_mini(icon="upload")}</a>')
             prodpic = pif.ren.find_image_path(pic, pdir=pdir, largest="m")
             if lm_pic_id:
                 prod = prodstar + '\n' + prod
@@ -193,8 +223,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
             elif prodpic:
                 x, y = imglib.get_size(prodpic)
                 prod = pif.ren.fmt_star('yellow' if x > 400 else 'black' if x == 400 else 'red') + '\n' + prod
-                prod += ' <a href="imawidget.cgi?act=1&d=./%s&f=%s&trash=1">' % (
-                    pdir, prodpic[prodpic.rfind('/') + 1:]) + pif.ren.fmt_x() + '</i></a>'
+                prodpicname = prodpic[prodpic.rfind('/') + 1:]
+                prod += f' <a href="imawidget.cgi?act=1&d=./{pdir}&f={prodpicname}&trash=1">{pif.ren.fmt_x()}</i></a>'
                 if ref_link:
                     prod += pif.ren.format_link(ref_link, pif.ren.fmt_edit())
             else:
@@ -202,55 +232,55 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
                 if ref_link:
                     prod += pif.ren.format_link(ref_link, ' ' + pif.ren.fmt_edit())
                 prod += f' <a href="{pif.request_uri}&useprev=1">{pif.ren.fmt_mini(icon="backward-step")}</a>'
+            prod += f' <a href="imawidget.cgi?d={pdir}&f=m_{pic}.jpg">{pif.ren.fmt_mini(icon="pen-ruler")}</a>'
             prod = pic + '<br>' + prod
-            links.append(prod)
-        links.append('')
+            lines.append(prod)
+        lines.append('')
         date_re = re.compile(r'^\d\d\d\d-\d\d-\d$')
         vfl = [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod_id)]
         vfl = sorted(set(['mbusa' if date_re.match(x) else x for x in vfl])) or ['importer']
         for vf in vfl:
-            links.append(f'<a href="vedit.cgi?d=src/mbxf&m={mod_id}&f={vf}">{vf}</a>')
+            lines.append(f'<a href="vedit.cgi?d=src/mbxf&m={mod_id}&f={vf}">{vf}</a>')
+        lines.append('')
         var_pics, var_texts, missing_ids = mbmods.show_list_var_pics(pif, mod_id)
         if missing_ids:
-            ostr += f'\n<span class="red">{missing_ids}</span><br>\n'
-        ostr += '<br>\n'.join(var_pics) + '<p>\n'
-        fmt_bad, _, _ = pif.dbh.check_description_formatting(mod_id)
-        ostr += pif.ren.fmt_x('red') if fmt_bad else pif.ren.fmt_check('green')
-        ostr += '<br>'
+            lines.append(f'\n<span class="red">{missing_ids}</span>')
+        lines.extend(var_pics)
+        lines.append('')
+        attrs = pif.dbh.fetch_attributes(mod_id)
+        fmt_bad, _, _ = pif.dbh.check_description_formatting_casting(model, attrs)
+        lines.append(pif.ren.fmt_x('red') if fmt_bad else pif.ren.fmt_check('green'))
         var_cnt, var_counts = var_texts
-        for k, v in var_counts.items():
-            mt = f'title="{mbmods.text_titles[k]}"'
-            ostr += pif.ren.fmt_star(
+        lines.append(''.join([
+            pif.ren.fmt_star(
                 'gray' if not model.get_attr(mbmods.text_fmts[k]) else 'red' if not v else
-                'green' if v == var_cnt else 'yellow', also=mt, alsoc='smallish')
-        ostr += '<p>\n'
+                'green' if v == var_cnt else 'yellow', also=f'title="{mbmods.text_titles[k]}"', alsoc='smallish')
+            for k, v in var_counts.items()]))
+        lines.append('')
         var_ids = [x['v.var'] for x in raw_variations]
         var_ids.sort()
         for var in var_ids:
-            ostr += f'<a href="vars.cgi?mod={mod_id}&var={var}&edt=1">{var}</a>\n'
+            ln = f'<a href="vars.cgi?mod={mod_id}&var={var}&edt=1">{var}</a> '
             if var:
-                for sz in mbdata.image_size_types:
-                    if os.path.exists(
-                            useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + mod_id + '-' + var + '.jpg').lower()):
-                        ostr += sz.upper() + ' '
-                ostr += f'<a href="vars.cgi?mod={mod_id}&var={var}&edt=1">{pif.ren.fmt_edit()}</a>\n'
-                ostr += pif.ren.format_link('upload.cgi?d=%s&m=%s&v=%s&l=1&c=%s+variation+%s' % (
-                    useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var, mod_id, var),
-                    pif.ren.fmt_mini(icon='upload')) + '\n'
-                ostr += pif.ren.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (
+                ln += ''.join([x.upper() for x in mbdata.image_size_types if os.path.exists(
+                    useful.relpath('.', config.IMG_DIR_VAR, f'{x}_{mod_id}-{var}.jpg').lower())]) + ' '
+                ln += f'<a href="vars.cgi?mod={mod_id}&var={var}&edt=1">{pif.ren.fmt_edit()}</a>\n'
+                ln += pif.ren.format_link(
+                    f'upload.cgi?d={useful.relpath(".", config.LIB_MAN_DIR, mod_id.lower())}&'
+                    f'm={mod_id}&v={var}&l=1&c={mod_id}+variation+{var}', pif.ren.fmt_mini(icon='upload')) + '\n'
+                ln += pif.ren.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (
                     useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var),
                     pif.ren.fmt_mini(icon='bars')) + '\n'
-            ostr += '<br>\n'
-        for attr in pif.dbh.fetch_attributes(mod_id):
-            ostr += attr['attribute.attribute_name'] + '<br>\n'
-    ostr = '<br>\n'.join(links) + '<p>\n' + ostr
-    return ostr
+            lines.append(ln)
+        lines.append('')
+        for attr in attrs:
+            lines.append(attr['attribute.attribute_name'])
+    return lines
 
 
 def make_boxes(pif, mod_id, box_types, mack_nums):
     mod_id = box_types[0]['box_type.mod_id']
     base_box_types = [box['box_type.box_type'][0] for box in box_types]
-    # box_fmt = "<b>%s style box</b><br>%s"  # <br>%s entries"
     # rewrite this.  glob for alternate boxes.  well, maybe.
     entries = [{
         'desc':
@@ -270,8 +300,6 @@ def show_lineup_appearances(pif, appearances):
     if not appearances:
         return {}
 
-    # useful.write_comment(str(appearances))
-    # lineup appearances
     yd = {}
     rs = set()
     for appear in appearances:
@@ -349,8 +377,7 @@ def make_plants(pif, mod_id, plants):
 
 @basics.web_page
 def show_single(pif):
-    img_re = re.compile(r'src="(?P<u>[^"]*)"')
-    model = pif.dbh.fetch_casting(pif.form.get_id('id'), extras=True, verbose=True)
+    model = pif.dbh.fetch_casting(pif.form.get_id('id'), extras=True)
     if not model:
         raise useful.SimpleError("That ID wasn't found.", status=404)
     pif.ren.print_html()
@@ -373,16 +400,16 @@ def show_single(pif):
     pif.ren.hierarchy_append('/cgi-bin/single.cgi', 'By ID')
     pif.ren.hierarchy_append(f'/cgi-bin/single.cgi?id={mod_id}', mod_id)
 
-    useful.write_comment('ARGS', mod_id, 'P', pdir, pic, 'Ref', ref, '/', sec, sec_list, '.', ran, 'Rg', reg, reg_list)
+    # useful.write_comment('ARGS', mod_id, 'P', pdir, pic, 'Ref', ref, '/', sec, sec_list, '.', ran, 'Rg', reg, reg_list)
 
     pif.ren.comment('id=', mod_id, 'man=', model.__dict__)
     raw_variations = variations = []
     if ref:
         raw_variations = pif.dbh.fetch_variation_by_select(mod_id, ref, sec_id=sec_list, ran_id=ran)
         variations = reduce_variations(pif, mod_id, raw_variations)
-        useful.write_comment('RVARS', raw_variations)
-        useful.write_comment('VARS', variations)
-    base_names = [x for x in pif.dbh.fetch_variation_base_names(mod_id) if x['base_name']]
+        # useful.write_comment('RVARS', raw_variations)
+        # useful.write_comment('VARS', variations)
+    base_names = sorted(set([x['base_name'] for x in pif.dbh.fetch_variation_base_names(mod_id) if x['base_name']]))
     # years 1971 to 1981 needs to cleave W to U and R
     lineup_appearances = list()
     for appear in pif.dbh.depref('lineup_model', pif.dbh.fetch_casting_lineups(mod_id)):
@@ -430,22 +457,18 @@ def show_single(pif):
 
     pif.ren.title = f'{model.casting_type} {model.id}: {model.name}'
     product_img = pif.ren.format_image_sized(pic, pdir=pdir, largest=mbdata.IMG_SIZ_MEDIUM)
-    product_img_credit = pif.dbh.fetch_photo_credit(pdir, pic, verbose=True)
+    product_img_credit = pif.dbh.fetch_photo_credit(pdir, pic)
     # product_img_credit = product_img_credit['photographer.name'] if product_img_credit else ''
     product_img_credit = pif.ren.format_credit(product_img_credit)
-    if product_img and pif.is_allowed('a'):  # pragma: no cover
-        img = img_re.search(product_img).group('u')
-        url = 'imawidget.cgi?d=%s&f=%s' % tuple(img[3:].rsplit('/', 1))
-        product_img = pif.ren.format_link(url, product_img)
 
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
     prodnames = sorted(set([x['name'] for x in matrix_appearances + lineup_appearances
                        if x['name'] != model.name]))
-    for x in matrix_appearances:
-        useful.write_comment('M', x['id'], x['name'])
-    for x in lineup_appearances:
-        useful.write_comment('L', x['id'], x['year'], x['region'], x['number'], x['name'])
+    # for x in matrix_appearances:
+    #     useful.write_comment('M', x['id'], x['name'])
+    # for x in lineup_appearances:
+    #     useful.write_comment('L', x['id'], x['year'], x['region'], x['number'], x['name'])
     model.imgid = [model.id]
     vehicle_types = [mbdata.model_icons.get(x) for x in model.vehicle_type]
     descs = []
@@ -460,7 +483,7 @@ def show_single(pif):
     model.img = pif.ren.format_image_required(
         model.imgid, made=model.made, pdir=config.IMG_DIR_MAN,
         largest=mbdata.IMG_SIZ_MEDIUM if product_img else mbdata.IMG_SIZ_LARGE)
-    model_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, model.imgid[0], verbose=True)
+    model_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, model.imgid[0])
     model.credit = pif.ren.format_credit(model_img_credit)
     if model.country:
         model.country_flag = pif.ren.format_image_flag(model.country)
@@ -489,15 +512,14 @@ def show_single(pif):
             'link': 'makes.cgi?make=' + make['casting_make.make_id'],
         }
 
+    aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
     model.makes = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
     # move these to left pane
-    boxes = [make_boxes(pif, mod_id, boxstyles, [x['alias.id']
-             for x in pif.dbh.fetch_aliases(mod_id, 'mack')])] if boxstyles else []
+    boxes = [make_boxes(pif, mod_id, boxstyles, [x['alias.id'] for x in aliases])] if boxstyles else []
     adds = boxes + mbmods.make_adds(pif, mod_id)
 
     plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))
     relateds = pif.dbh.fetch_casting_relateds(mod_id)
-    aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
     mack_nums = mbmods.get_mack_numbers(pif, mod_id, model.model_type, aliases)
     model.notes = '<br>'.join(model.notes.split(';'))
 
@@ -513,7 +535,7 @@ def show_single(pif):
             else '',
         'vehicle_type': vehicle_types,
         'rowspan': '4',
-        'left_bar_content': show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations),
+        'left_bar_content': '<br>\n'.join(show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)),
         'model': model,
         'variations': variations,
         'prod_title': ' - '.join([x for x in prod_title if x]),
@@ -531,14 +553,12 @@ def show_single(pif):
         'relateds': make_relateds(pif, mod_id, [x for x in relateds if x['casting_related.section_id'] == 'single']),
         'compares':
             make_compares(pif, mod_id, [x for x in relateds if x['casting_related.section_id'] in ['sf', 'rw', 'tr']]),
-        'adds_box': mbmods.show_adds(pif, mod_id),
         'adds': adds,
         'plants': plants,
         'base_names': base_names,
         'info_cols': (int(bool(model.makes)) + int(bool(mack_nums)) +
                       int(bool(model.scale)) + int(bool(model.country)) + int(bool(model.first_year))),
-        'man_cat': pif.ren.format_link('/cgi-bin/manno.cgi?section={}#{}'.format(model.section_id, mod_id),
-                                       model.section.name),
+        'man_cat': pif.ren.format_link(f'/cgi-bin/manno.cgi?section={model.section_id}#{mod_id}', model.section.name),
         'revised': model.casting_revised,
         # 'group': pif.ren.find_image_path(mod_id, prefix='g', pdir=config.IMG_DIR_ADD)
     }

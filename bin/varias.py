@@ -157,7 +157,7 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     lsec.range = ranges
     llistix = render.Listix(id='single', section=[lsec])
 
-    appearances = show_appearances(pif, mod_id, var_id, pics=True)
+    appearances = show_appearances(pif, mod_id, var_id, pif.is_allowed('a'))
     adds = mbmods.show_adds(pif, mod_id, var_id)
     upload = f'upload.cgi?m={mod_id}&v={var_id}' + (f'&d={manitem.libdir}' if pif.is_allowed('u') else '')
 
@@ -191,6 +191,14 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     return pif.ren.format_template('var.html', **context)
 
 
+def format_varsel(var_sel):
+    return (
+        var_sel['ref_id'] +
+        (('/' + var_sel['sec_id']) if var_sel['sec_id'] else '/' if var_sel['ran_id'] else '') +
+        (('.' + var_sel['ran_id']) if var_sel['ran_id'] else '') +
+        ((':' + var_sel['category.id']) if var_sel['category.id'] else ''))
+
+
 def get_varsels(pif, mod_id):
     var_selects = pif.dbh.fetch_variation_selects(mod_id, bare=True)
     catdefs = {x['category.id']:
@@ -202,12 +210,7 @@ def get_varsels(pif, mod_id):
         varsels.setdefault(var_sel['var_id'], [])
         varsels[var_sel['var_id']].append(var_sel)
         selects.setdefault(var_sel['var_id'], [])
-        selects[var_sel['var_id']].append(
-            var_sel['ref_id'] +
-            (('/' + var_sel['sec_id']) if var_sel['sec_id'] else '/' if var_sel['ran_id'] else '') +
-            (('.' + var_sel['ran_id']) if var_sel['ran_id'] else '') +
-            ((':' + var_sel['category.id']) if var_sel['category.id'] else '')
-        )
+        selects[var_sel['var_id']].append(format_varsel(var_sel))
     return selects, varsels, catdefs
 
 
@@ -228,7 +231,7 @@ def get_attributes(pif, mod_id):
     return attr_pics, attributes
 
 
-def show_appearances(pif, mod_id, var_id, pics=False):
+def show_appearances(pif, mod_id, var_id, errors=False):
     varsel = pif.dbh.fetch_variation_selects(mod_id, var_id)
     appears = []
     for vs in varsel:
@@ -283,12 +286,9 @@ def show_appearances(pif, mod_id, var_id, pics=False):
         elif not vs.get('ref_id', ''):
             if (vs.get('category.flags') or 0) & config.FLAG_CATEGORY_INDEXED:
                 appears.append(pif.ren.format_link("cats.cgi?cat=%(category.id)s" % vs, vs['category.name']))
-        elif pif.is_allowed('a'):  # pragma: no cover
-            appears.append('<i>ref_id = ' + str(vs['ref_id']) +
-                           (' / sec_id = ' + str(vs['sec_id'])) if vs['sec_id'] else '' + f"<br>(vs = {vs})</i>\n")
-    if appears:
-        return "<b>Appearances</b>\n<ul>\n" + ''.join(['<li>' + x + '\n' for x in appears]) + '</ul>\n'
-    return ''
+        elif errors:
+            appears.append(f'<i>({vs["id"]}) {format_varsel(vs)}')
+    return appears
 
 
 # ----- variation editor ----------------------------------
@@ -2270,6 +2270,14 @@ def sx(pif, lt):
         print(useful.pick(vl))
 
 
+def check_appearances(pif, *mod_ids):
+    for mod_id in mod_ids or pif.dbh.fetch_casting_ids():
+        for var in pif.dbh.fetch_variations_bare(mod_id):
+            for x in show_appearances(pif, mod_id, var['variation.var'], errors=True):
+                if x.startswith('<i>'):
+                    print(mod_id, var['variation.var'], x, flush=True)
+
+
 cmds = [
     ('d', delete_variation, "delete: mod_id var_id"),
     ('a', add_variation, "add: mod_id var_id body"),
@@ -2289,6 +2297,7 @@ cmds = [
     ('ver', verify, "verify: [v|i|u] mod_id var_id ..."),
     # ('cv', count_vars, "count vars"),   # broken
     ('x', fix_var, "fix var"),
+    ('ckap', check_appearances, "check appearances"),
     ('ckvs', check_variation_select, "check variation select"),
     ('ckmd', check_mod_data, "check model data"),
     ('ckvd', check_var_data, "check variation data"),

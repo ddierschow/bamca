@@ -669,14 +669,14 @@ def run_product_pics(pif, region):
 def gather_rank_pages(pif, pages, region):
     # all this is to grab pic_dir and img_format from section.  that's it.
     region_list = mbdata.get_region_tree(region)
-    sections = [x for x in pif.dbh.fetch_sections(where="page_id like 'year.%'")
+    sections = [pif.dbh.make_sec_item(x) for x in pif.dbh.fetch_sections(where="page_id like 'year.%'")
                 if x['id'][0] in region_list]
-    sections.sort(key=lambda x: x['start'], reverse=True)
+    sections.sort(key=lambda x: x.start, reverse=True)
     for rg in region_list:
         for page in pages:
             pages[page].setdefault('section', list())
             for section in sections:
-                if section['id'].startswith(rg) and section['page_id'] == page:
+                if section.id.startswith(rg) and section.page_id == page:
                     pages[page]['section'].append(section)
     # now each page should have the right sections and in the right order
     # the first section found where start < num is the right one
@@ -688,7 +688,7 @@ def get_product_image(page, mnum):
         if page['section']:
             section = page['section'][0]
             # useful.write_comment('get_product_image section', section['page_id'], section['id'])
-            return section['link_format'], page['page_info.pic_dir']
+            return section.link_format, page['page_info.pic_dir']
         # useful.write_comment('get_product_image no section')
     # else:
         # useful.write_comment('get_product_image no page')

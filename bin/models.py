@@ -575,6 +575,7 @@ class SecItem(object):
             self.link_format = sec.link_format or ''
             self.img_format = sec.img_format or ''
             self.note = sec.note or ''
+        self.model_ids = []
 
     def __str__(self):
         return f'SecItem: {self.id}'
@@ -677,14 +678,14 @@ d_re = re.compile(r'%\d*d')
 class MatItem(object):
 
     def __init__(self, mat, sec):
-        self.disp_format = sec['disp_format']
-        is_num_id = d_re.search(sec['disp_format']) or d_re.search(sec['link_format']) or d_re.search(sec['img_format'])
-        self.pdir = sec['pic_dir']
+        self.disp_format = sec.disp_format
+        is_num_id = d_re.search(sec.disp_format) or d_re.search(sec.link_format) or d_re.search(sec.img_format)
+        self.pdir = sec.pic_dir
 
         prefix = 'matrix_model.' if 'matrix_model.id' in mat else ''
         self.id = mat.get(f'{prefix}id') or ''
         self.mod_id = mat.get(f'{prefix}mod_id') or ''
-        self.section_id = mat.get(f'{prefix}section_id') or sec['id']
+        self.section_id = mat.get(f'{prefix}section_id') or sec.id
         self.display_order = mat.get(f'{prefix}display_order') or 0
         self.page_id = mat.get(f'{prefix}page_id') or 'matrix'
         self.range_id = mat.get(f'{prefix}range_id') or ''
@@ -710,11 +711,11 @@ class MatItem(object):
         # call format_image_* with that.
         if is_num_id:
             self.range_id = int(self.range_id) if self.range_id else 0
-        if self.range_id and sec['disp_format']:
+        if self.range_id and sec.disp_format:
             self.disp_id = self.range_id
-        if self.range_id and sec['link_format']:
-            self.link = (useful.clean_name(sec['link_format'] % self.range_id, '/') if '%' in sec['link_format'] else
-                         useful.clean_name(sec['link_format'], '/'))
+        if self.range_id and sec.link_format:
+            self.link = (useful.clean_name(sec.link_format % self.range_id, '/') if '%' in sec.link_format else
+                         useful.clean_name(sec.link_format, '/'))
 
         self.vs = VSItem(mat)
         self.sub_id_matches = not (self.sub_id and self.vs.sec_id and self.sub_id != self.vs.sec_id)

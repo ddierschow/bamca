@@ -1,3 +1,13 @@
+### 7.8.3  - 2025-03-13
+
+- Use section items in matrix, mannum, lineup, and others
+- Clean up matrix styles
+- Add test for variation appearances and clean up how they're shown
+- Remove many empty CSS files
+- Clean up some queries
+- Clean up single a lot
+- Tweaks and cleanups
+
 ### 7.8.2  - 2025-03-06
 
 - Rewrite toylinks to use new objects

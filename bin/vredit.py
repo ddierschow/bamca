@@ -493,7 +493,7 @@ def show_casting(pif, mod, file_id):
     print(pif.form.put_button_input('save', 'save casting'))
     print("</form>")
 
-    fmt_invalid, messages, missing = pif.dbh.check_description_formatting(mod['id'], '<br>')
+    fmt_invalid, messages, missing = pif.dbh.check_description_formatting(mod['id'], linesep='<br>')
     for attr in missing:
         print(pif.ren.format_button_link("add", "?f=%s&m=%s&addattr=%s" % (file_id, mod['id'], attr)), attr, '<br>')
     if fmt_invalid:

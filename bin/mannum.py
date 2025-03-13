@@ -161,6 +161,7 @@ class MannoFile(object):
                                        if self.section else {'page_id': pif.page_id})
         if not slist:
             raise useful.SimpleError(f'Requested section not found: {self.section}')
+        slist = pif.dbh.make_sec_items(slist)
 #        aliases = pif.dbh.fetch_aliases()
         adict = {}
 #        for alias in aliases:
@@ -170,9 +171,8 @@ class MannoFile(object):
         self.sdict = {}
         self.slist = []
         for section in slist:
-            if section['page_id'] in self.plist and (not self.section or section['id'] == self.section):
-                section.setdefault('model_ids', list())
-                self.sdict[section['id']] = section
+            if section.page_id in self.plist and (not self.section or section.id == self.section):
+                self.sdict[section.id] = section
                 self.slist.append(section)
 
         # useful.write_message(self.start, self.end, self.firstyear, self.lastyear, self.model_type, self.nodesc)
@@ -188,7 +188,7 @@ class MannoFile(object):
         manitem = pif.dbh.make_man_item(casting)
         aliases = [x for x in aliases if x['alias.type'] == 'mack']
         manitem.mack = ','.join(mbmods.get_mack_numbers(pif, manitem.id, manitem.model_type, aliases))
-        if manitem.section_id in self.sdict and manitem.id not in self.sdict[manitem.section_id]['model_ids']:
+        if manitem.section_id in self.sdict and manitem.id not in self.sdict[manitem.section_id].model_ids:
             self.add_item(manitem.id, manitem)
 
     def add_alias(self, pif, alias):
@@ -201,7 +201,7 @@ class MannoFile(object):
         if self.is_item_shown(manitem) and man_id not in self.mdict:
             manitem.nodesc = self.nodesc
             manitem.type_desc = self.types(manitem.vehicle_type)
-            self.sdict[manitem.section_id]['model_ids'].append(man_id)
+            self.sdict[manitem.section_id].model_ids.append(man_id)
             self.mdict[man_id] = manitem
             # useful.write_message('ai', manitem.id)
 
@@ -212,7 +212,7 @@ class MannoFile(object):
         sections = list()
         for sec in self.slist:
             # if sec['model_ids']:
-            sec['model_ids'].sort()
+            sec.model_ids.sort()  # needs key?
             sections.append(FunctionShowSection(pif, sec))
         return sections
 
@@ -264,10 +264,10 @@ class MannoFile(object):
     def show_section_manno_template(self, pif, sect):
         lsec = render.Section(
             section=sect,
-            anchor=sect['id'],
+            anchor=sect.id,
             range=[render.Range(entry=[
                 render.Entry(data=x)
-                for x in mbmods.generate_model_table_pic_link_man_item(pif, self.mdict, sect['model_ids'])])]
+                for x in mbmods.generate_model_table_pic_link_man_item(pif, self.mdict, sect.model_ids)])]
         )
         if self.large:
             lsec.columns = 1
@@ -283,10 +283,10 @@ class MannoFile(object):
 
     def get_section_list(self, pif, sect):
         cols = 3
-        sect['entry'] = [mbmods.add_model_table_list_entry_man_item(pif, self.mdict.get(modid, {}))
-                         for modid in useful.reflect(sect['model_ids'], cols)]
-        sect['columns'] = cols
-        sect['anchor'] = sect['id']
+        modlist = list(useful.reflect(sect.model_ids, cols))
+        sect.entry = [mbmods.add_model_table_list_entry_man_item(pif, self.mdict.get(x, {})) for x in modlist]
+        sect.columns = cols
+        sect.anchor = sect.id
         return sect
 
     def run_checklist_template(self, pif):
@@ -298,17 +298,17 @@ class MannoFile(object):
     # ----- thumbnails ------------------------------------------
 
     def get_section_thumbs(self, pif, sect):
-        sect['range'] = list()
-        sect['anchor'] = sect['id']
-        sect['id'] = ''
-        sect['columns'] = 6
+        sect.range = []
+        sect.anchor = sect.id
+        sect.id = ''
+        sect.columns = 6
         ran = {'entry': list()}
-        for mod_id in sect['model_ids']:
+        for mod_id in sect.model_ids:
             manitem = self.mdict[mod_id]
             manitem.nodesc = 1
             manitem.prefix = mbdata.IMG_SIZ_TINY
             ran['entry'].append(mbmods.add_model_table_pic_link_man_item(pif, manitem))
-        sect['range'].append(ran)
+        sect.range.append(ran)
         return sect
 
     def run_thumbnails_template(self, pif):
@@ -386,7 +386,7 @@ class MannoFile(object):
             aliases[alias['alias.ref_id']].append(alias['alias.id'])
         for mod in model_ids:
             manitem = self.mdict[mod]
-            fmt_bad, _, _ = pif.dbh.check_description_formatting(manitem.id)
+            fmt_bad, _, _ = pif.dbh.check_description_formatting(manitem.ref_id)
             makes = pif.dbh.fetch_casting_makes(mod)  # does not handle man.make
             relateds = [x['casting_related.related_id']
                         for x in pif.dbh.fetch_casting_relateds(mod, section_id='single')]
@@ -458,7 +458,7 @@ class MannoFile(object):
             colist=[x[0] for x in links_cols],
             headers=dict(links_cols),
             range=[render.Range(
-                entry=self.get_links_entries(pif, sect['model_ids']),
+                entry=self.get_links_entries(pif, sect.model_ids),
                 styles={x[0]: x[0] for x in links_cols})],
         )
 
@@ -567,7 +567,7 @@ class MannoFile(object):
             colist=[x[0] for x in picture_cols],
             headers=dict(picture_cols),
             range=[render.Range(
-                entry=[x for x in self.get_picture_model_entries(pif, sect['model_ids'])],
+                entry=[x for x in self.get_picture_model_entries(pif, sect.model_ids)],
                 styles={x[0]: x[0] for x in picture_cols},
             )])
 
@@ -671,7 +671,7 @@ class MannoFile(object):
 
     def show_section_vehicle_type_template(self, pif, sect):
         flago = mflags.FlagList()
-        sect['entry'] = [self.get_vt_model_table(pif, self.mdict[mod], flago) for mod in sect['model_ids']]
+        sect.entry = [self.get_vt_model_table(pif, self.mdict[mod], flago) for mod in sect.model_ids]
         return sect
 
     @staticmethod
@@ -699,7 +699,7 @@ class MannoFile(object):
 
     def show_section_man2csv(self, pif, sect):
         ret = list()
-        for mod_id in sect['model_ids']:
+        for mod_id in sect.model_ids:
             manitem = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
             # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, manitem.model_type, aliases))
@@ -723,7 +723,7 @@ class MannoFile(object):
 
     def show_section_man2varcsv(self, pif, sect):
         ret = list()
-        for mod_id in sect['model_ids']:
+        for mod_id in sect.model_ids:
             mod = self.mdict[mod_id]
             for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
                 img = pif.ren.find_image_path([mod_id], nobase=True, vars=var['picture_id'] or var['var'],
@@ -750,7 +750,7 @@ class MannoFile(object):
     def show_section_man2json(self, pif, sect):
         field_keys = ["man", "mack", "year", "scale", "name", "notes"]
         ret = list()
-        for mod_id in sect['model_ids']:
+        for mod_id in sect.model_ids:
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
             # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod.model_type, aliases))
@@ -767,7 +767,7 @@ class MannoFile(object):
     def show_section_text_list(self, pif, sect):
         field_keys = ["man", "mack", "year", "scale", "name", "notes"]
         ret = list()
-        for mod_id in sect['model_ids']:
+        for mod_id in sect.model_ids:
             mod = self.mdict[mod_id]
             # aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(mod_id, 'mack')]
             # mack_nums = ','.join(mbmods.get_mack_numbers(pif, mod_id, mod.model_type, aliases))
@@ -786,11 +786,11 @@ class MannoFile(object):
 
     def get_section_credit_list(self, pif, sect):
         ents = []
-        for mod_id in sect['model_ids']:
+        for mod_id in sect.model_ids:
             mod_row, var_rows = self.list_var_pics(pif, self.mdict[mod_id])
             if var_rows:
                 ents.extend([mod_row] + var_rows)
-        section = render.Section(section=sect, colist=self.var_pic_cols, anchor=sect['id'], id='',
+        section = render.Section(section=sect, colist=self.var_pic_cols, anchor=sect.id, id='',
                                  range=[render.Range(entry=ents)])
         return section
 

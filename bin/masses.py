@@ -447,7 +447,7 @@ def add_lm_enter(pif):
     tab = pif.dbh.get_table_data('lineup_model')
     mod_id = pif.form.get_raw('mod_id')
     mod = pif.dbh.fetch_casting(mod_id)
-    mod = pif.dbh.modify_man_item(mod)
+    mod = modify_man_item(mod)
     number = pif.form.get_int('number')
 
     colors = [('0', ''), ('1', 'blue'), ('2', 'red'), ('3', 'yellow'), ('4', 'green'), ('5', 'brown')]
@@ -810,7 +810,7 @@ def add_var_info(pif):
     mod_id = pif.form.get_raw('mod_id')
     date = pif.form.get_raw('date')
     mod = pif.dbh.fetch_casting(mod_id)
-    mod = pif.dbh.modify_man_item(mod)
+    mod = modify_man_item(mod)
     var_id = pif.form.get_raw('var')
     if not mod:
         mod = pif.dbh.fetch_casting_by_id_or_alias(mod_id)
@@ -818,7 +818,7 @@ def add_var_info(pif):
             raise useful.Redirect(f'/cgi-bin/mass.cgi?tymass=casting&id={mod_id}&year={date[:4]}')
         elif len(mod) > 1:
             raise useful.SimpleError("Multiple models found.")
-        mod = pif.dbh.modify_man_item(mod[0])
+        mod = modify_man_item(mod[0])
     mod_id = mod['id']
     img = pif.ren.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM,
                                         also={'style': 'float: right;'})
@@ -1338,8 +1338,8 @@ def add_pack_model(pif, pack, long_pack_id):
         model_list = pif.dbh.fetch_pack_models(
             pack_id=pack['id'], pack_var=pack['var'], page_id=pack.get('page_id'))
 
-        # for mod in pif.dbh.modify_man_items([x for x in model_list if x['pack_model.pack_id'] == long_pack_id]):
-        for mod in pif.dbh.modify_man_items(model_list):
+        # for mod in modify_man_items([x for x in model_list if x['pack_model.pack_id'] == long_pack_id]):
+        for mod in modify_man_items(model_list):
             sec_ids = [None, '', long_pack_id, long_pack_id + '.' + str(mod['pack_model.display_order'])]
             if mod['vs.sec_id'] in sec_ids:
                 mod['vars'] = []
@@ -1549,7 +1549,7 @@ class LinkScraper(object):
             return ''
         page_id = page_id[7:]
         mod = self.pif.dbh.fetch_casting(page_id)
-        mod = self.pif.dbh.modify_man_item(mod)
+        mod = modify_man_item(mod)
         if mod:
             return 'single.' + mod['id']
         mod = self.pif.dbh.fetch_casting_by_alias(page_id)

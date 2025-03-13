@@ -55,9 +55,8 @@ class Presentation(object):
         self.secure = None
         self.styles = list(('main', 'fonts'))
         if '.' in self.page_id:
-            self.styles.append(self.page_id[:self.page_id.find('.')])
-        if os.path.exists(f"../htdocs/{config.CSS_DIR}/{self.page_id}.css"):
-            self.styles.append(self.page_id)
+            self.styles.append(self.page_id.split('.')[0])
+        self.styles.append(self.page_id)
         self.extra = self.font_awesome_js
         self.comment_button = ''
         self.is_admin = False
@@ -710,7 +709,7 @@ of Matchbox International Ltd. and are used with permission.
             'hierarchy': self.hierarchy,
             'is_beta': self.is_beta,
             'is_alpha': self.is_alpha,
-            'styles': self.styles,
+            'styles': [x for x in self.styles if os.path.exists(f"../htdocs/{config.CSS_DIR}/{x}.css")],
             'title': self.title,
             'hide_title': self.hide_title,
             'is_admin': self.is_admin,

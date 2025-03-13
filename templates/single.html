@@ -136,17 +136,17 @@
 {% if base_names %}
 <tr><th colspan="{{ info_cols }}">Base Name{{ render.plural(base_names) }}</th></tr>
 <tr><td colspan="{{ info_cols }}">
-{% for base_name in base_names %}
-{{ base_name.base_name }}<br>
-{% endfor %}
+{% for base_name in base_names -%}
+{{ base_name }}<br>
+{% endfor -%}
 </td></tr>
 {% endif %}
 {% if prodnames %}
 <tr><th colspan="{{ info_cols }}">Other Product Name{{ render.plural(prodnames) }}</th></tr>
 <tr><td colspan="{{ info_cols }}">
-{% for name in prodnames %}
+{% for name in prodnames -%}
 {{ name }}<br>
-{% endfor %}
+{% endfor -%}
 </td></tr>
 {% endif %}
 {% if revised %}
@@ -168,19 +168,6 @@
 <p>
 <center>
 <h4>Variations by Manufacturing Location</h4><p>
-{#<table class="modelinfo">
-<tr>
-{%- for plant in plants -%}
-<td>{{ plant.flag }}</td>
-{%- endfor %}
-</tr>
-<tr>
-{%- for plant in plants -%}
-<td>{{ plant.count }}</td>
-{%- endfor %}
-</tr>
-<tr>
-</table>#}
 {{ showix.format_listix(plants) }}
 </center><p>
 {%- endmacro %}
@@ -205,31 +192,31 @@
 
 {%- macro show_product_box() %}
 {%- if product_image or prod_title or variations %}
-<div class="inset inset_m infopanel">
+  <div class="inset inset_m infopanel">
 {%- if product_image %}<center>{{ product_image }}
-<div class="credit">{% if product_img_credit %} {{ product_img_credit }} {% else %}&nbsp;{% endif %}</div>
-</center>{% endif %}
+  <div class="credit">{% if product_img_credit %} {{ product_img_credit }} {% else %}&nbsp;{% endif %}</div>
+  </center>{% endif %}
 {%- if prod_title %}
-<h4 class="prodtitle">{{ prod_title }}</h4>
+  <h4 class="prodtitle">{{ prod_title }}</h4>
 {%- endif %}
 {%- if variations %}
-<p>
-<h3>Variations for This Product</h3>
-<center><!-- variations {{ variations }} -->
-<table class="vartable">
+  <p>
+  <h3>Variations for This Product</h3>
+  <center><!-- variations {{ variations }} -->
+  <table class="vartable">
 {%- for varset in variations %}
-<tr><td>
+    <tr><td>
 {%- for var in varset[0] %}
-<a href="vars.cgi?mod={{ model.id }}&var={{ var }}">{{ var }}</a>{% if not loop.last %},{% endif %}
+      <a href="vars.cgi?mod={{ model.id }}&var={{ var }}">{{ var }}</a>{% if not loop.last %},{% endif %}
 {%- endfor %}
-</td></tr>
-<tr><td><img src="../{{ varset[1] }}"></td></tr>
-<tr><td class="varentry">{{ varset[2] }}</td></tr>
+    </td></tr>
+    <tr><td><img src="../{{ varset[1] }}"></td></tr>
+    <tr><td class="varentry">{{ varset[2] }}</td></tr>
 {%- endfor %}
-</table></center>
+  </table></center>
 {%- endif %}
-</div>
-<p>
+  </div>
+  <p>
 {%- endif %}
 {%- endmacro %}
 
@@ -240,84 +227,84 @@
 {%- if (prod_title or variations or relateds) %}
 {%- if product_image %}
 
-<!-- LAYOUT STYLE 1 -->
-    {#- top left box #}
-    <td valign="top" class="panel_1">
-    {{ show_product_box() }}
+  <!-- LAYOUT STYLE 1 -->
+  {#- top left box #}
+  <td valign="top" class="panel_1">
+  {{ show_product_box() }}
 
-    {#- lower left box #}
-    {{ show_relateds() }}
-    </td>
+  {#- lower left box #}
+  {{ show_relateds() }}
+  </td>
 
-    {#- top right box #}
-    <td valign="top" class="panel_1">
-    {{ show_model_info() }}
+  {#- top right box #}
+  <td valign="top" class="panel_1">
+  {{ show_model_info() }}
 
-    {#- lower right box #}
+  {#- lower right box #}
 
-    <p>
-    {{ show_model_links() }}
-    </td>
+  <p>
+  {{ show_model_links() }}
+  </td>
 
 {%- else %}
 
-<!-- LAYOUT STYLE 2 -->
-    {#- top left box (missing) #}
+  <!-- LAYOUT STYLE 2 -->
+  {#- top left box (missing) #}
 
-    {#- top right box #}
-    <td valign="top" colspan="2">
-    {{ show_model_info() }}
-    </td>
+  {#- top right box #}
+  <td valign="top" colspan="2">
+  {{ show_model_info() }}
+  </td>
 
-    </tr>
+  </tr>
 
-    {#- lower left box #}
-    <tr>
-    <td width="400" valign="top" class="panel_1">
-    {{ show_product_box() }}
-    {{ show_relateds() }}
-    </td>
+  {#- lower left box #}
+  <tr>
+  <td width="400" valign="top" class="panel_1">
+  {{ show_product_box() }}
+  {{ show_relateds() }}
+  </td>
 
-    {#- lower right box #}
+  {#- lower right box #}
 
-    <td valign="top" class="panel_1">
-    {{ show_model_links() }}
-    </td>
+  <td valign="top" class="panel_1">
+  {{ show_model_links() }}
+  </td>
 {%- endif %}
 {%- elif product_image %}
 
-<!-- LAYOUT STYLE 3 -->
-    {#- top left box #}
-    <td valign="top" class="panel_1">
-    {{ show_product_box() }}
-    </td>
+  <!-- LAYOUT STYLE 3 -->
+  {#- top left box #}
+  <td valign="top" class="panel_1">
+  {{ show_product_box() }}
+  </td>
 
-    {#- top right box #}
-    <td valign="top" class="panel_1">
-    {{ show_model_info() }}
-    </td></tr>
+  {#- top right box #}
+  <td valign="top" class="panel_1">
+  {{ show_model_info() }}
+  </td></tr>
 
-    {#- lower center box #}
+  {#- lower center box #}
 
-    <tr><td colspan="2">
-    {{ show_model_links('inset_l') }}
-    </td>
+  <tr><td colspan="2">
+  {{ show_model_links('inset_l') }}
+  </td>
 
 {%- else %}
 
-<!-- LAYOUT STYLE 4 -->
-    {#- top left box (missing) #}
+  <!-- LAYOUT STYLE 4 -->
+  {#- top left box (missing) #}
 
-    {#- top right box #}
-    <td valign="top" class="panel_2">
-    {{ show_model_info() }}
+  {#- top right box #}
+  <td valign="top" class="panel_2">
+  {{ show_model_info() }}
 
-    {#- lower left box (missing) #}
+  {#- lower left box (missing) #}
 
-    {#- lower right box #}
-    <p>
-    {{ show_model_links('inset_l') }}
-    </td>
+  {#- lower right box #}
+  <p>
+  {{ show_model_links('inset_l') }}
+  </td>
 {%- endif %}
 
 </tr></table>

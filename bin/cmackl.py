@@ -27,7 +27,7 @@ def mack_models(pif, start, end, series):
     amods = sorted([(x, y) for x, y in mmods + amods
                     if (x and x[1] and int(x[1]) >= start and int(x[1]) <= end and
                         not (mseries is not None and mseries != x[0]))],
-                   key=lambda x: mack_sort(x))
+                   key=mack_sort)
     return amods
 
 
@@ -199,6 +199,7 @@ def check_mack_ranges(pif):
 
 cmds = [
     ('c', check_mack_ranges, "check mack ranges"),
+    ('m', check_man_mappings, "check man mappings"),
 ]
 
 

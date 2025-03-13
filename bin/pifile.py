@@ -550,7 +550,7 @@ class PageInfoFile(object):
         return page_id
 
     def create_token(self, name="token"):
-        token = self.dbh.create_token()
+        token = self.dbh.create_token() if not self.ren.diff_run else '0123456789'
         return self.form.put_form_token(token, name)
 
     # -- access control -------------------------------------------------

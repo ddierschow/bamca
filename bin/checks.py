@@ -27,7 +27,9 @@ if __name__ == '__main__':
     import glob
     f = glob.glob('*.py')
     open('bamcatests/test0.py', 'w').write(
-        top + ''.join([fts.format(x[:-3].capitalize(), x[:-3]) for x in glob.glob('*.py')]) + bottom)
+        top +
+        ''.join([fts.format(x[:-3].capitalize(), x[:-3]) for x in sorted(glob.glob('*.py'))]) +
+        bottom)
 
     import unittest
     print("Running unittests.")

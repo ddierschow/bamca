@@ -29,9 +29,16 @@
 
 <p><center><b><a href="{{ upload }}">Upload a Picture</a></b></center>
 
+{% if appearances -%}
 <p>
-{{ appearances }}
+<b>Appearances</b>
+<ul>
+{%- for appearance in appearances %}
+<li>{{ appearance }}
+{%- endfor %}
+</ul>
 
+{% endif -%}
 <p>
 <center>
 {{ adds }}

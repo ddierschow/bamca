@@ -413,11 +413,11 @@ class DBHandler(object):
         if style:
             wheres.append(f"box_type.box_type like '{style}%'")
         fet1 = self.fetch('box_type,casting,base_id', where=[
-            'box_type.mod_id=casting.id'] + wheres, tag='CastingsByBox', verbose=0)
+            'box_type.mod_id=casting.id'] + wheres, tag='CastingsByBox1', verbose=0)
 
         # ljoins = [('alias', "base_id.id=alias.ref_id")]  # and alias.section_id != ''")]
         wheres = ['box_type.mod_id=alias.id', 'alias.ref_id=casting.id'] + wheres
-        fet2 = self.fetch('box_type,alias,casting,base_id', where=wheres, tag='CastingsByBox', verbose=0)
+        fet2 = self.fetch('box_type,alias,casting,base_id', where=wheres, tag='CastingsByBox2', verbose=0)
         return fet1 + fet2
 
     def fetch_casting_by_alias(self, id, extras=False):
@@ -449,8 +449,7 @@ class DBHandler(object):
             wheres += where
         elif isinstance(where, str):
             wheres.append(where)
-        return self.fetch("alias,base_id", where=wheres, left_joins=left_joins,
-                          extras=True, tag='Aliases', verbose=False)
+        return self.fetch("alias,base_id", where=wheres, left_joins=left_joins, extras=True, tag='Aliases')
 
     def update_alias(self, pk, values):
         return self.write('alias', values=values, where=f"pk={pk}", modonly=True, tag='UpdateAlias')
@@ -467,18 +466,18 @@ class DBHandler(object):
         # ranswer = fetch("select min(year), max(year), max(number) from lineup_model", $pif);
         wheres = ['base_id.id=casting.id']
         return self.fetch('casting,base_id', columns=['min(base_id.first_year)', 'max(base_id.first_year)'],
-                          where=wheres, one=True, tag='CastingLimits', verbose=False)
+                          where=wheres, one=True, tag='CastingLimits')
 
     def fetch_casting_ids(self, section_id=None):
         where = [f'section.id="{section_id}"'] if section_id else None
         return [x['casting.id'] for x in self.fetch('casting', where=where, tag='CastingIDs')]
 
-    def fetch_casting_raw(self, mod_id, verbose=False, tag='CastingRaw'):
+    def fetch_casting_raw(self, mod_id, tag='CastingRaw', verbose=False):
         cols = self.make_columns('casting', extras=True)
         recs = self.fetch('casting', columns=cols, where=f'id="{mod_id}"')
         return recs[0] if recs else None
 
-    def fetch_casting(self, id, extras=False, verbose=False, tag='Casting'):
+    def fetch_casting(self, id, extras=False, tag='Casting', verbose=False):
         wheres = ['base_id.id=casting.id', f'casting.id="{id}"',
                   'casting.section_id=section.id', 'section.page_id="manno"']
         cols = (
@@ -614,8 +613,7 @@ class DBHandler(object):
             wheres.append(f"casting_related.section_id='{section_id}'")
         left_joins = [("base_id as m", "casting_related.model_id=m.id")]
         left_joins += [("base_id as r", "casting_related.related_id=r.id")]
-        return self.fetch('casting_related', where=wheres, left_joins=left_joins, tag='CastingRelateds',
-                          verbose=False)
+        return self.fetch('casting_related', where=wheres, left_joins=left_joins, tag='CastingRelateds')
         # return self.fetch('casting_related,base_id m,base_id r', where="casting_related.related_id=r.id and
         # casting_related.model_id=m.id", tag='CastingRelateds', verbose=True)
 
@@ -730,7 +728,7 @@ class DBHandler(object):
 
     def fetch_variations(self, mod_id, nodefaults=False):
         vsrecs = self.fetch('variation_select,category', where=[
-            f"mod_id='{mod_id}'", "variation_select.category=category.id"])
+            f"mod_id='{mod_id}'", "variation_select.category=category.id"], tag='VarVS')
         varrecs = self.fetch('variation', where=[f"variation.mod_id='{mod_id}'"], tag='Variations')
         # "variation.category=category.id",  # needs to be a left join
         detrecs = self.fetch_details(mod_id, nodefaults=nodefaults)
@@ -881,17 +879,16 @@ class DBHandler(object):
 
     def fetch_variation_files(self, mod_id):
         return self.fetch('variation', columns=['imported_from', 'mod_id'], group='imported_from',
-                          order='imported_from', where=f"mod_id='{mod_id}'", tag='VariationFiles', verbose=False)
+                          order='imported_from', where=f"mod_id='{mod_id}'", tag='VariationFiles')
 
     def fetch_variation_plant_counts(self, mod_id):
         return self.fetch(
             'variation', columns=['manufacture', 'count(*) as count'],
-            where=[f"mod_id='{mod_id}'"], group='manufacture', order='manufacture',
-            tag='VarPlantCounts', verbose=False)
+            where=[f"mod_id='{mod_id}'"], group='manufacture', order='manufacture', tag='VarPlantCounts')
 
     def fetch_variation_base_names(self, mod_id):
-        return self.fetch('variation', columns=['base_name'], where=[f"mod_id='{mod_id}'"],
-                          distinct=True, tag='VarBaseNames', verbose=False)
+        return self.fetch('variation', columns=['base_name'], where=[f"mod_id='{mod_id}'", "base_name != ''"],
+                          tag='VarBaseNames')
 
     def insert_variation(self, mod_id, var_id, attributes={}, verbose=False):
         cols = self.get_table_data('variation').columns
@@ -1075,20 +1072,20 @@ class DBHandler(object):
                 'detail, attribute',
                 cols=['detail.mod_id', 'attr_id', 'description', 'attribute_name'],
                 where=f"detail.mod_id='{mod_id}' and detail.attr_id=attribute.id and detail.var_id=''",
-                tag='Details')}
+                tag='Details1')}
         if var_id is not None:
             # turn this into a fetch
             details = self.dbi.select(
                 'detail, attribute',
                 cols=['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
                 where=f"detail.mod_id='{mod_id}' and detail.var_id='{var_id}' and detail.attr_id=attribute.id",
-                tag='Details')
+                tag='Details2')
         else:
             # turn this into a fetch
             details = self.dbi.select(
                 'detail, attribute',
                 cols=['detail.mod_id', 'var_id', 'attr_id', 'description', 'attribute_name'],
-                where=f"detail.mod_id='{mod_id}' and detail.attr_id=attribute.id", tag='Details')
+                where=f"detail.mod_id='{mod_id}' and detail.attr_id=attribute.id", tag='Details3')
 
         mvars = {}
         for det in details:
@@ -1202,9 +1199,7 @@ class DBHandler(object):
     # - lineup_model
 
     def fetch_lineup_limits(self):
-        # ranswer = fetch("select min(year), max(year), max(number) from lineup_model", $pif);
-        return self.fetch('lineup_model', columns=['min(year)', 'max(year)', 'max(number)'],
-                          one=True, tag='LineupLimits', verbose=False)
+        return self.fetch('lineup_model', columns=['min(year)', 'max(year)', 'max(number)'], one=True, tag='LineupLimits')
 
     def make_lineup_item(self, rec):
         result = {col: rec.get('lineup_model.' + col, '') for col in self.get_table_data('lineup_model').columns}
@@ -1464,7 +1459,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     def fetch_link_statuses(self, where):
         return self.fetch('link_line', where=where, columns=['last_status', 'count(*)'], group='last_status',
-                          tag='LinkStatuses', verbose=False)
+                          tag='LinkStatuses')
 
     # - blacklist
 
@@ -1597,15 +1592,15 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     # - box_type
 
     def fetch_box_type(self, box_id):
-        return self.fetch('box_type', where={"id": box_id}, verbose=False, tag='BoxTypes')
+        return self.fetch('box_type', where={"id": box_id}, tag='BoxTypes')
 
     def fetch_box_type_by_mod(self, mod_id, box_style=None):
         # this sucks so hard
         where1 = f'box_type.mod_id="{mod_id}"'
         where2 = f'(box_type.mod_id=alias.id and alias.ref_id="{mod_id}")'
         where3 = f' and box_type.box_type like "{box_style}%"' if box_style else ''
-        return (self.fetch('box_type', where=where1 + where3, verbose=False) +
-                self.fetch('box_type,alias', where=where2 + where3, verbose=False, tag='BoxTypeByMod'))
+        return (self.fetch('box_type', where=where1 + where3, tag='BoxTypeByMod') +
+                self.fetch('box_type,alias', where=where2 + where3, tag='BoxTypeByModAl'))
 
     # - user
 
@@ -1745,7 +1740,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         if photographer_id:
             wheres.append(f'photo_credit.photographer_id="{photographer_id}"')
         rows = self.fetch('photographer,photo_credit,photo_credit c', where=wheres,
-                          columns=cols, group='photo_credit.photographer_id', tag='PhotographerCounts', verbose=False)
+                          columns=cols, group='photo_credit.photographer_id', tag='PhotographerCounts')
         return self.depref('photographer', rows)
 
     def write_photographer(self, photographer_id, values, verbose=False):
@@ -1784,7 +1779,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             wheres.append(f'photo_credit.name="{name}"')
         if photographer_id:
             wheres.append(f'photo_credit.photographer_id="{photographer_id}"')
-        return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCredit', verbose=verbose)
+        return self.fetch('photo_credit,photographer', where=wheres, tag='PhotoCredits', verbose=verbose)
 
     def fetch_photo_credits_page(self, photographer_id='', pagesize=100, page=0, verbose=False):
         # useful.write_comment('fetch_photo_credits_page', photographer_id, pagesize, page, verbose)
@@ -2027,12 +2022,15 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                 {f'text_{x}': fmt_desc(var, casting, f'format_{x}') for x in cols},
                 {'mod_id': mod_id, 'var': var_id})
 
-    def check_description_formatting(self, mod_id, linesep=''):
+    def check_description_formatting(self, mod_id, attrs=None, linesep=''):
+        casting = self.make_man_item(self.fetch_casting(mod_id, extras=True))
+        return self.check_description_formatting_casting(casting, attrs=attrs, linesep=linesep)
+
+    def check_description_formatting_casting(self, casting, attrs=None, linesep=''):
         cas_cols = ['format_' + x for x in self.get_table_data('casting').formats]
         var_cols = self.get_table_data('variation').internals
-        casting = self.fetch_casting(mod_id, extras=True)
-        casting = self.make_man_item(casting)
-        attributes = var_cols + [x['attribute.attribute_name'] for x in self.fetch_attributes(mod_id)]
+        attrs = [x['attribute.attribute_name'] for x in self.fetch_attributes(casting.id)] if attrs is None else attrs
+        attributes = var_cols + attrs
         messages = ''
         retval = False
         missing = []
@@ -2043,7 +2041,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                 for fmt in cas_val.split('|'):
                     attr = self.parse_detail_format(fmt, 't')[0]
                     if attr and (attr[1:] if attr.startswith('_') else attr) not in attributes:
-                        messages += f'{mod_id} ! {cas_col} {fmt}{linesep}\n'
+                        messages += f'{casting.id} ! {cas_col} {fmt}{linesep}\n'
                         missing.append(attr)
                         retval = True
         for attr in attributes:
@@ -2053,10 +2051,10 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                 attr_m = attr_re.search(casting.get_attr(col))
                 if attr_m:
                     found = True
-                    messages += f'{mod_id} + {attr}{linesep}\n'
+                    messages += f'{casting.id} + {attr}{linesep}\n'
                     break
             if not found:
-                messages += f'{mod_id} - {attr}{linesep}\n'
+                messages += f'{casting.id} - {attr}{linesep}\n'
                 retval = True
         return retval, messages, missing
 

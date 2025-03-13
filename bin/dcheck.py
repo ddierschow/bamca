@@ -13,7 +13,9 @@ import config
 import imglib
 import mannum
 import mbdata
+import mbmods
 import useful
+import varias
 
 verbose = False
 
@@ -794,6 +796,125 @@ def check_missing_variations(pif, *filelist):
                 print(mod, sorted(diff_set))
 
 
+def photog_counts(pif, photog=None, model_type=None):
+
+    def mk_star(has_thing):
+        return 'X' if has_thing else '-'
+
+    fmt_str = '{ID:<12} {Cat:<8} {Ty:<5} {Cr:<4} {Pic:<5}|{De} {Ba} {Bo} {In} {Wh} {Wi}|{T} {S} {M} {L}|{Description}'
+    mod_ids = sorted(pif.dbh.fetch_casting_ids())
+    start = end = None
+    if not start:
+        start = mod_ids[0]
+        end = mod_ids[-1]
+    elif not end:
+        end = start
+    row = {
+        'ID': 'ID',
+        'Description': 'Description',
+        'Cat': 'Cat',
+        'Ty': 'Type',
+        'Cr': 'Cred',
+        'Pic': 'Pic',
+        'De': 'D',
+        'Ba': 'B',
+        'Bo': 'B',
+        'In': 'I',
+        'Wh': 'W',
+        'Wi': 'W',
+        'W/': 'W',
+        'T': 'T',
+        'S': 'S',
+        'M': 'M',
+        'L': 'L',
+    }
+    pif.ren.message(fmt_str.format(row))
+    for mod_id in mod_ids[mod_ids.index(start):mod_ids.index(end) + 1]:
+        mod = pif.dbh.fetch_casting(mod_id)
+        mod = pif.dbh.make_man_item(mod)
+        if model_type and mod.model_type != model_type:
+            continue
+        if not mod.made:
+            continue
+        phcred = pif.dbh.fetch_photo_credit(path=config.IMG_DIR_MAN[1:], name=mod_id, verbose=False)
+        row = {
+            'ID': mod.id,
+            'Description': mod.name,
+            'Cat': '',
+            'Ty': mod.model_type,
+            'Cr': phcred['photographer.id'] if phcred else '',
+            'Pic': '',
+            'De': ' ',
+            'Ba': ' ',
+            'Bo': ' ',
+            'In': ' ',
+            'Wh': ' ',
+            'Wi': ' ',
+            'W/': ' ',
+        }
+        row.update(varias.check_picture_sizes(config.IMG_DIR_MAN, mod_id + '.jpg', mk_star))
+        credits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in
+                   pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod_id, verbose=False)}
+        varlist = pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id))
+        count_var = 0
+        count_cred = 0
+        for var in varlist:
+            if var['picture_id']:
+                continue
+            var['varsel'] = pif.dbh.fetch_variation_selects(var['mod_id'], var['var'])
+            var['phcred'] = credits.get(('{}-{}'.format(var['mod_id'], var['var'])).lower(), '')
+            (var['ty_var'], var['is_found'], var['has_de'], var['has_ba'], var['has_bo'], var['has_in'], var['has_wh'],
+             var['has_wi'], var['has_wt'], var['has_bt']) = mbmods.calc_var_pics(pif, var)
+            if var['ty_var'] in '2fp':
+                continue
+            count_var += 1
+            if photog and var['phcred'] == photog:
+                count_cred += 1
+        row['Cat'] = f'{count_var:3}'
+        row['Pic'] = 'all' if count_var == count_cred else f'{count_cred:3}'
+        pif.ren.message(
+            '--------------------------------------+-----------+-------+-------------------------------------------')
+        pif.ren.message(fmt_str.format(row))
+        if row['Cr'] == photog and count_var == count_cred:
+            continue
+
+        for var in varlist:
+            if var['picture_id']:
+                continue
+            if var['ty_var'] in '2fp':
+                continue
+            if photog and var['phcred'] == photog:
+                continue
+            cat_vs = set([x['category'] for x in var['varsel']])
+            cat = ' '.join(cat_vs)
+            row = {
+                'ID': var['mod_id'] + '-' + var['var'],
+                'Description': var['text_description'],
+                'Cat': cat,
+                'Ty': mbdata.var_types.get(var['ty_var'], var['ty_var']),
+                'Cr': var['phcred'],
+                'Pic': var['picture_id'],
+                'De': mk_star(var['has_de']),
+                'Ba': mk_star(var['has_ba']),
+                'Bo': mk_star(var['has_bo']),
+                'In': mk_star(var['has_in']),
+                'Wh': mk_star(var['has_wh']),
+                'Wi': mk_star(var['has_wi']),
+                'W/': mk_star(var['has_wt']),
+            }
+            row.update(varias.check_picture_sizes(config.IMG_DIR_VAR,
+                                                  var['mod_id'] + '-' + var['var'] + '.jpg', mk_star))
+            # for sz in mbdata.image_size_types:
+            #     row[sz.upper()] = mk_star(
+            #         os.path.exists(useful.relpath('.', config.IMG_DIR_VAR, sz + '_' + var['mod_id'] + '-' +
+            #                                       var + '.jpg').lower()))
+            pif.ren.message(fmt_str.format(row))
+
+
+def tilley_counts(pif):
+    photog_counts(pif, photog='DT', model_type='SF')
+
+
 # ------- infra --------------------------------------------------------
 
 def run_test(pif, mod_id):
@@ -822,6 +943,7 @@ cmds = [
     ('plants', check_plants, "check_plants"),
     ('mv', check_missing_variations, "check_missing_variations"),
     ('t', run_test, "run_test"),
+    ('til', tilley_counts, "tilley"),
 ]
 
 

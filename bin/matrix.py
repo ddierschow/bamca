@@ -35,9 +35,9 @@ class MatrixFile(object):
         if ent.model_type == 'MP':
             ent.image = pif.ren.format_image_required(
                 ent.mod_id, prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True, blank=True)
-        elif ent.range_id and sec['img_format']:
+        elif ent.range_id and sec.img_format:
             ent.image = pif.ren.format_image_required(
-                useful.clean_name(sec['img_format'] % ent.range_id, '/'), pdir=ent.pdir)
+                useful.clean_name(sec.img_format % ent.range_id, '/'), pdir=ent.pdir)
         elif ent.var.var:
             if self.cat_id:
                 ent.image = pif.ren.format_image_required(
@@ -45,31 +45,30 @@ class MatrixFile(object):
             else:
                 ent.image = pif.ren.format_image_optional(
                     f'{ent.mod_id}-{ent.var.picture_id}', prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_VAR, nopad=True)
-        elif '%' in sec['link_format']:
+        elif '%' in sec.link_format:
             ent.image = pif.ren.format_image_required(
-                useful.clean_name(sec['link_format'] % ent.range_id, '/'), prefix=mbdata.IMG_SIZ_SMALL,
+                useful.clean_name(sec.link_format % ent.range_id, '/'), prefix=mbdata.IMG_SIZ_SMALL,
                 pdir=ent.pdir, blank=True)
         else:
             ent.image = pif.ren.format_image_required(
-                useful.clean_name(sec['link_format'], '/'), prefix=mbdata.IMG_SIZ_SMALL, pdir=ent.pdir, blank=True)
+                useful.clean_name(sec.link_format, '/'), prefix=mbdata.IMG_SIZ_SMALL, pdir=ent.pdir, blank=True)
         return ent
 
     def from_db(self, pif):
         pif.ren.hierarchy_append('/cgi-bin/matrix.cgi', 'Series')
         pif.ren.hierarchy_append(f'/cgi-bin/matrix.cgi?page={self.page}', pif.ren.title)
-        secs = pif.dbh.fetch_sections({'page_id': pif.page_id})
+        secs = pif.dbh.make_sec_items(pif.dbh.fetch_sections({'page_id': pif.page_id}))
         ents = pif.dbh.fetch_matrix_models_variations(pif.page_id)
         for sec in secs:
-            sec['text'] = ''
-            sec['ents'] = {}
-            pif.ren.comment('matrix section:', sec)
+            sec.text = ''
+            sec.ents = {}
             for ent in ents:
-                if ent['matrix_model.section_id'] == sec['id']:
+                if ent['matrix_model.section_id'] == sec.id:
                     if ent := self.create_ent(pif, ent, sec):
-                        sec['ents'].setdefault(ent.range_id, list())
-                        sec['ents'][ent.range_id].append(ent)
+                        sec.ents.setdefault(ent.range_id, list())
+                        sec.ents[ent.range_id].append(ent)
             self.tables.append(sec)
-        self.tables.sort(key=lambda x: x['display_order'])
+        self.tables.sort(key=lambda x: x.display_order)
 
     def from_cat(self, pif):
         if not self.cat_id:
@@ -79,7 +78,7 @@ class MatrixFile(object):
         pif.ren.title = cat['name']
         pif.ren.hierarchy_append('/database.php#cats', 'By Categories')
         pif.ren.hierarchy_append(f'/cgi-bin/matrix.cgi?cat={self.cat_id}', cat['name'])
-        sec = {  # maybe make this the section for page_id='matrix'?
+        sec = pif.dbh.make_sec_item({  # maybe make this the section for page_id='matrix'?
             'id': 'cat',
             'page_id': 'matrix',
             'display_order': 0,
@@ -93,13 +92,13 @@ class MatrixFile(object):
             'link_format': '',
             'img_format': '',
             'note': '',
-            'text': '',
-            'ents': {},
-        }
+        })
+        sec.text = ''
+        sec.ents = {}
 
         def add_ent(var):
             range_id = var['v.mod_id'] + '-' + var['v.var']
-            if range_id in sec['ents']:
+            if range_id in sec.ents:
                 return
             var.update({
                 'id': var.get('vs.id') or '',  # exact value is unimportant
@@ -111,8 +110,8 @@ class MatrixFile(object):
             if not ent or self.cat_id != ent.vs.vs_cat and self.cat_id not in ent.var.category:
                 return
             ent.range_id = range_id
-            sec['ents'].setdefault(range_id, list())
-            sec['ents'][range_id].append(ent)  # should just be an assign but other places expect a list so...
+            sec.ents.setdefault(range_id, list())
+            sec.ents[range_id].append(ent)  # should just be an assign but other places expect a list so...
             if date_m := mbdata.year_re.search(ent.var.date):
                 self.dates.add(date_m.group('y'))
 
@@ -126,8 +125,8 @@ class MatrixFile(object):
             add_ent(var)
 
         disp_order = 1
-        for range_id in sorted(sec['ents']):
-            sec['ents'][range_id][0].display_order = disp_order
+        for range_id in sorted(sec.ents):
+            sec.ents[range_id][0].display_order = disp_order
             disp_order += 1
         self.tables.append(sec)
 
@@ -137,12 +136,12 @@ class MatrixFile(object):
 
         for table in self.tables:
             # useful.write_comment('add_table', table)
-            section_name = table['name']
-            if not (table['flags'] & config.FLAG_SECTION_HIDE_IMAGE) and (table['id'] not in pif.page_id.split('.')):
-                img = pif.ren.format_image_optional(table['id'], pdir=table['pic_dir'], nopad=True)
+            section_name = table.name
+            if not (table.hide_image) and (table.id not in pif.page_id.split('.')):
+                img = pif.ren.format_image_optional(table.id, pdir=table.pic_dir, nopad=True)
                 if img:
                     section_name += '<br>' + img
-            section = render.Section(id=table['id'], name=section_name, anchor=table['id'], columns=table['columns'])
+            section = render.Section(id=table.id, name=section_name, anchor=table.id, columns=table.columns)
             if pif.is_allowed('a'):  # pragma: no cover
                 if section.id == 'cat':
                     dates = sorted(self.dates)
@@ -162,12 +161,12 @@ class MatrixFile(object):
                 if self.large:
                     section.columns = 1
             ran = render.Range(entry=[])
-            range_ids = list(table['ents'].keys())
-            range_ids.sort(key=lambda x: table['ents'][x][0].display_order)
+            range_ids = list(table.ents.keys())
+            range_ids.sort(key=lambda x: table.ents[x][0].display_order)
             for range_id in range_ids:
                 if section.id == 'cat':
-                    ran.entry.append(self.add_cell(pif, table['ents'][range_id], table, comments))
-                elif mods := mbdata.find_vs_variations(table['ents'][range_id], table['id'], str(range_id)):
+                    ran.entry.append(self.add_cell(pif, table.ents[range_id], table, comments))
+                elif mods := mbdata.find_vs_variations(table.ents[range_id], table.id, str(range_id)):
                     ran.entry.append(self.add_cell(pif, mods, table, comments))
             section.range.append(ran)
             llineup.section.append(section)
@@ -253,7 +252,7 @@ class MatrixFile(object):
         else:
             ent.href = f"single.cgi?dir={ent.spdir}&pic={ent.link}&id={ent.mod_id}"
         # ent.descriptions = [x for x in ent.description if x]
-        # if ent.descriptions and (not ent.flags & config.FLAG_MODEL_NO_VARIATION):
+        # if ent.descriptions and not ent.is_no_variation:
         #     pass
         # elif ent.description:
         #     ent.descriptions = ent.description.split(';')

@@ -194,9 +194,8 @@ def custom_create_section(pif, attribute_type):
         img, modal = prep_mod(mod)
         modd[manitem.id].img.append(img)
         modals.append(modal)
-    sect = pif.dbh.fetch_sections({'page_id': pif.page_id})[0]
     return render.Section(
-        section=sect,
+        section=pif.dbh.fetch_section(page_id=pif.page_id),
         range=[render.Range(
             entry=[render.Entry(text=mbmods.add_man_item_thumb_pic_link(pif, v)) for k, v in sorted(modd.items())])],
         footer='\n'.join(modals)
@@ -213,7 +212,7 @@ def custom(pif):
 
     lsec = custom_create_section(pif, 'a')
 
-    llineup = render.Matrix(section=[lsec])
+    llineup = render.Matrix(section=[lsec], columns=lsec.columns)
     return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 
 

@@ -1582,7 +1582,9 @@ def library_main(pif):
     print(pif.ren.format_head())
     useful.header_done()
     print(pif.form.get_form())
-    if patt:
+    if pif.form.get_str('til'):
+        return tilley_list(pif)
+    elif patt:
         show_library_imgs(pif, patt)
     elif act:
         do_library_action(pif, pif.ren.pic_dir, fnam, act)
@@ -1591,6 +1593,14 @@ def library_main(pif):
     else:
         show_library_dir(pif, pif.ren.pic_dir, graf)
     print(pif.ren.format_tail())
+
+
+def tilley_list(pif):
+    mod_id = pif.form.get_id('m')
+    url = "/cgi-bin/traverse.cgi?mr=1&lty=mss&til=1&credit=DT&p={}&d={}".format(
+        imglib.get_tilley_file().get(mod_id.lower(), [''])[0] + '*',
+        useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
+    raise useful.Redirect(url)
 
 
 # -- image
