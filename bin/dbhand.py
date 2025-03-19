@@ -330,10 +330,12 @@ class DBHandler(object):
         ret = self.depref('section', self.fetch('section', where=wheres, tag='Section', verbose=verbose))
         return ret[0] if ret else None
 
-    def fetch_sections_by_page_type(self, page_type, sec_id=None, verbose=False):
+    def fetch_sections_by_page_type(self, page_type, sec_id=None, category=None, verbose=False):
         where = f'section.page_id=page_info.id and page_info.format_type="{page_type}"'
         if sec_id:
             where += f' and section.id="{sec_id}"'
+        if category:
+            where += f' and section.category="{category}"'
         secs = self.fetch('section,page_info', where=where, order='display_order', tag='SectionByPageType',
                           verbose=verbose)
         return self.depref('section', secs)
@@ -354,8 +356,9 @@ class DBHandler(object):
         return ret[0] if ret else None
 
     def fetch_base_id_model_types(self):
-        return [x['base_id.model_type'] for x in
-                self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type', tag='BaseIdModelType')]
+        model_types = self.fetch('base_id', columns=['model_type'], group='model_type', order='model_type',
+                                 tag='BaseIdModelType')
+        return [x['model_type'] for x in model_types]
 
     def rename_base_id(self, old_mod_id, new_mod_id):
         tag = 'RenameBaseId'
@@ -450,6 +453,11 @@ class DBHandler(object):
         elif isinstance(where, str):
             wheres.append(where)
         return self.fetch("alias,base_id", where=wheres, left_joins=left_joins, extras=True, tag='Aliases')
+
+    def fetch_alias_blisters(self, type_id):
+        # eventually everybody will be in base_id and this can go away
+        wheres = [f"alias.type='{type_id}'"]
+        return self.fetch("alias", where=wheres, tag='AliasBlisters')
 
     def update_alias(self, pk, values):
         return self.write('alias', values=values, where=f"pk={pk}", modonly=True, tag='UpdateAlias')
@@ -1307,6 +1315,16 @@ class DBHandler(object):
     def fetch_lineup_model(self, where, verbose=None):
         return self.fetch('lineup_model', where=where, tag='LineupModel', verbose=verbose)
 
+    def fetch_lineup_model_blisters(self, base_ids):
+        base_id_q = ','.join([f"'{x}'" for x in base_ids])
+        where = [f'lineup_model.base_id in ({base_id_q})',
+                 "lineup_model.page_id=page_info.id",
+                 "lineup_model.page_id=section.page_id",
+                 "lineup_model.region=section.id"]
+        return self.fetch('lineup_model,page_info,section', where=self.make_where(where),
+                          columns=['lineup_model.base_id', 'section.pic_dir', 'page_info.pic_dir'],
+                          tag='LineupModelBlisters')
+
     def insert_lineup_model(self, values, newonly=True):
         # useful.write_message(values, '<br>')
         values = self.make_values('lineup_model', values)
@@ -1342,6 +1360,16 @@ class DBHandler(object):
         return self.depref(
             'matrix_model',
             self.fetch('matrix_model', where=self.make_where(where), order='display_order', tag='MatrixModels'))
+
+    def fetch_matrix_model_blisters(self, base_ids):
+        base_id_q = ','.join([f"'{x}'" for x in base_ids])
+        where = [f'matrix_model.base_id in ({base_id_q})',
+                 "matrix_model.page_id=page_info.id",
+                 "matrix_model.page_id=section.page_id",
+                 "matrix_model.section_id=section.id"]
+        return self.fetch('matrix_model,page_info,section', where=self.make_where(where),
+                          columns=['matrix_model.base_id', 'section.pic_dir', 'page_info.pic_dir'],
+                          tag='MatrixModelBlisters')
 
     # select * from casting,lineup_model where casting.id=lineup_model.mod_id and lineup_model.year='2006'
     '''

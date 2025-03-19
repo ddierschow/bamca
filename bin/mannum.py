@@ -403,7 +403,9 @@ class MannoFile(object):
                 'notes': 'N' if manitem.notes else '',
                 'vid': f'<a href="vars.cgi?edt=1&mod={manitem.id}">{manitem.id}</a>',
                 'nl': f'<a href="single.cgi?id={manitem.id}">{manitem.name}</a>',
-                'vehicle_type': manitem.vehicle_type if manitem.vehicle_type else '<i class="fas fa-ban red"></i>',
+                'vehicle_type':
+                    manitem.vehicle_type if manitem.vehicle_type else
+                    pif.ren.fmt_mini(color='red', icon="ban", family="solid"),
                 'fo': pif.ren.fmt_x('red') if fmt_bad else '',
                 'im': ''.join([f'<i class="{vers[x]}"></i>' for x in sorted(vdict['ver'])]),
                 'make': '<br>'.join([
@@ -1066,21 +1068,18 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
     else:
         pif.ren.message("rename", old_mod_id, new_mod_id)
         pif.dbh.rename_base_id(old_mod_id, new_mod_id)
+    old_root = old_mod_id.lower()
+    new_root = new_mod_id.lower()
 
     dirs = [
         config.IMG_DIR_MAN,
-        config.IMG_DIR_MAN,
-        config.IMG_DIR_VAR,
         config.IMG_DIR_VAR,
         config.IMG_DIR_MAN_ICON,
         config.IMG_DIR_ADD,
         config.IMG_DIR_CAT,
-        config.IMG_DIR_CAT,
-        config.IMG_DIR_CAT,
         config.IMG_DIR_SET_PLAYSET,
         config.IMG_DIR_SET_PACK,
         config.IMG_DIR_PROD_PLAYSET,
-        config.IMG_DIR_PROD_PACK,
         config.IMG_DIR_PROD_PACK,
         config.IMG_DIR_PACKAGE,
         config.IMG_DIR_ADS,
@@ -1090,14 +1089,17 @@ def rename_base_id(pif, old_mod_id=None, new_mod_id=None, force=False, *args, **
         config.IMG_DIR_CAT,
         config.IMG_DIR_GAME,
     ]
-    old_root = old_mod_id.lower()
     for x in dirs:
-        for y in (glob.glob('.' + x + f'/{old_root}.*') +
-                  glob.glob('.' + x + f'/?_{old_root}.*') +
-                  glob.glob('.' + x + f'/?_{old_root}-*.*')):
-            pic_new = y.replace(old_root, new_mod_id.lower())
+        for y in (glob.glob(f'.{x}/{old_root}.*') +
+                  glob.glob(f'.{x}/?_{old_root}.*') +
+                  glob.glob(f'.{x}/?_{old_root}-*.*')):
+            pic_new = y.replace(old_root, new_root)
             pif.ren.message("rename", y, pic_new, "<br>")
             os.rename(y, pic_new)
+    if os.path.exists(f'./lib/man/{old_root}'):
+        pif.ren.message("rename", f'./lib/man/{old_root}', f'./lib/man/{new_root}', "<br>")
+        os.rename(f'./lib/man/{old_root}', f'./lib/man/{new_root}')
+    # TODO:  fix credits
 
 
 def copy_casting(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
@@ -1217,11 +1219,9 @@ def fix_formats(pif):
 
 
 def ck_model(pif, mod):
-    yrs = pif.dbh.dbi.execute("select distinct year from lineup_model where mod_id='%s'" % mod)[0]
-    yrs = [x[0] for x in yrs]
-    yrs.sort()
+    yrs = sorted(set([x[0] for x in pif.dbh.dbi.execute(f"select year from lineup_model where mod_id='{mod}'")]))[0]
 
-    sel = pif.dbh.dbi.execute("select distinct ref_id from variation_select where mod_id='%s'" % mod)[0]
+    sel = sorted(set(pif.dbh.dbi.execute(f"select ref_id from variation_select where mod_id='{mod}'")[0]))
     sel = [x[0][:9] for x in sel]
 
     missing = []
@@ -1282,9 +1282,7 @@ def check_core(pif, *specs):  # b0rken
         specs = specs[1:]
 
     for spec in specs:
-        mods = pif.dbh.dbi.execute("select distinct id from casting where id like '%s%%'" % spec)[0]
-        mods = [x[0] for x in mods]
-        mods.sort()
+        mods = sorted(set([x[0] for x in pif.dbh.dbi.execute(f"select id from casting where id like '{spec}%'")[0]]))
 
         for mod in mods:
             missing, bad = ck_model(pif, mod)

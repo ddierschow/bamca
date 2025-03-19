@@ -52,10 +52,6 @@ if ($is_logged_in || !$LOCKDOWN) {
  <li style="margin: 3px 0 3px 0"><a class="database" href="/database.php">Matchbox Model <b>Database</b></a></li>
  <li><a href="/pages/lsm.php">Matchbox Model Pages for <b>Large Scale</b> Ranges</a></li>
  <li><a href="/convoy/">Matchbox <b>Convoy</b> Project</a></li>
- <li><a href="/cgi-bin/ads.cgi">Matchbox <b>Advertisements</b> from over the years</a></li>
- <li><a href="/cgi-bin/errors.cgi">Matchbox <b>Errors</b> in packaging and manufacturing</a></li>
- <li><a href="/cgi-bin/boxart.cgi">Matchbox <b>Box</b> Art</a></li>
- <li><a href="/cgi-bin/package.cgi?page=blister">Matchbox <b>Blister</b> Packs</a></li>
  <li><a href="/pages/mbhistory.html"><b>History</b> of Matchbox</a></li>
  </ul>
 

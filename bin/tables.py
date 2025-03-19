@@ -363,6 +363,7 @@ table_info = {
             'id': 'unset',
             'flags': [],
         },
+        'ask': ['id', 'ref_id', 'type'],
         'bits': {
             'flags': [
                 ('0002', 'Shared'),

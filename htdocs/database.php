@@ -42,6 +42,7 @@ $pages = [
     ["title" => "Comparisons", "desc" => "Between various Matchbox castings", "url" => '/cgi-bin/compare.cgi'],
     ["title" => "Errors", "desc" => "Matchbox manufacturing errors", "url" => '/cgi-bin/errors.cgi'],
     ["title" => "Ads", "desc" => "Matchbox advertising", "url" => '/cgi-bin/ads.cgi'],
+    ["title" => "Blisters", "desc" => "Matchbox blister packs", "url" => '/cgi-bin/blister.cgi'],
     ["title" => "Customizations", "desc" => "Customizaed Matchbox toys", "url" => '/cgi-bin/custom.cgi'],
     ["title" => "Photographers", "desc" => "Contributors to this site", "url" => '/cgi-bin/photogs.cgi'],
     ["title" => "Other Products", "desc" => "A few other products from Matchbox", "url" => '/pages/other.php'],

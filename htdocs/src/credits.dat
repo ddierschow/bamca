@@ -3578,6 +3578,7 @@ c|man/mb1422  |DT|Porsche911CarreraCabriolet
 c|man/mb1423  |DT|21VWGolfGTE
 c|man/mb1424  |DT|77JaguarXJ6C
 c|man/mb1425  |DT|23Citroen-C4
+c|man/mb1426  |DT|Porsche911Targa
 c|man/mb1427  |DT|22JeepWagoneer
 c|man/mb1428  |DT|MorganPlusFour
 c|man/mb1429  |DT|MBXTangiersTukTuk
@@ -3608,7 +3609,7 @@ c|man/mb1457  |DT|70AMCJavelin
 c|man/mb1458  |DT|24MercedesBenzG580withEQTechnology
 c|man/mb1459  |DT|18DodgeDurango
 c|man/mb1461  |DT|22MiniCooperSE
-c|man/mb1462  |DT|Porsche911Targa
+c|man/mb1462  |DT|65LandRoverSeriesIIForwardControl
 c|man/mb1463  |DT|18FordFocusRS
 c|man/mb1464  |DT|95ChevyC1500
 c|man/mb1465  |DT|PorscheTaycanGTSSportTurismo
@@ -3629,6 +3630,9 @@ c|man/mb1494  |DT|MBXFieldCarConvertible
 c|man/mb1504  |DT|21LexusLC500
 c|man/mb1509  |DT|23DodgeChargerPursuit
 c|man/mb1519  |DT|24ToyotaTacoma
+c|man/mb1530  |DT|18JeepGrandCherokeeLimited
+c|man/mb1535  |DT|24FordMustangGT
+c|man/mb1540  |DT|23FordMaverick
 c|man/mb1762  |DT|1762GoldStateCoach
 
 c|man/md001   |DT|SnorkelFireEngine
@@ -4831,6 +4835,3 @@ c|man/wrp01   |MBXU|SFWRP01A
 c|man/wrp02   |DT|FordThunderbirdStockCar
 c|man/wrp02   |MBXU|SFWRP02A
 
-c|man/mb1530  |DT|18JeepGrandCherokeeLimited
-c|man/mb1535  |DT|24FordMustangGT
-c|man/mb1540  |DT|23FordMaverick

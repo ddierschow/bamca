@@ -85,8 +85,8 @@ def format_mack_text(pif, amods):
                     continue
                 for mod in mfiles[mfile]:
                     primary = (
-                        '<i class="fas fa-check"></i>' if
-                        not mod.get('alias.id') or (mod.get('alias.flags', 0) & config.FLAG_ALIAS_PRIMARY) != 0
+                        pif.ren.fmt_check()
+                        if not mod.get('alias.id') or (mod.get('alias.flags', 0) & config.FLAG_ALIAS_PRIMARY) != 0
                         else '')
                     modlink = pif.ren.format_link('single.cgi?id=' + mod['base_id.id'], mod['base_id.id'])
                     if ent['man']:

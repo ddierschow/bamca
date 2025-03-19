@@ -1,3 +1,12 @@
+### 7.8.4  - 2025-03-19
+
+- Complete rewrite of blister page
+- Cleanups on some admin stuff
+- Remove last "distincts"
+- F-string cleanups
+- New front page background
+- Simplify style sheet selection
+
 ### 7.8.3  - 2025-03-13
 
 - Use section items in matrix, mannum, lineup, and others

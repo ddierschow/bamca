@@ -70,7 +70,7 @@ def use_previous_product_pic(pif, cmd, thismods):  # pragma: no cover
 
 def make_compares(pif, mod_id, relateds):
     return [
-        pif.ren.format_link('/cgi-bin/compare.cgi#' + x['casting_related.model_id'], 'Comparisons for this model')
+        pif.ren.format_link(f"/cgi-bin/compare.cgi#{x['casting_related.model_id']}", 'Comparisons for this model')
         for x in relateds if x['casting_related.section_id'] in ['sf', 'rw', 'tr']
     ]
 
@@ -104,7 +104,6 @@ def reduce_variations(pif, mod_id, vars):
         if var['v.var']:
             vtd = var['v.text_description']
             vard.setdefault(vtd, [list(), list()])  # eek
-            # vard[vtd][0].append(pif.ren.format_link('vars.cgi?mod=%s&var=%s' % (mod_id, var['v.var']), var['v.var']))
             vard[vtd][0].append(var['v.var'])
             vard[vtd][1].append(var['v.picture_id'] if var['v.picture_id'] else var['v.var'])
     return sorted([[
@@ -119,7 +118,7 @@ def reduce_variations(pif, mod_id, vars):
 def show_external_links(pif, x_links):
 
     def ll_link(x, pfx):
-        return pif.ren.format_link(x[pfx + '.url'], x[pfx + '.name'])
+        return pif.ren.format_link(x[f'{pfx}.url'], x[f'{pfx}.name'])
 
     return [f"{ll_link(x, 'l1')} at {ll_link(x, 'l2')}" if x['l1.associated_link'] else ll_link(x, 'l1') for x in x_links]
 
@@ -195,8 +194,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
                 '.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
         if pif.is_allowed('a'):  # pragma: no cover
             lines.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (
-                useful.relpath('.', config.LIB_MAN_DIR,
-                               mod_id.replace('/', '_').lower()), mod_id.replace('/', '_').lower()))
+                useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()),
+                mod_id.replace('/', '_').lower()))
             lines.append(
                 f'<a href="/cgi-bin/library.cgi?m={mod_id}&til=1" target="_blank">Tilley List</a> '
                 f'<a href="/cgi-bin/pics.cgi?m={mod_id}&t=1">Im</a>')
@@ -232,7 +231,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
                 if ref_link:
                     prod += pif.ren.format_link(ref_link, ' ' + pif.ren.fmt_edit())
                 prod += f' <a href="{pif.request_uri}&useprev=1">{pif.ren.fmt_mini(icon="backward-step")}</a>'
-            prod += f' <a href="imawidget.cgi?d={pdir}&f=m_{pic}.jpg">{pif.ren.fmt_mini(icon="pen-ruler")}</a>'
+            prod += f' <a href="imawidget.cgi?d={pdir}&f=m_{pic}.jpg">{pif.ren.fmt_mini(icon="paintbrush")}</a>'
             prod = pic + '<br>' + prod
             lines.append(prod)
         lines.append('')

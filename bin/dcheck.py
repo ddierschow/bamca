@@ -350,11 +350,10 @@ v.var=vs.var_id
 
 def correllation(pif):
     print('correllation')
-    vr_cats = []
-    for cat in pif.dbh.raw_execute('select distinct category from variation')[0]:
-        vr_cats.extend(cat[0].split(' '))
-    vr_cats = set(vr_cats)
-    vs_cats = set([x[0] for x in pif.dbh.raw_execute('select distinct category from variation_select')[0]])
+    vr_cats = set()
+    for cat in pif.dbh.raw_execute('select category from variation')[0]:
+        vr_cats |= set(cat[0].split(' '))
+    vs_cats = set([x[0] for x in pif.dbh.raw_execute('select category from variation_select')[0]])
     db_cats = {x['id']: x['name'] for x in pif.dbh.fetch_category_counts()}
     print('in var but not in databse:', vr_cats - set(db_cats))
     print('in vs but not in databse:', vs_cats - set(db_cats))
@@ -768,9 +767,9 @@ def check_var_data(pif, id_list):
 def check_plants(pif):
     known = set(['Brazil', 'Bulgaria', 'China', 'England', 'Hong Kong', 'Hungary', 'Japan', 'Macau', 'Thailand'])
     for mod_id in pif.dbh.fetch_casting_ids():
-        res = [x['manufacture'] for x in pif.dbh.fetch(
-            'variation', columns=['manufacture'], where=f'mod_id="{mod_id}"', distinct=True)]
-        if len(res) > 5 or set(res) - known:
+        res = set([x['manufacture'] for x in pif.dbh.fetch(
+            'variation', columns=['manufacture'], where=f'mod_id="{mod_id}"')])
+        if len(res) > 5 or res - known:
             print(mod_id, '-', ' '.join([f'"{x}"' for x in res]))
 
 

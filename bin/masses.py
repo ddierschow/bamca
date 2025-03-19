@@ -810,8 +810,6 @@ def add_var_info(pif):
     mod_id = pif.form.get_raw('mod_id')
     date = pif.form.get_raw('date')
     mod = pif.dbh.fetch_casting(mod_id)
-    mod = modify_man_item(mod)
-    var_id = pif.form.get_raw('var')
     if not mod:
         mod = pif.dbh.fetch_casting_by_id_or_alias(mod_id)
         if not mod:
@@ -819,6 +817,8 @@ def add_var_info(pif):
         elif len(mod) > 1:
             raise useful.SimpleError("Multiple models found.")
         mod = modify_man_item(mod[0])
+    mod = modify_man_item(mod)
+    var_id = pif.form.get_raw('var')
     mod_id = mod['id']
     img = pif.ren.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM,
                                         also={'style': 'float: right;'})
@@ -1465,7 +1465,7 @@ def id_attributes(pif, tab, dat):
     ids = []
     for x in table_data.id:
         long_x = f"{tab}.{x}"
-        old_id = dat.id or ''
+        old_id = dat['id'] or ''
         old_id = old_id or (dat[long_x] if long_x in dat else '')
         ids.append(f'<input type="hidden" name="o_{tab}_{x}" value="{old_id}">\n')
     return '\n'.join(ids) + '\n'

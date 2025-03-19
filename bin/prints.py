@@ -7,6 +7,7 @@ import os
 
 import basics
 import bfiles
+import bldata
 from bxdata import box_lookups
 import config
 import imglib
@@ -16,88 +17,98 @@ import render
 import useful
 
 
-# ----- package --------------------------------------------------------
-
-
-def tree_row(tree, text):
-    return f"{tree}{text}\n<br>\n"
-
-
-def render_tree(pif, ch):
-    ostr = ''
-    for c in ch:
-        if c.isdigit():
-            for i in range(0, int(c)):
-                ostr += pif.ren.format_image_art(
-                    "treeb" + ".gif", also={'align': 'absmiddle', 'height': 24, 'width': 24}) + '\n'
-        else:
-            ostr += pif.ren.format_image_art(
-                "tree" + c + ".gif", also={'align': 'absmiddle', 'height': 24, 'width': 24}) + '\n'
-    return ostr
-
-
-def show_pic(pif, flist):
-    ostr = ''
-    for f in flist:
-        f = f[f.rfind('/') + 1:-4]
-        ostr += pif.ren.format_image_as_link([f], f.upper(), also={'target': '_showpic'}) + '\n'
-    return ostr
-
-
-def do_tree_page(pif, dblist):
-    ostr = ''
-    for llist in dblist:
-        cmd = llist.get_arg()
-        if cmd == 'dir':
-            pif.ren.pic_dir = llist.get_arg()
-        elif cmd == 'render':
-            ostr += useful.render_file(pif.ren.pic_dir + '/' + llist.get_arg())
-        elif cmd == 'p':
-            ostr += '<p>\n'
-        elif cmd == 's':
-            ostr += f'<p>\n<b id="{llist[1]}"><u>'
-            if llist[2]:
-                ostr += f' {llist[2]} - '
-            ostr += f'{llist[3]}</u></b><br>\n'
-        elif cmd == 'm':
-            desc = ''
-            if llist[2]:
-                desc += f'<b>{llist[2]}</b> '
-                if llist[3] and not llist[3][0].isupper():
-                    desc += " - "
-            desc += llist[3]
-            if llist[1].endswith('p'):
-                desc = f'<b>{desc}</b>'
-            # ostr += render_tree(pif, llist[1]) + desc
-            # ostr += '<br>\n'
-            ostr += tree_row(render_tree(pif, llist[1]), desc)
-        elif cmd == 'n':
-            ostr += tree_row(render_tree(pif, llist[1]), f'<font color="#666600"><i>{llist[2]}</i></font>')
-        elif cmd == 'a':
-            ostr += tree_row(render_tree(pif, llist[1]),
-                             pif.ren.format_image_as_link([llist[2]], llist[3], also={'target': '_showpic'}))
-        elif cmd == 'e':
-            flist = sorted(glob.glob(pif.ren.pic_dir + '/' + llist[2] + "*.jpg"))
-            if flist:
-                ostr += '<font color="blue">'
-                ostr += tree_row(
-                    render_tree(pif, llist[1]), f'<i>Example{useful.plural(flist)}:</i>\n' + show_pic(pif, flist))
-                ostr += '</font>\n'
-    return ostr
+# ----- blister --------------------------------------------------------
 
 
 @basics.web_page
 def blister(pif):
+    pif.ren.set_page_extra(pif.ren.modal_js)
+    # pif.ren.set_page_extra(pif.ren.toggle_display_js)
     pif.ren.print_html()
-    # global pagename
-    # pagename = pif.form.get_id('page', 'blister')
 
-    dblist = bfiles.SimpleFile(useful.relpath(config.SRC_DIR, pif.page_name + '.dat'))
+    # All this here nonsense is to create the picture entries for the examples.
 
-    print(pif.ren.format_head())
-    useful.header_done()
-    print(do_tree_page(pif, dblist))
-    print(pif.ren.format_tail())
+    bl_aliases = {x['alias.id']: x['alias.ref_id'] for x in pif.dbh.fetch_alias_blisters('BL')}
+    lexamples = {}
+    rexamples = {}
+    cexamples = {}
+
+    for example in bldata.lexamples:
+        bpid = example[0][:example[0].find('-') + 2]
+        pdir, pic = example[1].rsplit('/', 1)
+        img = pif.ren.find_image_path(pic, pdir='pic/' + pdir, largest='m')
+        if img:
+            lexamples.setdefault(bpid, [])
+            lexamples[bpid].append((example[0], img))
+
+    lup_models = {x['lineup_model.base_id'].lower(): x for x in pif.dbh.fetch_lineup_model_blisters(
+        [v for k, v in bl_aliases.items() if k[0].isupper()])}
+
+    for example in bl_aliases.items():
+        if example[0][0].isupper() and example[1] in lup_models:
+            lup_model = lup_models[example[1]]
+            bpid = example[0][:example[0].find('-') + 2]
+            pdir = lup_model['section.pic_dir'] or lup_model['page_info.pic_dir']
+            pic = lup_model['lineup_model.base_id']
+            img = pif.ren.find_image_path(pic, pdir=pdir, largest='m')
+            if img:
+                lexamples.setdefault(bpid, [])
+                lexamples[bpid].append((example[0], img))
+
+    for region in bldata.core:
+        for btype in region[2]:
+            bpid = f'{region[0]}-{btype[0][0]}'
+            glist = [
+                (x[x.rfind('/') + 1:-4].upper(), x)
+                for x in sorted(glob.glob(f'{pif.ren.pic_dir}/{bpid.lower()}*.jpg'))]
+            for pic, img in lexamples.get(bpid, []):
+                add_to_image_list(glist, pic, img)
+            rexamples[bpid] = sorted(glist)
+
+    for cat in bldata.other:
+        for btype in cat[2]:
+            if pic := btype[0]:
+                cexamples[pic] = None
+            if len(btype) > 2:
+                for subtype in btype[2]:
+                    if pic := subtype[0]:
+                        cexamples[pic] = None
+
+    mat_models = {x['matrix_model.base_id']: x for x in pif.dbh.fetch_matrix_model_blisters(bl_aliases.values())}
+    for cat in cexamples:
+        cexamples[cat] = cat_example(pif, cat, mat_models.get(bl_aliases.get(cat)))
+
+    return pif.ren.format_template('blister.html', core=bldata.core, other=bldata.other,
+                                   rexamples=rexamples, cexamples=cexamples)
+
+
+def add_to_image_list(glist, pic, img):
+    for ent in glist:
+        if ent[0] == pic:
+            break
+    else:
+        glist.append((pic, img))
+        return
+    c = 2
+    while c:
+        for ent in glist:
+            if ent[0] == f'{pic}{c}':
+                break
+        else:
+            glist.append((f'{pic}{c}', img))
+            break
+        c += 1
+
+
+def cat_example(pif, pic, mat_model):
+    if mat_model:
+        pdir = mat_model['section.pic_dir'] or mat_model['page_info.pic_dir']
+        pic = mat_model['matrix_model.base_id']
+        img = pif.ren.find_image_path(pic, pdir=pdir, largest='m')
+        if img:
+            return img
+    img = pif.ren.find_image_path(pic, pdir=pif.ren.pic_dir, largest='m')
+    return img or None
 
 
 # ----- boxart ---------------------------------------------------------
@@ -376,10 +387,8 @@ def publication(pif):
 
 
 def get_section_by_model_type(pif, mtype):
-    for sec in pif.dbh.fetch_sections_by_page_type(mbdata.page_format_type['pub']):
-        if sec['category'] == mtype:
-            return sec
-    return {}
+    secs = pif.dbh.fetch_sections_by_page_type(mbdata.page_format_type['pub'], category=mtype)
+    return secs[0] if secs else {}
 
 
 def publication_list(pif, mtype):

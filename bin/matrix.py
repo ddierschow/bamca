@@ -397,7 +397,18 @@ def move_section(pif, section_id, old_page_id, new_page_id):
         print(pif.dbh.update_lineup_model('id={lm["lineup_model.id"]', lm))
 
 
-def set_base_id(pif, page_id, section_id, new_lfmt):
+def check_base_id(pif, page_id=None, section_id=None):
+    found = set()
+    for mod in pif.dbh.fetch_matrix_models(page_id=page_id, section=section_id):
+        if not mod['base_id']:
+            if section_id:
+                print(mod['id'], mod['page_id'], mod['section_id'], mod['range_id'], mod['display_order'])
+            found.add((mod['page_id'], mod['section_id']))
+    for x in sorted(found):
+        print(x[0], x[1])
+
+
+def set_base_id(pif, page_id, section_id, new_lfmt=None):
     sec = pif.dbh.fetch_section(sec_id=section_id, page_id=page_id)
     if not sec:
         print('no section')
@@ -406,20 +417,19 @@ def set_base_id(pif, page_id, section_id, new_lfmt):
     if not page:
         print('no page')
         return
-    pdir = sec['section.pic_dir'] or page['pic_dir']
-    old_lfmt = sec['section.link_format']
+    pdir = sec['pic_dir'] or page['pic_dir']
+    old_lfmt = sec['link_format']
+    new_lfmt = sec['link_format'] = new_lfmt or sec['link_format']
     is_old_num_id = d_re.search(old_lfmt)
     is_new_num_id = d_re.search(new_lfmt)
-    sec['section.link_format'] = new_lfmt
     print(sec)
-    print(pif.dbh.insert_or_update_section(sec.todict()))
+    print(pif.dbh.insert_or_update_section(sec))
     for model in pif.dbh.fetch_matrix_models(page_id=page_id, section=section_id):
-        range_id = int(model['matrix_model.range_id'] or 0) if is_old_num_id else model['matrix_model.range_id']
-        model['matrix_model.base_id'] = (new_lfmt % int(range_id)) if is_new_num_id else (new_lfmt % range_id)
-        model['matrix_model.range_id'] = int(range_id) if is_new_num_id else range_id
-        print(old_lfmt % range_id, model['matrix_model.base_id'])
+        range_id = int(model['range_id'] or 0) if is_old_num_id else model['range_id']
+        model['base_id'] = (new_lfmt % int(range_id)) if is_new_num_id else (new_lfmt % range_id)
+        model['range_id'] = int(range_id) if is_new_num_id else range_id
         print(pif.dbh.insert_or_update_matrix_model(model))
-        rename_series_pictures(pif, pdir, old_lfmt % range_id, model['matrix_model.base_id'])
+        rename_series_pictures(pif, pdir, old_lfmt % range_id, model['base_id'])
 
 
 # want to do r - rename id
@@ -500,6 +510,7 @@ cmds = [
     ('p', check_pics, "check pics"),
     ('d', check_dups, "check dups"),
     ('m', move_section, "move section: section_id old_page_id new_page_id"),
+    ('cb', check_base_id, "check base id"),
     ('b', set_base_id, "set base id: page_id section_id new_link_format"),
     ('r', rename_range_id, "rename range id base id: page_id section_id old_range_id new_range_id"),
     ('i', import_list, "import list: page_id section_id barfile"),

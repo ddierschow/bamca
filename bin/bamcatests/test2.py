@@ -40,10 +40,6 @@ class TestRender(unittest.TestCase):
     def test_style_name4(self):
         self.assertOut(self.pif.ren.style_name('name', 'eb', '1', id='foo'))
 
-    def test_show_location(self):
-        self.pif.ren.hierarchy_append('/', 'Home')
-        self.assertOut(self.pif.ren.show_location())
-
     def test_get_flags(self):
         self.assertTrue(isinstance(self.pif.ren.get_flags(), dict))
 

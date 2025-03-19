@@ -53,10 +53,7 @@ class Presentation(object):
         self.flag_info = None
         self.shown_flags = set()
         self.secure = None
-        self.styles = list(('main', 'fonts'))
-        if '.' in self.page_id:
-            self.styles.append(self.page_id.split('.')[0])
-        self.styles.append(self.page_id)
+        self.styles = ['main', 'fonts']
         self.extra = self.font_awesome_js
         self.comment_button = ''
         self.is_admin = False
@@ -95,6 +92,10 @@ class Presentation(object):
         self.description = row['description']
         self.note = self.fmt_pseudo(row['note'])
         self.tail = {x: 1 for x in row['tail'].split(',')}
+        if self.format_type and self.format_type not in self.styles:
+            self.styles.append(self.format_type)
+        if self.page_id not in self.styles:
+            self.styles.append(self.page_id)
 
     def set_page_extra(self, extra):
         self.extra += extra
@@ -110,9 +111,6 @@ class Presentation(object):
             class_ids.append(f'{prefix}_{id}')
         class_ids.append(prefix)
         return ' '.join(class_ids)
-
-    def show_location(self):
-        return ''.join(['<a href="%(link)s">%(name)s</a> &gt;\n' % lvl for lvl in self.hierarchy]) + '<br>'
 
     def hierarchy_append(self, link, txt):
         self.hierarchy.append({'link': link, 'name': txt})
@@ -194,7 +192,7 @@ class Presentation(object):
             javasc.def_google_analytics_js if not banner and not self.diff_run else '',
             '</head>\n<body>\n',
             f'<table width="100%"><tr><td height=24 class="{banner}">&nbsp;</td></tr><tr><td>\n' if banner else '',
-            self.show_location(),
+            ''.join([f'<a href="{x["link"]}">{x["name"]}</a> &gt;\n' for x in self.hierarchy]) + '<br>',
         ])
         if not self.hide_title:
             if self.title:
@@ -493,7 +491,10 @@ of Matchbox International Ltd. and are used with permission.
         return ''
 
     def format_image_as_link(self, fnames, txt, pdir=None, also={}):
-        return self.format_link('../' + self.find_image_path(fnames, suffix=graphic_types, pdir=pdir), txt, also=also)
+        file_path = self.find_image_path(fnames, suffix=graphic_types, pdir=pdir)
+        if not file_path:
+            return txt
+        return self.format_link('../' + file_path, txt, also=also)
 
     def format_image_optional(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None,
                               also={}, nopad=False, largest=None):
