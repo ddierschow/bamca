@@ -1622,11 +1622,12 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     def fetch_box_type(self, box_id):
         return self.fetch('box_type', where={"id": box_id}, tag='BoxTypes')
 
-    def fetch_box_type_by_mod(self, mod_id, box_style=None):
+    def fetch_box_type_by_mod(self, mod_id, box_style=None, section_id=None):
         # this sucks so hard
         where1 = f'box_type.mod_id="{mod_id}"'
         where2 = f'(box_type.mod_id=alias.id and alias.ref_id="{mod_id}")'
         where3 = f' and box_type.box_type like "{box_style}%"' if box_style else ''
+        where3 += f' and box_type.section_id="{section_id}"' if section_id else ''
         return (self.fetch('box_type', where=where1 + where3, tag='BoxTypeByMod') +
                 self.fetch('box_type,alias', where=where2 + where3, tag='BoxTypeByModAl'))
 

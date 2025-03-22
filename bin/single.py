@@ -247,7 +247,9 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
         lines.extend(var_pics)
         lines.append('')
         attrs = pif.dbh.fetch_attributes(mod_id)
-        fmt_bad, _, _ = pif.dbh.check_description_formatting_casting(model, attrs)
+        fmt_bad, messages, missing = pif.dbh.check_description_formatting_casting(model, attrs)
+        useful.write_comment('msg', messages)
+        useful.write_comment('mis', missing)
         lines.append(pif.ren.fmt_x('red') if fmt_bad else pif.ren.fmt_check('green'))
         var_cnt, var_counts = var_texts
         lines.append(''.join([
@@ -314,7 +316,7 @@ def show_lineup_appearances(pif, appearances):
         return {}
 
     def show_lineup(yr, rg, num):
-        return f'lineup.cgi?year={yr}&region={rg}&lty=all#{num}'
+        return f'lineup.cgi?year={yr}&region={rg}&lty=all#{rg}.{num}'
 
     if 'X' in rs:
         columns = ['', 'W']
@@ -555,8 +557,7 @@ def show_single(pif):
         'adds': adds,
         'plants': plants,
         'base_names': base_names,
-        'info_cols': (int(bool(model.makes)) + int(bool(mack_nums)) +
-                      int(bool(model.scale)) + int(bool(model.country)) + int(bool(model.first_year))),
+        'info_cols': useful.count_exist([model.makes, mack_nums, model.scale, model.country, model.first_year]),
         'man_cat': pif.ren.format_link(f'/cgi-bin/manno.cgi?section={model.section_id}#{mod_id}', model.section.name),
         'revised': model.casting_revised,
         # 'group': pif.ren.find_image_path(mod_id, prefix='g', pdir=config.IMG_DIR_ADD)

@@ -500,16 +500,15 @@ class MannoFile(object):
 
         def mkpth(ty):
             return useful.relpath(
-                '.', config.IMG_DIR_BOX,
-                'x_' + mod_id + '-' + ty['box_type.box_type'][0] + ty['box_type.pic_id'] + '*.jpg').lower()
+                '.', config.IMG_DIR_BOX, f"x_{mod_id}-{ty['box_type.box_type'][0]}{ty['box_type.pic_id']}*.jpg").lower()
 
         if box_types:
             mod_id = box_types[0]['box_type.mod_id']
             base_box_types = list(set([box['box_type.box_type'][0] for box in box_types]))
-            base_box_count = sum([int(bool(len(glob.glob(useful.relpath(
-                '.', config.IMG_DIR_BOX, mbdata.IMG_SIZ_SMALL + '_' + mod_id + '-' + ty + '*.jpg').lower()))))
+            base_box_count = useful.count_exist([glob.glob(useful.relpath(
+                '.', config.IMG_DIR_BOX, f'{mbdata.IMG_SIZ_SMALL}_{mod_id}-{ty}*.jpg').lower())
                 for ty in base_box_types])
-            box_count = sum([int(bool(len(glob.glob(mkpth(ty))))) for ty in box_types])
+            box_count = sum([glob.glob(mkpth(ty)) for ty in box_types])
             return {'bx': mbmods.fmt_var_pic(base_box_count, len(base_box_types)),
                     'bx2': mbmods.fmt_var_pic(box_count, len(box_types))}
         return {'bx': '-', 'bx2': '-'}

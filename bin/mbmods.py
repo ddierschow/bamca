@@ -280,7 +280,8 @@ def show_adds(pif, mod_id, var_id=''):
          x['attribute_picture.picture_id'] + '.', x) for x in attribute_pictures if x['attribute_picture.picture_id']])
 
     img_id = (mod_id + ('-' + var_id if var_id else '')).lower()
-    pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
+    # pdir = '.' + (config.IMG_DIR_VAR if var_id else config.IMG_DIR_ADD)
+    pdir = '.' + config.IMG_DIR_ADD
     adds = mbdata.var_adds if var_id else mbdata.model_adds
     ostr = ''
     for add in adds:

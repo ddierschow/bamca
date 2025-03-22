@@ -677,3 +677,7 @@ def setlist(wheat):
         if x not in retval:
             retval.append(x)
     return retval
+
+
+def count_exist(items):
+    return len([1 for x in items if x])

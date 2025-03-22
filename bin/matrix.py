@@ -35,6 +35,9 @@ class MatrixFile(object):
         if ent.model_type == 'MP':
             ent.image = pif.ren.format_image_required(
                 ent.mod_id, prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True, blank=True)
+        elif ent.is_no_variation:
+            ent.image = pif.ren.format_image_optional(
+                f'{ent.mod_id}', prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True)
         elif ent.range_id and sec.img_format:
             ent.image = pif.ren.format_image_required(
                 useful.clean_name(sec.img_format % ent.range_id, '/'), pdir=ent.pdir)

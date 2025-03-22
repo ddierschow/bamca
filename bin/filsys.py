@@ -221,20 +221,20 @@ def show_imgs(pif, tform):
                 return y
         return ''
 
-    print('<hr>')
-    print('<form action="traverse.cgi" method="post">' + pif.create_token())
+    ostr = '<hr>\n'
+    ostr += '<form action="traverse.cgi" method="post">' + pif.create_token()
     plist = tform.patt.split(',')
     img_args = {'shlv': tform.shlv, 'cate': tform.cate, 'sx': tform.szx, 'sy': tform.szy, 'mss': tform.mss,
                 'pms': tform.pms, 'cpct': tform.cpct}
     if tform.mss:
-        print('Credit ' + pif.form.put_text_input('credit', 4, value=pif.form.get_str('credit')))
-        print('<br>')
+        ostr += 'Credit ' + pif.form.put_text_input('credit', 4, value=pif.form.get_str('credit'))
+        ostr += '<br>\n'
         img_args['targs'], img_args['credits'] = make_targs(pif, tform.dirname)
     elif tform.pms:
         # maybe put size here?  assume m_
-        print('Credit ' + pif.form.put_text_input('credit', 4))
-        print('<input type="hidden" name="tysz" value="m">')
-        print('<br>')
+        ostr += 'Credit ' + pif.form.put_text_input('credit', 4)
+        ostr += '<input type="hidden" name="tysz" value="m">\n'
+        ostr += '<br>\n'
         img_args['targs'] = []
     elif tform.shlv and tform.dirname == 'tilley':
         img_args['mans'] = imglib.get_tilley_file()
@@ -253,30 +253,30 @@ def show_imgs(pif, tform):
         img_also = {'width': '200'} if tform.thum else {}
         img_args['also'] = img_also
         if tform.cpct:
-            print('<div class="filt">')
+            ostr += '<div class="filt">\n'
             for fp in flist:
                 if tform.sizd:
                     for fn in useful.read_dir('?_' + fp, pif.ren.pic_dir):
-                        print('<div class="filc">')
+                        ostr += '<div class="filc">\n'
                         img_also['title'] = fn
-                        print(img(pif, fp, **img_args))
-                        print('</div>')
-                    print('<br>')
+                        ostr += img(pif, fp, **img_args)
+                        ostr += '</div>\n'
+                    ostr += '<br>\n'
                 else:
-                    print('<div class="filc">')
+                    ostr += '<div class="filc">\n'
                     img_also['title'] = fp
-                    print(img(pif, [fp], **img_args))
-                    print('</div>')
-            print('</div>')
+                    ostr += img(pif, [fp], **img_args)
+                    ostr += '</div>\n'
+            ostr += '</div>\n'
 
         else:
-            print('<table class="glist">')
+            ostr += '<table class="glist">\n'
             for fp in flist:
                 if tform.sizd:
                     dlist = useful.read_dir('?_' + fp, pif.ren.pic_dir)
                     flist_sort(dlist, tform)
                     if not tform.dups or len(dlist) > 1:
-                        print(img(pif, dlist, **img_args))
+                        ostr += img(pif, dlist, **img_args)
                 else:
                     img_also['title'] = fp
                     # also sized + dups
@@ -285,56 +285,57 @@ def show_imgs(pif, tform):
                         dlist = useful.read_dir(root + '*' + ext, pif.ren.pic_dir)
                         if len(dlist) > 1:
                             flist_sort(dlist, tform)
-                            print(img(pif, dlist, fp, **img_args))
+                            ostr += img(pif, dlist, fp, **img_args)
                     else:
-                        print(img(pif, [fp], rsuf=tform.rsuf, **img_args))
-            print('</table>')
-            print('<hr>')
-    print(f'<input type="hidden" name="d" value="{tform.tdir}">')
-    print('<input type="hidden" name="sc" value="1">')
+                        ostr += img(pif, [fp], rsuf=tform.rsuf, **img_args)
+            ostr += '</table>\n'
+            ostr += '<hr>\n'
+    ostr += f'<input type="hidden" name="d" value="{tform.tdir}">\n'
+    ostr += '<input type="hidden" name="sc" value="1">\n'
     if tform.cate:
-        print('<input type="hidden" name="pre" value="">')
-        print('<input type="hidden" name="lty" value="shc">')
+        ostr += '<input type="hidden" name="pre" value="">\n'
+        ostr += '<input type="hidden" name="lty" value="shc">\n'
     elif tform.shlv:
-        print('<input type="hidden" name="pre" value="man">')
-        print('<input type="hidden" name="lty" value="shm">')
+        ostr += '<input type="hidden" name="pre" value="man">\n'
+        ostr += '<input type="hidden" name="lty" value="shm">\n'
     elif tform.rsuf:
-        print('<input type="hidden" name="lty" value="suf">')
+        ostr += '<input type="hidden" name="lty" value="suf">\n'
     elif tform.mss:
-        print('<input type="hidden" name="lty" value="mss">')
-        print('promote <input type="text" name="msspromote">')
+        ostr += '<input type="hidden" name="lty" value="mss">\n'
+        ostr += 'promote <input type="text" name="msspromote">\n'
     elif tform.pms:
-        print('<input type="hidden" name="lty" value="pms">')
+        ostr += '<input type="hidden" name="lty" value="pms">\n'
     elif tform.cred:
-        print('<input type="hidden" name="lty" value="crd">')
-    print(pif.form.put_button_input())
-    print('<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.form.put_text_button('upload')))
-    print('</form>')
+        ostr += '<input type="hidden" name="lty" value="crd">\n'
+    ostr += pif.form.put_button_input()
+    ostr += '<a href="upload.cgi?d=%s&r=unset">%s</a>' % (tform.tdir, pif.form.put_text_button('upload'))
+    ostr += '</form>\n'
+    return ostr
 
 
 def show_script(pif, tform):
+    # capture output with the StringIO trick!
+    ostr = ''
     if tform.mss:
-        do_var_masses(pif, tform)
-        return
+        return do_var_masses(pif, tform)
     if tform.pms:
-        do_prod_masses(pif, tform)
-        return
+        return do_prod_masses(pif, tform)
     if tform.rsuf:
         for fn, suf in tform.rsfx:
             root, ext = os.path.splitext(fn)
             if '-' in root:
                 root = root[:root.find('-')]
             nfn = root + '-' + suf + ext
-            print(fn, root + '-' + suf + ext, '<br>')
+            ostr += f'{fn} {root}-{suf}{ext} <br>\n'
             useful.file_mover(os.path.join(tform.tdir, fn), os.path.join(tform.tdir, nfn), mv=True, inc=True)
-        return
+        return ostr
     if tform.cred:
         for fn, cred in pif.form.get_list(start='cred.'):
-            print(fn, cred, '<br>')
+            ostr += f'{fn} {cred} <br>\n'
             pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, tform.tdir, fn, verbose=False))
-        return
+        return ostr
     rend = dict(tform.renl)
-    print('<pre>')
+    ostr += '<pre>\n'
     for ren in tform.renl:
         fn = ren[1]
         if '.' not in fn:
@@ -342,7 +343,7 @@ def show_script(pif, tform):
         if not os.path.exists(fn):
             useful.file_mover(os.path.join(tform.tdir, ren[0]), os.path.join(tform.tdir, fn), mv=True, inc=True)
         else:
-            print('#ren', os.path.join(tform.tdir, ren[0], os.path.join(tform.tdir, fn)))
+            ostr += f'#ren {os.path.join(tform.tdir, ren[0], os.path.join(tform.tdir, fn))}\n'
     for lb in tform.libl:
         dest = lb[1]  # we might have renamed this...
         if lb[0] in rend:
@@ -357,13 +358,14 @@ def show_script(pif, tform):
         fsp = mv.split(' ')
         if os.path.exists(os.path.join(tform.tdir, fsp[0])):
             useful.file_mover(os.path.join(tform.tdir, fsp[0]), os.path.join(tform.tdir, fsp[1]), mv=True, inc=True)
-    print('</pre>')
+    ostr += '</pre>\n'
+    return ostr
 
 
 def do_var_masses(pif, tform):
+    ostr = ''
     for fn, var in pif.form.get_list(start='var.'):
-        print('<hr>')
-        print(fn, var, '<br>')
+        ostr += f'<hr>\n{fn} {var} <br>\n'
         eform = images.EditForm(pif, tdir=pif.ren.pic_dir, fn=fn)
         eform.ot = 'jpg'
         eform.tysz = 's'
@@ -375,11 +377,12 @@ def do_var_masses(pif, tform):
     if var_id:
         mod_id = eform.calc_man()
         imglib.promote_picture(pif, mod_id, var_id)
+    return ostr
 
 
 def do_prod_masses(pif, tform):
     ddir = tform.tdir.replace('lib', 'pic')
-    print(pif.form.get_str('credit'), ddir, '<br>')
+    ostr = f'{pif.form.get_str("credit")} {ddir} <br>\n'
     if not os.path.exists(ddir):
         raise useful.SimpleError('Path does not exist.')
     siz = pif.form.get('tysz')
@@ -389,8 +392,8 @@ def do_prod_masses(pif, tform):
         if not photog:
             cred = ''
     for fn, nam in pif.form.get_list(start='nam.'):
-        print('<hr>')
-        print(fn, ddir, siz, nam, '<br>')
+        ostr += '<hr>\n'
+        ostr += f'{fn} {ddir} {siz} {nam} <br>\n'
 
         rf = [False, False, False, False, False]
         pth = tform.tdir + '/' + fn
@@ -407,24 +410,26 @@ def do_prod_masses(pif, tform):
             title += ' credited to ' + photog['name']
         pif.ren.message('Post to Tumblr: ', tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
         pif.ren.message('Credit added: ', pif.dbh.write_photo_credit(cred, ddir, nam))
+    return ostr
 
 
 def show_file(pif, tform):
+    ostr = ''
     if not os.path.exists(tform.tdir + '/' + tform.fnam):
         raise useful.SimpleError('Path does not exist.')
-    print(pif.ren.format_button_link('delete', link=pif.request_uri + '&delete=1&act=1'))
+    ostr += pif.ren.format_button_link('delete', link=pif.request_uri + '&delete=1&act=1')
     if os.path.exists(os.path.join(tform.tdir, 'archive')):
-        print(pif.ren.format_button_link('archive', link=pif.request_uri + '&archive=1&act=1'))
+        ostr += pif.ren.format_button_link('archive', link=pif.request_uri + '&archive=1&act=1')
     if os.path.exists(os.path.join(tform.tdir, 'fixed')):
-        print(pif.ren.format_button_link('fixed', link=pif.request_uri + '&fixed=1&act=1'))
+        ostr += pif.ren.format_button_link('fixed', link=pif.request_uri + '&fixed=1&act=1')
     if os.path.exists(os.path.join(tform.tdir, 'spam')) or os.path.exists(os.path.join(tform.tdir, '..', 'spam')):
-        print(pif.ren.format_button_link('spam', link=pif.request_uri + '&spam=1&act=1'))
+        ostr += pif.ren.format_button_link('spam', link=pif.request_uri + '&spam=1&act=1')
     root, ext = useful.root_ext(tform.fnam)
     if not os.path.exists(tform.tdir + '/' + tform.fnam):
-        print("file not found")
+        ostr += "file not found"
     elif ext in imglib.itypes:
         # if tform.tdir.startswith('..'):
-        #     print('<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (tform.tdir, tform.fnam))
+        #     ostr += '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (tform.tdir, tform.fnam)
         # else:
         show_picture(pif, tform.fnam)
     # elif ext == 'dat':
@@ -432,64 +437,68 @@ def show_file(pif, tform):
     elif tform.tdir.startswith('../../comments'):
         fil = open(tform.tdir + '/' + tform.fnam).read()
         if '{' in fil and '}' in fil:
-            print(fil[:fil.index('{')])
+            ostr += fil[:fil.index('{')]
             data = eval(fil[fil.index('{'):fil.rindex('}') + 1])
-            print('<p><dl>')
+            ostr += '<p><dl>'
             for key, val in sorted(data.items()):
-                print('<dt>', key, '</dt><dd>', val, '</dd>')
-            print('</dl>')
-            print(fil[fil.rindex('}') + 1])
+                ostr += f'<dt> {key} </dt><dd> {val} </dd>\n'
+            ostr += '</dl>'
+            ostr += fil[fil.rindex('}') + 1]
         else:
-            print('<p>', fil)
+            ostr += f'<p> {fil}\n'
     elif tform.tdir == '../../logs':
-        print('<p><div style="font-family: monospace;">')
+        ostr += '<p><div style="font-family: monospace;">\n'
         fil = open(tform.tdir + '/' + tform.fnam).readlines()
         for i in range(len(fil)):
             if fil[i].startswith('uri = '):
                 fil[i] = """uri = <a href="%s">%s</a>\n""" % (fil[i][9:-4], fil[i][9:-4])
                 break
-        print('<pre>')
-        print(''.join(fil))
-        print('</pre>')
-        print('</div>')
+        ostr += '<pre>\n'
+        ostr += ''.join(fil)
+        ostr += '</pre>\n'
+        ostr += '</div>\n'
     else:
-        print('<p>')
+        ostr += '<p>\n'
         fil = open(tform.tdir + '/' + tform.fnam).readlines()
         for i in range(len(fil)):
             if fil[i].startswith('uri = '):
                 fil[i] = """uri = <a href="%s">%s</a>\n""" % (fil[i][9:-4], fil[i][9:-4])
                 break
-        print('<br>'.join(fil))
+        ostr += '<br>'.join(fil) + '\n'
+    return ostr
 
 
 # for things out of http space:
 # print('<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.ren.pic_dir, fn))
 def show_picture(pif, fn, pdir=None):
+    ostr = ''
     if pdir:
         pif.ren.pic_dir = pdir
     # picker(pif, form, fn)
     root, ext = useful.root_ext(fn.strip())
     pif.ren.comment(root, ext)
-    print('<table><tr><td></td><td>' + pif.ren.format_image_art('hruler.gif') + '</td></tr>')
-    print('<tr><td valign="top">' + pif.ren.format_image_art('vruler.gif') + '</td><td valign="top">')
-    print('<a href="/cgi-bin/image.cgi?d=%s&f=%s"><img src="/cgi-bin/image.cgi?d=%s&f=%s"></a>' %
-          (pif.ren.pic_dir, fn, pif.ren.pic_dir, fn))
-    print('</td></tr></table>')
+    ostr += '<table><tr><td></td><td>' + pif.ren.format_image_art('hruler.gif') + '</td></tr>\n'
+    ostr += '<tr><td valign="top">' + pif.ren.format_image_art('vruler.gif') + '</td><td valign="top">\n'
+    ostr += f'<a href="/cgi-bin/image.cgi?d={pif.ren.pic_dir}&f={fn}">'
+    ostr += f'<img src="/cgi-bin/image.cgi?d={pif.ren.pic_dir}&f={fn}"></a>\n'
+    ostr += '</td></tr></table>\n'
+    return ostr
 
 
 colors = ["#FFFFFF", "#CCCCCC"]
 
 
 def do_action(pif, tform):
-    print('<div class="warning">')
+    ostr = '<div class="warning">\n'
     # nfn = images.action(pif, tform.tdir, tform.fnam, tform.act)
     nfn = imglib.ActionForm(pif).read(pif.form).action(pif, tform.tdir, tform.fnam)['fn']
-    print('</div><br>')
+    ostr += '</div><br>\n'
     if nfn:
-        show_picture(pif, nfn)
+        ostr += show_picture(pif, nfn)
     else:
         tform.graf = 0
-        print(show_dir(pif, tform))
+        ostr += show_dir(pif, tform)
+    return ostr
 
 
 class TraverseForm(object):
@@ -561,28 +570,26 @@ def main(pif):  # traverse main
     tform = TraverseForm().read(pif)
 
     pif.ren.set_page_extra(pif.ren.increment_js)
-    print(pif.ren.format_head())
-    useful.header_done()
-    print(pif.form.get_form())
+    ostr = str(pif.form.get_form()) + '\n'
     if tform.alt:
-        print(pif.ren.format_link('/cgi-bin/traverse.cgi?d=' + tform.alt, tform.alt))
-    print('<br>')
+        ostr += pif.ren.format_link('/cgi-bin/traverse.cgi?d=' + tform.alt, tform.alt)
+    ostr += '<br>\n'
     if tform.patt:
-        print('show_imgs<br>')
-        show_imgs(pif, tform)
+        ostr += 'show_imgs<br>\n'
+        ostr += show_imgs(pif, tform)
     elif tform.scrt:
-        print('show_script<br>')
-        show_script(pif, tform)
+        ostr += 'show_script<br>\n'
+        ostr += show_script(pif, tform)
     elif tform.act:
-        print('show_action<br>')
-        do_action(pif, tform)
+        ostr += 'show_action<br>\n'
+        ostr += do_action(pif, tform)
     elif tform.fnam:
-        print('show_file<br>')
-        show_file(pif, tform)
+        ostr += 'show_file<br>\n'
+        ostr += show_file(pif, tform)
     else:
-        print('show_dir<br>')
-        print(show_dir(pif, tform))
-    print(pif.ren.format_tail())
+        ostr += 'show_dir<br>\n'
+        ostr += show_dir(pif, tform)
+    return pif.ren.format_template('blank.html', content=ostr)
 
 
 # ----- updcommits -----------------------------------------------------

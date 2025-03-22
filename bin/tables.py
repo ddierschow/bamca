@@ -734,8 +734,8 @@ table_info = {
         'id': ['id'],
         'saveid': False,
         'columns': [
-            'id', 'mod_id', 'box_type', 'pic_id', 'box_size', 'additional_text', 'bottom', 'sides', 'end_flap',
-            'model_name', 'year', 'notes'
+            'id', 'mod_id', 'section_id', 'box_type', 'pic_id', 'box_size', 'additional_text', 'bottom', 'sides',
+            'end_flap', 'model_name', 'year', 'notes'
         ],
         'clinks': {
             'id': {'tab': 'box_type', 'id': ['id/id']},

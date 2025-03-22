@@ -1,0 +1,50 @@
+{% extends "framed.html" %}
+{%- import "showix.html" as showix -%}
+
+{%- block frame_body_panel %}
+
+<center>
+<table><tr><td>
+<a href="{{ upload }}">{{ image }}</a><br>
+{% if credit %}<div class="credit">{{ credit }}</div>{% endif %}
+</td></tr></table>
+<p>
+<table class="vartable" style="width: auto;">
+<tr><td class="varentry"><i>{{ description }}</i></td></tr>
+</table>
+</center><p>
+
+<form action="vars.cgi" name="vars" method="post">
+<input type="hidden" name="page" value="{{ page_id }}">
+<input type="hidden" name="mod" value="{{ variation.mod_id }}">
+<input type="hidden" name="var" value="{{ variation.var }}">
+<input type="hidden" name="ovar" value="{{ variation.var }}">
+<input type="hidden" name="addnew" value="{{ addnew }}">
+<center>
+{{ showix.format_listix(llistix) }}
+{# formatted_listix #}
+</center>
+
+<p><center><b><a href="{{ upload }}">Upload a Picture</a></b></center>
+
+{% if appearances -%}
+<p>
+<b>Appearances</b>
+<ul>
+{%- for appearance in appearances %}
+<li>{{ appearance }}
+{%- endfor %}
+</ul>
+
+{% endif -%}
+<p>
+<center>
+{{ adds }}
+</center>
+
+{%- endblock frame_body_panel %}
+
+{%- block frame_footer %}
+{{ footer }}
+</form>
+{%- endblock frame_footer %}

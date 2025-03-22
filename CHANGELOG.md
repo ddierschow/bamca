@@ -1,3 +1,13 @@
+### 7.8.5  - 2025-03-21
+
+- Redesign vars pages.
+- Split var editor away from var displayer
+- Add section_id to box_type table
+- Converted some pages to returning strings rather than direct printing
+- More fstrings
+- Make matrix entries with no vars show the right picture
+- Make some anchors work right; random bug fixes.
+
 ### 7.8.4  - 2025-03-19
 
 - Complete rewrite of blister page

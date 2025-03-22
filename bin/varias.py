@@ -44,6 +44,7 @@ detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Or', '
 
 
 def single_variation_left_bar(pif, varitem, edit):
+
     libdir = useful.relpath('.', config.LIB_MAN_DIR, varitem.mod_id.lower())
     lines = []
     if pif.is_allowed('a'):  # pragma: no cover
@@ -56,6 +57,9 @@ def single_variation_left_bar(pif, varitem, edit):
             pif.ren.format_link(pif.dbh.get_editor_link('casting', {'id': varitem.mod_id}), "Casting"),
             pif.ren.format_link(f'?recalc=1&mod={varitem.mod_id}', "Recalc"),
             pif.ren.format_link(f'traverse.cgi?g=1&d={libdir}&man={varitem.mod_id}&var={varitem.var}', "Select"),
+            pif.ren.format_link(f'vars.cgi?mod={varitem.mod_id}&var={varitem.var}&delete=1', "Delete"),
+            pif.ren.format_link(f'vars.cgi?mod={varitem.mod_id}&var={varitem.var}&rmpic=1', "Remove Picture"),
+            pif.ren.format_link(f'editor.cgi?mod={varitem.mod_id}&var={varitem.var}&promote=1', "Promote"),
         ]
     if pif.is_allowed('u'):  # pragma: no cover
         lines += [pif.ren.format_link(f'upload.cgi?d={libdir}', "Upload")]
@@ -88,7 +92,121 @@ def retrieve_single_varitem(pif, mod_id, var_id, categories, addnew=False):
 
 def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     pif.ren.print_html()
-    edit = edit and pif.is_allowed('a')
+    if not manitem:
+        raise useful.SimpleError("That casting was not found.")
+    mod_id = manitem.id
+
+    if edit and pif.is_allowed('a'):
+        return edit_single_variation(pif, manitem, var_id, addnew)
+
+    categories = {x['id']: x for x in pif.dbh.fetch_categories()}
+    varitem = retrieve_single_varitem(pif, mod_id, var_id, categories, addnew=addnew)
+    attr_pics, attributes = get_attributes(pif, mod_id)
+    for attr in attributes['names']:
+        varitem.iattrs.setdefault(attr, '')
+    selects, varsels, catdefs = get_varsels(pif, mod_id)
+    varitem.vs = pif.dbh.make_vs_items(varsels.get(var_id, []))
+    varitem.references = ' '.join(list(set(selects.get(var_id, []))))
+    attribute_keys = sorted(list(varitem.iattrs.keys()) + [d for d in attributes if d not in varitem.iattrs])
+    detail_attrs = [d for d in attribute_keys if d not in not_individual_attributes]
+
+    left_bar_content = single_variation_left_bar(pif, varitem, False)
+
+    # show image, with credit
+    img = pif.ren.format_image_required(
+        mod_id, pdir=pif.ren.pic_dir, vars=varitem.picture_id, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
+    var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, varitem.picture_id, verbose=False)
+    varitem._credit = var_img_credit['photographer.id'] if var_img_credit else ''
+
+    # render details
+    def show_details(data):
+        dets = [show_detail(pif, d, attributes, varitem, attr_pics, cats=categories)
+                for d in data if d in list(varitem.iattrs.keys()) + id_attributes + note_attributes + text_attributes]
+        return [x for x in dets if x]
+
+    lsec = render.Section(colist=['title', 'value'], id='single', noheaders=True, range=[
+        render.Range(name='Description Texts', id='det', entry=show_details(text_attributes[2:]))])
+    llistix1 = render.Listix(id='desc', section=[lsec])
+
+    lsec = render.Section(colist=['title', 'value'], id='single', noheaders=True, range=[
+        render.Range(name='Detail Attributes', id='det', entry=show_details(detail_attrs)),
+        render.Range(name='Information on Base', id='det', entry=show_details(base_attributes))])
+    llistix2 = render.Listix(id='detail', section=[lsec])
+
+    appearances = show_appearances(pif, mod_id, var_id, pif.is_allowed('a'))
+    adds = mbmods.show_adds(pif, mod_id, var_id)
+    upload = f'upload.cgi?m={mod_id}&v={var_id}' + (f'&d={manitem.libdir}' if pif.is_allowed('u') else '')
+
+    vehicle_type = (
+        [mbdata.model_icons.get(x) for x in manitem.vehicle_type] +
+        [categories[x]['image'] for x in varitem._catlist if categories[x]['image']])
+
+    code = mbdata.plant_d.get(varitem.manufacture, varitem.manufacture)
+    plant_flag = pif.ren.format_image_flag(code) if code else ''
+
+    def make_make(make):
+        return {
+            'image': (pif.ren.fmt_img(make['casting_make.make_id'], prefix='u', pdir=config.IMG_DIR_MAKE)
+                      if make['casting_make.make_id'] else ''),
+            'id': make['casting_make.make_id'],
+            'name': 'Unlicensed' if make['casting_make.make_id'] == 'unl' else make.get('vehicle_make.name', ''),
+            'company_name': make.get('vehicle_make.company_name', ''),
+            'flags': (make.get('vehicle_make.flags') or 0) | (make.get('casting_make.flags') or 0),
+            'link': 'makes.cgi?make=' + make['casting_make.make_id'],
+        }
+
+    varitem.makes = [make_make(x) for x in pif.dbh.fetch_casting_makes(varitem.mod_id)]
+    shown_categories = sorted(set([categories[x.vs_cat]['name'] for x in varitem.vs] +
+                                  [categories[x]['name'] for x in varitem.category]))
+
+    l1 = l2 = ''
+    for ch in varitem.iattrs['logo_type']:
+        if ch in mbdata.base_logo_dict:
+            l1 = ch
+        elif ch in mbdata.base_logo_2_dict:
+            l2 = ch
+    base_logos = [
+        pif.ren.format_image_icon(f'l_base-{l1}', mbdata.base_logo_dict.get(l1)) if l1 else '',
+        pif.ren.format_image_icon(f'l_base-{l2}', mbdata.base_logo_2_dict.get(l2)) if l2 else '']
+
+    # TODO: Add var-specific pictures to the bottom
+
+    # ------- render ------------------------------------
+
+    pif.ren.set_page_extra(pif.ren.reset_button_js + pif.ren.increment_select_js + pif.ren.modal_js)
+    pif.ren.set_button_comment(pif, f'man={mod_id}&var_id={var_id}')
+    context = {
+        'title': pif.ren.title,
+        'note': '',
+        'type_id': '',
+        'base_id': manitem.id,
+        'icon_id': mod_id if os.path.exists(
+            useful.relpath('.', config.IMG_DIR_MAN_ICON, f'i_{mod_id.lower()}.gif')) else '',
+        'vehicle_type': vehicle_type,
+        'rowspan': '4',
+        'left_bar_content': left_bar_content,
+        'description': varitem.text_description,
+        'image': img,
+        'credit': pif.ren.format_credit(var_img_credit),
+        'desc': llistix1,
+        'details': llistix2,
+        'appearances': appearances,
+        'adds': adds,
+        'upload': upload,
+        'addnew': addnew,
+        'variation': varitem,
+        'info_cols': useful.count_exist([varitem.makes, varitem.area, varitem.date, varitem.manufacture]),
+        'categories': shown_categories,
+        'manufacture_flag': plant_flag,
+        'base_logos': [x for x in base_logos if x],
+    }
+    return pif.ren.format_template('var.html', **context)
+
+
+def edit_single_variation(pif, manitem, var_id, addnew=False):
+    pif.ren.print_html()
+    if not pif.is_allowed('a'):
+        return show_single_variation(pif, manitem, var_id, addnew=addnew)
     if not manitem:
         raise useful.SimpleError("That casting was not found.")
     mod_id = manitem.id
@@ -103,58 +221,41 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     varitem.references = ' '.join(list(set(selects.get(var_id, []))))
     attribute_keys = sorted(list(varitem.iattrs.keys()) + [d for d in attributes if d not in varitem.iattrs])
 
-    left_bar_content = single_variation_left_bar(pif, varitem, edit)
+    left_bar_content = single_variation_left_bar(pif, varitem, True)
 
-    footer = ''
-    if edit:
-        footer += pif.form.put_button_input('save')
-        footer += pif.form.put_button_reset('vars')
-        footer += pif.ren.format_button_link("delete", f'vars.cgi?mod={mod_id}&var={var_id}&delete=1')
-        footer += pif.ren.format_button_link("remove_picture", f'vars.cgi?mod={mod_id}&var={var_id}&rmpic=1')
-        footer += pif.ren.format_button_link("promote", f'editor.cgi?mod={mod_id}&var={var_id}&promote=1')
+    footer = pif.form.put_button_input('save') + pif.form.put_button_reset('vars')
 
     # show image, with credit
     # hide private?
     photogs = [(x['id'], x['name']) for x in pif.dbh.fetch_photographers(config.FLAG_ITEM_HIDDEN)]
     picture_variation = None
+    if varitem.picture_id and varitem.picture_id != varitem.var:
+        picture_variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, varitem.picture_id))
     img = ''.join([
         pif.ren.format_image_required(mod_id, pdir=pif.ren.pic_dir, vars=varitem.picture_id, nobase=True, prefix=s)
-        for s in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]
-    ]) if edit else pif.ren.format_image_required(
-        mod_id, pdir=pif.ren.pic_dir, vars=varitem.picture_id, nobase=True, largest=mbdata.IMG_SIZ_HUGE)
+        for s in [mbdata.IMG_SIZ_TINY, mbdata.IMG_SIZ_SMALL, mbdata.IMG_SIZ_MEDIUM, mbdata.IMG_SIZ_LARGE]])
     var_img_credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_VAR, mod_id, varitem.picture_id, verbose=False)
     varitem._credit = var_img_credit['photographer.id'] if var_img_credit else ''
 
     # render details
-    lsec = render.Section(colist=['title', 'value'], id='single')
-    if edit:
-        lsec.headers = {'title': 'Title', 'value': 'Value', 'field': 'Field', 'new': 'New', 'pic': 'Picture Var'}
-        lsec.colist = ['field', 'title', 'value', 'new']
-        if varitem.picture_id:
-            lsec.colist.append('pic')
-            picture_variation = pif.dbh.depref('variation', pif.dbh.fetch_variation(mod_id, varitem.picture_id))
-        ranges = [render.Range(name='Identification Attributes', id='det')]
-        ranges[0]._attrs = id_attributes
-        base_attributes.extend(['logo_type', '_copy_base_from'])
-    else:
-        lsec.headers = {'title': 'Title', 'value': 'Value'}
-        lsec.colist = ['title', 'value']
-        ranges = [render.Range(name='Description Texts', id='det')]
-        ranges[0]._attrs = text_attributes[2:]
-        varitem.text_base += (' ' + ' '.join([
-            pif.ren.format_image_icon('l_base-' + x, mbdata.base_logo_dict.get(x)) for x in varitem.iattrs['logo_type']]))
-    ran1 = render.Range(name='Individual Attributes', id='det')
-    ran1._attrs = [d for d in attribute_keys if d not in not_individual_attributes]
-    ran2 = render.Range(name='Information on Base', id='det')
-    ran2._attrs = base_attributes
-    ran3 = render.Range(name='Notes', id='det')
-    ran3._attrs = note_attributes
-    ranges.extend([ran1, ran2, ran3])
-    for lran in ranges:
-        lran.entry = show_details(
-            pif, lran._attrs, attributes, manitem, varitem, attr_pics, photogs=photogs,
-            pic_var=picture_variation, cats=categories)
-    lsec.range = ranges
+    def edit_details(data):
+        return [edit_detail(pif, d, attributes, manitem, varitem, attr_pics, photogs, picture_variation, categories)
+                for d in data if d in list(varitem.iattrs.keys()) + id_attributes + note_attributes + text_attributes]
+
+    lsec = render.Section(
+        colist=['field', 'title', 'value', 'new'],
+        headers={'title': 'Title', 'value': 'Value', 'field': 'Field', 'new': 'New', 'pic': 'Picture Var'},
+        id='single')
+    if picture_variation:
+        lsec.colist.append('pic')
+    lsec.range = [
+        render.Range(name='Identification Attributes', id='det', entry=edit_details(id_attributes)),
+        render.Range(name='Individual Attributes', id='det', entry=edit_details(
+            [d for d in attribute_keys if d not in not_individual_attributes])),
+        render.Range(name='Information on Base', id='det', entry=edit_details(
+            base_attributes + ['logo_type', '_copy_base_from'])),
+        render.Range(name='Notes', id='det', entry=edit_details(note_attributes)),
+    ]
     llistix = render.Listix(id='single', section=[lsec])
 
     appearances = show_appearances(pif, mod_id, var_id, pif.is_allowed('a'))
@@ -183,12 +284,11 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
         'appearances': appearances,
         'adds': adds,
         'upload': upload,
-        'edit': edit,
         'addnew': addnew,
         'variation': varitem,
         'footer': footer,
     }
-    return pif.ren.format_template('var.html', **context)
+    return pif.ren.format_template('varedit.html', **context)
 
 
 def format_varsel(var_sel):
@@ -266,13 +366,6 @@ def show_appearances(pif, mod_id, var_id, errors=False):
                 appears.append(pif.ren.format_link(
                     "lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s#%(lineup_model.number)s" % vs,
                     "%(lineup_model.year)s %(region)s lineup" % vs))
-            elif vs['lineup_model.region'] == 'W' and vs['lineup_model.year'] > '1970':
-                appears.append(pif.ren.format_link(
-                    "lineup.cgi?year=%(lineup_model.year)s&region=U#U.%(lineup_model.number)s" % vs,
-                    "%(lineup_model.year)s United States lineup lineup number %(lineup_model.number)s" % vs))
-                appears.append(pif.ren.format_link(
-                    "lineup.cgi?year=%(lineup_model.year)s&region=R#R.%(lineup_model.number)s" % vs,
-                    "%(lineup_model.year)s Rest of World lineup lineup number %(lineup_model.number)s" % vs))
             elif not vs['sec_id'] or vs['sec_id'] == vs.get('lineup_model.region'):
                 appears.append(pif.ren.format_link(
                     "lineup.cgi?year=%(lineup_model.year)s&region=%(lineup_model.region)s#" % vs +
@@ -288,13 +381,44 @@ def show_appearances(pif, mod_id, var_id, errors=False):
                 appears.append(pif.ren.format_link("cats.cgi?cat=%(category.id)s" % vs, vs['category.name']))
         elif errors:
             appears.append(f'<i>({vs["id"]}) {format_varsel(vs)}')
-    return appears
+    return sorted(appears)
+
+
+def show_detail(pif, field, attributes, varitem, attr_pics=None, cats=None):
+    if field.startswith('variation.'):  # not sure where this is coming from.
+        field = field[10:]
+    if field in ('vs', 'link', 'categories') or field.startswith('_'):
+        useful.write_comment('show_detail not writing', field)
+        return {}
+
+    attr_pics = attr_pics or {}
+    cats = cats or {}
+    title = attributes.get(field, {}).get('title', '')
+    value = varitem.iattrs.get(field, getattr(varitem, field, ''))
+
+    # add modals
+    if title_modal := show_detail_modal(pif, attr_pics.get(field, {}), varitem.mod_id):
+        title += ' ' + pif.ren.fmt_q(also=f'''onclick="init_modal('m.{field}');"''', alsoc='modalbutton')
+        title += pif.ren.format_modal('m.' + field, title_modal)
+    if value_modal := show_detail_modal(pif, attr_pics.get(field, {}), varitem.mod_id, varitem.var):
+        value += ' ' + pif.ren.fmt_q(also=f'''onclick="init_modal('v.{field}');"''', alsoc='modalbutton')
+        value += pif.ren.format_modal('v.' + field, value_modal)
+
+    # special snowflake processing
+    match field:
+        case 'category':
+            shown_categories = [cats[x.vs_cat]['name'] for x in varitem.vs] + [cats[x]['name'] for x in varitem.category]
+            value = '<br>'.join(sorted(set(shown_categories)))
+        case 'deco':
+            dt = varitem.iattrs['deco_type']
+            value = f'{value} - {mbdata.deco_types_dict.get(dt, "")}'
+    return {'title': title, 'value': value} if value else {}
 
 
 # ----- variation editor ----------------------------------
 
 
-def show_detail(pif, field, attributes, manitem, varitem, attr_pics=None, photogs=None, pic_var=None, cats=None):
+def edit_detail(pif, field, attributes, manitem, varitem, attr_pics=None, photogs=None, pic_var=None, cats=None):
     attr_pics = attr_pics or {}
     photogs = photogs or []
     cats = cats or {}
@@ -311,7 +435,7 @@ def show_detail(pif, field, attributes, manitem, varitem, attr_pics=None, photog
             return {'field': '', 'title': 'Credit', 'value': '',
                     'new': pif.form.put_select("phcred." + varitem.var, photogs, selected=varitem._credit, blank='')}
     if field in ('vs', 'link', 'categories') or field.startswith('_'):
-        useful.write_comment('show_detail not writing', field)
+        useful.write_comment('edit_detail not writing', field)
         return {}
     title = attributes.get(field, {}).get('title', '')
     value = varitem.iattrs.get(field, getattr(varitem, field, ''))
@@ -419,12 +543,6 @@ def show_var_image(pif, attr_pic, img, title, caption='', var_img_credit=''):
             ostr += attr_pic['description']
         ostr += '<p></center>\n'
     return ostr
-
-
-def show_details(pif, data, attributes, manitem, varitem, attr_pics=None, photogs=None, pic_var=None, cats=None):
-    return [show_detail(pif, d, attributes, manitem, varitem, attr_pics, photogs=photogs, pic_var=pic_var, cats=cats)
-            for d in data if d in list(varitem.iattrs.keys()) + id_attributes + note_attributes + text_attributes]
-# or d.startswith('_')]
 
 
 def save_variation(pif, mod_id, var_id):
@@ -856,7 +974,7 @@ def do_var_detail(pif, manitem, varitem, credits, varsels):
     phcred = credits.get(varitem.pic_file_name, '')
     ty_var, is_found, has = mbmods.calc_var_pics(pif, varitem)
     cat_v = set(varitem.category)
-    cat_vs = set([x['variation_select.category'] for x in varsel])
+    cat_vs = set([x['category'] for x in varsel])
     cat = ' '.join(cat_v)
     if cat_v != cat_vs:
         cat += '/' + ' '.join(cat_vs)
@@ -993,7 +1111,7 @@ def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, cred
             note_text += '</span>'
             phcred = credits.get(f'{varitem.pic_file_name}', '')
             if phcred:
-                pic_text += '<span class="credit">%s</span><br>' % dict(photogs).get(phcred, phcred)
+                pic_text += '<br><span class="credit">%s</span><br>' % dict(photogs).get(phcred, phcred)
         else:
             phcred = credits.get(f'{varitem.pic_file_name}', '')
             pic_text += '<div class="%s">' % ('bgok' if phcred or varitem.picture_id != varitem.var else 'bgno')
@@ -1006,7 +1124,7 @@ def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, cred
     else:
         phcred = credits.get(varitem.pic_file_name, '')
         if phcred:
-            pic_text += '<span class="credit">%s</span><br>' % dict(photogs).get(phcred, phcred)
+            pic_text += '<br><span class="credit">%s</span><br>' % dict(photogs).get(phcred, phcred)
 
     if varitem.iattrs['logo_type']:
         for logo in varitem.iattrs['logo_type']:

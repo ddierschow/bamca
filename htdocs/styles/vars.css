@@ -1,26 +1,28 @@
-body {background-color: #DDFFDD; text-align: left;}
+body {background-color: #EEEEEE; text-align: left;}
 /* #code_1 {} */
 /* #code_2 {display: none;} */
 #varsearch {display: none;}
 
-.tb {width: 100%;}
+/* .tb {width: 100%;} */
 
-.eb {text-align: center;}
-.eb_det {text-align: left;}
-.eh_ID {width: 24px; text-align: left; padding-left: 4px; padding-right: 4px; font-weight: bold;}
-.eh_Description {padding-left: 4px; padding-right: 4px;}
-/*.eh_Details {width: 300px;}*/
-.eh_Picture {width: 200px;}
-.eh_Notes {width: 200px; text-align: left;}
-.eh_field {width: 200px;}
-.eh_title {width: 200px;}
-.eh_value {width: 300px;}
-.eh_new {width: 200px;}
-.eh_pic {width: 200px;}
-.eb_1 {text-align: left; font-weight: normal}
-.tb_single {width: 600px;}
+.eb_ran {text-align: center;}
+/* .eb_det {text-align: left;} */
+/* .eh_ID {width: 24px; text-align: left; padding-left: 4px; padding-right: 4px; font-weight: bold;} */
+/* .eh_Description {padding-left: 4px; padding-right: 4px;} */
+/* .eh_Picture {width: 200px;} */
+/* .eh_Notes {width: 200px; text-align: left;} */
+/* .eh_field {width: 200px;} */
+/* .eh_title {width: 200px;} */
+/* .eh_value {width: 300px;} */
+/* .eh_new {width: 200px;} */
+/* .eh_pic {width: 200px;} */
+/* .eb_1 {text-align: left; font-weight: normal} */
+/* .tb_single {width: 600px;} */
 
+.tb {background-color: #FFFFFF}
+.tb_single {background-color: #FFFFFF; width: 400px;}
 .sh {font-size: large;}
+.eb {padding: 0 4px 0 4px;}
 
 .diff {font-weight: bold;}
 .same {}
@@ -44,3 +46,11 @@ body {background-color: #DDFFDD; text-align: left;}
 
 /*.long_tab {border-collapse: collapse; width: 100%;}
 .long_tab td {border-color: #000000; border-style: solid; border-width: 1px;}*/
+
+.inset {border-width: 1px; border-style: ridge; padding: 4px;}
+.modelinfo {border-spacing: 8px;}
+.modelinfo th {border-style: solid; border-width: 0 0 1px 0; text-align: center;}
+.modelinfo td {margin: 8px; text-align: center;}
+.info_name {border-style: solid; border-width: thin; font-weight: bold; padding: 3px 16px 2px; margin: 0 3px 0 3px; font-size: large; color: #FFFFFF; background-color: #CC6600;}
+.name_line {margin: 0 3px 0 3px;}
+.prodtitle {background-color: #000066; color: #FFFFFF; padding: 4px 4px 4px 4px;}

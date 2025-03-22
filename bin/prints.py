@@ -136,7 +136,7 @@ def single_box(pif, mod, box):
                 ostr += '</ul>\n'
     istr = pif.ren.format_image_selectable(pics, pic_name)
     if pif.is_allowed('ma'):
-        istr = f'<a href="upload.cgi?d=.{config.IMG_DIR_BOX}&n={pic_name.jpg}">{istr}</a>'
+        istr = f'<a href="upload.cgi?d=.{config.IMG_DIR_BOX}&n={pic_name}.jpg">{istr}</a>'
         istr += '<br>' + pif.ren.format_button_link("edit", pif.dbh.get_editor_link('box_type', {'id': box['id']}))
     istr += '<center>' + pif.ren.format_image_selector(pics, pic_name) + '</center>'
     ent = {'inf': ostr, 'pic': istr}

@@ -5,40 +5,37 @@
 
 <center>
 <table><tr><td>
-<a href="{{ upload }}">{{ image }}</a><br>
+{{ image }}<br>
 {% if credit %}<div class="credit">{{ credit }}</div>{% endif %}
 </td></tr></table>
 <p>
+
 <table class="vartable" style="width: auto;">
 <tr><td class="varentry"><i>{{ description }}</i></td></tr>
 </table>
-</center><p>
+<p>
 
-{% if edit %}
-<form action="vars.cgi" name="vars" method="post">
-<input type="hidden" name="page" value="{{ page_id }}">
-<input type="hidden" name="mod" value="{{ variation.mod_id }}">
-<input type="hidden" name="var" value="{{ variation.var }}">
-<input type="hidden" name="ovar" value="{{ variation.var }}">
-<input type="hidden" name="addnew" value="{{ addnew }}">
-{% endif %}
-<center>
-{{ showix.format_listix(llistix) }}
-{# formatted_listix #}
+{{ show_var_info() }}
+<p>
 </center>
 
-<p><center><b><a href="{{ upload }}">Upload a Picture</a></b></center>
-
-{% if appearances -%}
+<center>
+<table><tr><td style="width: 420px; vertical-align: top;">
+<center>
+{{ showix.format_listix(desc) }}
+</center>
 <p>
-<b>Appearances</b>
-<ul>
-{%- for appearance in appearances %}
-<li>{{ appearance }}
-{%- endfor %}
-</ul>
+<div class="inset infopanel" style="margin: 0 10px 0 10px;">
+{{ show_appearances() }}
+<p><center><b><a href="{{ upload }}">Upload a Picture</a></b></center><p>
+</div>
+</td><td style="width: 420px; vertical-align: top;">
+<center>
+{{ showix.format_listix(details) }}
+</center>
+</td></tr></table>
+</center>
 
-{% endif -%}
 <p>
 <center>
 {{ adds }}
@@ -48,7 +45,80 @@
 
 {%- block frame_footer %}
 {{ footer }}
-{% if edit %}
-</form>
-{% endif %}
 {%- endblock frame_footer %}
+
+{%- macro show_var_info() %}
+<table class="modelinfo infopanel inset"><tr>
+{%- if variation.makes %}<th>Make</th>{% endif %}
+{%- if variation.area %}<th>Area</th>{% endif %}
+{%- if variation.manufacture %}<th>Plant</th>{% endif %}
+{%- if variation.date %}<th>Date</th>{% endif %}
+</tr>
+<tr>
+{%- if variation.makes %}<td valign="top"><center>
+{% for make in variation.makes %}
+<a href="{{ make.link }}">{% if make.image %}{{ make.image }}<br>{% endif %}{{ make.name }}</a><br>
+{% endfor %}
+</center></td>{% endif %}
+{%- if variation.area %}<td valign="top"><center>{{ variation.area }}</center></td>{% endif %}
+{%- if variation.manufacture %}
+<td valign="top"><center>{{ manufacture_flag }}<br>
+{{ variation.manufacture }}
+</center></td>
+{%- endif %}
+{%- if variation.date %}<td valign="top"><center>{{ variation.date }}</center></td>{% endif %}
+</tr>
+{% if categories %}
+<tr><th colspan="{{ info_cols }}">{% if categories|length > 1 %}Categories{% else %}Category{% endif %}</th></tr>
+<tr><td colspan="{{ info_cols }}">
+{% for category in categories -%}
+{{ category }}<br>
+{% endfor -%}
+</td></tr>
+{% endif %}
+{% if variation.note %}
+<tr><th colspan="{{ info_cols }}">Note</th></tr>
+<tr><td colspan="{{ info_cols }}">
+{{ variation.note }}<br>
+</td></tr>
+{% endif %}
+{% if base_logos %}
+<tr><th colspan="{{ info_cols }}">Base Logo{% if base_logos|length > 1 %}s{% endif %}</th></tr>
+<tr><td colspan="{{ info_cols }}">
+{% for logo in base_logos %}
+{{ logo }}{% if not loop.last %} {% endif %}
+{% endfor %}
+</td></tr>
+{% endif %}
+</table>
+
+{%- endmacro %}
+
+{% macro show_appearances() %}
+{% if appearances -%}
+<p>
+<center><b>Appearances</b></center>
+<ul>
+{%- for appearance in appearances %}
+<li>{{ appearance }}
+{%- endfor %}
+</ul>
+
+{% endif -%}
+{% endmacro %}
+
+{%- macro show_adds() %}
+{% for shadd in adds %}
+<h3>{{ shadd.title }}</h3>
+<table><tr>
+{% for ent in shadd.entry %}
+<td><center>
+{{ ent.img }}
+{% if ent.credit %}<div class="credit"> {{ ent.credit }} </div>{% else %}<br>{% endif %}
+{{ ent.desc }}</center>
+</td>
+{% if not (loop.index % shadd.columns) and not loop.last %}</tr><tr>{% endif %}
+{% endfor %}
+</tr></table>
+{% endfor %}
+{%- endmacro %}
