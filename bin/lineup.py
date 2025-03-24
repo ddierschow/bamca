@@ -353,7 +353,7 @@ def render_lineup_model(pif, mod, comments, unroll=False, large=False):
     class_name = mod.class_name + (' bg_' + style_id if style_id else '')
     if large:
         # ostr += '<br>' + pif.ren.format_button_link("edit", pif.dbh.get_editor_link(
-        #     'lineup_model', {'id': mod.lineup_model.id}))
+        #     'lineup_model', id=mod.lineup_model.id))
         ostr += '<br>'.join([
             'name' + pif.form.put_text_input(f'description.{mod.id}', 64, value=mod.name),
             'style' + pif.form.put_text_input(f'style_id.{mod.id}', 4, value=mod.style_id),

@@ -397,7 +397,7 @@ def edit_single(pif):
         pif.form.put_button_input("reject"),
         pif.form.put_select('rejects_sec', listRejectCats, blank='Please choose one from the list'),
         '</form>',
-        pif.ren.format_button_link("edit", link=pif.dbh.get_editor_link('link_line', {'id': link_id})),
+        pif.ren.format_button_link("edit", link=pif.dbh.get_editor_link('link_line', id=link_id)),
     ])
 
     llineup = render.Listix(
@@ -493,7 +493,7 @@ def edit_choose(pif):
     # 'link_statuses': ["%s (%s)" % (x, reasons.get(x, 'Unknown')) for x in sorted(pif.dbh.fetch_link_statuses())],
     context = {
         'sections': sorted(pif.dbh.fetch_sections(where="page_id like 'links%'"), key=lambda x: x['page_id']),
-        'blacklist': pif.dbh.get_editor_link('blacklist', {}),
+        'blacklist': pif.dbh.get_editor_link('blacklist'),
         'link_statuses': sorted(ok_link_statuses.items()),
         'link_rejects': sorted(rej_link_statuses.items()),
         'reasons': reasons,

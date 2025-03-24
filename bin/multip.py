@@ -251,7 +251,7 @@ def make_left_bar_content(pif, page_id, pack, modvars):
         '',
         f'<span style="font-size: x-small;">{page_id}/{pack.id}{cat}</span>',
         '',
-        f'<b><a href="{pif.dbh.get_editor_link("pack", {"id": pack.id})}">Pack</a></b>',
+        f'<b><a href="{pif.dbh.get_editor_link("pack", id=pack.id)}">Pack</a></b>',
         f'<b><a href="traverse.cgi?d={pif.ren.lib_dir}">Library</a></b>',
         f'<b><a href="mass.cgi?verbose=1&tymass=pack&section_id={pack.section_id}&pack={pack.id}&num=">Edit</a></b>',
         '',

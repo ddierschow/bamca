@@ -56,11 +56,15 @@ class DBHandler(object):
     def get_table_data(self, table):
         return self.table_data.get(table)
 
-    def get_editor_link(self, table, args):
+    def get_editor_link(self, table, argd=None, **kwargs):
+        argd = argd or {}
         table_data = self.get_table_data(table)
         url = f'/cgi-bin/editor.cgi?table={table}'
         if table_data:
-            for key, arg in args.items():
+            for key, arg in argd.items():
+                if key in table_data.columns:
+                    url += f'&{key}={arg}'
+            for key, arg in kwargs.items():
                 if key in table_data.columns:
                     url += f'&{key}={arg}'
         return url
@@ -290,6 +294,12 @@ class DBHandler(object):
 
     def make_link_line_item(self, mod):
         return models.LinkLineItem(mod)
+
+    def make_box_type_items(self, bts):
+        return [self.make_box_type_item(x) for x in bts]
+
+    def make_box_type_item(self, bt):
+        return models.BoxTypeItem(bt)
 
     # - page_info
 
@@ -785,7 +795,7 @@ class DBHandler(object):
         detrecs = self.fetch_details(mod_id, var_id, nodefaults=nodefaults)
         if varrec:
             varrec[0]['vs'] = self.fetch('variation_select vs,category', where=[
-                f"vs.mod_id='{mod_id}'", f"vs.var_id='{var_id}'", "vs..category=category.id"])
+                f"vs.mod_id='{mod_id}'", f"vs.var_id='{var_id}'", "vs.category=category.id"], tag='VarDecon')
         return varrec, detrecs
 
     def fetch_variation_query(self, varsq, castingq=None, castinglist=None, codes=None):

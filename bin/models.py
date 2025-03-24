@@ -2,7 +2,6 @@ import re
 
 import config
 import mbdata
-import tables
 import useful
 
 id_re = re.compile(r'''(?P<a>[a-zA-Z]*)(?P<d>\d*)''')
@@ -121,7 +120,7 @@ class ManItem(object):
             self.vehicle_type = mod.vehicle_type
             self.country = mod.country
             self.make = mod.make
-            self.box_styles = mod.get('box_styles') or ''
+            self.box_styles = mod.box_styles
             self.notes = mod.notes or ''
             self.section_id = mod.section_id
             self.variation_digits = mod.variation_digits
@@ -259,12 +258,8 @@ class VSItem(object):
             self.ref_id = vs.ref_id or ''
             self.sec_id = vs.sec_id or ''
             self.ran_id = vs.ran_id or ''
-            if isinstance(vs, tables.Result):
-                self.vs_cat = vs.category.id or ''
-                self.vs_cat_flags = 0
-            else:
-                self.vs_cat = vs.vs_cat or ''
-                self.vs_cat_flags = vs.vs_cat_flags or 0
+            self.vs_cat = vs.vs_cat or ''
+            self.vs_cat_flags = vs.vs_cat_flags or 0
 
     def __str__(self):
         return f'VSItem: {self.id}'
@@ -472,7 +467,7 @@ class PackModelItem(object):
             self.subname = pm.subname or ''
             self.vs = VSItem(pm.vs)
             self.v = VarItem(pm.v)
-            self.man = VarItem(pm.man)
+            self.man = ManItem(pm.man)
         self.name = self.man.name
         self.subnames = []
         self.additional = ''
@@ -837,3 +832,25 @@ class LinkLineItem(object):
     @property
     def desc(self):
         return self.description.split('|')
+
+
+class BoxTypeItem(object):
+
+    def __init__(self, bt):
+        prefix = 'box_type.' if 'box_type.id' in bt else ''
+        self.id = bt[f'{prefix}id']
+        self.mod_id = bt[f'{prefix}mod_id']
+        self.section_id = bt[f'{prefix}section_id']
+        self.box_type = bt[f'{prefix}box_type']
+        self.pic_id = bt[f'{prefix}pic_id']
+        self.box_size = bt[f'{prefix}box_size']
+        self.year = bt[f'{prefix}year']
+        self.additional_text = bt[f'{prefix}additional_text']
+        self.bottom = bt[f'{prefix}bottom']
+        self.sides = bt[f'{prefix}sides']
+        self.end_flap = bt[f'{prefix}end_flap']
+        self.model_name = bt[f'{prefix}model_name']
+        self.notes = bt[f'{prefix}notes']
+
+    def get(self, k, v=''):
+        return getattr(self, k, v)

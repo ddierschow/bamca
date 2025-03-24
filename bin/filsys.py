@@ -29,7 +29,7 @@ def show_list(title, tdir, fl, view=False):
     ostr = '<h4>{} ({})</h4>\n'.format(title, len(fl))
     ostr += "<table width=100%><tr valign=top>\n"
     for cl in ffl:
-        ostr += "<td width={}%>\n".format(100 // cols)
+        ostr += f"<td width={100 // cols}%>\n"
         for f in cl:
             root, ext = useful.root_ext(f.strip())
             fst = os.stat(tdir + '/' + f)

@@ -54,7 +54,7 @@ def single_variation_left_bar(pif, varitem, edit):
             pif.ren.format_link(
                 f'upload.cgi?d={libdir}&m={varitem.mod_id}&v={varitem.var}&l=1&c={varitem.mod_id}+variation+{varitem.var}',
                 "Pictures"),
-            pif.ren.format_link(pif.dbh.get_editor_link('casting', {'id': varitem.mod_id}), "Casting"),
+            pif.ren.format_link(pif.dbh.get_editor_link('casting', id=varitem.mod_id), "Casting"),
             pif.ren.format_link(f'?recalc=1&mod={varitem.mod_id}', "Recalc"),
             pif.ren.format_link(f'traverse.cgi?g=1&d={libdir}&man={varitem.mod_id}&var={varitem.var}', "Select"),
             pif.ren.format_link(f'vars.cgi?mod={varitem.mod_id}&var={varitem.var}&delete=1', "Delete"),
@@ -144,20 +144,9 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     code = mbdata.plant_d.get(varitem.manufacture, varitem.manufacture)
     plant_flag = pif.ren.format_image_flag(code) if code else ''
 
-    def make_make(make):
-        return {
-            'image': (pif.ren.fmt_img(make['casting_make.make_id'], prefix='u', pdir=config.IMG_DIR_MAKE)
-                      if make['casting_make.make_id'] else ''),
-            'id': make['casting_make.make_id'],
-            'name': 'Unlicensed' if make['casting_make.make_id'] == 'unl' else make.get('vehicle_make.name', ''),
-            'company_name': make.get('vehicle_make.company_name', ''),
-            'flags': (make.get('vehicle_make.flags') or 0) | (make.get('casting_make.flags') or 0),
-            'link': 'makes.cgi?make=' + make['casting_make.make_id'],
-        }
-
-    varitem.makes = [make_make(x) for x in pif.dbh.fetch_casting_makes(varitem.mod_id)]
-    shown_categories = sorted(set([categories[x.vs_cat]['name'] for x in varitem.vs] +
-                                  [categories[x]['name'] for x in varitem.category]))
+    varitem.makes = [mbmods.make_make(pif, x) for x in pif.dbh.fetch_casting_makes(varitem.mod_id)]
+    shown_categories = sorted(set([categories[x.vs_cat]['name'] for x in varitem.vs if x.vs_cat] +
+                                  [categories[x]['name'] for x in varitem.category if x]))
 
     l1 = l2 = ''
     for ch in varitem.iattrs['logo_type']:
@@ -338,7 +327,7 @@ def show_appearances(pif, mod_id, var_id, errors=False):
         if vs['ref_id'].startswith('matrix.'):
             if vs['sec_id']:
                 appears.append(pif.ren.format_link(
-                    f"matrix.cgi?page={vs['ref_id']}#{vs['sec_id']}", vs['page_info.title']))
+                    f"matrix.cgi?page={vs['ref_id']}#{vs['sec_id']}", f"{vs['page_info.title']} - {vs['section.name']}"))
             else:
                 appears.append(pif.ren.format_link(f"matrix.cgi?page={vs['ref_id']}", vs['page_info.title']))
         elif vs['ref_id'].startswith('packs.'):
@@ -448,8 +437,8 @@ def edit_detail(pif, field, attributes, manitem, varitem, attr_pics=None, photog
     pic_val = pic_var.get(field, '') if pic_var else ''
     match field:
         case 'category':
-            shown_categories = [cats[x.vs_cat]['name'] for x in varitem.vs]
-            shown_categories += [cats[x]['name'] for x in varitem.category]
+            shown_categories = [cats[x.vs_cat]['name'] for x in varitem.vs if x.vs_cat]
+            shown_categories += [cats[x]['name'] for x in varitem.category if x]
             value = '<br>'.join(sorted(set(shown_categories)))
             new_value = ' '.join(varitem.category)
         case 'logo_type':
@@ -1533,7 +1522,7 @@ def show_casting(pif, manitem):
             footer += pif.form.put_button_input('save')
         # footer += pif.ren.format_button_link("add", 'vars.cgi?edt=1&mod=%s&add=1' % mod_id)
         footer += pif.ren.format_button_link("add", 'mass.cgi?tymass=var&mod_id=%s' % mod_id)
-        footer += pif.ren.format_button_link("casting", pif.dbh.get_editor_link('casting', {'id': mod_id}))
+        footer += pif.ren.format_button_link("casting", pif.dbh.get_editor_link('casting', id=mod_id))
         footer += pif.ren.format_button_link("recalc", '?recalc=1&mod=%s' % mod_id)
     if pif.is_allowed('u'):  # pragma: no cover
         footer += pif.ren.format_button_link("upload", 'upload.cgi?d=' + libdir + '&m=' + mod_id)

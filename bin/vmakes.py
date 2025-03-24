@@ -65,7 +65,7 @@ def makes_main(pif):
     pif.ren.set_button_comment(pif, keys={'make': 'make', 'text': 'text'})
     if pif.is_allowed('a'):  # pragma: no cover
         if make and make != 'text':
-            footer += pif.ren.format_button_link('edit', link=pif.dbh.get_editor_link('vehicle_make', {'id': make}))
+            footer += pif.ren.format_button_link('edit', link=pif.dbh.get_editor_link('vehicle_make', id=make))
     llineup.footer = footer
     return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
 

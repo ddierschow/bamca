@@ -100,9 +100,9 @@ def add_man_item_table_product_link(pif, item):
     if pif.is_allowed('a'):
         # breaks packs
         if isinstance(item, models.LineItem):
-            ref_link = pif.dbh.get_editor_link('lineup_model', {'year': item.year, 'mod_id': item.mod_id})
+            ref_link = pif.dbh.get_editor_link('lineup_model', year=item.year, mod_id=item.mod_id)
         elif isinstance(item, models.PackModelItem):
-            ref_link = pif.dbh.get_editor_link('pack_model', {'id': item.id})
+            ref_link = pif.dbh.get_editor_link('pack_model', id=item.id)
         else:
             ref_link = ''
         ostr += pif.ren.format_link(ref_link, pif.ren.fmt_edit('gray'))
@@ -522,3 +522,15 @@ def show_list_var_pics(pif, mod_id):
     missing_ids = (
         ', '.join([str(x) for x in sorted(set(range(min(id_set), max(id_set) + 1)) - id_set)])) if id_set else ''
     return fmt_var_pics(founds, needs), cnts, missing_ids
+
+
+def make_make(pif, make):
+    return {
+        'image': (pif.ren.fmt_img(make['casting_make.make_id'], prefix='u', pdir=config.IMG_DIR_MAKE)
+                  if make['casting_make.make_id'] else ''),
+        'id': make['casting_make.make_id'],
+        'name': 'Unlicensed' if make['casting_make.make_id'] == 'unl' else make.get('vehicle_make.name', ''),
+        'company_name': make.get('vehicle_make.company_name', ''),
+        'flags': (make.get('vehicle_make.flags') or 0) | (make.get('casting_make.flags') or 0),
+        'link': 'makes.cgi?make=' + make['casting_make.make_id'],
+    }

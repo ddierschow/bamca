@@ -969,16 +969,18 @@ def show_all_casting_related(pif):
     for cr in crd_m:
         cnt += 1
         print('<tr>')
-        print('<td><a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('casting_related', {
-            'id': crd_m[cr].get('casting_related.id', '')}), crd_m[cr].get('casting_related.id', '')))
+        print('<td><a href="%s">%s</a></td>' % (
+            pif.dbh.get_editor_link('casting_related', id=crd_m[cr].get('casting_related.id', '')),
+            crd_m[cr].get('casting_related.id', '')))
         print('<td><a href="single.cgi?id=%s">%s</a><input type="hidden" name="m.%s" value="%s"></td>' % (
             cr[0], cr[0], cnt, cr[0]))
         print('<td>', crd_m[cr].get('m.rawname', ''), '</td>')
         print('<input type="hidden" name="im.%s" value="%s">' % (cnt, crd_m[cr].get('casting_related.id', '')))
         # print('<td>', crd_r[cr].get('casting_related.id', '') if cr in crd_r else '', '</td>')
         if cr in crd_r:
-            print('<td><a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('casting_related', {
-                'id': crd_r[cr].get('casting_related.id', '')}), crd_r[cr].get('casting_related.id', '')))
+            print('<td><a href="%s">%s</a></td>' % (
+                pif.dbh.get_editor_link('casting_related', id=crd_r[cr].get('casting_related.id', '')),
+                crd_r[cr].get('casting_related.id', '')))
         else:
             print('<td></td>')
         print('<td><a href="single.cgi?id=%s">%s</a><input type="hidden" name="r.%s" value="%s"></td>' % (
@@ -1360,7 +1362,7 @@ def add_pack_model(pif, pack, long_pack_id):
                 "pm.style_id.%s" % key, 3, 3, value=mod.get('pack_model.style_id', '')),
             # 'edit': pif.ren.format_button_link(
             #     'edit', pif.dbh.get_editor_link('pack_model',
-            #                                     pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
+            #                                     **pif.dbh.make_id('pack_model', mod, 'pack_model.'))),
         } for key, mod in sorted(pmodels.items())]
     return render.Section(colist=cols, range=[render.Range(entry=entries)], noheaders=False, header='pack_model<br>')
 
@@ -1478,7 +1480,7 @@ def entry_form(pif, tab, dat, div_id=None, note=''):
     if not div_id:
         div_id = tab
     header = tab + ' ' + pif.ren.format_button_link('edit', pif.dbh.get_editor_link(
-        tab, pif.dbh.make_id(tab, dat, tab + '.')))
+        tab, **pif.dbh.make_id(tab, dat, tab + '.')))
     header += pif.form.put_button_input_visibility(div_id) + ' ' + note + '<br>'
     descs = pif.dbh.describe_dict(tab)
     entries = []
@@ -2215,7 +2217,7 @@ def add_matrix_model(pif, section, ref_id=None):
             'edit': pif.ren.format_button_link(
                 'edit', pif.dbh.get_editor_link(
                     'matrix_model',
-                    pif.dbh.make_id('matrix_model', mod, 'matrix_model' + '.'))) + str(mod.get('matrix_model.id', '')),
+                    **pif.dbh.make_id('matrix_model', mod, 'matrix_model' + '.'))) + str(mod.get('matrix_model.id', '')),
             'name': pif.form.put_text_input("mm.name.%s" % key, 80, 20, value=mod_name(mod)),
             'range_id': pif.form.put_text_input(
                 "mm.range_id.%s" % key, 4,
@@ -2355,7 +2357,7 @@ def add_attr_pics_form(pif):
             pif.ren.fmt_img(img, alt='', pdir=config.IMG_DIR_ADD, required=True))
         desc = '{} {}<br>{} {}<br>{}<br>{}{}'.format(
             pif.ren.format_link('single.cgi?id=%s' % rec['mod_id'], rec['mod_id']),
-            pif.ren.format_button_link('edit', pif.dbh.get_editor_link('attribute_picture', {'id': recid})),
+            pif.ren.format_button_link('edit', pif.dbh.get_editor_link('attribute_picture', id=recid)),
             pif.form.put_text_input('pic_id.%s' % recid, maxlength=4, showlength=4, value=rec['picture_id']),
             pif.form.put_checkbox('do.%s' % recid, [('1', 'save')], checked=rec['do']),
             pif.form.put_checkbox('rm.%s' % recid, [('1', 'del')]),

@@ -269,8 +269,7 @@ class MatrixFile(object):
 
         ent.additional = ''
         if pif.is_allowed('a'):  # pragma: no cover
-            ent.additional += pif.ren.format_button_link(
-                "edit", pif.dbh.get_editor_link('matrix_model', {'id': ent.id}))
+            ent.additional += pif.ren.format_button_link("edit", pif.dbh.get_editor_link('matrix_model', id=ent.id))
             pic = ent.link
             ent.additional += pif.ren.format_button_link(
                 "upload",

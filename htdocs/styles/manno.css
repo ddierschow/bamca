@@ -1,12 +1,12 @@
 body {background-color: #FFFFCC;}
-.tb {border-width: thin; background-color: #FFFFCC;}
+.tb {border-width: thin; background-color: #FFFFDD;}
 .sh {font-size: large;}
 
 .ok {}
 .no {color: #FF0000;}
 .er {page-break-inside: avoid;}
 
-.eb {border-style: solid; border-width: 0; background-color: #FFFFCC; text-align: center;}
+.eb {border-style: solid; border-width: 0; background-color: #FFFFFF; text-align: center;}
 .eb_vid {border-left-width: thin; text-align: left;}
 .eb_unlicensed {}
 .eb_nl {text-align: left;}

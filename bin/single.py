@@ -175,8 +175,8 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
     if pif.is_allowed('a'):  # pragma: no cover
         lines.extend([
             f'<a href="vars.cgi?recalc=1&mod={mod_id}">Recalculate</a>',
-            '<a href="%s">Casting</a>' % pif.dbh.get_editor_link('casting', {'id': mod_id}),
-            '<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', {'mod_id': mod_id}),
+            '<a href="%s">Casting</a>' % pif.dbh.get_editor_link('casting', id=mod_id),
+            '<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', mod_id=mod_id),
             f'<a href="mass.cgi?tymass=related&mod_id={mod_id}">Relateds</a>',
             f'<a href="mass.cgi?tymass=alias&mod_id={mod_id}">Aliases</a>',
             f'<a href="vars.cgi?edt=1&mod={mod_id}">Variations</a>',
@@ -204,11 +204,11 @@ def show_left_bar_content(pif, model, ref, pic, pdir, lm_pic_id, raw_variations)
     if pif.is_allowed('a'):  # pragma: no cover
         prodstar = pif.ren.fmt_star('black', hollow=True)
         if ref.startswith('year.'):
-            ref_link = pif.dbh.get_editor_link('lineup_model', {'year': ref[5:], 'mod_id': mod_id})
+            ref_link = pif.dbh.get_editor_link('lineup_model', year=ref[5:], mod_id=mod_id)
         elif ref.startswith('matrix.'):
-            ref_link = pif.dbh.get_editor_link('matrix_model', {'page_id': ref, 'mod_id': mod_id})
+            ref_link = pif.dbh.get_editor_link('matrix_model', page_id=ref, mod_id=mod_id)
         elif ref.startswith('packs.'):
-            ref_link = pif.dbh.get_editor_link('pack_model', {'pack_id': pif.form.get_str('sec'), 'mod_id': mod_id})
+            ref_link = pif.dbh.get_editor_link('pack_model', pack_id=pif.form.get_str('sec'), mod_id=mod_id)
         if pic:
             lines.append('')
             prodstar = pif.ren.fmt_star('white')
@@ -464,8 +464,7 @@ def show_single(pif):
 
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
-    prodnames = sorted(set([x['name'] for x in matrix_appearances + lineup_appearances
-                       if x['name'] != model.name]))
+    prodnames = sorted(set([x['name'] for x in matrix_appearances + lineup_appearances]))
     # for x in matrix_appearances:
     #     useful.write_comment('M', x['id'], x['name'])
     # for x in lineup_appearances:
@@ -490,31 +489,8 @@ def show_single(pif):
         model.country_flag = pif.ren.format_image_flag(model.country)
         model.country_name = mflags.FlagList()[model.country]
 
-#    def make_make_link(make, name):
-#        if not make:
-#            return ''
-#        pic = (pif.ren.fmt_img(make, prefix='u', pdir=config.IMG_DIR_MAKE) if name else
-#               pif.ren.format_image_art('mbx.gif'))
-#        name = name or 'unlicensed'
-#        if pic:
-#            name = pic + '<br>' + name
-#        return pif.ren.format_link("makes.cgi?make=" + make, name)
-#
-#    model['make_name'] = make_make_link(model.get('make', ''), model.get('vehicle_make.name', ''))
-
-    def make_make(make):
-        return {
-            'image': (pif.ren.fmt_img(make['casting_make.make_id'], prefix='u', pdir=config.IMG_DIR_MAKE)
-                      if make['casting_make.make_id'] else ''),
-            'id': make['casting_make.make_id'],
-            'name': 'Unlicensed' if make['casting_make.make_id'] == 'unl' else make.get('vehicle_make.name', ''),
-            'company_name': make.get('vehicle_make.company_name', ''),
-            'flags': (make.get('vehicle_make.flags') or 0) | (make.get('casting_make.flags') or 0),
-            'link': 'makes.cgi?make=' + make['casting_make.make_id'],
-        }
-
     aliases = pif.dbh.fetch_aliases(mod_id, 'mack')
-    model.makes = [make_make(x) for x in pif.dbh.fetch_casting_makes(mod_id)]
+    model.makes = [mbmods.make_make(pif, x) for x in pif.dbh.fetch_casting_makes(mod_id)]
     # move these to left pane
     boxes = [make_boxes(pif, mod_id, boxstyles, [x['alias.id'] for x in aliases])] if boxstyles else []
     adds = boxes + mbmods.make_adds(pif, mod_id)

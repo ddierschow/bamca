@@ -59,6 +59,7 @@ C = category
         p = packaging
         r = roadway
         z = puzzle
+    x = box
 SS = subcategory
 NNN = number or name
 '''
@@ -115,7 +116,7 @@ def get_next_upload_filename():
 
 
 # for things out of http space:
-# print('<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.ren.pic_dir, fn))
+# '<img src="/cgi-bin/image.cgi?d=%s&f=%s">' % (pif.ren.pic_dir, fn)
 def show_picture(pif, fn, pdir=None):
     if pdir:
         pif.ren.pic_dir = pdir
@@ -1046,11 +1047,12 @@ class StitchForm(object):
         return self
 
     def write(self, pif):
-        header = str(self.fsl) + '<br>'
-
-        header += '<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">\n{}'.format(
-            pif.create_token())
-        header += pif.form.put_hidden_input(fc=self.file_count + 1)
+        header = '\n'.join([
+            f'{self.fsl}<br>',
+            '<form action="stitch.cgi" name="myForm" onSubmit="return getValueFromApplet()">\n',
+            pif.create_token(),
+            pif.form.put_hidden_input(fc=self.file_count + 1),
+        ])
         # columns = ['name', 'image']
         print(header)
         print(pif.ren.format_table_start())
@@ -1094,9 +1096,10 @@ class StitchForm(object):
                     print(pif.ren.format_cell(1, self.show_widget(fn), also={'colspan': 4}))
             print(pif.ren.format_row_end())
         print(pif.ren.format_table_end())
-        footer = '<input type="text" value="" name="q" id="q"><br>\n'  # for imawidget
-        footer += 'Debug: <span id="ima_debug">Debug output here.</span>\n'
-        footer += '</form>'
+        footer = '\n'.join([
+            '<input type="text" value="" name="q" id="q"><br>',  # for imawidget
+            'Debug: <span id="ima_debug">Debug output here.</span>',
+            '</form>'])
         print(footer)
 
     def show_widget(self, filepath):
@@ -1196,31 +1199,33 @@ def stitch_main(pif, verbose=False):
 
 
 def casting_pictures(pif, mod_id, direc):
-    fl = glob.glob('%s/%s*.*' % (direc, mod_id)) + glob.glob('%s/?_%s*.*' % (direc, mod_id))
+    fl = glob.glob(f'{direc}/{mod_id}*.*') + glob.glob(f'{direc}/?_{mod_id}*.*')
+    if not fl:
+        return ''
     fl.sort()
-    if fl:
-        print('<h3>%s</h3>' % direc)
-        if direc == '.' + config.IMG_DIR_ADD:
-            print(pif.ren.format_button_link('describe', pif.dbh.get_editor_link('attribute_picture',
-                  {'mod_id': mod_id})) + '<br>')
-        for fn in fl:
-            print('<a href="/cgi-bin/imawidget.cgi?d=%s&f=%s&man=%s"><img src="../%s">%s</a> ' % (
-                direc, fn[fn.rfind('/') + 1:], mod_id, fn, fn))
-            print('<br>')
-        print('<hr>')
+    olst = [f'<h3>{direc}</h3>']
+    if direc == '.' + config.IMG_DIR_ADD:
+        olst.append(pif.ren.format_button_link('describe', pif.dbh.get_editor_link('attribute_picture',
+                    mod_id=mod_id)) + '<br>')
+    for fn in fl:
+        olst.append(f'<a href="/cgi-bin/imawidget.cgi?d={direc}&f={fn[fn.rfind("/") + 1:]}&man={mod_id}">'
+                    f'<img src="../{fn}">{fn}</a> ', '<br>')
+    olst.append('<hr>')
+    return '\n'.join(olst)
 
 
 def lineup_pictures(pif, lup_models):
-    print('<h3>Lineup Models</h3>')
+    olst = ['<h3>Lineup Models</h3>']
     lup_models.sort(key=lambda x: x['lineup_model.year'])
     for mod in lup_models:
         if mod['section.img_format']:
             mod['filename'] = mod['section.img_format'] % mod['lineup_model.number'] + '.jpg'
             mod['filepath'] = mod['page_info.pic_dir'] + '/' + mod['filename']
             if os.path.exists(mod['filepath']):
-                print('<a href="/cgi-bin/imawidget.cgi?d=%(page_info.pic_dir)s&f=%(filename)s&'
-                      'man=%(lineup_model.mod_id)s"><img src="../%(filepath)s">%(filepath)s</a><br>' % mod)
-    print('<hr>')
+                olst.append('<a href="/cgi-bin/imawidget.cgi?d=%(page_info.pic_dir)s&f=%(filename)s&'
+                            'man=%(lineup_model.mod_id)s"><img src="../%(filepath)s">%(filepath)s</a><br>' % mod)
+    olst.append('<hr>')
+    return '\n'.join(olst)
 
 
 @basics.web_page
@@ -1247,8 +1252,8 @@ def pictures_main(pif):
             print('<a href="?m={}&t=1&import=1">{}</a>'.format(mod_id, pif.form.put_text_button('import')))
         else:
             for cdir in [config.IMG_DIR_MAN, config.IMG_DIR_VAR, config.IMG_DIR_MAN_ICON, config.IMG_DIR_ADD]:
-                casting_pictures(pif, mod_id.lower(), '.' + cdir)
-            lineup_pictures(pif, pif.dbh.fetch_casting_lineups(mod_id))
+                print(casting_pictures(pif, mod_id.lower(), '.' + cdir))
+            print(lineup_pictures(pif, pif.dbh.fetch_casting_lineups(mod_id)))
     else:
         print('Huh?')
     print(pif.ren.format_tail())

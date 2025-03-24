@@ -1,3 +1,12 @@
+### 7.8.6  - 2025-03-23
+
+- Rewrote a lot of the box gallery
+- Made the editor link function nicer
+- Added boxtype item
+- More f-strings
+- Added White Rose and Burger King graphics
+- Random bugfixes
+
 ### 7.8.5  - 2025-03-21
 
 - Redesign vars pages.

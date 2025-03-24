@@ -45,19 +45,18 @@ Choose which boxes you would like to see:<p>
  </tr>
  <tr>
   <td><input type="radio" name="series" value="SF"> Superfast</td>
+  <td></td>
+  <td>Compact:</td>
+  <td><input type="checkbox" name="c" value="1"></td>
+ </tr>
 {% if page.is_admin %}
+ <tr>
+  <td></td>
   <td></td>
   <td><i>Verbose:</i></td>
   <td><input type="checkbox" name="verbose" value="1"></td>
  </tr>
- <tr>
-  <td></td>
-  <td></td>
-  <td><i>Compact:</i></td>
-  <td><input type="checkbox" name="c" value="1"></td>
-  <td></td>
 {% endif %}
- </tr>
 </table>
 
 <h3>Styles:</h3><p>
@@ -71,13 +70,12 @@ Choose which boxes you would like to see:<p>
  <tr>{{ menubox('D', 'rw04c') }}{{ menubox('J', 'sf16a') }} </tr>
  <tr>{{ menubox('E', 'rw05d') }}{{ menubox('K', 'sf19c') }} </tr>
  <tr>{{ menubox('F', 'rw06d') }}{{ menubox('L', 'sf21c') }} </tr>
-</table>
+</table><p>
 {{ render.format_button_input('see the boxes') }}
 {{ render.format_button_reset('box') }}
 </form>
 
-<p><hr><p>
-Please note that the resulting page will be very graphics intensive, and may take several minutes to load.<br>
+<p>
 The basis for the information on this page is <a href="http://www.mboxcommunity.com/cfalkens/Matchbox/Boxes/MBboxes.doc">Christian Falkensteiner's wonderful box variation document</a>.
 
 {%- endmacro -%}
@@ -88,11 +86,11 @@ The basis for the information on this page is <a href="http://www.mboxcommunity.
 <table class="tb">
 {% if section.name %}
  <tr>
-  <th colspan="{{ section.columns|length }}" class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
+  <th colspan="{{ section.colist|length }}" class="{{ render.class_id('sh', section.id) }}">{{ section.name }}</th>
  </tr>
 {% endif %}
 <tr class="er">
-{%- for col in section.columns %}
+{%- for col in section.colist %}
 {#  <th class="{{ render.class_id('eh', section.id) }}{{ render.class_id('eh', range.id) }}">{{ section.headers[col] }}</th> #}
   <th class="{{ render.class_id('eh', section.id, range.id) }}">{{ section.headers[col] }}</th>
 {%- endfor -%}
@@ -101,12 +99,12 @@ The basis for the information on this page is <a href="http://www.mboxcommunity.
 {{ render.fmt_anchor(range.anchor) }}
 {% if range.name %}
  <tr>
-  <th colspan="{{ range.columns|length }}" class="{{ render.class_id('sh', range.id) }}">{{ range.name }}</th>
+  <th colspan="{{ range.colist|length }}" class="{{ render.class_id('sh', range.id) }}">{{ range.name }}</th>
  </tr>
 {% endif %}
 {%- for entry in range.entry %}
 <tr class="er">
-{%- for col in section.columns %}
+{%- for col in section.colist %}
 {% if entry[col] %}
   <td class="eb"{% if entry[col].rows %} rowspan="{{ entry[col].rows }}"{% endif %}>{{ entry[col].txt or '&nbsp;' }}</td>
 {%- endif %}
@@ -115,13 +113,13 @@ The basis for the information on this page is <a href="http://www.mboxcommunity.
 {%- endfor -%}
 {%- if range.note -%}
 <tr class="er">
-  <td colspan="{{ section.columns|length }}" class="eb">{{ range.note }}</td>
+  <td colspan="{{ section.colist|length }}" class="eb">{{ range.note }}</td>
 </tr>
 {%- endif -%}
 {%- endfor -%}
 {%- if section.note -%}
 <tr class="er">
-  <td colspan="{{ section.columns|length }}" class="eb">{{ section.note }}</td>
+  <td colspan="{{ section.colist|length }}" class="eb">{{ section.note }}</td>
 </tr>
 {%- endif -%}
 </table>

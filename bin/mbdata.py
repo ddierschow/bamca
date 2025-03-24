@@ -515,6 +515,7 @@ casting_arts = {
     'SuperGT': 'c_supergt',
     'Super Kings': 'c_super-kings',
     'Skybusters': 'c_skybusters',
+    'White Rose': 'c_white_rose',
 }
 
 
@@ -722,6 +723,7 @@ base_logo_2 = [
     ('8', 'straight MODELS OF YESTERYEAR'),
     ('9', 'italic MODELS OF YESTERYEAR'),
     ('y', 'italic DINKY'),
+    ('x', 'Burger King'),
     ('z', 'elephant'),
 ]
 base_logo_2_dict = dict(base_logo_2)

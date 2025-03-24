@@ -335,7 +335,7 @@ of Matchbox International Ltd. and are used with permission.
             ostr += self.format_button_link(
                 "pictures", f"traverse.cgi?d={self.pic_dir}", also={'class': 'textbutton comment'}, lalso=dict())
             ostr += self.format_button_link("edit_this_page", pif.dbh.get_editor_link(
-                'page_info', {'id': pif.page_id}), also={'class': 'textbutton comment'}, lalso=dict())
+                'page_info', id=pif.page_id), also={'class': 'textbutton comment'}, lalso=dict())
         self.comment_button = f'<div class="comment_box">{ostr}</div>'
 
     def set_footer(self, new_footer):

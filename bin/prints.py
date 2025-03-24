@@ -120,47 +120,26 @@ def box_lookup(col, val):
 
 def single_box(pif, mod, box):
     ign_cols = ['id', 'mod_id', 'pic_id']
-    pic_name = ('x_%s-%s%s' % (box['mod_id'], box['box_type'][0], box['pic_id'])).lower()
+    pic_name = f'x_{box.mod_id}-{box.box_type[0]}{box.pic_id}'.lower()
     pics = pif.ren.find_image_files(pic_name + '*')
     if mod:
         ostr = show_model(pif, mod)
     else:
-        ostr = box['mod_id'] + '<br>'
+        ostr = box.mod_id + '<br>'
     # ostr += pic_name + '<br>\n'
     for col in pif.dbh.get_table_data('box_type').columns:
-        if col not in ign_cols:
-            if box[col]:
-                ostr += '<b>%s</b><ul>\n' % box_lookup(col, '_title')[0]
-                for spec in box_lookup(col, box[col]):
-                    ostr += '<li>%s\n' % spec.replace('\n', '<br>')
-                ostr += '</ul>\n'
+        if col not in ign_cols and box.get(col):
+            vals = [x.replace('\n', '<br>') for x in box_lookup(col, box.get(col))]
+            ostr += (f"<b>{box_lookup(col, '_title')[0]}</b><ul>\n" +
+                     ''.join([f"<li>{x}\n" for x in vals]) +
+                     '</ul>\n')
     istr = pif.ren.format_image_selectable(pics, pic_name)
     if pif.is_allowed('ma'):
         istr = f'<a href="upload.cgi?d=.{config.IMG_DIR_BOX}&n={pic_name}.jpg">{istr}</a>'
-        istr += '<br>' + pif.ren.format_button_link("edit", pif.dbh.get_editor_link('box_type', {'id': box['id']}))
+        istr += '<br>' + pif.ren.format_button_link("edit", pif.dbh.get_editor_link('box_type', id=box.id))
     istr += '<center>' + pif.ren.format_image_selector(pics, pic_name) + '</center>'
     ent = {'inf': ostr, 'pic': istr}
     return ent
-
-
-def single_box_type(pif):
-    pif.ren.set_page_extra(pif.ren.image_selector_js)
-    if pif.form.get_id('box'):
-        boxes = pif.dbh.fetch_box_type(pif.form.get_id('box'))
-    elif pif.form.get_id('mod'):
-        boxes = pif.dbh.fetch_box_type_by_mod(pif.form.get_id('mod'), pif.form.get_id('ty'))
-    if not boxes:
-        raise useful.SimpleError("No matching boxes found.")
-    boxes = pif.dbh.depref('box_type', boxes)
-    mod = pif.dbh.fetch_casting_by_id_or_alias(boxes[0]['mod_id'])
-    if mod:
-        mod = mod[0]
-        mod['id'] = mod['alias.id'] if mod['alias.ref_id'] else mod['casting.id']
-
-    lsection = render.Section(colist=['inf', 'pic'], headers={'inf': 'Box Information', 'pic': 'Box Picture'},
-                              range=[render.Range(entry=[single_box(pif, mod, x) for x in boxes])])
-    llistix = render.Listix(section=[lsection])
-    return llistix
 
 
 # need to add va, middle to eb_1 style
@@ -178,66 +157,86 @@ def get_box_image(pif, picroot, picsize=None, largest=mbdata.IMG_SIZ_PETITE, com
     return pic
 
 
-def show_model(pif, mod, compact=False):
+def show_model(pif, box, compact=False):
     img = '' if compact else pif.ren.format_image_required(
-        mod['casting.id'], pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
-    url = "single.cgi?id=" + mod['casting.id']
-    ostr = '<center><a href="%s">%s<br>%s<br>' % (url, mod['id'], img)
-    ostr += '<b>%s</b></a></center>' % mod['base_id.rawname'].replace(';', ' ')
+        box.mod.id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_SMALL)
+    url = f"single.cgi?id={box.mod.id}"
+    ostr = f'<center><a href="{url}">{box.id}<br>{img}<br>'
+    ostr += f'<b>{box.mod.name}</b></a></center>'
     return ostr
 
 
 def find_boxes(pif):
     series = pif.form.get_id('series')
     style = pif.form.get_id('style')
-    if style == 'all':
-        style = ''
+    style = '' if style == 'all' else style
     start = pif.form.get_int('start', 1)
     end = pif.form.get_int('end', start)
+
     boxes = dict()
     for box in pif.dbh.fetch_castings_by_box(series, style):
-        box['id'] = box['alias.id'] if box.get('alias.id') else box['casting.id']
-        if (series and box['base_id.model_type'] != series) or \
-                (style and (style != box['box_type.box_type'][0])) or \
-                (int(box['id'][2:4]) < start) or \
-                ((end and int(box['id'][2:4]) > end) or (not end and int(box['id'][2:4]) != start)):
+        manitem = pif.dbh.make_man_item(box)
+        boxitem = pif.dbh.make_box_type_item(box)
+        boxitem.mod = manitem
+        boxitem.id = manitem.id
+        man_no = int(manitem.id[2:4])  # specifically lesney boxes only
+        if ((series and manitem.model_type != series) or
+                (style and (style != boxitem.box_type[0])) or (man_no < start) or
+                ((end and man_no > end) or (not end and man_no != start))):
             continue
-        pic_name = ('x_%s-%s%s' % (box['box_type.mod_id'], box['box_type.box_type'][0], box['box_type.pic_id'])).lower()
+        pic_name = f'x_{boxitem.mod_id}-{boxitem.box_type[0]}{boxitem.pic_id}'.lower()
         is_pic = int(os.path.exists(useful.relpath('.', config.IMG_DIR_BOX, pic_name + '.jpg')))
-        sortid = box['id'][2:4] + box['id'][0:2] + box['id'][4:] + box['box_type.box_type'][0]
+        sortid = manitem.id[2:4] + manitem.id[0:2] + manitem.id[4:] + boxitem.box_type[0]
         front = ' / '.join(
-                box_lookup('box_type', box['box_type.box_type']) +
-                box_lookup('bottom', box['box_type.bottom']) +
-                box_lookup('additional_text', box['box_type.additional_text']) +
-                [box['box_type.notes']])
+                box_lookup('box_type', boxitem.box_type) +
+                box_lookup('bottom', boxitem.bottom) +
+                box_lookup('additional_text', boxitem.additional_text) +
+                [boxitem.notes])
         if sortid in boxes:
-            boxes[sortid]['count'] += 1
-            boxes[sortid]['pics'] += is_pic
-            if front not in boxes[sortid]['fronts']:
-                boxes[sortid]['fronts'].append(front)
+            boxes[sortid].count += 1
+            boxes[sortid].pics += is_pic
+            if front not in boxes[sortid].fronts:
+                boxes[sortid].fronts.append(front)
             continue
-        box['count'] = 1
-        box['pics'] = is_pic
-        box['fronts'] = [front]
-        boxes[sortid] = box
+        boxitem.count = 1
+        boxitem.pics = is_pic
+        boxitem.fronts = [front]
+        boxes[sortid] = boxitem
     return boxes
 
 
 def get_pic_roots(mod_id, box_style):
-    picroots = glob.glob(useful.relpath('.', config.IMG_DIR_BOX,
-                                        ('[scm]_' + mod_id + '-' + box_style + '?.jpg').lower()))
-    picroots = list(set([(mod_id + '-' + box_style).lower()] + [x[x.rfind('/') + 3:-4] for x in picroots]))
-    picroots.sort()
-    return picroots
+    return sorted(set([f'{mod_id}-{box_style}'.lower()] + [
+        x[x.rfind('/') + 3:-4] for x in
+        glob.glob(useful.relpath('.', config.IMG_DIR_BOX, f'[scm]_{mod_id}-{box_style}?.jpg'.lower()))]))
+
+
+def show_single_box(pif):
+    pif.ren.print_html()
+
+    pif.ren.set_page_extra(pif.ren.image_selector_js)
+    if pif.form.get_id('box'):
+        boxes = pif.dbh.fetch_box_type(pif.form.get_id('box'))
+    elif pif.form.get_id('mod'):
+        boxes = pif.dbh.fetch_box_type_by_mod(pif.form.get_id('mod'), pif.form.get_id('ty'))
+    if not boxes:
+        raise useful.SimpleError("No matching boxes found.")
+    boxes = pif.dbh.make_box_type_items(boxes)
+    mod = pif.dbh.fetch_casting_by_id_or_alias(boxes[0].mod_id)
+    for box in boxes:
+        box.mod = pif.dbh.make_man_item(mod[0])
+        box.id = box.mod.id
+
+    lsection = render.Section(colist=['inf', 'pic'], headers={'inf': 'Box Information', 'pic': 'Box Picture'},
+                              range=[render.Range(entry=[single_box(pif, box, x) for x in boxes])])
+    llistix = render.Listix(section=[lsection])
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
 
 def show_boxes(pif):
     pif.ren.print_html()
-    if pif.form.get_id('box') or pif.form.get_id('mod'):
-        return pif.ren.format_template('simplelistix.html', llineup=single_box_type(pif))
-
+    section = pif.dbh.fetch_section('lesney', 'boxart')
     verbose = pif.form.get_bool('verbose')
-    compact = pif.form.get_bool('c')
     style = pif.form.get_id('style')
     if style == 'all':
         style = ''
@@ -252,47 +251,64 @@ def show_boxes(pif):
     for mod_id in modids:
         mod_box_ids = [x for x in boxids if x.startswith(mod_id)]
         mod_box_ids.sort()
-        ent = {'mod': {'txt': show_model(pif, boxes[mod_box_ids[0]], compact=compact), 'rows': len(mod_box_ids)}}
+        ent = {'mod': {'txt': show_model(pif, boxes[mod_box_ids[0]], compact=False), 'rows': len(mod_box_ids)}}
         ent1 = ent
         for mod_box_id in mod_box_ids:
             mod = boxes[mod_box_id]
             # if verbose and pif.is_allowed('ma'):
             #     print('<br>'.join(mod['fronts']), '<hr>')
-            box_style = mod['box_type.box_type'][0]
-            picroots = get_pic_roots(mod['id'], box_style)
+            box_style = mod.box_type[0]
+            picroots = get_pic_roots(mod.mod.id, box_style)
             if verbose:
                 ent1['mod']['txt'] += '<br>' + '<br>'.join(picroots)
             hdr = f"<b>{box_style} style</b>"
             if verbose:
                 for picsize in 'mps':
-                    imgs = [get_box_image(pif, picroot, picsize, compact=compact) for picroot in picroots]
-                    if compact:
-                        ostr = hdr + ''.join(imgs)
-                    else:
-                        ostr = f"<center>{hdr}</center>" + '<br>'.join(imgs)
-                    if pif.is_allowed('ma'):
-                        ostr = '<a href="upload.cgi?d=.%s&n=%s">%s</a>' % (
-                            config.IMG_DIR_BOX, mod['id'].lower() + '-' + box_style.lower() + '.jpg', ostr)
-                    ent[picsize] = {'txt': ostr}
-                ent['s']['txt'] += '<br>%s box variations - %s' % (
-                    mod['count'],
-                    pif.ren.format_button_link('see the boxes', '?mod=%s&ty=%s' % (mod['id'], box_style)))
-                ent['s']['txt'] += ' - %s pics' % mod['pics']
+                    imgs = '<br>'.join([get_box_image(pif, picroot, picsize, compact=False) for picroot in picroots])
+                    ent[picsize] = {'txt': pif.ren.format_link(
+                        f"?mod={mod.mod.id}&ty={box_style}", f"<center>{hdr}</center>{imgs}")}
+                ent['s']['txt'] += f'<br>{mod.count}  box variations - {mod.pics} pics'
             else:
-                largest = 'mmpss'[len(picroots)]
-                pic = ''.join([get_box_image(pif, picroot, largest=largest) for picroot in picroots])
-                ent['box'] = {'txt': "<center>%s<br>%s" % (hdr, pic)}
-                ent['box']['txt'] += '<br>%s box variation%s - %s' % (
-                    mod['count'], 's' if mod['count'] != 1 else '', pif.ren.format_button_link(
-                        'see the boxes', '?mod=%s&ty=%s' % (mod['id'], box_style)))
-                if pif.is_allowed('ma'):
-                    ent['box']['txt'] += ' - %s pics' % mod['pics']
-                ent['box']['txt'] += '</center>'
+                pic = pif.ren.format_link(
+                    f"?mod={mod.mod.id}&ty={box_style}",
+                    ''.join([get_box_image(pif, picroot, largest='mmpss'[len(picroots)]) for picroot in picroots]))
+                ent['box'] = {
+                    'txt': f"<center>{hdr}<br>{pic}" +
+                           f"<br>{mod.count} box variation{useful.plural(mod.count)}" +
+                           (f" - {mod.pics} pics" if pif.is_allowed('ma') else '') +
+                           '</center>'
+                }
             lrange['entry'].append(ent)
             ent = dict(mod=None)
-    lsection = dict(columns=columns, headers=headers, range=[lrange], note='')
+    lsection = render.Section(section=section, colist=columns, headers=headers, range=[lrange], note='')
     llistix = dict(section=[lsection])
     return pif.ren.format_template('boxes.html', llistix=llistix)
+
+
+def show_boxes_compact(pif):
+    pif.ren.print_html()
+    page = pif.dbh.make_page_item(pif.dbh.fetch_page('boxart'))
+    section = pif.dbh.make_sec_item(pif.dbh.fetch_section('lesney', 'boxart'))
+
+    boxes = find_boxes(pif)
+
+    lrange = render.Range()
+    boxids = sorted(boxes.keys())
+    modids = sorted(set([x[:5] for x in boxids]))
+    for mod_id in modids:
+        mod_box_ids = sorted([x for x in boxids if x.startswith(mod_id)])
+        for mod_box_id in mod_box_ids:
+            mod = boxes[mod_box_id]
+            box_style = mod.box_type[0]
+            picroots = get_pic_roots(mod.id, box_style)
+            hdr = pif.ren.format_link(f"single.cgi?id={mod.mod.id}", f"{mod.id}")
+            for picroot in picroots:
+                pic = pif.ren.format_link(f"?mod={mod.id}&ty={box_style}", get_box_image(pif, picroot, picsize='s'))
+                ent = render.Entry(text=f"<center><b>{hdr}</b><br>{pic}<br>{box_style} style</center>")
+                lrange.entry.append(ent)
+    lsection = render.Section(section=section, range=[lrange])
+    blineup = render.Matrix(id=page.id, name=page.title, columns=section.columns, header='', footer='', section=[lsection])
+    return pif.ren.format_template('simplematrix.html', llineup=blineup.prep())
 
 
 def box_ask(pif):
@@ -307,10 +323,14 @@ def box_main(pif):
     pif.ren.hierarchy_append('/', 'Home')
     pif.ren.hierarchy_append('/database.php', 'Database')
     pif.ren.hierarchy_append('/cgi-bin/boxart.cgi', 'Lesney Era Boxes')
-    if pif.form.has_any(['box', 'mod', 'style']):
-        return show_boxes(pif)
-    else:
-        return box_ask(pif)
+    if pif.form.get_id('box') or pif.form.get_id('mod'):
+        return show_single_box(pif)
+    elif pif.form.has('style'):
+        if pif.form.get_bool('c'):
+            return show_boxes_compact(pif)
+        else:
+            return show_boxes(pif)
+    return box_ask(pif)
 
 
 def count_boxes(pif):
@@ -483,12 +503,10 @@ def single_publication(pif, pub_id):
 
     left_bar_content = ''
     if pif.is_allowed('a'):  # pragma: no cover
-        left_bar_content += '<p><b><a href="%s">Base ID</a><br>\n' % pif.dbh.get_editor_link('base_id', {'id': pub_id})
-        left_bar_content += '<a href="%s">Publication</a><br>\n' % pif.dbh.get_editor_link(
-            'publication', {'id': pub_id})
+        left_bar_content += f'<p><b><a href="{pif.dbh.get_editor_link("base_id", id=pub_id)}">Base ID</a><br>\n'
+        left_bar_content += f'<a href="{pif.dbh.get_editor_link("publication", id=pub_id)}">Publication</a><br>\n'
         left_bar_content += f'<a href="traverse.cgi?d={pif.ren.lib_dir}">Library</a><br>\n'
-        left_bar_content += '<a href="upload.cgi?d=%s&n=%s&c=%s">Product Upload</a><br>\n' % (
-            pif.ren.lib_dir, pub_id, pub_id)
+        left_bar_content += f'<a href="upload.cgi?d={pif.ren.lib_dir}&n={pub_id}&c={pub_id}">Product Upload</a><br>\n'
 
     upper_box = ''
     if imgs:
@@ -598,7 +616,7 @@ def ads_main(pif):
         if pif.is_allowed('ma'):
             if ent['model_type']:
                 post += ' ' + pif.ren.format_link(
-                    pif.dbh.get_editor_link('publication', {'id': ent['id']}), pif.ren.fmt_edit())
+                    pif.dbh.get_editor_link('publication', id=ent['id']), pif.ren.fmt_edit())
             else:
                 post += ' ' + pif.ren.format_link(
                     '/cgi-bin/mass.cgi?tymass=ads&id=%s&description=%s&year=%s&country=%s' % (
@@ -660,7 +678,7 @@ def ads_main(pif):
     pif.ren.set_footer(pif.ren.format_button_link('back', '/') + ' to the index.')
     if pif.is_allowed('ma'):
         pif.ren.set_footer(
-            pif.ren.format_link('/cgi-bin/upload.cgi?d=%s' % lib_dir, 'Upload new ad') + ' - ' +
+            pif.ren.format_link(f'/cgi-bin/upload.cgi?d={lib_dir}', 'Upload new ad') + ' - ' +
             pif.ren.format_link('/cgi-bin/edlinks.cgi?page_id=links.others&sec=Lvideoads&add=1', 'Add new video'))
     llineup = render.Listix(section=[
         render.Section(id='print', name='Print Advertising', range=ranges),

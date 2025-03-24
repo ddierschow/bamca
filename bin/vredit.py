@@ -392,7 +392,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
         # pif.ren.comment(attr, visuals)
         print("<tr>")
         print('<td style="background-color: %s">' % bg_color[attr['attribute_name'] in hdrs + var_record_cols])
-        print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', {'id': attr['id']}), attr['id']))
+        print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', id=attr['id']), attr['id']))
         print("<td>%s</td>" % pif.form.put_text_input(
             "attribute_name.%(id)d" % attr, 32, 32, attr["attribute_name"]))
         print("<td>%s</td>" % pif.form.put_text_input("definition.%(id)d" % attr, 32, 32, attr["definition"]))
@@ -407,7 +407,7 @@ def show_attrs(pif, file_id, mod, hdrs, var_desc):
     for attr in common_attrs:
         print("<tr>")
         print('<td style="background-color: %s">' % bg_color[attr['attribute_name'] in hdrs + var_record_cols])
-        print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', {'id': attr['id']}), attr['id']))
+        print('<a href="%s">%s</a></td>' % (pif.dbh.get_editor_link('attribute', id=attr['id']), attr['id']))
         print("<td>%s</td>" % (
             attr["attribute_name"] +
             pif.form.put_hidden_input(**{"attribute_name.%(id)d" % attr: attr["attribute_name"]})))

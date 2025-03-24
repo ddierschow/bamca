@@ -197,6 +197,8 @@ class BaseForm(object):
         retval = {}
         for k, v in self.form.items():
             if k.startswith(root):
+                if isinstance(v, list):  # NOT MY PROBLEM but ok
+                    v = v[0]
                 retval.setdefault(v, '')
                 retval[v] += k[len(root):]
         return retval
