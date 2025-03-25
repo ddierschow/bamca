@@ -1,6 +1,7 @@
 GIT = /usr/local/bin/git
 RM = /bin/rm
 DATE != date +'%Y%m%d'
+FLAKE8 = /usr/local/bin/flake8
 
 all: configs test
 
@@ -18,9 +19,13 @@ deploy: clean
 	$(GIT) pull
 	./filsys.py p
 	./filsys.py j
+	./filsys.py v
 
-clean:
-	$(RM) -f *~ *.pyc
+clean: lint
+	$(RM) -f *~ __pycache__/*.pyc
+
+lint:
+	$(FLAKE8)
 
 dumpdb:
 	@echo "This is looking for the database root password."

@@ -8,6 +8,7 @@ import os
 import re
 import requests
 import stat
+import subprocess
 
 import basics
 import config
@@ -672,7 +673,14 @@ def check_lib_man(pif):
 
 def write_version_file(pif):
     print("Writing version file.")
-    open('version.txt', 'wt').write('''<?php\n$version = "{}";\n?>\n'''.format(os.environ['BAMCA_VERSION']))
+    version = subprocess.run('git describe --tags --abbrev=0',
+                             shell=True, capture_output=True, encoding='utf8').stdout.strip()
+    ostr = f'''<?php
+$version = "V. {version}";
+$next_down_time = "Nothing planned."
+?>
+'''
+    open('version.txt', 'wt').write(ostr)
 
 
 wiki_transform = {

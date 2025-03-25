@@ -1209,7 +1209,7 @@ def casting_pictures(pif, mod_id, direc):
                     mod_id=mod_id)) + '<br>')
     for fn in fl:
         olst.append(f'<a href="/cgi-bin/imawidget.cgi?d={direc}&f={fn[fn.rfind("/") + 1:]}&man={mod_id}">'
-                    f'<img src="../{fn}">{fn}</a> ', '<br>')
+                    f'<img src="../{fn}">{fn}</a><br>')
     olst.append('<hr>')
     return '\n'.join(olst)
 

@@ -1485,7 +1485,8 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         return self.fetch('link_line', where=" and ".join(wheres), order=order, tag='LinkLines', verbose=verbose)
 
     def fetch_links_single(self, page_id=None):
-        columns = ['l1.page_id', 'l1.associated_link', 'l1.url', 'l1.name', 'l2.id', 'l2.name', 'l2.url', 'l1.flags']
+        columns = ['l1.name', 'l1.url', 'l1.flags', 'l1.page_id', 'l1.associated_link',
+                   'l2.name', 'l2.url', 'l2.flags', 'l2.id']
         wheres = [
             f'not l1.flags & {config.FLAG_LINK_LINE_NEW | config.FLAG_LINK_LINE_HIDDEN}',
             'l1.associated_link=l2.id',

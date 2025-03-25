@@ -813,6 +813,10 @@ class LinkLineItem(object):
         return bool(self.flags & config.FLAG_LINK_LINE_RECIPROCAL)
 
     @property
+    def raw_html(self):
+        return bool(self.flags & config.FLAG_LINK_LINE_RAW_HTML)
+
+    @property
     def bullet(self):
         match self.link_type:
             case 'b':

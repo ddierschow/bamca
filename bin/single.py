@@ -118,6 +118,8 @@ def reduce_variations(pif, mod_id, vars):
 def show_external_links(pif, x_links):
 
     def ll_link(x, pfx):
+        if x[f'{pfx}.flags'] & config.FLAG_LINK_LINE_RAW_HTML:
+            return x[f'{pfx}.url'].format(x[f'{pfx}.name'])
         return pif.ren.format_link(x[f'{pfx}.url'], x[f'{pfx}.name'])
 
     return [f"{ll_link(x, 'l1')} at {ll_link(x, 'l2')}" if x['l1.associated_link'] else ll_link(x, 'l1') for x in x_links]

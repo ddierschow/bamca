@@ -23,6 +23,8 @@ a:hover      {color: #000099; text-decoration: underline;}
 .smallish    {font-size: small;}
 .largish     {font-size: large;}
 .largepic    {float: left;}
+.monospace   {font-family: monospace;}
+.centerize   {padding: auto;}
 
 .title       {background-color: #000066; height: 66px; margin: 3px 0 3px 0; display: table; width: 100%;
               color: #FFFFFF; font-weight: bold; font-size: xx-large; text-align: center; max-width: 1024px;}
@@ -247,3 +249,9 @@ it is also useful for targeting FF-only code */
 .body_year_mwl .tb {background-color: #CCCCCC;}
 .body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
 .body_year_mwl .rh {background-color: #0000CC; color: #FFFFFF;}
+
+/* hack to style button like href */
+.btn-form {display: inline;}
+.btn-link {border: none; outline: none; background: none; cursor: pointer; color: #0000EE; padding: 0; font-family: inherit; font-size: inherit;}
+.btn-link:hover      {color: #000099; text-decoration: underline;}
+.btn-link:link       {color: #0000FF; text-decoration: none;}

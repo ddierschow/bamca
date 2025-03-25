@@ -168,7 +168,17 @@ function SectionSearch($pif) {
     Checks('radio', $id, 'ltype', [['c', 'Castings', 1]]);
     Checks('radio', $id, 'ltype', [['v', 'Variations']]);
     echo "</td>\n";
-    echo "</tr></table><br>\n";
+    echo "</tr>\n";
+    echo "<tr>\n";
+    echo "<td class=\"hspacer\"></td>\n";
+    echo "<td>\n";
+    echo "Show results as size:</td><td colspan=3>\n";
+    Checks('radio', $id, 'ptype', [['s', 'Small', 1]]);
+    Checks('radio', $id, 'ptype', [['m', 'Medium']]);
+    Checks('radio', $id, 'ptype', [['l', 'Large']]);
+    echo "</td>\n";
+    echo "</tr>\n";
+    echo "</table><br>\n";
     echo "<table class=\"inset\"><tr><td>\n";
     echo "<b>A note on the results that will be returned:</b><br>\n";
     echo "If you specify variation search criteria, then select to show as castings, the list returned will be \n";

@@ -49,6 +49,7 @@ def read_super_search_form(form, withaliases=False, madeonly=False):
     return dict(
         list_type=form.get_str('ltype'),
         sort_type=form.get_str('stype'),
+        pic_type=form.get_str('ptype'),
         start=form.get_int('start', 0),
 
         # casting section
@@ -79,6 +80,8 @@ class Searcher(object):
 
         self.list_type = args.get('list_type') or 'c'
         self.sort_type = args.get('sort_type') or 'i'
+        self.pic_type = args.get('pic_type') or 's'
+        self.columns = 800 // mbdata.imagesizes[self.pic_type][0]
         self.start = args.get('start')
 
         # casting section
@@ -158,12 +161,13 @@ class Searcher(object):
             self.cascount = 0  # starting over, because taking vars into account we'll get a different answer
             vars = pif.dbh.fetch_variation_query(self.varsq, castinglist=self.mdict.keys(), codes=self.codes)
             for var in vars:
-                if self.check_thing_id(self.varsq['var'], var['v.var'], self.var_id_exact):
-                    if not self.mdict[var['v.mod_id']].vars:
+                var = pif.dbh.make_var_item(var)
+                if self.check_thing_id(self.varsq['var'], var.var, self.var_id_exact):
+                    if not self.mdict[var.mod_id].vars:
                         self.cascount += 1
                     self.varcount += 1
-                    var['name'] = self.mdict[var['v.mod_id']].name
-                    self.mdict[var['v.mod_id']].vars.append(var)
+                    var.name = self.mdict[var.mod_id].name
+                    self.mdict[var.mod_id].vars.append(var)
 
         # create outgoing list
         count = 0

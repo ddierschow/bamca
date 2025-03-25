@@ -28,13 +28,13 @@ def add_man_item_table_pic_link(pif, manitem, flago=flago):
     if manitem.prefix == mbdata.IMG_SIZ_TINY:
         return (
             '\n  <center>\n   <table class="entry">\n    <tr>\n'
-            f'     <td><center><font face="Courier">{manitem.id}</font></center></td>\n    </tr>\n'
+            f'     <td class="centerize modelname monospace">{manitem.id}</td>\n    </tr>\n'
             f'    <tr>\n     <td><center>{manitem.lname}</center></td>\n    </tr>\n   </table>\n  </center>\n')
     return (
         '\n  <center>\n   <table class="entry">\n    <tr>\n     <td></td>\n'
-        f'     <td width="32"><i><font size=-1>{manitem.first_year}</font></i></td>\n'
-        f'     <td width="136"><center><font face="Courier">{manitem.id}</font></center></td>\n'
-        f'     <td width="32">{manitem.flag}</td>\n     <td></td></tr>\n    <tr>\n'
+        f'     <td width="32px"><i><font size=-1>{manitem.first_year}</font></i></td>\n'
+        f'     <td width="136px" class="centerize modelname monospace">{manitem.id}</td>\n'
+        f'     <td width="32px">{manitem.flag}</td>\n     <td></td></tr>\n    <tr>\n'
         f'     <td colspan="5"><center>{manitem.lname} {manitem.desclist}</center></td>\n    </tr>\n'
         '   </table>\n  </center>\n')
 
@@ -53,7 +53,7 @@ def add_model_table_pic_link_man_item(pif, manitem, flago=flago):
         if s.startswith('same as '):
             img.append(s[8:].lower())
     img_size = mbdata.IMG_SIZ_LARGE if pif.form.get_bool('large') else manitem.prefix
-    manitem.img = pif.ren.format_image_required(img, made=manitem.made, prefix=img_size)
+    manitem.img = pif.ren.format_image_required(img, made=manitem.made, largest=img_size)
     manitem.flag = ''
     if manitem.country in flago:
         manitem.flag = pif.ren.format_image_flag(manitem.country, flago[manitem.country], also={'align': 'right'})
@@ -415,7 +415,8 @@ def add_model_var_table_pic_link(pif, mdict):
     # mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
     mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
     ostr = (
-        '  <center><table class="entry"><tr><td><center><font face="Courier">%(v.mod_id)s-%(v.var)s</font></br>\n'
+        '  <center><table class="entry"><tr><td>'
+        '<center><span class="monospace modelname">%(v.mod_id)s-%(v.var)s</spam></br>\n'
         '   <a href="%(link)s">%(img)s<br><b>%(name)s</b></a>\n') % mdict
     # ostr += "   <br><i>%(v.text_description)s</i>\n" % mdict
     ostr += '<table class="vartable">'
@@ -425,22 +426,59 @@ def add_model_var_table_pic_link(pif, mdict):
     return ostr
 
 
-def add_man_item_var_table_pic_link(pif, manitem, var):
-    if var.get('v.picture_id'):
-        manitem.img = pif.ren.format_image_required(
-            var['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=var['v.picture_id'])
-    else:
-        manitem.img = pif.ren.format_image_required(
-            var['v.mod_id'], prefix=mbdata.IMG_SIZ_SMALL, nobase=True, vars=var['v.var'])
-    manitem.link = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % var
-    ostr = (
-        '  <center><table class="entry"><tr><td><center><font face="Courier">%(v.mod_id)s-%(v.var)s</font></br>\n'
-        f'   <a href="{manitem.link}">{manitem.img}<br><b>{manitem.name}</b></a>\n') % var
-    ostr += '<table class="vartable">'
-    ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % var['v.text_description']
-    ostr += "</table>"
-    ostr += "  </center></td></tr></table></center>\n"
+def add_man_item_sized_var_table_pic_link(pif, size, manitem, varitem):
+    manitem.img = pif.ren.format_image_required(varitem.mod_id, largest=size, nobase=True, vars=varitem.picture_id)
+    manitem.link = f'vars.cgi?mod={varitem.mod_id}&var={varitem.var}'
+    if size == mbdata.IMG_SIZ_SMALL or size == mbdata.IMG_SIZ_MEDIUM:
+        ostr = (
+            '  <center><table class="entry"><tr><td>'
+            f'<center><span class="modelname monospace">{varitem.mod_id}-{varitem.var}</span><br>\n'
+            f'   <a href="{manitem.link}" class="modelname">{manitem.img}<br>{manitem.name}</a>\n'
+            f'<table class="vartable"><tr><td class="varentry"><i>{varitem.text_description}</i></td></tr></table>'
+            "  </center></td></tr></table></center>\n")
+    elif size == mbdata.IMG_SIZ_LARGE:
+        ostr = (
+            '  <center><table class="entry"><tr><td colspan="2" class="modelname monospace centerize">'
+            f'{varitem.mod_id}-{varitem.var}</td></tr>\n'
+            f' <tr><td class="width_l"><center><a href="{manitem.link}">{manitem.img}</a></center></td>\n'
+            f'  <td class="width_m" style="vertical-align: top"><center>\n'
+            f'  <a href="{manitem.link}"><b>{manitem.name}</b></a><p>\n'
+            f'<table class="vartable"><tr><td class="varentry"><i>{varitem.text_description}</i></td></tr></table>')
+
+        # render details
+        def show_details():
+            return [(d.title(), varitem.get_attr(f'text_{d}')) for d in
+                    ['base', 'body', 'interior', 'wheels', 'windows', 'with']]
+
+        ostr += (
+            '<table class="inset width_m">\n' +
+            ''.join([f'<tr><td>{title}</td><td>{value}</td></tr>\n' for title, value in show_details() if value]) +
+            "</table>\n  </center></td></tr></table></center>\n")
+
     return ostr
+
+
+def add_man_item_sized_table_pic_link(pif, size, manitem, flago=flago):
+    manitem.prefix = size
+    manitem = add_model_table_pic_link_man_item(pif, manitem, flago)
+    if size == mbdata.IMG_SIZ_TINY:
+        return (
+            '\n  <center>\n   <table class="entry">\n    <tr>\n'
+            f'     <td class="modelname monospace centerize">{manitem.id}</td>\n    </tr>\n'
+            f'    <tr>\n     <td><center>{manitem.lname}</center></td>\n    </tr>\n   </table>\n  </center>\n')
+    elif size == mbdata.IMG_SIZ_SMALL:
+        idsize = 136
+    elif size == mbdata.IMG_SIZ_MEDIUM:
+        idsize = 336
+    elif size == mbdata.IMG_SIZ_LARGE:
+        idsize = 536
+    return (
+        '\n  <center>\n   <table class="entry">\n    <tr>\n     <td></td>\n'
+        f'     <td width="32px"><i><font size=-1>{manitem.first_year}</font></i></td>\n'
+        f'     <td width="{idsize}px" class="modelname monospace centerize">{manitem.id}</td>\n'
+        f'     <td width="32px">{manitem.flag}</td>\n     <td></td></tr>\n    <tr>\n'
+        f'     <td colspan="5"><center>{manitem.lname} {manitem.desclist}</center></td>\n    </tr>\n'
+        '   </table>\n  </center>\n')
 
 
 def get_mack_numbers(pif, cid, mod_type, aliases):

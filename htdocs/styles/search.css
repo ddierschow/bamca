@@ -9,3 +9,8 @@ body {background-color: #FFFFCC;}
 .ln2 {background-color: #FFDDDD;}
 
 ul {margin: 0;}
+
+.inset {background-color: #FFFFFF; border-color: #000000; border-width: 1px; border-style: ridge; border-collapse: collapse; padding: 4px;}
+.inset tr {border-width: 1px;}
+.inset td {border-width: 1px; padding: 0 4px 0 4px;}
+.inset td {background-color: #FFFFFF; border-color: #000000; border-width: 1px; border-style: ridge; border-collapse: collapse;}

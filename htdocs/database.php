@@ -466,11 +466,9 @@ EOT;
     Select('style', 'boxStyle', $sl,
         'onkeyup="boxExample();" onchange="boxExample();" onmouseup="boxExample();"', "boxExample();");
     echo "  </td>\n";
-    if ($pif['isadmin']) {
-	echo "  <td>\n";
-	Checks('checkbox', 'boxes', 'c', [['1', '<i>Compact</i>']], '');
-	echo "  </td>\n  <td></td>";
-    }
+    echo "  <td>\n";
+    Checks('checkbox', 'boxes', 'c', [['1', 'Compact']], '');
+    echo "  </td>\n  <td></td>\m";
     echo " </tr>\n</table>\n";
 }
 

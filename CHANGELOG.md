@@ -1,3 +1,11 @@
+### 7.8.7  - 2025-03-24
+
+- Add picture size option to super search
+- Automate version setting
+- Add raw html option for link line urls
+- Add compact option to box gallery
+- Tighten up styles a little
+
 ### 7.8.6  - 2025-03-23
 
 - Rewrote a lot of the box gallery

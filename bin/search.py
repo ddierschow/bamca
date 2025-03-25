@@ -256,6 +256,7 @@ def date_search(pif, dt=None, yr=None):
 
 @basics.web_page
 def run_super_search(pif):
+    pif.ren.title = 'Super Search'
     pif.ren.hierarchy_append('/', 'Home')
     pif.ren.hierarchy_append('/database.php', 'Database')
     pif.ren.hierarchy_append('/search.php', 'Search')
@@ -265,17 +266,18 @@ def run_super_search(pif):
     searcher = cvfind.Searcher(pif.form, withaliases=True)
     sections = searcher.run_query(pif)
 
-    llineup = render.Matrix(columns=4, tail=['', '', ''])
+    llineup = render.Matrix(columns=searcher.columns, tail=['', '', ''])
     pif.ren.set_button_comment(pif, keys={'sel': 'selection', 'ran': 'range', 'start': 'start', 'end': 'end'})
-    lsec = render.Section()
+    lsec = render.Section(columns=searcher.columns)
     for sect in sections:
         mods = sect['models'] if not any(searcher.varsq.values()) else [x for x in sect['models'] if x.variations]
         if mods:
             if searcher.list_type == 'v':
-                entries = [render.Entry(text=mbmods.add_man_item_var_table_pic_link(pif, y, x))
+                entries = [render.Entry(text=mbmods.add_man_item_sized_var_table_pic_link(pif, searcher.pic_type, y, x))
                            for y in mods for x in y.variations]
             else:
-                entries = [render.Entry(text=mbmods.add_man_item_table_pic_link(pif, x)) for x in mods]
+                entries = [render.Entry(text=mbmods.add_man_item_sized_table_pic_link(pif, searcher.pic_type, x))
+                           for x in mods]
 
             lsec.range.append(render.Range(name=sect['name'], anchor=sect['id'], entry=entries))
     llineup.section = [lsec]
