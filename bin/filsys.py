@@ -448,7 +448,7 @@ def show_file(pif, tform):
         else:
             ostr += f'<p> {fil}\n'
     elif tform.tdir == '../../logs':
-        ostr += '<p><div style="font-family: monospace;">\n'
+        ostr += '<p><div class="monospace">\n'
         fil = open(tform.tdir + '/' + tform.fnam).readlines()
         for i in range(len(fil)):
             if fil[i].startswith('uri = '):
@@ -777,7 +777,7 @@ def write_wiki_file(pif):
 cmds = [
     ('p', write_php_config_file, "write php config"),
     ('j', write_jinja2_config_file, "write jinja2 config"),
-    ('m', check_lib_man, "check libarary man id's"),
+    ('m', check_lib_man, "check library man id's"),
     ('v', write_version_file, "write version file"),
     ('w', write_wiki_file, "write wiki file"),
 ]

@@ -109,7 +109,7 @@ function GetPageInfo($page_id, $get_limits=0) {
     $pif['dbi'] = $dbi = DBConnect($pif);
     if (!$dbi)
 	return $pif;
-    $q = "select page_info.format_type,page_info.title,page_info.pic_dir,page_info.tail,page_info.flags from page_info where page_info.id='" . $page_id . "'";
+    $q = "select page_info.format_type,page_info.title,page_info.pic_dir,page_info.tail,page_info.flags,page_info.style_id from page_info where page_info.id='" . $page_id . "'";
     $res = $pif['dbi']->query($q);
     if ($res) {
 	while (1) {
@@ -121,6 +121,7 @@ function GetPageInfo($page_id, $get_limits=0) {
 		$pif['tail'] = $row['tail'];
 		$pif['flags'] = $row['flags'];
 		$pif['hide_title'] = $row['flags'] & 2;
+                $pif['style_id'] = $row['style_id'];
 	    }
 	    else
 		break;
@@ -189,7 +190,7 @@ function DoPageHeader($pif) {
 
 </script>
 ";
-    echo "</head>\n\n<body>\n";
+    echo "</head>\n\n<body class=\"body_" . $pif['style_id'] . "\">\n";
 //    if (!($pif['flags'] & 16)) {
 //	NoAccess($pif, 'b', '');
 //    }

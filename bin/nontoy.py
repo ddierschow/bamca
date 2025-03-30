@@ -97,7 +97,6 @@ def biblio(pif):
     lsection = render.Section(section=sections[0] if sections else None)
     tab_name = page_info.get('tab', pif.page_name)
     row_links = page_info.get('links', {})
-    print(pif.page_id, tab_name)
 
     wheres = [f'flags&{config.FLAG_ITEM_HIDDEN}=0']
     if page_info.get('mags') is not None:

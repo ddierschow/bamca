@@ -4,7 +4,7 @@
 <table class="smallprint" width="100%">
 {% for section in llineup.section %}
 {{ render.fmt_anchor(section.anchor) }}
-<tr><td colspan="{{ 4 * section.columns }}" style="text-align: center; font-weight: bold;">{{ section.name }}</td></tr>
+<tr><td colspan="{{ 4 * section.columns }}" class="center bold">{{ section.name }}</td></tr>
 {%- for entry in section.entry %}
 {% if (loop.index0 % section.columns) == 0 %} <tr class="er">{% endif %}
 {% if entry %}

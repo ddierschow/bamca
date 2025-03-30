@@ -119,7 +119,7 @@ def box_lookup(col, val):
 
 
 def single_box(pif, mod, box):
-    ign_cols = ['id', 'mod_id', 'pic_id']
+    ign_cols = ['id', 'mod_id', 'pic_id', 'section_id']
     pic_name = f'x_{box.mod_id}-{box.box_type[0]}{box.pic_id}'.lower()
     pics = pif.ren.find_image_files(pic_name + '*')
     if mod:

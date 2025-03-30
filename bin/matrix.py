@@ -143,7 +143,7 @@ class MatrixFile(object):
             if not (table.hide_image) and (table.id not in pif.page_id.split('.')):
                 img = pif.ren.format_image_optional(table.id, pdir=table.pic_dir, nopad=True)
                 if img:
-                    section_name += '<br>' + img
+                    section_name += ('<br>' if section_name else '') + img
             section = render.Section(id=table.id, name=section_name, anchor=table.id, columns=table.columns)
             if pif.is_allowed('a'):  # pragma: no cover
                 if section.id == 'cat':

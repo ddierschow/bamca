@@ -227,7 +227,7 @@ of Matchbox International Ltd. and are used with permission.
 
         st = self.tail.get('stat')
         if st:  # pragma: no cover
-            ostr += f'\n<font size=-1><i>{st}</i></font>\n'
+            ostr += f'\n<i class="smallish">{st}</i>\n'
         if not self.diff_run and self.is_beta:
             ostr += '</td></tr><tr><td height=24 class="beta">&nbsp;</td></tr></table>\n'
         elif not self.diff_run and self.is_alpha:

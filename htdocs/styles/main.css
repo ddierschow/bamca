@@ -1,109 +1,111 @@
-body         {color: #000000; background-color: #FFFFFF; padding: 0; width: 1024px; font-family: 'decalotype';}
-.body        {width: 1024px;}
-img          {vertical-align: middle; border-width: 0;}
-.centered    {margin-left: auto; margin-right: auto; display: block;}
-.center      {text-align: center;}
+body        {color: #000000; background-color: #FFFFFF; padding: 0; width: 1024px; font-family: 'decalotype';}
+.body       {width: 1024px;}
+img         {vertical-align: middle; border-width: 0;}
+.centered   {margin-left: auto; margin-right: auto; display: block;}
+.center     {text-align: center;}
 
-a:link       {color: #0000FF; text-decoration: none;}
-a:visited    {color: #000099; text-decoration: none;}
-a:active     {color: #009900; text-decoration: none;}
-a:hover      {color: #000099; text-decoration: underline;}
+a:link      {color: #0000FF; text-decoration: none;}
+a:visited   {color: #000099; text-decoration: none;}
+a:active    {color: #009900; text-decoration: none;}
+a:hover     {color: #000099; text-decoration: underline;}
 
-.button      {vertical-align: middle; color: #FFFFFF; padding: 1px; border-width: 0px; cursor: pointer;}
-.updown      {vertical-align: top; text-align: left; width: 160px; white-space: nowrap;}
-.lefty       {float: left;}
-.righty      {float: right;}
-.section     {vertical-align: middle; color: #000000; background-color: #FFFFFF; border-color: #000000; font-size: x-large; padding: 4px; border-width: thin; border-style: solid; text-align: center;}
-.subsection  {vertical-align: middle; border-color: #000000; font-size: large; border-width: thin; border-style: solid; text-align: center;}
-.warning     {color: #FF0000; font-weight: bold;}
-.spicture    {padding: 0; margin: 0; border-style: none;}
-.hidden      {display: none;}
-.shown       {display: inline;}
-.noborder    {border-width: 0;}
-.smallish    {font-size: small;}
-.largish     {font-size: large;}
-.largepic    {float: left;}
-.monospace   {font-family: monospace;}
-.centerize   {padding: auto;}
+.button     {vertical-align: middle; color: #FFFFFF; padding: 1px; border-width: 0px; cursor: pointer;}
+.updown     {vertical-align: top; text-align: left; width: 160px; white-space: nowrap;}
+.lefty      {float: left;}
+.righty     {float: right;}
+.section    {vertical-align: middle; color: #000000; background-color: #FFFFFF; border-color: #000000; font-size: x-large; padding: 4px; border-width: thin; border-style: solid; text-align: center;}
+.subsection {vertical-align: middle; border-color: #000000; font-size: large; border-width: thin; border-style: solid; text-align: center;}
+.warning    {color: #FF0000; font-weight: bold;}
+.spicture   {padding: 0; margin: 0; border-style: none;}
+.hidden     {display: none;}
+.shown      {display: inline;}
+.noborder   {border-width: 0;}
+.smallish   {font-size: small;}
+.largish    {font-size: large;}
+.largepic   {float: left;}
+.monospace  {font-family: monospace;}
+.centerize  {padding: auto;}
+.toppy      {vertical-align: top;}
 
-.title       {background-color: #000066; height: 66px; margin: 3px 0 3px 0; display: table; width: 100%;
+.title      {background-color: #000066; height: 66px; margin: 3px 0 3px 0; display: table; width: 100%;
               color: #FFFFFF; font-weight: bold; font-size: xx-large; text-align: center; max-width: 1024px;}
-.titletext   {display: table-cell; vertical-align: middle;}
+.titletext  {display: table-cell; vertical-align: middle;}
 .titletext a:link       {color: #FFFF00; text-decoration: none;}
 .titletext a:visited    {color: #CCCC00; text-decoration: none;}
 .titletext a:active     {color: #CC00CC; text-decoration: none;}
 .titletext a:hover      {color: #CCCC00; text-decoration: underline;}
-.titleimage  {margin-left: auto; margin-right: auto; display: block;}
+.titleimage {margin-left: auto; margin-right: auto; display: block;}
 .description {color: #000000; font-weight: bold; font-size: x-large; text-align: center;}
-.note        {color: #000000;}
-.titlenote   {font-size: small;}
-.loginbar    {color: #000000; background-color: #FFFFFF; border-color: #000000; border-style: solid; border-width: thin;}
-.hier        {width: 1014px; border-width: 1px; background-color: #CCCC99; border-style: solid; padding: 0 4px 0 4px; font-weight: bold;}
-.fullpage    {width: 100%;}
-.comment     {vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
+.note       {color: #000000;}
+.titlenote  {font-size: small;}
+.loginbar   {color: #000000; background-color: #FFFFFF; border-color: #000000; border-style: solid; border-width: thin;}
+.hier       {width: 1014px; border-width: 1px; background-color: #CCCC99; border-style: solid; padding: 0 4px 0 4px; font-weight: bold;}
+.fullpage   {width: 100%;}
+.comment    {vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
 .comment_box {float: right; direction: rtl;}
-.mblogo      {vertical-align: baseline;}
+.mblogo     {vertical-align: baseline;}
 
-.modelname   {font-weight: bold; font-size: large; text-align: center;}
-.newcasting  {padding-bottom: 16px; background-image: url("/pic/gfx/newcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
-.revcasting  {padding-bottom: 16px; background-image: url("/pic/gfx/revcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
+.heir       {background-color: #CCCCCC; color: #000033;}
 
-.tb          {padding: 0px; width: 100%;}
-.tb          {border-collapse: collapse; border-color: #000000; border-spacing: 1px 0; border-style: solid; border-width: 1px;}
-.sh          {font-size: xx-large; padding: 4px; text-align: center; vertical-align: middle;}
-.sh          {border-color: #000000; border-style: solid; border-width: thin;}
-.rh          {font-size: x-large; padding: 4px; border-color: #000000; border-style: solid none solid none; border-width: 1px;}
-.eh          {font-size: large; font-weight: bold; padding-left: 4px; padding-right: 4px; text-align: center; vertical-align: top;}
-.eh          {border-color: #000000; border-style: ridge; border-width: thin;}
-.eb          {font-size: medium; text-align: left; vertical-align: top; border-color: #000000; border-style: ridge; border-width: thin;}
+.modelname  {font-weight: bold; font-size: large; text-align: center;}
+.newcasting {padding-bottom: 16px; background-image: url("/pic/gfx/newcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
+.revcasting {padding-bottom: 16px; background-image: url("/pic/gfx/revcasting.gif"); background-position: center bottom; background-repeat:no-repeat;}
 
-foo.tb_tail     {background-color: #F8EC6D;}
-.tb_tail     {border-color: #000000; width: 100%; border-width: 0; border-style: solid; border-collapse: collapse;}
-.eb_tail     {vertical-align: top; color: #000000; border-color: #000000; font-size: medium; padding: 4px; border-width: thin; border-style: ridge; text-align: left;}
-.eb_tail_1   {border-width: 0; border-style: solid; border-collapse: collapse; vertical-align: middle;}
-.eb_tail_2   {border-width: 0; border-style: solid; border-collapse: collapse; text-align: left;}
+.tb         {padding: 0px; width: 100%;}
+.tb         {border-collapse: collapse; border-color: #000000; border-spacing: 1px 0; border-style: solid; border-width: 1px;}
+.sh         {font-size: xx-large; padding: 4px; text-align: center; vertical-align: middle;}
+.sh         {border-color: #000000; border-style: solid; border-width: thin;}
+.rh         {font-size: x-large; padding: 4px; border-color: #000000; border-style: solid none solid none; border-width: 1px;}
+.eh         {font-size: large; font-weight: bold; padding-left: 4px; padding-right: 4px; text-align: center; vertical-align: top;}
+.eh         {border-color: #000000; border-style: ridge; border-width: thin;}
+.eb         {font-size: medium; text-align: left; vertical-align: top; border-color: #000000; border-style: ridge; border-width: thin;}
 
-.beta {width: 100%; background-image: url("/pic/gfx/beta.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
-.alpha {width: 100%; background-image: url("/pic/gfx/alpha.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
+.tb_tail    {border-color: #000000; width: 100%; border-width: 0; border-style: solid; border-collapse: collapse;}
+.eb_tail    {vertical-align: top; color: #000000; border-color: #000000; font-size: medium; padding: 4px; border-width: thin; border-style: ridge; text-align: left;}
+.eb_tail_1  {border-width: 0; border-style: solid; border-collapse: collapse; vertical-align: middle;}
+.eb_tail_2  {border-width: 0; border-style: solid; border-collapse: collapse; text-align: left;}
 
-.modeltop    {width: 100%;}
+.beta       {width: 100%; background-image: url("/pic/gfx/beta.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
+.alpha      {width: 100%; background-image: url("/pic/gfx/alpha.gif"); border-width: 0; padding: 0 0 0 0; margin: 0 0 0 0; height: 24px;}
+
+.modeltop   {width: 100%;}
 .modelnumber {text-align: center; font-size: medium; font-weight: bold; font-family: monospace; height: 16px; width: 32%;}
 .modelstars  {width: 34%;}
 .modelstars img {float: left;}
 .modelstars i {float: left;}
-.modelicons  {width: 34%; text-align: right;}
+.modelicons {width: 34%; text-align: right;}
 .modelicons img {float: right;}
-.vartable    {width: 100%; text-align: center;}
-.varentry    {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFEEDD;}
-.credit      {font-style: italic; font-size: x-small; text-align: right;}
+.vartable   {width: 100%; text-align: center;}
+.vartablev  {width: auto; text-align: center;}
+.varentry   {border-width: thin; border-style: solid; text-align: center; font-style: italic; padding: 0 6px 0 6px; background-color: #FFEEDD;}
+.credit     {font-style: italic; font-size: x-small; text-align: right;}
 
-.titlebar    {height: 66px; font-size: xx-large; background-color: #000066; color: #FFFFFF; text-align: center;
-	      vertical-align: middle;}
+.titlebar   {height: 66px; font-size: xx-large; background-color: #000066; color: #FFFFFF; text-align: center; vertical-align: middle;}
 
-.leftbar     {background-color: #006600; vertical-align: top; width: 128px; color: #FFFFFF; font-weight: bold; height: 100%; position: relative; padding-top: 16px; padding-bottom: 16px;}
+.leftbar    {background-color: #006600; vertical-align: top; width: 128px; color: #FFFFFF; font-weight: bold; height: 100%; position: relative; padding-top: 16px; padding-bottom: 16px;}
 .leftbarcontent {vertical-align: top; height: 100%; padding: 0 0 20px 0; text-align: center;}
-.leftbar a:link       {color: #FFFFFF; background-color: transparent; text-decoration: none;}
-.leftbar a:visited    {color: #CCCCCC; background-color: transparent; text-decoration: none;}
-.leftbar a:active     {color: #FFFFFF; background-color: transparent; text-decoration: none;}
-.leftbar a:hover      {color: #FFFFFF; background-color: transparent; text-decoration: underline;}
+.leftbar a:link     {color: #FFFFFF; background-color: transparent; text-decoration: none;}
+.leftbar a:visited  {color: #CCCCCC; background-color: transparent; text-decoration: none;}
+.leftbar a:active   {color: #FFFFFF; background-color: transparent; text-decoration: none;}
+.leftbar a:hover    {color: #FFFFFF; background-color: transparent; text-decoration: underline;}
 
-.bottombar   {background-color: #CCCC99; text-align: left; height: 44px; display: table; position: relative; width: 100%;}
-.bottombar2  {background-color: #CCCC99; text-align: left; height: 44px; position: relative;}
+.bottombar  {background-color: #CCCC99; text-align: left; height: 44px; display: table; position: relative; width: 100%;}
+.bottombar2 {background-color: #CCCC99; text-align: left; height: 44px; position: relative;}
 foo.bottombar img {margin-left: 0; display: table-cell; display: table-cell; vertical-align: middle;}
-.bamcamark   {position: absolute; left: 0; bottom: 0; padding: 6px 22px;}
-.mainpanel {background-repeat: no-repeat; background-position: center top; border-spacing: 8px;}
-.infopanel {background: rgba(255,255,255,0.85);}
-.footer      {margin-left: 128px; width: 600px;}
+.bamcamark  {position: absolute; left: 0; bottom: 0; padding: 6px 22px;}
+.mainpanel  {background-repeat: no-repeat; background-position: center top; border-spacing: 8px;}
+.infopanel  {background: rgba(255,255,255,0.85);}
+.footer     {margin-left: 128px; width: 600px;}
 /* position: absolute; display: table-cell; text-align: left; height: 44px; left: 132px; bottom: 0; vertical-align: middle; */
-.comment_button   {height: 44px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}
+.comment_button {height: 44px; display: table-cell; position: relative; width: 100%; vertical-align: middle;}
 
-.bgok {background-color: #FFFFFF}
-.bgno {background-color: #FFCCCC}
-.bggray {background-color: #CCCCCC}
-.txok {color: #000000}
-.txno {color: #FF0000}
+.bgok       {background-color: #FFFFFF}
+.bgno       {background-color: #FFCCCC}
+.bggray     {background-color: #CCCCCC}
+.txok       {color: #000000}
+.txno       {color: #FF0000}
 
-.textbutton  {margin: 0 1px; padding: 0 3px; white-space: nowrap; background-color: #006600; color: #FFFFFF;
+.textbutton {margin: 0 1px; padding: 0 3px; white-space: nowrap; background-color: #006600; color: #FFFFFF;
     font-weight: bold; font-size: 13px; font-family: "Trebuchet MS", "Arial", "sans-serif"; text-decoration: none;
     border-color: #FFFFFF; border-radius: 4px; border-style: solid; border-width: 1px;
     display: inline-block; text-align: center; vertical-align: middle; cursor: pointer;
@@ -127,19 +129,19 @@ it is also useful for targeting FF-only code */
     }
 }
 
-.see_the_faq  {background-color: #FFFF00; color: #006600;border-color: #006600;}
+.see_the_faq {background-color: #FFFF00; color: #006600;border-color: #006600;}
 .see_the_faq:link    {color: #006600; background-color: #FFFF00; border-color: #006600;}
 .see_the_faq:visited {color: #006600; background-color: #FFFF00; border-color: #006600;}
 .see_the_faq:active  {color: #006600; background-color: #FFFF00; border-color: #006600;}
 .see_the_faq:hover   {color: #FFFF00; background-color: #006600; border-color: #FFFF00;}
 
-.site_status  {background-color: #FF0000; color: #FFFFFF;border-color: #FFFFFF;}
+.site_status {background-color: #FF0000; color: #FFFFFF;border-color: #FFFFFF;}
 .site_status:link    {color: #FFFFFF; background-color: #FF0000; border-color: #FFFFFF;}
 .site_status:visited {color: #FFFFFF; background-color: #FF0000; border-color: #FFFFFF;}
 .site_status:active  {color: #FFFFFF; background-color: #FF0000; border-color: #FFFFFF;}
 .site_status:hover   {color: #FF0000; background-color: #FFFFFF; border-color: #FF0000;}
 
-.maintable {width: 1024px; max-width: 1024px;}
+.maintable  {width: 1024px; max-width: 1024px;}
 .header-links {width: 90%; padding: 0 0 0 0; text-align: center; font-size: 0;}
 .header-link-item {margin: 2px;
     display: inline-block; /* an inline element that has all the benifits of a block element without being full width */
@@ -150,6 +152,7 @@ it is also useful for targeting FF-only code */
 .red    {color: #FF0000;}
 .green  {color: #009900;}
 .blue   {color: #0000FF;}
+.dkblue {color: #000033;}
 .purple {color: #9900FF;}
 .black  {color: #000000;}
 .white  {color: #FFFFFF;}
@@ -160,26 +163,26 @@ it is also useful for targeting FF-only code */
 .bold   {font-weight: bold;}
 .bgwhite    {background-color: #FFFFFF;}
 .bgoffwhite {background-color: #EEEEEE;}
-.bg_wh {background-color: #FFFFFF;} /* white */
-.bg_bl {background-color: #CCCCFF;} /* blue */
-.bg_lb {background-color: #DDDDFF;} /* light blue */
-.bg_gr {background-color: #CCFFCC;} /* green */
-.bg_rd {background-color: #FFCCCC;} /* red */
-.bg_tl {background-color: #CCFFFF;} /* teal */
-.bg_or {background-color: #FFCC99;} /* orange */
-.bg_pu {background-color: #FFCCFF;} /* purple */
-.bg_yl {background-color: #FFFF99;} /* yellow */
-.bg_ch {background-color: #DDFF88;} /* chartreuse */
-.bg_gd {background-color: #DDDDAA;} /* gold */
-.bg_gy {background-color: #CCCCCC;} /* gray */
-.bg_lg {background-color: #EEEEEE;} /* light gray */
+.bg_wh  {background-color: #FFFFFF;} /* white */
+.bg_bl  {background-color: #CCCCFF;} /* blue */
+.bg_lb  {background-color: #DDDDFF;} /* light blue */
+.bg_gr  {background-color: #CCFFCC;} /* green */
+.bg_rd  {background-color: #FFCCCC;} /* red */
+.bg_tl  {background-color: #CCFFFF;} /* teal */
+.bg_or  {background-color: #FFCC99;} /* orange */
+.bg_pu  {background-color: #FFCCFF;} /* purple */
+.bg_yl  {background-color: #FFFF99;} /* yellow */
+.bg_ch  {background-color: #DDFF88;} /* chartreuse */
+.bg_gd  {background-color: #DDDDAA;} /* gold */
+.bg_gy  {background-color: #CCCCCC;} /* gray */
+.bg_lg  {background-color: #EEEEEE;} /* light gray */
 
-.stat {font-style: italic; font-size: small;}
+.stat   {font-style: italic; font-size: small;}
 
 .width_u {width:  50px;}
 .width_t {width: 100px;}
 .width_s {width: 200px;}
-.width_c {width: 300px;}
+.width_p {width: 300px;}
 .width_m {width: 400px;}
 .width_l {width: 600px;}
 .width_h {width: 800px;}
@@ -209,49 +212,113 @@ it is also useful for targeting FF-only code */
 .close {color: #aaa; float: right; font-size: 28px; font-weight: bold; color: #FF0000;}
 .close:hover, .close:focus {color: #990000; text-decoration: none; cursor: pointer;}
 
-.body_year_els {background-color: #FFFF33;}
-.body_year_els .tb_year {background-color: #CCCCCC; max-width: 1024px;}
-.body_year_els .sh {background-color: #FFFFFF; color: #CC0000;}
-.body_year_els .rh {background-color: #FFFFFF; color: #CC0000;}
-.body_year_els .er {background-color: #CCCCFF;}
-.body_year_els .tb_tail {background-color: #CCCCCC;}
-.body_year_els .tb_tail .eb {background-color: #CCCCCC;}
-
-.body_year_les {background-color: #E6E04A;}
-.body_year_les .tb {background-color: #CCCCCC;}
-.body_year_les .sh {background-color: #000000; color: #FFFFFF;}
-.body_year_les .rh {background-color: #660000; color: #FFFFFF;}
-
-.body_year_lsf {background-color: #EED400;}
-.body_year_lsf .tb {background-color: #CCCCCC;}
-.body_year_lsf .sh {background-color: #000000; color: #FFFFFF;}
-.body_year_lsf .rh {background-color: #FFFFFF; color: #000000;}
-
-.body_year_uni {background-color: #FFCC33;}
-.body_year_uni .tb {background-color: #CCCCCC;}
-.body_year_uni .sh {background-color: #000000; color: #FFFFFF;}
-.body_year_uni .rh {background-color: #FFFFFF; color: #000000;}
-
-.body_year_tyc {background-color: #FFDD00;}
-.body_year_tyc .tb {background-color: #CCCCCC;}
-.body_year_tyc .sh {background-color: #000000; color: #FFFFFF;}
-.body_year_tyc .rh {background-color: #FFFFFF; color: #000000;}
-
-.body_year_mtl {background-color: #EE6644;}
-.body_year_mtl .tb {background-color: #CCCCCC;}
-.body_year_mtl .sh {background-color: #000000; color: #FFFFFF;}
-
-.body_year_esg {background-color: #DD5923;}
-.body_year_esg .tb {background-color: #CCCCCC;}
-.body_year_esg .sh {background-color: #000000; color: #FFFFFF;}
-
-.body_year_mwl {background-color: #DD5923;}
-.body_year_mwl .tb {background-color: #CCCCCC;}
-.body_year_mwl .sh {background-color: #000000; color: #FFFFFF;}
-.body_year_mwl .rh {background-color: #0000CC; color: #FFFFFF;}
-
 /* hack to style button like href */
-.btn-form {display: inline;}
-.btn-link {border: none; outline: none; background: none; cursor: pointer; color: #0000EE; padding: 0; font-family: inherit; font-size: inherit;}
-.btn-link:hover      {color: #000099; text-decoration: underline;}
-.btn-link:link       {color: #0000FF; text-decoration: none;}
+.btn-form       {display: inline;}
+.btn-link       {border: none; outline: none; background: none; cursor: pointer; color: #0000EE; padding: 0; font-family: inherit; font-size: inherit;}
+.btn-link:hover {color: #000099; text-decoration: underline;}
+.btn-link:link  {color: #0000FF; text-decoration: none;}
+
+/* Page-specific settings */
+
+.body_ads {background-color: #FFEEDD;}
+.body_ads .description {font-size: large; padding: 16px 0; text-align: left;}
+.body_ads .tb {background-color: #FFEEDD; margin-left: 40px; width: auto; border-style: none;}
+.body_ads .sh {background-color: #FFFF00;}
+.body_ads .rh {background-color: transparent; border-style: none; font-size: large;}
+.body_ads .eb {margin: auto; border-style: none;}
+
+.body_bib {color: #000000; background-color: #EEEEEE;}
+.body_bib a:link {color: #0000FF;}
+.body_bib a:visited {color: #000000;}
+.body_bib .hcell {padding: 0; border-width: 1px; border-color: #000000; font-weight: bold; text-align: center;}
+.body_bib .cell {padding: 0; border-width: 1px; border-color: #000000;}
+.body_bib .table {padding: 0; background-color: #FFFFFF; border-spacing: 0; border-width: 1px; border-color: #000000;}
+.body_bib .eh {background-color: #CCCCFF;}
+
+.body_bib_bayarea {color: #000000; background-color: #EEEEEE;}
+.body_bib_bayarea a:link {color: #0000FF;}
+.body_bib_bayarea a:visited {color: #000000;}
+.body_bib_bayarea .hcell {padding: 0; border-width: 1px; border-color: #000000; font-weight: bold; text-align: center;}
+.body_bib_bayarea .cell {padding: 0; border-width: 1px; border-color: #000000;}
+.body_bib_bayarea .table {padding: 0; background-color: #FFFFFF; border-spacing: 0; border-width: 1px; border-color: #000000;}
+.body_bib_bayarea .eh {background-color: #CCCCFF;}
+
+.body_boxart {color: #000000; background-color: #EEEEFF;}
+.body_boxart .button {vertical-align: middle; color: #FFFFFF; border-width: 0px; padding: 1px;}
+.body_boxart .tb {background-color: #FFFFFF;}
+.body_boxart .tb_inner {border-style: solid; border-collapse: collapse; background-color: #FFFFFF;}
+.body_boxart .sh {background-color: #DDCC11;}
+.body_boxart .eh_pic {width: 800px;}
+.body_boxart ul {list-style: disc outside none; padding-left: 20px; margin: 0;}
+.body_boxart li {padding-left: 1px;}
+
+.body_clubhist .td {background-color: #EEEEEE;}
+
+.body_code2 .image {vertical-align: top;}
+.body_code2 .text {vertical-align: top;}
+.body_code2 .modelname {font-weight: bold;}
+.body_code2 .info {}
+.body_code2 .eb {text-align: center;}
+
+.body_compare .rh_a {background-color: #CCCCCC;}
+.body_compare .eb_a {background-color: #EEEEEE;}
+.body_compare .rh_b {background-color: #DDDDAA;}
+.body_compare .eb_b {background-color: #FFFFCC;}
+.body_compare .eb_0 {width: 200px;}
+.body_compare .eb_2 {width: 400px;}
+.body_compare .sh {font-size: x-large; background-color: #BBEEBB;}
+.body_compare .sb {background-color: #DDFFDD;}
+.body_compare .rh {border-width: 1px; border-style: solid; font-size: large;}
+.body_compare {background-color: #BBEEBB;}
+
+.body_custom td {vertical-align: top;}
+.body_custom ul {margin-top: 0; margin-bottom: 0;}
+
+.body_errors .image {vertical-align: top;}
+.body_errors .text {vertical-align: top;}
+.body_errors .modelname {font-weight: bold;}
+.body_errors .info {}
+
+.body_faq {background-color: #FFCC99; background-image: url("/pic/bg/bgwood.gif");}
+
+.body_glossary {background-color: #EEEEFF; margin: auto;}
+.body_glossary h1 {text-align: center;}
+.body_glossary dt {text-indent: 20px; font-weight: bold;}
+.body_glossary h2 {border-width: thin; border-style: solid; padding-left: 4px; background-color: #FFFFFF;}
+
+.body_links {background-color: #FFEEDD;}
+.body_links .linkspage {margin: 0 10px;}
+.body_links .link {padding-left: 60px; text-indent: 0px;}
+.body_links .link-indent {padding-left: 80px; text-indent: 0px;}
+.body_links .dlm {padding-left: 4px; padding-right: 4px;}
+.body_links .link-desc {padding-left: 80px;}
+.body_links .bullet {padding-left: 4px; padding-right: 4px;}
+
+.body_mack .tb {width: 1024px;}
+.body_mack .rw {background-color: #FFFFCC;}
+.body_mack .sf {background-color: #FFEEDD;}
+.body_mack .eb_blue {background-color: #EEEEFF; font-size: large;}
+
+.body_makes {background-color: #FFFFCC;}
+.body_makes .tb {border-width: 0; background-color: #FFFFCC; width: 1024px;}
+.body_makes .sh {font-size: large;}
+.body_makes .eb {border-width: 0;}
+.body_makes .eb_makelist {text-align: center; vertical-align: top; border-style: solid; border-width: 1px; width: 125px;}
+
+.body_photogs {background-color: #CCCCFF;}
+.body_photogs .tb {background-color: #EEEEFF;}
+.body_photogs .entry {text-align: center;}
+.body_photogs .name {font-size: x-large;}
+
+.body_plant .eb_ix {margin-left: auto; margin-right: auto; text-align: center; font-weight: bold; font-size: x-large; vertical-align: bottom; background-color: #DDDDDD;}
+.body_plant .image {vertical-align: top;}
+.body_plant .text {vertical-align: top;}
+.body_plant .modelname {font-weight: bold;}
+
+.body_prepro .image {vertical-align: top;}
+.body_prepro .text {vertical-align: top;}
+.body_prepro .modelname {font-weight: bold;}
+
+.body_status .section {background-color: #FFFFCC;}
+
+.body_user {background-color: #FFEEDD;}

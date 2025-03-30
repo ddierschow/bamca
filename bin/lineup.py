@@ -406,7 +406,6 @@ def render_lineup_model_var(pif, mod, comments, show_var=None):
     mod.descriptions = desclist
 
     # mod: imgstr name number pdir product vars
-    # ostr = mbmods.add_man_item_table_product_link(pif, pif.dbh.make_man_item(mod))
     ostr = mbmods.add_man_item_table_product_link(pif, mod)
     return ostr
 

@@ -10,3 +10,27 @@ body {background-color: #FF8800;}
 .eb_ml {background-color: transparent; list-style-type: disc; list-style-position: inside; border-width: 0;
 	display: list-item; /* text-align: -webkit-match-parent; */}
 
+/* special styles for specific pages */
+.body_matrix_chall .description {background-color: #E8DC52; color: #000000;}
+.body_matrix_chall .sh {background-color: #E8DC52; color: #000000;}
+.body_matrix_globe {background-color: #EDE0D0;}
+.body_matrix_globe .sh {background-color: #C63B0F; color: #FFFFFF;}
+.body_matrix_goldcoin {background-color: #000000; background-image: url("/pic/bg/gcbg.gif")}
+.body_matrix_goldcoin .title {background-color: #000000; color: #FFFFFF;}
+.body_matrix_goldcoin .description {color: #FFFFFF;}
+.body_matrix_lesneyed {background-color: #FFCC33; color: #000000;}
+.body_matrix_lesneyed .sh {background-color: #0000CC; color: #FFFFFF;}
+.body_matrix_mb55th .sh {background-color: #20463E; color: #FFFFFF;}
+.body_matrix_mb60th {background-color: #CCCC66;}
+.body_matrix_originals {background-color: #D9B834;}
+.body_matrix_originals .title {background-color: #FFFFFF; color: #CC3333; border-color: #000000; border-width: thin; border-style: solid; text-align: center;}
+.body_matrix_sf35th {background-color: #FFFF99;}
+.body_matrix_sf35th .sh {background-color: #0000CC; color: #FFFFFF;}
+.body_matrix_sf05 {background-color: #FCE357; color: #000000;}
+.body_matrix_sf07 {background-color: #CCCCCC;}
+.body_matrix_sf07 .sh {background-color: #660000; color: #FFFFFF;}
+.body_matrix_supergt {background-color: #C43934;}
+.body_matrix_wc {background-color: #CC3333;}
+.body_matrix_wc .description {color: #FFFFFF;}
+.body_matrix_wc .sh {background-color: #E9D840; color: #000000;}
+.body_matrix_wc .title {background-color: #000000; color: #CDC07C;}

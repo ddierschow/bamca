@@ -32,7 +32,7 @@ def add_man_item_table_pic_link(pif, manitem, flago=flago):
             f'    <tr>\n     <td><center>{manitem.lname}</center></td>\n    </tr>\n   </table>\n  </center>\n')
     return (
         '\n  <center>\n   <table class="entry">\n    <tr>\n     <td></td>\n'
-        f'     <td width="32px"><i><font size=-1>{manitem.first_year}</font></i></td>\n'
+        f'     <td width="32px" class="smallish"><i>{manitem.first_year}</i></td>\n'
         f'     <td width="136px" class="centerize modelname monospace">{manitem.id}</td>\n'
         f'     <td width="32px">{manitem.flag}</td>\n     <td></td></tr>\n    <tr>\n'
         f'     <td colspan="5"><center>{manitem.lname} {manitem.desclist}</center></td>\n    </tr>\n'
@@ -441,8 +441,7 @@ def add_man_item_sized_var_table_pic_link(pif, size, manitem, varitem):
             '  <center><table class="entry"><tr><td colspan="2" class="modelname monospace centerize">'
             f'{varitem.mod_id}-{varitem.var}</td></tr>\n'
             f' <tr><td class="width_l"><center><a href="{manitem.link}">{manitem.img}</a></center></td>\n'
-            f'  <td class="width_m" style="vertical-align: top"><center>\n'
-            f'  <a href="{manitem.link}"><b>{manitem.name}</b></a><p>\n'
+            f'  <td class="width_m toppy"><center><a href="{manitem.link}"><b>{manitem.name}</b></a><p>\n'
             f'<table class="vartable"><tr><td class="varentry"><i>{varitem.text_description}</i></td></tr></table>')
 
         # render details
@@ -461,20 +460,15 @@ def add_man_item_sized_var_table_pic_link(pif, size, manitem, varitem):
 def add_man_item_sized_table_pic_link(pif, size, manitem, flago=flago):
     manitem.prefix = size
     manitem = add_model_table_pic_link_man_item(pif, manitem, flago)
+    idsize = mbdata.imagesizes[size][0] - 64
     if size == mbdata.IMG_SIZ_TINY:
         return (
             '\n  <center>\n   <table class="entry">\n    <tr>\n'
             f'     <td class="modelname monospace centerize">{manitem.id}</td>\n    </tr>\n'
             f'    <tr>\n     <td><center>{manitem.lname}</center></td>\n    </tr>\n   </table>\n  </center>\n')
-    elif size == mbdata.IMG_SIZ_SMALL:
-        idsize = 136
-    elif size == mbdata.IMG_SIZ_MEDIUM:
-        idsize = 336
-    elif size == mbdata.IMG_SIZ_LARGE:
-        idsize = 536
     return (
         '\n  <center>\n   <table class="entry">\n    <tr>\n     <td></td>\n'
-        f'     <td width="32px"><i><font size=-1>{manitem.first_year}</font></i></td>\n'
+        f'     <td width="32px" class="smallish"><i>{manitem.first_year}</i></td>\n'
         f'     <td width="{idsize}px" class="modelname monospace centerize">{manitem.id}</td>\n'
         f'     <td width="32px">{manitem.flag}</td>\n     <td></td></tr>\n    <tr>\n'
         f'     <td colspan="5"><center>{manitem.lname} {manitem.desclist}</center></td>\n    </tr>\n'

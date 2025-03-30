@@ -1,3 +1,10 @@
+### 7.8.8  - 2025-03-29
+
+- Fix lineup appearances on the single page
+- More styling simplification
+- Fix html problems on the faq page
+- Fix matrix section header with image and no title
+
 ### 7.8.7  - 2025-03-24
 
 - Add picture size option to super search
@@ -17,13 +24,13 @@
 
 ### 7.8.5  - 2025-03-21
 
-- Redesign vars pages.
+- Redesign vars pages
 - Split var editor away from var displayer
 - Add section_id to box_type table
 - Converted some pages to returning strings rather than direct printing
 - More fstrings
 - Make matrix entries with no vars show the right picture
-- Make some anchors work right; random bug fixes.
+- Make some anchors work right; random bug fixes
 
 ### 7.8.4  - 2025-03-19
 
@@ -269,10 +276,9 @@
 - Added the site status page
 - Added the blog
 
-### 6.10
-6.10.2 - 2018-02-11
-6.10.1 - 2018-02-11
-6.10 - 2018-02-11
+### 6.10.2 - 2018-02-11
+### 6.10.1 - 2018-02-11
+### 6.10 - 2018-02-11
 
 - Renamed a bunch of files in bin
 - Redo command line utilities, merging a bunch of little utilities
@@ -317,7 +323,7 @@
 - Upload picture now checks '?' in url
 - Add more command line options to variation lists
 - Minor style changes, mainly for single
-    Biggest difference is that var description now has beige backgroun
+    Biggest difference is that var description now has beige background
 
 ### 6.8.3 - 2017-11-20
 ### 6.8.2 - 2017-10-01

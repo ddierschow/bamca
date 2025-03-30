@@ -7,7 +7,6 @@ $dat = [
   ],
   1954 => [
     "1954" => "https://matchbox.fandom.com/wiki/List_of_1954_Matchbox",
-    "Matchbox_Series" => "MB",
   ],
   1955 => [
     "1955" => "https://matchbox.fandom.com/wiki/List_of_1955_Matchbox",
@@ -16,7 +15,7 @@ $dat = [
   1956 => [
     "1956" => "https://matchbox.fandom.com/wiki/List_of_1956_Matchbox",
     "Matchbox_Series_Nos_1_to_29" => "MB",
-    "Accesory_Packs" => "AP",
+    "Accessory_Packs" => "AP",
     "Models_of_Yesteryear" => "MOY",
   ],
   1957 => [
@@ -185,6 +184,7 @@ $dat = [
   1978 => [
     "1978" => "https://matchbox.fandom.com/wiki/List_of_1978_Matchbox",
     "Series_1-75" => "MB",
+    "Roman_Numerals" => "Roman Numerals",
     "Super_Kings" => "SK",
     "Speed_Kings" => "SpK",
     "Battle_Kings" => "BK",
@@ -193,6 +193,7 @@ $dat = [
     "Sky_Busters" => "SB",
     "Two_Packs" => "TP",
     "Models_of_Yesteryear" => "MOY",
+    "See_Also" => "See Also",
   ],
   1979 => [
     "1979" => "https://matchbox.fandom.com/wiki/List_of_1979_Matchbox",
@@ -207,8 +208,8 @@ $dat = [
   ],
   1980 => [
     "1980" => "https://matchbox.fandom.com/wiki/List_of_1980_Matchbox",
-    "Series_1-75" => "MB",
-    "900" => "TP",
+    "Limited_Edition" => "Limited Edition",
+    "900_Range" => "TP",
     "Sky-Busters" => "SB",
     "Super_Kings" => "SK",
     "Battle_Kings" => "BK",
@@ -248,6 +249,7 @@ $dat = [
     "Skybusters" => "SB",
     "Specials" => "Spec",
     "Models_of_Yesteryear" => "MOY",
+    "Other_Series" => "Other",
   ],
   1985 => [
     "1985" => "https://matchbox.fandom.com/wiki/List_of_1985_Matchbox",
@@ -256,6 +258,7 @@ $dat = [
     "Skybusters" => "SB",
     "Specials" => "Spec",
     "Models_of_Yesteryear" => "MOY",
+    "See_Also" => "See Also",
   ],
   1986 => [
     "1986" => "https://matchbox.fandom.com/wiki/List_of_1986_Matchbox",
@@ -323,15 +326,18 @@ $dat = [
     "Skybusters" => "SB",
     "Superkings" => "SK",
     "Models_of_Yesteryear" => "MOY",
+    "See_Also" => "See Also",
   ],
   1993 => [
     "1993" => "https://matchbox.fandom.com/wiki/List_of_1993_Matchbox",
     "1-75_Range" => "MB",
+    "Super_Sparkers" => "Super Sparkers",
   ],
   1994 => [
     "1994" => "https://matchbox.fandom.com/wiki/List_of_1994_Matchbox",
     "1-75_Series" => "MB",
     "Matchbox_Originals" => "MO",
+    "Other_Series" => "Other",
   ],
   1995 => [
     "1995" => "https://matchbox.fandom.com/wiki/List_of_1995_Matchbox",
@@ -349,10 +355,13 @@ $dat = [
   1998 => [
     "1998" => "https://matchbox.fandom.com/wiki/List_of_1998_Matchbox",
     "1-75_range" => "MB",
+    "See_Also" => "See Also",
+    "External_Links" => "External Links",
   ],
   1999 => [
     "1999" => "https://matchbox.fandom.com/wiki/List_of_1999_Matchbox",
     "1-100_Series" => "MB",
+    "Other_series" => "Other",
   ],
   2000 => [
     "2000" => "https://matchbox.fandom.com/wiki/List_of_2000_Matchbox",
@@ -374,20 +383,22 @@ $dat = [
   2003 => [
     "2003" => "https://matchbox.fandom.com/wiki/List_of_2003_Matchbox",
     "1-75_Series" => "MB",
+    "See_also" => "Other",
   ],
   2004 => [
     "2004" => "https://matchbox.fandom.com/wiki/List_of_2004_Matchbox",
     "1-75_range" => "MB",
+    "Superfast_Series" => "Superfast Series",
   ],
   2005 => [
     "2005" => "https://matchbox.fandom.com/wiki/List_of_2005_Matchbox",
     "1-75_Range" => "MB",
-    "New_Superfast" => "NSF",
-    "5-Packs" => "5P",
+    "See_also" => "Other",
   ],
   2006 => [
     "2006" => "https://matchbox.fandom.com/wiki/List_of_2006_Matchbox",
     "1-75_series" => "MB",
+    "See_also" => "Other",
   ],
   2007 => [
     "2007" => "https://matchbox.fandom.com/wiki/List_of_2007_Matchbox",
@@ -397,7 +408,7 @@ $dat = [
   2008 => [
     "2008" => "https://matchbox.fandom.com/wiki/List_of_2008_Matchbox",
     "1_to_100_range" => "MB",
-    "Additional_2008_releases" => "Other",
+    "See_also" => "Other",
   ],
   2009 => [
     "2009" => "https://matchbox.fandom.com/wiki/List_of_2009_Matchbox",
@@ -406,12 +417,7 @@ $dat = [
   2010 => [
     "2010" => "https://matchbox.fandom.com/wiki/List_of_2010_Matchbox",
     "1-100_Series" => "MB",
-    "5-Packs" => "5P",
-    "Licensed_5-Packs" => "L5P",
-    "10-Packs" => "10P",
-    "Lesney_Editions" => "LE",
-    "Real_Working_Rigs" => "RWR",
-    "Super_Convoys" => "SCY",
+    "See_also" => "Other",
   ],
   2011 => [
     "2011" => "https://matchbox.fandom.com/wiki/List_of_2011_Matchbox",
@@ -422,7 +428,7 @@ $dat = [
   2012 => [
     "2012" => "https://matchbox.fandom.com/wiki/List_of_2012_Matchbox",
     "1-120_Series" => "MB",
-    "Additional_2012_Releases" => "Other",
+    "Other_series" => "Other",
   ],
   2013 => [
     "2013" => "https://matchbox.fandom.com/wiki/List_of_2013_Matchbox",
@@ -470,7 +476,19 @@ $dat = [
   ],
   2022 => [
     "2022" => "https://matchbox.fandom.com/wiki/List_of_2022_Matchbox",
-    "1-102_Series" => "MB",
+    "1-100_Series" => "MB",
+    "Other_Series" => "Other",
+  ],
+  2023 => [
+    "2023" => "https://matchbox.fandom.com/wiki/List_of_2023_Matchbox",
+    "Other_Series" => "Other",
+  ],
+  2024 => [
+    "2024" => "https://matchbox.fandom.com/wiki/List_of_2024_Matchbox",
+    "Other_Series" => "Other",
+  ],
+  2025 => [
+    "2025" => "https://matchbox.fandom.com/wiki/List_of_2025_Matchbox",
     "Other_Series" => "Other",
   ],
 ];

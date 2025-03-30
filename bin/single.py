@@ -306,42 +306,36 @@ def show_lineup_appearances(pif, appearances):
     yd = {}
     rs = set()
     for appear in appearances:
-        reg = appear['region'][0]
+        reg = appear['region']
         yd.setdefault(appear['year'], dict())
         yd[appear['year']].setdefault(reg, set())
         yd[appear['year']][reg].add(appear['number'])
-        rs.add(reg)
-    rl = [x for x in mbdata.regionlist if x in rs]
+        rs.add(reg[0])
+    rl = [x for x in mbdata.regionlist + ['X'] if x in rs]
     entries = []
 
     if not yd:
         return {}
 
-    def show_lineup(yr, rg, num):
-        return f'lineup.cgi?year={yr}&region={rg}&lty=all#{rg}.{num}'
-
-    if 'X' in rs:
-        columns = ['', 'W']
-        show_as = pif.ren.fmt_check('black')
-        for yr in sorted(yd.keys()):
-            if yd[yr].get('X'):
-                appear = sorted(yd[yr]['X'])[0]
-                entry = {'': f'<b>{yr}</b>',
-                         'W': f'<a href="lineup.cgi?year={yr}&region=U&lty=all#X{appear}">{show_as}</a>'}
-                entries.append(entry)
-    else:
-        columns = [''] + rl
-        for yr in sorted(yd.keys()):
-            entry = {'': f'<b>{yr}</b>'}
-            for reg in rl:
-                entry[reg] = ', '.join([pif.ren.format_link(show_lineup(yr, reg, appear), str(appear))
-                                        for appear in sorted(yd[yr][reg])]) if yd[yr].get(reg) else '&nbsp;'
-            entries.append(entry)
+    for yr in sorted(yd.keys()):
+        entry = {'': f'<b>{yr}</b>'}
+        for reg in rl:
+            if reg == 'X':
+                for yreg in yd[yr]:
+                    if yreg.startswith('X'):
+                        show_as = pif.ren.fmt_check('black')
+                        appear = yreg.replace('.', '') + f'.{sorted(yd[yr][yreg])[0]}'
+                        entry[reg] = f'<a href="lineup.cgi?year={yr}&region=U&lty=all#{appear}">{show_as}</a>'
+                        break
+            else:
+                entry[reg] = ', '.join([
+                    pif.ren.format_link(f'lineup.cgi?year={yr}&region={reg}&lty=all#{reg}.{appear}', str(appear))
+                    for appear in sorted(yd[yr][reg])]) if yd[yr].get(reg) else '&nbsp;'
+        entries.append(entry)
 
     llistix = render.Listix(
-        id='lappear', name='',
-        section=[render.Section(
-            id='la', name='', colist=columns, headers=mbdata.regions,
+        id='lappear', name='', section=[render.Section(
+            id='la', name='', colist=[''] + [x for x in mbdata.regionlist + ['X'] if x in rs], headers=mbdata.regions,
             range=[render.Range(entry=entries)],
         )],
     )

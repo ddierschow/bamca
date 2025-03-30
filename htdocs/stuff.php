@@ -72,9 +72,14 @@ foreach ($cols as $col) {
   <td class="boxborder" rowspan=4><img src="/pic/gfx/red4x4.gif"></td>
  </tr>
 
- <tr><td colspan=2><div class="database high" id="dbc" onclick="document.getElementById('database').click();">
+ <tr><td colspan=2>
+  <div class="database high" id="sps" onclick="document.getElementById('supersearch').click();">
+  <a href="search.php" id="supersearch">supersearch</a>
+  </div>
+  <div class="database high" id="dbc" onclick="document.getElementById('database').click();">
   <a href="database.php" id="database">database</a>
-  </div></td></tr>
+  </div>
+ </td></tr>
 
  <tr>
 

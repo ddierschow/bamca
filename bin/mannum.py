@@ -1124,7 +1124,7 @@ def copy_casting(pif, old_mod_id=None, new_mod_id=None, *args, **kwargs):
 
 
 def print_model(pif, mod):
-    if mod.get('description'):
+    if mod.description:
         pif.ren.message(f'{mod.id:<8}|{mod.first_year:4}|{mod.scale:<5}|{mod.country:2}|{mod.name:<36}|{mod.description}')
     else:
         pif.ren.message(f'{mod.id:<8}|{mod.first_year:4}|{mod.scale:<5}|{mod.country:2}|{mod.name}')
