@@ -1,3 +1,14 @@
+### 7.8.9  - 2025-04-??
+
+- Rewrite main section index
+- Tweaking of model objects
+- Pull out vs-based product info from single to use elsewhere
+- Implement searching by base id (admin only)
+- Further deprecate using previous model pictures
+- Add base text and logos to large var search
+- Add casting to var info box
+- More styling cleanups
+
 ### 7.8.8  - 2025-03-29
 
 - Fix lineup appearances on the single page

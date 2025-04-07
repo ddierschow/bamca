@@ -4,13 +4,14 @@ body {background-color: #FF8800;}
 .sh {background-color: #000000; color: #FFFFFF;}
 .rh {background-color: #FFFFFF; color: #000000;}
 
-.rh_ml {background-color: transparent;}
-.tb_ml {background-color: #DDDDAA; list-style-type: disc; list-style-position: inside; display: block;}
+.rh_ml {background-color: #FFFFF; font-weight: bold; text-align: center;}
+.tb_ml {background-color: #DDDDAA; list-style-type: disc; list-style-position: inside;}/* display: block;}*/
 	/* WTF? margin-before: 1em; margin-after: 1em; margin-start: 0; margin-end: 0; padding-start: 40px; */
 .eb_ml {background-color: transparent; list-style-type: disc; list-style-position: inside; border-width: 0;
 	display: list-item; /* text-align: -webkit-match-parent; */}
 
 /* special styles for specific pages */
+.body_matrix_cchoice {background-color: #D5C3BF; font-family: "serif";}
 .body_matrix_chall .description {background-color: #E8DC52; color: #000000;}
 .body_matrix_chall .sh {background-color: #E8DC52; color: #000000;}
 .body_matrix_globe {background-color: #EDE0D0;}

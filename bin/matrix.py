@@ -159,6 +159,8 @@ class MatrixFile(object):
                         f"mass.cgi?tymass=lm_series&page_id={pif.page_id}&section_id={section.id}",
                         pif.ren.fmt_star("green" if lm else "red"))
                     section.name += pif.ren.format_button_link(
+                        "edit", f"editor.cgi?table=section&page_id={pif.page_id}&id={section.id}") + ' '
+                    section.name += pif.ren.format_button_link(
                         "add", f"editor.cgi?table=matrix_model&page_id={pif.page_id}&section_id={section.id}&add=1")
 
                 if self.large:
@@ -248,8 +250,8 @@ class MatrixFile(object):
                 ent.href = f'/{img}'
         elif ent.vs.ref_id:
             ent.href = (
-                "single.cgi?dir="
-                f"{ent.spdir}&pic={ent.link}&ref={ent.vs.ref_id}&sec={ent.vs.sec_id}&ran={ent.vs.ran_id}&id={ent.mod_id}")
+                f"single.cgi?id={ent.mod_id}&"
+                f"dir={ent.spdir}&pic={ent.link}&ref={ent.vs.ref_id}&sec={ent.vs.sec_id}&ran={ent.vs.ran_id}")
         elif ent.var.var:
             ent.href = f"vars.cgi?mod={ent.mod_id}&var={ent.var.var}"
         else:
@@ -289,16 +291,27 @@ class MatrixFile(object):
 
 
 def select_matrix(pif):
-    lran = render.Range(id='ml', name="A few of the special sets produced by Matchbox in recent years:")
-    ser = pif.dbh.fetch_pages("id like 'matrix.%'", order='description, title')
+    pif.ren.hierarchy_append('/cgi-bin/matrix.cgi', 'Series')
+    dirs = {
+        'pic/prod/series': 'Various Series',
+        'pic/prod/prcoll': 'Premiere and Collectible',
+        'pic/prod/premium': 'Superfast and Other Premium',
+        'pic/prod/code2': 'Code 2 Models',
+        'pic/prod/odds': 'Odds and Ends',
+    }
+    ser = pif.dbh.make_page_items(pif.dbh.fetch_pages("id like 'matrix.%'", order='description,title'))
+    ents = {x: [] for x in dirs}
     for ent in ser:
-        ent['id'] = ent['id'].split('.', 1)[-1]
-        link = '<b><a href="?page=%(id)s">%(title)s</a></b> - %(description)s' % ent
-        if not (ent['flags'] & 1):
-            lran.entry.append(link)
+        pic_dir = ent.pic_dir if ent.pic_dir in ents else 'pic/prod/odds'
+        ent.id = ent.id.split('.', 1)[-1]
+        link = f'<b><a href="?page={ent.id}">{ent.title}</a></b> - {ent.description}'
+        if not ent.is_hidden:
+            ents[pic_dir].append(link)
         elif pif.is_allowed('a'):  # pragma: no cover
-            lran.entry.append('<i>' + link + '</i>')
-    return render.Listix(section=[render.Section(id='ml', range=[lran])])
+            ents[pic_dir].append(f'<i>{link}</i>')
+
+    return render.Listix(section=[render.Section(id='ml', range=[
+        render.Range(id='ml', name=title, entry=ents[pic_dir]) for pic_dir, title in dirs.items()])])
 
 
 @basics.web_page
@@ -314,7 +327,8 @@ def main(pif):
 
 
 def select_cats(pif):
-    lran = render.Range(id='ml', name="Model categories:")
+    pif.ren.hierarchy_append('/database.php#cats', 'By Categories')
+    lran = render.Range(id='ml', name="Model Categories")
     cats = pif.dbh.fetch_categories()
     for ent in cats:
         link = '<b><a href="?cat=%(id)s">%(name)s</a> (%(id)s)</b>' % ent
@@ -513,7 +527,7 @@ cmds = [
     ('d', check_dups, "check dups"),
     ('m', move_section, "move section: section_id old_page_id new_page_id"),
     ('cb', check_base_id, "check base id"),
-    ('b', set_base_id, "set base id: page_id section_id new_link_format"),
+    ('b', set_base_id, "set base id: page_id section_id [new_link_format]"),
     ('r', rename_range_id, "rename range id base id: page_id section_id old_range_id new_range_id"),
     ('i', import_list, "import list: page_id section_id barfile"),
 ]

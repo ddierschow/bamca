@@ -133,6 +133,9 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
         render.Range(name='Information on Base', id='det', entry=show_details(base_attributes))])
     llistix2 = render.Listix(id='detail', section=[lsec])
 
+    mod_tiny = pif.ren.format_image_required(
+        manitem.picture_id or manitem.id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_TINY)
+    casting = f'<a href="/cgi-bin/single.cgi?id={manitem.id}">{mod_tiny}<br>{manitem.id}</a><br>'
     appearances = show_appearances(pif, mod_id, var_id, pif.is_allowed('a'))
     adds = mbmods.show_adds(pif, mod_id, var_id)
     upload = f'upload.cgi?m={mod_id}&v={var_id}' + (f'&d={manitem.libdir}' if pif.is_allowed('u') else '')
@@ -184,10 +187,11 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
         'upload': upload,
         'addnew': addnew,
         'variation': varitem,
-        'info_cols': useful.count_exist([varitem.makes, varitem.area, varitem.date, varitem.manufacture]),
+        'info_cols': useful.count_exist([1, varitem.makes, varitem.area, varitem.date, varitem.manufacture]),
         'categories': shown_categories,
         'manufacture_flag': plant_flag,
         'base_logos': [x for x in base_logos if x],
+        'casting': casting,
     }
     return pif.ren.format_template('var.html', **context)
 

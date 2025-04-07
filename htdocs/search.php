@@ -63,7 +63,7 @@ function Section($pif, $args) {
 function SectionSearch($pif) {
     $id = 'ss';
 
-    echo "<hr><table><tr><td width=\"50%\">\n";
+    echo "<table><tr><td width=\"50%\">\n";
     echo "<h3>Casting Information</h3>\n";
     echo "<table><tr>\n";
     echo "<td>Manufacturing ID:</td><td colspan=\"2\"><input type=\"text\" name=\"cid\" id=\"idId\" value=\"\" size=\"12\">\n";

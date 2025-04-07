@@ -51,15 +51,14 @@ class ManItem(object):
                 self.slurp(mod)
 
             else:
-                # EVERYBODY has a base_id.  After that, we differentiate.
-                self.id = self.ref_id = mod['base_id.id'] or ''
+                self.id = self.ref_id = mod.get('base_id.id') or ''
                 self.visual_id = self.default_id(self.id)
-                self.first_year = mod['base_id.first_year'] or ''
-                self.flags = mod['base_id.flags'] or 0
-                self.model_type = mod['base_id.model_type'] or ''
-                self.rawname = mod['base_id.rawname'] or ''
+                self.first_year = mod.get('base_id.first_year') or ''
+                self.flags = mod.get('base_id.flags') or 0
+                self.model_type = mod.get('base_id.model_type') or ''
+                self.rawname = mod.get('base_id.rawname') or ''
                 self.name = self.rawname.replace(';', ' ')
-                self.description = mod['base_id.description'] or ''
+                self.description = mod.get('base_id.description') or ''
 
                 self.scale = mod.get('casting.scale') or ''
                 self.vehicle_type = mod.get('casting.vehicle_type') or ''
@@ -412,6 +411,13 @@ class PackItem(object):
             self.first_year = pack.get('base_id.first_year') or ''
             self.rawname = pack.get('base_id.rawname') or ''
             self.flags = pack.get('base_id.flags') or 0
+            self.model_type = pack.get('base_id.model_type') or ''
+            self.rawname = pack.get('base_id.rawname') or ''
+            self.name = self.rawname.replace(';', ' ')
+            self.description = pack.get('base_id.description') or ''
+            self.page_info = PageItem(pack)
+            self.section = SecItem(pack)
+
         else:
             self.id = pack.id or ''
             self.var = pack.var or ''
@@ -484,11 +490,11 @@ class PubItem(object):
             self.country = mod.get('publication.country') or ''
             self.section_id = mod.get('publication.section_id') or ''
             self.isbn = mod.get('publication.isbn') or ''
-            self.first_year = mod['base_id.first_year'] or ''
-            self.flags = mod['base_id.flags'] or 0
-            self.model_type = mod['base_id.model_type'] or ''
-            self.rawname = mod['base_id.rawname'] or ''
-            self.description = mod['base_id.description'] or ''
+            self.first_year = mod.get('base_id.first_year') or ''
+            self.flags = mod.get('base_id.flags') or 0
+            self.model_type = mod.get('base_id.model_type') or ''
+            self.rawname = mod.get('base_id.rawname') or ''
+            self.description = mod.get('base_id.description') or ''
         else:
             self.id = mod.id or ''
             self.country = mod.country or ''
@@ -672,7 +678,11 @@ d_re = re.compile(r'%\d*d')
 
 class MatItem(object):
 
-    def __init__(self, mat, sec):
+    def __init__(self, mat, sec=None):
+        if not sec and 'section.id' in mat:
+            sec = SecItem(mat)
+        if 'page_info.id' in mat:
+            self.page_info = PageItem(mat)
         self.disp_format = sec.disp_format
         is_num_id = d_re.search(sec.disp_format) or d_re.search(sec.link_format) or d_re.search(sec.img_format)
         self.pdir = sec.pic_dir
@@ -716,6 +726,7 @@ class MatItem(object):
         self.sub_id_matches = not (self.sub_id and self.vs.sec_id and self.sub_id != self.vs.sec_id)
         self.displayed_id = '&nbsp;'
         self.style_id = 'wh'
+        self.section = sec
 
     def __str__(self):
         return f'MatItem: {self.id} ({self.page_id}.{self.section_id}.{self.range_id})'

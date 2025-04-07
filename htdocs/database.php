@@ -146,6 +146,12 @@ function SectionID($pif) {
     echo " </tr><tr>\n";
     echo "  <td class=\"idtab\">See specific variation ID:</td>";
     echo "<td><input type=\"text\" name=\"var\" id=\"idVar\" value=\"\" size=\"12\"> (optional)";
+    if ($pif['isadmin']) {
+        echo "</td>\n </tr>\n";
+        echo " <tr>\n";
+        echo "  <td class=\"idtab\"><i>See specific BAMCA ID:</i></td>";
+        echo "<td><input type=\"text\" name=\"bid\" id=\"idBid\" value=\"\" size=\"12\">";
+    }
     echo "</td>\n </tr>\n</table>\n";
 }
 

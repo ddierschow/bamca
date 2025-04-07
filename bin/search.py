@@ -95,6 +95,8 @@ def run_search(pif):
     pif.ren.hierarchy_append(pif.request_uri, 'Model Search')
     mods = None
     pif.ren.print_html()
+    if pif.form.has('bid'):
+        return bamca_id_search(pif, pif.form.get_id('bid'))
     if pif.form.has('date'):
         return date_search(pif, pif.form.get_str('dt'), pif.form.get_str('yr'))
     if pif.form.has('query'):
@@ -295,3 +297,45 @@ def run_super_search(pif):
         f'{searcher.cascount} casting{useful.plural(searcher.cascount)} found.')
 
     return pif.ren.format_template('simplematrix.html', llineup=llineup.prep())
+
+
+def bamca_id_search(pif, bid):
+    bid, var = bid.split('-', 1) if '-' in bid else (bid, '')
+    base_id = pif.dbh.fetch_base_id(bid)
+    if base_id:  # eventually these will all become just this easy
+        match base_id['model_type']:
+            case 'AC' | 'BR' | 'CH' | 'ET' | 'KS' | 'RW' | 'SB' | 'SF' | 'YY':
+                if var:
+                    raise useful.Redirect(f'/cgi-bin/vars.cgi?mod={bid}&var={var}')
+                raise useful.Redirect(f'/cgi-bin/single.cgi?id={bid}')
+            case 'PS':
+                raise useful.Redirect(f'/cgi-bin/playset.cgi?id={bid}')
+            case 'CC':
+                pass  # not sure what to do with these
+            case 'AD' | 'BK' | 'DC' | 'GM' | 'PC' | 'PD' | 'PK' | 'PZ' | 'RY':
+                raise useful.Redirect(f'/cgi-bin/pub.cgi?id={bid}')
+            case 'MP':
+                raise useful.Redirect(f'/cgi-bin/packs.cgi?page=&id={bid}')
+            case 'SE':
+                mm = pif.dbh.depref('matrix_model', pif.dbh.fetch_matrix_model_by_base_id(bid))
+                raise useful.Redirect(f'/cgi-bin/matrix.cgi?page={mm["page_id"]}#{mm["section_id"]}')
+            case 'LI':
+                lm = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model({'base_id': bid}))
+                lm = lm[0]
+                region = lm['region'] if lm['region'] != 'W' or not lm['region'].startswith('X') else 'U'
+                num = f"{lm['region'].replace('.', '')}.{lm['number']}"
+                raise useful.Redirect(f'/cgi-bin/lineup.cgi?year={lm["year"]}&region={region}#{num}')
+
+    # oh.  hrm.  maybe base_id hasn't been populated yet.
+    mm = pif.dbh.depref('matrix_model', pif.dbh.fetch_matrix_model_by_base_id(bid))
+    if mm:
+        raise useful.Redirect(f'/cgi-bin/matrix.cgi?page={mm["page_id"]}#{mm["section_id"]}')
+
+    lm = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model({'base_id': bid}))
+    if lm:
+        lm = lm[0]
+        region = lm['region'] if (lm['region'] != 'W' or not lm['region'].startswith('X')) else 'U'
+        num = f"{lm['region'].replace('.', '')}.{lm['number']}"
+        raise useful.Redirect(f'/cgi-bin/lineup.cgi?year={lm["year"]}&region={region}#{num}')
+
+    raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.")

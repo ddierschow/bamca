@@ -153,8 +153,8 @@ class TestOther(unittest.TestCase):
     def test_Sets(self):
         import mbsets
         self.assertOut(mbsets.sets_main('sets', 'page', args="verbose=1"))
-        self.assertOut(mbsets.sets_main('sets', 'page', args="page=kings"))
-        self.assertOut(mbsets.sets_main('sets', 'page', args="page=kings set=ks"))
+        self.assertOut(mbsets.sets_main('sets', 'page', args="page=coll18"))
+        self.assertOut(mbsets.sets_main('sets', 'page', args="page=coll43 set=1993"))
 
     def test_Single(self):
         import single

@@ -3,6 +3,7 @@
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
 import copy
+from dateutil.parser import parse
 import glob
 import http.client
 import os
@@ -551,6 +552,15 @@ of Matchbox International Ltd. and are used with permission.
         return '\n'.join([self.fmt_img_src(pics[0], also={'id': select_id, 'class': 'shown'})] +
                          [self.fmt_img_src(pics[n], also={'class': 'hidden'})
                           for n in range(1, len(pics))])
+
+    def format_date(self, date):
+        if date:
+            try:
+                date_ob = parse(date)
+                return date_ob.strftime('%B %d, %Y' if len(date) > 7 else '%B, %Y' if len(date) > 4 else '%Y')
+            except Exception:
+                pass
+        return ''
 
     # ---- lower level rendering blocks
 

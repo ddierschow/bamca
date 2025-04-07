@@ -446,13 +446,26 @@ def add_man_item_sized_var_table_pic_link(pif, size, manitem, varitem):
 
         # render details
         def show_details():
-            return [(d.title(), varitem.get_attr(f'text_{d}')) for d in
-                    ['base', 'body', 'interior', 'wheels', 'windows', 'with']]
+            return [(t, varitem.get_attr(f'text_{d}')) for d, t in
+                    [('base', 'Base'), ('body', 'Body'), ('interior', 'Interior'), ('wheels', 'Wheels'),
+                     ('windows', 'Windows'), ('text', 'Base Text'), ('with', 'With')]] + [
+                ('First Release', pif.ren.format_date(varitem.get_attr('date')))]
+
+        l1 = l2 = ''
+        for ch in varitem.iattrs['logo_type']:
+            if ch in mbdata.base_logo_dict:
+                l1 = ch
+            elif ch in mbdata.base_logo_2_dict:
+                l2 = ch
+        base_logos = [
+            pif.ren.format_image_icon(f'l_base-{l1}', mbdata.base_logo_dict.get(l1)) if l1 else '',
+            pif.ren.format_image_icon(f'l_base-{l2}', mbdata.base_logo_2_dict.get(l2)) if l2 else '']
 
         ostr += (
             '<table class="inset width_m">\n' +
             ''.join([f'<tr><td>{title}</td><td>{value}</td></tr>\n' for title, value in show_details() if value]) +
-            "</table>\n  </center></td></tr></table></center>\n")
+            "</table>\n" + ''.join(base_logos) +
+            "\n  </center></td></tr></table></center>\n")
 
     return ostr
 
@@ -566,3 +579,53 @@ def make_make(pif, make):
         'flags': (make.get('vehicle_make.flags') or 0) | (make.get('casting_make.flags') or 0),
         'link': 'makes.cgi?make=' + make['casting_make.make_id'],
     }
+
+
+class ProductInfo(object):
+    def __init__(self, pif):
+        self.pic = pif.form.get_str('pic')
+        self.pdir = pif.form.get_dir('dir')
+        if not self.pdir.startswith('pic/') or '/' in self.pic:
+            self.pdir = self.pic = ''
+        self.ref = pif.form.get_id('ref')
+        self.sec = pif.form.get_str('sec')
+        self.ran = pif.form.get_str('ran')
+        self.reg = (
+            self.sec if self.sec else
+            self.pic[4] if (self.ref.startswith('year') and len(self.pic) > 4 and self.pic[:4].isdigit()) else
+            '')
+        if self.reg.startswith('X'):
+            self.reg = 'X.' + self.reg[1:]
+        self.reg_list = mbdata.get_region_tree(self.reg) + ['']
+        self.sec_list = mbdata.get_region_tree(self.sec) + ['']
+        self.ref_type = (
+            'LI' if self.ref.startswith('year.') else
+            'SE' if self.ref.startswith('matrix.') else
+            'MP' if self.ref.startswith('packs.') else
+            '')
+
+    def is_lineup_appearance(self, appear):
+        return appear.page_id == self.ref and (appear.region in self.reg_list or self.reg_list == [''])
+
+    def is_matrix_appearance(self, appear):
+        return appear.page_id == self.ref
+
+    def is_pack_appearance(self, appear):
+        return appear.page_id == self.ref and appear.id == self.sec
+
+    def get_prod_title(self, appear):
+        prod_title = []
+        if self.ref_type == 'LI':
+            if self.is_lineup_appearance(appear):
+                prod_title = [appear.year, mbdata.regions.get(appear.region, ''), f"#{appear.number}", appear.name]
+        elif self.ref_type == 'SE':
+            if self.is_matrix_appearance(appear):
+                prod_title = [appear.page_info.title, appear.section.name, appear.name]
+        elif self.ref_type == 'MP':
+            if self.is_pack_appearance(appear):
+                prod_title = [appear.section.name, appear.first_year, appear.rawname]
+        return prod_title
+
+
+def get_product_info(pif):
+    return ProductInfo(pif)

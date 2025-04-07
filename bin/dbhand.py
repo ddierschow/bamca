@@ -259,10 +259,10 @@ class DBHandler(object):
     def make_line_item(self, mod):
         return models.LineItem(mod)
 
-    def make_mat_items(self, mods, sec):
+    def make_mat_items(self, mods, sec=None):
         return [self.make_mat_item(x, sec) for x in mods]
 
-    def make_mat_item(self, mod, sec):
+    def make_mat_item(self, mod, sec=None):
         return models.MatItem(mod, sec)
 
     def make_vs_items(self, vss):
@@ -808,8 +808,8 @@ class DBHandler(object):
             wheres.append(f'(v.flags & {config.FLAG_MODEL_CODE_2})!=0')
         args = list()
         cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.date', 'v.text_description', 'v.text_base',
-                'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id',
-                'v.manufacture']
+                'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.text_text',
+                'v.picture_id', 'v.manufacture', 'v.logo_type']
         for key in varsq:
             wheres.extend([f"v.{key} like %s" for x in varsq[key]])
             args.extend([f"%%{x}%%" for x in varsq[key]])
@@ -1361,6 +1361,10 @@ class DBHandler(object):
         where = [f"page_id='{page_id}'", f"section_id='{section_id}'", f"range_id='{range_id}'"]
         return self.fetch('matrix_model', where=self.make_where(where), one=True, tag='MatrixModel')
 
+    def fetch_matrix_model_by_base_id(self, base_id):
+        where = [f"base_id='{base_id}'"]
+        return self.fetch('matrix_model', where=self.make_where(where), one=True, tag='MatrixModeByBaseIdl')
+
     def fetch_matrix_models(self, page_id=None, section=None):
         where = []
         if page_id:
@@ -1620,7 +1624,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         return self.fetch(
             'pack,pack_model,page_info,base_id,section',
             columns=['pack.id', 'base_id.id', 'base_id.rawname', 'base_id.first_year', 'pack.page_id', 'pack.region',
-                     'pack.layout', 'page_info.title', 'pack.section_id', 'section.name'],
+                     'pack.layout', 'page_info.id', 'page_info.title', 'pack.section_id', 'section.id', 'section.name'],
             where=wheres,
             tag='PackModelAppearances')
 

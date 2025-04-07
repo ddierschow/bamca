@@ -121,7 +121,7 @@ def redo_posts(pif, *args):
     posts = pif.dbh.fetch_tumblr_posts()
     print(len(posts), 'posts waiting')
     for post in posts:
-        if not args or post.id in args:
+        if not args or post['id'] in args:
             print(post)
             response = Tumblr(pif).redo(post)
             print(response)

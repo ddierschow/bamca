@@ -49,24 +49,25 @@
 
 {%- macro show_var_info() %}
 <table class="modelinfo infopanel inset"><tr>
+<th>Casting</th>
 {%- if variation.makes %}<th>Make</th>{% endif %}
 {%- if variation.area %}<th>Area</th>{% endif %}
-{%- if variation.manufacture %}<th>Plant</th>{% endif %}
 {%- if variation.date %}<th>Date</th>{% endif %}
+{%- if variation.manufacture %}<th>Plant</th>{% endif %}
 </tr>
-<tr>
+<tr><td valign="top"><center>{{ casting }}</center></td>
 {%- if variation.makes %}<td valign="top"><center>
 {% for make in variation.makes %}
 <a href="{{ make.link }}">{% if make.image %}{{ make.image }}<br>{% endif %}{{ make.name }}</a><br>
 {% endfor %}
 </center></td>{% endif %}
 {%- if variation.area %}<td valign="top"><center>{{ variation.area }}</center></td>{% endif %}
+{%- if variation.date %}<td valign="top"><center>{{ variation.date }}</center></td>{% endif %}
 {%- if variation.manufacture %}
 <td valign="top"><center>{{ manufacture_flag }}<br>
 {{ variation.manufacture }}
 </center></td>
 {%- endif %}
-{%- if variation.date %}<td valign="top"><center>{{ variation.date }}</center></td>{% endif %}
 </tr>
 {% if categories %}
 <tr><th colspan="{{ info_cols }}">{% if categories|length > 1 %}Categories{% else %}Category{% endif %}</th></tr>
