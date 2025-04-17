@@ -341,7 +341,7 @@ def add_lineup_final(pif):
             'mod_id': pif.form.get_raw(key),
             'number': num,
             'style_id': pif.form.get_raw('style_id.' + num),
-            'picture_id': '',
+            'sub_id': '',
             'region': pif.form.get_raw('region'),
             'year': pif.form.get_raw('year'),
             'page_id': pif.form.get_raw('page_id'),
@@ -461,7 +461,7 @@ def add_lm_enter(pif):
             pif.form.put_checkbox('flags', tab.bits['flags'], useful.bit_list(0, format='{:04x}'))},
         {'title': 'Style:', 'value':
             pif.form.put_select("style_id", colors, selected=pif.form.get_raw('style_id'))},
-        {'title': 'Picture ID:', 'value': pif.form.put_text_input("picture_id", 12, 12, value='')},
+        {'title': 'Sub ID:', 'value': pif.form.put_text_input("sub_id", 12, 12, value='')},
         {'title': 'Region:', 'value': pif.form.put_checkbox('region', zip(regions, regions), checked=regions)},
         {'title': 'Year:', 'value': pif.form.put_text_input("year", 6, 6, value=year)},
         {'title': 'Name:', 'value': pif.form.put_text_input("name", 64, 64, value=mod['name'])},
@@ -482,7 +482,7 @@ def add_lm_save(pif):
     useful.header_done()
 
 #    var = pif.form.get_raw('var')
-    lm = pif.form.get_dict(['mod_id', 'number', 'display_order', 'style_id', 'picture_id', 'year', 'page_id', 'name'])
+    lm = pif.form.get_dict(['mod_id', 'number', 'display_order', 'style_id', 'sub_id', 'year', 'page_id', 'name'])
     lm['flags'] = pif.form.get_bits('flags')
     regions = pif.form.get_list('region')
 
@@ -543,7 +543,7 @@ def add_lm_series_form(pif, page_id, section_id, region):
     header += '<input type="hidden" name="tymass" value="lm_series">\n'
 
     linmod = pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_model(
-        where=f"mod_id='{page_id}' and picture_id='{section_id}'"))
+        where=f"mod_id='{page_id}' and sub_id='{section_id}'"))
     linmod = linmod[0] if linmod else {
         'id': 0,  # delete later
         'base_id': '%sX11%02d' % (year, num),
@@ -552,7 +552,7 @@ def add_lm_series_form(pif, page_id, section_id, region):
         'display_order': num,
         'flags': '0',
         'style_id': 'lg',
-        'picture_id': section_id,
+        'sub_id': section_id,
         'region': region,
         'year': year,
         'name': page.get('title', '') + ' - ' + section.get('name'),
@@ -572,6 +572,7 @@ def add_lm_series_form(pif, page_id, section_id, region):
                                          f"editor.cgi?table=section&id={region}&page_id=year.{year}") + '<br>'
     for lm in sorted(lm_list, key=lambda x: x['lineup_model.number']):
         footer += f"{lm['lineup_model.number']}. {lm['lineup_model.name']} ({lm['lineup_model.display_order']})<br>\n"
+    footer += f'Image: {page_id.replace(".", "_")}-{section_id}'
     llistix.section[-1].footer = footer
 
     return pif.ren.format_template('simplelistix.html', llineup=llistix)
@@ -586,7 +587,7 @@ def add_lm_series_final(pif):
     else:
         print('new line_model', values, '<br>')
         linmod = pif.dbh.fetch_lineup_model(
-            where="mod_id='%s' and picture_id='%s'" % (values['mod_id'], values['picture_id']))
+            where="mod_id='%s' and sub_id='%s'" % (values['mod_id'], values['sub_id']))
         if not linmod:  # goddamn bounciness
             del values['id']
             print('already<br>')
@@ -1290,11 +1291,11 @@ def add_pack_form(pif):
         'id': 0,  # delete later
         'base_id': '%s%s%02d' % (year, lineup_sec.replace('.', ''), pack_num),
         'mod_id': pack_id,
+        'sub_id': '',
         'number': pack_num,
         'display_order': pack_num,
         'flags': 0,
         'style_id': 'lg',
-        'picture_id': '',
         'region': lineup_sec,
         'year': year,
         'name': base_id['rawname'],
@@ -2130,10 +2131,10 @@ def add_matrix_form(pif):
         'id': 0,  # delete later
         'base_id': '%sX1100' % year,
         'mod_id': page_id,
+        'sub_id': section_id,
         'number': 0,
         'flags': 0,
         'style_id': 'lg',
-        'picture_id': section_id,
         'region': 'X.11',
         'year': year,
         'name': page.get('name', ''),

@@ -42,6 +42,7 @@ class Tumblr(object):
 
     def create_photo(self, **kwargs):
         kwargs['source'] = kwargs['source'].replace('https:', 'http:')
+        kwargs['link'] = kwargs['link'].replace('beta', 'www')
         # caption link source data
         return self.post(TUMBLR_PHOTO, self.client.create_photo(self.name, **kwargs), **kwargs)
 

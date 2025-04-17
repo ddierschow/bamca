@@ -1,4 +1,14 @@
-### 7.8.9  - 2025-04-??
+### 7.8.10  - 2025-04-16
+
+- Add matrix references to other matrix pages
+- Add Messenger object to useful
+- Clean up pic directories and minor pic fixes
+- Remove old unused stuff
+- Minor changes to editor
+- Deprecate reusing product pictures in lineup
+- Add new Divix object for future use
+
+### 7.8.9  - 2025-04-06
 
 - Rewrite main section index
 - Tweaking of model objects

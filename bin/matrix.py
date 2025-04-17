@@ -32,7 +32,11 @@ class MatrixFile(object):
         if not ent.sub_id_matches:
             return None
 
-        if ent.model_type == 'MP':
+        if ent.mod_id.startswith('matrix.'):
+            ent.image = pif.ren.format_image_required(
+                [f'{ent.mod_id.replace(".", "_")}-{ent.sub_id}', f'{ent.mod_id.replace(".", "_")}'],
+                prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True, blank=True)
+        elif ent.model_type == 'MP':
             ent.image = pif.ren.format_image_required(
                 ent.mod_id, prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True, blank=True)
         elif ent.is_no_variation:
@@ -242,7 +246,9 @@ class MatrixFile(object):
         ent.spdir = mbdata.dirs_r.get(ent.pdir, ent.pdir)
 
         ent.href = ''
-        if ent.model_type == 'MP':
+        if ent.mod_id.startswith('matrix.'):
+            ent.href = f'/cgi-bin/matrix.cgi?page={ent.mod_id[7:]}#{ent.sub_id}'
+        elif ent.model_type == 'MP':
             ent.href = f"packs.cgi?page=&id={ent.mod_id}"
         elif not ent.mod_id:
             img = pif.ren.find_image_path(ent.link, largest='h')

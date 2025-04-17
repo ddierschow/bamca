@@ -61,7 +61,7 @@ class ArgFile(object):
         if fname.startswith('/'):
             fname = fname[1:]
         self.filename = fname
-        useful.write_comment('trying to open', fname)
+        useful.msg.comment('trying to open', fname)
         self.set_globals()
         try:
             self.handle = open(fname)
@@ -197,7 +197,7 @@ class ArgFile(object):
                 parser = getattr(self, 'parse_' + cmd)
                 ret = parser(llist)
             except Exception as e:
-                useful.write_comment('Exception:', str(e))
+                useful.msg.comment('Exception:', str(e))
                 return False
             if ret is not None:
                 # useful.write_message('...', ret)

@@ -20,8 +20,6 @@ import urllib
 
 import config  # bleagh
 
-# html_done = False
-
 alnum = string.digits + string.ascii_lowercase
 verbose = False
 
@@ -132,27 +130,27 @@ def is_good(fname, v=False):
     fname = os.path.normpath(fname)
     if not fname:
         if v:
-            write_comment("is_good B", os.getcwd(), fname)
+            msg.comment("is_good B", os.getcwd(), fname)
         return False
     try:
         if not os.path.exists(fname):
             if v:
-                write_comment("is_good N", os.getcwd(), fname)
+                msg.comment("is_good N", os.getcwd(), fname)
             return False
     except Exception:
-        write_comment("is_good X1", os.getcwd(), fname)
+        msg.comment("is_good X1", os.getcwd(), fname)
         return False
     try:
         st = os.stat(fname)
     except Exception:
-        write_comment("is_good X2", os.getcwd(), fname)
+        msg.comment("is_good X2", os.getcwd(), fname)
         return False
     if (st[stat.ST_MODE] & 0x004) == 0:
         if v:
-            write_comment("is_good S", os.getcwd(), fname)
+            msg.comment("is_good S", os.getcwd(), fname)
         return False
     if v:
-        write_comment("is_good +", os.getcwd(), fname)
+        msg.comment("is_good +", os.getcwd(), fname)
     return True
 
 
@@ -196,23 +194,17 @@ def clean_id(str_id, limit=255):
 
 def dump_dict_comment(t, d, keys=None):
     return ''
-    ostr = f"<!-- dump {t}:\n"
-    ostr += pprint.pformat(d, indent=1, width=132)
-    return ostr + '\n-->\n'
+    return f"<!-- dump {t}:\n{pprint.pformat(d, indent=1, width=132)}\n-->\n"
 
 
 def dump_dict(t, d, keys=None):
-    return '{}<br>\n{}\n'.format(t, pprint.pformat(d, indent=1, width=132))
+    return f'{t}<br>\n{pprint.pformat(d, indent=1, width=132)}\n'
 
 
 def fmt_also(also={}, style={}):
     nalso = dict(style)
     nalso.update(also)
-    ostr = ''
-    for tag, val in nalso.items():
-        if val:
-            ostr = ostr + f' {tag}="{val}"'
-    return ostr
+    return ''.join([f' {tag}="{val}"' for tag, val in nalso.items() if val])
 
 
 def dict_merge(*dicts):
@@ -341,11 +333,11 @@ def search_match(sobj, targ):
 
 def make_dir(dst, perms):
     if not os.path.exists(dst):
-        warn('making', dst)
+        msg.warn('making', dst)
         try:
             os.mkdir(dst, perms)
         except Exception as e:
-            warn('- failed -', e)
+            msg.warn('- failed -', e)
 
 
 def file_touch(dst):
@@ -353,24 +345,24 @@ def file_touch(dst):
 
 
 def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma: no cover
-    warn("file_mover", src, dst, "mv=", mv, "ov=", ov, "inc=", inc, "trash=", trash)
+    msg.warn("file_mover", src, dst, "mv=", mv, "ov=", ov, "inc=", inc, "trash=", trash)
     addon = 0
     if dst and inc:
         root, ext = dst.rsplit('.', 1)  # for inc
     while 1:
         if src and dst and os.path.exists(src) and os.path.exists(dst) and os.path.samefile(src, dst):
             if not trash:
-                warn("What? (trash)")
+                msg.warn("What? (trash)")
             return False
         if not os.path.exists(src):
             if not trash:
-                warn(src, "- source not found")
+                msg.warn(src, "- source not found")
         elif dst is None:
             if mv:
                 file_delete(src)
             else:
                 if not trash:
-                    warn("Eh?")
+                    msg.warn("Eh?")
                 return False
         elif not os.path.exists(dst):
             if mv:
@@ -381,16 +373,16 @@ def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma:
             if mv:
                 os.remove(src)
                 if not trash:
-                    warn(src, "- source removed")
+                    msg.warn(src, "- source removed")
             else:
                 if not trash:
-                    warn("files are identical")
+                    msg.warn("files are identical")
         elif ov:
             # os.remove(dst)
             path, filename = dst.rsplit('/', 1)
             file_mover(dst, relpath('.', config.TRASH_DIR, filename), mv=True, inc=True, trash=True)
             if not trash:
-                warn(dst, "- old file overwritten")
+                msg.warn(dst, "- old file overwritten")
             if mv:
                 file_move(src, dst)
             else:
@@ -401,46 +393,46 @@ def file_mover(src, dst, mv=False, ov=False, inc=False, trash=False):  # pragma:
             continue
         else:
             if not trash:
-                warn("- destination exists")
+                msg.warn("- destination exists")
             return False
         return True
 
 
 def file_move(src, dst, ov=False, trash=False):  # pragma: no cover
     if not trash:
-        warn("mv", src, dst)
+        msg.warn("mv", src, dst)
     try:
         os.rename(src, dst)
     except Exception as e:
-        warn("- failed -", e)
+        msg.warn("- failed -", e)
     return True
 
 
 def file_delete(src, trash=False):  # pragma: no cover
     if not trash:
-        warn("rm", src)
+        msg.warn("rm", src)
     if os.path.exists(src):
         try:
             os.unlink(src)
             if not trash:
-                warn("- removed")
+                msg.warn("- removed")
         except Exception as e:
             if not trash:
-                warn("- failed -", e)
+                msg.warn("- failed -", e)
             return False
     elif not trash:
-        warn("- not found")
+        msg.warn("- not found")
     return True
 
 
 def file_copy(src, dst, trash=False):  # pragma: no cover
     if not trash:
-        warn("copy", src, dst)
+        msg.warn("copy", src, dst)
     try:
         open(dst, 'wb').write(open(src, 'rb').read())
     except Exception as e:
         if not trash:
-            warn("- failed -", e)
+            msg.warn("- failed -", e)
     return False
 
 
@@ -504,118 +496,139 @@ def file_save(pdir, fn, contents, overwrite=False):
     return fn
 
 
+class Messenger(object):
+
+    def __init__(self):
+        self._format_web = True
+        self._pending_comments = list()
+        self._header_done_flag = False
+        self._partial_comment = None
+
+    def reset(self):
+        self._partial_comment = None
+
+    def show_error(self):
+        import traceback
+        if self._format_web:
+            print('<pre>')
+        print(traceback.format_exc())
+        if self._format_web:
+            print('</pre>')
+
+    def is_header_done(self, new_set=False):
+        self._header_done_flag = self._header_done_flag or new_set
+        return self._header_done_flag
+
+    def header_done(self, is_web=True, silent=False):
+        self._format_web = is_web
+        self.is_header_done(True)
+        ostr = '\n'.join([self._format_string(*x) for x in self._pending_comments])
+        self._pending_comments = list()
+        if silent:
+            return ostr
+        if ostr:
+            print(ostr)
+
+    def warn(self, *args, **kwargs):
+        self._write_string(*args, nonl=kwargs.get('nonl', False), warning=True, comment=False)
+
+    def write(self, *args, **kwargs):
+        self._write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=False)
+
+    def write_debug(self, *args, **kwargs):
+        if verbose:
+            self._write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=False)
+
+    def comment(self, *args, **kwargs):
+        self._write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=True)
+
+    def _write_string(self, *args, **kwargs):
+        ostr = self._format_string(*args, **kwargs)
+        if ostr:
+            print(ostr)
+
+    def _format_string(self, *args, **kwargs):
+        partial = kwargs.get('nonl')
+        warning = kwargs.get('warning', False)
+        comment = kwargs.get('comment', False)
+        if args and not self._partial_comment:
+            if warning:
+                args = ('!',) + args
+            if comment:
+                args = ('#',) + args
+        if partial:
+            if self._partial_comment is None:  # separate from empty list
+                self._partial_comment = list()
+            self._partial_comment.extend(args)
+            args = []
+        elif self._partial_comment:
+            args = self._partial_comment + list(args)
+            self._partial_comment = None
+        if args:
+            if not self.is_header_done():
+                self._pending_comments.append(args)
+            elif not self._format_web:
+                return ' '.join([str(x) for x in args])
+            elif args[0] == '#':
+                return '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
+            elif args[0] == '!':
+                return '<div class="warning">{}</div>'.format(' '.join([str(x) for x in args[1:]]))
+            else:
+                return ' '.join([str(x) for x in args]) + '<br>'
+        return ''
+
+    def _read_comments(self):
+        comments = '\n'.join([' '.join([str(arg) for arg in args]) for args in self._pending_comments])
+        self._pending_comments = list()
+        return comments
+
+
+msg = Messenger()
+
+
 def show_error():
-    import traceback
-    if _format_web:
-        print('<pre>')
-    print(traceback.format_exc())
-    if _format_web:
-        print('</pre>')
-
-
-# File-level globals.  Not to be imported by any other file.
-_format_web = True
-_pending_comments = list()
-_header_done_flag = False
-_partial_comment = None
+    msg.show_error()
 
 
 def is_header_done(new_set=False):
-    global _header_done_flag
-    if new_set:
-        _header_done_flag = True
-    return _header_done_flag
+    return msg.is_header_done(new_set=new_set)
 
 
 def header_done(is_web=True, silent=False):
-    global _format_web, _pending_comments
-    _format_web = is_web
-    is_header_done(True)
-    ostr = '\n'.join([format_string(*x) for x in _pending_comments])
-    _pending_comments = list()
-    if silent:
-        return ostr
-    if ostr:
-        print(ostr)
+    return msg.header_done(is_web=is_web, silent=silent)
 
 
 def warn(*args, **kwargs):
-    write_string(*args, nonl=kwargs.get('nonl', False), warning=True, comment=False)
+    return msg.warn(*args, **kwargs)
 
 
 def write_message(*args, **kwargs):
-    write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=False)
+    return msg.write(*args, **kwargs)
 
 
 def write_debug_message(*args, **kwargs):
-    if verbose:
-        write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=False)
+    return msg.write_debug(*args, **kwargs)
 
 
 def write_comment(*args, **kwargs):
-    write_string(*args, nonl=kwargs.get('nonl', False), warning=False, comment=True)
-
-
-def write_string(*args, **kwargs):
-    ostr = format_string(*args, **kwargs)
-    if ostr:
-        print(ostr)
-
-
-def format_string(*args, **kwargs):
-    global _pending_comments, _partial_comment, _format_web
-    partial = kwargs.get('nonl')
-    warning = kwargs.get('warning', False)
-    comment = kwargs.get('comment', False)
-    if args and not _partial_comment:
-        if warning:
-            args = ('!',) + args
-        if comment:
-            args = ('#',) + args
-    if partial:
-        if _partial_comment is None:  # separate from empty list
-            _partial_comment = list()
-        _partial_comment.extend(args)
-        args = []
-    elif _partial_comment:
-        args = _partial_comment + list(args)
-        _partial_comment = None
-    if args:
-        if not is_header_done():
-            _pending_comments.append(args)
-        elif not _format_web:
-            return ' '.join([str(x) for x in args])
-        elif args[0] == '#':
-            return '<!-- ' + ' '.join([str(x) for x in args[1:]]) + ' -->'
-        elif args[0] == '!':
-            return '<div class="warning">{}</div>'.format(' '.join([str(x) for x in args[1:]]))
-        else:
-            return ' '.join([str(x) for x in args]) + '<br>'
-    return ''
-
-
-def read_comments():
-    global _pending_comments
-    comments = '\n'.join([' '.join([str(arg) for arg in args]) for args in _pending_comments])
-    _pending_comments = list()
-    return comments
+    return msg.comment(*args, **kwargs)
 
 
 def render_template(template, **kwargs):
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
     tpl = env.get_template(template)
-    return tpl.render(comments=read_comments(), **kwargs)
+    return tpl.render(comments=msg._read_comments(), **kwargs)
 
 
 def command_help(script, cmds):
     # cmds is list of (cmd, function, help message)
-    write_message("{} [{}] ...".format(script, '|'.join([x[0] for x in cmds])))
+    msg.write("{} [{}] ...".format(script, '|'.join([x[0] for x in cmds])))
     for cmd, func, hlp in cmds:
-        write_message(f"  {cmd} for {hlp}")
+        msg.write(f"  {cmd} for {hlp}")
 
 
 def cmd_proc(pif, script, cmds):
-    header_done(False)
+    msg.header_done(False)
     if pif.filelist:
         lup = {x[0]: x[1] for x in cmds}
         if pif.filelist[0] in lup:
@@ -628,13 +641,13 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
     ch = '%'
     for cmd in pipes:
         if verbose:
-            write_message(ch, ' '.join(cmd), nonl=True)
+            msg.write(ch, ' '.join(cmd), nonl=True)
         ch = '|'
         procs.append(subprocess.Popen(cmd, stdin=inp, stdout=PIPE, stderr=stderr))
         # , text=True
         inp = procs[-1].stdout
     if verbose:
-        write_message()
+        msg.write()
     output = b''
     while True:
         o, e = procs[-1].communicate()
@@ -647,7 +660,7 @@ def pipe_chain(inp, pipes, stderr=None, verbose=True):
 def simple_process(cmd, msg='', inp=PIPE, stderr=None, verbose=False):
     ch = '%'
     if verbose:
-        write_message(ch, ' '.join(cmd), nonl=True)
+        msg.write(ch, ' '.join(cmd), nonl=True)
     proc = subprocess.Popen(cmd, stdin=inp, stdout=PIPE, stderr=stderr, text=True)
     output = ''
     o, e = proc.communicate(msg)

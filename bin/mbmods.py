@@ -107,8 +107,7 @@ def add_man_item_table_product_link(pif, item):
             ref_link = ''
         ostr += pif.ren.format_link(ref_link, pif.ren.fmt_edit('gray'))
         if hasattr(item, 'mod_id'):
-            fn = item.mod_id.replace('.', '_') + (
-                '-' + item.picture_id if item.picture_id else '')
+            fn = item.mod_id.replace('.', '_') + ('-' + item.sub_id if item.sub_id else '')
             ostr += pif.ren.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
                                         pif.ren.fmt_mini('gray', icon='upload'))
     if item.not_made:

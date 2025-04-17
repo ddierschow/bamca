@@ -619,11 +619,11 @@ class LineItem(object):
             self.id = mod['lineup_model.id']
             self.base_id = mod['lineup_model.base_id']
             self.mod_id = mod['lineup_model.mod_id']
+            self.sub_id = mod['lineup_model.sub_id']
             self.number = mod['lineup_model.number']
             self.display_order = mod['lineup_model.display_order'] or 0
             self.flags = mod['lineup_model.flags']
             self.style_id = mod['lineup_model.style_id']
-            self.picture_id = mod['lineup_model.picture_id']
             self.region = mod['lineup_model.region']
             self.year = mod['lineup_model.year']
             self.name = mod['lineup_model.name']
@@ -640,11 +640,11 @@ class LineItem(object):
             self.id = mod.id
             self.base_id = mod.base_id
             self.mod_id = mod.mod_id
+            self.sub_id = mod.sub_id
             self.number = mod.number
             self.display_order = mod.display_order or 0
             self.flags = mod.flags
             self.style_id = mod.style_id
-            self.picture_id = mod.picture_id
             self.region = mod.region
             self.year = mod.year
             self.name = mod.name
@@ -690,6 +690,7 @@ class MatItem(object):
         prefix = 'matrix_model.' if 'matrix_model.id' in mat else ''
         self.id = mat.get(f'{prefix}id') or ''
         self.mod_id = mat.get(f'{prefix}mod_id') or ''
+        self.sub_id = mat.get(f'{prefix}sub_id') or ''
         self.section_id = mat.get(f'{prefix}section_id') or sec.id
         self.display_order = mat.get(f'{prefix}display_order') or 0
         self.page_id = mat.get(f'{prefix}page_id') or 'matrix'
@@ -699,7 +700,6 @@ class MatItem(object):
         self.name = mat.get(f'{prefix}name') or ''
         self.subname = mat.get(f'{prefix}subname') or ''
         self.subnames = self.subname.split(';') if self.subname else []
-        self.sub_id = mbdata.reverse_regions.get(self.subname, '')
         self.model_type = mat.get('base_id.model_type') or ''
         self.pack = PackItem(mat)
 
@@ -723,7 +723,8 @@ class MatItem(object):
                          useful.clean_name(sec.link_format, '/'))
 
         self.vs = VSItem(mat)
-        self.sub_id_matches = not (self.sub_id and self.vs.sec_id and self.sub_id != self.vs.sec_id)
+        subname_id = mbdata.reverse_regions.get(self.subname, '')
+        self.sub_id_matches = not (subname_id and self.vs.sec_id and subname_id != self.vs.sec_id)
         self.displayed_id = '&nbsp;'
         self.style_id = 'wh'
         self.section = sec

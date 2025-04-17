@@ -203,6 +203,7 @@ def do_single_pack(pif, format_type, pid):
             pmod = pmodels[mod]
             pif.ren.comment("do_single_pack mod", pmod)
             modvars.append((f'vars.cgi?edt=1&mod={pmod.mod_id}', pmodels[mod].mod_id, pmod.id))
+            pmod.sub_id = ''
 
             if not pmod.mod_id or pmod.mod_id == 'unknown':
                 pmod.no_casting = 1

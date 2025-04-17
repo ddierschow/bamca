@@ -24,7 +24,7 @@ def show_list(title, tdir, fl, view=False):
         return ''
     # mlen = reduce(lambda x, y: max(x, len(y)), fl, 0)
     mlen = max([len(x) for x in fl])
-    cols = max(1, 160 // max(1, mlen))
+    cols = max(1, 120 // max(1, mlen))
     clen = (len(fl) - 1) // cols + 1
     ffl = [fl[(x * clen):((x + 1) * clen)] for x in range(0, cols)]
     ostr = '<h4>{} ({})</h4>\n'.format(title, len(fl))

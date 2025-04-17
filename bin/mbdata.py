@@ -609,13 +609,12 @@ img_dir_name = {
     config.IMG_DIR_ADS: 'Advertising',
     config.IMG_DIR_ART: 'Art',
     config.IMG_DIR_BLISTER: 'Blister packs',
-    config.IMG_DIR_BOOK: 'Books (reference)',
-    config.IMG_DIR_PROD_BOOK: 'Books (toys)',
+    config.IMG_DIR_REF: 'Books (reference)',
+    config.IMG_DIR_BOOK: 'Books (products)',
     config.IMG_DIR_BOX: 'Boxes',
     config.IMG_DIR_CAT: 'Catalogs',
     config.IMG_DIR_COLL_43: '1:43 Collectibles',
     config.IMG_DIR_CONVOY: 'Convoys',
-    config.IMG_DIR_ERRORS: 'Errors',
     config.IMG_DIR_MAN_ICON: 'Icons',
     config.IMG_DIR_KING: 'King Size',
     config.IMG_DIR_LESNEY: 'Lesney',
@@ -732,6 +731,7 @@ dirs = {
     'pbads': config.IMG_DIR_ADS[1:],
     'pbblis': config.IMG_DIR_BLISTER[1:],
     'pbbook': config.IMG_DIR_BOOK[1:],
+    'pbref': config.IMG_DIR_REF[1:],
     'pbbox': config.IMG_DIR_BOX[1:],
     'pbcat': config.IMG_DIR_CAT[1:],
     'pbgame': config.IMG_DIR_GAME[1:],
@@ -743,7 +743,6 @@ dirs = {
     'pman': config.IMG_DIR_MAN[1:],
     'pmicon': config.IMG_DIR_MAN_ICON[1:],
     'pmvar': config.IMG_DIR_VAR[1:],
-    'ppbook': config.IMG_DIR_PROD_BOOK[1:],
     'ppcode2': config.IMG_DIR_PROD_CODE_2[1:],
     'ppelseg': config.IMG_DIR_PROD_EL_SEG[1:],
     'ppics': config.IMG_DIR_PICS[1:],
@@ -761,7 +760,6 @@ dirs = {
     'ppuniv': config.IMG_DIR_PROD_UNIV[1:],
     'psacc': config.IMG_DIR_ACC[1:],
     'psconvoy': config.IMG_DIR_CONVOY[1:],
-    'pserror': config.IMG_DIR_ERRORS[1:],
     'psking': config.IMG_DIR_KING[1:],
     'psles': config.IMG_DIR_LESNEY[1:],
     'psmcoll': config.IMG_DIR_COLL_43[1:],
@@ -865,14 +863,14 @@ def get_region_tree(region):
 
 
 def get_countries():
-    global countries, countries_dict
+    global countries_dict
     if not countries_dict:
         countries_dict = dict(countries)
     return countries_dict
 
 
 def get_country_codes():
-    global countries, country_code_dict
+    global country_code_dict
     if not country_code_dict:
         country_code_dict = dict([(y, x) for x, y in countries])
     country_code_dict.update({x: y for x, y in areas.items()})

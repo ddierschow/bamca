@@ -88,6 +88,7 @@ table_info = {
             'id': 'newsection',
             'flags': [],
         },
+        'ask': ['id', 'page_id'],
         'bits': {
             'flags': [
                 ('0001', 'Hidden'),
@@ -442,8 +443,8 @@ table_info = {
         'saveid': False,
         'extends': {'base_id': 'base_id/id'},
         'columns': [
-            'id', 'base_id', 'page_id', 'section_id', 'display_order', 'range_id', 'mod_id', 'flags', 'style_id',
-            'shown_id', 'name', 'subname', 'description'
+            'id', 'base_id', 'page_id', 'section_id', 'display_order', 'range_id', 'mod_id', 'sub_id', 'flags',
+            'style_id', 'shown_id', 'name', 'subname', 'description'
         ],
         'clinks': {
             'id': {'tab': 'matrix_model', 'id': ['id/id']},
@@ -495,8 +496,8 @@ table_info = {
         'saveid': False,
         'extends': {'base_id': 'base_id/id'},
         'columns': [
-            'id', 'base_id', 'mod_id', 'number', 'display_order', 'flags', 'style_id', 'picture_id', 'region', 'year',
-            'name', 'subname', 'page_id'
+            'id', 'base_id', 'mod_id', 'sub_id', 'number', 'display_order', 'flags', 'style_id', 'region',
+            'year', 'name', 'subname', 'page_id'
         ],
         'clinks': {
             'id': {'tab': 'lineup_model', 'id': ['id/id']},

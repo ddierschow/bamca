@@ -477,7 +477,7 @@ class PageInfoFile(object):
         self.set_user_info(self.user_id)
         self.set_page_info(self.page_id)
         if not self.is_web:
-            useful.header_done(is_web=False)
+            useful.msg.header_done(is_web=False)
         self.duplicate_form = self.form.has('token') and not self.dbh.insert_token(self.form.get_str('token'))
 
     def set_page_info(self, page_id):
@@ -594,4 +594,4 @@ class PageInfoFile(object):
 
     @staticmethod
     def show_error():
-        useful.show_error()
+        useful.msg.show_error()

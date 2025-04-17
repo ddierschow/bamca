@@ -57,13 +57,13 @@ def write_traceback_file(pif, e):
 
 
 def simple_html(status=404):
-    if not useful.is_header_done():
+    if not useful.msg.is_header_done():
         print('Content-Type: text/html\n\n')
         print('Status:', status, http.client.responses.get(status, ''))
         print()
     # print('<!--\n' + str(os.environ) + '-->')
-    useful.header_done()
-    useful.write_comment()
+    useful.msg.header_done()
+    useful.msg.comment()
 
 
 def handle_exception(pif, e, header_done=False, write_traceback=True, status_code='unset'):
@@ -80,10 +80,10 @@ def handle_exception(pif, e, header_done=False, write_traceback=True, status_cod
             print('<!--\n' + str_tb + '-->')
         final_exit()
     pif.dbh.set_health(pif.page_id)
-    if not useful.is_header_done() and not header_done:
+    if not useful.msg.is_header_done() and not header_done:
         simple_html()
-    useful.header_done()
-    useful.write_comment()
+    useful.msg.header_done()
+    useful.msg.comment()
 #    while pif.ren.table_count > 0:
 #        print(pif.ren.format_table_end())
     if not pif.is_allowed('a'):
@@ -261,7 +261,7 @@ def get_command_line(switches="", options="", long_options={}, version="", short
 def web_page(main_fn):
     @functools.wraps(main_fn)
     def call_main(page_id, form_key='', defval='', args='', dbedit=None):
-        # useful.write_comment('PID', os.getpid(), 'GURU', config.GURU_ID)
+        # useful.msg.comment('PID', os.getpid(), 'GURU', config.GURU_ID)
         status_code = 'unset'
         pif = None
         try:
@@ -289,27 +289,27 @@ def web_page(main_fn):
                     '%2fetc%2fpasswd' in os.environ.get('QUERY_STRING', '').lower()):
                 raise useful.Redirect('https://www.nsa.gov/')
             ret = main_fn(pif)
-            if not useful.is_header_done():
+            if not useful.msg.is_header_done():
                 pif.ren.print_html()
             if pif.ren.is_html and not pif.ren.diff_run:
-                useful.write_comment(f"Page: {pif.page_id} Time: {time.time() - pif.start_seconds} Guru: {config.GURU_ID}")
+                useful.msg.comment(f"Page: {pif.page_id} Time: {time.time() - pif.start_seconds} Guru: {config.GURU_ID}")
             if ret and not pif.unittest:
                 print(ret)
         except SystemExit:
             pass  # the happiest exception on earth
             status_code = 'exit'
         except useful.SimpleError as e:
-            if not useful.is_header_done():
+            if not useful.msg.is_header_done():
                 status_code = e.status
                 pif.ren.print_html(status=e.status)
             print(pif.ren.format_template('error.html', error=[e.value]))
         except useful.Redirect as e:
-            if not useful.is_header_done():
+            if not useful.msg.is_header_done():
                 status_code = 302
                 pif.ren.print_html(status=302)
             print(pif.ren.format_template('forward.html', url=e.value, delay=e.delay))
         except pymysql.OperationalError as e:
-            if not useful.is_header_done():
+            if not useful.msg.is_header_done():
                 status_code = 500
                 pif.ren.print_html(status=500)
             print('The database is currently down, and thus, this page is unable to be shown.<p>')
@@ -318,8 +318,8 @@ def web_page(main_fn):
             status_code = 'exc'
             handle_exception(pif, e, status_code=status_code)
             raise
-        useful.header_done(True)
-        useful.write_comment()
+        useful.msg.header_done(True)
+        useful.msg.comment()
         log_page_call(pif, status_code=status_code)
     return call_main
 
@@ -331,7 +331,7 @@ def web_page(main_fn):
 def command_line(main_fn):
     @functools.wraps(main_fn)
     def call_main(page_id='cli', form_key='', defval='', args='', dbedit=None, switches='', options=''):
-        useful.header_done(False)
+        useful.msg.header_done(False)
         pif = None
         try:
             switch, filelist = get_command_line(switches, options)
@@ -344,7 +344,7 @@ def command_line(main_fn):
                 pif = get_page_info(page_id, form_key, defval, args, dbedit)
             pif.switch, pif.filelist = switch, filelist
             ret = main_fn(pif)
-            useful.write_comment()
+            useful.msg.comment()
             if ret:
                 print(ret)
         except SystemExit:
@@ -386,7 +386,7 @@ def standalone(main_fn):
                                                 envar=envar, noerror=noerror,
                                                 defaults=defaults, doglob=doglob)
             ret = main_fn(switch, filelist)
-            useful.write_comment()
+            useful.msg.comment()
             if ret:
                 print(ret)
         except SystemExit:

@@ -953,21 +953,22 @@ def admin_main(pif):
         manf = MannoFile(pif, madeonly=True)
         llineup = manf.format_output(pif, mbdata.ListType.TILLEY)
         return pif.ren.format_template('manadm.html', pagetype=1, llineup=llineup)
-    else:
-        sections = pif.dbh.fetch_sections({'page_id': 'manno'})
-        limits = pif.dbh.fetch_casting_limits()
-        first_year = int(limits['min(base_id.first_year)'])
-        last_year = int(limits['max(base_id.first_year)'])
-        # listtype = pif.form.get_str('listtype')
-        llineup = render.Listix()
-        return pif.ren.format_template(
-            'manadm.html',
-            pagetype=0,
-            first_year=first_year,
-            last_year=last_year,
-            sections=sections,
-            photogs=[(x['id'], x['name']) for x in pif.dbh.fetch_photographers()],
-            llineup=llineup)
+
+    limits = pif.dbh.fetch_casting_limits()
+    # listtype = pif.form.get_str('listtype')
+    footer = (
+        pif.ren.format_button_link('pictures', "/cgi-bin/traverse.cgi?d=./lib/tilley") + '\n' +
+        pif.ren.format_button_link('mbusa', "/lib/docs/mbusa/") + '<br>' +
+        '\n'.join(sorted([pif.ren.format_link('/' + x, x[19:23]) for x in glob.glob('./lib/tilley/notes/*.html')]))
+    )
+    return pif.ren.format_template(
+        'manadm.html',
+        pagetype=0,
+        first_year=int(limits['min(base_id.first_year)']),
+        last_year=int(limits['max(base_id.first_year)']),
+        sections=pif.dbh.fetch_sections({'page_id': 'manno'}),
+        photogs=[(x['id'], x['name']) for x in pif.dbh.fetch_photographers()],
+        footer=footer)
 
 
 # ---- commands ------------------------------

@@ -13,15 +13,6 @@ import useful
 
 
 def editor_start(pif):
-    if pif.form.get_bool('clear'):
-        pif.dbh.clear_health()
-
-    errs = pif.dbh.fetch_counters("health!=0")
-    if errs:
-        useful.warn('<hr>', "<b>Errors found:<br><ul>",
-                    '\n'.join(["<li>" + err['counter.id'] for err in errs]),
-                    "</ul></b>", pif.ren.format_button_link('clear', '?clear=1'))
-
     context = {
         'table_data': pif.dbh.table_data,
         'asks': sorted([t.name for t in pif.dbh.table_data.values() if t.ask]),
@@ -38,6 +29,15 @@ def editor_main(pif):
     pif.ren.set_page_extra(pif.ren.reset_button_js)
     pif.ren.print_html()
     pif.restrict('a')
+
+    if pif.form.get_bool('clear'):
+        pif.dbh.clear_health()
+    errs = pif.dbh.fetch_counters("health!=0")
+    if errs:
+        useful.warn('<hr>', "<b>Errors found:<br><ul>",
+                    '\n'.join(["<li>" + err['counter.id'] for err in errs]),
+                    "</ul></b>", pif.ren.format_button_link('clear', '?clear=1'))
+
     if pif.form.get_raw('promote'):
         return imglib.promote_picture(pif, pif.form.get_raw('mod'), pif.form.get_raw('var'))
     if pif.form.get_raw('table'):
@@ -252,7 +252,7 @@ def show_sub_tables(pif, table_data, dat=None):
         header = '<b>' + subtab['tab'] + '</b>'
 
         if dat and subtab['tab'] in adds:
-            header += pif.ren.format_button_link('add', "?table=" + subtab['tab'] + "&" +
+            header += pif.ren.format_button_link('add', "?add=1&table=" + subtab['tab'] + "&" +
                                                  make_url_cond(adds[subtab['tab']], dat))
             del adds[subtab['tab']]
 

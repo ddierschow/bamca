@@ -8,8 +8,6 @@ import config
 import render
 import useful
 
-modnumlist = []
-
 
 class SetFile(bfiles.ArgFile):
     tablecols = ['prefix', 'cols', 'title', 'digits', 'label', 'style']
@@ -83,7 +81,6 @@ def do_set(pif, setfile, set_id=None):
 
 
 def print_table(pif, db, setfile):
-    global modnumlist
     entries = []
     prefix = db['prefix']
 

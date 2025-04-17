@@ -75,13 +75,12 @@ movetos = [
     config.IMG_DIR_ADS,
     config.IMG_DIR_BLISTER,
     config.IMG_DIR_BOOK,
-    config.IMG_DIR_PROD_BOOK,
     config.IMG_DIR_BOX,
+    config.IMG_DIR_REF,
     config.IMG_DIR_CAT,
     config.IMG_DIR_PROD_CODE_2,
     config.IMG_DIR_COLL_43,
     config.IMG_DIR_CONVOY,
-    config.IMG_DIR_ERRORS,
     config.IMG_DIR_GAME,
     config.IMG_DIR_ICON,
     config.IMG_DIR_KING,
@@ -979,6 +978,8 @@ class ActionForm(object):
             ret['dir'] = to_dir
             if log_action and self.tumblr:
                 title = pif.form.get_str('title', to_name)
+                if to_dir.startswith('./'):
+                    to_dir = to_dir[1:]
                 url = pif.secure_prod + os.path.join(to_dir, to_name)
                 link = pif.secure_prod + self.link
                 title = to_name

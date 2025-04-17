@@ -158,3 +158,14 @@
 {%- for ent in thing %}{{ ent }}{% if not loop.last %}<br>{% endif %}
 {%- endfor %}
 {%- endmacro %}
+
+
+{%- macro format_divix(thing) %}
+{%- if thing.name -%}<div class="{{ render.class_id('th', thing.id) }}">{{ thing.name }}</div>{%- endif -%}
+{% for entry in table.entry %}
+<div class="{{ render.class_id('eb', entry.display_id) }} {{ render.class_id('', entry.class_name) }}">
+{{ entry.text }}
+</div>
+{% endfor %}
+</div>
+{%- endmacro %}

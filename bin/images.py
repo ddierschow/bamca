@@ -888,7 +888,7 @@ class EditForm(imglib.ActionForm):
                     title += ' credited to ' + photog['name']
                 else:
                     cred = ''
-            url = pif.secure_prod + largest
+            url = pif.secure_prod + (largest[1:] if largest.startswith('./') else largest)
             link = pif.secure_prod + '/cgi-bin/vars.cgi?mod=%s&var=%s' % (self.man, self.var)
             pif.ren.message('Post to Tumblr: ',
                             tumblr.Tumblr(pif).create_photo(caption=title, source=url, link=link))
@@ -1820,7 +1820,6 @@ def count_blisters(fl):
 
 
 def count_castings(fl):
-    global castings
     fn_re = re.compile(r'[a-z]_(?P<c>[a-z0-9]*)(-[a-z0-9]*)?\.')
     cnt = 0
     for fn in fl:

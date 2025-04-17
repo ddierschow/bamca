@@ -419,7 +419,7 @@ class DBHandler(object):
             "casting.id=alias.ref_id", f"alias.id='{id}'", "casting.id=base_id.id"], one=True, tag='Alias')
         return alist
 
-    def fetch_castings_by_box(self, series, style):
+    def fetch_castings_by_box(self, series=None, style=None):
         wheres = ['casting.id=base_id.id']
         if series:
             wheres.append(f"base_id.model_type='{series}'")
@@ -1218,24 +1218,6 @@ class DBHandler(object):
 
     def fetch_lineup_limits(self):
         return self.fetch('lineup_model', columns=['min(year)', 'max(year)', 'max(number)'], one=True, tag='LineupLimits')
-
-    def make_lineup_item(self, rec):
-        result = {col: rec.get('lineup_model.' + col, '') for col in self.get_table_data('lineup_model').columns}
-        result.update(self.copykeys('base_id', rec))
-        result.update(self.copykeys('casting', rec))
-        result.update(self.copykeys('pack', rec))
-        result.update(self.copykeys('publication', rec))
-        result.update(self.copykeys('page_info', rec))
-        result['ref_id'] = rec.get('vs.ref_id', '')
-        result['sec_id'] = rec.get('vs.sec_id', '')
-        result['ran_id'] = rec.get('vs.ran_id', '')
-        result['made'] = not (result['flags'] & config.FLAG_MODEL_NOT_MADE)
-        result['notmade'] = '' if result['made'] else '*'
-        result['class_name'] = result['href'] = result['product'] = ''
-        result['no_variation'] = result['is_product_picture'] = 0
-        result['cvarlist'] = list()
-        result['vars'] = list()
-        return result
 
     def fetch_lineup_models_bare(self, year=None, region=None, verbose=False):
         cols = self.make_columns('lineup_model')

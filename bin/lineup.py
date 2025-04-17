@@ -94,10 +94,7 @@ def calc_lineup_model(pif, lsec, year, region, mod):
     # at this point it might better to use mod.man.model_type but i'm not sure
     if mod.pack.id:
         mod.prod_id = mod.pack.id
-        if mod.picture_id:
-            mod.product = mod.picture_id
-            mod.is_reused_product_picture = pif.is_allowed('a')
-        elif mod.image_format:
+        if mod.image_format:
             mod.product = mod.image_format % mod.pack.id
         if pif.ren.find_image_path([mod.product], pdir=mod.pdir, largest=mbdata.IMG_SIZ_GIGANTIC):
             mod.is_product_picture = 1
@@ -114,16 +111,13 @@ def calc_lineup_model(pif, lsec, year, region, mod):
     elif mod.page.id:  # series
         mod.prod_id = mod.product = mod.page.id
         mod.href = "matrix.cgi?page=" + mod.mod_id[7:]
-        if mod.picture_id:
-            mod.href += "#" + mod.picture_id
-            # mod.product += "-" + mod.picture_id
+        if mod.sub_id:
+            mod.href += "#" + mod.sub_id
+            # mod.product += "-" + mod.sub_id
     elif mod.man.id:
         # modify this if rank_id exists
         mod.prod_id = mod.man.id
-        if mod.picture_id:
-            mod.product = mod.picture_id.replace('w', pif.form.get_strl('region'))
-            mod.is_reused_product_picture = pif.is_allowed('a')
-        elif mod.image_format:
+        if mod.image_format:
             imgfmt = (mod.image_format.replace('w', pif.form.get_strl('region'))
                       if not region.startswith('X') and int(mod.year) > 1970 else mod.image_format)
             mod.product = imgfmt % mod.number
@@ -378,8 +372,8 @@ def render_lineup_model_var(pif, mod, comments, show_var=None):
         comments.add('n')
     elif mod.page.id:
         imglist.append(imgname)
-        if mod.picture_id:
-            imglist.insert(0, imgname + f"-{mod.picture_id}")
+        if mod.sub_id:
+            imglist.insert(0, imgname + f"-{mod.sub_id}")
     elif mod.mod_id:
         imglist.append(imgname)
         for x in mod.cvarlist:
@@ -632,7 +626,7 @@ def run_product_pics(pif, region):
             spdir = mbdata.dirs_r.get(pdir, pdir)
             lmod = lmoddict.get(mnum, {})
             lmod_id = lmod.get('lineup_model.mod_id', '')
-            lpic_id = pic_id = lmod.get('lineup_model.picture_id', '').replace('w', pif.form.get_strl('region'))
+            lpic_id = pic_id = ''
             lreg = pif.form.get_stru('region')
             if pic_id:
                 lpic_id = pic_id = pic_id.replace('W', lreg).replace('w', lreg.lower())
@@ -1038,7 +1032,7 @@ def clone_lineup(pif, year, old_region, new_region=''):
         if old_region != new_region and new_region:
             del mod['id']
             mod['base_id'] = mod['base_id'].replace(old_region, new_region)
-            mod['picture_id'] = mod['picture_id'].replace(old_region.lower(), new_region.lower())
+            mod['sub_id'] = mod['sub_id'].replace(old_region.lower(), new_region.lower())
             mod['region'] = new_region
             pif.dbh.insert_lineup_model(mod)
         print(mod)
@@ -1142,37 +1136,37 @@ def add_casting(pif, mod, year):
     })
 
 
-def add_variation(pif, mod, year):
-    var_id = 'Y' + year[2:]
-    var = {
-        'mod_id': mod[1],
-        'var': var_id,
-        'flags': 0,
-        'text_description': '',
-        'text_base': '',
-        'text_body': '',
-        'text_interior': '',
-        'text_wheels': '',
-        'text_windows': '',
-        'text_with': '',
-        'base': '',
-        'body': mod[3],
-        'interior': '',
-        'windows': '',
-        'manufacture': '',
-        # 'category': '',
-        'area': '',
-        'date': '',
-        'note': '',
-        'other': '',
-        'picture_id': '',
-        'imported': '',
-        'imported_from': 'file',
-        'imported_var': var_id,
-    }
-    # print(('variation', mod[1], var_id, var))
-    pif.dbh.insert_variation(mod[1], var_id, var, verbose=True)
-    pif.dbh.recalc_description(mod[1], showtexts=False, verbose=False)
+# def add_variation(pif, mod, year):
+#     var_id = 'Y' + year[2:]
+#     var = {
+#         'mod_id': mod[1],
+#         'sub_id': '',
+#         'var': var_id,
+#         'flags': 0,
+#         'text_description': '',
+#         'text_base': '',
+#         'text_body': '',
+#         'text_interior': '',
+#         'text_wheels': '',
+#         'text_windows': '',
+#         'text_with': '',
+#         'base': '',
+#         'body': mod[3],
+#         'interior': '',
+#         'windows': '',
+#         'manufacture': '',
+#         # 'category': '',
+#         'area': '',
+#         'date': '',
+#         'note': '',
+#         'other': '',
+#         'imported': '',
+#         'imported_from': 'file',
+#         'imported_var': var_id,
+#     }
+#     # print(('variation', mod[1], var_id, var))
+#     pif.dbh.insert_variation(mod[1], var_id, var, verbose=True)
+#     pif.dbh.recalc_description(mod[1], showtexts=False, verbose=False)
 
 
 def add_lineup_model(pif, mod, year, region):
@@ -1181,10 +1175,10 @@ def add_lineup_model(pif, mod, year, region):
     raw_insert(pif, 'lineup_model', {
         'base_id': lin_id,
         'mod_id': mod[1],
+        'sub_id': '',
         'number': mod[0],
         'flags': 0,
         'style_id': mod[2],
-        'picture_id': '',
         'region': region,
         'year': year,
         'name': mod[3],
@@ -1239,10 +1233,10 @@ def generate_promos(pif, year):
             'base_id': f'{year}X17{number:02}',
             'mod_id': vs['base_id.id'],
             'number': number,
+            'sub_id': '',
             'display_order': number,
             'flags': 0,
             'style_id': 'lg',
-            'picture_id': '',
             'region': 'X.17',
             'year': year,
             'page_id': lineup_page_id,
@@ -1353,8 +1347,7 @@ def lineup_pics(pif, *args):
             reg = lm['lineup_model.region']
             if reg in regions:
                 found.setdefault(reg, list())
-                fn = pdir + '/m_' + (lm['lineup_model.picture_id'] if lm['lineup_model.picture_id'] else
-                                     lm['lineup_model.base_id']).replace('W', reg).lower() + '.jpg'
+                fn = pdir + '/m_' + lm['lineup_model.base_id'].replace('W', reg).lower() + '.jpg'
                 if (lm['lineup_model.flags'] & config.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and not missing:
                     found[reg].append(lm['lineup_model.number'])
                 elif not (lm['lineup_model.flags'] & config.FLAG_MODEL_NOT_MADE or os.path.exists(fn)) and missing:
@@ -1373,20 +1366,19 @@ def detect_lineup(pif, year):
 
 
 def import_series(pif, matrix_page, matrix_section, year, lineup_section):
-    pass
     for mm in pif.dbh.fetch_matrix_models(page_id=matrix_page, section=matrix_section):
         values = {
-            'base_id': f'{year}{lineup_section.replace(".", "")}{mm.range_id}',
-            'mod_id': mm.mod_id,
-            'number': mm.range_id,
-            'display_order': mm.display_order,
+            'base_id': f'{year}{lineup_section.replace(".", "")}{mm["range_id"]}',
+            'mod_id': mm["mod_id"],
+            'sub_id': '',
+            'number': mm["range_id"],
+            'display_order': mm["display_order"],
             'flags': 0,
             'style_id': 'lg',
-            'picture_id': '',
             'region': lineup_section,
             'year': year,
             'page_id': f'year.{year}',
-            'name': mm.name,
+            'name': mm["name"],
             'subname': '',
         }
         print(pif.dbh.insert_lineup_model(values))
@@ -1395,6 +1387,22 @@ def import_series(pif, matrix_page, matrix_section, year, lineup_section):
         vs['variation_select.ref_id'] = f'year.{year}'
         vs['variation_select.sec_id'] = lineup_section.replace('.', '')
         print(pif.dbh.update_variation_select(vs))
+
+
+def set_base_id(pif, year=None):
+    secs = {x['page_id'][5:] + x['id']: x['link_format'] for x in pif.dbh.fetch_sections_by_page_type('lineup')
+            if not x['id'].startswith('X')}
+    for lm in pif.dbh.depref('lineup_model', pif.dbh.fetch_lineup_models_bare(year=year)):
+        yr = str(lm['year'])
+        rg = lm['region'].replace('.', '')
+        nm = f"{lm['number']:02}"
+        if lm['region'].startswith('X'):
+            bid = f"{yr}{rg}{nm}".lower()
+        else:
+            bid = secs[f"{yr}{rg}"] % lm['number']
+        if lm['base_id'] != bid:
+            print(f"update lineup_model set base_id='{bid}' where id={lm['id']};")
+            pif.dbh.update_lineup_model(f"id={lm['id']}", {'base_id': bid})
 
 
 cmds = [
@@ -1411,6 +1419,7 @@ cmds = [
     ('s', show_sections, "show sections"),
     ('pic', lineup_pics, "pics"),
     ('is', import_series, "import series: matrix_page matrix_section year lineup_section"),
+    ('sb', set_base_id, "set base id"),
 ]
 
 

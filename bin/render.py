@@ -41,7 +41,7 @@ class Presentation(object):
         self.unittest = False
         self.description = ''
         self.note = ''
-        self.pic_dir = 'pic/pics'
+        self.pic_dir = 'pic/misc'
         self.tail = dict()
         self.large = False
         self.verbose = verbose
@@ -131,30 +131,29 @@ class Presentation(object):
         if self.dump_file:  # pragma: no cover
             self.dump_file.write(' '.join([str(x) for x in args]) + '\n')
         elif self.verbose:
-            useful.write_comment(*args)
+            useful.msg.comment(*args)
 
     def comment_dict(self, name, arg):
         if self.verbose:
             print(useful.dump_dict_comment(name, arg))
 
     def print_html(self, content='text/html', status=200):
-        if not useful.is_header_done():
+        if not useful.msg.is_header_done():
             print('Content-Type:', content)
             if content != 'text/html':
                 self.verbose = False
-                useful._partial_comment = None
+                useful.msg.reset()
             if content == 'text/csv':
                 print("Content-Description: File Transfer\nContent-Disposition: attachment; "
                       f"filename={self.filename}\nExpires: 0")
             print('Status:', status, http.client.responses.get(status, ''))
             self.status_printed = status
-            # useful.html_done = True
             self.print_cookie()
             print()
             if content == 'text/html':
                 self.is_html = True
                 print('<!DOCTYPE html>')
-            useful.header_done()
+            useful.msg.header_done()
 
     def set_cookie(self, cookie):
         self.new_cookie = cookie
@@ -716,7 +715,7 @@ of Matchbox International Ltd. and are used with permission.
         if titleimage:
             titleimage = '/' + titleimage
         page_info = {
-            'messages': useful.header_done(silent=True),
+            'messages': useful.msg.header_done(silent=True),
             'hierarchy': self.hierarchy,
             'is_beta': self.is_beta,
             'is_alpha': self.is_alpha,
@@ -753,6 +752,27 @@ of Matchbox International Ltd. and are used with permission.
         return output
 
 
+class Divix(object):
+    def __init__(self, id=None, name='', note='', tail=None, entry=None):
+        self.id = id
+        self.name = name
+        self.note = note
+        self.graphics = None
+        self.tail = tail or []
+        self.entry = entry or []
+
+    def dump(self):
+        useful.msg.comment('Divix', 'id', self.id, 'name', self.name, 'note', self.note, 'tail', self.tail)
+        for entry in self.entry:
+            if isinstance(entry, Entry):
+                entry.dump()
+            else:
+                useful.msg.comment('   ', type(entry), entry)
+
+    def prep(self):
+        return self
+
+
 class Listix(object):
     # a listix consists of a header (outside of the tables) plus a list of sections, each in its own table.
     #     id, name, note, graphics, tail | section
@@ -766,8 +786,8 @@ class Listix(object):
         self.section = section or []
 
     def dump(self):
-        useful.write_comment('Listix', 'id', self.id, 'name', self.name, 'note', self.note,
-                             'graphics', self.graphics, 'tail', self.tail)
+        useful.msg.comment('Listix', 'id', self.id, 'name', self.name, 'note', self.note,
+                           'graphics', self.graphics, 'tail', self.tail)
         for section in self.section:
             section.dump()
 
@@ -795,9 +815,9 @@ class Matrix(object):
             raise ValueError('columns is list')
 
     def dump(self):
-        useful.write_comment('Matrix', 'id', self.id, 'name', self.name, 'note', self.note,
-                             'graphics', self.graphics, 'columns', self.columns, 'tail', self.tail,
-                             'header', self.header, 'footer', self.footer)
+        useful.msg.comment('Matrix', 'id', self.id, 'name', self.name, 'note', self.note,
+                           'graphics', self.graphics, 'columns', self.columns, 'tail', self.tail,
+                           'header', self.header, 'footer', self.footer)
         for section in self.section:
             section.dump()
 
@@ -898,10 +918,10 @@ class Section(object):
                 self.columns = section.columns or self.columns
 
     def dump(self):
-        useful.write_comment(' Section', 'id', self.id, 'name', self.name, 'note', self.note,
-                             'anchor', self.anchor, 'columns', self.columns,
-                             'colist', self.colist, 'headers', self.headers, 'noheaders', self.noheaders,
-                             'switch', self.switch, 'count', self.count, 'header', self.header, 'footer', self.footer)
+        useful.msg.comment(' Section', 'id', self.id, 'name', self.name, 'note', self.note,
+                           'anchor', self.anchor, 'columns', self.columns,
+                           'colist', self.colist, 'headers', self.headers, 'noheaders', self.noheaders,
+                           'switch', self.switch, 'count', self.count, 'header', self.header, 'footer', self.footer)
         for range in self.range:
             range.dump()
 
@@ -920,13 +940,13 @@ class Range(object):
         self.entry = entry or []
 
     def dump(self):
-        useful.write_comment('  Range', 'id', self.id, 'name', self.name, 'note', self.note,
-                             'anchor', self.anchor, 'graphics', self.graphics, 'styles', self.styles)
+        useful.msg.comment('  Range', 'id', self.id, 'name', self.name, 'note', self.note,
+                           'anchor', self.anchor, 'graphics', self.graphics, 'styles', self.styles)
         for entry in self.entry:
             if isinstance(entry, Entry):
                 entry.dump()
             else:
-                useful.write_comment('   ', type(entry), entry)
+                useful.msg.comment('   ', type(entry), entry)
 
 
 class Entry(object):
@@ -947,8 +967,8 @@ class Entry(object):
         self.data = data or {}
 
     def dump(self):
-        useful.write_comment('   Entry', 'display_id', self.display_id, 'rowspan', self.rowspan,
-                             'colspan', self.colspan, 'class_name', self.class_name,
-                             'style', self.style, 'also', self.also, 'firstent', self.firstent,
-                             'lastent', self.lastent, 'data', self.data)
-        useful.write_comment('   ', self.text)
+        useful.msg.comment('   Entry', 'display_id', self.display_id, 'rowspan', self.rowspan,
+                           'colspan', self.colspan, 'class_name', self.class_name,
+                           'style', self.style, 'also', self.also, 'firstent', self.firstent,
+                           'lastent', self.lastent, 'data', self.data)
+        useful.msg.comment('   ', self.text)
