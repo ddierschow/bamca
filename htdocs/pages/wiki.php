@@ -2,11 +2,16 @@
 <html>
 
 <body>
+<a href="https://matchbox.fandom.com/wiki/Matchbox_Cars_Wiki">Front Page</a>
+
+<table>
+<tr style='vertical-align: top;'>
+<td width='50%'>
+
+<ul>
+
 <?php
 include "wikidat.php";
-echo "<table>\n<tr style='vertical-align: top;'>\n<td width='50%'>\n";
-echo "<ul>\n";
-
 $c = 0;
 foreach ($dat as $year => $links) {
     echo "<li>";
@@ -25,10 +30,12 @@ foreach ($dat as $year => $links) {
         echo "</ul>\n</td>\n<td>\n<ul>\n";
     }
 }
-
-echo "</ul>\n";
-echo "</td>\n</tr>\n</table>\n";
 ?>
+
+</ul>
+</td>
+</tr>
+</table>
 
 </body>
 </html>

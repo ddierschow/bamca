@@ -172,6 +172,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
         if pif.is_allowed('v'):  # pragma: no cover
             lines.append('<a href="traverse.cgi?d=%s">Library</a>' % useful.relpath(
                 '.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
+            lines[-1] += f' <a href="https://www.google.com/search?q={model.name.replace(" ", "+")}">G</a>'
         if pif.is_allowed('a'):  # pragma: no cover
             lines.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (
                 useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()),
@@ -211,17 +212,20 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
                 f' <a href="imawidget.cgi?d={pdir}&f=m_{pic}.jpg">{pif.ren.fmt_mini(icon="paintbrush")}</a>')
             lines.append(prod)
         lines.append('')
+
         date_re = re.compile(r'^\d\d\d\d-\d\d-\d$')
         vfl = [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod_id)]
         vfl = sorted(set(['mbusa' if date_re.match(x) else x for x in vfl])) or ['importer']
         for vf in vfl:
             lines.append(f'<a href="vedit.cgi?d=src/mbxf&m={mod_id}&f={vf}">{vf}</a>')
         lines.append('')
+
         var_pics, var_texts, missing_ids = mbmods.show_list_var_pics(pif, mod_id)
         if missing_ids:
             lines.append(f'\n<span class="red">{missing_ids}</span>')
         lines.extend(var_pics)
         lines.append('')
+
         attrs = pif.dbh.fetch_attributes(mod_id)
         fmt_bad, messages, missing = pif.dbh.check_description_formatting_casting(model, attrs)
         lines.append(pif.ren.fmt_x('red') if fmt_bad else pif.ren.fmt_check('green'))
@@ -232,6 +236,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
                 'green' if v == var_cnt else 'yellow', also=f'title="{mbmods.text_titles[k]}"', alsoc='smallish')
             for k, v in var_counts.items()]))
         lines.append('')
+
         var_ids = [x['v.var'] for x in raw_variations]
         var_ids.sort()
         for var in var_ids:
@@ -427,9 +432,7 @@ def show_single(pif):
         'title': f'{mbdata.model_types[model.model_type]} {mod_id}: {model.name}',
         'note': '',
         'type_id': '',
-        'icon_id':
-            mod_id if os.path.exists(useful.relpath('.', config.IMG_DIR_MAN_ICON, f'i_{mod_id.lower()}.gif'))
-            else '',
+        'icon_id': mod_id,
         'vehicle_type': vehicle_types,
         'rowspan': '4',
         'left_bar_content': '<br>\n'.join(

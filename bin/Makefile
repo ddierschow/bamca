@@ -17,6 +17,7 @@ test:
 deploy: clean
 	$(GIT) reset --hard HEAD
 	$(GIT) pull
+	$(GIT) pull --tags
 	./filsys.py p
 	./filsys.py j
 	./filsys.py v

@@ -72,7 +72,7 @@ def single_variation_left_bar(pif, varitem, edit):
             lines += [pif.ren.fmt_x('red')]
         if varitem.date:
             lines.extend([pif.ren.format_link('/' + fn, fn[fn.rfind('/') + 1:])
-                          for fn in sorted(glob.glob(f'lib/docs/mbusa/{varitem.date}-?.png'))])
+                          for fn in sorted(glob.glob(f'lib/docs/mbusa/{varitem.date}-[1-9].png'))])
     return '<br>'.join(lines)
 
 
@@ -1261,7 +1261,7 @@ def do_model_editor(pif, manitem, vsform, dvars, photogs):
     lran = render.Range(id='ran')
 
     def attr_edit(v, x):
-        return v.get(x, '') + '<br>' + pif.form.put_text_input(v.var + '.' + x, 80, 16, v.get_attr(x, ''))
+        return v.get_attr(x, '') + '<br>' + pif.form.put_text_input(v.var + '.' + x, 80, 16, v.get_attr(x, ''))
 
     lran.entry = [{x: attr_edit(v, x) for x in attrs} for var_id, v in sorted(dvars.items())]
     lsec.count = '%d entries' % len(lran.entry) if len(lran.entry) > 1 else '1 entry'
@@ -1963,11 +1963,11 @@ def fix_variation_type(pif, start=None, end=None, *args, **kwargs):
         end = start
     for mod_id in mod_ids[mod_ids.index(start):mod_ids.index(end) + 1]:
         # mod = pif.dbh.fetch_casting(mod_id)
-        for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
+        for var in pif.dbh.make_var_item(pif.dbh.fetch_variations(mod_id)):
             ty_var = mbmods.calc_var_type(pif, var)
-            if ty_var != var['variation_type']:
-                useful.write_message(var['mod_id'], var['var'], ty_var)
-                # pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var['mod_id'], 'var': var['var']})
+            if ty_var != var.variation_type:
+                useful.write_message(var.mod_id, var.var, ty_var)
+                # pif.dbh.update_variation({'varation_type': ty_var}, {'mod_id': var.mod_id, 'var': var.var})
                 wheres = pif.dbh.make_where(var, cols=['mod_id', 'var'])
                 pif.dbh.write('variation', {'variation_type': ty_var}, wheres, modonly=True, tag='FixVarType')
 
@@ -2365,7 +2365,7 @@ def check_attributes(pif, *attr_names):
         print(f"{len(mod_ids)} {attr_name} ({', '.join(sorted(mod_ids))})")
 
 
-def sx(pif, lt):
+def sx(pif, lt=''):
     if lt == 'm':
         vl = [f'betatester vars.cgi "mod={x}"'
               for x in pif.dbh.fetch_casting_ids()]

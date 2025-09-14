@@ -415,7 +415,7 @@ def add_model_var_table_pic_link(pif, mdict):
     mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
     ostr = (
         '  <center><table class="entry"><tr><td>'
-        '<center><span class="monospace modelname">%(v.mod_id)s-%(v.var)s</spam></br>\n'
+        '<center><span class="monospace modelname">%(v.mod_id)s-%(v.var)s</span></br>\n'
         '   <a href="%(link)s">%(img)s<br><b>%(name)s</b></a>\n') % mdict
     # ostr += "   <br><i>%(v.text_description)s</i>\n" % mdict
     ostr += '<table class="vartable">'
@@ -536,11 +536,12 @@ def calc_var_pics(pif, var):
 
 def count_list_var_pics(pif, mod_id):
     vars = pif.dbh.make_var_items(pif.dbh.fetch_variations(mod_id))
+#    for cr in pif.dbh.fetch_casting_relateds(mod_id=mod_id, section_id='single', flags=config.FLAG_CASTING_RELATED_SHARED):
+#        vars.extend(pif.dbh.make_var_items(pif.dbh.fetch_variations(cr['casting_related.related_id'])))
     needs = {x: 0 for x in ['a'] + var_types}
     found = {x: 0 for x in ['a'] + var_types}
     count = {k: 0 for k, v in text_attrs.items()}
     id_set = set()
-    # nf = []
     for var in vars:
         ty_var, is_found, has = calc_var_pics(pif, var)
 

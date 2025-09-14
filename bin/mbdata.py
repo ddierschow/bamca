@@ -782,6 +782,7 @@ deco_types = (
     ('m', 'molded plastic'),
     ('f', 'fusion printed'),
     ('i', 'inkjet printed'),
+    ('e', 'laser etched'),
 )
 deco_types_dict = dict(deco_types)
 components = {

@@ -715,9 +715,11 @@ wiki_transform = {
     "Convoys": 'CY',
     "Dinky Collection": 'DY',
     "Emergency": 'EM',
+    "External Links": "Ext",
     "King Size": 'KS',
     "Lesney Editions": 'LE',
     "Licensed 5-Packs": 'L5P',
+    "Limited Edition": "LE",
     "Major Packs": 'MP',
     "Matchbox 75": 'MB',
     "Matchbox Across America 50th Birthday Series": 'AAM',
@@ -733,7 +735,9 @@ wiki_transform = {
     "Other Series": 'Other',
     "Other series": 'Other',
     "Real Working Rigs": 'RWR',
+    "Roman Numerals": 'RN',
     "Sea Kings": 'SeaK',
+    "See Also": 'Other',
     "See also": 'Other',
     "Series 1-75": 'MB',
     "Sky Busters": 'SB',
@@ -743,7 +747,9 @@ wiki_transform = {
     "Speed Kings": 'SpK',
     "Super Convoys": 'SCY',
     "Super Kings": 'SK',
+    "Super Sparkers": "SSp",
     "SuperKings": 'SK',
+    "Superfast Series": "SF",
     "Superkings": 'SK',
     "Two Packs": 'TP',
 }
@@ -753,7 +759,7 @@ def write_wiki_file(pif):
     url = "https://matchbox.fandom.com/wiki/List_of_{}_Matchbox"
     link_re = re.compile(r'<h2><span class="mw-headline" id="(?P<id>[^"]*)">(?P<n>[^<]*)</span>')
     with open('pages/wikidat.php', 'wt') as fh:
-        fh.write('<?php\n\n$dat = [\n')
+        fh.write('<?php\n\n// generated file, do not edit.\n\n$dat = [\n')
 
         # $d = [1 => ['a' => '1', 'b' => 2], ['c' => '3', 'd' => '4']];
         year = 1953

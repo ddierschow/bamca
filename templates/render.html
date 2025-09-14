@@ -16,8 +16,10 @@
 {%- endmacro -%}
 
 
-{%- macro format_image_optional(fname, desc, pdir, prefix='', suffix='.jpg', also='') -%}
-{%- if fname -%}<img src="../{{ pdir }}/{{ prefix }}{{ fname|lower }}{{ suffix }}"{% if desc %} alt="{{ desc }}"{% endif %}{{ fmt_also(also) }}>{%- endif -%}
+{%- macro format_image_optional(fname, desc, pdir, prefix='', suffix='.jpg', also='', tail='') -%}
+{%- if fname -%}
+<img src="../{{ pdir }}/{{ prefix }}{{ fname|lower }}{{ suffix }}"{% if desc %} alt="{{ desc }}"{% endif %}{{ fmt_also(also) }}>{{ tail }}
+{%- endif -%}
 {%- endmacro -%}
 
 

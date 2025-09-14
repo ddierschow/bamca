@@ -143,7 +143,7 @@ if (count($newusers) > 0)
 
    <tr><td>
    Tumblr spool:</td><td><?php warn_number($tumblr[0]['c']); ?></td><td>
-   <?php DoTextButtonLink('see', "/cgi-bin/editor.cgi?table=tumblr"); ?></td></tr>
+   <?php DoTextButtonLink('see', "/cgi-bin/tumblr.cgi"); ?></td></tr>
 
    <tr><td>
    Uploaded images:</td><td><?php warn_number(count($imagefiles)); ?></td>

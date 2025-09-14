@@ -1,3 +1,11 @@
+### 7.8.11  - 2025-09-14
+
+- Deprecate a usage of casting.rawname
+- Update wiki scraper
+- Add per-casting badges
+- Rewrite tumblr api calls
+- Minor random bugfixes
+
 ### 7.8.10  - 2025-04-16
 
 - Add matrix references to other matrix pages

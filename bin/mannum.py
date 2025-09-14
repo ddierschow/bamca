@@ -119,6 +119,7 @@ picture_cols = [
     [mbdata.IMG_SIZ_MEDIUM + '_', 'M'],
     [mbdata.IMG_SIZ_TINY + '_', 'T'],
     ['icon', 'I'],
+    ['badge', 'B'],
     ['b_', 'B'],
     ['r_', 'R'],
     ['a_', 'A'],
@@ -129,8 +130,7 @@ picture_cols = [
     ['d_', 'D'],
     # ['bx', 'Bx'],
     # ['bx2', 'Bx'],
-]
-picture_cols += list(zip(var_pic_keys, var_pic_hdrs)) + [['description', 'Description']]
+] + list(zip(var_pic_keys, var_pic_hdrs)) + [['description', 'Description']]
 mades = {False: '<i>%(name)s</i>', True: '%(name)s'}
 
 
@@ -488,6 +488,7 @@ class MannoFile(object):
         ['t_', 'm'],
 
         ['icon', 'i'],
+        ['badge', 'b'],
     ]
 
     def show_list_pic(self, pif, prefix, mod_id, txt):
@@ -530,11 +531,11 @@ class MannoFile(object):
         photogs = {x['photo_credit.name'].lower(): x['photographer.id']
                    for x in pif.dbh.fetch_photo_credits_for_models('.' + config.IMG_DIR_MAN)}
         for mod in model_ids:
+            # remove items using other pictures
             vcredits = {x['photo_credit.name'].lower(): x['photographer.id']
                         for x in pif.dbh.fetch_photo_credits_for_vars(path=config.IMG_DIR_VAR[1:], name=mod)}
             manitem = self.mdict[mod]
-            mdict = {}
-            mdict.update(dict([self.show_list_pic(pif, x, manitem.id, x[0][0]) for x in self.picprefixes]))
+            mdict = dict([self.show_list_pic(pif, x, manitem.id, x[0][0]) for x in self.picprefixes])
             mdict.update({
                 'img': self.show_list_pic(pif, ['s_', '.' + config.IMG_DIR_MAN], manitem.id, mbdata.IMG_SIZ_SMALL)[1],
                 'vid': f'<a href="vars.cgi?edt=1&mod={manitem.id}">{manitem.id}</a>',
@@ -544,7 +545,8 @@ class MannoFile(object):
                 'name': mades[int(manitem.made)],
                 'nl': f'<a href="single.cgi?id={manitem.id}">{manitem.name}</a>',
                 'credit': '<a href="vars.cgi?vdt=1&mod=%s">%s</a>' % (mod, photogs.get(mod.lower(), '--')),
-                'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], manitem.id, 'i')[1]})
+                'icon': self.show_list_pic(pif, ['i_', '.' + config.IMG_DIR_MAN_ICON], manitem.id, 'i')[1],
+                'badge': self.show_list_pic(pif, ['b_', '.' + config.IMG_DIR_MAN_ICON], manitem.id, 'b')[1]})
             founds, needs, _, id_set = mbmods.count_list_var_pics(pif, manitem.id)
             # mdict.update(self.show_box_pics(pif.dbh.fetch_box_type_by_mod(mdict['id'])))
 
@@ -783,7 +785,7 @@ class MannoFile(object):
 
     # ----- tilley list -----------------------------------------
 
-    var_pic_cols = ['ID', 'Description', 'Type', 'Date', 'Cat', 'Cred', 'Pic', 'T', 'S', 'M', 'L']
+    var_pic_cols = ['ID', 'Description', 'Type', 'Date', 'Cat', 'Cred', 'Pic', 'T', 'S', 'M', 'L', 'Note']
 
     def get_section_credit_list(self, pif, sect):
         ents = []
@@ -832,6 +834,7 @@ class MannoFile(object):
             'Type': mod.model_type,
             'Cred': phcred['photographer.id'] if phcred else '',
             'Pic': '',
+            'Note': '',
         }
         mod_row.update(varias.check_picture_sizes(config.IMG_DIR_MAN, mod_id + '.jpg', mk_star))
         credits = {x['photo_credit.name'].lower(): x['photographer.id'] for x in
@@ -862,6 +865,7 @@ class MannoFile(object):
                 'Type': mbdata.var_types.get(var['variation_type'], var['variation_type']),
                 'Cred': var['phcred'],
                 'Pic': var['picture_id'],
+                'Note': var['note'],
             }
             var_row.update(varias.check_picture_sizes(
                 config.IMG_DIR_VAR, var['mod_id'] + '-' + var['var'] + '.jpg', mk_star))
@@ -1189,7 +1193,7 @@ def check_castings(pif, *args):
             print(mod_id, 'has blank name')
         else:
             for x in pif.dbh.icon_name(mod.rawname):
-                if len(x.strip()) > 36:
+                if len(x.strip()) > 25:
                     print(mod_id, 'has illegal name:', mod.rawname)
                     break
 

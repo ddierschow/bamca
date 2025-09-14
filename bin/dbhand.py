@@ -815,7 +815,10 @@ class DBHandler(object):
             args.extend([f"%%{x}%%" for x in varsq[key]])
         if castingq:
             for key in castingq:
-                wheres.extend([f"casting.{key} like %s" for x in castingq[key]])
+                if key == 'rawname':
+                    wheres.extend([f"base_id.{key} like %s" for x in castingq[key]])
+                else:
+                    wheres.extend([f"casting.{key} like %s" for x in castingq[key]])
                 args.extend([f"%%{x}%%" for x in castingq[key]])
         if castinglist:
             idlist = [f'"{x}"' for x in castinglist]

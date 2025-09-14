@@ -614,10 +614,14 @@ def write_comment(*args, **kwargs):
     return msg.comment(*args, **kwargs)
 
 
+def path_exists(path):
+    return os.path.exists(path)
+
+
 def render_template(template, **kwargs):
     env = jinja2.Environment(loader=jinja2.FileSystemLoader('../templates'))
     tpl = env.get_template(template)
-    return tpl.render(comments=msg._read_comments(), **kwargs)
+    return tpl.render(comments=msg._read_comments(), path_exists=path_exists, **kwargs)
 
 
 def command_help(script, cmds):

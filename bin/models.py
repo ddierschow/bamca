@@ -315,7 +315,10 @@ class VarItem(object):
             self.area = ', '.join([mbdata.get_countries().get(x, mbdata.areas.get(x, x)) for x in self.area])
             self.link = f'?mod={self.mod_id}&var={self.var}'
             self._catdefs = {}
-            self.vs = [VSItem(var)] if 'vs.ref_id' in var else []
+            if 'vs' in var:
+                self.vs = [VSItem(x) for x in var['vs']]
+            else:
+                self.vs = [VSItem(var)] if 'vs.ref_id' in var or 'variation_select.ref_id' in var else []
             if vs:
                 self.vs.extend([VSItem(x) for x in vs])
         else:

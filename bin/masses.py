@@ -670,6 +670,8 @@ def add_casting_final(pif):
             'make': pif.form.get_raw('make'),
             'section_id': pif.form.get_raw('section_id'),
             'notes': '',
+            'format_text': '&manufacture|&base_name|&base_number|&company_name|&copyright|&tool_id|&production_id|'
+                           '&base_scale|&additional_text|=base_reads',
         })) + '<br>\n'
         mannum.add_attributes(pif, casting_id, *pif.form.get_raw('attributes').split(' '))
         if pif.form.get_raw('make'):

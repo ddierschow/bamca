@@ -59,9 +59,9 @@ class DB(object):
             useful.write_comment(f'DB.execute q : "{query}"')
             if args:
                 if logargs:
-                    useful.write_comment.info(f'     args : {args}')
+                    useful.write_comment(f'     args : {args}')
                 else:
-                    useful.write_comment.info(f'     args : {len(args)} redacted')
+                    useful.write_comment(f'     args : {len(args)} redacted')
             sys.stdout.flush()
         if self.logger:
             self.logger.info(f'q {self.mock}{os.environ.get("REMOTE_ADDR", "")} {query}')

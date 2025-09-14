@@ -1898,18 +1898,34 @@ def count_images(pif):
 
 
 def check_credits(pif):
-    creds = pif.dbh.fetch_photo_credits(photographer_id='DT')
+    creds = pif.dbh.fetch_photo_credits()  # (photographer_id='DT')
     pif.dbh.depref('photo_credit', creds)
     for cred in creds:
         fn = '/'.join(pif.ren.find_image_file(cred['name'], prefix='s', pdir=cred['path']))
-        if fn:
+        if fn == '/':
+            print('name not found for', fn)
+        elif fn:
             sz = imglib.get_size(fn)
             if not sz:
                 print('size not found for', fn)
-            else:
-                print(sz, fn)
+#            else:
+#                print(sz, fn)
         else:
             print('file not found for', fn)
+
+
+def check_orphan_credits(pif):
+    creds = pif.dbh.depref('photo_credit', pif.dbh.fetch_photo_credits(path='pic/man/var'))
+    credd = {x['name']: x for x in creds}
+    vars = {(x['mod_id'] + '-' + x['var']).lower(): x
+            for x in pif.dbh.depref('variation', pif.dbh.fetch_variations_bare())}
+    for cred in creds:
+        if cred['name'] in vars:
+            v = vars[cred['name']]
+            if v['picture_id'] and v['var'] != v['picture_id']:
+                c2 = credd.get(v['mod_id'].lower() + '-' + v['picture_id'].lower())
+                print(cred['id'], cred['name'], cred['photographer_id'], v['picture_id'],
+                      c2['photographer_id'] if c2 else None)
 
 
 def set_photog_name(pif, photog_id, name):
@@ -1935,6 +1951,7 @@ cmds = {
     ('c', count_images, "count"),
     ('l', check_library, "check library"),
     ('k', check_credits, "check credits"),
+    ('o', check_orphan_credits, "check orphan credits"),
     ('a', add_credits, "add credit: photog picture ..."),
     ('n', set_photog_name, "set photographer name <id> <name>"),
 }

@@ -497,9 +497,9 @@ of Matchbox International Ltd. and are used with permission.
         return self.format_link('../' + file_path, txt, also=also)
 
     def format_image_optional(self, fnames, alt='', nobase=False, prefix='', suffix=None, pdir=None, vars=None,
-                              also={}, nopad=False, largest=None):
+                              also={}, nopad=False, largest=None, tail=''):
         return self.fmt_img(fnames, alt=alt, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, pdir=pdir,
-                            also=also, pad=not nopad, largest=largest)
+                            also=also, pad=not nopad, largest=largest, tail=tail)
 
     def format_image_required(self, fnames, **kwargs):
         if 'nopad' in kwargs:
@@ -606,11 +606,11 @@ of Matchbox International Ltd. and are used with permission.
         return pth if useful.is_good(pth, v=self.verbose) else ''
 
     def fmt_img(self, fnames, alt='', vars=None, nobase=False, prefix='', suffix=None, pdir=None, largest=None,
-                preferred=None, also={}, made=True, required=False, blank=False, pad=False, art=False):
+                preferred=None, also={}, made=True, required=False, blank=False, pad=False, art=False, tail=''):
         img = self.find_image_path(fnames, vars=vars, nobase=nobase, prefix=prefix, suffix=suffix, largest=largest,
                                    preferred=preferred, pdir=pdir, art=art)
         return self.fmt_img_file(img, alt=alt, prefix=prefix, largest=largest, also=also, made=made, required=required,
-                                 blank=blank, unknown=fnames and 'unknown' in fnames, pad=pad)
+                                 blank=blank, unknown=fnames and 'unknown' in fnames, pad=pad, tail=tail)
 
     def find_alt_image_path(self, img, prefix='', largest=None, made=True, required=False, unknown=False):
         if img:
@@ -623,15 +623,15 @@ of Matchbox International Ltd. and are used with permission.
         return ''
 
     def fmt_img_file(self, img, alt='', prefix='', largest=None, also={}, made=True, required=False, blank=False,
-                     unknown=False, pad=False):
+                     unknown=False, pad=False, tail=''):
         if img:
-            return self.fmt_img_src(img, alt=alt, also=also)
+            return self.fmt_img_src(img, alt=alt, also=also) + tail
         if unknown:
-            return self.fmt_art('nomod.gif', prefix=prefix, largest=largest, also=also)
+            return self.fmt_art('nomod.gif', prefix=prefix, largest=largest, also=also) + tail
         if required:
-            return self.fmt_no_pic(made, prefix, largest=largest, blank=blank, also=also)
+            return self.fmt_no_pic(made, prefix, largest=largest, blank=blank, also=also) + tail
         if alt:
-            return alt
+            return alt + tail
         if pad:
             return '&nbsp;'
         return ''

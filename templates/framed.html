@@ -3,13 +3,16 @@
 {%- macro add_left_bar(type_id=None, base_id=None, vehicle_type='', rowspan=4, content='') %}
 <td rowspan="{{ rowspan }}" class="leftbar">
 <div class="leftbarcontent">
-{%- if base_id or type_id or vehicle_type %}
 {%- if type_id %}{{ render.format_image_icon(type_id) }}<p>{% endif %}
-{%- if base_id %}{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_MAN_ICON, prefix='i_', suffix='.gif', also={'class':'centered'}) }}<p>{% endif %}
+{%- if path_exists("." + config.IMG_DIR_MAN_ICON + "/i_" + base_id.lower() + ".gif") -%}
+{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_MAN_ICON, prefix='i_', suffix='.gif', also={'class':'centered'}, tail='<p>') }}{% endif %}
 {%- for vtype in vehicle_type %}
 {{ render.format_image_optional(vtype, '', '.' + config.IMG_DIR_ICON, suffix='.gif', also={'class':'centered'}) }}<p>
 {%- endfor %}
-<p>{% endif %}
+{% if path_exists("." + config.IMG_DIR_MAN_ICON + "/b_" + base_id.lower() + ".gif") %}
+{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_MAN_ICON, prefix='b_', suffix='.gif', also={'class':'centered'}, tail='<p>') }}
+{%- endif -%}
+<p>
 {{ content }}
 </div>
 <div class="bamcamark"><img src="/pic/icon/l_{{ page.bamcamark }}"></div>
