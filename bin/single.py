@@ -163,6 +163,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
             f'<a href="vars.cgi?adl=1&mod={mod_id}">Attr Edit</a>',
             f'<a href="vars.cgi?vdt=1&mod={mod_id}">Details</a>',
             f'<a href="vars.cgi?vds=1&mod={mod_id}">Descriptions</a>',
+            f'<a href="mass.cgi?tymass=mbusa&mod={mod_id}">MBUSA</a>',
             f'<a href="vsearch.cgi?ask=1&id={mod_id}">Search</a>',
             f'<a href="pics.cgi?m={mod_id.lower()}">Pics</a> ' +
             f'<a href="vars.cgi?lrg=1&mod={mod_id}&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>',
@@ -196,8 +197,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
             ldir = pdir.replace('pic', 'lib')
             prod = (f'<a href="upload.cgi?d={ldir}&n={pic}&c={pic}&link={useful.url_quote(pif.request_uri)}">'
                     f'{pif.ren.fmt_mini(icon="upload")}</a>')
-            prodpic = pif.ren.find_image_path(pic, pdir=pdir, largest="m")
-            if prodpic:
+            if prodpic := pif.ren.find_image_path(pic, pdir=pdir, largest="m"):
                 x, y = imglib.get_size(prodpic)
                 prodpicname = prodpic[prodpic.rfind('/') + 1:]
                 prod = (
@@ -237,9 +237,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
             for k, v in var_counts.items()]))
         lines.append('')
 
-        var_ids = [x['v.var'] for x in raw_variations]
-        var_ids.sort()
-        for var in var_ids:
+        for var in sorted([x['v.var'] for x in raw_variations]):
             ln = f'<a href="vars.cgi?mod={mod_id}&var={var}&edt=1">{var}</a> '
             if var:
                 ln += ''.join([x.upper() for x in mbdata.image_size_types if os.path.exists(

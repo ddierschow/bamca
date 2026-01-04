@@ -322,3 +322,5 @@ it is also useful for targeting FF-only code */
 .body_status .section {background-color: #FFFFCC;}
 
 .body_user {background-color: #FFEEDD;}
+
+.announce {background-color: #000000; font-size: large; padding: 4px; border: 1px solid yellow; border-collapse: collapse;}

@@ -510,6 +510,7 @@ casting_arts = {
     'Color Changers': 'c_colorchangers',
     'Convoy': 'c_convoy',
     'Moving Parts': 'c_movingparts',
+    'Collectors Series': 'c_mcoll',
     'Speed Kings': 'c_speed-kings',
     'Mattel Creations': 'c_mattelcreations',
     'SuperGT': 'c_supergt',

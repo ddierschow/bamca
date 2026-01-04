@@ -247,7 +247,8 @@ def edit_single_variation(pif, manitem, var_id, addnew=False):
             [d for d in attribute_keys if d not in not_individual_attributes])),
         render.Range(name='Information on Base', id='det', entry=edit_details(
             base_attributes + ['logo_type', '_copy_base_from'])),
-        render.Range(name='Notes', id='det', entry=edit_details(note_attributes)),
+        render.Range(name='Notes', id='det', entry=edit_details(note_attributes) +
+                     [edit_detail(pif, 'mbusa', attributes, manitem, varitem, attr_pics, photogs, picture_variation, categories)]),
     ]
     llistix = render.Listix(id='single', section=[lsec])
 
@@ -427,6 +428,9 @@ def edit_detail(pif, field, attributes, manitem, varitem, attr_pics=None, photog
         case '_credit':
             return {'field': '', 'title': 'Credit', 'value': '',
                     'new': pif.form.put_select("phcred." + varitem.var, photogs, selected=varitem._credit, blank='')}
+        case 'mbusa':
+            mbusa = '<br>'.join([x['mbusa.description'] for x in pif.dbh.fetch_mbusa_entries(varitem.mod_id, varitem.var)])
+            return {'field': '', 'title': 'MBUSA', 'value': '', 'new': mbusa}
     if field in ('vs', 'link', 'categories') or field.startswith('_'):
         useful.write_comment('edit_detail not writing', field)
         return {}
@@ -2389,6 +2393,16 @@ def check_appearances(pif, *mod_ids):
                     print(mod_id, var['variation.var'], x, flush=True)
 
 
+def import_mbusa(pif, *file_names):
+    for fn in file_names:
+        for ln in open(f'lib/docs/mbusa/text/{fn}.txt', 'rt').readlines():
+            ln = [x.strip() for x in ln.split('|')]
+            if len(ln) == 6:
+                print(ln[0], ln[1], pif.dbh.write_mbusa_entry(ln))
+            else:
+                print(ln[0], ln[1], f"length mismatch ({len(ln)})")
+
+
 cmds = [
     ('d', delete_variation, "delete: mod_id var_id"),
     ('a', add_variation, "add: mod_id var_id body"),
@@ -2418,6 +2432,7 @@ cmds = [
     ('fvt', fix_variation_type, "mod_id [mod_id]"),
     ('tilley', check_tilley_credits, "do the tilley thing"),
     ('ckat', check_attributes, "check attributes: [attr_name]..."),
+    ('mbusa', import_mbusa, "import mbusa: file_name ..."),
     ('sx', sx, "do stupid things"),
 ]
 

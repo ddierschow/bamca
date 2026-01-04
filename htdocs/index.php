@@ -5,6 +5,7 @@ include "bin/basics.php";
 include "config.php";
 $pif = GetPageInfo("index");
 $is_logged_in = CheckPerm($pif, 'b');
+$announcement = '';
 DoHead($pif);
 DoPageHeader($pif);
 ?> 
@@ -31,7 +32,13 @@ DoPageHeader($pif);
 <tr><td width="50">&nbsp;</td>
 <td valign="top">
 
-<?php include "announce.php";?>
+<?php
+include "announce.php";
+
+if ($announcement) {
+    echo '<div class="announce">' . $announcement . "</div>\n";
+}
+?>
 
 <table class="index"><tr><td>
 <h2>Information about BAMCA, the Bay Area Matchbox Collectors Association</h2>

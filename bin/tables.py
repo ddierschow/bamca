@@ -674,37 +674,6 @@ table_info = {
         },
         'ask': ['id', 'section_id'],
     },
-    # periodical
-    'periodical': {
-        'db': 'bamca',
-        'id': ['id'],
-        'saveid': True,
-        'columns': ['id', 'pub_id', 'volume', 'issue', 'date', 'pages'],
-        'clinks': {
-            'book': {'tab': 'book', 'id': ['id/pub_id']},
-        },
-        'add': {
-            'article': ['mod_id/id'],
-        },
-        'create': {
-        },
-        'ask': ['pub_id', 'volume', 'issue', 'date'],
-    },
-    # article
-    'article': {
-        'db': 'bamca',
-        'id': ['id'],
-        'saveid': True,
-        'columns': ['id', 'per_id', 'title', 'author', 'page'],
-        'clinks': {
-            'pub_id': {'tab': 'periodical', 'id': ['id/per_id']},
-        },
-        'add': {
-        },
-        'create': {
-        },
-        'ask': ['id', 'per_id', 'title'],
-    },
     # variation_select
     'variation_select': {
         'db': 'bamca',
@@ -746,7 +715,7 @@ table_info = {
         #         {'tab': 'casting', 'id': ['id/mod_id']},
         # ],
     },
-    # book
+    # book - reference books and magazines
     'book': {
         'db': 'bamca',
         'id': ['id'],
@@ -768,6 +737,37 @@ table_info = {
                 ('0010', 'Mag'),
             ]
         },
+    },
+    # periodical
+    'periodical': {
+        'db': 'bamca',
+        'id': ['id'],
+        'saveid': True,
+        'columns': ['id', 'pub_id', 'volume', 'issue', 'date', 'pages'],
+        'clinks': {
+            'book': {'tab': 'book', 'id': ['id/pub_id']},
+        },
+        'add': {
+            'article': ['mod_id/id'],
+        },
+        'create': {
+        },
+        'ask': ['pub_id', 'volume', 'issue', 'date'],
+    },
+    # article
+    'article': {
+        'db': 'bamca',
+        'id': ['id'],
+        'saveid': True,
+        'columns': ['id', 'per_id', 'title', 'author', 'page'],
+        'clinks': {
+            'pub_id': {'tab': 'periodical', 'id': ['id/per_id']},
+        },
+        'add': {
+        },
+        'create': {
+        },
+        'ask': ['id', 'per_id', 'title'],
     },
     # bayarea
     'bayarea': {

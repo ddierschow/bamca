@@ -638,6 +638,8 @@ def add_casting_main(pif):
     ]
 
     header = '<form name="mass" action="mass.cgi">' + pif.create_token()
+    for ln in pif.dbh.fetch_mbusa_entries(mod_id):
+        header += '<br>' + ln['mbusa.model']
     footer = mass_type_reinput(pif) + "</form><p>"
 
     lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
@@ -862,6 +864,8 @@ def add_var_info(pif):
         header += 'revising' + pif.form.put_hidden_input(store='update')
     else:
         header += 'creating' + pif.form.put_hidden_input(store='insert')
+    for ln in pif.dbh.fetch_mbusa_entries(mod_id, var_id):
+        header += '<br>' + ln['mbusa.description']
 
     entries = []
     defs = {'mod_id': mod_id,
@@ -2556,6 +2560,7 @@ def period_ask(pif, period_id=None):
 
     return pif.ren.format_template('simplelistix.html', llineup=llistix)
 
+    # book ['id', 'author', 'title', 'publisher', 'year', 'isbn', 'flags', 'pic_id']
     # periodical ['id', 'pub_id', 'volume', 'issue', 'date', 'pages']
     # article ['id', 'per_id', 'title', 'author', 'page']
 
@@ -2599,6 +2604,34 @@ def period_edit_issue(pif, period_id):
 
 def period_save(pif):
     pass
+
+
+# ------- mbusa ----------------------------------------------------
+
+
+def mbusa_main(pif):
+    table = pif.dbh.get_table_data('mbusa')
+    mod_id = pif.form.get_id('mod') or None
+    var_id = pif.form.get_id('var') or None
+    date = pif.form.get_id('date') or None
+    footer = header = ''
+
+    def ent(x):
+        x = pif.dbh.depref('mbusa', x)
+        if x['var_id']:
+            x['var_id'] = pif.ren.format_link(f'/cgi-bin/vars.cgi?edt=1&mod={x["mod_id"]}&var={x["var_id"]}', x["var_id"])
+        x['mod_id'] = pif.ren.format_link(f'/cgi-bin/single.cgi?id={x["mod_id"]}', x["mod_id"])
+        return x
+
+    entries = [ent(x) for x in pif.dbh.fetch_mbusa_entries(mod_id, var_id, date)]
+    footer = f'{len(entries)} rows'
+    llistix = render.Listix(section=[render.Section(colist=table.columns, range=[render.Range(entry=entries)],
+        footer=footer)], note=header)
+
+    return pif.ren.format_template('simplelistix.html', llineup=llistix)
+
+
+# ------- support --------------------------------------------------
 
 
 def modify_man_items(mods):
@@ -2718,6 +2751,7 @@ mass_mains_list = [
     ('attrpics', add_attr_pics),
     ('lineup_model', add_lm_main),
     ('period', period_main),
+    ('mbusa', mbusa_main),
 ]
 
 mass_mains_hidden = {

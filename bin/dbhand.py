@@ -767,9 +767,11 @@ class DBHandler(object):
         detrecs = self.fetch_details(mod_id, nodefaults=nodefaults)
         return [(v, detrecs.get(v['v.var'], {}), [vs for vs in vsrecs if vs['vs.var_id'] == v['v.var']]) for v in varrecs]
 
-    def fetch_variations_by_date(self, dt, wildcard=False):
+    def fetch_variations_by_date(self, dt, wildcard=False, imported_from=None):
         dtq = f"variation.date like '{dt}%'" if wildcard else f"variation.date='{dt}'"
-        varrecs = self.fetch('variation,base_id', where=f"base_id.id=variation.mod_id and {dtq}",
+        if imported_from:
+            dtq += f" or variation.imported_from like '{dt}%'"
+        varrecs = self.fetch('variation,base_id', where=f"base_id.id=variation.mod_id and ({dtq})",
                              order='variation.mod_id, variation.var', tag='VariationsByDate')
         return varrecs
 
@@ -1916,6 +1918,20 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
 
     def fetch_mbusa_entry(self, entry_id):
         return self.fetch('mbusa', where={'id': entry_id}, tag='MBUSAEntry')
+
+    def fetch_mbusa_entries(self, mod_id=None, var_id=None, date=None):
+        if date:
+            wheres = f'date="{date}"'
+        else:
+            wheres = f'mod_id="{mod_id}"'
+            if var_id:
+                wheres += f'and var_id="{var_id}"'
+        return self.fetch('mbusa', where=wheres, tag='MBUSAEntries')
+
+    def write_mbusa_entry(self, values):
+        columns = ['mod_id', 'var_id', 'model', 'variation', 'description', 'date']
+        ret = self.write('mbusa', values=dict(zip(columns, values)), tag='WriteMBUSAEntry')
+        return ret
 
     # - miscellaneous
 

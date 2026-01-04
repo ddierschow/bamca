@@ -383,7 +383,9 @@ class MannoFile(object):
         aliases = {}
         for alias in pif.dbh.fetch_aliases():
             aliases.setdefault(alias['alias.ref_id'], [])
-            aliases[alias['alias.ref_id']].append(alias['alias.id'])
+            aliases[alias['alias.ref_id']].append(
+                f"<b>{alias['alias.id']}</b>" if alias['alias.flags'] & config.FLAG_ALIAS_PRIMARY
+                else alias['alias.id'])
         for mod in model_ids:
             manitem = self.mdict[mod]
             fmt_bad, _, _ = pif.dbh.check_description_formatting(manitem.ref_id)
@@ -1457,6 +1459,41 @@ def make_dirs(pif, *args):
             os.mkdir(path)
 
 
+def find_missing_variations(pif, *args):
+    # fetch casting_related looking for shared
+    # fetch var via mod_id from casting_related
+    def pad(num, cvd):
+        return f'{num}'.zfill(cvd)
+
+    def get_vars(mod_id):
+        return {x['variation.var']: x['variation.date'] for x in pif.dbh.fetch_variations_bare(mod_id)}
+
+    for mod_id in args:
+        cas = pif.dbh.fetch_casting(mod_id)
+        if not cas:
+            print(mod_id, 'not found')
+            continue
+        cvd = cas['casting.variation_digits']
+        alias = pif.dbh.fetch_aliases(ref_id=mod_id, where='alias.flags=2')
+        alias = alias[0]['alias.id'] if alias else ''
+
+        vars = get_vars(mod_id)
+        for other_mod in pif.dbh.fetch_casting_relateds(mod_id, flags=config.FLAG_CASTING_RELATED_SHARED):
+            for var, date in get_vars(other_mod['casting_related.related_id']).items():
+                if var[0].isdigit():
+                    if var in vars:
+                        print(var, 'in', mod_id, 'and', other_mod['casting_related.related_id'])
+                    else:
+                        vars[var] = date
+        nums = sorted(set([x[:cvd] for x in vars if x[0].isdigit()]))
+        for num in range(1, int(nums[-1]) + 1):
+            if f'{num}'.zfill(cvd) not in nums:
+                prev = pad(num - 1, cvd)
+                foll = pad(num + 1, cvd)
+                print(f'{mod_id:7} {alias:7} {pad(num, cvd):7} {prev}-{vars.get(prev)} {foll}-{vars.get(foll)}')
+        print(' '.join(sorted(set([x[0] for x in vars if not x[0].isdigit()]))))
+
+
 cmds = [
     ('d', delete_casting, "delete: mod_id"),
     ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
@@ -1468,13 +1505,14 @@ cmds = [
     ('i', casting_info, "info: mod_id"),
     ('u', update_descriptions, "update descriptions: ..."),
     ('x', check_castings, "check castings: mod_id ..."),
-    ('f', fix_formats, "fix formats"),
     ('cc', check_core, "check core: mod_id ..."),
     ('crc', check_casting_related, "check casting_related"),
     ('cra', add_casting_related, "add casting_related [-s section] mod_id mod_id ..."),
     ('cf', add_casting_file, "add casting file"),
     ('ll', add_linkline, "add link line"),
+    ('ff', fix_formats, "fix formats"),
     ('fv', fix_variation, "fix variation mod_id ..."),
+    ('fmv', find_missing_variations, "find missing variations mod_id ..."),
     ('md', make_dirs, "make dirs"),
 ]
 

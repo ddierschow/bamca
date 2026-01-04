@@ -138,22 +138,33 @@ Product pictures should be as close to straight on forward as possible, without 
 <li>If you're interested in being a curator for one of the sections mentioned, please get in touch with me.
 I'd love to work with others on these projects.
 
-<li>I need information, and particularly publications, which would become property of BAMCA.<br>
+<li>I need information, and particularly publications, which would become property of BAMCA.<p>
 I am missing the following Matchbox USA newsletters:
 <ul>
-<li>all issues from 1977, 1978, and 1979
-<li>January, February, March, May, and June of 1980
+<li>May and June of 1980
+<li>July of 1995
 <li>March through December of 2012
 <li>all issues from 2013
 <li>January and February of 2015
 <li>February and April of 2016
-<li>March, 2020
+<li>August of 2017
+<li>March of 2020
+<li>January of 2021
+<li>September of 2024
+<li>November of 2025 (which is probably sitting here on my desk somewhere)
 </ul>
 
-I am missing all of Connecticut Matchbox News, which was the name of Matchbox USA through, perhaps, March of 1981.
-<p>
+<p>I have copies of some old issues but would like to get originals:
+<ul>
+<li>April and August through December of 1980
+<li>January and February of 1981
+<li>January through October of 1982
+<li>July of 1984
+</ul>
 
-I am missing the following AIM newsletters:
+<p>I am missing all of Connecticut Matchbox News, which was the name of Matchbox USA through March of 1980.
+
+<p>I am missing the following AIM newsletters:
 <ul>
 <li>May, 1970 to April, 1972
 <li>June, September, December of 1972
@@ -163,14 +174,15 @@ I am missing the following AIM newsletters:
 <li>June, 1997 onward
 </ul>
 
-I am missing the following MICA newsletters:
+<p>I am missing the following MICA newsletters:
 <ul>
 <li>Volume 1, issues 1, 2, 4
 <li>Volume 2, issue 3
 <li>Volume 14, issue 3
 <li>Volume 15, issue 4
-<li>Volume 19, 20, and 22 onward
+<li>Volume 19, 20, and 22
 </ul>
+<p>
 
 <li>If you're a programmer and want to take part in script development, by all means get in touch.
 The site is developed in Python for the cgi-bin scripts, with some PHP thrown in.  The data is stored

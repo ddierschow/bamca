@@ -1,3 +1,10 @@
+### 7.8.12  - 2026-01-03
+
+- Add support for MBUSA table
+- Minor tweaks
+- Update missing periodicals list
+- Make adding announcements easier
+
 ### 7.8.11  - 2025-09-14
 
 - Deprecate a usage of casting.rawname

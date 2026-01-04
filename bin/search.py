@@ -147,7 +147,7 @@ def get_mack_numbers(pif, mod_id):
     return ret
 
 
-descs = ['body', 'base', 'interior', 'windows', 'wheels']
+descs = ['body', 'base', 'interior', 'windows', 'wheels', 'text']
 
 
 def date_search(pif, dt=None, yr=None):
@@ -156,10 +156,10 @@ def date_search(pif, dt=None, yr=None):
         lsec = render.Section()
         lran = render.Range()
         pif.ren.title = dt
-        vars = pif.dbh.fetch_variations_by_date(dt)
+        vars = pif.dbh.fetch_variations_by_date(dt, imported_from=dt if '-' in dt else None)
         prefixes = imglib.get_tilley_file()
         last = None
-        ver_count = 0
+        ver_count = ver_poss = 0
         for var in vars:
             mod_id = var['variation.mod_id']
             var_id = var['variation.var']
@@ -169,7 +169,9 @@ def date_search(pif, dt=None, yr=None):
             categories = [x['category'] for x in vss if x['category']]
             verified = ['1'] if var['variation.flags'] & config.FLAG_MODEL_VARIATION_VERIFIED else []
             id_mismatch = ['1'] if var['variation.flags'] & config.FLAG_MODEL_ID_INCORRECT else []
-            ver_count += 1 if verified else 0
+            if not var_id.startswith('f') and var['variation.manufacture'] not in mbdata.other_plants:
+                ver_poss += 1
+                ver_count += 1 if verified else 0
             aliases = [x['alias.id'] for x in pif.dbh.fetch_aliases(
                 mod_id, 'mack') if x['alias.flags'] & config.FLAG_ALIAS_PRIMARY]
             mack_id = aliases[0] if aliases else mod_id
@@ -220,8 +222,9 @@ def date_search(pif, dt=None, yr=None):
         lran.entry = [render.Entry(text=x['shown'], class_name=x['class_name']) for x in vars]
         lsec.columns = 1
         llineup.header += (
-            'Verified: %d of %d<br><form action="/cgi-bin/mass.cgi?tymass=dates" method="post">' %
-            (ver_count, len(vars)))
+            f'Verified: {ver_count} of {ver_poss} -\n' +
+            pif.ren.format_link(f'/cgi-bin/mass.cgi?tymass=mbusa&date={dt}', 'MBUSA') + '\n' +
+            '<form action="/cgi-bin/mass.cgi?tymass=dates" method="post">')
         llineup.footer += pif.form.put_button_input() + '</form>'
         lsec.range = [lran]
         llineup.section = [lsec]
@@ -234,7 +237,7 @@ def date_search(pif, dt=None, yr=None):
                 y = first_year - 1 if dt['date'] < str(first_year) else int(dt['date'][:4])
                 date_d.setdefault(y, [])
                 date_d[y].append((dt['date'], dt['count(*)']))
-                last_year = y if y > last_year else last_year
+                last_year = max(y, last_year)
 
         lsec = render.Section()
         for year in range(first_year - 1, last_year + 1):
@@ -242,6 +245,11 @@ def date_search(pif, dt=None, yr=None):
             lran.entry = [render.Entry(
                 text=pif.ren.format_link(f'/cgi-bin/msearch.cgi?date=1&dt={d}',
                                          f'{d} ({c})')) for d, c in date_d[year]]
+            if year >= first_year:
+                if '-' in date_d[year][0][0]:
+                    lran.entry.insert(0, render.Entry(text=str(year)))
+                if len(lran.entry) > 7:
+                    lran.entry.insert(7, render.Entry())
             lsec.range.append(lran)
         lsec.columns = 7
         llineup.section.append(lsec)

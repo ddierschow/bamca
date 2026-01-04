@@ -533,7 +533,7 @@ def single_publication(pif, pub_id):
         'title': man['name'],
         'note': '',
         'type_id': 'p_' + sec['id'],
-        # 'icon_id': pub_id,
+        'icon_id': pub_id,
         'vehicle_type': '',
         'rowspan': 5 if upper_box else 4,
         'left_bar_content': left_bar_content,
