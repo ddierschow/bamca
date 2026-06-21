@@ -21,6 +21,7 @@ class MatrixFile(object):
         self.page = pif.form.get_str('page')
         self.cat_id = pif.form.get_str('cat')
         self.large = pif.form.get_bool('large')
+        self.entry_count = self.picture_count = 0
         if self.page:
             self.from_db(pif)
         elif self.cat_id:
@@ -157,7 +158,7 @@ class MatrixFile(object):
                     elif len(self.dates) > 1:
                         section.name += f" {dates[0]}-{dates[-1]}"
                 else:
-                    lm = pif.dbh.fetch_lineup_model(f"mod_id='{pif.page_id}' and picture_id='{section.id}'")
+                    lm = pif.dbh.fetch_lineup_model(f"mod_id='{pif.page_id}' and sub_id='{section.id}'")
                     section.name += f' ({pif.page_id}/{section.id}) '
                     section.name += pif.ren.format_link(
                         f"mass.cgi?tymass=lm_series&page_id={pif.page_id}&section_id={section.id}",
@@ -177,14 +178,18 @@ class MatrixFile(object):
                     ran.entry.append(self.add_cell(pif, table.ents[range_id], table, comments))
                 elif mods := mbdata.find_vs_variations(table.ents[range_id], table.id, str(range_id)):
                     ran.entry.append(self.add_cell(pif, mods, table, comments))
+                else:
+                    useful.write_comment('range no mods', range_id)
             section.range.append(ran)
             llineup.section.append(section)
         # llineup.tail = [pif.ren.format_image_art('bamca_sm'), '']
         pif.ren.set_button_comment(pif, '')
         llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(comments)])]
+        useful.write_comment(f'{self.picture_count} / {self.entry_count} pictures')
         return llineup
 
     def add_cell(self, pif, ents, table, comments):
+        self.entry_count += 1
         libdir = pif.ren.lib_dir
         entd = {}
         for ent in ents:
@@ -207,6 +212,14 @@ class MatrixFile(object):
                         ent.description.append(desc)
             if ent.image:
                 varimage = ent.image
+
+        ent.additional = ent.modicons = ''
+        if pif.is_allowed('a'):  # pragma: no cover
+            ent.modicons = (
+                pif.ren.format_link(f"upload.cgi?d={libdir}&n={ent.link}&c={ent.link}",
+                                    pif.ren.fmt_mini(icon="upload", color="gray")) + ' ' +
+                pif.ren.format_link(pif.dbh.get_editor_link('matrix_model', page_id=ent.page_id, mod_id=ent.mod_id),
+                                    pif.ren.fmt_edit(color="gray")))
 
         if ent.is_no_variation:
             ent.picture_only = ent.no_variation = 1
@@ -232,12 +245,11 @@ class MatrixFile(object):
             ent.shown_id = ''
 
         ent.product = [ent.link]
-        prodpic = (
-            pif.ren.find_image_path(ent.product, suffix='jpg', pdir=ent.pdir) or
-            pif.ren.find_image_path(ent.product, suffix='jpg', largest='l', pdir=ent.pdir))
+        prodpic = pif.ren.find_image_path(ent.product, suffix='jpg', largest='l', pdir=ent.pdir)
         if prodpic:
             comments.add('c')
             ent.is_product_picture = 1
+            self.picture_count += 1
             if pif.is_allowed('a') and self.large:
                 ent.prodpic = prodpic
         if ent.not_made:
@@ -249,6 +261,12 @@ class MatrixFile(object):
         if ent.mod_id.startswith('matrix.'):
             ent.href = f'/cgi-bin/matrix.cgi?page={ent.mod_id[7:]}#{ent.sub_id}'
         elif ent.model_type == 'MP':
+            if pif.ren.find_image_path(
+                    ent.pack.id, pdir=(config.IMG_DIR_PROD_PLAYSET[1:] if ent.pack.section_id == 'playset' else
+                                       config.IMG_DIR_PROD_PACK[1:]), largest=mbdata.IMG_SIZ_GIGANTIC):
+                comments.add('c')
+                self.picture_count += 1
+                ent.is_product_picture = 1
             ent.href = f"packs.cgi?page=&id={ent.mod_id}"
         elif not ent.mod_id:
             img = pif.ren.find_image_path(ent.link, largest='h')
@@ -274,14 +292,6 @@ class MatrixFile(object):
             if x and x not in desclist:
                 desclist.append(x)
         ent.description = desclist
-
-        ent.additional = ''
-        if pif.is_allowed('a'):  # pragma: no cover
-            ent.additional += pif.ren.format_button_link("edit", pif.dbh.get_editor_link('matrix_model', id=ent.id))
-            pic = ent.link
-            ent.additional += pif.ren.format_button_link(
-                "upload",
-                f"upload.cgi?d={libdir}&n={pic}&c={pic}&link=" + useful.url_quote(f'/cgi-bin/matrix.cgi?page={pif.page_id}'))
 
         if ent.disp_format:
             if ent.shown_id:
@@ -403,8 +413,8 @@ def move_section(pif, section_id, old_page_id, new_page_id):
         print('no new_page')
         return
     print('section')
-    sec['section.page_id'] = new_page_id
-    print(pif.dbh.insert_or_update_section(sec.todict()))
+    sec['section.page_id'] = new_page_id  # part of pk!
+    print(pif.dbh.update_section(sec, where=f'id="{section_id}" and page_id="{old_page_id}"'))
     print('matrix_model')
     for model in pif.dbh.fetch_matrix_models(page_id=old_page_id, section=section_id):
         model['page_id'] = new_page_id

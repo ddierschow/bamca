@@ -8,6 +8,10 @@ body {background-color: #FFFFCC;}
 .ln1 {background-color: #FFFFDD;}
 .ln2 {background-color: #FFDDDD;}
 
+.yay {border-left-style: solid; border-left-width: 4px; border-left-color: #6F6;}
+.noo {border-left-style: solid; border-left-width: 4px; border-left-color: #F66;}
+.meh {border-left-style: solid; border-left-width: 4px; border-left-color: #999;}
+
 ul {margin: 0;}
 
 .inset {background-color: #FFFFFF; border-color: #000000; border-width: 1px; border-style: ridge; border-collapse: collapse; padding: 4px;}

@@ -95,7 +95,7 @@ def calc_lineup_model(pif, lsec, year, region, mod):
     if mod.pack.id:
         mod.prod_id = mod.pack.id
         if mod.image_format:
-            mod.product = mod.image_format % mod.pack.id
+            mod.product = mod.pack.id
         if pif.ren.find_image_path([mod.product], pdir=mod.pdir, largest=mbdata.IMG_SIZ_GIGANTIC):
             mod.is_product_picture = 1
         if mod.pack.section_id == 'playset':
@@ -216,15 +216,16 @@ def set_vars(rmods, curmod, regions, ref_id, fdebug=False):
             print(*args)
 
     if fdebug:
-        print('--------------------------------------------------------')
-        print('SETVAR', regions, ref_id)
-        # print('CURMOD:', useful.defang(curmod))
+        useful.write_message('--------------------------------------------------------')
+        useful.write_message('SETVAR', regions, ref_id)
+        # useful.write_message('CURMOD:', useful.defang(curmod), str(curmod.__dict__))
         for rmod in rmods:
             if (rmod.number == curmod.number and
                     rmod.display_order == curmod.display_order):
-                print('RMOD:', rmod.number, 'ord', rmod.display_order,
-                      'vs.ref_id', rmod.vs.ref_id, 'vs.sec_id', rmod.vs.sec_id, 'var', rmod.var.var,
-                      rmod.var.text_description, 'pic', rmod.var.picture_id)
+                useful.write_message(
+                    'RMOD:', rmod.number, 'ord', rmod.display_order,
+                    'vs.ref_id', rmod.vs.ref_id, 'vs.sec_id', rmod.vs.sec_id, 'var', rmod.var.var,
+                    rmod.var.text_description, 'pic', rmod.var.picture_id)
 
     quittable = False
     for region in regions:
@@ -1381,7 +1382,11 @@ def import_series(pif, matrix_page, matrix_section, year, lineup_section):
             'name': mm["name"],
             'subname': '',
         }
-        print(pif.dbh.insert_lineup_model(values))
+        print(values)
+        if not pif.dbh.fetch_lineup_model(where=f'year={year} and number="{mm["range_id"]}" and region="{lineup_section}"'):
+            print(pif.dbh.insert_lineup_model(values))
+        else:
+            print('already')
     for vs in pif.dbh.fetch_variation_selects_for_ref(matrix_page, matrix_section):
         del vs['variation_select.id']
         vs['variation_select.ref_id'] = f'year.{year}'

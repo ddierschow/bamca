@@ -930,7 +930,7 @@ class Range(object):
     # listix: id, name, note, anchor, graphics, styles | entry
     # matrix: id, name, note, anchor, graphics | entry
 
-    def __init__(self, id=None, name='', note='', anchor='', graphics='', styles=None, entry=None):
+    def __init__(self, id=None, name='', note='', anchor='', graphics='', styles=None, entry=None, class_name=None):
         self.id = id
         self.name = name
         self.note = note
@@ -938,6 +938,7 @@ class Range(object):
         self.graphics = graphics
         self.styles = styles or {}  # listix
         self.entry = entry or []
+        self.class_name = class_name
 
     def dump(self):
         useful.msg.comment('  Range', 'id', self.id, 'name', self.name, 'note', self.note,

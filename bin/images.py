@@ -186,6 +186,7 @@ ebay_ends = [
     '/s-l500.jpg',
     '/s-l300.jpg',
     '/s-l225.jpg',
+    '/s-l140.jpg',
     '/s-l64.jpg',
     '/s-l960.png',
     '/s-l500.png',
@@ -351,6 +352,8 @@ class UploadForm(object):
     def save_uploaded_file(self):
         fn = self.calc_filename()
         fn = useful.file_save(self.tdir, fn, self.fimage, self.replace)
+        if fn.endswith('.webp'):
+            fn = imglib.webp_to_png(self.tdir, fn)
         file_log(self.tdir + '/' + fn, self.tdir)
         return fn
 

@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+import glob
+
 import basics
 import config
 import cvfind
@@ -147,12 +149,13 @@ def get_mack_numbers(pif, mod_id):
     return ret
 
 
-descs = ['body', 'base', 'interior', 'windows', 'wheels', 'text']
+descs = ['body', 'base', 'interior', 'windows', 'wheels']
 
 
 def date_search(pif, dt=None, yr=None):
     llineup = render.Matrix(columns=4)
-    if dt:
+    if dt:  # specific month page
+        mbusa = {(x['mbusa.mod_id'], x['mbusa.var_id']): x for x in pif.dbh.fetch_mbusa_entries(date=dt)}
         lsec = render.Section()
         lran = render.Range()
         pif.ren.title = dt
@@ -163,6 +166,7 @@ def date_search(pif, dt=None, yr=None):
         for var in vars:
             mod_id = var['variation.mod_id']
             var_id = var['variation.var']
+            mbusa_ent = mbusa.get((mod_id, var_id), {})
             ldir = 'man/' + mod_id.lower()
             vss = pif.dbh.fetch_variation_selects(mod_id=mod_id, var_id=var_id)
             vs = ', '.join(['-'.join([y[x] for x in ['ref_id', 'sec_id', 'ran_id']]) for y in vss])
@@ -182,12 +186,18 @@ def date_search(pif, dt=None, yr=None):
             done = all([var['variation.text_' + x] != '' for x in ['description'] + descs])  # ignore text_with for now
             done = pif.ren.fmt_star('green' if done else 'red')
             cats = '(%s/%s)' % (var['variation.category'], ' '.join(categories))
-            desc = ''.join(['<li>' + x + ': ' + var['variation.text_' + x] for x in descs])
+
+            def desct(x):
+                if x == 'base':
+                    return var['variation.text_base'] + ', ' + var['variation.text_text']
+                return var['variation.text_' + x]
+
+            desc = ''.join([f"<li>{x}: {desct(x)}" for x in descs])
             if var['variation.text_with']:
                 desc += '<li>with: ' + var['variation.text_with']
             var['shown'] = ''
             vt = '2' if var['variation.category'] in mbdata.code2_cats else '1' if categories else '0'
-            var['class_name'] = 'ln' + vt
+            var['class_name'] = f'ln{vt} {"yay" if verified else "meh" if not mbusa_ent else "noo"}'
             if last != mod_id:
                 var['shown'] += (
                     pif.ren.format_link(f'/cgi-bin/single.cgi?id={mod_id}', f'<b>{mack_id} ({mod_id}) ') +
@@ -200,13 +210,13 @@ def date_search(pif, dt=None, yr=None):
                 )
                 last = mod_id
             prefix = f"&has={prefixes[mod_id.lower()][0]}" if mod_id.lower() in prefixes else ""
-            var['shown'] += pif.ren.format_link(
-                f'traverse.cgi?g=1&d=lib/{ldir}&man={mod_id}&var={var_id}&suff={prefix}&lty=mss',
-                # &mr=1&credit=DT&til=1',
-                pif.ren.format_image_required(
-                    mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var_id],
-                    also={'class': 'righty'}, nobase=True, largest='s'))
             var['shown'] += (
+                pif.ren.format_link(
+                    f'traverse.cgi?g=1&d=lib/{ldir}&man={mod_id}&var={var_id}&suff={prefix}&lty=mss&r=1',
+                    # &mr=1&credit=DT&til=1',
+                    pif.ren.format_image_required(
+                        mod_id, vars=[var['variation.picture_id'] or 'unmatchable', var_id],
+                        also={'class': 'righty'}, nobase=True, largest='s')) +
                 pif.form.put_hidden_input(**{'v.' + mvid: '1'}) +
                 pif.form.put_checkbox('c.' + mvid, [('1', '',)], checked=verified, sep='\n') +
                 pif.form.put_checkbox('i.' + mvid, [('1', '',)], checked=id_mismatch, sep='\n') +
@@ -214,43 +224,73 @@ def date_search(pif, dt=None, yr=None):
                     '/cgi-bin/vars.cgi?mod=%s&var=%s&edt=1' % (mod_id, var_id),
                     '(%s) %s' % (var_id, var['variation.text_description'])) + done +
                 '<i>' + var['variation.note'] + '</i> ' + '-' + vs + '-&nbsp;' +
-                pif.form.put_text_input('s.' + mvid, 12, showlength=10, value=var['variation.imported_from']) + '\n' +
-                cats + '\n<ul>' + desc +
-                '</ul>\n'
+                pif.form.put_text_input(
+                    's.' + mvid, 12, showlength=10, value=(
+                        mbusa_ent['mbusa.file'] if mbusa_ent else '') or var['variation.imported_from']) + '\n' + (
+                    'file mismatch\n' if (
+                        mbusa_ent and mbusa_ent['mbusa.file'] and var['variation.imported_from'] != 'mbusa' and
+                        mbusa_ent['mbusa.file'] != var['variation.imported_from']) else '') +
+                cats + ' ' + (pif.ren.fmt_check('green') if (mod_id, var_id) in mbusa else '') +
+                '\n<ul>' + desc + '</ul>\n' + ((
+                    pif.ren.format_link(pif.dbh.get_editor_link('mbusa', id=mbusa_ent['mbusa.id']),
+                                        pif.ren.fmt_mini(color='green', icon="caret-right", family="solid")) +
+                    ' ' + mbusa_ent['mbusa.variation'] + ' ' + mbusa_ent['mbusa.description']) if mbusa_ent else '') + '\n'
             )
         vars.sort(key=lambda x: x['sort'])
         lran.entry = [render.Entry(text=x['shown'], class_name=x['class_name']) for x in vars]
         lsec.columns = 1
+        mbusa_files = sorted(glob.glob(f'lib/docs/mbusa/{dt}-*.png'))
         llineup.header += (
-            f'Verified: {ver_count} of {ver_poss} -\n' +
-            pif.ren.format_link(f'/cgi-bin/mass.cgi?tymass=mbusa&date={dt}', 'MBUSA') + '\n' +
+            f'Verified: {ver_count} of {ver_poss} -\n' + f'{len(mbusa)} in magazine -\n' +
+            pif.ren.format_link(f'/cgi-bin/mass.cgi?tymass=var&mbusa=MBUSA&date={dt}', 'MBUSA') + '\n' +
+            '\n'.join([pif.ren.format_link(f'/{x}', x[x.rfind('/') + 1:x.rfind('.')]) for x in mbusa_files]) + '\n' +
             '<form action="/cgi-bin/mass.cgi?tymass=dates" method="post">')
         llineup.footer += pif.form.put_button_input() + '</form>'
         lsec.range = [lran]
         llineup.section = [lsec]
-    else:
+    else:  # list of months page
         pif.ren.title = 'Search Dates'
         date_d = {}
         first_year = last_year = 1984
         for dt in pif.dbh.fetch_variation_dates(yr=yr):
-            if dt['date']:
-                y = first_year - 1 if dt['date'] < str(first_year) else int(dt['date'][:4])
-                date_d.setdefault(y, [])
-                date_d[y].append((dt['date'], dt['count(*)']))
-                last_year = max(y, last_year)
+            y = first_year - 1 if dt['date'] < str(first_year) else int(dt['date'][:4])
+            date_d.setdefault(y, [])
+            date_d[y].append((dt['date'], dt['count(*)']))
+            last_year = max(y, last_year)
 
-        lsec = render.Section()
-        for year in range(first_year - 1, last_year + 1):
-            lran = render.Range()
-            lran.entry = [render.Entry(
+        for dt in pif.dbh.fetch_mbusa_dates(yr=yr):
+            y = first_year - 1 if dt['date'] < str(first_year) else int(dt['date'][:4])
+            date_d.setdefault(y, [])
+            for x in date_d[y]:
+                if x[0] == dt['date']:
+                    break
+            else:
+                date_d[y].append((dt['date'], 0))
+            last_year = max(y, last_year)
+
+        def fmt_datelink(year, month):
+            ym = f'{year}-{month:02}' if month else f'{year}'
+            for d, c in date_d[year]:
+                if d == ym:
+                    return pif.ren.format_link(f'/cgi-bin/msearch.cgi?date=1&dt={d}', f'{d} ({c})' if c else f'{d}')
+            return '' if month else ym
+
+        lsec = render.Section(range=[render.Range(
+            entry=[render.Entry(
+                class_name='ln0',
                 text=pif.ren.format_link(f'/cgi-bin/msearch.cgi?date=1&dt={d}',
-                                         f'{d} ({c})')) for d, c in date_d[year]]
-            if year >= first_year:
-                if '-' in date_d[year][0][0]:
-                    lran.entry.insert(0, render.Entry(text=str(year)))
-                if len(lran.entry) > 7:
-                    lran.entry.insert(7, render.Entry())
+                                         f'{d or "unset"} ({c})')) for d, c in date_d[first_year - 1]])
+        ])
+        classbool = True
+
+        for year in range(first_year, last_year + 1):
+            lran = render.Range(
+                class_name='ln' + str(int(classbool)),
+                entry=[render.Entry(text=fmt_datelink(year, x)) for x in range(13)])
+            lran.entry.insert(7, render.Entry())
             lsec.range.append(lran)
+            classbool = not classbool
+
         lsec.columns = 7
         llineup.section.append(lsec)
     llineup.footer += '<hr>'

@@ -6,6 +6,7 @@ import glob
 from io import StringIO
 import json
 import os
+import re
 import sys
 
 import basics
@@ -247,8 +248,8 @@ def edit_single_variation(pif, manitem, var_id, addnew=False):
             [d for d in attribute_keys if d not in not_individual_attributes])),
         render.Range(name='Information on Base', id='det', entry=edit_details(
             base_attributes + ['logo_type', '_copy_base_from'])),
-        render.Range(name='Notes', id='det', entry=edit_details(note_attributes) +
-                     [edit_detail(pif, 'mbusa', attributes, manitem, varitem, attr_pics, photogs, picture_variation, categories)]),
+        render.Range(name='Notes', id='det', entry=edit_details(note_attributes) + [
+            edit_detail(pif, 'mbusa', attributes, manitem, varitem, attr_pics, photogs, picture_variation, categories)]),
     ]
     llistix = render.Listix(id='single', section=[lsec])
 
@@ -1115,7 +1116,8 @@ def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, cred
             pic_text += pif.form.put_select("phcred." + varitem.var, photogs, selected=phcred, blank='') + '</div>'
         note_text += "<br>References:<br>" + pif.form.put_text_input(
             "var_sel." + varitem.var, 512, 28, value=varitem.references,
-            also={'class': 'bgok' if varitem.references else 'bgno'})
+            also={'class': 'bgok' if varitem.references else 'bgno'}) + '<br>' + '<br>'.join(
+            sorted(varitem.references.split(' ')))
         note_text += quickie_modal(pif, manitem.id, varitem.var, 'base')
         note_text += quickie_modal(pif, manitem.id, varitem.var, 'detail')
     else:
@@ -2394,13 +2396,110 @@ def check_appearances(pif, *mod_ids):
 
 
 def import_mbusa(pif, *file_names):
-    for fn in file_names:
-        for ln in open(f'lib/docs/mbusa/text/{fn}.txt', 'rt').readlines():
-            ln = [x.strip() for x in ln.split('|')]
-            if len(ln) == 6:
-                print(ln[0], ln[1], pif.dbh.write_mbusa_entry(ln))
-            else:
-                print(ln[0], ln[1], f"length mismatch ({len(ln)})")
+    paren_re = re.compile(r'\((?P<v>[^)]*)\)')
+    castings = {x['casting.id']: x for x in pif.dbh.fetch_casting_raw_list()}
+    if file_names:
+        for fn in file_names:
+            if not os.path.exists(f'lib/docs/mbusa/text/{fn}.txt'):
+                continue
+            existing_entries = pif.dbh.depref('mbusa', pif.dbh.fetch_mbusa_entries(date=fn[:7]))
+            lines = [x.strip() for x in open(f'lib/docs/mbusa/text/{fn}.txt', 'rt').readlines() if x[0] != '#']
+            if lines[0]:  # old skool
+                lines = [[x.strip() for x in y.split('|')] for y in lines]
+                bad = False
+                for ln in lines:
+                    if len(ln) == 5:
+                        ln.append(fn[:7])
+                        ln.append(fn[:9])
+                    elif len(ln) == 6:
+                        ln.append(fn[:9])
+                    else:
+                        print(ln[0:2], f"length mismatch ({len(ln)})")
+                        bad = True
+                if bad:
+                    continue
+                newents = lines
+            else:  # new skool
+                newents = []
+                ent = None
+
+                def proc_ent(ent):
+                    if ent:
+                        try:
+                            m = paren_re.search(ent[0][ent[0].rfind('('):]).group('v')
+                            v_m = paren_re.search(ent[1])
+                            v = v_m.group('v') if v_m else ''
+                            newents.append([m, v] + ent[0:2] + ['\n'.join(ent[2:])] + [fn[:7], fn[:9]])
+                        except Exception as e:
+                            print('***', str(e))
+                            print(ent, fn)
+                            raise
+
+                for ln in lines:
+                    if ln:
+                        if ent is None:
+                            print('?', ln)
+                            continue
+                        ent.append(ln)
+                    else:
+                        proc_ent(ent)
+                        ent = []
+                proc_ent(ent)
+
+            for ln in newents:
+                if ln[0] not in castings:
+                    mod = pif.dbh.fetch_casting_raw(ln[0])
+                    if mod and ln[0] != mod['casting.id']:
+                        ln[0] = mod['casting.id']
+                if ln[1]:
+                    var = pif.dbh.fetch_variation_bare(ln[0], ln[1])
+                    if not var:
+                        ln[1] = mbdata.normalize_var_id(castings.get(ln[0], {}), ln[1])
+                existing = [x for x in existing_entries
+                            if x['date'] == ln[5] and (
+                                (x['mod_id'] == ln[0] and x['var_id'] == ln[1]) or
+                                (x['model'] == ln[2] and x['variation'] == ln[3] and x['description'] == ln[4]))]
+                if len(existing) > 1:
+                    print('multiple-existing', ln, existing)
+                elif existing:
+                    existing = existing[0]
+                    if (existing['model'] == ln[2] and existing['variation'] == ln[3] and
+                            existing['description'] == ln[4] and existing['file'] == ln[6]):
+                        print('unchanged', ln[0], ln[1])
+                    else:
+                        existing['model'] = ln[2]
+                        existing['variation'] = ln[3]
+                        existing['description'] = ln[4]
+                        existing['file'] = ln[6]
+                        print('update', ln[0], ln[1], pif.dbh.update_mbusa_entry(existing))
+                else:
+                    print('create', ln[0], ln[1], pif.dbh.write_mbusa_entry(ln))
+    else:  # fix-it mode
+
+        found = []
+        for ent in pif.dbh.fetch_mbusa_entries():
+            uniq = (ent['mbusa.mod_id'], ent['mbusa.var_id'], ent['mbusa.date'])
+            if uniq in found:
+                print('duplicate', ent)
+                continue
+            found.append(uniq)
+            if ent['mbusa.mod_id'] not in castings:
+                mod = pif.dbh.fetch_casting_raw(ent['mbusa.mod_id'])
+                print(ent['mbusa.id'], 'wrong mod', ent['mbusa.mod_id'], mod['casting.id'] if mod else 'not-found')
+                if mod and ent['mbusa.mod_id'] != mod['casting.id']:
+                    ent['mbusa.mod_id'] = mod['casting.id']
+                    print('fixing', pif.dbh.update_mbusa_entry(ent))
+            elif ent['mbusa.var_id']:
+                var = pif.dbh.fetch_variation_bare(ent['mbusa.mod_id'], ent['mbusa.var_id'])
+                if var:
+                    if var[0]['variation.date'] != ent['mbusa.date']:
+                        print(ent['mbusa.id'], 'date-mismatch', var[0]['variation.date'], ent['mbusa.date'])
+                else:
+                    var_id = mbdata.normalize_var_id(castings[ent['mbusa.mod_id']], ent['mbusa.var_id'])
+                    print(ent['mbusa.id'], 'wrong var', ent['mbusa.var_id'], var_id)
+                    if ent['mbusa.mod_id'] != var_id:
+                        ent['mbusa.var_id'] = var_id
+                        print('fixing', pif.dbh.update_mbusa_entry(ent))
 
 
 cmds = [

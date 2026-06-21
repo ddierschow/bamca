@@ -38,7 +38,7 @@ lineup_types = [
     ("man", "Main line models"),
     ("series", "Series"),
     ("ks", "Larger Scale Models"),
-    ("acc", "Accessories"),
+    ("acc", "Accessories and Skybusters"),
     ("yy", "Yesteryears and Matchbox Collectibles"),
     ("pack", "Packs and Gift Sets"),
     ("bld", "Buildings"),
@@ -787,7 +787,7 @@ deco_types = (
 )
 deco_types_dict = dict(deco_types)
 components = {
-    'wheels': {'h': 'hub', 'r': 'rim', 's': 'spoke', 't': 'tire', '_': ''},
+    'wheels': {'h': 'hub', 'r': 'rim', 's': 'spoke', 't': 'tire', '_': '', 'F': 'front', 'R': 'rear'},
     'deco': {'b': 'body', 'c': 'cab', 'h': 'hood', 'r': 'roof', 's': 'side', 'w': 'wing', '_': ','},
 }
 
@@ -916,15 +916,14 @@ def bamcamark(year=9999):
 def find_vs_variations(ents, sec_id, ran_id):
     # given a list of ents with "vs.sec_id" and "vs.ran_id", give back the relevant ones
     if sec_id and ran_id:
-        mods = [x for x in ents if x.vs.sec_id == sec_id and x.vs.ran_id == ran_id]
-        if mods:
+        if mods := [x for x in ents if x.vs.sec_id == sec_id and x.vs.ran_id == ran_id]:
             return mods
     if sec_id:
-        mods = [x for x in ents if x.vs.sec_id == sec_id]
-        if mods:
+        if mods := [x for x in ents if x.vs.sec_id == sec_id]:
             return mods
-    mods = [x for x in ents if x.vs.sec_id == '']
-    return mods
+    if mods := [x for x in ents if x.vs.sec_id == '']:
+        return mods
+    return [x for x in ents if x.section_id == sec_id and str(x.range_id) == ran_id]
 
 
 def type_check(prop_n, prop_y, avail):

@@ -482,7 +482,7 @@ def file_save(pdir, fn, contents, overwrite=False):
     ext = ext.lower()
     root = clean_name(root, '!@$%^&*()[]{}~`<>"+/')
     ext = clean_name(ext, '!@$%^&*()[]{}~`<>"+/')
-    fn = root + '.' + ext
+    fn = f'{root}.{ext}'
     if os.path.exists(pdir + '/' + fn):
         if overwrite:
             file_mover(pdir + '/' + fn, relpath('.', config.TRASH_DIR, fn), mv=True, inc=True, trash=True)
@@ -491,8 +491,11 @@ def file_save(pdir, fn, contents, overwrite=False):
             while os.path.exists(pdir + '/' + root + '_' + str(addon) + '.' + ext):
                 addon += 1
             root += '_' + str(addon)
-    fn = root + '.' + ext
-    open(pdir + '/' + fn, 'wb' if isinstance(contents, bytes) else 'wt').write(contents)
+            fn = f'{root}.{ext}'
+    if isinstance(contents, bytes):
+        open(pdir + '/' + fn, 'wb').write(contents)
+    else:
+        open(pdir + '/' + fn, 'wt').write(str(contents))
     return fn
 
 

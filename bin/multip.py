@@ -198,11 +198,9 @@ def do_single_pack(pif, format_type, pid):
         entries = [render.Entry(
             text=show_pack(pif, pack, layout[3]), class_name='bg_lg width_' + layout[3],
             display_id='0', colspan=layout[1], rowspan=layout[2])]
-        modvars = []
         for mod in sorted(pmodels.keys()):
             pmod = pmodels[mod]
             pif.ren.comment("do_single_pack mod", pmod)
-            modvars.append((f'vars.cgi?edt=1&mod={pmod.mod_id}', pmodels[mod].mod_id, pmod.id))
             pmod.sub_id = ''
 
             if not pmod.mod_id or pmod.mod_id == 'unknown':
@@ -223,7 +221,7 @@ def do_single_pack(pif, format_type, pid):
         llineup.section.append(render.Section(id='', columns=layout[0], anchor=pack.id,
                                               range=[render.Range(entry=entries)]))
 
-    left_bar_content = make_left_bar_content(pif, page_id, pack, modvars) if pif.is_allowed('a') else ''
+    left_bar_content = make_left_bar_content(pif, page_id, pack) if pif.is_allowed('a') else ''
 
     llineup.comments = tcomments
     llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(tcomments)])]
@@ -242,7 +240,7 @@ def do_single_pack(pif, format_type, pid):
     return pif.ren.format_template('pack.html', **context)
 
 
-def make_left_bar_content(pif, page_id, pack, modvars):
+def make_left_bar_content(pif, page_id, pack):
     cat = (':5P' if page_id in ('packs.5packs', 'packs.lic5packs') else
            ':10P' if page_id == 'packs.10packs' else
            ':3P' if page_id == 'packs.3packs' else '')
@@ -262,10 +260,6 @@ def make_left_bar_content(pif, page_id, pack, modvars):
         f'<b><a href="upload.cgi?d=./{lib_man_dir}&n={pack.id}&m={pack.id}&c={pack.id}">Man</a></b>',
         '',
     ]
-    for lnk, mod, pmid in modvars:
-        lines.append(
-            f'<a href="{lnk}">{mod}</a> '
-            f'<a href="/cgi-bin/editor.cgi?table=pack_model&id={pmid}"> {pif.ren.fmt_edit("gray")}</a>')
     joiner = "\n<br>"  # because f-strings
     return f'<center>{joiner.join(lines)}</center>\n'
 
@@ -478,3 +472,14 @@ def play_main(pif):
     return make_pack_list(pif, 'playset',
                           verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
                           **pif.form.get_dict(['sec', 'year', 'region']))
+
+
+cmds = [
+]
+
+
+# ---- ---------------------------------------
+
+
+if __name__ == '__main__':  # pragma: no cover
+    basics.process_command_list(cmds=cmds, page_id='editor', dbedit='')

@@ -163,7 +163,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
             f'<a href="vars.cgi?adl=1&mod={mod_id}">Attr Edit</a>',
             f'<a href="vars.cgi?vdt=1&mod={mod_id}">Details</a>',
             f'<a href="vars.cgi?vds=1&mod={mod_id}">Descriptions</a>',
-            f'<a href="mass.cgi?tymass=mbusa&mod={mod_id}">MBUSA</a>',
+            f'<a href="mass.cgi?tymass=var&mbusa=MBUSA&mod={mod_id}">MBUSA</a>',
             f'<a href="vsearch.cgi?ask=1&id={mod_id}">Search</a>',
             f'<a href="pics.cgi?m={mod_id.lower()}">Pics</a> ' +
             f'<a href="vars.cgi?lrg=1&mod={mod_id}&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>',
@@ -195,8 +195,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
             lines.append('')
             prodstar = pif.ren.fmt_star('white')
             ldir = pdir.replace('pic', 'lib')
-            prod = (f'<a href="upload.cgi?d={ldir}&n={pic}&c={pic}&link={useful.url_quote(pif.request_uri)}">'
-                    f'{pif.ren.fmt_mini(icon="upload")}</a>')
+            prod = pif.ren.format_link(f"upload.cgi?d={ldir}&n={pic}&c={pic}", pif.ren.fmt_mini(icon="upload"))
             if prodpic := pif.ren.find_image_path(pic, pdir=pdir, largest="m"):
                 x, y = imglib.get_size(prodpic)
                 prodpicname = prodpic[prodpic.rfind('/') + 1:]

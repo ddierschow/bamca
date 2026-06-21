@@ -13,6 +13,33 @@ import render
 import useful
 
 
+# ------- notes ----------------------------------------------------
+
+
+'''
+Before I begin, I want to note some things I only do once a year.
+
+1. Add page and base lineup.  Use the lineup mass below.
+2. Copy sections.  This could become a mass easily.
+
+insert into section
+(id,page_id,display_order,category,flags,name,columns,start,pic_dir,disp_format,link_format,img_format,note)
+select id,'year.2025',display_order,category,flags,name,columns,start,pic_dir,disp_format,link_format,img_format,note
+from section where page_id='year.2024' and id like'X.%';
+
+3. Add series.  Either go to the appropriate series page and add a section there,
+   or go to mass matrix.
+4. Add packs.  Go to the packs list for your pack type, then "add".
+5. Populate X sections.
+   X.01 from previous year; X.17, X.52, X.62, X.65, X.68 leave blank or skip
+   X.11: use the red star on the matrix page
+   X.14: ./lineup.py is matrix.mcoll mc25 2025 X.14
+   X.15: ./lineup.py is matrix.movparts mvp2025 2025 X.15
+   X.17: ./lineup.py gp 2025
+
+'''
+
+
 # ------- mass -----------------------------------------------------
 
 
@@ -462,7 +489,7 @@ def add_lm_enter(pif):
         {'title': 'Style:', 'value':
             pif.form.put_select("style_id", colors, selected=pif.form.get_raw('style_id'))},
         {'title': 'Sub ID:', 'value': pif.form.put_text_input("sub_id", 12, 12, value='')},
-        {'title': 'Region:', 'value': pif.form.put_checkbox('region', zip(regions, regions), checked=regions)},
+        {'title': 'Region:', 'value': pif.form.put_checkbox('region', zip(regions, regions))},
         {'title': 'Year:', 'value': pif.form.put_text_input("year", 6, 6, value=year)},
         {'title': 'Name:', 'value': pif.form.put_text_input("name", 64, 64, value=mod['name'])},
         # {'title': 'Variation:', 'value': pif.form.put_text_input("var", 8, 8)},
@@ -602,17 +629,25 @@ def add_casting_main(pif):
         return add_casting_final(pif)
 
     mod_id = pif.form.get_raw("id")
-    sec = ''
+    vt = sec = ''
+    tymod = 'SF'
     if mod_id.startswith('MB') and mod_id[2:].isdigit():
         num = int(mod_id[2:])
         sec = 'man'
         if num >= 500:
             sec += str(num // 500 + 1)
+    elif mod_id.startswith('SB'):
+        tymod = 'SB'
+        sec = 'sb'
+        vt = 'a'
+    elif mod_id.startswith('RWR'):
+        tymod = 'KS'
+        sec = 'rwr'
     entries = [
         {'title': "ID:", 'value': pif.form.put_text_input("id", 8, 8, value=mod_id)},
         {'title': 'Year:', 'value': pif.form.put_text_input("year", 4, 4, value=pif.form.get_raw('year'))},
         {'title': 'Model Type:', 'value': pif.form.put_select(
-            'model_type', pif.dbh.fetch_base_id_model_types(), selected='SF')},
+            'model_type', pif.dbh.fetch_base_id_model_types(), selected=tymod)},
         {'title': 'Name:', 'value': pif.form.put_text_input("rawname", 80, 80, value='')},
         {'title': 'Description:', 'value': pif.form.put_text_input("description", 80, 80, value='')},
         {'title': 'Flags:', 'value':
@@ -631,9 +666,9 @@ def add_casting_main(pif):
         {'title': 'Related:', 'value': pif.form.put_text_input('related', 80, 80)},
         {'title': 'Vehicle Type:', 'value':
             pif.form.put_checkbox(
-                'vt', [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])]) + '<br>' +
+                'vt', [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[:14])], checked=vt) + '<br>' +
             pif.form.put_checkbox(
-                'vt', [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[14:])])},
+                'vt', [[x, mbdata.vehicle_types[x]] for x in list(mbdata.model_type_chars[14:])], checked=vt)},
         {'title': '', 'value': pif.form.put_button_input('save')},
     ]
 
@@ -770,7 +805,9 @@ def add_pub_final(pif):
 
 def add_var_main(pif):
     useful.write_message(pif.form)
-    if pif.form.get_raw('store'):
+    if pif.form.get_raw('mbusa'):
+        return add_var_mbusa(pif)
+    elif pif.form.get_raw('store'):
         print(pif.ren.format_head())
         useful.header_done()
         add_var_final(pif)
@@ -795,9 +832,10 @@ def add_var_ask(pif):
 
     footer = pif.form.put_button_input('submit')
     footer += mass_type_reinput(pif)
-    footer += "<form>"
+    footer += pif.form.put_button_input('mbusa')
     footer += pif.ren.format_button_link('catalog', '/lib/docs/mbusa/', lalso={'target': '_blank'})
     footer += pif.ren.format_button_link('casting', '/cgi-bin/mass.cgi?tymass=casting')
+    footer += "</form>"
 
     lsection = render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], note='', noheaders=True,
                               header=header, footer=footer)
@@ -825,6 +863,7 @@ def add_var_info(pif):
     mod = modify_man_item(mod)
     var_id = pif.form.get_raw('var')
     mod_id = mod['id']
+    mbusa = pif.dbh.fetch_mbusa_entries(mod_id, var_id)
     img = pif.ren.format_image_required(mod_id, pdir=config.IMG_DIR_MAN, largest=mbdata.IMG_SIZ_MEDIUM,
                                         also={'style': 'float: right;'})
     var_id = mbdata.normalize_var_id(mod, var_id)
@@ -856,6 +895,7 @@ def add_var_info(pif):
             nvar['date'] = pif.form.get_raw('date')
             for k, v in nvar.items():
                 var[k] = var.get(k, '') or v
+    # else populate from mbusa[0]
 
     header = f"<h3>{mod['name']}</h3>" + img
     header += ' '.join(x['alias.id'] for x in aliases) + '<br>'
@@ -864,8 +904,7 @@ def add_var_info(pif):
         header += 'revising' + pif.form.put_hidden_input(store='update')
     else:
         header += 'creating' + pif.form.put_hidden_input(store='insert')
-    for ln in pif.dbh.fetch_mbusa_entries(mod_id, var_id):
-        header += '<br>' + ln['mbusa.description']
+    header += '\n'.join([f'<br>{x["mbusa.description"]} ({x["mbusa.file"]})' for x in mbusa])
 
     entries = []
     defs = {'mod_id': mod_id,
@@ -891,12 +930,19 @@ def add_var_info(pif):
                  pif.form.put_text_input(col, 64, 32, value=val)})
         else:
             entries.append({})
-    footer = pif.form.put_button_input('save')
-    footer += mass_type_reinput(pif)
-    footer += pif.ren.format_button_link('casting', f'/cgi-bin/single.cgi?id={mod_id}')
-    footer += pif.ren.format_button_link('vars', f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}')
-    footer += pif.ren.format_button_link('search', f'/cgi-bin/vsearch.cgi?ask=1&id={mod_id}')
-    footer += "</form>"
+    footer = (pif.form.put_button_input('save') + mass_type_reinput(pif) +
+              pif.ren.format_button_link('casting', f'/cgi-bin/single.cgi?id={mod_id}') +
+              pif.ren.format_button_link('vars', f'/cgi-bin/vars.cgi?edt=1&mod={mod_id}') +
+              pif.ren.format_button_link('search', f'/cgi-bin/vsearch.cgi?ask=1&id={mod_id}') + "</form>")
+
+    footer += (
+        '\n' + pif.form.put_form_start(action="/cgi-bin/mass.cgi") +
+        pif.form.put_hidden_input(mod_id=mod_id, var=var_id, date=date, imported_from='mbusa', tymass='var') +
+        '<table class="tb">\n<tr class="er ln0">\n  <td class="eb eb_1">Other Var:</td>\n' +
+        '  <td class="eb eb_1">' + pif.form.put_text_input('copy', 12, 8) + '</td>\n<td>' +
+        pif.form.put_button_input(bname="submit", name='submit',
+                                  also={'value': "SUBMIT", 'class': "textbutton", 'alt': "COPY FROM"}) +
+        'COPY FROM</button>\n</td></tr></table>\n</form>\n')
 
     for var in pif.dbh.depref('variation', pif.dbh.fetch_variations(mod_id)):
         lnk = '/cgi-bin/vars.cgi?edit=1&mod=%(mod_id)s&var=%(var)s' % var
@@ -904,6 +950,33 @@ def add_var_info(pif):
     footer += pif.ren.format_tail()
 
     lsection = render.Section(colist=['title', 'value', 'input'], range=[render.Range(entry=entries)], noheaders=True,
+                              header=header, footer=footer)
+    llistix = render.Listix(section=[lsection])
+    return pif.ren.format_template('simplelistix.html', llineup=llistix, nofooter=True)
+
+
+def add_var_mbusa(pif):
+    print("do the mbusa thing")
+    tab = pif.dbh.get_table_data('mbusa')
+    header = footer = ''
+    date = pif.form.get_raw('date')
+    mod_id = pif.form.get_raw('mod')
+
+    def mk_ent(x):
+        x = pif.dbh.depref('mbusa', x)
+        x['id'] = pif.ren.format_link(pif.dbh.get_editor_link('mbusa', id=x['id']), str(x['id']))
+        if x['var_id']:
+            var = pif.dbh.fetch_variation(x['mod_id'], x['var_id'])
+            x['import'] = (
+                pif.ren.format_button_link('import', '/cgi-bin/mass.cgi', args={
+                    'tymass': 'var', 'mod_id': x['mod_id'], 'var': x['var_id'], 'date': date, 'imported_from': x['file']}) +
+                (pif.ren.fmt_check('green') if var else pif.ren.fmt_x('red')))
+            x['var_id'] = pif.ren.format_link(f'/cgi-bin/vars.cgi?edt=1&mod={x["mod_id"]}&var={x["var_id"]}', x["var_id"])
+        x['mod_id'] = pif.ren.format_link(f'/cgi-bin/single.cgi?id={x["mod_id"]}', x["mod_id"])
+        return x
+
+    entries = [mk_ent(x) for x in pif.dbh.depref('mbusa', pif.dbh.fetch_mbusa_entries(date=date, mod_id=mod_id))]
+    lsection = render.Section(colist=tab.columns + ['import'], range=[render.Range(entry=entries)], noheaders=True,
                               header=header, footer=footer)
     llistix = render.Listix(section=[lsection])
     return pif.ren.format_template('simplelistix.html', llineup=llistix, nofooter=True)
@@ -2621,12 +2694,13 @@ def mbusa_main(pif):
         if x['var_id']:
             x['var_id'] = pif.ren.format_link(f'/cgi-bin/vars.cgi?edt=1&mod={x["mod_id"]}&var={x["var_id"]}', x["var_id"])
         x['mod_id'] = pif.ren.format_link(f'/cgi-bin/single.cgi?id={x["mod_id"]}', x["mod_id"])
+        x['id'] = pif.ren.format_link(pif.dbh.get_editor_link('mbusa', id=x['id']), str(x['id']))
         return x
 
     entries = [ent(x) for x in pif.dbh.fetch_mbusa_entries(mod_id, var_id, date)]
     footer = f'{len(entries)} rows'
-    llistix = render.Listix(section=[render.Section(colist=table.columns, range=[render.Range(entry=entries)],
-        footer=footer)], note=header)
+    llistix = render.Listix(
+        section=[render.Section(colist=table.columns, range=[render.Range(entry=entries)], footer=footer)], note=header)
 
     return pif.ren.format_template('simplelistix.html', llineup=llistix)
 

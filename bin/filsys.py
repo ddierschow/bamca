@@ -65,7 +65,7 @@ def show_dir(pif, tform):
 
     ostr = '<hr>\n'
     # dl, gl, ol, sl, xl = imglib.get_dir(tform.tdir)
-    files = imglib.get_dir(tform.tdir, name_has=tform.has)
+    files = imglib.get_dir(tform.tdir, name_has=tform.has, reverse=tform.rev)
 
     ostr += show_list(files['titles']['dir'], tform.tdir, files['dir'], tform.view)
 
@@ -102,6 +102,7 @@ def show_dir(pif, tform):
             tform.tdir, pif.form.put_text_button('show all pictures'))
         ostr += 'Pattern <input type="text" name="p">\n'
         ostr += '<input type="hidden" name="d" value="{}">\n'.format(tform.tdir)
+        ostr += pif.form.put_checkbox('r', [('1', 'Reverse',)])
         ostr += pif.form.put_checkbox('du', [('1', 'Dupes',)])
         ostr += pif.form.put_checkbox('co', [('1', 'Compact',)])
         ostr += pif.form.put_checkbox('th', [('1', 'Thumbs',)])
@@ -526,6 +527,7 @@ class TraverseForm(object):
         # cols = ''  # pif.form.get_str('cols')
         # h = 0  # pif.form.get_int('h')
         self.sorty = pif.form.get_int('sort')
+        self.rev = pif.form.get_int('r')
         self.view = pif.form.get_bool("v")
         self.graf = pif.form.get_int("g")
         self.fnam = pif.form.get_str("f")

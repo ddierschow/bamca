@@ -86,7 +86,7 @@ def generate_model_table_pic_link_man_item(pif, mdict, mlist):
 
 # mdict: descriptions href imgstr name no_casting not_made number pdir picture_only product subname additional
 def add_man_item_table_product_link(pif, item):
-
+    item.ldir = item.pdir.replace('pic', 'lib')
     ostr = pif.ren.fmt_anchor(item.anchor)
     ostr += '<center><table class="modeltop"><tr><td class="modelstars">'
     if item.no_casting:
@@ -103,12 +103,14 @@ def add_man_item_table_product_link(pif, item):
             ref_link = pif.dbh.get_editor_link('lineup_model', year=item.year, mod_id=item.mod_id)
         elif isinstance(item, models.PackModelItem):
             ref_link = pif.dbh.get_editor_link('pack_model', id=item.id)
+            ostr += pif.ren.format_link(f'vars.cgi?edt=1&mod={item.mod_id}', pif.ren.fmt_mini('gray', 'link'))
         else:
             ref_link = ''
         ostr += pif.ren.format_link(ref_link, pif.ren.fmt_edit('gray'))
         if hasattr(item, 'mod_id'):
-            fn = item.mod_id.replace('.', '_') + ('-' + item.sub_id if item.sub_id else '')
-            ostr += pif.ren.format_link(f'upload.cgi?d=lib/man&n={fn}&m={fn}&c={fn}',
+            # fn = item.mod_id.replace('.', '_') + ('-' + item.sub_id if item.sub_id else '')
+            # d={ldir}&n={pic}&c={pic}
+            ostr += pif.ren.format_link(f'upload.cgi?d={item.ldir}&n={item.product}&c={item.product}',
                                         pif.ren.fmt_mini('gray', icon='upload'))
     if item.not_made:
         ostr += mbdata.comment_icon.get('n', '')

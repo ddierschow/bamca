@@ -1049,15 +1049,12 @@ class ActionForm(object):
         return x, y
 
 
-def get_dir(tdir, name_has=''):
+def get_dir(tdir, name_has='', reverse=False):
     titles = {'dir': 'Directories', 'graf': 'Graphics', 'dat': 'Data Files',
               'exe': 'Executable Files', 'other': 'Other Files', 'log': 'Log Files'}
-    fl = os.listdir(tdir)
-    fl.sort()
-    files = {'dir': list(), 'graf': list(), 'dat': list(),
-             'exe': list(), 'other': list(), 'log': list(),
+    files = {'dir': list(), 'graf': list(), 'dat': list(), 'exe': list(), 'other': list(), 'log': list(),
              'titles': titles}
-    for f in fl:
+    for f in sorted(os.listdir(tdir), reverse=reverse):
         if name_has and name_has not in f:
             continue
         root, ext = useful.root_ext(f)

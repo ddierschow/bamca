@@ -356,6 +356,9 @@ class DBHandler(object):
     def insert_or_update_section(self, values, verbose=False):
         return self.write('section', values=values, tag='InsertOrUpdateSection', verbose=verbose)
 
+    def update_section(self, values, where, verbose=False):
+        return self.write('section', values=values, where=where, modonly=True, tag='UpdateSection', verbose=verbose)
+
     # - base_id
 
     def fetch_base_ids(self):
@@ -371,35 +374,28 @@ class DBHandler(object):
         return [x['model_type'] for x in model_types]
 
     def rename_base_id(self, old_mod_id, new_mod_id):
-        tag = 'RenameBaseId'
-        self.write('base_id', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('casting', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('pack', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('publication', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('alias', values={'ref_id': new_mod_id}, where=f"ref_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('attribute', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('attribute_picture', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'",
-                   modonly=True, tag=tag)
-        self.write('casting_related', values={'model_id': new_mod_id}, where=f"model_id='{old_mod_id}'",
-                   modonly=True, tag=tag)
-        self.write('casting_related', values={'related_id': new_mod_id}, where=f"related_id='{old_mod_id}'",
-                   modonly=True, tag=tag)
-        self.write('detail', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('lineup_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('matrix_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('pack_model', values={'pack_id': new_mod_id}, where=f"pack_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('pack_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('variation', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('variation_select', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'",
-                   modonly=True, tag=tag)
-        self.write('variation_select', values={'sec_id': new_mod_id}, where=f"sec_id='{old_mod_id}'",
-                   modonly=True, tag=tag)
-        self.write('box_type', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('link_line', values={'page_id': f'single.{new_mod_id}'}, where=f"page_id='single.{old_mod_id}'",
-                   modonly=True, tag=tag)
-        self.write('mbusa', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", modonly=True, tag=tag)
-        self.write('casting_make', values={'casting_id': new_mod_id}, where=f"casting_id='{old_mod_id}'",
-                   modonly=True, tag=tag)
+        writes = {'tag': 'RenameBaseId', 'modonly': True, 'verbose': False}
+        self.write('base_id', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", **writes)
+        self.write('casting', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", **writes)
+        self.write('pack', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", **writes)
+        self.write('publication', values={'id': new_mod_id}, where=f"id='{old_mod_id}'", **writes)
+        self.write('alias', values={'ref_id': new_mod_id}, where=f"ref_id='{old_mod_id}'", **writes)
+        self.write('attribute', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('attribute_picture', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('casting_related', values={'model_id': new_mod_id}, where=f"model_id='{old_mod_id}'", **writes)
+        self.write('casting_related', values={'related_id': new_mod_id}, where=f"related_id='{old_mod_id}'", **writes)
+        self.write('detail', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('lineup_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('matrix_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('pack_model', values={'pack_id': new_mod_id}, where=f"pack_id='{old_mod_id}'", **writes)
+        self.write('pack_model', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('variation', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('variation_select', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('variation_select', values={'sec_id': new_mod_id}, where=f"sec_id='{old_mod_id}'", **writes)
+        self.write('box_type', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('link_line', values={'page_id': f'single.{new_mod_id}'}, where=f"page_id='single.{old_mod_id}'", **writes)
+        self.write('mbusa', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
+        self.write('casting_make', values={'casting_id': new_mod_id}, where=f"casting_id='{old_mod_id}'", **writes)
 
     def update_base_id(self, id, values):
         return self.write('base_id', values=self.make_values('base_id', values), where=f"id='{id}'", modonly=True,
@@ -520,6 +516,9 @@ class DBHandler(object):
             wheres.append(f'section.id="{section_id}"')
         return self.fetch('base_id,casting,section,page_info', where=wheres, extras=True, tag='CastingList',
                           verbose=verbose)
+
+    def fetch_casting_raw_list(self, verbose=False):
+        return self.fetch('casting', extras=False, tag='CastingRawList', verbose=verbose)
 
     def fetch_casting_list_by_make(self, make_id, section_id=None, page_id=None, where=None, verbose=False):
         # verbose = True
@@ -1416,6 +1415,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             "page_info.id=matrix_model.page_id",
             "section.id=matrix_model.section_id",
             f"matrix_model.mod_id='{mod_id}'",
+            f"section.flags & {config.FLAG_PAGE_INFO_HIDDEN} = 0",
             f"page_info.flags & {config.FLAG_PAGE_INFO_HIDDEN} = 0",
         ]
         return self.fetch('matrix_model,page_info,section', where=wheres, tag='MatrixAppearances')
@@ -1920,17 +1920,26 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         return self.fetch('mbusa', where={'id': entry_id}, tag='MBUSAEntry')
 
     def fetch_mbusa_entries(self, mod_id=None, var_id=None, date=None):
+        wheres = []
         if date:
-            wheres = f'date="{date}"'
-        else:
-            wheres = f'mod_id="{mod_id}"'
+            wheres.append(f'date="{date}"')
+        if mod_id:
+            wheres.append(f'mod_id="{mod_id}"')
             if var_id:
-                wheres += f'and var_id="{var_id}"'
-        return self.fetch('mbusa', where=wheres, tag='MBUSAEntries')
+                wheres.append(f'var_id="{var_id}"')
+        return self.fetch('mbusa', where=' and '.join(wheres), order='date', tag='MBUSAEntries')
+
+    def fetch_mbusa_dates(self, yr=None):
+        where = f"date like '{yr}%'" if yr else ''
+        return self.fetch('mbusa', columns=['date'], where=where, distinct=True, tag='MBUSADates')
 
     def write_mbusa_entry(self, values):
-        columns = ['mod_id', 'var_id', 'model', 'variation', 'description', 'date']
+        columns = ['mod_id', 'var_id', 'model', 'variation', 'description', 'date', 'file']
         ret = self.write('mbusa', values=dict(zip(columns, values)), tag='WriteMBUSAEntry')
+        return ret
+
+    def update_mbusa_entry(self, values):
+        ret = self.write('mbusa', values=values, tag='UpdateMBUSAEntry')
         return ret
 
     # - miscellaneous

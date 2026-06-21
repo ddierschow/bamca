@@ -150,8 +150,6 @@ I am missing the following Matchbox USA newsletters:
 <li>August of 2017
 <li>March of 2020
 <li>January of 2021
-<li>September of 2024
-<li>November of 2025 (which is probably sitting here on my desk somewhere)
 </ul>
 
 <p>I have copies of some old issues but would like to get originals:

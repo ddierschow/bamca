@@ -77,6 +77,8 @@ class Searcher(object):
     def __init__(self, form=None, args=None, withaliases=False, madeonly=False):
         if form:
             args = read_super_search_form(form, withaliases, madeonly)
+        if not args:
+            args = {}
 
         self.list_type = args.get('list_type') or 'c'
         self.sort_type = args.get('sort_type') or 'i'

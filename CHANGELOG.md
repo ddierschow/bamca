@@ -1,3 +1,11 @@
+### 7.8.13  - 2026-06-20
+
+- Add a lot more support for correlating MBUSA information
+- Add Reverse to showing a list of images in file editor
+- Add camera icon to packs in series listings
+- Add better support to casting-add and variation-add
+- A whole lot of bug fixing
+
 ### 7.8.12  - 2026-01-03
 
 - Add support for MBUSA table

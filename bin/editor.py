@@ -340,9 +340,9 @@ def make_url_cond(clinks, dat):
 
 def make_col_value(table_data, col, dat):
     val = dat.get(col, '')
-    if col in table_data.id:
+    if col in table_data.id and val:
         return '<a href="?table={}&{}">{}</a>'.format(table_data.name, make_url_cond(table_data.id, dat), val)
-    elif col in table_data.clinks:
+    elif col in table_data.clinks and val:
         return '<a href="?table={}&{}">{}</a>'.format(table_data.clinks[col]['tab'],
                                                       make_url_cond(table_data.clinks[col]['id'], dat), val)
     return val
