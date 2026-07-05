@@ -44,9 +44,20 @@ detail_columns = ['ID', 'Description', 'Ty', 'Cat', 'Date', 'Ver', 'Im', 'Or', '
 # ----- display single variation --------------------------
 
 
+def single_variation_left_bar_icons(pif, manitem, varitem, categories):
+    icon_add = {'suffix': 'gif', 'also': {'class': 'centered'}, 'tail': '<p>', 'nopad': True}
+    return [
+        pif.ren.format_image_optional(manitem.id, pdir=config.IMG_DIR_MAN_ICON, prefix='i_', **icon_add)] + [
+        pif.ren.format_image_optional(mbdata.model_icons.get(x), pdir=config.IMG_DIR_ICON, **icon_add)
+            for x in manitem.vehicle_type] + [
+        pif.ren.format_image_optional(manitem.id, pdir=config.IMG_DIR_MAN_ICON, prefix='b_', **icon_add)] + [
+        pif.ren.format_image_optional(categories[x]['image'], pdir=config.IMG_DIR_ICON, **icon_add)
+            for x in varitem._catlist if categories[x]['image']]
+
+
 def single_variation_left_bar(pif, varitem, edit):
 
-    libdir = useful.relpath('.', config.LIB_MAN_DIR, varitem.mod_id.lower())
+    libdir = useful.relpath('.', config.LIB_MAN_DIR, varitem.mod_id.lower().replace('/', '_'))
     lines = []
     if pif.is_allowed('a'):  # pragma: no cover
         lines += [
@@ -141,10 +152,6 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     adds = mbmods.show_adds(pif, mod_id, var_id)
     upload = f'upload.cgi?m={mod_id}&v={var_id}' + (f'&d={manitem.libdir}' if pif.is_allowed('u') else '')
 
-    vehicle_type = (
-        [mbdata.model_icons.get(x) for x in manitem.vehicle_type] +
-        [categories[x]['image'] for x in varitem._catlist if categories[x]['image']])
-
     code = mbdata.plant_d.get(varitem.manufacture, varitem.manufacture)
     plant_flag = pif.ren.format_image_flag(code) if code else ''
 
@@ -152,15 +159,7 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     shown_categories = sorted(set([categories[x.vs_cat]['name'] for x in varitem.vs if x.vs_cat] +
                                   [categories[x]['name'] for x in varitem.category if x]))
 
-    l1 = l2 = ''
-    for ch in varitem.iattrs['logo_type']:
-        if ch in mbdata.base_logo_dict:
-            l1 = ch
-        elif ch in mbdata.base_logo_2_dict:
-            l2 = ch
-    base_logos = [
-        pif.ren.format_image_icon(f'l_base-{l1}', mbdata.base_logo_dict.get(l1)) if l1 else '',
-        pif.ren.format_image_icon(f'l_base-{l2}', mbdata.base_logo_2_dict.get(l2)) if l2 else '']
+    base_logos = mbmods.make_base_logos(pif, varitem.iattrs['logo_type'])
 
     # TODO: Add var-specific pictures to the bottom
 
@@ -171,12 +170,9 @@ def show_single_variation(pif, manitem, var_id, edit=False, addnew=False):
     context = {
         'title': pif.ren.title,
         'note': '',
-        'type_id': '',
         'base_id': manitem.id,
-        'icon_id': mod_id if os.path.exists(
-            useful.relpath('.', config.IMG_DIR_MAN_ICON, f'i_{mod_id.lower()}.gif')) else '',
-        'vehicle_type': vehicle_type,
         'rowspan': '4',
+        'left_bar_icons': single_variation_left_bar_icons(pif, manitem, varitem, categories),
         'left_bar_content': left_bar_content,
         'description': varitem.text_description,
         'image': img,
@@ -264,13 +260,9 @@ def edit_single_variation(pif, manitem, var_id, addnew=False):
     context = {
         'title': pif.ren.title,
         'note': '',
-        'type_id': '',
         'base_id': manitem.id,
-        'icon_id': mod_id if os.path.exists(
-            useful.relpath('.', config.IMG_DIR_MAN_ICON, 'i_' + mod_id.lower() + '.gif')) else '',
-        'vehicle_type': [mbdata.model_icons.get(x) for x in manitem.vehicle_type] + [
-            categories[x]['image'] for x in varitem._catlist if categories[x]['image']],
         'rowspan': '4',
+        'left_bar_icons': single_variation_left_bar_icons(pif, manitem, varitem, categories),
         'left_bar_content': left_bar_content,
         'description': varitem.text_description,
         'image': img,
@@ -631,8 +623,8 @@ def rename_variation(pif, mod_id=None, old_var_id=None, new_var_id=None, *args, 
 
 
 def rename_variation_pictures(pif, old_mod_id, old_var_id, new_mod_id, new_var_id):  # pragma: no cover
-    old_mod_id = old_mod_id.lower()
-    new_mod_id = new_mod_id.lower()
+    old_mod_id = old_mod_id.lower().replace('/', '_')
+    new_mod_id = new_mod_id.lower().replace('/', '_')
     old_var_id = old_var_id.lower()
     new_var_id = new_var_id.lower()
     if old_mod_id == new_mod_id and old_var_id == new_var_id:
@@ -1030,7 +1022,7 @@ def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, cred
                 not varitem.get_attr(d) or d in hidden_attributes):
             continue
         elif d in text_attributes:
-            pass  # infs['desc1'].append(d)
+            infs['desc1'].append(d)
         elif d in note_attributes:
             if d in attributes:
                 infs['desc2'].append(d)
@@ -1041,7 +1033,7 @@ def do_var_for_list(pif, edit, manitem, varitem, attributes, varsels, prev, cred
                 varitem.iattrs['deco'] += ' - ' + mbdata.deco_types_dict.get(
                     varitem.iattrs['deco_type'], varitem.iattrs['deco_type'])
             infs['dets1'].append(d)
-    infs['desc1'] = [x for x in text_attributes if varitem.get_attr(x)]
+    # infs['desc1'] = [x for x in text_attributes if varitem.get_attr(x)]
 
     def attr_star(manitem, varitem):
         return sum([int(bool(varitem.get_attr('text_' + x)) or not manitem.get_attr('format_' + x))
@@ -1355,11 +1347,18 @@ def do_model_grid(pif, manitem, vsform, dvars, photogs):
 def reduce_vs(vs):
     varsel = []
     for x in sorted(vs.split(), reverse=True):
-        if x in varsel:
+        if x in varsel or ':' in x and x[:x.find(':')] in varsel:
             continue
-        if (':' in x and x[:x.find(':')] in varsel):
-            continue
-        varsel.append(x)
+        if bracket_m := mbdata.bracket_re.search(x):
+            pat = x[bracket_m.start():bracket_m.end()]
+            for val in bracket_m.group('s').split(','):
+                if '-' in val:
+                    start, end = val.split('-', 1)
+                    varsel.extend([x.replace(pat, str(y)) for y in range(int(start), int(end) + 1)])
+                else:
+                    varsel.append(x.replace(pat, val))
+        else:
+            varsel.append(x)
     return varsel
 
 
@@ -1484,7 +1483,8 @@ def show_casting(pif, manitem):
     cates = set()
     mvars = dict()
     fvars = dict()
-    libdir = useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()) if pif.is_allowed('u') else ('.' + config.INC_DIR)
+    libdir = useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower().replace('/', '_')) if pif.is_allowed('u') else (
+        '.' + config.INC_DIR)
     uplink = ('upload.cgi?d={0._dir}&m={0.mod_id}&v={0.var}' if pif.is_allowed('u') else
               'upload.cgi?m={0.mod_id}&v={0.var}')
     for varitem in retrieve_varitems(pif, mod_id, categories):
@@ -2372,6 +2372,8 @@ def check_attributes(pif, *attr_names):
 
 
 def sx(pif, lt=''):
+    print(f'{pif.ren.format_image_icon("l_code2")}')
+    return
     if lt == 'm':
         vl = [f'betatester vars.cgi "mod={x}"'
               for x in pif.dbh.fetch_casting_ids()]

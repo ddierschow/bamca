@@ -48,10 +48,13 @@ import useful
 # X.25 | Super Rigs                             | ks       |
 # X.31 | Models of Yesteryear                   | yy       |
 # X.32 | Dinky                                  | yy       |
+# X.33 | Giftware                               | yy       |
+# X.34 | Collectibles                           | yy       |
 # X.41 | Accessory Packs                        | acc      |
 # X.42 | Skybusters                             | sb       |
 # X.51 | Buildings                              | bld      |
 # X.52 | Playsets                               | bld      |
+# X.53 | Carrying Cases                         | acc      |
 # X.60 | Presentation Sets                      | pack     |
 # X.61 | Gift Sets / Battle Kings               | pack     |
 # X.62 | 2-Packs / Hitch n Haul                 | pack     |
@@ -63,6 +66,7 @@ import useful
 # X.71 | Roadways                               | pub      |
 # X.72 | Games and Puzzles                      | pub      |
 # X.73 | Books                                  | pub      |
+# X.78 | Displays                               | acc      |
 
 # Australia also had the MB76-79 in 1981.
 # The Australian amalgamated range of the mid-1980s (where they mixed the ROW and USA ranges for their 1-75),
@@ -100,6 +104,8 @@ def calc_lineup_model(pif, lsec, year, region, mod):
             mod.is_product_picture = 1
         if mod.pack.section_id == 'playset':
             mod.href = f"play.cgi?page={mod.pack.page_id}&id={mod.pack.id}"
+        elif mod.pack.section_id == 'carry':
+            mod.href = f"carry.cgi?page={mod.pack.page_id}&id={mod.pack.id}"
         else:
             mod.href = f"packs.cgi?page={mod.pack.page_id}&id={mod.pack.id}"
     elif mod.pub.id:
@@ -440,8 +446,9 @@ def render_lineup_year_sections(pif, mainsec, secs, xsecs, large=False, multi=Fa
             entry=[render_lineup_model(pif, x, comments, unroll=unroll, large=large) for x in sec.mods],
             name=f'<i>{sec.name}</i>' if sec.is_hidden else sec.name,
             id='X',
-            note=sec.note,
-        )]))
+            note=sec.note)],
+            columns=sec.columns,
+        ))
     llineup = render.Matrix(id='year', section=sections)
 
     llineup.comments = comments
@@ -771,15 +778,15 @@ def rank_lineup_main(pif):
 # --------- select lineup ---------------------------
 
 def select_lineup(pif, region, year):
-    ypp = 15
+    ypc = 15
     lran = render.Range()
     lsec = render.Section(range=[lran])
     llineup = render.Matrix(section=[lsec], header='<form>\n', footer='</form>')
     years = pif.dbh.fetch_lineup_years()
     while years:
-        lines = pif.form.put_radio('year', [(x['year'], x['year']) for x in years[:ypp]], checked=year, sep='<br>\n')
+        lines = pif.form.put_radio('year', [(x['year'], x['year']) for x in years[:ypc]], checked=year, sep='<br>\n')
         lran.entry.append(render.Entry(text=lines))
-        years = years[ypp:]
+        years = years[ypc:]
     lran.entry.append(
         render.Entry(text=pif.form.put_radio('region', [(x, mbdata.regions[x]) for x in mbdata.regionlist[1:]],
                                              checked=region, sep='<br>\n')))
@@ -917,7 +924,7 @@ def main(pif):
     pif.ren.title = str(pif.form.get_str('year', 'Matchbox')) + ' Lineup'
     if pif.form.get_bool('large'):
         return show_all_lineups(pif)
-    return select_lineup(pif, pif.form.get_str('region', 'W').upper(), pif.form.get_str('year', '0'))
+    return select_lineup(pif, pif.form.get_str('region', 'U').upper(), pif.form.get_str('year', '0'))
 
 
 # --------- command line stuff ----------------------
@@ -1410,6 +1417,13 @@ def set_base_id(pif, year=None):
             pif.dbh.update_lineup_model(f"id={lm['id']}", {'base_id': bid})
 
 
+def display_order_insert(pif, year, region, insert_value):
+    for lm in pif.dbh.fetch_lineup_models_bare(year, region):
+        if lm['lineup_model.display_order'] >= int(insert_value):
+            pif.dbh.update_lineup_model_values(
+                f"id={lm['lineup_model.id']}", {'display_order': lm['lineup_model.display_order'] + 1}, verbose=1)
+
+
 cmds = [
     ('s', year_lineup, "show: year region [number]"),
     ('c', clone_lineup, "clone: year old_region new_region"),
@@ -1425,6 +1439,7 @@ cmds = [
     ('pic', lineup_pics, "pics"),
     ('is', import_series, "import series: matrix_page matrix_section year lineup_section"),
     ('sb', set_base_id, "set base id"),
+    ('doi', display_order_insert, "display order insert: year region display_order_value"),
 ]
 
 

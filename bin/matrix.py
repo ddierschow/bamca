@@ -30,7 +30,7 @@ class MatrixFile(object):
     def create_ent(self, pif, ent, sec):
         ent = pif.dbh.make_mat_item(ent, sec)
         ent.pdir = ent.pdir or pif.ren.pic_dir
-        if not ent.sub_id_matches:
+        if not ent.sub_id_matches:  # not associted with ent.sub_id
             return None
 
         if ent.mod_id.startswith('matrix.'):
@@ -40,6 +40,9 @@ class MatrixFile(object):
         elif ent.model_type == 'MP':
             ent.image = pif.ren.format_image_required(
                 ent.mod_id, prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True, blank=True)
+        elif ent.model_type == 'BK':
+            ent.image = pif.ren.format_image_required(
+                ent.mod_id, prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_BOOK, nopad=True, blank=True)
         elif ent.is_no_variation:
             ent.image = pif.ren.format_image_optional(
                 f'{ent.mod_id}', prefix=mbdata.IMG_SIZ_SMALL, pdir=config.IMG_DIR_MAN, nopad=True)
@@ -216,10 +219,11 @@ class MatrixFile(object):
         ent.additional = ent.modicons = ''
         if pif.is_allowed('a'):  # pragma: no cover
             ent.modicons = (
-                pif.ren.format_link(f"upload.cgi?d={libdir}&n={ent.link}&c={ent.link}",
-                                    pif.ren.fmt_mini(icon="upload", color="gray")) + ' ' +
+                pif.ren.format_link(f'vars.cgi?edt=1&mod={ent.mod_id}', pif.ren.fmt_mini('gray', 'link')) + ' ' +
                 pif.ren.format_link(pif.dbh.get_editor_link('matrix_model', page_id=ent.page_id, mod_id=ent.mod_id),
-                                    pif.ren.fmt_edit(color="gray")))
+                                    pif.ren.fmt_edit(color="gray")) + ' ' +
+                pif.ren.format_link(f"upload.cgi?d={libdir}&n={ent.link}&c={ent.link}",
+                                    pif.ren.fmt_mini(icon="upload", color="gray")))
 
         if ent.is_no_variation:
             ent.picture_only = ent.no_variation = 1
@@ -238,7 +242,6 @@ class MatrixFile(object):
             ent.no_vs = 1
         ent.imgstr = varimage
 
-        ent.number = ent.disp_id
         if not ent.shown_id and ent.disp_id:
             ent.shown_id = ent.disp_id
         if ent.no_id:
@@ -258,7 +261,9 @@ class MatrixFile(object):
         ent.spdir = mbdata.dirs_r.get(ent.pdir, ent.pdir)
 
         ent.href = ''
-        if ent.mod_id.startswith('matrix.'):
+        if self.cat_id:
+            ent.href = f"vars.cgi?mod={ent.mod_id}&var={ent.var.var}"
+        elif ent.mod_id.startswith('matrix.'):
             ent.href = f'/cgi-bin/matrix.cgi?page={ent.mod_id[7:]}#{ent.sub_id}'
         elif ent.model_type == 'MP':
             if pif.ren.find_image_path(
@@ -268,9 +273,14 @@ class MatrixFile(object):
                 self.picture_count += 1
                 ent.is_product_picture = 1
             ent.href = f"packs.cgi?page=&id={ent.mod_id}"
+        elif ent.model_type == 'BK':
+            if pif.ren.find_image_path(ent.pack.id, pdir=(config.IMG_DIR_BOOK[1:]), largest=mbdata.IMG_SIZ_GIGANTIC):
+                comments.add('c')
+                self.picture_count += 1
+                ent.is_product_picture = 1
+            ent.href = f"pub.cgi?page=&id={ent.mod_id}"
         elif not ent.mod_id:
-            img = pif.ren.find_image_path(ent.link, largest='h')
-            if img:
+            if img := pif.ren.find_image_path(ent.link, largest='h'):
                 ent.href = f'/{img}'
         elif ent.vs.ref_id:
             ent.href = (
@@ -292,17 +302,10 @@ class MatrixFile(object):
             if x and x not in desclist:
                 desclist.append(x)
         ent.description = desclist
-
-        if ent.disp_format:
-            if ent.shown_id:
-                ent.displayed_id = ent.disp_format % ent.shown_id
-        elif ent.shown_id:
-            ent.displayed_id = ent.shown_id
-
+        ent.displayed_id = ent.shown_id
         ent.display_id = pif.page_name
 
         entry = render.Entry(data=ent, class_name='bg_' + ent.style_id)
-        # entry.anchor = f'{ent.number}'
         return entry
 
 

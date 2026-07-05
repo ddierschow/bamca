@@ -72,6 +72,19 @@ model_type_names = {
     'LI': 'Lineup',
 }
 
+model_type_dirs = {
+    'AC': config.IMG_DIR_ACC,
+    'KS': config.IMG_DIR_KING,
+    'RW': config.IMG_DIR_PROD_LRW,
+    'SB': config.IMG_DIR_SKY,
+    'PK': config.IMG_DIR_PACKAGE,
+    'GM': config.IMG_DIR_GAME,
+    'BK': config.IMG_DIR_BOOK,
+    'AD': config.IMG_DIR_ADS,
+    'MP': config.IMG_DIR_PROD_PACK,
+}
+
+
 model_types = {
     'AC': 'Casting',            # Accessory
     'ET': 'Casting',            # Early toy
@@ -343,8 +356,8 @@ image_size_sizes = [(25, 15), (50, 30), (100, 60), (200, 120), (300, 180), (400,
 imagesizes = dict(zip(image_size_types, image_size_sizes))
 
 image_adds_names = ["advertisement", "baseplate", "comparison", "custom", "detail", "error", "interior", "prototype",
-                    "real", "box", "group"]
-image_adds_types = ['f', 'b', 'z', 'a', 'd', 'e', 'i', 'p', 'r', 'x', 'g']
+                    "real", "box", "group", "artwork", "vertical art"]
+image_adds_types = ['f', 'b', 'z', 'a', 'd', 'e', 'i', 'p', 'r', 'x', 'g', 'w', 'v']
 image_adds_list = zip(image_adds_types, image_adds_names)
 
 model_type_chars_1 = "aonb2e1r4uztv5"
@@ -491,6 +504,7 @@ materials = {
     'L': 'lucite box',
     'P': 'plastic',
     'U': 'unknown',
+    'V': 'vinyl',
     '': 'unknown',
 }
 
@@ -517,25 +531,27 @@ casting_arts = {
     'Super Kings': 'c_super-kings',
     'Skybusters': 'c_skybusters',
     'White Rose': 'c_white_rose',
+    "Hitch 'n Haul": 'c_hnh',
 }
 
 
 model_adds = [
     # prefix, title, separator, columns
-    ["b_", "Sample Base%(s)s", "<p>", 1],
-    ["d_", "Detail%(s)s", " ", 1],
-    ["i_", "Interior%(s)s", "<p>", 1],
-    ["p_", "Prototype%(s)s or Preproduction Model%(s)s", "<p>", 1],
-    ["r_", "Real Vehicle Example%(s)s", "<p>", 1],
-    ["a_", "Customization%(s)s", "<p>", 1],
-    ["f_", "Advertisement%(s)s", "<p>", 1],
-    ["e_", "Error Model%(s)s", "<p>", 1],
+    ["b_", "Sample Base", "<p>", 1],
+    ["d_", "Detail", " ", 1],
+    ["i_", "Interior", "<p>", 1],
+    ["p_", "Prototype or Preproduction Model", "<p>", 1],
+    ["r_", "Real Vehicle Example", "<p>", 1],
+    ["a_", "Customization", "<p>", 1],
+    ["f_", "Advertisement", "<p>", 1],
+    ["e_", "Error Model", "<p>", 1],
+    ["w_", "<hr>", "<p>", 1],
 ]
 
 var_adds = [
-    ["b_", "Base%(s)s", "<p>", 1],
-    ["d_", "Detail%(s)s", " ", 1],
-    ["i_", "Interior%(s)s", "<p>", 1],
+    ["b_", "Base", "<p>", 1],
+    ["d_", "Detail", " ", 1],
+    ["i_", "Interior", "<p>", 1],
 ]
 
 var_types = {
@@ -804,6 +820,8 @@ commit_re = re.compile(r'\ncommit ', re.M)
 illegal_form_re = re.compile('[^-A-Za-z0-9_ ]+')
 sql_fieldwidth_re = re.compile(r'\w+\((?P<w>\d+)\)')
 year_re = re.compile(r"^(?P<y>\d{4})")
+id_breakdown_re = re.compile(r"^(?P<s>[a-zA-Z]+)(?P<n>\d+)(?P<v>[a-zA-Z]*)$")
+bracket_re = re.compile(r"\[(?P<s>[-a-zA-Z0-9,]+)\]")
 
 # ----------------------------------------------------------------------
 

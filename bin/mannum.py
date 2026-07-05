@@ -1494,6 +1494,24 @@ def find_missing_variations(pif, *args):
         print(' '.join(sorted(set([x[0] for x in vars if not x[0].isdigit()]))))
 
 
+def find_missing_numbers(pif, *args):
+    seqs = {}
+    for mod_id in pif.dbh.fetch_casting_ids():
+        if id_m := mbdata.id_breakdown_re.match(mod_id):
+            if id_m.group('s') in ('MB', 'MI'):
+                seqs.setdefault('MB', set())
+                seqs['MB'].add(int(id_m.group('n')))
+            if id_m.group('s') in ('KS', 'SB'):
+                seqs.setdefault(id_m.group('s'), set())
+                seqs[id_m.group('s')].add(int(id_m.group('n')))
+    for seq, nums in sorted(seqs.items()):
+        print(seq, end=' ')
+        for num in range(min(nums), max(nums)):
+            if num not in nums:
+                print(num, end=' ')
+        print(max(nums) + 1, 'onward')
+
+
 cmds = [
     ('d', delete_casting, "delete: mod_id"),
     ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
@@ -1514,6 +1532,7 @@ cmds = [
     ('fv', fix_variation, "fix variation mod_id ..."),
     ('fmv', find_missing_variations, "find missing variations mod_id ..."),
     ('md', make_dirs, "make dirs"),
+    ('mn', find_missing_numbers, "missing numbers"),
 ]
 
 

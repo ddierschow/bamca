@@ -14,6 +14,7 @@ class ManItem(object):
         self.count = 0
         self.country = ''
         self.description = ''
+        self.designer = ''
         self.first_year = ''
         self.flags = 0
         self.format_base = ''
@@ -67,6 +68,7 @@ class ManItem(object):
                 self.box_styles = mod.get('casting.box_styles') or ''
                 self.notes = mod.get('casting.notes') or ''
                 self.section_id = mod.get('casting.section_id') or ''
+                self.designer = mod.get('casting.designer') or ''
                 self.format_description = mod.get('casting.format_description') or ''
                 self.format_body = mod.get('casting.format_body') or ''
                 self.format_interior = mod.get('casting.format_interior') or ''
@@ -122,6 +124,7 @@ class ManItem(object):
             self.box_styles = mod.box_styles
             self.notes = mod.notes or ''
             self.section_id = mod.section_id
+            self.designer = mod.designer
             self.variation_digits = mod.variation_digits
             self.count = mod.count or 0
 
@@ -484,6 +487,10 @@ class PackModelItem(object):
     def __str__(self):
         return f'PackModelItem: {self.id}/{self.mod_id}'
 
+    @property
+    def no_specific_casting(self):
+        return not self.mod_id or self.mod_id == 'unknown' or (self.flags & config.FLAG_MODEL_NO_SPECIFIC_MODEL)
+
 
 class PubItem(object):
 
@@ -720,10 +727,12 @@ class MatItem(object):
         if is_num_id:
             self.range_id = int(self.range_id) if self.range_id else 0
         if self.range_id and sec.disp_format:
-            self.disp_id = self.range_id
-        if self.range_id and sec.link_format:
-            self.link = (useful.clean_name(sec.link_format % self.range_id, '/') if '%' in sec.link_format else
-                         useful.clean_name(sec.link_format, '/'))
+            self.disp_id = sec.disp_format % self.range_id
+        if self.sub_id:
+            self.link = useful.clean_name(self.sub_id, '/')
+        elif self.range_id and sec.link_format:
+            self.link = useful.clean_name(sec.link_format % self.range_id if '%' in sec.link_format else
+                                          sec.link_format, '/')
 
         self.vs = VSItem(mat)
         subname_id = mbdata.reverse_regions.get(self.subname, '')

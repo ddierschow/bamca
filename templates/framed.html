@@ -1,18 +1,9 @@
 {%- extends "base.html" %}
 
-{%- macro add_left_bar(type_id=None, base_id=None, vehicle_type='', rowspan=4, content='') %}
+{%- macro add_left_bar(rowspan=4, icons=[], content='') %}
 <td rowspan="{{ rowspan }}" class="leftbar">
 <div class="leftbarcontent">
-{%- if type_id %}{{ render.format_image_icon(type_id) }}<p>{% endif %}
-{%- if path_exists("." + config.IMG_DIR_MAN_ICON + "/i_" + base_id.lower() + ".gif") -%}
-{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_MAN_ICON, prefix='i_', suffix='.gif', also={'class':'centered'}, tail='<p>') }}{% endif %}
-{%- for vtype in vehicle_type %}
-{{ render.format_image_optional(vtype, '', '.' + config.IMG_DIR_ICON, suffix='.gif', also={'class':'centered'}) }}<p>
-{%- endfor %}
-{% if path_exists("." + config.IMG_DIR_MAN_ICON + "/b_" + base_id.lower() + ".gif") %}
-{{ render.format_image_optional(base_id, '', '.' + config.IMG_DIR_MAN_ICON, prefix='b_', suffix='.gif', also={'class':'centered'}, tail='<p>') }}
-{%- endif -%}
-<p>
+{%- for icon in icons %}{% if icon %}{{ icon }}{% endif %}{% endfor %}
 {{ content }}
 </div>
 <div class="bamcamark"><img src="/pic/icon/l_{{ page.bamcamark }}"></div>
@@ -25,7 +16,7 @@
 <table class="framed"><tr>
 
 {#- left bar #}
-{{ add_left_bar(type_id, icon_id, vehicle_type, rowspan, content=left_bar_content) }}
+{{ add_left_bar(rowspan, icons=left_bar_icons, content=left_bar_content) }}
 
 {#- title banner #}
 {{ render.add_banner(title, note) }}

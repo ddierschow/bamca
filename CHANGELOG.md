@@ -1,3 +1,22 @@
+### 7.8.14  - 2026-07-04
+
+- Add giftware and carrying cases pages
+- Support Specials model IDs (they have a slash in them)
+- Support contents pictures in packs for the mass operation
+- Fix bug that made all extra sections be 4 columns
+- Support transitional models in lineups (two models at one number)
+- Add books to matrix
+- Add pack entries that aren't castings
+- Add more support for default directories by model type
+- Add vinyl material (carrying cases)
+- Add casting designer
+- Make left bar icons on packs a little better
+- Clean up base logos some
+- Add bracket input when entering variation selects
+- Simplify left bar icons generally
+- Add feature icons
+- Add artwork to single page
+
 ### 7.8.13  - 2026-06-20
 
 - Add a lot more support for correlating MBUSA information

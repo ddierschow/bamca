@@ -18,7 +18,7 @@ DoPageHeader($pif);
 
 <div class="cyindex">
   <span class="ititle"><img alt="" src="/pic/set/convoy/banner.jpg"><br>
-  The Matchbox Convoy Project</span>
+  The Matchbox Convoy Project<br>Release Dates 1979-2008</span>
   <p>
     Welcome to our site. The Matchbox Convoy Project is an effort to compile
     and list the models and variations of the truck and trailer combinations

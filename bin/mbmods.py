@@ -76,6 +76,8 @@ def add_model_table_pic_link_man_item(pif, manitem, flago=flago):
                 manitem.desclist += f"<br><i>{s}</i>\n"
     # manitem.shown_id = manitem.get('alias.id') or manitem.id']
     manitem.shown_id = manitem.id
+    if pif.is_allowed('a'):
+        manitem.modelicons = pif.ren.format_link(f'vars.cgi?edt=1&mod={manitem.id}', pif.ren.fmt_mini('gray', 'link'))
     return manitem
 
 
@@ -123,41 +125,32 @@ def add_man_item_table_product_link(pif, item):
     if item.show_vars:
         # imgstr descriptions
         for vdict in item.show_vars:
+            vstr = f'<center>{vdict["imgstr"]}</center>\n<span class="modelname">{item.name or item.subname}</span>'
             if item.href:
-                ostr += f'<a href="{item.href}">\n'
-            # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
-            #          vdict['imgstr'])
-            ostr += f'<center>{vdict["imgstr"]}</center>\n<span class="modelname">{item.name}</span>'
-            if item.href:
-                ostr += '</a>'
-            if item.subname:
-                item.lname += '<br>' + item.subname
+                vstr = f'<a href="{item.href}">\n{vstr}</a>\n'
+            if item.subname and item.name:
+                item.lname += f'<br>{item.subname}'
             if item.subnames:
-                ostr += "<br>" + "<br>".join(item.subnames)
+                vstr += "<br>" + "<br>".join(item.subnames)
             if vdict.get('description'):
-                ostr += '<table class="vartable">'
-                ostr += f'<tr><td class="varentry">{vdict["description"]}</td></tr>'
-                ostr += "</table>"
-            ostr += "</center>"
+                vstr += f'<table class="vartable"><tr><td class="varentry">{vdict["description"]}</td></tr></table>\n'
+            vstr += "</center>"
+            ostr += vstr
     else:
+        vstr = f'<center>{item.imgstr}</center>\n<span class="modelname">{item.name or item.subname}</span>'
         if item.href:
-            ostr += f'<a href="{item.href}">\n'
-        # ostr += ('<table class="spicture"><tr><td class="spicture"><center>%s</center></td></tr></table>\n' %
-        #          item.imgstr)
-        ostr += '<center>%s</center>\n' % (item.imgstr)
-        ostr += '<span class="modelname">' + item.name + '</span>'
-        if item.href:
-            ostr += '</a>'
-        if item.subname:
-            ostr += '<br>' + item.subname
+            vstr = f'<a href="{item.href}">\n{vstr}</a>\n'
+        if item.subname and item.name:
+            vstr += f'<br>{item.subname}'
         if item.subnames:
-            ostr += "<br>" + "<br>".join(item.subnames)
+            vstr += "<br>" + "<br>".join(item.subnames)
         if item.descriptions:
-            ostr += '<table class="vartable">'
+            vstr += '<table class="vartable">'
             for var in item.descriptions:
-                ostr += f'<tr><td class="varentry">{var}</td></tr>'
-            ostr += "</table>"
-        ostr += "</center>"
+                vstr += f'<tr><td class="varentry">{var}</td></tr>'
+            vstr += "</table>"
+        vstr += "</center>"
+        ostr += vstr
 
     ostr += item.additional
     return ostr
@@ -288,7 +281,7 @@ def show_adds(pif, mod_id, var_id=''):
     for add in adds:
         imgs = pif.ren.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
         if imgs:
-            ostr += '<h3>%s</h3>\n' % add[1] % {'s': useful.plural(imgs)}
+            ostr += f'<h3>{add[1]}{useful.plural(imgs)}</h3>\n'
             for img in imgs:
                 ostr += '<table><tr><td class="center">'
                 ostr += pif.ren.fmt_img_src(pdir + '/' + img) + '<br>'
@@ -322,8 +315,7 @@ def make_adds(pif, mod_id, var_id=''):
     for add in adds:
         imgs = pif.ren.find_image_list(img_id, wc='-*', suffix='*', prefix=add[0], pdir=pdir)
         if imgs:
-            elem = {'title': add[1] % {'s': useful.plural(imgs)}, 'entry': [],
-                    'columns': add[3]}
+            elem = {'title': add[1] + useful.plural(imgs), 'entry': [], 'columns': add[3]}
             for img in imgs:
                 fn = img[:img.find('.')]
                 ent = {'img': pif.ren.fmt_img_src(pdir + '/' + img),
@@ -416,9 +408,10 @@ def add_model_var_table_pic_link(pif, mdict):
     # mdict['link'] = 'single.cgi?id=%(v.mod_id)s' % mdict
     mdict['link'] = 'vars.cgi?mod=%(v.mod_id)s&var=%(v.var)s' % mdict
     ostr = (
-        '  <center><table class="entry"><tr><td>'
-        '<center><span class="monospace modelname">%(v.mod_id)s-%(v.var)s</span></br>\n'
-        '   <a href="%(link)s">%(img)s<br><b>%(name)s</b></a>\n') % mdict
+        '  <center><table class="entry"><tr><td width="20%"></td><td width="60%">'
+        f'<center><span class="monospace modelname">{mdict["v.mod_id"]}-{mdict["v.var"]}</span></td>'
+        '<td width="20%"></td></tr>\n'
+        f'   <tr><td colspan="3"><a href="{mdict["link"]}">{mdict["img"]}<br><b>{mdict["name"]}</b></a>\n')
     # ostr += "   <br><i>%(v.text_description)s</i>\n" % mdict
     ostr += '<table class="vartable">'
     ostr += '<tr><td class="varentry"><i>%s</i></td></tr>' % mdict['v.text_description']
@@ -427,24 +420,31 @@ def add_model_var_table_pic_link(pif, mdict):
     return ostr
 
 
+def make_base_logos(pif, logo_type):
+    l1 = l2 = ''
+    for ch in logo_type:
+        if ch in mbdata.base_logo_dict:
+            l1 = ch
+        elif ch in mbdata.base_logo_2_dict:
+            l2 = ch
+    return [
+        pif.ren.format_image_icon(f'l_base-{l1}', mbdata.base_logo_dict.get(l1)) if l1 else '',
+        pif.ren.format_image_icon(f'l_base-{l2}', mbdata.base_logo_2_dict.get(l2)) if l2 else '']
+
+
 def add_man_item_sized_var_table_pic_link(pif, size, manitem, varitem):
     manitem.img = pif.ren.format_image_required(varitem.mod_id, largest=size, nobase=True, vars=varitem.picture_id)
     manitem.link = f'vars.cgi?mod={varitem.mod_id}&var={varitem.var}'
+    c2 = pif.ren.format_image_icon("l_code2", also={'class': 'lefty'}) if varitem.variation_type == "2" else ""
     if size == mbdata.IMG_SIZ_SMALL or size == mbdata.IMG_SIZ_MEDIUM:
         ostr = (
-            '  <center><table class="entry"><tr><td>'
-            f'<center><span class="modelname monospace">{varitem.mod_id}-{varitem.var}</span><br>\n'
-            f'   <a href="{manitem.link}" class="modelname">{manitem.img}<br>{manitem.name}</a>\n'
+            f'  <center><table class="entry"><tr><td width="20%">{c2}</td><td width="60%">'
+            f'<center><span class="modelname monospace">{varitem.mod_id}-{varitem.var}</span></center></td>'
+            '<td width="20%"></td></tr><tr><td colspan="3">\n'
+            f'   <center><a href="{manitem.link}" class="modelname">{manitem.img}<br>{manitem.name}</a>\n'
             f'<table class="vartable"><tr><td class="varentry"><i>{varitem.text_description}</i></td></tr></table>'
             "  </center></td></tr></table></center>\n")
     elif size == mbdata.IMG_SIZ_LARGE:
-        ostr = (
-            '  <center><table class="entry"><tr><td colspan="2" class="modelname monospace centerize">'
-            f'{varitem.mod_id}-{varitem.var}</td></tr>\n'
-            f' <tr><td class="width_l"><center><a href="{manitem.link}">{manitem.img}</a></center></td>\n'
-            f'  <td class="width_m toppy"><center><a href="{manitem.link}"><b>{manitem.name}</b></a><p>\n'
-            f'<table class="vartable"><tr><td class="varentry"><i>{varitem.text_description}</i></td></tr></table>')
-
         # render details
         def show_details():
             return [(t, varitem.get_attr(f'text_{d}')) for d, t in
@@ -452,21 +452,20 @@ def add_man_item_sized_var_table_pic_link(pif, size, manitem, varitem):
                      ('windows', 'Windows'), ('text', 'Base Text'), ('with', 'With')]] + [
                 ('First Release', pif.ren.format_date(varitem.get_attr('date')))]
 
-        l1 = l2 = ''
-        for ch in varitem.iattrs['logo_type']:
-            if ch in mbdata.base_logo_dict:
-                l1 = ch
-            elif ch in mbdata.base_logo_2_dict:
-                l2 = ch
-        base_logos = [
-            pif.ren.format_image_icon(f'l_base-{l1}', mbdata.base_logo_dict.get(l1)) if l1 else '',
-            pif.ren.format_image_icon(f'l_base-{l2}', mbdata.base_logo_2_dict.get(l2)) if l2 else '']
+        base_logos = ' '.join(make_base_logos(pif, varitem.iattrs['logo_type']))
 
-        ostr += (
+        ostr = (
+            '  <table class="entry centered">'
+            f' <tr><td class="width_l center"><a href="{manitem.link}">{manitem.img}</a></td>\n'
+            '   <td class="width_m center toppy"><table width="100%"><tr>'
+            f'  <td width="10%">{c2}</td><td class="modelname monospace centerize">'
+            f'{varitem.mod_id}-{varitem.var}</td><td width="10%"></td></tr></table><p>\n'
+            f'  <div class="width_m toppy center"><a href="{manitem.link}"><b>{manitem.name}</b></a></div><p>\n'
+            f'<table class="vartable width_m"><tr><td class="varentry"><i>{varitem.text_description}</i></td></tr></table>'
             '<table class="inset width_m">\n' +
-            ''.join([f'<tr><td>{title}</td><td>{value}</td></tr>\n' for title, value in show_details() if value]) +
-            "</table>\n" + ''.join(base_logos) +
-            "\n  </center></td></tr></table></center>\n")
+            ''.join([f'<tr><td class="textleft">{title}</td><td class="textleft">{value}</td></tr>\n'
+                     for title, value in show_details() if value]) +
+            f'</table>\n{base_logos}\n  </td></tr></table>\n')
 
     return ostr
 

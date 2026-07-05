@@ -810,7 +810,7 @@ class DBHandler(object):
         args = list()
         cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.date', 'v.text_description', 'v.text_base',
                 'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.text_text',
-                'v.picture_id', 'v.manufacture', 'v.logo_type']
+                'v.picture_id', 'v.manufacture', 'v.logo_type', 'v.variation_type']
         for key in varsq:
             wheres.extend([f"v.{key} like %s" for x in varsq[key]])
             args.extend([f"%%{x}%%" for x in varsq[key]])
@@ -832,7 +832,8 @@ class DBHandler(object):
     def fetch_variation_query_by_id(self, mod_id, var_id):
         wheres = ['v.mod_id=casting.id', 'casting.id=base_id.id']
         cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.date', 'v.text_description', 'v.text_base',
-                'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id']
+                'v.text_body', 'v.text_interior', 'v.text_wheels', 'v.text_windows', 'v.text_with', 'v.picture_id',
+                'v.variation_type']
         wheres.append(f'casting.id="{mod_id}"')
         wheres.append(f'v.var="{var_id}"')
         # turn this into a fetch
@@ -1332,6 +1333,11 @@ class DBHandler(object):
         return self.write('lineup_model', values=self.make_values('lineup_model', values, 'lineup_model.'),
                           where=self.make_where(where), modonly=True, tag='UpdateLineupModel', verbose=verbose)
 
+    def update_lineup_model_values(self, where, values, verbose=False):
+        # useful.write_message(where, values, '<br>')
+        return self.write('lineup_model', values=values,
+                          where=self.make_where(where), modonly=True, tag='UpdateLineupModelValues', verbose=verbose)
+
     def delete_lineup_model(self, where):
         self.delete('lineup_model', self.make_where(where))
 
@@ -1588,7 +1594,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
             'base_id.id', 'base_id.first_year', 'base_id.flags', 'base_id.model_type', 'base_id.rawname',
             'base_id.description', 'pack_model.id', 'pack_model.mod_id', 'pack_model.pack_id', 'pack_model.pack_var',
             'pack_model.var_id', 'pack_model.display_order', 'pack_model.style_id', 'pack_model.subname',
-            'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make',
+            'pack_model.flags', 'casting.id', 'casting.scale', 'casting.vehicle_type', 'casting.country', 'casting.make',
             'casting.section_id', 'vs.ref_id', 'vs.sec_id', 'vs.ran_id', 'vs.mod_id', 'vs.var_id',
             'v.var', 'v.text_description', 'v.picture_id', 'v.date']
         froms = ("pack_model "
@@ -2083,7 +2089,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
     def check_description_formatting_casting(self, casting, attrs=None, linesep=''):
         cas_cols = ['format_' + x for x in self.get_table_data('casting').formats]
         var_cols = self.get_table_data('variation').internals
-        attrs = [x['attribute.attribute_name'] for x in self.fetch_attributes(casting.id)] if attrs is None else attrs
+        attrs = [x['attribute.attribute_name'] for x in (self.fetch_attributes(casting.id) if attrs is None else attrs)]
         attributes = var_cols + attrs
         messages = ''
         retval = False
@@ -2095,7 +2101,7 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
                 for fmt in cas_val.split('|'):
                     attr = self.parse_detail_format(fmt, 't')[0]
                     if attr and (attr[1:] if attr.startswith('_') else attr) not in attributes:
-                        messages += f'{casting.id} ! {cas_col} {fmt}{linesep}\n'
+                        messages += f'{casting.id} ! {cas_col} {fmt} {attr}{linesep}\n'
                         missing.append(attr)
                         retval = True
         for attr in attributes:

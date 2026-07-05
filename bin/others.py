@@ -167,7 +167,7 @@ def custom_create_section(pif, attribute_type):
     def prep_mod(attr_pic):
         mod_id = attr_pic['attribute_picture.mod_id']
         img_id = mod_id.lower() + ('-' + attr_pic['attribute_picture.picture_id'] or '')
-        add = adds.get(attr_pic['attribute_picture.attr_type'], 'Picture%s') % {'s': ''}
+        add = adds.get(attr_pic['attribute_picture.attr_type'], 'Picture')
         img = pif.ren.find_image_path(
             img_id, prefix=attr_pic['attribute_picture.attr_type'], pdir=config.IMG_DIR_ADD)
         img_credit = credits.get(img_id, '')

@@ -376,7 +376,7 @@ of Matchbox International Ltd. and are used with permission.
     def find_image_file(self, fnames, vars=None, nobase=False, prefix='', suffix=None, largest=None, preferred=None,
                         pdir=None, art=False):
         # self.comment('START find_image_file', fnames, 'vars', vars, 'nobase', nobase, 'prefix', prefix,
-        #              'suffix', suffix, 'largest', largest, 'preferred', prefix, 'pdir', pdir, 'art', art)
+        #              'suffix', suffix, 'largest', largest, 'preferred', preferred, 'pdir', pdir, 'art', art)
         if not fnames:
             # self.comment('find_image_file ret', '')
             return ('', '')

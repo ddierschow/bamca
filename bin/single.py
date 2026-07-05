@@ -227,6 +227,7 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
 
         attrs = pif.dbh.fetch_attributes(mod_id)
         fmt_bad, messages, missing = pif.dbh.check_description_formatting_casting(model, attrs)
+        lines.append(f'<!-- {str(messages)} {str(missing)} -->')
         lines.append(pif.ren.fmt_x('red') if fmt_bad else pif.ren.fmt_check('green'))
         var_cnt, var_counts = var_texts
         lines.append(''.join([
@@ -422,6 +423,15 @@ def show_single(pif):
     base_names = sorted(set([x['base_name'] for x in pif.dbh.fetch_variation_base_names(mod_id) if x['base_name']]))
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
+    icon_add = {'suffix': 'gif', 'also': {'class': 'centered'}, 'tail': '<p>', 'nopad': True}
+    left_bar_icons = [
+        pif.ren.format_image_icon(''),  # type_id
+        pif.ren.format_image_optional(mod_id, pdir=config.IMG_DIR_MAN_ICON, prefix='i_', **icon_add)] + [
+        pif.ren.format_image_optional(vtype, pdir=config.IMG_DIR_ICON, **icon_add) for vtype in vehicle_types] + [
+        pif.ren.format_image_optional(mod_id, pdir=config.IMG_DIR_MAN_ICON, prefix='b_', **icon_add) +
+        pif.ren.format_image_optional(mod_id, pdir=config.IMG_DIR_MAN_ICON, prefix='f_', **icon_add)
+    ]
+
     # ------- render ------------------------------------
 
     pif.ren.set_button_comment(pif, keys={'id': 'id', 'pic': 'pic', 'dir': 'dir', 'ref': 'ref'})
@@ -432,8 +442,11 @@ def show_single(pif):
         'icon_id': mod_id,
         'vehicle_type': vehicle_types,
         'rowspan': '4',
+        'left_bar_icons': left_bar_icons,
         'left_bar_content': '<br>\n'.join(
             show_left_bar_content(pif, model, prod.ref, prod.pic, prod.pdir, raw_variations)),
+        'right_side_image':
+            pif.ren.format_image_optional(mod_id, pdir=config.IMG_DIR_ADD, prefix='v_', also={'class': 'righty'}),
         'model': model,
         'variations': variations,
         'prod_title': ' - '.join([x for x in prod_title if x]),

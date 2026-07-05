@@ -673,8 +673,9 @@ def add_casting_main(pif):
     ]
 
     header = '<form name="mass" action="mass.cgi">' + pif.create_token()
-    for ln in pif.dbh.fetch_mbusa_entries(mod_id):
-        header += '<br>' + ln['mbusa.model']
+    if mod_id:
+        for ln in pif.dbh.fetch_mbusa_entries(mod_id):
+            header += '<br>' + ln['mbusa.model']
     footer = mass_type_reinput(pif) + "</form><p>"
 
     lsections = [render.Section(colist=['title', 'value'], range=[render.Range(entry=entries)], noheaders=True,
@@ -967,10 +968,12 @@ def add_var_mbusa(pif):
         x['id'] = pif.ren.format_link(pif.dbh.get_editor_link('mbusa', id=x['id']), str(x['id']))
         if x['var_id']:
             var = pif.dbh.fetch_variation(x['mod_id'], x['var_id'])
+            mod = pif.dbh.fetch_casting(x['mod_id'])
             x['import'] = (
                 pif.ren.format_button_link('import', '/cgi-bin/mass.cgi', args={
                     'tymass': 'var', 'mod_id': x['mod_id'], 'var': x['var_id'], 'date': date, 'imported_from': x['file']}) +
-                (pif.ren.fmt_check('green') if var else pif.ren.fmt_x('red')))
+                (pif.ren.fmt_check('green') if var else pif.ren.fmt_x('red')) +
+                (pif.ren.fmt_check('green') if mod else pif.ren.fmt_x('red')))
             x['var_id'] = pif.ren.format_link(f'/cgi-bin/vars.cgi?edt=1&mod={x["mod_id"]}&var={x["var_id"]}', x["var_id"])
         x['mod_id'] = pif.ren.format_link(f'/cgi-bin/single.cgi?id={x["mod_id"]}', x["mod_id"])
         return x
@@ -1396,17 +1399,16 @@ def add_pack_form(pif):
     # useful.write_message('add_pack_model', pack, long_pack_id)
     llistix.section.append(add_pack_model(pif, pack, long_pack_id))
 
+    footer = pif.form.put_button_input("save") + pif.form.put_button_input("delete") + '</form>'
+
     # related
     relateds = pif.dbh.fetch_packs_related(pack_id)
-    footer = 'related '
+    footer += 'related '
     footer += pif.ren.format_button_link('edit', '?tymass=related&section_id=packs&mod_id=%s' % pack_id)
     footer += '<br>\n'
     for rel in relateds:
         footer += rel['pack.id'] + '<br>\n'
 
-    footer += pif.form.put_button_input("save")
-    footer += pif.form.put_button_input("delete")
-    footer += '</form>'
     llistix.section[-1].footer = footer
 
     return pif.ren.format_template('simplelistix.html', llineup=llistix)

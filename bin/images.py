@@ -30,7 +30,8 @@ import useful
 
 Image names and base IDs for prducts are YYYYCSSNNN...
 YYYY = year
-C = category
+C = category [abcdejklmprsuwxy]
+
     w = Worldwide
     u = United States
     r = Rest of World
@@ -61,6 +62,8 @@ C = category
         r = roadway
         z = puzzle
     x = box
+    k = king / superking / speedking
+    y = yesteryear / collectibles / dinky
 SS = subcategory
 NNN = number or name
 '''
@@ -246,7 +249,7 @@ class UploadForm(object):
         if not pif.is_allowed('m'):
             self.tdir = config.INC_DIR
         elif self.mod_id:
-            self.tdir = useful.relpath('.', config.LIB_MAN_DIR, self.mod_id.lower())
+            self.tdir = useful.relpath('.', config.LIB_MAN_DIR, self.mod_id.lower().replace('/', '_'))
         if self.mod_id:
             pif.ren.title += self.mod_id
             if self.var_id:
@@ -811,7 +814,7 @@ class EditForm(imglib.ActionForm):
     def mass_resize(self, pif, desc=''):
         # print(self.__dict__, '<br>')
         var = self.var.lower()
-        man = self.man.lower()
+        man = self.man.lower().replace('/', '_')
         print('mass_resize', 'pth', self.pth, 'tdir "%s"' % self.tdir, 'fn', self.fn, 'ot', self.ot,
               'os', self.original_size, '|', man, var, '<hr>')
 
@@ -829,10 +832,11 @@ class EditForm(imglib.ActionForm):
         ddir = self.dest if self.dest else self.tdir
         outnam = '_' + nname_root + ot
         self.unlv = False
-        if self.tdir.startswith('lib/prod/pack') or self.tdir.startswith('./lib/prod/pack'):
-            prefs = 'mlh'
-            self.unlv = True
-        elif self.tdir.startswith('lib/prod/playset') or self.tdir.startswith('./lib/prod/playset'):
+        if (self.tdir.startswith('lib/prod/pack') or self.tdir.startswith('./lib/prod/pack') or
+                self.tdir.startswith('lib/set/pack') or self.tdir.startswith('./lib/set/pack') or
+                self.tdir.startswith('lib/prod/playset') or self.tdir.startswith('./lib/prod/playset') or
+                self.tdir.startswith('lib/set/playset') or self.tdir.startswith('./lib/set/playset') or
+                self.tdir.startswith('lib/prod/carry') or self.tdir.startswith('./lib/prod/carry')):
             prefs = 'mlh'
             self.unlv = True
         elif self.tdir.startswith('lib/prod') or self.tdir.startswith('./lib/prod'):

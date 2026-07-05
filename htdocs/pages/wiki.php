@@ -10,6 +10,7 @@
 <li><a href="https://matchbox.fandom.com/wiki/Super_Kings">Super Kings</a>
 <li><a href="https://matchbox.fandom.com/wiki/Sea_Kings">Sea Kings</a>
 <li><a href="https://matchbox.fandom.com/wiki/Battle_Kings">Battle Kings</a>
+<li><a href="https://matchbox.fandom.com/wiki/Convoy">Convoy</a>
 </ul><hr>
 
 <table>

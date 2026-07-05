@@ -18,7 +18,7 @@ import useful
 # colspan must be <= columns!
 pack_layout_keys = ['columns', 'colspan', 'rowspan', 'picsize']
 pack_layouts = {
-    '02v': [2, 1, 2, 'l'],
+    '02v': [2, 1, 2, 'm'],
     '03v': [2, 1, 3, 'm'],
     '04v': [2, 1, 4, 'm'],
     '05h': [4, 3, 1, 'l'],
@@ -36,6 +36,13 @@ pack_layouts = {
     '2xh': [2, 2, 1, 'h'],
     '3xh': [3, 3, 1, 'h'],
     '4xh': [4, 4, 1, 'h'],
+    '1x1': [1, 1, 1, 'h'],
+    '2x1': [2, 1, 1, 'l'],
+    '2x2': [2, 1, 2, 'l'],
+    '2x3': [2, 1, 3, 'l'],
+    '2x4': [2, 1, 4, 'l'],
+    '2x5': [2, 1, 5, 'l'],
+    '2x6': [2, 1, 6, 'l'],
 }
 
 
@@ -203,8 +210,10 @@ def do_single_pack(pif, format_type, pid):
             pif.ren.comment("do_single_pack mod", pmod)
             pmod.sub_id = ''
 
-            if not pmod.mod_id or pmod.mod_id == 'unknown':
+            if pmod.no_specific_casting:
                 pmod.no_casting = 1
+                pmod.name = pmod.subname
+                pmod.subname = ''
                 tcomments.add('m')
             else:
                 if pmod.imgstr.find('-') < 0:
@@ -213,6 +222,7 @@ def do_single_pack(pif, format_type, pid):
                     pmod.no_variation = 1
                     tcomments.add('v')
 
+            useful.write_comment(pmod.__dict__)
             entries.append(
                 render.Entry(text=show_pack_model(pif, pmod), class_name=pmod.style_id or 'wh', display_id=1))
 
@@ -222,6 +232,9 @@ def do_single_pack(pif, format_type, pid):
                                               range=[render.Range(entry=entries)]))
 
     left_bar_content = make_left_bar_content(pif, page_id, pack) if pif.is_allowed('a') else ''
+
+    # icon_add = {'suffix': 'gif', 'also': {'class': 'centered'}, 'tail': '<p>', 'nopad': True}
+    left_bar_icons = [pif.ren.format_image_icon('p_' + packs[0].section_id)]
 
     llineup.comments = tcomments
     llineup.tail = ['', '<br>'.join([mbdata.comment_designation[comment] for comment in sorted(tcomments)])]
@@ -233,6 +246,7 @@ def do_single_pack(pif, format_type, pid):
         'icon_id': '',  # pack_id,
         'vehicle_type': '',
         'rowspan': 4,
+        'left_bar_icons': left_bar_icons,
         'left_bar_content': left_bar_content,
         'llineup': llineup.prep(),
         'relateds': relateds,
@@ -305,7 +319,9 @@ def distill_models(pif, pack, page_id):
         mod.spdir = mbdata.dirs_r.get(mod.pdir, mod.pdir)
         sec_ids = ['.', '', f"{pack_id}.", f"{pack_id}.{mod.display_order}"]
         if f"{mod.vs.sec_id}.{mod.vs.ran_id}" in sec_ids:
-            mod.imgl = [mbdata.IMG_SIZ_SMALL + '_' + mod.mod_id, mod.mod_id]
+            mod.imgl = [mbdata.IMG_SIZ_SMALL + '_' + mod.mod_id, mod.mod_id,
+                        mbdata.IMG_SIZ_SMALL + '_' + pack.id + '-' + mod.mod_id, pack.id + '-' + mod.mod_id,
+                        ]
             for s in mod.man.descs:
                 if s.startswith('same as '):
                     mod.imgl.extend([mbdata.IMG_SIZ_SMALL + '_' + s[8:], s[8:]])
@@ -314,7 +330,7 @@ def distill_models(pif, pack, page_id):
             if not mod.vs.sec_id:
                 mod.vs.sec_id = ''
             mod.pic_id = mod.vs.sec_id or mod.pack_id
-            if mod.mod_id != 'unknown':
+            if not mod.no_specific_casting:
                 mod.href = (
                     f"single.cgi?id={mod.mod_id}&dir={mod.spdir}&pic={mod.pic_id}&ref={mod.vs.ref_id}&"
                     f"sec={mod.vs.sec_id}&ran={mod.vs.ran_id}")
@@ -470,6 +486,56 @@ def play_main(pif):
         pid = useful.clean_id(pif.form.get_str('id'))
         return do_single_pack(pif, 'playset', pid)
     return make_pack_list(pif, 'playset',
+                          verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
+                          **pif.form.get_dict(['sec', 'year', 'region']))
+
+
+cmds = [
+]
+
+
+# ---- carry ---------------------------------
+
+
+@basics.web_page
+def carry_main(pif):  # identical to play, except, ya know, not.
+    pif.ren.set_page_extra(pif.ren.image_selector_js)
+    pif.page_id = 'carry.cc'
+    pif.set_page_info(pif.page_id)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('carry.cgi', 'Carrying Cases')
+    if pif.form.has('id'):
+        pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
+        pid = useful.clean_id(pif.form.get_str('id'))
+        return do_single_pack(pif, 'carry', pid)
+    return make_pack_list(pif, 'carry',
+                          verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
+                          **pif.form.get_dict(['sec', 'year', 'region']))
+
+
+cmds = [
+]
+
+
+# ---- giftware ------------------------------
+
+
+@basics.web_page
+def giftware_main(pif):  # identical to play, except, ya know, not.
+    pif.ren.set_page_extra(pif.ren.image_selector_js)
+    pif.page_id = 'giftware.gw'
+    pif.set_page_info(pif.page_id)
+    pif.ren.print_html()
+    pif.ren.hierarchy_append('/', 'Home')
+    pif.ren.hierarchy_append('/database.php', 'Database')
+    pif.ren.hierarchy_append('giftware.cgi', 'Giftware')
+    if pif.form.has('id'):
+        pif.form.set_val('id', pif.form.get_list('id')[0])  # with no id this blows
+        pid = useful.clean_id(pif.form.get_str('id'))
+        return do_single_pack(pif, 'giftware', pid)
+    return make_pack_list(pif, 'giftware',
                           verbose=pif.is_allowed('m') and pif.form.get_int('verbose'),
                           **pif.form.get_dict(['sec', 'year', 'region']))
 

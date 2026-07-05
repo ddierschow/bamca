@@ -26,6 +26,8 @@ a:hover     {color: #000099; text-decoration: underline;}
 .monospace  {font-family: monospace;}
 .centerize  {padding: auto;}
 .toppy      {vertical-align: top;}
+.textleft   {text-align: left;}
+.textright  {text-align: right;}
 
 .title      {background-color: #000066; height: 66px; margin: 3px 0 3px 0; display: table; width: 100%;
               color: #FFFFFF; font-weight: bold; font-size: xx-large; text-align: center; max-width: 1024px;}

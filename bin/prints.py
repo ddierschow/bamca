@@ -371,7 +371,7 @@ picdirs = {
     'PK': 'pic/pub/pkg',
     'PC': 'pic/pub/cat',
     'DC': 'pic/pub/cat',
-    # 'RY': 'pic/pub/pkg',
+    'RY': 'pic/pub/game',
     'PZ': 'pic/pub/game',
     'GM': 'pic/pub/game',
     'BK': 'pic/pub/book',
@@ -529,6 +529,8 @@ def single_publication(pif, pub_id):
     pif.ren.set_button_comment(pif, f'id={pub_id}')
     llineup.dump()
 
+    left_bar_icons = [pif.ren.format_image_icon('p_' + sec['id'])]
+
     context = {
         'title': man['name'],
         'note': '',
@@ -536,6 +538,7 @@ def single_publication(pif, pub_id):
         'icon_id': pub_id,
         'vehicle_type': '',
         'rowspan': 5 if upper_box else 4,
+        'left_bar_icons': left_bar_icons,
         'left_bar_content': left_bar_content,
         'upper_box': upper_box,
         'llineup': llineup.prep(),

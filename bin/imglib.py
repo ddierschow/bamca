@@ -1130,6 +1130,7 @@ def update_presets(pdir, values):
 
 
 def promote_picture(pif, mod_id, var_id):
+    mod_id = mod_id.replace('/', '_')
     photo_id = f'{mod_id.lower()}-{var_id.lower()}'
     credit = pif.dbh.fetch_photo_credit(f'.{config.IMG_DIR_VAR}', f'{photo_id}.*')
     pif.ren.message('promoting picture for', mod_id, 'var', var_id, 'to',
@@ -1151,6 +1152,7 @@ def promote_picture(pif, mod_id, var_id):
 
 
 def demote_picture(pif, mod_id, var_id):
+    mod_id = mod_id.replace('/', '_')
     credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id.lower() + '.*')
     pif.ren.message('demoting picture for', mod_id, 'var', var_id, 'to',
                     credit['photographer.id'] if credit else 'uncredited')

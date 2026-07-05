@@ -103,7 +103,7 @@ class Searcher(object):
         # variation section
         self.varsq = args.get('varsq') or {'var': ''}
         self.var_id_exact = args.get('var_id_exact') or 0
-        self.codes = args.get('codes', 3)  # thinking about this one...
+        self.codes = args.get('codes', '12')  # thinking about this one...
 
         # internal stuff
         self.is_var_search = any(self.varsq.values()) or ''.join(self.codes) != '12'

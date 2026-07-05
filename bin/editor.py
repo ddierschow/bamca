@@ -61,20 +61,20 @@ def show_table(pif):
     elif pif.form.has('save'):
         # rec['flags'] = sum(int(x, 16) for x in pif.form.get_list('base_id.flags'))
         values = {x: save_val(x) for x in table_data.columns + table_data.extra_columns
-                  if save_val(x) or table_data.saveid or x not in table_data.id}
+                  if save_val(x) or table_data.saveid or x not in table_data.ids}
         pif.dbh.write(
-            table_data.name, values, pif.form.where(table_data.id, 'o_'), tag='ShowTableSave', verbose=True)
+            table_data.name, values, pif.form.where(table_data.ids, 'o_'), tag='ShowTableSave', verbose=True)
         pif.ren.message('record saved')
     elif pif.form.has('delete'):
-        pif.dbh.delete(table_data.name, pif.form.where(table_data.id, 'o_'))
+        pif.dbh.delete(table_data.name, pif.form.where(table_data.ids, 'o_'))
         pif.form.delete('id')
         pif.ren.message('record deleted')
     elif pif.form.has('clone'):
         # this should be done in memory without saving yet
         values = {x: save_val(x) for x in table_data.columns + table_data.extra_columns
-                  if save_val(x) or table_data.saveid or x not in table_data.id}
+                  if save_val(x) or table_data.saveid or x not in table_data.ids}
         pif.dbh.write(
-            table_data.name, values, pif.form.where(table_data.id, 'o_'), newonly=True, tag='ShowTableClone')
+            table_data.name, values, pif.form.where(table_data.ids, 'o_'), newonly=True, tag='ShowTableClone')
         # del pif.form.delete('id')
         pif.ren.message('record cloned')
         pif.form.delete('clone')
@@ -151,7 +151,7 @@ def show_single(pif, table_data, dats):
     header += pif.create_token()
     header += '<input type="hidden" name="verbose" value="1">\n'
     header += '<input type="hidden" name="table" value="{}">\n'.format(table_data.name)
-    for f in table_data.id:
+    for f in table_data.ids:
         header += '<input type="hidden" name="o_{}" value="{}">\n'.format(f, dat.get(f, ''))
 
     columns = ['column', 'type', 'value', 'new value']
@@ -213,7 +213,8 @@ def show_single(pif, table_data, dats):
             elif not val:
                 val = 0
             newvalue = pif.form.put_text_input(col, colwidth, colwidth, value=str(val))
-        entries.append({'column': col, 'type': coltype, 'value': oldvalue, 'new value': newvalue})
+        entries.append({'column': col, 'type': coltype, 'value': oldvalue, 'new value': newvalue,
+                        'style': 'pk' if col in table_data.ids else ''})
 
     footer = pif.form.put_button_input("save")
     footer += pif.form.put_button_input("delete")
@@ -340,8 +341,8 @@ def make_url_cond(clinks, dat):
 
 def make_col_value(table_data, col, dat):
     val = dat.get(col, '')
-    if col in table_data.id and val:
-        return '<a href="?table={}&{}">{}</a>'.format(table_data.name, make_url_cond(table_data.id, dat), val)
+    if col in table_data.ids and val:
+        return '<a href="?table={}&{}">{}</a>'.format(table_data.name, make_url_cond(table_data.ids, dat), val)
     elif col in table_data.clinks and val:
         return '<a href="?table={}&{}">{}</a>'.format(table_data.clinks[col]['tab'],
                                                       make_url_cond(table_data.clinks[col]['id'], dat), val)
@@ -363,7 +364,7 @@ def show_multi_section(pif, table_data, dats, cols=None):
 
     lsection = render.Section(
         colist=columns, header=header, footer='<hr>\n',
-        range=[{'entry': entries, 'styles': dict.fromkeys(table_data.id, '2')}])
+        range=[{'entry': entries, 'styles': dict.fromkeys(table_data.ids, '2')}])
     return lsection
 
 
