@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+# needs print elimination
+
 import glob
 from io import open
 import logging
@@ -127,10 +129,10 @@ def show_picture(pif, fn, pdir=None):
     picker(pif, fn)
     root, ext = useful.root_ext(fn.strip())
     useful.write_comment(root, ext)
-    print('<table><tr><td></td><td>' + pif.ren.format_image_art('hruler.gif') + '</td></tr>')
-    print('<tr><td valign="top">' + pif.ren.format_image_art('vruler.gif') + '</td><td valign="top">')
-    print('<a href="/cgi-bin/image.cgi?d=%s&f=%s"><img src="/cgi-bin/image.cgi?d=%s&f=%s"></a>' % (
-        pif.ren.pic_dir, fn, pif.ren.pic_dir, fn))
+    print(f'<table><tr><td></td><td>{pif.ren.format_image_art("hruler.gif")}</td></tr>')
+    print(f'<tr><td valign="top">{pif.ren.format_image_art("vruler.gif")}</td><td valign="top">')
+    print(f'<a href="/cgi-bin/image.cgi?d={pif.ren.pic_dir}&f={fn}">')
+    print(f'<img src="/{pif.ren.pic_dir}/{fn}"></a>')
     print('</td></tr></table>')
 
 
@@ -249,7 +251,7 @@ class UploadForm(object):
         if not pif.is_allowed('m'):
             self.tdir = config.INC_DIR
         elif self.mod_id:
-            self.tdir = useful.relpath('.', config.LIB_MAN_DIR, self.mod_id.lower().replace('/', '_'))
+            self.tdir = useful.relpath('.', config.LIB_MAN_DIR, self.mod_id.lower())
         if self.mod_id:
             pif.ren.title += self.mod_id
             if self.var_id:
@@ -367,20 +369,16 @@ class UploadForm(object):
         print('<hr>')
 
     def restricted_upload(self, pif):
-        print(pif.ren.format_head())
         direc = config.INC_DIR
-        useful.header_done()
         fn = get_next_upload_filename()
         if self.url:
             fn = grab_url_file(self.url, direc, fn)
-            print(self.thanks(pif, fn))
+            return pif.ren.format_template('blank.html', content=self.thanks(pif, fn))
         elif self.fimage:
             fn = useful.file_save(direc, fn, self.fimage)
             file_log(direc + '/' + fn, direc)
-            print(self.thanks(pif, fn))
-        else:
-            self.write(pif, restrict=True)
-        print(pif.ren.format_tail())
+            return pif.ren.format_template('blank.html', content=self.thanks(pif, fn))
+        return self.write(pif, restrict=True)
 
     def thanks(self, pif, fn):
         cred = who = comment = '-'
@@ -558,7 +556,7 @@ class EditForm(imglib.ActionForm):
         self.is_edited = False
         self.set_target_size((self.xts, self.yts))
         self.pth = ''
-        self.credfile = imglib.get_credit_file()
+        self.credfile = imglib.get_credit_file(pif)
 
     def read(self, pif, edit=False):
         super().read(pif.form)
@@ -814,7 +812,7 @@ class EditForm(imglib.ActionForm):
     def mass_resize(self, pif, desc=''):
         # print(self.__dict__, '<br>')
         var = self.var.lower()
-        man = self.man.lower().replace('/', '_')
+        man = self.man.lower()
         print('mass_resize', 'pth', self.pth, 'tdir "%s"' % self.tdir, 'fn', self.fn, 'ot', self.ot,
               'os', self.original_size, '|', man, var, '<hr>')
 
@@ -879,7 +877,7 @@ class EditForm(imglib.ActionForm):
         # if not var:
         #     dpth = os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i' + man + '.gif')
         #     print('creating icon', self.tdir, self.nname, 'to', dpth, '<br>'  # no pif)
-        #     create_icon(pif, man, name='')
+        #     imglib.create_icon(pif, man, name='')
         #     print('<br><img src="/%s"><hr>' % dpth)
 
         if self.mv:
@@ -954,7 +952,6 @@ def imawidget_main(pif):
                         nfn = files['graf'][0]
                         break
             if nfn:
-                # show_picture(pif, nfn)
                 print(pif.ren.format_link('traverse.cgi?d=%s' % eform.tdir, eform.tdir), '/')
                 print(pif.ren.format_link('traverse.cgi?d=%s&f=%s' % (eform.tdir, eform.fn), eform.fn), '<br>')
             else:
@@ -1012,8 +1009,6 @@ def imawidget_main(pif):
 
 # -- stitch
 
-# Still uses old-style table formatter.
-
 
 class StitchForm(object):
     def __init__(self, verbose=False):
@@ -1042,8 +1037,8 @@ class StitchForm(object):
             elif file_num == self.file_count - 1:
                 if fs.get('fn', '').startswith('http://'):
                     fs['fn'] = fs['fn'][fs['fn'].find('/', 7) + 1:]
-            if self.verbose:
-                print(file_num, fs, '<br>')
+#            if self.verbose:
+#                print(file_num, fs, '<br>')
             self.fsl.append(fs)
         self.limit_x = pif.form.get_int('limit_x', 999999)
         self.limit_y = pif.form.get_int('limit_y', 999999)
@@ -1061,54 +1056,51 @@ class StitchForm(object):
             pif.create_token(),
             pif.form.put_hidden_input(fc=self.file_count + 1),
         ])
-        # columns = ['name', 'image']
-        print(header)
-        print(pif.ren.format_table_start())
-        # entries = []
+        columns = ['name', 'image']
+        entries = []
         for fs in self.fsl:
-            print(pif.ren.format_row_start())
             num = fs['n']
             fn = fs.get('fn', '').strip()
-            fn_size = ''
-            if fn:
+            name = image = fn_size = ''
+            if 'x1' in fs:
+                name = fn
+                image = '\n'.join([
+                    f"X ({fs['x1']}, {fs['x2']}), Y ({fs['y1']}, {fs['y2']})",
+                    pif.form.put_hidden_input(**{'fn_' + num: fn}),
+                    pif.form.put_hidden_input(**{'x1_' + num: fs['x1']}),
+                    pif.form.put_hidden_input(**{'y1_' + num: fs['y1']}),
+                    pif.form.put_hidden_input(**{'x2_' + num: fs['x2']}),
+                    pif.form.put_hidden_input(**{'y2_' + num: fs['y2']})])
+            elif fn:
+                fnkey = f"fn_{num}"
                 if 'x1' not in fs and os.path.exists(fn):
                     x, y = imglib.get_size(fn)
                     self.limit_x = min(x, self.limit_x)
                     self.limit_y = min(y, self.limit_y)
-                    fn_size = '<br>' + str((x, y))
-                print(pif.ren.format_cell(1, fn + fn_size))
-                print(pif.form.put_hidden_input(**{'fn_' + num: fn}))
+                    fn_size = f'<br>{x}, {y})'
+                name = f'{fn} {fn_size}'
+                image = (f'Nonexistant: {os.getcwd()}/{fn}' if not os.path.exists(fn) else
+                         self.show_widget(fn) + pif.form.put_hidden_input(**{fnkey: fn}))
             else:
-                print(pif.ren.format_cell(
-                    1, pif.form.put_text_input('fn_%d' % self.file_count, 80) + '<br>' +
-                    self.fsl[0]['fn'].strip()))
-                print(pif.ren.format_cell(
-                    1, pif.form.put_button_input() + ' ' +
-                    pif.form.put_button_input('finalize') + '<br>' +
-                    pif.form.put_checkbox('or', [('h', 'horizontal')]), also={'colspan': 2}))
-                print(pif.ren.format_cell(1, 'x ' + pif.form.put_text_input('limit_x', 5, value=self.limit_x)))
-                print(pif.ren.format_cell(1, 'y ' + pif.form.put_text_input('limit_y', 5, value=self.limit_y)))
-            if 'x1' in fs:
-                print(pif.ren.format_cell(1, str(fs['x1']), also={'width': 40}))
-                print(pif.form.put_hidden_input(**{'x1_' + num: fs['x1']}))
-                print(pif.ren.format_cell(1, str(fs['y1']), also={'width': 40}))
-                print(pif.form.put_hidden_input(**{'y1_' + num: fs['y1']}))
-                print(pif.ren.format_cell(1, str(fs['x2']), also={'width': 40}))
-                print(pif.form.put_hidden_input(**{'x2_' + num: fs['x2']}))
-                print(pif.ren.format_cell(1, str(fs['y2']), also={'width': 40}))
-                print(pif.form.put_hidden_input(**{'y2_' + num: fs['y2']}))
-            elif fn:
-                if not os.path.exists(fn):
-                    print(pif.ren.format_cell(1, 'Nonexistant: ' + os.getcwd() + '/' + fn, also={'colspan': 4}))
-                else:
-                    print(pif.ren.format_cell(1, self.show_widget(fn), also={'colspan': 4}))
-            print(pif.ren.format_row_end())
-        print(pif.ren.format_table_end())
+                fnkey = f"fn_{self.file_count}"
+                name = f"Next: {pif.form.put_text_input(fnkey, 80)}"
+                image = (
+                    pif.form.put_button_input() + ' ' +
+                    pif.form.put_button_input('finalize') + ' ' +
+                    ' x ' + pif.form.put_text_input('limit_x', 5, value=self.limit_x) +
+                    'y ' + pif.form.put_text_input('limit_y', 5, value=self.limit_y) +
+                    pif.form.put_checkbox('or', [('h', 'horizontal')]))
+            entries.append({'name': name, 'image': image})
         footer = '\n'.join([
             '<input type="text" value="" name="q" id="q"><br>',  # for imawidget
             'Debug: <span id="ima_debug">Debug output here.</span>',
             '</form>'])
-        print(footer)
+
+        lsection = render.Section(
+            colist=columns, range=[render.Range(entry=entries)], noheaders=True,
+            header=header,
+            footer=footer)
+        return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
     def show_widget(self, filepath):
         x, y = imglib.get_size(filepath)
@@ -1124,12 +1116,14 @@ class StitchForm(object):
 
     def perform(self, pif):
         if pif.form.has('finish'):
-            self.finish_picture(pif)
+            return self.finish_picture(pif)
         elif pif.form.has('finalize'):
-            self.finalize_picture(pif)
+            print(pif.ren.format_head())
+            useful.header_done()
+            return self.finalize_picture(pif)
         else:
-            self.write(pif)
-        return self
+            return self.write(pif)
+        return ''
 
     def finalize_picture(self, pif):
         final = self.fsl[-2].get('fn', '').strip()
@@ -1137,13 +1131,14 @@ class StitchForm(object):
             final = self.fsl[0]['fn'].rsplit('.', 1)
             final = final[0] + '_st.' + final[1]
         self.fsl = self.fsl[:-2]
+        print(self.fsl)
 
         fa = list()
         minx = miny = None
-        print(pif.ren.format_table_start())
+        columns = ['name', 'image']
+        entries = []
         input_files = list()
         for fs in self.fsl:
-            print(pif.ren.format_row_start())
             img = fs['fn']
             input_files.append(img)
             crop_l = int(fs['x1'])
@@ -1158,49 +1153,39 @@ class StitchForm(object):
                 minx = cx
             if not miny or cy < miny:
                 miny = cy
-            # print(fa[-1], '<br>')
-            print(pif.ren.format_cell(1, str(fs['fn'])))
-            print(pif.ren.format_cell(1, str(fs['x1']), also={'width': 40}))
-            print(pif.ren.format_cell(1, str(fs['y1']), also={'width': 40}))
-            print(pif.ren.format_cell(1, str(fs['x2']), also={'width': 40}))
-            print(pif.ren.format_cell(1, str(fs['y2']), also={'width': 40}))
-            print(pif.ren.format_row_end())
-        print(pif.ren.format_table_end())
-
-        print('Stitching...', final)
+            name = fs['fn']
+            image = f"X ({fs['x1']}, {fs['x2']}), Y ({fs['y1']}, {fs['y2']})"
+            entries.append({'name': name, 'image': image})
+        useful.write_message(f'Stitching... {final}')
         imglib.stitcher(final, fa, pif.form.get_str('or') == 'h', minx, miny, self.limit_x, self.limit_y, verbose=True)
         time.sleep(2)
-        print('... Finished.<br>')
-        sys.stdout.flush()
-        # print('<a href="../' + final + '">' + final + '<br>')
-        # print('<img src="../' + final + '"></a>')
+        useful.write_message(' ... Finished.<br>')
+
         d, f = os.path.split(final)
-        show_picture(pif, f, d)    # this right here doesn't work but everything else seems to
+        ostr = str(show_picture(pif, f, d))    # this right here doesn't work but everything else seems to
         # orig = input_files[0][input_files[0].rfind('/') + 1:]
-        print('<br><form>Final resting place:')
-        print(pif.create_token())
-        print(pif.form.put_text_input('o', 80, value='%s' % input_files[0]))
-        print(pif.form.put_hidden_input(f='%s/%s' % (d, f)))
+        ostr += '<br><form>Final resting place:'
+        ostr += pif.create_token()
+        ostr += pif.form.put_text_input('o', 80, value='%s' % input_files[0])
+        ostr += pif.form.put_hidden_input(f='%s/%s' % (d, f))
         for fn in input_files:
-            print(pif.form.put_hidden_input({'in': fn}))
-        print(pif.form.put_button_input('finish'))
-        print('</form>')
+            ostr += pif.form.put_hidden_input({'in': fn})
+        ostr += pif.form.put_button_input('finish')
+        ostr += '</form>'
+
+        lsection = render.Section(
+            colist=columns, range=[render.Range(entry=entries)], noheaders=True,
+            header='',
+            footer=ostr)
+        return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
 @basics.web_page
 def stitch_main(pif, verbose=False):
     pif.ren.print_html()
+    pif.ren.title = 'stitch'
 
-    if 1:
-        pif.ren.title = 'stitch'
-        print(pif.ren.format_head())
-        useful.header_done()
-
-        StitchForm(verbose).read(pif).perform(pif)
-
-        print(pif.ren.format_tail())
-    else:
-        return pif.ren.format_template('stitch.html', StitchForm(verbose).read(pif).perform(pif))
+    return StitchForm(verbose).read(pif).perform(pif)
 
 
 # -- pictures
@@ -1246,7 +1231,7 @@ def pictures_main(pif):
     if mod_id:
         if pif.form.get_bool('t'):
             tilldir = 'lib/tilley'
-            prefixes = imglib.get_tilley_file()
+            prefixes = imglib.get_tilley_file(pif)
             for prefix in prefixes.get(mod_id.lower(), []):
                 print(f'<h3>{prefix}</h3>')
                 imgs = pif.ren.find_image_list(prefix, wc='*', suffix='*', pdir=tilldir)
@@ -1269,22 +1254,6 @@ def pictures_main(pif):
 
 # -- icon
 
-# understands 0-9 A-Z & ' + - .  /
-
-def create_icon(pif, mod_id, name, title='mb2', isizex=100, isizey=100):
-    if not name:
-        model = pif.dbh.fetch_casting(mod_id)
-        model = pif.dbh.make_man_item(model)
-        name = model.iconname
-    logo = '.' + config.IMG_DIR_ART + '/mb2.gif'
-    print(' ', mod_id, '|'.join(name))
-
-    in_path = os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg')
-    icon_file = os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i_' + mod_id + '.gif')
-    image = imglib.iconner(in_path, name, logo=logo, isizex=100, isizey=100)
-    if image:
-        open(icon_file, 'wb').write(image)
-
 
 def icon_main(pif, *mod_ids):
     title = pif.switch['b'][-1] if pif.switch['b'] else 'mb2'
@@ -1293,11 +1262,11 @@ def icon_main(pif, *mod_ids):
 
     if mod_ids and mod_ids[0] == '-a':
         for manitem in mandict.values():
-            create_icon(pif, manitem.id.lower(), name or manitem.iconname, title)
+            imglib.create_icon(pif, manitem.id.lower(), name or manitem.iconname, title)
     elif mod_ids:
         for man in mod_ids:
             if manitem := mandict.get(man.lower()):
-                create_icon(pif, man.lower(), name or manitem.iconname, title)
+                imglib.create_icon(pif, man.lower(), name or manitem.iconname, title)
             else:
                 print(man, 'not in list')
     else:
@@ -1611,8 +1580,8 @@ def library_main(pif):
 def tilley_list(pif):
     mod_id = pif.form.get_id('m')
     url = "/cgi-bin/traverse.cgi?mr=1&lty=mss&til=1&credit=DT&p={}&d={}".format(
-        imglib.get_tilley_file().get(mod_id.lower(), [''])[0] + '*',
-        useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
+        imglib.get_tilley_file(pif).get(mod_id.lower(), [''])[0] + '*',
+        useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()))
     raise useful.Redirect(url)
 
 
@@ -1623,7 +1592,7 @@ def tilley_list(pif):
 def image_main(pif):
     fpath = os.path.join(pif.form.get_str('d', '.'), pif.form.get_str('f', ''))
     if not os.path.exists(fpath):
-        raise useful.SimpleError(fpath + ' does not exist')
+        raise useful.SimpleError(f'{fpath} does not exist', status=404)
     print('Content-Type: image/jpeg\n')
     print(open(os.path.join(pif.form.get_str('d', '.'), pif.form.get_str('f', '')), "rb").read())
 
@@ -1699,7 +1668,7 @@ def photographers(pif):
     if photog_id:
         photog = pif.dbh.fetch_photographer_counts(photog_id)
         if not photog:
-            raise useful.SimpleError('That photographer was not found.')
+            raise useful.SimpleError('That photographer was not found.', status=404)
         photog = photog[0]
         pif.ren.hierarchy_append('/cgi-bin/photogs.cgi?id=%s' % photog_id, photog['name'])
         pif.ren.title = photog['name']
@@ -1850,7 +1819,7 @@ def zero(fl):
 
 def check_library(pif):
     fl = os.listdir('lib/man')
-    ml = [x.replace('/', '_').lower() for x in pif.dbh.fetch_casting_ids()]
+    ml = [x.lower() for x in pif.dbh.fetch_casting_ids()]
     for f in sorted(set(fl) - set(ml)):
         if not f.endswith('~') and '.' not in f:
             print(f)
@@ -1948,6 +1917,15 @@ def resize_pix(pif, newsize, pdir, fn):
     open(pdir + '/' + newname, 'wb').write(imglib.resizer(pdir + '/' + fn, newname, x=newx))
 
 
+def add_pattern(pif, pdir, photog, pat):
+    prefs, paths = imglib.read_credit_patterns(pif, photog)
+    pdir = pdir.lower()
+    if pdir in prefs.get(pat, []):
+        print(pdir, pat, "already")
+    else:
+        pif.dbh.write_credit_pattern(pdir, photog, pat)
+
+
 # ---- ---------------------------------------
 
 
@@ -1960,7 +1938,8 @@ cmds = {
     ('k', check_credits, "check credits"),
     ('o', check_orphan_credits, "check orphan credits"),
     ('a', add_credits, "add credit: photog picture ..."),
-    ('n', set_photog_name, "set photographer name <id> <name>"),
+    ('n', set_photog_name, "set photographer name: id name"),
+    ('p', add_pattern, "add pattern: dir photog pattern"),
 }
 
 

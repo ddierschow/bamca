@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+# needs print elimination
+
 import csv
 from functools import reduce
 import glob
@@ -160,7 +162,7 @@ class MannoFile(object):
         slist = pif.dbh.fetch_sections({'id': useful.clean_id(self.section)}  # , 'page_id': pif.page_id})
                                        if self.section else {'page_id': pif.page_id})
         if not slist:
-            raise useful.SimpleError(f'Requested section not found: {self.section}')
+            raise useful.SimpleError(f'Requested section not found: {self.section}', status=404)
         slist = pif.dbh.make_sec_items(slist)
 #        aliases = pif.dbh.fetch_aliases()
         adict = {}
@@ -494,7 +496,6 @@ class MannoFile(object):
     ]
 
     def show_list_pic(self, pif, prefix, mod_id, txt):
-        mod_id = mod_id.replace('/', '_').lower()
         pset = self.addpics.get(mod_id, set()) if prefix[1] == 'a' else self.manpics.get(mod_id, set())
         return [prefix[0], txt.upper() if prefix[0][0] in pset else '-']
 
@@ -805,7 +806,7 @@ class MannoFile(object):
         self.photog = pif.form.get_str('photog')
         self.photognot = pif.form.get_str('photognot')
         self.var_type = pif.form.get_list('vtype')
-        self.til_list = imglib.get_tilley_file()
+        self.til_list = imglib.get_tilley_file(pif)
 
         # a listix consists of a header (outside of the tables) plus a list of sections, each in its own table.
         #     id, name, note, graphics, tail | section
@@ -943,7 +944,7 @@ def main(pif):
         raise useful.Redirect(url="0;url=single.cgi?id=" + pif.form.get_str('num'))
 
     if not pif.form.has('section'):
-        raise useful.SimpleError("Please select a range to display.")
+        raise useful.SimpleError("Please select a range to display.", status=406)
 
     manf = MannoFile(pif, withaliases=True)
     return manf.format_output(pif, listtype)
@@ -1035,7 +1036,7 @@ def add_attributes(pif, mod_id=None, *attr_list):
         return
     model = pif.dbh.fetch_casting(mod_id)
     if not model:
-        print(f'{mod_id} does not exist.')
+        raise useful.SimpleError(f'{mod_id} does not exist.', status=404)
     for attr in attr_list:
         pif.dbh.insert_attribute(mod_id, attr)
 
@@ -1224,90 +1225,6 @@ def fix_formats(pif):
             pif.dbh.write_casting({'format_wheels': '&wheels'}, cas.id)
 
 
-def ck_model(pif, mod):
-    yrs = sorted(set([x[0] for x in pif.dbh.dbi.execute(f"select year from lineup_model where mod_id='{mod}'")]))[0]
-
-    sel = sorted(set(pif.dbh.dbi.execute(f"select ref_id from variation_select where mod_id='{mod}'")[0]))
-    sel = [x[0][:9] for x in sel]
-
-    missing = []
-    for yr in yrs:
-        if not 'year.' + yr in sel:
-            missing.append(yr)
-    bad = []
-    for pg in sel:
-        if pg.startswith('year.') and not pg[5:9] in yrs:
-            bad.append(pg)
-    return missing, bad
-
-
-def text_list_var_pics(pif, mod_id):
-    vars = pif.dbh.fetch_variations(mod_id)
-    cpics = cfound = pics = found = 0
-    for var in vars:
-        var = pif.dbh.depref('variation', var)
-        code2 = False
-        core = False
-        for vs in var['vs']:
-            if vs['category.flags'] & config.FLAG_MODEL_CODE_2:
-                code2 = True
-            if vs['category.id'] == 'MB':
-                core = True
-        if var['var'].startswith('f') or code2:
-            continue
-        elif not var['picture_id']:
-            fn = mod_id + '-' + var['var']
-            pid = var['var']
-        elif var['picture_id'] == var['var']:
-            fn = mod_id + '-' + var['picture_id']
-            pid = var['picture_id']
-        else:
-            continue
-        pic_path = pif.ren.find_image_file(fnames=fn, vars=pid, prefix=mbdata.IMG_SIZ_SMALL)
-        pics += 1
-        if core:
-            cpics += 1
-        if pic_path:
-            found += 1
-            if core:
-                cfound += 1
-    af = '%d/%d' % (found, pics)
-    cf = '%d/%d' % (cfound, cpics)
-    if found == pics:
-        af = '--'
-    if cfound == cpics:
-        cf = '--'
-    return af, cf
-
-
-def check_core(pif, *specs):  # b0rken
-
-    sw = []
-    if specs[0][0] == '0':
-        sw = list(specs[0][1:])
-        specs = specs[1:]
-
-    for spec in specs:
-        mods = sorted(set([x[0] for x in pif.dbh.dbi.execute(f"select id from casting where id like '{spec}%'")[0]]))
-
-        for mod in mods:
-            missing, bad = ck_model(pif, mod)
-            af, cf = text_list_var_pics(pif, mod)
-
-            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
-                print(mod,)
-            if 'p' in sw or af != '--' or cf != '--':
-                print(af, cf,)
-            if missing:
-                print('needs', ' '.join(missing),)
-
-            if bad:
-                print('has bad', ' '.join(bad),)
-
-            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
-                print()
-
-
 # currently produces duplicates
 
 def add_casting_related(pif, *mod_ids):
@@ -1453,7 +1370,7 @@ def fix_variation(pif, *args):
 
 def make_dirs(pif, *args):
     for mod_id in pif.dbh.fetch_casting_ids():
-        path = os.path.join('lib', 'man', mod_id.lower().replace('/', '_'))
+        path = os.path.join('lib', 'man', mod_id.lower())
         if not os.path.exists(path):
             print(mod_id)
             os.mkdir(path)
@@ -1512,6 +1429,20 @@ def find_missing_numbers(pif, *args):
         print(max(nums) + 1, 'onward')
 
 
+def rename_section_id(pif, page_id, old_id, new_id):
+    force = False
+    if not page_id or not old_id or not new_id:
+        return
+    rec = pif.dbh.fetch_section(new_id, page_id)
+    if rec and rec['id'].lower() != new_id.lower():
+        if not force:
+            print(new_id, "exists")
+            return
+    else:
+        pif.ren.message("rename", page_id, old_id, 'to', new_id)
+        pif.dbh.rename_section(page_id, old_id, new_id)
+
+
 cmds = [
     ('d', delete_casting, "delete: mod_id"),
     ('r', rename_base_id, "rename: old_mod_id new_mod_id"),
@@ -1523,7 +1454,6 @@ cmds = [
     ('i', casting_info, "info: mod_id"),
     ('u', update_descriptions, "update descriptions: ..."),
     ('x', check_castings, "check castings: mod_id ..."),
-    ('cc', check_core, "check core: mod_id ..."),
     ('crc', check_casting_related, "check casting_related"),
     ('cra', add_casting_related, "add casting_related [-s section] mod_id mod_id ..."),
     ('cf', add_casting_file, "add casting file"),
@@ -1533,6 +1463,7 @@ cmds = [
     ('fmv', find_missing_variations, "find missing variations mod_id ..."),
     ('md', make_dirs, "make dirs"),
     ('mn', find_missing_numbers, "missing numbers"),
+    ('rs', rename_section_id, "rename section id: page_id old_id new_id"),
 ]
 
 

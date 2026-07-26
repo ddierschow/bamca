@@ -45,7 +45,7 @@ def write_traceback_file(pif, e):
     post = ''
     if os.environ.get('REQUEST_METHOD') == 'POST':
         cgi_form = cgi.FieldStorage()
-        post = '\n'.join([str(cgi_form[key].field) for key in cgi_form])
+        post = '\n'.join([f"{key}={cgi_form[key].value}" for key in cgi_form])
     erf.write(tb_fmt.format(' '.join([x.strip() for x in traceback.format_exception_only(type(e), e)]),
               config.GURU_ID, os.environ.get('REQUEST_URI', ''), str_tb,
               pprint.pformat(os.environ, indent=2, width=132), post))
@@ -84,8 +84,6 @@ def handle_exception(pif, e, header_done=False, write_traceback=True, status_cod
         simple_html()
     useful.msg.header_done()
     useful.msg.comment()
-#    while pif.ren.table_count > 0:
-#        print(pif.ren.format_table_end())
     if not pif.is_allowed('a'):
         print('<!--\n' + str_tb + '-->')
         final_exit()
@@ -118,6 +116,14 @@ def log_page_call(pif, status_code='unset'):
                                    os.environ.get('REQUEST_URI', 'unknown'), status_code))
     if os.getenv('HTTP_USER_AGENT'):
         log.debug.info(os.getenv('HTTP_USER_AGENT'))
+
+
+def make_error_page(pif, e):
+    status_code = e.status
+    pif.ren.format_type = 'error'
+    if not useful.msg.is_header_done():
+        pif.ren.print_html(status=e.status)
+    print(pif.ren.format_template('error.html', error=[e.value], status=status_code))
 
 
 # --- Command Lines -----------------------------------------------------
@@ -282,7 +288,10 @@ def web_page(main_fn):
             handle_exception(pif, e, status_code=status_code)
             return
 
-        pif.start()
+        try:
+            pif.start()
+        except useful.SimpleError as e:
+            make_error_page(pif, e)
 
         try:
             if ('/etc/passwd' in os.environ.get('QUERY_STRING', '') or
@@ -299,10 +308,7 @@ def web_page(main_fn):
             pass  # the happiest exception on earth
             status_code = 'exit'
         except useful.SimpleError as e:
-            if not useful.msg.is_header_done():
-                status_code = e.status
-                pif.ren.print_html(status=e.status)
-            print(pif.ren.format_template('error.html', error=[e.value]))
+            make_error_page(pif, e)
         except useful.Redirect as e:
             if not useful.msg.is_header_done():
                 status_code = 302

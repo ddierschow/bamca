@@ -107,7 +107,7 @@ function SectionSearch($pif) {
         ['flags' => 0, 'val' => 'KS', 'title' => 'King Size'],
         ['flags' => 0, 'val' => 'PS', 'title' => 'Playset'],
         ['flags' => 0, 'val' => 'RW', 'title' => 'Regular Wheels'],
-        ['flags' => 0, 'val' => 'SB', 'title' => 'Skybusters'],
+        ['flags' => 0, 'val' => 'SB', 'title' => 'Sky Busters'],
         ['flags' => 0, 'val' => 'SF', 'title' => 'Superfast'],
         ['flags' => 0, 'val' => 'YY', 'title' => 'Yesteryear']], '');
     echo "</td>\n";

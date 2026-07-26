@@ -61,7 +61,7 @@ def show_list(title, tdir, fl, view=False):
 def show_dir(pif, tform):
     targs, credits = make_targs(pif, tform.dirname)
     if not os.path.exists(tform.tdir):
-        raise useful.SimpleError('Path does not exist.')
+        raise useful.SimpleError('Path does not exist.', status=404)
 
     ostr = '<hr>\n'
     # dl, gl, ol, sl, xl = imglib.get_dir(tform.tdir)
@@ -215,7 +215,7 @@ def make_targs(pif, dirname):
 
 
 def show_imgs(pif, tform):
-    credit_file = imglib.get_credit_file()
+    credit_file = imglib.get_credit_file(pif)
 
     def get_cred_for_file(fn):
         for x, y in credit_file.get(tform.tdir, {}).items():
@@ -239,9 +239,9 @@ def show_imgs(pif, tform):
         ostr += '<br>\n'
         img_args['targs'] = []
     elif tform.shlv and tform.dirname == 'tilley':
-        img_args['mans'] = imglib.get_tilley_file()
+        img_args['mans'] = imglib.get_tilley_file(pif)
     elif tform.crdt:
-        img_args['pfxs'] = imglib.get_credit_prefixes()
+        img_args['pfxs'] = imglib.get_credit_prefixes(pif)
     if tform.cred:
         img_args['cred'] = {x['photo_credit.name']: x['photographer.id']
                             for x in pif.dbh.fetch_photo_credits(path=tform.tdir)}
@@ -386,7 +386,7 @@ def do_prod_masses(pif, tform):
     ddir = tform.tdir.replace('lib', 'pic')
     ostr = f'{pif.form.get_str("credit")} {ddir} <br>\n'
     if not os.path.exists(ddir):
-        raise useful.SimpleError('Path does not exist.')
+        raise useful.SimpleError('Path does not exist.', status=404)
     siz = pif.form.get('tysz')
     cred = pif.form.get_str('credit')
     if cred:
@@ -418,7 +418,7 @@ def do_prod_masses(pif, tform):
 def show_file(pif, tform):
     ostr = ''
     if not os.path.exists(tform.tdir + '/' + tform.fnam):
-        raise useful.SimpleError('Path does not exist.')
+        raise useful.SimpleError('Path does not exist.', status=404)
     ostr += pif.ren.format_button_link('delete', link=pif.request_uri + '&delete=1&act=1')
     if os.path.exists(os.path.join(tform.tdir, 'archive')):
         ostr += pif.ren.format_button_link('archive', link=pif.request_uri + '&archive=1&act=1')
@@ -664,7 +664,7 @@ def write_jinja2_config_file(pif):
 
 
 def check_lib_man(pif):
-    man_ids = set([x.lower().replace('/', '_') for x in pif.dbh.fetch_casting_ids()])
+    man_ids = set([x.lower() for x in pif.dbh.fetch_casting_ids()])
     man_lib = set(os.listdir('.' + config.LIB_MAN_DIR))
     print("id's without libraries:")
     print(' '.join(sorted(man_ids - man_lib)))
@@ -782,12 +782,35 @@ def write_wiki_file(pif):
     print()
 
 
+def write_repo_size(pif):
+    szfn = '../bin/fsizes.py'
+    counts = {x: 0 for x in mbdata.repo_exts}
+
+    fl = subprocess.run("/usr/local/bin/git ls-files ..", capture_output=True, shell=True, text=True)
+    for fn in fl.stdout.split('\n'):
+        if '.' in fn:
+            ext = fn[fn.rfind('.') + 1:]
+            if ext in mbdata.repo_exts:
+                try:
+                    fim = open(fn).readlines()
+                    counts[ext] += len(fim)
+                except Exception:
+                    pass
+    counts['ver'] = subprocess.run("/usr/local/bin/git describe --tags --abbrev=0",
+                                   capture_output=True, shell=True, text=True).stdout.strip()
+    rsf = open(szfn, 'rt').readlines()
+    rsf.insert(-1, f"    {counts},\n")
+    open(szfn, 'wt').writelines(rsf)
+    print(counts)
+
+
 cmds = [
     ('p', write_php_config_file, "write php config"),
     ('j', write_jinja2_config_file, "write jinja2 config"),
     ('m', check_lib_man, "check library man id's"),
     ('v', write_version_file, "write version file"),
     ('w', write_wiki_file, "write wiki file"),
+    ('r', write_repo_size, "write repo size"),
 ]
 
 

@@ -135,8 +135,10 @@ class BaseForm(object):
         except Exception:
             return str(defval)
 
-    def get_str(self, key, defval='', other=None):
+    def get_str(self, key, defval='', other=None, raw=False):
         try:
+            if raw:
+                return self.form[key]
             return self.clean(self.form[key], other=other)
         except Exception:
             return str(defval)
@@ -203,9 +205,10 @@ class BaseForm(object):
                 retval[v] += k[len(root):]
         return retval
 
-    def keys(self, keylist=None, start='', end='', has='', sort=None):
-        keylist = keylist if keylist else self.form.keys()
-        keylist = [x for x in keylist if (x.startswith(start) and x.endswith(end) and has in x)]
+    def keys(self, keylist=None, start='', end='', has='', prune='', sort=None):
+        keylist = [(x[len(prune):] if prune and x.startswith(prune) else x)
+                   for x in (keylist or self.form.keys())
+                   if (x.startswith(start) and x.endswith(end) and has in x)]
         if sort is True:
             keylist.sort()
         elif sort:
@@ -217,10 +220,10 @@ class BaseForm(object):
             return [x[len(start):-len(end)] for x in self.keys(start=start, end=end, has=has)]
         return [x[len(start):] for x in self.keys(start=start, end=end, has=has)]
 
-    def get_dict(self, keylist=None, start='', end=''):
+    def get_dict(self, keylist=None, start='', end='', raw=False):
         lstart = len(start) if start else None
         lend = -len(end) if end else None
-        return {key[lstart:lend]: self.get_str(key) for key in self.keys(keylist, start=start, end=end)}
+        return {key[lstart:lend]: self.get_str(key, raw=raw) for key in self.keys(keylist, start=start, end=end)}
 
     def find(self, field):
         return [key for key in self.form if key == field or key.startswith(field + '.')]
@@ -453,7 +456,7 @@ class PageInfoFile(object):
 
         dbqlog = self.log.devnull if self.unittest else self.log.dbq
         self.dbh = dbhand.DBHandler(self.secure.config, 0, dbqlog, self.ren.verbose)
-        self.dbh.dbi.nowrites = self.unittest
+        self.dbh.set_nowrites(self.unittest)
         user_id = self.rawcookies.get('id', 0)
         if user_id:
             cookie = self.dbh.fetch_cookie(ckey=user_id)

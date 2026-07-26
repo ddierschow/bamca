@@ -150,6 +150,7 @@ it is also useful for targeting FF-only code */
     list-style-type: none; /* killing the bullet */
 }
 .framed {width: 1024px;}
+.frame_body {vertical-align: top;}
 
 .red    {color: #FF0000;}
 .green  {color: #009900;}

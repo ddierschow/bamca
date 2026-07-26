@@ -1,4 +1,31 @@
 {% extends "base.html" %}
 {% block page_body %}
+{% if status %}
+<h2>Error {{ status }} encountered
+{%- if status == 400 -%}: Bad request.
+{%- elif status == 401 -%}: Unauthorized.
+{%- elif status == 404 -%}: Not found.
+{%- elif status == 406 -%}: Not acceptable.
+{%- elif status == 408 -%}: Request timeout.
+{%- elif status == 409 -%}: Conflict.
+{%- elif status == 500 -%}: Internal server error.
+{%- endif -%}
+</h2>
+{% endif %}
 {{ render.format_warning(error) }}
+{% if status %}
+<p>
+<img src="/pic/man/var/l_
+{%- if status == 400 -%}mb188-10
+{%- elif status == 401 -%}mb222-03
+{%- elif status == 404 -%}mb439-09
+{%- elif status == 406 -%}mb108-19
+{%- elif status == 408 -%}mb577-17
+{%- elif status == 409 -%}mb256-12
+{%- elif status == 500 -%}mb771-08
+{%- else -%}mb102-49
+{%- endif -%}.jpg" class="centered">
+<div class="center">Please enjoy this model instead.</div>
+{% endif %}
+<p>
 {% endblock page_body %}

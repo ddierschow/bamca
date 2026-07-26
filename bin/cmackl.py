@@ -136,7 +136,7 @@ def mack_lineup(pif):
             note += f'  Be sure to use numbers from 1 to {config.MAX_MACK_NUMBER}.'
         if start > end:
             note += "  Use a start number that isn't higher than the end number."
-        raise useful.SimpleError(note)
+        raise useful.SimpleError(note, status=406)
 
     lsec = render.Section(section=pif.dbh.fetch_sections({'page_id': pif.page_id})[0], range=ranges)
     if text_list:
@@ -148,7 +148,7 @@ def mack_lineup(pif):
     return pif.ren.format_template('mack.html', llineup=llineup.prep())
 
 
-# ----- ----------------------------------------------------------------
+# ----- commands -------------------------------------------------------
 
 
 def check_man_mappings(pif, sections):

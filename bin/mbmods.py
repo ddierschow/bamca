@@ -495,7 +495,7 @@ def get_mack_numbers(pif, cid, mod_type, aliases):
     mack_nums = []
     for alias in aliases:
         mack_id = mbdata.get_mack_number(alias[1])
-        if mack_id:
+        if mack_id and mack_id[1]:
             mack_nums.append(((alias[0] & config.FLAG_ALIAS_PRIMARY) != 0,) + mack_id)
     mack_nums.sort(key=lambda x: x[2])
     # if aliases.flags == 2, put it first or bold it or something
@@ -516,6 +516,22 @@ def fmt_var_pics(found, needs):
 
 
 def calc_var_type(pif, varitem):
+    if isinstance(varitem, dict):
+        ty_var = ''
+        if not varitem['picture_id']:
+            if any([varitem['manufacture'].startswith(x) for x in mbdata.other_plants]):
+                ty_var = 'p'
+            elif (any([x['category.flags'] & config.FLAG_MODEL_CODE_2 for x in varitem['vs']]) or
+                  mbdata.code2_cats & set(varitem['category'].split())):
+                ty_var = '2'
+            elif varitem['var'].startswith('f'):
+                ty_var = 'f'
+            elif any([x['category'] == 'MB' for x in varitem['vs']]):
+                ty_var = 'c'
+            else:
+                ty_var = '1'
+        return ty_var
+
     return (
         'p' if any([varitem.manufacture.startswith(x) for x in mbdata.other_plants]) else
         '2' if (any([x.vs_cat_flags & config.FLAG_MODEL_CODE_2 for x in varitem.vs]) or

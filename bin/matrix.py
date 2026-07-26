@@ -85,7 +85,7 @@ class MatrixFile(object):
         if not self.cat_id:
             return
         if not (cat := pif.dbh.fetch_category(self.cat_id)):
-            raise useful.SimpleError(f'Category not found. {self.cat_id}')
+            raise useful.SimpleError(f'Category not found. {self.cat_id}', status=404)
         pif.ren.title = cat['name']
         pif.ren.hierarchy_append('/database.php#cats', 'By Categories')
         pif.ren.hierarchy_append(f'/cgi-bin/matrix.cgi?cat={self.cat_id}', cat['name'])
@@ -147,7 +147,7 @@ class MatrixFile(object):
 
         for table in self.tables:
             # useful.write_comment('add_table', table)
-            section_name = table.name
+            section_name = pif.ren.fmt_hidden(table.name, table.is_hidden)
             if not (table.hide_image) and (table.id not in pif.page_id.split('.')):
                 img = pif.ren.format_image_optional(table.id, pdir=table.pic_dir, nopad=True)
                 if img:
@@ -166,10 +166,12 @@ class MatrixFile(object):
                     section.name += pif.ren.format_link(
                         f"mass.cgi?tymass=lm_series&page_id={pif.page_id}&section_id={section.id}",
                         pif.ren.fmt_star("green" if lm else "red"))
-                    section.name += pif.ren.format_button_link(
-                        "edit", f"editor.cgi?table=section&page_id={pif.page_id}&id={section.id}") + ' '
-                    section.name += pif.ren.format_button_link(
-                        "add", f"editor.cgi?table=matrix_model&page_id={pif.page_id}&section_id={section.id}&add=1")
+                    section.name += pif.ren.format_link(
+                        pif.dbh.get_editor_link('section', page_id=pif.page_id, id=section.id),
+                        ' ' + pif.ren.fmt_edit(color='white'))
+                    section.name += pif.ren.format_link(
+                        pif.dbh.get_editor_link('matrix_model', page_id=pif.page_id, section_id=section.id),
+                        ' ' + pif.ren.fmt_mini(icon='square-plus', family='regular', color='white'))
 
                 if self.large:
                     section.columns = 1
@@ -184,6 +186,10 @@ class MatrixFile(object):
                 else:
                     useful.write_comment('range no mods', range_id)
             section.range.append(ran)
+            if table.note:
+                section.range.append(render.Range(entry=[render.Entry(
+                    display_id=None, text=table.note, colspan=1 if self.large else table.columns, class_name=None,
+                    style=None, also=None, data=None)]))
             llineup.section.append(section)
         # llineup.tail = [pif.ren.format_image_art('bamca_sm'), '']
         pif.ren.set_button_comment(pif, '')
@@ -327,7 +333,7 @@ def select_matrix(pif):
         if not ent.is_hidden:
             ents[pic_dir].append(link)
         elif pif.is_allowed('a'):  # pragma: no cover
-            ents[pic_dir].append(f'<i>{link}</i>')
+            ents[pic_dir].append(pif.ren.fmt_hidden(link, ent.is_hidden))
 
     return render.Listix(section=[render.Section(id='ml', range=[
         render.Range(id='ml', name=title, entry=ents[pic_dir]) for pic_dir, title in dirs.items()])])
@@ -354,7 +360,7 @@ def select_cats(pif):
         if ent['flags'] & config.FLAG_CATEGORY_INDEXED:
             lran.entry.append(link)
         elif pif.is_allowed('a'):  # pragma: no cover
-            lran.entry.append('<i>' + link + '</i>')
+            lran.entry.append(pif.ren.fmt_hidden(link, 1))
     return render.Listix(section=[render.Section(id='ml', range=[lran])])
 
 

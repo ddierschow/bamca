@@ -253,6 +253,7 @@ class VSItem(object):
             self.ran_id = vs.get(f'{prefix}ran_id') or ''
             self.vs_cat = vs.get(f'{prefix}category') or ''
             self.vs_cat_flags = vs.get(f'{prefix}category.flags') or 0
+            self.vs_cat_name = vs.get(f'{prefix}category.name') or ''
         else:
             self.id = vs.id
             self.mod_id = vs.mod_id or ''
@@ -262,6 +263,7 @@ class VSItem(object):
             self.ran_id = vs.ran_id or ''
             self.vs_cat = vs.vs_cat or ''
             self.vs_cat_flags = vs.vs_cat_flags or 0
+            self.vs_cat_name = vs.vs_cat_name or ''
 
     def __str__(self):
         return f'VSItem: {self.id}'
@@ -391,6 +393,18 @@ class VarItem(object):
         self.ref_id = ''
         self.sec_id = ''
         self.ran_id = ''
+
+    @property
+    def is_code_2(self):
+        return bool(self.flags & config.FLAG_MODEL_CODE_2)
+
+    @property
+    def is_verified(self):
+        return bool(self.flags & config.FLAG_MODEL_VARIATION_VERIFIED)
+
+    @property
+    def is_wrong_id(self):
+        return bool(self.flags & config.FLAG_MODEL_ID_INCORRECT)
 
     @property
     def pic_file_name(self):

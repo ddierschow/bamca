@@ -232,7 +232,7 @@ def add_page(pif):
         if pif.remote_addr == ent:
             raise useful.SimpleError(
                 "You have been banned from using this service because of previous abuses.  "
-                "If you have a problem with this, contact us via email, but don't hope for much.")
+                "If you have a problem with this, contact us via email, but don't hope for much.", status=401)
 
     listCats, listIndices, dictCats, listRejectCats = read_config(pif)
 
@@ -347,7 +347,7 @@ def edit_single(pif):
     else:
         link = pif.dbh.fetch_link_line(link_id)
         if not link:
-            raise useful.SimpleError("That ID wasn't found.")
+            raise useful.SimpleError("That ID wasn't found.", status=404)
     asslinks = [(0, '')] + [(x['link_line.id'], x['link_line.name'])
                             for x in pif.dbh.fetch_link_lines(flags=config.FLAG_LINK_LINE_ASSOCIABLE)]
     descs = pif.dbh.describe_dict('link_line')

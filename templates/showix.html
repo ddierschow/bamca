@@ -39,6 +39,7 @@
 
 
 {%- macro format_listix(llistix) %}
+{%- if llistix.header -%}{{ llistix.header }}{%- endif -%}
 {%- if llistix.note -%}{{ llistix.note }}{%- endif -%}
 {%- for section in llistix.section %}
 {{- render.fmt_anchor(section.anchor) }}

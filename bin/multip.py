@@ -166,7 +166,8 @@ def modify_pack_admin(pif, pack):
 def do_single_pack(pif, format_type, pid):
     packs = pif.dbh.make_pack_items(pif.dbh.fetch_pack(pid))
     if not packs:
-        raise useful.SimpleError("That %s doesn't seem to exist." % ('pack' if format_type == 'packs' else 'playset'))
+        raise useful.SimpleError(f"That {'pack' if format_type == 'packs' else 'playset'} doesn't seem to exist.",
+                                 status=404)
     pif.ren.hierarchy_append('', packs[0].rawname.replace(';', ' '))
     pif.ren.print_html()
 

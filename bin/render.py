@@ -2,7 +2,6 @@
 
 # TODO: convert much of this to use jinja2 (http://jinja.pocoo.org)
 
-import copy
 from dateutil.parser import parse
 import glob
 import http.client
@@ -118,10 +117,6 @@ class Presentation(object):
 
     # immediate effect functions.
 
-    def debug(self, *args):
-        if self.verbose:
-            print(' '.join([str(x) for x in args]))
-
     def message(self, *args):
         if self.dump_file:  # pragma: no cover
             self.dump_file.write(' '.join([str(x) for x in args]) + '\n')
@@ -132,10 +127,6 @@ class Presentation(object):
             self.dump_file.write(' '.join([str(x) for x in args]) + '\n')
         elif self.verbose:
             useful.msg.comment(*args)
-
-    def comment_dict(self, name, arg):
-        if self.verbose:
-            print(useful.dump_dict_comment(name, arg))
 
     def print_html(self, content='text/html', status=200):
         if not useful.msg.is_header_done():
@@ -241,51 +232,6 @@ of Matchbox International Ltd. and are used with permission.
             [f'<nobr>{self.format_image_flag(x)} {self.flag_info[x][0]}</nobr> ' for x in
              sorted(list(self.shown_flags), key=lambda x: self.flag_info[x][0])]) + '</center><p>\n'
 
-    # ---- tables
-
-    def format_table_start(self, also={}, id='', style_id=''):
-        also = copy.deepcopy(also)
-        self.table_count += 1
-        also['class'] = self.style_name(also.get('class'), 'tb', style_id)
-        if id:
-            also['id'] = id
-        return '<table{}>\n'.format(useful.fmt_also(also))
-
-    def format_table_end(self):
-        self.table_count -= 1
-        return "</table>\n"
-
-    def format_row_start(self, ids=[], also={}):
-        ostr = " <tr{}>\n".format(useful.fmt_also(also))
-        for id in ids:
-            ostr += self.fmt_anchor(id)
-        return ostr
-
-    def format_row_end(self):
-        return " </tr>\n"
-
-    def format_cell(self, col=None, content="&nbsp;", hdr=False, also={}, large=False, id=''):
-        # self.comment('format_cell', col, hdr, also)
-        ostr = self.format_cell_start(col, hdr, also, large, id)
-        ostr += str(content or '&nbsp;')
-        ostr += self.format_cell_end(col, hdr, large)
-        return ostr
-
-    def format_cell_start(self, col=None, hdr=False, also={}, large=False, id=''):
-        cellstyle = {False: 'eb', True: 'eh'}[hdr]
-        celltype = {False: "td", True: "th"}
-        also = copy.deepcopy(also)
-        also.update({'class': self.style_name(also.get('class'), cellstyle, col, id)})
-        # self.comment('format_cell_start', col, hdr, also)
-        return '  <{}{}>'.format(celltype[hdr], useful.fmt_also(also))
-
-    def format_cell_end(self, col=0, hdr=False, large=False):
-        celltype = {False: "td", True: "th"}
-        ostr = f'  </{celltype[hdr]}>\n'
-        if large:
-            ostr += " </tr>\n"
-        return ostr
-
     # ---- forms
 
     @staticmethod
@@ -296,24 +242,15 @@ of Matchbox International Ltd. and are used with permission.
 
     def format_link(self, url, txt=None, args={}, nstyle=None, also={}):
         txt = self.fmt_pseudo(url if txt is None else txt)
-        ostr = ''
-        if nstyle:
-            ostr += f'<span{useful.fmt_also(nstyle)}>'
         if args:
             url += ('&' if '?' in url else '?') + "&".join([f'{x}={v}' for x, v in args.items()])
         url = url.replace('"', '%22')  # useful.url_quote(url)
-        falso = useful.fmt_also(also)
-        if not url and not also:
-            ostr += txt
-        elif not url:
-            ostr += f'<a{falso}>{txt}</a>'
-        elif not txt:
-            ostr += f'<a href="{url}"{falso}>{url}</a>'
-        else:
-            ostr += f'<a href="{url}"{falso}>{txt}</a>'
-        if nstyle:
-            ostr += '</span>\n'
-        return ostr
+        return (
+            f'<span{useful.fmt_also(nstyle)}>' if nstyle else '') + (
+            txt if not url and not also else
+            f'<a{useful.fmt_also(also)}>{txt}</a>' if not url else
+            f'<a href="{url}"{useful.fmt_also(also)}>{url}</a>' if not txt else
+            f'<a href="{url}"{useful.fmt_also(also)}>{txt}</a>') + ('</span>\n' if nstyle else '')
 
     def format_button_link(self, bname, link, image='', args={}, also={}, lalso={}):
         imalso = dict({
@@ -402,7 +339,7 @@ of Matchbox International Ltd. and are used with permission.
         fimg = fdir = ''
         for var in vars:
             for fname in fnames:
-                fname = useful.clean_name(fname.replace('/', '_'))
+                fname = useful.clean_name(fname)
                 # if not fname:
                 #     continue
                 if fname.find('.') >= 0:
@@ -693,6 +630,10 @@ of Matchbox International Ltd. and are used with permission.
     # still need to work on mannum.py, mbdata.py, pifile.py
 
     @staticmethod
+    def fmt_hidden(text, hidden):
+        return f'<i>{text}</i>' if hidden else text
+
+    @staticmethod
     def format_credit(credit):
         if credit:
             return (f'Photo credit: <a href="photogs.cgi?id={credit["photographer.id"]}">'
@@ -752,6 +693,9 @@ of Matchbox International Ltd. and are used with permission.
         return output
 
 
+# ---- the ixes
+
+
 class Divix(object):
     def __init__(self, id=None, name='', note='', tail=None, entry=None):
         self.id = id
@@ -777,11 +721,13 @@ class Listix(object):
     # a listix consists of a header (outside of the tables) plus a list of sections, each in its own table.
     #     id, name, note, graphics, tail | section
 
-    def __init__(self, id=None, name='', note='', graphics='', tail=None, section=None):
+    def __init__(self, id=None, name='', note='', graphics='', header='', footer='', tail=None, section=None):
         self.id = id
         self.name = name
         self.note = note
         self.graphics = None
+        self.header = header
+        self.footer = footer
         self.tail = tail or []
         self.section = section or []
 

@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+# needs print elimination
+
 import datetime
 from io import open
 import os
@@ -180,7 +182,7 @@ def calendar(pif):
     pif.ren.hierarchy_append(pif.request_uri, 'Calendar')
     pif.ren.print_html()
 
-    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, pif.page_name + '.dat'))
+    dblist = bfiles.SimpleFile(os.path.join(config.SRC_DIR, 'calendar.dat'))
 
     lrange = None
     lsection = render.Section()

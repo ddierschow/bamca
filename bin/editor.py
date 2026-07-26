@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+# needs print elimination
+
 import basics
 import imglib
 import masses
@@ -130,7 +132,6 @@ def show_single(pif, table_data, dats):
     dat = pif.dbh.depref(table_data.name, dats[0])
     dats = [dat]
     adds = table_data.add
-    descs = pif.dbh.describe_dict(table_data.name)
 
     lsections = []
     for base_tab, base_rel in table_data.extends.items():
@@ -155,12 +156,35 @@ def show_single(pif, table_data, dats):
         header += '<input type="hidden" name="o_{}" value="{}">\n'.format(f, dat.get(f, ''))
 
     columns = ['column', 'type', 'value', 'new value']
-    entries = []
+    entries = make_form_fields(pif, table_data, dat)
 
-    for col in table_data.columns + table_data.extra_columns:
-        coltype = descs.get(col).get('type', 'unknown')
+    footer = pif.form.put_button_input("save")
+    footer += pif.form.put_button_input("delete")
+
+    if table_data.name in adds:
+        footer += pif.ren.format_button_link(
+            'add', "?table=" + table_data.name + "&add=1&" + make_url_cond(adds[table_data.name], dat))
+        del adds[table_data.name]
+        footer += pif.form.put_button_input('clone')
+    footer += '</form>\n'
+    for elink in table_data.elinks:
+        footer += pif.ren.format_button_link(elink['name'], elink['url'] % dat) + '<br>\n'
+    footer += '<hr>\n'
+
+    lrange = render.Range(entry=entries, styles={'column': 0})
+    lsections.append(render.Section(colist=columns, range=[lrange], header=header, footer=footer))
+    return lsections
+
+
+def make_form_fields(pif, table_data, dat, maxwidth=255, columns=None):
+    dat = pif.dbh.depref(table_data.name, dat)
+    entries = []
+    columns = columns or (table_data.columns + table_data.extra_columns)
+    descs = pif.dbh.describe_dict(table_data.name)
+
+    for col in columns:
         oldvalue = make_col_value(table_data, col, dat)
-        newvalue = coltype
+        coltype = newvalue = descs.get(col).get('type', 'unknown')
         # char(N)
         # datetime
         # int(N)
@@ -175,17 +199,18 @@ def show_single(pif, table_data, dats):
         elif col in table_data.bits:
             newvalue = pif.form.put_checkbox(
                 col, table_data.bits[col], useful.bit_list(oldvalue, format='{:04x}'))
+        elif col in table_data.selects:
+            newvalue = pif.form.put_select(col, table_data.selects[col], selected=dat.get(col))
         elif coltype == 'text':
             newvalue = pif.form.put_textarea_input(col, value=dat.get(col, ''))
         elif coltype.startswith('varchar('):
             colwidth = int(coltype[8:-1])
-            newvalue = pif.form.put_text_input(col, colwidth, colwidth, value=dat.get(col, ''))
+            newvalue = pif.form.put_text_input(col, colwidth, min(maxwidth, colwidth), value=dat.get(col, ''))
         elif coltype.startswith('char('):
             colwidth = int(coltype[5:-1])
-            newvalue = pif.form.put_text_input(col, colwidth, colwidth, value=dat.get(col, ''))
+            newvalue = pif.form.put_text_input(col, colwidth, min(maxwidth, colwidth), value=dat.get(col, ''))
         elif coltype.startswith('tinyint('):
-            if dat.get(col) is None:
-                dat[col] = 0
+            dat[col] = dat.get(col) or 0
             colwidth = int(coltype[8:-1])
             val = dat[col]
             if isinstance(val, str) and val.isdigit():
@@ -215,23 +240,7 @@ def show_single(pif, table_data, dats):
             newvalue = pif.form.put_text_input(col, colwidth, colwidth, value=str(val))
         entries.append({'column': col, 'type': coltype, 'value': oldvalue, 'new value': newvalue,
                         'style': 'pk' if col in table_data.ids else ''})
-
-    footer = pif.form.put_button_input("save")
-    footer += pif.form.put_button_input("delete")
-
-    if table_data.name in adds:
-        footer += pif.ren.format_button_link(
-            'add', "?table=" + table_data.name + "&add=1&" + make_url_cond(adds[table_data.name], dat))
-        del adds[table_data.name]
-        footer += pif.form.put_button_input('clone')
-    footer += '</form>\n'
-    for elink in table_data.elinks:
-        footer += pif.ren.format_button_link(elink['name'], elink['url'] % dat) + '<br>\n'
-    footer += '<hr>\n'
-
-    lrange = render.Range(entry=entries, styles={'column': 0})
-    lsections.append(render.Section(colist=columns, range=[lrange], header=header, footer=footer))
-    return lsections
+    return entries
 
 
 def show_sub_tables(pif, table_data, dat=None):

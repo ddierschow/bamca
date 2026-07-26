@@ -1,3 +1,32 @@
+### 7.8.15  - 2026-07-25
+
+- Remove the entire variation file importer and rewrite the editor substantially
+- Add section renaming
+- Add credit pattern
+- Add selects to table data
+- Rewrite database table forms to make them more usable
+- Rewrite stitch, moving to the new templates and fixing bugs
+- Make lineups easier to maintain
+- Did some cleanup on masses
+- Add mass matrix model
+- Finally remove modify_man_item
+- Rip out all the old table stuff from render
+- Add header and footer to listix
+- Add code 2 mark to variation
+- Make appearances show lineup section names
+- Build out more support for editing base attributes
+- Add copying attributes from one column to another
+- Rewrite some of the user-facing documentation
+- Remove a bunch of old dat files
+- Rewrite variation appearances box and move upload to its own box
+- Add random casting and variation buttons
+- Add repo size tracker
+- Add vehicle type editor to single
+- Add noncontiguous warning to var entry
+- Clean up a lot of var type handling
+- Fix supersearch code1/2 setting
+- Redo error pages
+
 ### 7.8.14  - 2026-07-04
 
 - Add giftware and carrying cases pages
@@ -79,10 +108,10 @@
 ### 7.8.6  - 2025-03-23
 
 - Rewrote a lot of the box gallery
-- Made the editor link function nicer
-- Added boxtype item
+- Make the editor link function nicer
+- Add boxtype item
 - More f-strings
-- Added White Rose and Burger King graphics
+- Add White Rose and Burger King graphics
 - Random bugfixes
 
 ### 7.8.5  - 2025-03-21
@@ -90,7 +119,7 @@
 - Redesign vars pages
 - Split var editor away from var displayer
 - Add section_id to box_type table
-- Converted some pages to returning strings rather than direct printing
+- Convert some pages to returning strings rather than direct printing
 - More fstrings
 - Make matrix entries with no vars show the right picture
 - Make some anchors work right; random bug fixes
@@ -124,9 +153,9 @@
 
 ### 7.8.1  - 2025-03-03
 
-- Added the decalotype font
-- Fixed problems with csv/json
-- Minor redesign to the ront page
+- Add the decalotype font
+- Fix problems with csv/json
+- Minor redesign to the front page
 
 ### 7.8.0  - 2025-03-02
 
@@ -138,13 +167,13 @@
 - Rewrite more string formatting
 - Add star definitions to packs
 - Sort attributes on var list
-- Added credit hints to showing pictures in filsys
+- Add credit hints to showing pictures in filsys
 - Add support for pulling diffs
-- Cleaned up var counts
-- Made varias do fewer queries
-- Converted listtype to an enum
-- Tried to add post blocks to tracebacks (might not work)
-- Added model type search
+- Clean up var counts
+- Make varias do fewer queries
+- Convert listtype to an enum
+- Try to add post blocks to tracebacks (might not work)
+- Add model type search
 - Rename models.py to mbmods.py
 
 ### 7.7.2  - 2025-02-27
@@ -158,11 +187,11 @@
 
 ### 7.7.0  - 2025-02-08
 
-- Added super search
-- Renamed and rearranged several things
-- Moved a bunch of strings to f-strings
-- Implemented formatters for font-awesome icons
-- Added flags for exact/partial ids on supersearch
+- Add super search
+- Rename and rearrange several things
+- Move a bunch of strings to f-strings
+- Implement formatters for font-awesome icons
+- Add flags for exact/partial ids on supersearch
 
 ### 7.6.3  - 2024-09-28
 
@@ -184,26 +213,25 @@
 
 - Lots of work on administration scripts
 - Minor tweaks to UI
-- Added material "plastic"
+- Add material "plastic"
 - Better implementation of variation selection on lineups
 - Bugfixing
-- Trying to add additional model sequences (moving parts, promos) to lineups,
-  but it's still not working right
+- Trying to add additional model sequences (moving parts, promos) to lineups, but it's still not working right
 
 ### 7.6 - 2024-08-01
 
 - Many improvements to the administration scripts
-- Added CSV with variations
+- Add CSV with variations
 
 ### 7.5 - 2023-02-25
 
 - Many improvements to the database editor
-- Started development on a readers guide
+- Start development on a readers guide
 - Security improvements
 
 ### 7.4 - 2022-06-19
 
-- Added transitional King Size models to the Super Kings list
+- Add transitional King Size models to the Super Kings list
 - Minor revision to single casting page when showing an associated product
 
 ### 7.3 - 2022-05-29
@@ -213,15 +241,15 @@
 
 ### 7.2 - 2022-05-22
 
-- Rewriting of lots of internals
+- Rewrite lots of internals
 - Begin redesign of tampo/labels/deco/etc
-- Made model icons work again
+- Make model icons work again
 - Fix advertisements
 - Add database tables for readers' guide
 
 ### 7.1 - 2022-05-08
 
-- Rewriting of lots of internals
+- Rewrite of lots of internals
 - Redesign vehicle makes list
 - Minor changes to single model page
 

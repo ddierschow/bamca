@@ -68,7 +68,7 @@ def delete_user(pif):
 def update_user(pif):
     newuser = pif.dbh.fetch_user(user_id=pif.form.get_str('user_id'))
     if newuser and newuser['id'] != pif.form.get_int('id'):
-        raise useful.SimpleError('The requested user ID is already in use.')
+        raise useful.SimpleError('The requested user ID is already in use.', status=409)
     pif.form.set_val('flags', pif.form.get_bits('flags'))
     pif.dbh.update_user(pif.form.get_int('id'), **pif.form.get_dict(keylist=pif.dbh.get_table_data('user').columns))
 
@@ -129,13 +129,13 @@ def create(pif):
     p2 = pif.form.get_str('p2')
     email = pif.form.get_str('email')
     if not user_id or (set(user_id) - set(string.ascii_letters + string.digits + '._')):
-        raise useful.SimpleError('That is not a legal user ID.')
+        raise useful.SimpleError('That is not a legal user ID.', status=406)
     if pif.dbh.fetch_user(user_id=user_id):
-        raise useful.SimpleError('That ID is already in use.')
+        raise useful.SimpleError('That ID is already in use.', status=409)
     if not email:
-        raise useful.SimpleError('Please specify an email address.')
+        raise useful.SimpleError('Please specify an email address.', status=406)
     if not p1 or p1 != p2:
-        raise useful.SimpleError('Please specify the same password in both password boxes.')
+        raise useful.SimpleError('Please specify the same password in both password boxes.', status=406)
 
     vkey = useful.generate_token(10)
     rec_id = pif.dbh.create_user(passwd=p1, vkey=vkey, privs='b', **pif.form.form)
@@ -195,13 +195,13 @@ def change_password_main(pif):
     pif.ren.print_html()
 
     if not pif.user_id:
-        raise useful.SimpleError("It doesn't look like you're logged in!")
+        raise useful.SimpleError("It doesn't look like you're logged in!", status=401)
     if pif.form.has('id') and pif.is_allowed('a') and pif.form.get_int('id') != pif.user_id:
         user = pif.dbh.fetch_user(pif.form.get_int('id'))
     else:
         user = pif.user
     if not user:
-        raise useful.SimpleError('That user record ({}) was not found.'.format(pif.user_id))
+        raise useful.SimpleError('That user record ({}) was not found.'.format(pif.user_id), status=404)
 
     if pif.is_allowed('a') and 'p1' in pif.form:
         user_id = pif.form.get_int('id')
@@ -349,15 +349,15 @@ def profile_main(pif):
     pif.ren.print_html()
 
     if not pif.user_id:
-        raise useful.SimpleError("It doesn't look like you're logged in!")
+        raise useful.SimpleError("It doesn't look like you're logged in!", status=401)
     table_data = pif.dbh.get_table_data('user')
     user = pif.user
     if not user:
-        raise useful.SimpleError('That user record ({}) was not found.'.format(pif.user_id))
+        raise useful.SimpleError('That user record ({}) was not found.'.format(pif.user_id), status=404)
     if 'user_id' in pif.form:
         newuser = pif.dbh.fetch_user(user_id=pif.form.get_str('user_id'))
         if newuser and newuser.id != pif.form.get_int('id'):
-            raise useful.SimpleError('Sorry, but that user ID is already in use.')
+            raise useful.SimpleError('Sorry, but that user ID is already in use.', status=409)
         if pif.dbh.update_profile(user, **pif.form.form):
             useful.warn('Your profile has been updated.')
         else:
@@ -391,15 +391,30 @@ def profile_main(pif):
         llineup=render.Listix(section=[lsection]), nofooter=True)
 
 
-# ------
+# ------ commands ------------------------
 
 
 def user_list(pif):
     print(pif.dbh.fetch_users())
 
 
+def daily_count(pif, date):
+    year, month = date.split('-')
+    total = 0
+    ips = {}
+    for x in open('/usr/local/www/bamca/logs/www.url' + year + month + '.log').readlines():
+        xl = x.split()
+        ips.setdefault(xl[0], set())
+        ips[xl[0]].add(xl[7])
+    for x, y in sorted(ips.items()):
+        total += len(y)
+        print(x, len(y))
+    print('average', total / len(ips))
+
+
 cmds = [
     ('l', user_list, "list users"),
+    ('d', daily_count, "daily count: yyyy-mm-dd"),
 ]
 
 

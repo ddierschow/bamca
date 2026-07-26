@@ -1,0 +1,7 @@
+ErrorDocument 400 /pages/400.php
+ErrorDocument 401 /pages/401.php
+ErrorDocument 404 /pages/404.php
+ErrorDocument 406 /pages/406.php
+ErrorDocument 408 /pages/408.php
+ErrorDocument 409 /pages/409.php
+ErrorDocument 500 /pages/500.php

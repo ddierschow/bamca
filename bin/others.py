@@ -73,7 +73,7 @@ def code2(pif):
 
     llineup = render.Matrix()
     for sect in pif.dbh.make_sec_items(pif.dbh.fetch_sections({'page_id': pif.page_id})):
-        lsec = render.Section(section=sect)
+        lsec = render.Section(section=sect, anchor=sect.id)
         if not section_id or section_id == lsec.id:
             if section_id:
                 pif.ren.hierarchy_append('/cgi-bin/code2.cgi?section=%s' % section_id, lsec.name)
@@ -98,7 +98,7 @@ def code2_model(pif):
     header = f'<center>{img}<br><b>{manitem.id}: {manitem.name}</b></center><p>'
     sect = pif.dbh.fetch_section(page_id=pif.page_id, category=cat_id)
     if not sect:
-        raise useful.SimpleError('No models found.')
+        raise useful.SimpleError('No models found.', status=404)
     lsec = render.Section(section=sect)
     pif.ren.hierarchy_append(f'/cgi-bin/code2.cgi?section={lsec.id}', lsec.name)
     pif.ren.hierarchy_append(f'/cgi-bin/code2.cgi?mod_id={manitem.id}&cat={cat_id}', manitem.id)
@@ -267,3 +267,24 @@ def compare_main(pif):
                 lran['entry'].append(lent)
 
     return pif.ren.format_template('compare.html', lcompare=llineup)
+
+
+# ---- repo size -----------------------------
+
+
+@basics.web_page
+def repo_size(pif):
+    pif.ren.title = 'Repo File Sizes'
+    pif.ren.print_html()
+
+    def mk_entry(x):
+        x['total'] = sum([x[y] for y in mbdata.repo_exts])
+        return x
+
+    import fsizes
+    lsection = render.Section(
+        colist=['ver'] + sorted(mbdata.repo_exts) + ['total'],
+        range=[render.Range(entry=[mk_entry(x) for x in fsizes.chart])],
+        header='',
+        footer='')
+    return pif.ren.format_template('simplelistix.html', llineup=render.Listix(section=[lsection]), nofooter=True)

@@ -7,6 +7,7 @@ from io import open
 import os
 import re
 import requests
+import sys
 
 import basics
 import config
@@ -914,6 +915,195 @@ def tilley_counts(pif):
     photog_counts(pif, photog='DT', model_type='SF')
 
 
+def ck_model(pif, mod):
+    yrs = sorted(set([x[0] for x in pif.dbh.dbi.execute(f"select year from lineup_model where mod_id='{mod}'")]))[0]
+
+    sel = sorted(set(pif.dbh.dbi.execute(f"select ref_id from variation_select where mod_id='{mod}'")[0]))
+    sel = [x[0][:9] for x in sel]
+
+    missing = []
+    for yr in yrs:
+        if not 'year.' + yr in sel:
+            missing.append(yr)
+    bad = []
+    for pg in sel:
+        if pg.startswith('year.') and not pg[5:9] in yrs:
+            bad.append(pg)
+    return missing, bad
+
+
+def text_list_var_pics(pif, mod_id):
+    vars = pif.dbh.fetch_variations(mod_id)
+    cpics = cfound = pics = found = 0
+    for var in vars:
+        var = pif.dbh.depref('variation', var)
+        code2 = False
+        core = False
+        for vs in var['vs']:
+            if vs['category.flags'] & config.FLAG_MODEL_CODE_2:
+                code2 = True
+            if vs['category.id'] == 'MB':
+                core = True
+        if var['var'].startswith('f') or code2:
+            continue
+        elif not var['picture_id']:
+            fn = mod_id + '-' + var['var']
+            pid = var['var']
+        elif var['picture_id'] == var['var']:
+            fn = mod_id + '-' + var['picture_id']
+            pid = var['picture_id']
+        else:
+            continue
+        pic_path = pif.ren.find_image_file(fnames=fn, vars=pid, prefix=mbdata.IMG_SIZ_SMALL)
+        pics += 1
+        if core:
+            cpics += 1
+        if pic_path:
+            found += 1
+            if core:
+                cfound += 1
+    af = '%d/%d' % (found, pics)
+    cf = '%d/%d' % (cfound, cpics)
+    if found == pics:
+        af = '--'
+    if cfound == cpics:
+        cf = '--'
+    return af, cf
+
+
+def check_core(pif, *specs):  # b0rken
+
+    sw = []
+    if specs[0][0] == '0':
+        sw = list(specs[0][1:])
+        specs = specs[1:]
+
+    for spec in specs:
+        mods = sorted(set([x[0] for x in pif.dbh.dbi.execute(f"select id from casting where id like '{spec}%'")[0]]))
+
+        for mod in mods:
+            missing, bad = ck_model(pif, mod)
+            af, cf = text_list_var_pics(pif, mod)
+
+            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
+                print(mod,)
+            if 'p' in sw or af != '--' or cf != '--':
+                print(af, cf,)
+            if missing:
+                print('needs', ' '.join(missing),)
+
+            if bad:
+                print('has bad', ' '.join(bad),)
+
+            if 'a' in sw or 'p' in sw or missing or bad or af != '--' or cf != '--':
+                print()
+
+
+def count_vars(pif, filelist=None):
+    # count = 0
+    # verbose = True
+    # showtexts = True
+    if not filelist:
+        castings = [x['id'] for x in pif.dbh.dbi.select('casting', verbose=False)]
+    elif filelist[0][0] >= 'a':
+        castings = [x['id'] for x in pif.dbh.dbi.select(
+            'casting', where=f"section_id='{filelist[0]}'", verbose=False)]
+    else:
+        castings = filelist
+        # verbose = True
+    t_founds = [0, 0, 0, 0, 0, 0]
+    t_needs = [0, 0, 0, 0, 0, 0]
+    t_cnts = [0, 0, 0, 0, 0, 0, 0]
+
+    def adder(into_arr, from_tup):
+        return [sum(x) for x in zip(into_arr, from_tup)]
+
+    print('(f_a, f_c, f_1, f_2, f_f, f_p), (n_a, n_c, n_1, n_2, n_f, n_p), '
+          '(c_vars, c_de, c_ba, c_bo, c_in, c_wh, c_wi)')
+    for mod_id in castings:
+        # sys.stdout.write(casting + ' ')
+        sys.stdout.flush()
+        founds, needs, cnts, id_set = mbmods.count_list_var_pics(pif, mod_id)
+        print(mod_id, founds, needs, cnts)
+        t_founds = adder(t_founds, founds)
+        t_needs = adder(t_needs, needs)
+        t_cnts = adder(t_cnts, cnts)
+    print('total', t_founds, t_needs, t_cnts)
+
+
+# not in use right now
+def check_table_data(pif):
+    for table in pif.dbh.table_data:
+        print(table)
+        dats = pif.dbh.dbi.execute('select * from ' + table)[0]
+        cols = pif.dbh.describe(table)
+        # types = list()
+        for dat in dats:
+            ldat = list(dat)
+            for col in cols:
+                s = ''
+                n = 0
+                d = ldat.pop(0)
+                try:
+                    if col['type'].startswith('varchar'):
+                        s += d
+                    elif col['type'].startswith('char'):
+                        s += d
+                    elif col['type'].startswith('text'):
+                        s += d
+                    elif col['type'].startswith('int'):
+                        n += d
+                    elif col['type'].startswith('tinyint'):
+                        n += d
+                except Exception:
+                    print(table, col, dat)
+            for c in s:
+                if ord(c) > 127:
+                    print(table, dat)
+
+
+def check_variation_select(pif):
+    print('missing models')
+    res = pif.dbh.raw_execute(
+        '''select mod_id, id from variation_select where mod_id not in (select mod_id from casting);''')
+    for r in res[0]:
+        print(r)
+
+    print('missing variations')
+    res = pif.dbh.raw_execute(
+        '''select * from variation_select where (mod_id, var_id) not in (select mod_id, var from variation);''')
+    for r in res[0]:
+        print(r)
+
+    print('missing categories')
+    res = pif.dbh.raw_execute(
+        '''select * from variation_select where cateogory not in (select id from category);''')
+    for r in res[0]:
+        print(r)
+
+    print('missing pages')
+    res = pif.dbh.raw_execute(
+        "select ref_id, id from variation_select where ref_id != '' and ref_id not in (select id var from page_info);")
+    pages = {}
+    for r, id in res[0]:
+        pages.setdefault(r, [])
+        pages[r].append(id)
+    for k, v in pages.items():
+        print(k, v)
+
+    print('duplicates')
+    res = pif.dbh.fetch_variation_selects(bare=True)
+    resd = {}
+    for r in res:
+        if r['ref_id']:
+            k = f"{r['ref_id']}/{r['sec_id']}/{r['ran_id']}/{r['mod_id']}/{r['var_id']}"
+            resd.setdefault(k, set())
+            resd[k].add(str(r['category.id']))
+    for k, v in resd.items():
+        if len(v) > 1:
+            print(k, sorted(v))
+
+
 # ------- infra --------------------------------------------------------
 
 def run_test(pif, mod_id):
@@ -923,6 +1113,9 @@ def run_test(pif, mod_id):
 
 cmds = [
     ('c', count_tables, "count tables: [-v]"),
+    ('cc', check_core, "check core: mod_id ..."),
+    # ('cv', count_vars, "count vars"),   # broken
+    ('ckvs', check_variation_select, "check variation select"),
     ('sch', check_schema, "check schema"),
     ('tab', check_tables, "check tables: [table ...]"),
     ('dup', check_dups, "check duplicates"),

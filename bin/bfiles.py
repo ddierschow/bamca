@@ -67,7 +67,8 @@ class ArgFile(object):
             self.handle = open(fname)
         except IOError:
             raise useful.SimpleError(
-                """I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
+                """I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""",
+                status=404)
         self.srcstat = os.fstat(self.handle.fileno())
         self.ignoreoverride = False
         self.dats = {}
@@ -86,7 +87,8 @@ class ArgFile(object):
             return self.read_file(self.handle)
         except IOError:
             raise useful.SimpleError(
-                """I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""")
+                """I'm sorry, that page was not found.  Please use your "BACK" button or try something else.""",
+                status=404)
 
     def __getitem__(self, arg):
         return self.__dict__[arg]

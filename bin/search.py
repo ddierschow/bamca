@@ -97,6 +97,8 @@ def run_search(pif):
     pif.ren.hierarchy_append(pif.request_uri, 'Model Search')
     mods = None
     pif.ren.print_html()
+    if pif.form.has('arg'):
+        return bamca_id_search(pif, pif.form.get_id('arg').replace('/', '-'))
     if pif.form.has('bid'):
         return bamca_id_search(pif, pif.form.get_id('bid'))
     if pif.form.has('date'):
@@ -112,12 +114,12 @@ def run_search(pif):
         targ = pif.form.get_str('id')
         mods = search_id(pif)
         if mods is None:
-            raise useful.SimpleError("Your query parameters do not make sense.  Please try something different.")
+            raise useful.SimpleError("Your query parameters do not make sense.  Please try something different.", status=404)
         pif.ren.title = 'Models matching ID: ' + targ
     else:
-        raise useful.SimpleError("Your query parameters do not make sense.  Please try something different.")
+        raise useful.SimpleError("Your query parameters do not make sense.  Please try something different.", status=404)
     if not mods:
-        raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.")
+        raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.", status=404)
 
     mods.sort(key=lambda x: x.get('base_id.rawname', ''))
     var_id = pif.form.get_str('var')
@@ -160,7 +162,7 @@ def date_search(pif, dt=None, yr=None):
         lran = render.Range()
         pif.ren.title = dt
         vars = pif.dbh.fetch_variations_by_date(dt, imported_from=dt if '-' in dt else None)
-        prefixes = imglib.get_tilley_file()
+        prefixes = imglib.get_tilley_file(pif)
         last = None
         ver_count = ver_poss = 0
         for var in vars:
@@ -386,4 +388,4 @@ def bamca_id_search(pif, bid):
         num = f"{lm['region'].replace('.', '')}.{lm['number']}"
         raise useful.Redirect(f'/cgi-bin/lineup.cgi?year={lm["year"]}&region={region}#{num}')
 
-    raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.")
+    raise useful.SimpleError("Your query did not produce any models.  Sorry 'bout that.", status=404)

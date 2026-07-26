@@ -34,15 +34,6 @@ man_sections = ['manno', 'manunf']
 
 
 def read_super_search_form(form, withaliases=False, madeonly=False):
-
-    def get_codes(self, form_codes):
-        codes = 0
-        for code in form_codes:
-            if code not in "123":
-                return None
-            codes += int(code)
-        return codes
-
     plant = form.get_str('plant', '')  # plant_rd thinks '' is 'unset' so...
     varsq = {vfields[x]: form.search(x) for x in vfields}
     varsq['manufacture'] = mbdata.plant_rd.get(plant, '') if plant else ''
@@ -103,7 +94,7 @@ class Searcher(object):
         # variation section
         self.varsq = args.get('varsq') or {'var': ''}
         self.var_id_exact = args.get('var_id_exact') or 0
-        self.codes = args.get('codes', '12')  # thinking about this one...
+        self.codes = args.get('codes', ['1', '2'])  # thinking about this one...
 
         # internal stuff
         self.is_var_search = any(self.varsq.values()) or ''.join(self.codes) != '12'
@@ -120,7 +111,7 @@ class Searcher(object):
     def run_query(self, pif):
         # early exits
         if self.codes is None:
-            raise useful.SimpleError("This submission was not created by the form provided.")
+            raise useful.SimpleError("This submission was not created by the form provided.", status=406)
 
         # set up for our queries
         self.mdict = {}
@@ -128,7 +119,7 @@ class Searcher(object):
         slist = pif.dbh.fetch_sections({'id': useful.clean_id(self.section)} if self.section else
                                        {'page_id': 'manno'})  # all
         if not slist:
-            raise useful.SimpleError(f'Requested section not found: {self.section}')
+            raise useful.SimpleError(f'Requested section not found: {self.section}', status=404)
         for section in slist:
             if section['page_id'] in man_sections and (not self.section or section['id'] == self.section):
                 section.setdefault('model_ids', list())

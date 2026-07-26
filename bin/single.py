@@ -148,36 +148,39 @@ def show_pack_appearances(pif, packs):
 id_re = re.compile(r'(?P<p>\D*)(?P<n>\d*)(?P<l>\D*)')
 
 
-def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
+def show_left_bar_content(pif, model, prod, raw_variations):
     # This function holds ALL admin capability for this page.
+    ref = prod.ref
+    pic = prod.pic
+    pdir = prod.pdir
     mod_id = model.id
+    mod_lc = model.id.lower()
     lines = []
     if pif.is_allowed('a'):  # pragma: no cover
         lines.extend([
             f'<a href="vars.cgi?recalc=1&mod={mod_id}">Recalculate</a>',
-            '<a href="%s">Casting</a>' % pif.dbh.get_editor_link('casting', id=mod_id),
-            '<a href="%s">AttrPics</a>' % pif.dbh.get_editor_link('attribute_picture', mod_id=mod_id),
+            f'<a href="{pif.dbh.get_editor_link("casting", id=mod_id)}">Casting</a>',
+            f'<a href="mass.cgi?tymass=vehicle_type&mod_id={mod_id}">Vehicle Type</a>',
+            f'<a href="{pif.dbh.get_editor_link("attribute_picture", mod_id=mod_id)}">AttrPics</a>',
             f'<a href="mass.cgi?tymass=related&mod_id={mod_id}">Relateds</a>',
             f'<a href="mass.cgi?tymass=alias&mod_id={mod_id}">Aliases</a>',
             f'<a href="vars.cgi?edt=1&mod={mod_id}">Variations</a>',
-            f'<a href="vars.cgi?adl=1&mod={mod_id}">Attr Edit</a>',
+            f'<a href="vedit.cgi?m={mod_id}">Attr Edit</a>',
             f'<a href="vars.cgi?vdt=1&mod={mod_id}">Details</a>',
             f'<a href="vars.cgi?vds=1&mod={mod_id}">Descriptions</a>',
             f'<a href="mass.cgi?tymass=var&mbusa=MBUSA&mod={mod_id}">MBUSA</a>',
             f'<a href="vsearch.cgi?ask=1&id={mod_id}">Search</a>',
-            f'<a href="pics.cgi?m={mod_id.lower()}">Pics</a> ' +
+            f'<a href="pics.cgi?m={mod_lc}">Pics</a> ' +
             f'<a href="vars.cgi?lrg=1&mod={mod_id}&pic1=1&hc=1&picown=1&ci=1&c1=1&c2=1">Creds</a>',
             f'<a href="edlinks.cgi?page_id=single.{mod_id}">Links</a>',
         ])
-    if os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower())):
+    if os.path.exists(useful.relpath('.', config.LIB_MAN_DIR, mod_lc)):
         if pif.is_allowed('v'):  # pragma: no cover
-            lines.append('<a href="traverse.cgi?d=%s">Library</a>' % useful.relpath(
-                '.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()))
-            lines[-1] += f' <a href="https://www.google.com/search?q={model.name.replace(" ", "+")}">G</a>'
+            lines.append(f'<a href="traverse.cgi?d={useful.relpath('.', config.LIB_MAN_DIR, mod_lc)}">Library</a> '
+                         f' <a href="https://www.google.com/search?q={model.name.replace(" ", "+")}">G</a>')
         if pif.is_allowed('a'):  # pragma: no cover
-            lines.append('<a href="upload.cgi?d=%s&m=%s">Library Upload</a>' % (
-                useful.relpath('.', config.LIB_MAN_DIR, mod_id.replace('/', '_').lower()),
-                mod_id.replace('/', '_').lower()))
+            lines.append(
+                f'<a href="upload.cgi?d={useful.relpath('.', config.LIB_MAN_DIR, mod_lc)}&m={mod_lc}">Library Upload</a>')
             lines.append(
                 f'<a href="/cgi-bin/library.cgi?m={mod_id}&til=1" target="_blank">Tilley List</a> '
                 f'<a href="/cgi-bin/pics.cgi?m={mod_id}&t=1">Im</a>')
@@ -212,13 +215,6 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
             lines.append(prod)
         lines.append('')
 
-        date_re = re.compile(r'^\d\d\d\d-\d\d-\d$')
-        vfl = [x['imported_from'] for x in pif.dbh.fetch_variation_files(mod_id)]
-        vfl = sorted(set(['mbusa' if date_re.match(x) else x for x in vfl])) or ['importer']
-        for vf in vfl:
-            lines.append(f'<a href="vedit.cgi?d=src/mbxf&m={mod_id}&f={vf}">{vf}</a>')
-        lines.append('')
-
         var_pics, var_texts, missing_ids = mbmods.show_list_var_pics(pif, mod_id)
         if missing_ids:
             lines.append(f'\n<span class="red">{missing_ids}</span>')
@@ -244,13 +240,14 @@ def show_left_bar_content(pif, model, ref, pic, pdir, raw_variations):
                     useful.relpath('.', config.IMG_DIR_VAR, f'{x}_{mod_id}-{var}.jpg').lower())]) + ' '
                 ln += f'<a href="vars.cgi?mod={mod_id}&var={var}&edt=1">{pif.ren.fmt_edit()}</a>\n'
                 ln += pif.ren.format_link(
-                    f'upload.cgi?d={useful.relpath(".", config.LIB_MAN_DIR, mod_id.lower())}&'
+                    f'upload.cgi?d={useful.relpath(".", config.LIB_MAN_DIR, mod_lc)}&'
                     f'm={mod_id}&v={var}&l=1&c={mod_id}+variation+{var}', pif.ren.fmt_mini(icon='upload')) + '\n'
-                ln += pif.ren.format_link('traverse.cgi?g=1&d=%s&man=%s&var=%s' % (
-                    useful.relpath('.', config.LIB_MAN_DIR, mod_id.lower()), mod_id, var),
+                ln += pif.ren.format_link(
+                    f'traverse.cgi?g=1&d={useful.relpath('.', config.LIB_MAN_DIR, mod_lc)}&man={mod_id}&var={var}',
                     pif.ren.fmt_mini(icon='bars')) + '\n'
             lines.append(ln)
         lines.append('')
+
         for attr in attrs:
             lines.append(attr['attribute.attribute_name'])
     return lines
@@ -329,8 +326,7 @@ def make_plants(pif, mod_id, plants):
             flag = ('unset', '')
         else:
             flag = pif.ren.show_flag(mbdata.plant_d[plant['manufacture']])
-        url = "/cgi-bin/vars.cgi?manufacture=%s&mod=%s" % (plant['manufacture'].replace(' ', '+')
-                                                           if plant['manufacture'] else 'unset', mod_id)
+        url = f"/cgi-bin/vars.cgi?manufacture={plant['manufacture'].replace(' ', '+') or 'unset'}&mod={mod_id}"
         columns.append(plant['manufacture'])
         headers[plant['manufacture']] = pif.ren.format_link(
             url, useful.img_src(flag[1], also={'title': plant['manufacture']}) if flag[1] else flag[0])
@@ -349,7 +345,14 @@ def make_plants(pif, mod_id, plants):
 
 @basics.web_page
 def show_single(pif):
-    model = pif.dbh.fetch_casting(pif.form.get_id('id'), extras=True)
+    if pif.form.get_bool('random'):
+        man_id = pif.dbh.fetch_casting_random()
+        raise useful.Redirect(f'/cgi-bin/single.cgi?id={man_id}')
+    return main(pif, pif.form.get_id('id'))
+
+
+def main(pif, model_id):
+    model = pif.dbh.fetch_casting(model_id, extras=True)
     if not model:
         raise useful.SimpleError("That ID wasn't found.", status=404)
     pif.ren.print_html()
@@ -419,7 +422,7 @@ def show_single(pif):
     plants = make_plants(pif, mod_id, pif.dbh.fetch_variation_plant_counts(mod_id))
     relateds = pif.dbh.fetch_casting_relateds(mod_id)
     mack_nums = mbmods.get_mack_numbers(pif, mod_id, model.model_type, aliases)
-    model.notes = '<br>'.join(model.notes.split(';'))
+    model.notes = '<br>'.join([x for x in model.notes.split(';') if x] + (['Never released.'] if model.not_made else []))
     base_names = sorted(set([x['base_name'] for x in pif.dbh.fetch_variation_base_names(mod_id) if x['base_name']]))
     vscounts = pif.dbh.fetch_variation_select_counts(mod_id)
 
@@ -443,8 +446,7 @@ def show_single(pif):
         'vehicle_type': vehicle_types,
         'rowspan': '4',
         'left_bar_icons': left_bar_icons,
-        'left_bar_content': '<br>\n'.join(
-            show_left_bar_content(pif, model, prod.ref, prod.pic, prod.pdir, raw_variations)),
+        'left_bar_content': '<br>\n'.join(show_left_bar_content(pif, model, prod, raw_variations)),
         'right_side_image':
             pif.ren.format_image_optional(mod_id, pdir=config.IMG_DIR_ADD, prefix='v_', also={'class': 'righty'}),
         'model': model,

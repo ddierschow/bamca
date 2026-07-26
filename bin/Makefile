@@ -32,5 +32,7 @@ dumpdb:
 	@echo "This is looking for the database root password."
 	@echo "Dumping to bamca"
 	mysqldump -u root -p bamca > ../sql/bamca.mysql.$(DATE)
+	git add ../sql/bamca.mysql.$(DATE)
 	@echo "Dumping to buser"
 	mysqldump -u root -p buser | python ../sql/scrub.py > ../sql/buser.mysql.$(DATE)
+	git add ../sql/buser.mysql.$(DATE)

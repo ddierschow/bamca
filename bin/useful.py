@@ -187,7 +187,7 @@ def pick(from_these):
 
 
 def clean_id(str_id, limit=255):
-    id_re = re.compile(r'[-/\w.]+')  # 0-9 A-Z a-z underscore dash slash dot
+    id_re = re.compile(r'[-\w.]+')  # 0-9 A-Z a-z underscore dash slash dot
     id_m = id_re.match(str(str_id)[:limit])
     return id_m.group(0) if id_m else ''
 
@@ -701,3 +701,11 @@ def setlist(wheat):
 
 def count_exist(items):
     return len([1 for x in items if x])
+
+
+def lowest_unused_number(nums):
+    if nums:
+        for x in range(1, max(nums) + 2):
+            if x not in nums:
+                return x
+    return 1

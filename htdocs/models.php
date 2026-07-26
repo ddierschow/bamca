@@ -49,7 +49,7 @@ DoPageHeader($pif);
 
 <tr>
 <td class="ccell coll72"><a href="cgi-bin/sets.cgi?page=coll72"><img src="<?php echo $IMG_DIR_ICON; ?>/t_collectibles.gif" alt="Matchbox Collectibles"><img src="<?php echo $IMG_DIR_ICON; ?>/t_coll72.gif"><br>Aircraft</a></td>
-<td class="ccell skb"><a href="cgi-bin/sets.cgi?page=skb"><img src="<?php echo $IMG_DIR_ICON; ?>/t_skybusters.gif" alt="Skybusters"></a></td>
+<td class="ccell skb"><a href="cgi-bin/sets.cgi?page=skb"><img src="<?php echo $IMG_DIR_ICON; ?>/t_skybusters.gif" alt="Sky Busters"></a></td>
 </tr>
 
 <tr><td colspan=2>&nbsp;</td></tr>

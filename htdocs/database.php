@@ -143,16 +143,23 @@ function SectionID($pif) {
     echo "\n<table>\n <tr>\n";
     echo "  <td class=\"idtab\">See specific manufacturing ID:</td>";
     echo "<td><input type=\"text\" name=\"id\" id=\"idId\" value=\"\" size=\"12\"></td>\n";
+    echo "<td>";
+    echo DoTextButtonLink('random', "/cgi-bin/single.cgi?random=1");
+    echo "</td>\n";
     echo " </tr><tr>\n";
     echo "  <td class=\"idtab\">See specific variation ID:</td>";
-    echo "<td><input type=\"text\" name=\"var\" id=\"idVar\" value=\"\" size=\"12\"> (optional)";
+    echo "<td><input type=\"text\" name=\"var\" id=\"idVar\" value=\"\" size=\"12\"> (optional)</td>\n";
+    echo "<td>";
+    echo DoTextButtonLink('random', "/cgi-bin/vars.cgi?random=1");
+    echo "</td>\n";
+    echo " </tr>\n";
     if ($pif['isadmin']) {
-        echo "</td>\n </tr>\n";
         echo " <tr>\n";
         echo "  <td class=\"idtab\"><i>See specific BAMCA ID:</i></td>";
-        echo "<td><input type=\"text\" name=\"bid\" id=\"idBid\" value=\"\" size=\"12\">";
+        echo "<td><input type=\"text\" name=\"bid\" id=\"idBid\" value=\"\" size=\"12\"></td>";
+        echo " </tr>\n";
     }
-    echo "</td>\n </tr>\n</table>\n";
+    echo "</table>\n";
 }
 
 function SectionYear($pif) {

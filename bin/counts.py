@@ -106,9 +106,9 @@ def get_years(pif, region, ystart, yend, pr_count, im_count):
 
 def count_lineups(pif):
     pr_count = im_count = 0
-    answer = pif.dbh.dbi.rawquery("select min(year), max(year) from lineup_model")[0]
-    ystart = int(answer['min(year)'])
-    yend = int(answer['max(year)'])
+    limits = pif.dbh.fetch_lineup_limits()
+    ystart = int(limits['min(year)'])
+    yend = int(limits['max(year)'])
     pr_count, im_count = get_years(pif, 'W', ystart, 1970, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'U', 1971, yend, pr_count, im_count)
     pr_count, im_count = get_years(pif, 'R', 1971, yend, pr_count, im_count)

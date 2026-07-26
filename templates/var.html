@@ -25,14 +25,15 @@
 {{ showix.format_listix(desc) }}
 </center>
 <p>
-<div class="inset infopanel" style="margin: 0 10px 0 10px;">
 {{ show_appearances() }}
-<p><center><b><a href="{{ upload }}">Upload a Picture</a></b></center><p>
-</div>
 </td><td class="toppy" style="width: 420px;">
 <center>
 {{ showix.format_listix(details) }}
 </center>
+<p>
+<div class="inset infopanel" style="margin: 0 10px 0 10px;">
+<p><center><b><a href="{{ upload }}">Upload a Picture</a></b></center><p>
+</div>
 </td></tr></table>
 </center>
 
@@ -97,6 +98,7 @@
 
 {% macro show_appearances() %}
 {% if appearances -%}
+<div class="inset infopanel" style="margin: 0 10px 0 10px;">
 <p>
 <center><b>Appearances</b></center>
 <ul>
@@ -104,6 +106,8 @@
 <li>{{ appearance }}
 {%- endfor %}
 </ul>
+<p>
+</div>
 
 {% endif -%}
 {% endmacro %}

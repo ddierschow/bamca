@@ -41,11 +41,14 @@ class DBHandler(object):
     def set_verbose(self, flag):
         self.dbi.verbose = flag
 
+    def set_nowrites(self, s):
+        self.dbi.nowrites = s
+
     def escape_string(self, s):
         return self.dbi.escape_string(s)
 
     def make_id(self, table, values, prefix=''):
-        return {x: values.get(prefix + x, '') for x in self.get_table_data(table).id}
+        return {x: values.get(prefix + x, '') for x in self.get_table_data(table).ids}
 
     def make_values(self, table, values, prefix=''):
         return {x: values.get(prefix + x, values.get(x, '')) for x in self.get_table_data(table).columns}
@@ -56,17 +59,10 @@ class DBHandler(object):
     def get_table_data(self, table):
         return self.table_data.get(table)
 
-    def get_editor_link(self, table, argd=None, **kwargs):
-        argd = argd or {}
-        table_data = self.get_table_data(table)
+    def get_editor_link(self, table, **kwargs):
         url = f'/cgi-bin/editor.cgi?table={table}'
-        if table_data:
-            for key, arg in argd.items():
-                if key in table_data.columns:
-                    url += f'&{key}={arg}'
-            for key, arg in kwargs.items():
-                if key in table_data.columns:
-                    url += f'&{key}={arg}'
+        for key, arg in kwargs.items():
+            url += f'&{key}={arg}'
         return url
 
     def table_cols(self, table):
@@ -224,6 +220,12 @@ class DBHandler(object):
         return self.dbi.updateraw(
             table_name,
             {'flags': f'flags & ~{turn_off} | {turn_on}'}, where, tag=tag, verbose=verbose)
+
+    def update_flag_sets(self, table_name, mask=0, enable=False, where=None, tag='UpdateFlagSets', verbose=False):
+        # update table set flags = flags & ~turn_off | turn_on where
+        return self.dbi.updateraw(
+            self.make_tablename(table_name),
+            {'flags': f'flags & ~{0 if enable else mask} | {mask if enable else 0}'}, where, tag=tag, verbose=verbose)
 
     # end dbi interface section
 
@@ -397,6 +399,22 @@ class DBHandler(object):
         self.write('mbusa', values={'mod_id': new_mod_id}, where=f"mod_id='{old_mod_id}'", **writes)
         self.write('casting_make', values={'casting_id': new_mod_id}, where=f"casting_id='{old_mod_id}'", **writes)
 
+    def rename_section(self, page_id, old_id, new_id):
+        writes = {'tag': 'RenameBaseId', 'modonly': True, 'verbose': False}
+        self.write('section', values={'id': new_id}, where=f"page_id='{page_id}' and id='{old_id}'", **writes)
+        # casting
+        # casting_related - not implemented
+        # alias
+        self.write('lineup_model', values={'region': new_id}, where=f"page_id='{page_id}' and region='{old_id}'", **writes)
+        self.write('matrix_model',
+                   values={'section_id': new_id}, where=f"page_id='{page_id}' and section_id='{old_id}'", **writes)
+        self.write('variation_select',
+                   values={'sec_id': new_id}, where=f"ref_id='{page_id}' and sec_id='{old_id}'", **writes)
+        # link_line
+        self.write('pack', values={'section_id': new_id}, where=f"page_id='{page_id}' and mod_id='{old_id}'", **writes)
+        # publication
+        # box_type
+
     def update_base_id(self, id, values):
         return self.write('base_id', values=self.make_values('base_id', values), where=f"id='{id}'", modonly=True,
                           tag='UpdateBaseId')
@@ -545,6 +563,10 @@ class DBHandler(object):
         return self.fetch('base_id,casting', left_joins=[('alias', 'casting.id=alias.ref_id')],
                           where=f"base_id.id=casting.id and (casting.id='{id}' or alias.id='{id}')",
                           tag='CastingsByIdOrAlias')
+
+    def fetch_casting_random(self):
+        rec = self.fetch('casting', columns=['id'], order='rand()', one=True, tag='CastingRandom')
+        return rec['id']
 
     def write_casting(self, values, id, verbose=False):
         return self.write('casting', values=values, where=f'id="{id}"', modonly=True, tag='Casting',
@@ -776,6 +798,7 @@ class DBHandler(object):
 
     def fetch_variation_dates(self, yr=None):
         where = f"date like '{yr}%'" if yr else ''
+        # turn this into a fetch
         return self.dbi.select('variation', cols=['date', 'count(*)'], where=where, group='date', order='date',
                                tag='VariationDates')
 
@@ -801,11 +824,11 @@ class DBHandler(object):
 
     def fetch_variation_query(self, varsq, castingq=None, castinglist=None, codes=None):
         wheres = ['v.mod_id=casting.id', 'casting.id=base_id.id']
-        if codes == 0:
+        if not codes:
             return list()  # ha-ha
-        elif codes == 1:
+        if '2' not in codes:
             wheres.append(f'(v.flags & {config.FLAG_MODEL_CODE_2})=0')
-        elif codes == 2:
+        if '1' not in codes:
             wheres.append(f'(v.flags & {config.FLAG_MODEL_CODE_2})!=0')
         args = list()
         cols = ['base_id.id', 'base_id.rawname', 'v.mod_id', 'v.var', 'v.date', 'v.text_description', 'v.text_base',
@@ -912,6 +935,10 @@ class DBHandler(object):
     def fetch_variation_base_names(self, mod_id):
         return self.fetch('variation', columns=['base_name'], where=[f"mod_id='{mod_id}'", "base_name != ''"],
                           tag='VarBaseNames')
+
+    def fetch_variation_random(self):  # fun
+        rec = self.fetch('variation', columns=['mod_id', 'var'], order='rand()', one=True, tag='VarRandom')
+        return rec['mod_id'], rec['var']
 
     def insert_variation(self, mod_id, var_id, attributes={}, verbose=False):
         cols = self.get_table_data('variation').columns
@@ -1232,6 +1259,7 @@ class DBHandler(object):
             wheres += [f'region="{region}"']
         if year:
             wheres += [f'year={year}']
+        # turn this into a fetch
         return self.dbi.select(table, cols=cols, where=' and '.join(wheres), verbose=verbose, tag='BareLineupModels')
 
     def fetch_simple_lineup_models(self, year='', region='', base_id='', verbose=False):
@@ -1885,6 +1913,15 @@ vs.var_id=v.var where matrix_model.page_id='matrix.codered'
         if id:
             return self.delete('photo_credit', where=f'id={id}', tag='DeletePhotoCreditID')
         return self.delete('photo_credit', where=f'path="{path}" and name="{name}"', tag='DeletePhotoCreditName')
+
+    # - credit_pattern
+
+    def fetch_credit_patterns(self):
+        return self.fetch('credit_pattern', tag='CreditPatterns')
+
+    def write_credit_pattern(self, pdir, photog, pat):
+        values = {'directory': pdir, 'photographer_id': photog, 'pattern': pat}
+        return self.write('credit_pattern', values=values, tag='WriteCreditPattern', verbose=False)
 
     # - category
 

@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+# needs print elimination
+
 from functools import reduce
 import glob
 from io import open
@@ -8,7 +10,6 @@ from PIL import Image, ImageDraw
 import stat
 import sys
 
-import bfiles
 import config
 import imicon
 import mbdata
@@ -60,7 +61,7 @@ otypes = ['', 'bmp', 'gif', 'ico', 'jpg', 'png']
 s = '_abcdefghijklmnopqrstuvwxyz-'
 t = '0123456789012345678901234567'
 
-img_dir_name = {'.' + x: y for x, y in mbdata.img_dir_name.items()}
+img_dir_name = {f'.{x}': y for x, y in mbdata.img_dir_name.items()}
 
 movetos = [
     config.IMG_DIR_PROD_MWORLD,
@@ -112,7 +113,7 @@ def get_size(fn):
         p = useful.pipe_chain(open_input_file(fn), import_file(fn) + [["/usr/local/bin/pamfile"]],
                               stderr=useful.PIPE, verbose=False)
     except IOError:
-        raise useful.SimpleError('Could not read ' + fn)
+        raise useful.SimpleError(f'Could not read {fn}', status=404)
     # print('get_size', p)
     f = p.split()
     try:
@@ -616,6 +617,21 @@ def padder(pth, target_size):
 
 # understands 0-9 A-Z & ' + - .  /
 
+def create_icon(pif, mod_id, name=None, title='mb2', isizex=100, isizey=100):
+    if not name:
+        model = pif.dbh.fetch_casting(mod_id)
+        model = pif.dbh.make_man_item(model)
+        name = model.iconname
+    logo = f'.{config.IMG_DIR_ART}/mb2.gif'
+    print(' ', mod_id, '|'.join(name))
+
+    in_path = os.path.join(f'.{config.IMG_DIR_MAN}', f's_{mod_id.lower()}.jpg')
+    icon_file = os.path.join(f'.{config.IMG_DIR_MAN_ICON}', f'i_{mod_id}.gif')
+    if image := iconner(in_path, name, logo=logo, isizex=100, isizey=100):
+        print('writing icon', icon_file)
+        open(icon_file, 'wb').write(image)
+
+
 def iconner(in_path, name, logo=None, isizex=100, isizey=100):
     if not os.path.exists(in_path):
         useful.write_message('no original file', in_path, nonl=True)
@@ -650,6 +666,7 @@ def iconner(in_path, name, logo=None, isizex=100, isizey=100):
     tmp_pth = '/tmp/iconner.png'
     iconimage.save(tmp_pth)
     ofi = pipe_convert(tmp_pth, '.gif')
+    os.unlink(tmp_pth)
     return ofi
 
 
@@ -677,9 +694,9 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
         outf = useful.pipe_chain(open_input_file(f[0]), pipes, verbose=verbose,
                                  stderr=open_write_dev_null())
         if verbose:
-            useful.write_message('>', f[0] + '.pnm')
-        open(f[0] + '.pnm', 'wb').write(outf)
-        cat.append(f[0] + '.pnm')
+            useful.write_message(f'> {f[0]}.pnm')
+        open(f'{f[0]}.pnm', 'wb').write(outf)
+        cat.append(f'{f[0]}.pnm')
     outf = useful.pipe_chain(open_input_file('/dev/null'), [cat] + export_file(ofn), verbose=verbose,
                              stderr=open_write_dev_null())
 
@@ -689,7 +706,7 @@ def stitcher(ofn, fa, is_horiz, minx, miny, limit_x, limit_y, verbose=False):
 
     if not verbose:
         for f in fa:
-            os.unlink(f[0] + '.pnm')
+            os.unlink(f'{f[0]}.pnm')
 
 
 class Drawer(object):
@@ -1130,7 +1147,6 @@ def update_presets(pdir, values):
 
 
 def promote_picture(pif, mod_id, var_id):
-    mod_id = mod_id.replace('/', '_')
     photo_id = f'{mod_id.lower()}-{var_id.lower()}'
     credit = pif.dbh.fetch_photo_credit(f'.{config.IMG_DIR_VAR}', f'{photo_id}.*')
     pif.ren.message('promoting picture for', mod_id, 'var', var_id, 'to',
@@ -1147,12 +1163,10 @@ def promote_picture(pif, mod_id, var_id):
     model = pif.dbh.fetch_casting(mod_id)
     model = pif.dbh.make_man_item(model)
     pif.ren.message('Icon:', mod_id, '|'.join(model.iconname))
-    if image := iconner(os.path.join('.' + config.IMG_DIR_MAN, 's_' + mod_id + '.jpg'), model.iconname):
-        open(os.path.join('.' + config.IMG_DIR_MAN_ICON, 'i_' + mod_id + '.gif'), 'wb').write(image)
+    create_icon(pif, mod_id)
 
 
 def demote_picture(pif, mod_id, var_id):
-    mod_id = mod_id.replace('/', '_')
     credit = pif.dbh.fetch_photo_credit('.' + config.IMG_DIR_MAN, mod_id.lower() + '.*')
     pif.ren.message('demoting picture for', mod_id, 'var', var_id, 'to',
                     credit['photographer.id'] if credit else 'uncredited')
@@ -1173,31 +1187,38 @@ def simple_save(ofi, opth):
         open(opth, "wb").write(ofi)
 
 
-def load_credit_file():
-    return bfiles.SimpleFile('src/credits.dat')
-
-
-def get_credit_prefixes():
-    return [(x[3], x[1], x[2]) for x in load_credit_file() if x[0] == 'c']
-
-
-def get_credit_file():
-    ents = load_credit_file()
-    dirs = {}
+def read_credit_patterns(pif, photog):
+    ents = pif.dbh.depref('credit_pattern', pif.dbh.fetch_credit_patterns())
+    prefs = {}
+    paths = {}
     for ent in ents:
-        if ent[0] == 'c':
-            dirs.setdefault(ent[1], dict())
-            dirs[ent[1]][ent[3]] = ent[2]
+        if ent['photographer_id'] == photog:
+            prefs.setdefault(ent['pattern'], list())
+            prefs[ent['pattern']].append(ent['directory'])
+            paths.setdefault(ent['directory'], list())
+            paths[ent['directory']].append(ent['pattern'])
+    return prefs, paths
+
+
+def get_credit_prefixes(pif):
+    return [(x['directory'], x['photographer_id'], x['pattern']) for x in
+            pif.dbh.depref('credit_pattern', pif.dbh.fetch_credit_patterns())]
+
+
+def get_credit_file(pif):
+    dirs = {}
+    for ent in pif.dbh.depref('credit_pattern', pif.dbh.fetch_credit_patterns()):
+        dirs.setdefault(ent['directory'], dict())
+        dirs[ent['directory']][ent['pattern']] = ent['photographer_id']
     return dirs
 
 
-def get_tilley_file():
-    ents = load_credit_file()
+def get_tilley_file(pif):
     mans = {}
-    for ent in ents:
-        if ent[0] == 'c' and ent[2] == 'DT' and ent[1].startswith('man/'):
-            mans.setdefault(ent[1][4:], list())
-            mans[ent[1][4:]].append(ent[3])
+    for ent in pif.dbh.depref('credit_pattern', pif.dbh.fetch_credit_patterns()):
+        if ent['photographer_id'] == 'DT' and ent['directory'].startswith('man/'):
+            mans.setdefault(ent['directory'][4:], list())
+            mans[ent['directory'][4:]].append(ent['pattern'])
     return mans
 
 

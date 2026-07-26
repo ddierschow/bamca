@@ -38,7 +38,7 @@ lineup_types = [
     ("man", "Main line models"),
     ("series", "Series"),
     ("ks", "Larger Scale Models"),
-    ("acc", "Accessories and Skybusters"),
+    ("acc", "Accessories and Sky Busters"),
     ("yy", "Yesteryears and Matchbox Collectibles"),
     ("pack", "Packs and Gift Sets"),
     ("bld", "Buildings"),
@@ -46,31 +46,32 @@ lineup_types = [
 ]
 
 
-model_type_names = {
-    'AC': 'Accessory',
-    'ET': 'Early Toy',
-    'KS': 'King Size',
-    'RW': 'Regular Wheel',
-    'SB': 'Sky Buster',
-    'SF': 'Superfast',
-    'BR': 'Budget Range',
-    'YY': 'YesterYear',
-    'CH': 'Character Car',
-    'PS': 'Playset',
-    'CC': 'Carrying Case',
-    'PK': 'Packaging',
-    'PC': 'Pocket Catalog',
-    'DC': 'Dealer Catalog',
-    'RY': 'Roadway',
-    'PZ': 'Puzzle',
-    'GM': 'Game',
-    'BK': 'Book',
-    'PD': 'Periodical',
-    'AD': 'Advertisement',
-    'MP': 'Multipack',
-    'SE': 'Series',
-    'LI': 'Lineup',
-}
+model_type_names_list = [
+    ('AC', 'Accessory'),
+    ('ET', 'Early Toy'),
+    ('KS', 'King Size'),
+    ('RW', 'Regular Wheel'),
+    ('SB', 'Sky Buster'),
+    ('SF', 'Superfast'),
+    ('BR', 'Budget Range'),
+    ('YY', 'YesterYear'),
+    ('CH', 'Character Car'),
+    ('PS', 'Playset'),
+    ('CC', 'Carrying Case'),
+    ('PK', 'Packaging'),
+    ('PC', 'Pocket Catalog'),
+    ('DC', 'Dealer Catalog'),
+    ('RY', 'Roadway'),
+    ('PZ', 'Puzzle'),
+    ('GM', 'Game'),
+    ('BK', 'Book'),
+    ('PD', 'Periodical'),
+    ('AD', 'Advertisement'),
+    ('MP', 'Multipack'),
+    ('SE', 'Series'),
+    ('LI', 'Lineup'),
+]
+model_type_names = dict(model_type_names_list)
 
 model_type_dirs = {
     'AC': config.IMG_DIR_ACC,
@@ -529,7 +530,7 @@ casting_arts = {
     'Mattel Creations': 'c_mattelcreations',
     'SuperGT': 'c_supergt',
     'Super Kings': 'c_super-kings',
-    'Skybusters': 'c_skybusters',
+    'Sky Busters': 'c_skybusters',
     'White Rose': 'c_white_rose',
     "Hitch 'n Haul": 'c_hnh',
 }
@@ -654,7 +655,7 @@ img_dir_name = {
     config.IMG_DIR_PROD_SERIES: 'Series',
     config.IMG_DIR_PROD_TYCO: 'Tyco',
     config.IMG_DIR_PROD_UNIV: 'Universal',
-    config.IMG_DIR_SKY: 'Skybusters',
+    config.IMG_DIR_SKY: 'Sky Busters',
     config.IMG_DIR_VAR: 'Variations',
     config.IMG_DIR_GAME: 'Games',
     config.IMG_DIR_ICON: 'Icons',
@@ -806,6 +807,8 @@ components = {
     'wheels': {'h': 'hub', 'r': 'rim', 's': 'spoke', 't': 'tire', '_': '', 'F': 'front', 'R': 'rear'},
     'deco': {'b': 'body', 'c': 'cab', 'h': 'hood', 'r': 'roof', 's': 'side', 'w': 'wing', '_': ','},
 }
+
+repo_exts = ['cgi', 'css', 'dat', 'html', 'js', 'md', 'php', 'py']
 
 # -------- regular expressions -----------------------------------------
 

@@ -206,7 +206,7 @@ class DB(object):
 
     def update(self, table, values, where=None, args=None, logargs=True, tag='', verbose=None):
         if verbose:
-            print('update', table, values, where, tag)
+            useful.write_message('update', table, values, where, tag)
         if self.db:
             query = 'update '
             # if tag:

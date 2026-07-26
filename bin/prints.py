@@ -220,7 +220,7 @@ def show_single_box(pif):
     elif pif.form.get_id('mod'):
         boxes = pif.dbh.fetch_box_type_by_mod(pif.form.get_id('mod'), pif.form.get_id('ty'))
     if not boxes:
-        raise useful.SimpleError("No matching boxes found.")
+        raise useful.SimpleError("No matching boxes found.", status=404)
     boxes = pif.dbh.make_box_type_items(boxes)
     mod = pif.dbh.fetch_casting_by_id_or_alias(boxes[0].mod_id)
     for box in boxes:
@@ -414,7 +414,7 @@ def get_section_by_model_type(pif, mtype):
 def publication_list(pif, mtype):
     sec = get_section_by_model_type(pif, mtype)
     if not sec:
-        raise useful.SimpleError("That publication type was not found.")
+        raise useful.SimpleError("That publication type was not found.", status=404)
     if sec['id'] == 'ads':
         raise useful.Redirect('ads.cgi?title=' + pif.form.get_str('title'))
     sobj = pif.form.search('title')
@@ -490,7 +490,7 @@ def make_relateds(pif, ref_id, pub_id, imgs):
 def single_publication(pif, pub_id):
     man = pif.dbh.fetch_publication(pub_id)
     if not man:
-        raise useful.SimpleError("That publication was not found.")
+        raise useful.SimpleError("That publication was not found.", status=404)
     man = man[0]
     pif.ren.pic_dir = picdirs.get(man['base_id.model_type'], pif.ren.pic_dir)
     # should just use man.section_id

@@ -1,5 +1,7 @@
 #!/usr/local/bin/python
 
+import mbdata
+
 # add ask bits clinks columns create db defaults editable elinks extends id readonly title tlinks
 table_info = {
     # page_info
@@ -81,6 +83,7 @@ table_info = {
         'add': {
             'section': ['page_id/page_id'],
             'matrix_model': ['page_id/page_id', 'section_id/id'],
+            'lineup_model': ['page_id/page_id', 'region/id'],
             'pack': ['page_id/page_id', 'section_id/id'],
             'link_line': ['page_id/page_id', 'section_id/id'],
         },
@@ -128,6 +131,7 @@ table_info = {
             'flags': [],
         },
         'ask': ['id', 'first_year', 'model_type'],
+        'selects': {'model_type': mbdata.model_type_names_list},
         'bits': {
             'flags': [
                 ('0001', 'NotMade'),
@@ -285,10 +289,12 @@ table_info = {
             'note', 'picture_id', 'imported', 'imported_from', 'imported_var', 'category', 'variation_type'
         ],
         'title': {
-            'mod_id': 'Model ID', 'var': 'Variation ID', 'text_description': 'Description',
+            'mod_id': 'Model ID', 'var': 'Variation ID', 'flags': 'Flags', 'text_description': 'Description',
             'text_base': 'Base', 'text_body': 'Body', 'text_interior': 'Interior', 'text_wheels': 'Wheels',
             'text_windows': 'Windows', 'text_with': 'With', 'text_text': 'Base Text',
             'tool_id': 'Tool ID', 'production_id': 'Production ID', 'picture_id': 'Picture ID',
+            'base': 'Base', 'body': 'Body', 'deco': 'Deco', 'deco_type': 'Deco Type', 'interior': 'Interior',
+            'wheels': 'Wheels', 'windows': 'Windows',
         },
         'clinks': {
             'var': {'tab': 'variation', 'id': ['mod_id/mod_id', 'var/var']},
@@ -305,6 +311,7 @@ table_info = {
             'var': 'unset',
             'flags': [],
         },
+        'selects': {'deco_type': mbdata.deco_types},
         'bits': {
             'flags': [
                 ('0002', 'Code2'),
@@ -546,6 +553,17 @@ table_info = {
         'create': {
             'flags': [],
         },
+        'selects': {'link_type': [
+            ('b', 'bad'),
+            ('f', 'folder'),
+            ('g', 'graphic'),
+            ('l', 'normal'),
+            ('n', 'none'),
+            ('p', 'button'),
+            ('s', 'star'),
+            ('t', 'text'),
+            ('x', 'trash'),
+        ]},
         'bits': {
             'flags': [
                 ('0001', 'Hid'),
@@ -836,6 +854,23 @@ table_info = {
             'photographer_id': {'tab': 'photographer', 'id': ['id/photographer_id']},
         },
     },
+    # credit_pattern
+    'credit_pattern': {  # c|man/bk001|DT|BeachCar
+        'db': 'bamca',
+        'ids': ['id'],
+        'saveid': False,
+        'columns': ['id', 'directory', 'photographer_id', 'pattern'],
+        'add': {
+            'photo_credit': ['photographer_id/photographer_id'],
+        },
+        'tlinks': [
+        ],
+        'clinks': {
+            'id': {'tab': 'section', 'id': ['id/id']},
+            'photographer_id': {'tab': 'photographer', 'id': ['id/photographer_id']},
+        },
+        'ask': ['directory', 'photographer_id', 'pattern'],
+    },
     # category
     'category': {
         'db': 'bamca',
@@ -905,7 +940,7 @@ class TableData(object):
 
     def __init__(self, name, db, add=None, ask=None, bits=None, clinks=None, columns=None, create=None,
                  defaults=None, editable=None, elinks=None, extends=None, extra_columns=None, formats=None, hidden=None,
-                 ids=None, internals=None, meta=None, readonly=None, saveid=False, title=None, tlinks=None):
+                 ids=None, internals=None, meta=None, readonly=None, saveid=False, selects=None, title=None, tlinks=None):
         self.db = db
         self.name = name
         self.add = add or {}
@@ -926,6 +961,7 @@ class TableData(object):
         self.meta = meta or []
         self.readonly = readonly or []
         self.saveid = saveid
+        self.selects = selects or []
         self.title = title or {}
         self.tlinks = tlinks or {}
 

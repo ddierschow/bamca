@@ -11,7 +11,7 @@ $models = [
     ['var' => '01a', 'mfg' => 'England',
 	'tlr' => 'CYT07',
 	'cdt' => 'silver-gray cab with tampo on front, chrome exhausts', 'cva' => '008',
-	'tdt' => 'white Skybusters Space Shuttle',
+	'tdt' => 'white Sky Busters Space Shuttle',
     ],
 // 2. Silver-gray cab with tempa on front, chrome exhausts, white plastic rocket, England casting 
     ['var' => '02a', 'mfg' => 'England',

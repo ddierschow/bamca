@@ -79,7 +79,7 @@ class Tumblr(object):
         ty_post = post['post_type']
         kwargs = json.loads(post['payload'].replace("'", '"').replace('https:', 'http:').replace('/beta.', '/www.'))
         kwargs['state'] = 'published'
-        print(kwargs)
+        useful.write_message(kwargs)
         for tries in range(20):
             if ty_post == TUMBLR_PHOTO:
 
@@ -114,8 +114,8 @@ class Tumblr(object):
             #     response = self.create_video(**kwargs)
             else:
                 response = {'state': 'published'}
-        print(response)
-        print()
+        useful.write_message(response)
+        useful.write_message()
         return response
 
 

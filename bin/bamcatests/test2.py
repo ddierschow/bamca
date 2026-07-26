@@ -88,12 +88,6 @@ class TestRender(unittest.TestCase):
         self.assertIsNone(self.pif.ren.comment('unittest'))
         self.pif.ren.verbose = False
 
-    def test_comment_dict(self):
-        self.assertIsNone(self.pif.ren.comment_dict('a', {1: 2}))
-        self.pif.ren.verbose = True
-        self.assertIsNone(self.pif.ren.comment_dict('a', {1: 2}))
-        self.pif.ren.verbose = False
-
     def test_format_head(self):
         self.assertOut(self.pif.ren.format_head())
         self.pif.ren.isbeta = True
@@ -111,27 +105,6 @@ class TestRender(unittest.TestCase):
         self.pif.ren.tail['flags'] = 1
         self.assertOut(self.pif.ren.format_tail())
         self.pif.ren.isbeta = False
-
-    def test_format_table_start(self):
-        pass  # self.assertOut(self.pif.ren.format_table_start(also={}, id='', style_id=''))
-
-    def test_format_table_end(self):
-        pass  # self.assertOut(self.pif.ren.format_table_end())
-
-    def test_format_row_start(self):
-        pass  # self.assertOut(self.pif.ren.format_row_start(ids=[], also={}))
-
-    def test_format_row_end(self):
-        pass  # self.assertOut(self.pif.ren.format_row_end())
-
-    def test_format_cell(self):
-        pass  # self.assertOut(self.pif.ren.format_cell(col=1, content="x", hdr=False, also={}, large=False, id=''))
-
-    def test_format_cell_start(self):
-        pass  # self.assertOut(self.pif.ren.format_cell_start(col=None, hdr=False, also={}, large=False, id=''))
-
-    def test_format_cell_end(self):
-        pass  # self.assertOut(self.pif.ren.format_cell_end(col=0, hdr=False, large=False))
 
     def test_format_link(self):
         self.assertNotEqual(self.pif.ren.format_link(
