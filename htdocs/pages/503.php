@@ -8,9 +8,9 @@ DoHead($pif);
 DoPageHeader($pif);
 ?> 
 
-<h2>Error 404 encountered:  Page not found.</h2>
+<h2>Error 503 encountered:  Server error.</h2>
 
-<img src="/pic/man/var/l_mb439-09.jpg" class="centered">
+<img src="/pic/man/var/l_mb694-01.jpg" class="centered">
 <div class="center"><i>Please enjoy this model instead.</i></div>
 
 <?php

@@ -343,7 +343,10 @@ def show_appearances(pif, mod_id, var_id, errors=False):
             # bugly.  for 2packs, this doesn't work so we have to work around it.
             if not vs_res['pack.id']:
                 pack_id, pack_var = vs.sec_id.split('-') if '-' in vs.sec_id else (vs.sec_id, '')
-                pack = pif.dbh.make_pack_item(pif.dbh.fetch_pack(pack_id, pack_var)[0])
+                pack = pif.dbh.fetch_pack(pack_id, pack_var)
+                if not pack:
+                    continue
+                pack = pif.dbh.make_pack_item(pack[0])
             else:
                 pack = pif.dbh.make_pack_item(vs_res)
             appears.append(pif.ren.format_link(

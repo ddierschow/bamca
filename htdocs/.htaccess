@@ -5,6 +5,7 @@ ErrorDocument 406 /pages/406.php
 ErrorDocument 408 /pages/408.php
 ErrorDocument 409 /pages/409.php
 ErrorDocument 500 /pages/500.php
+ErrorDocument 503 /pages/503.php
 
 RewriteEngine On
 RewriteBase /

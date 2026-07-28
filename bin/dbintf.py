@@ -31,9 +31,12 @@ class DB(object):
         if cfg['dbuser'] in self.dbcs:
             self.db = self.dbcs[cfg['dbuser']]
         else:
-            self.dbcs[cfg['dbuser']] = self.db = pymysql.connect(
-                unix_socket="/var/run/mysql/mysql.sock",
-                user=cfg['dbuser'], password=cfg['dbpass'], database=cfg['dbname'])
+            try:
+                self.dbcs[cfg['dbuser']] = self.db = pymysql.connect(
+                    unix_socket="/var/run/mysql/mysql.sock",
+                    user=cfg['dbuser'], password=cfg['dbpass'], database=cfg['dbname'])
+            except pymysql.err.OperationalError as e:
+                raise useful.SimpleError(f'Database error ({e})', status=503)
 
     def __repr__(self):
         return "'<db.DB instance>'"

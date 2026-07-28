@@ -9,6 +9,7 @@
 {%- elif status == 408 -%}: Request timeout.
 {%- elif status == 409 -%}: Conflict.
 {%- elif status == 500 -%}: Internal server error.
+{%- elif status == 503 -%}: Server error.
 {%- endif -%}
 </h2>
 {% endif %}
@@ -23,9 +24,11 @@
 {%- elif status == 408 -%}mb577-17
 {%- elif status == 409 -%}mb256-12
 {%- elif status == 500 -%}mb771-08
+{%- elif status == 503 -%}mb771-08
+{%- elif status == 503 -%}mb694-01
 {%- else -%}mb102-49
 {%- endif -%}.jpg" class="centered">
-<div class="center">Please enjoy this model instead.</div>
+<div class="center"><i>Please enjoy this model instead.</i></div>
 {% endif %}
 <p>
 {% endblock page_body %}

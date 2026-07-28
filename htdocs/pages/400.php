@@ -11,7 +11,7 @@ DoPageHeader($pif);
 <h2>Error 400 encountered:  Bad request.</h2>
 
 <img src="/pic/man/var/l_mb188-10.jpg" class="centered">
-<div class="center">Please enjoy this model instead.</div>
+<div class="center"><i>Please enjoy this model instead.</i></div>
 
 <?php
 DoPageFooter($pif);

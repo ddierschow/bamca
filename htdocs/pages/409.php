@@ -11,7 +11,7 @@ DoPageHeader($pif);
 <h2>Error 409 encountered:  Conflict.</h2>
 
 <img src="/pic/man/var/l_mb256-12.jpg" class="centered">
-<div class="center">Please enjoy this model instead.</div>
+<div class="center"><i>Please enjoy this model instead.</i></div>
 
 <?php
 DoPageFooter($pif);
